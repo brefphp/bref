@@ -1,0 +1,130 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+use Aws\Lambda\Exception\LambdaException;
+use Aws\Lambda\LambdaClient;
+use Aws\S3\S3Client;
+use Aws\Sdk;
+use DI\ContainerBuilder;
+use function DI\object;
+use PhpLambda\CommandRunner;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$app = new Silly\Application();
+$containerBuilder = new ContainerBuilder;
+$containerBuilder->addDefinitions([
+    Sdk::class => object()
+        ->constructor([
+            'region' => 'eu-west-1',
+            'version' => 'latest',
+        ]),
+    LambdaClient::class => function (Sdk $sdk) : LambdaClient {
+        return $sdk->createLambda();
+    },
+    S3Client::class => function (Sdk $sdk) : S3Client {
+        return $sdk->createS3();
+    },
+]);
+$app->useContainer($containerBuilder->build(), true, true);
+
+$app->command('list', function (OutputInterface $output, LambdaClient $lambda) {
+    $functions = $lambda->listFunctions()->get('Functions');
+    foreach ($functions as $function) {
+        $output->writeln("<info>{$function['FunctionName']}</info>: {$function['Description']}");
+    }
+});
+
+$app->command('invoke functionName', function (string $functionName, OutputInterface $output, LambdaClient $lambda) {
+    $result = $lambda->invoke([
+        'FunctionName' => $functionName,
+        'LogType' => 'Tail',
+        'Payload' => json_encode([]),
+    ]);
+    $statusCode = $result->get('StatusCode');
+    $resultOutput = base64_decode($result->get('LogResult'));
+    $output->writeln("<info>Lambda result status: $statusCode</info>");
+    if ($statusCode !== 200) {
+        $output->writeln('<error>The lambda finished with an error status</error>');
+    }
+    $output->writeln('<info>Lambda logs:</info>');
+    $output->writeln("<comment>$resultOutput</comment>");
+    $output->writeln('<info>Lambda result payload:</info>');
+    $output->writeln(json_encode($result->get('Payload'), JSON_PRETTY_PRINT));
+});
+
+$app->command('deploy functionName', function (
+    string $functionName,
+    OutputInterface $output,
+    Filesystem $filesystem,
+    CommandRunner $commandRunner,
+    S3Client $s3,
+    LambdaClient $lambda
+) {
+    $directory = temporaryDirectoryName($filesystem);
+
+    $output->writeln("<comment>Building the archive to deploy in <info>$directory</info></comment>");
+    // Install the application
+    $commandRunner->run("cp -r . $directory");
+    $filesystem->mkdir($directory . '/bin');
+    // Install PHP and necessary libraries
+    $commandRunner->run("curl -sSL https://lambci.s3.amazonaws.com/binaries/libtidy-0.99.tgz | tar -xz -C $directory/bin");
+    $commandRunner->run("curl -sSL https://lambci.s3.amazonaws.com/binaries/libmcrypt-4.4.8.tgz | tar -xz -C $directory/bin");
+    $commandRunner->run("curl -sSL https://lambci.s3.amazonaws.com/binaries/php-7.1.2.tgz | tar -xz -C $directory/bin");
+    $filesystem->rename("$directory/bin/7.1.2", "$directory/bin/php");
+    $filesystem->remove("$directory/bin/php/etc/conf.d/xdebug.ini"); // disable xdebug
+    // Install main.js
+    $filesystem->copy(__DIR__ . '/app/main.js', "$directory/main.js");
+    // Create the archive
+    $commandRunner->runInDirectory($directory, 'zip --symlinks -r app.zip *');
+
+    $output->writeln("<comment>Deploying the archive to the <info>'$functionName'</info> lambda</comment>");
+    // Upload the archive to S3
+    $s3FileName = "phplambda/$functionName.zip";
+    $s3->upload('mnapoli', $s3FileName, fopen("$directory/app.zip", 'r'));
+    // Update the lambda code
+    try {
+        $lambda->getFunction([
+            'FunctionName' => $functionName,
+        ]);
+        $lambdaExists = true;
+    } catch (LambdaException $e) {
+        $lambdaExists = false;
+    }
+    if ($lambdaExists) {
+        $lambda->updateFunctionCode([
+            'FunctionName' => $functionName,
+            'S3Bucket' => 'mnapoli',
+            'S3Key' => $s3FileName,
+        ]);
+    } else {
+        $output->writeln("<comment>The <info>'$functionName'</info> lambda does not exist, creating...</comment>");
+        $lambda->createFunction([
+            'FunctionName' => $functionName,
+            'Runtime' => 'nodejs6.10',
+            'Role' => 'arn:aws:iam::416566615250:role/lambda_basic_execution',
+            'Handler' => 'main.handler',
+            'Code' => [
+                'S3Bucket' => 'mnapoli',
+                'S3Key' => $s3FileName,
+            ],
+            'Description' => 'This lambda was created by phplambda.',
+        ]);
+    }
+
+    // Clear the temporary directory
+    $filesystem->remove($directory);
+});
+
+$app->run();
+
+function temporaryDirectoryName(Filesystem $filesystem) : string
+{
+    $temporaryFile = tempnam(sys_get_temp_dir(), 'phplambda_');
+    // Remove the file and we'll assume that we can use that name in the rest of the application
+    $filesystem->remove($temporaryFile);
+    return $temporaryFile;
+}
