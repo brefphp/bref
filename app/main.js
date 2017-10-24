@@ -10,11 +10,17 @@ const spawn = require('child_process').spawn;
 const fs = require('fs');
 
 exports.handler = function (event, context, callback) {
+    // Write the event to file
+    if (fs.existsSync('/tmp/.phplambda')) {
+        fs.rmdirSync('/tmp/.phplambda');
+    }
+    fs.mkdirSync('/tmp/.phplambda');
+    fs.writeFileSync('/tmp/.phplambda/input.json', JSON.stringify(event));
+
     let script = spawn('php', ['/var/task/lambda.php']);
-    let output = '';
     //dynamically collect output
     script.stdout.on('data', function(data) {
-        output+=data;
+        console.log(data);
     });
     //react to potential errors
     script.stderr.on('data', function(data) {
@@ -22,12 +28,17 @@ exports.handler = function (event, context, callback) {
     });
     //finalize when process is done.
     script.on('close', function(code) {
-        console.log(output);
-        console.log('Exit code ' + code);
+        let result = null;
+        if (fs.existsSync('/tmp/.phplambda/output.json')) {
+            result = fs.readFileSync('/tmp/.phplambda/output.json', 'utf8');
+            result = JSON.parse(result);
+        }
+        console.log('Exit code: ' + code);
         if (code === 0) {
-            callback(null, output);
+            console.log('Result payload: ' + JSON.stringify(result));
+            callback(null, result);
         } else {
-            callback(new Error(output));
+            callback(new Error('Exit code ' + code));
         }
     });
 };

@@ -8,6 +8,7 @@ use Aws\S3\S3Client;
 use Aws\Sdk;
 use DI\ContainerBuilder;
 use function DI\object;
+use GuzzleHttp\Psr7\Stream;
 use PhpLambda\CommandRunner;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -53,7 +54,10 @@ $app->command('invoke functionName', function (string $functionName, OutputInter
     $output->writeln('<info>Lambda logs:</info>');
     $output->writeln("<comment>$resultOutput</comment>");
     $output->writeln('<info>Lambda result payload:</info>');
-    $output->writeln(json_encode($result->get('Payload'), JSON_PRETTY_PRINT));
+    /** @var Stream $payload */
+    $payload = $result->get('Payload');
+    $payload = json_decode($payload->getContents());
+    $output->writeln(json_encode($payload, JSON_PRETTY_PRINT));
 });
 
 $app->command('deploy functionName', function (
