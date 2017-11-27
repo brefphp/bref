@@ -6,21 +6,34 @@ Use cases:
 - Slack bots
 - web tasks
 
-How to write a lambda?
+## Creating a lambda
+
+```shell
+$ composer require phplambda/phplambda
+```
+
+Write a `lambda.php` file at the root of your project:
 
 ```php
 <?php
-// lambda.php
 
 require __DIR__.'/vendor/autoload.php';
 
-$app = new \PhpLambda\Application();
+$app = new \PhpLambda\Application;
 
-$app->run(function (array $event, \PhpLambda\Context $context, \PhpLambda\IO $io) {
+$app->run(function (array $event) {
     return [
         'hello' => $event['name'] ?? 'world',
     ];
 });
+```
+
+Add a `.lambda.yml` at the root of your project:
+
+```yaml
+name: <function-name>
+s3:
+    bucket: <bucket-name>
 ```
 
 How to deploy a lambda?
