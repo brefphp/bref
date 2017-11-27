@@ -39,7 +39,7 @@ s3:
 How to deploy a lambda?
 
 ```shell
-$ phplambda deploy <function-name>
+$ phplambda deploy
 ```
 
 How to list deployed PHP lambdas?
@@ -55,7 +55,7 @@ How to run a lambda from CLI?
 ```shell
 $ aws lambda invoke --function-name <function-name> --log-type Tail --payload file://input.json output.json
 # or
-$ phplambda invoke <function-name> <input.json>
+$ phplambda invoke <input.json>
 ```
 
 How to run a lambda from PHP?
