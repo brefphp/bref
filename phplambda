@@ -35,7 +35,14 @@ $app->useContainer($containerBuilder->build(), true, true);
 $app->command('list', function (OutputInterface $output, LambdaClient $lambda) {
     $functions = $lambda->listFunctions()->get('Functions');
     foreach ($functions as $function) {
-        $output->writeln("<info>{$function['FunctionName']}</info>: {$function['Description']}");
+        $functionName = $function['FunctionName'];
+        $function = $lambda->getFunction([
+            'FunctionName' => $functionName,
+        ]);
+        // Filter by tag
+        if (! isset($function['Tags']['phplambda'])) continue;
+        $description = $function['Configuration']['Description'];
+        $output->writeln("<info>{$functionName}</info>: {$description}");
     }
 });
 
