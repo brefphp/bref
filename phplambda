@@ -96,6 +96,7 @@ $app->command('deploy functionName', function (
     $commandRunner->run("cp -r . $directory");
     $filesystem->mkdir($directory . '/bin');
     // Install PHP and necessary libraries
+    // TODO store this in a temp directory to avoid re-downloading?
     $commandRunner->run("curl -sSL https://lambci.s3.amazonaws.com/binaries/libtidy-0.99.tgz | tar -xz -C $directory/bin");
     $commandRunner->run("curl -sSL https://lambci.s3.amazonaws.com/binaries/libmcrypt-4.4.8.tgz | tar -xz -C $directory/bin");
     $commandRunner->run("curl -sSL https://lambci.s3.amazonaws.com/binaries/php-7.1.2.tgz | tar -xz -C $directory/bin");
@@ -130,6 +131,7 @@ $app->command('deploy functionName', function (
         $lambda->createFunction([
             'FunctionName' => $functionName,
             'Runtime' => 'nodejs6.10',
+            // TODO: what to do with that?
             'Role' => 'arn:aws:iam::416566615250:role/lambda_basic_execution',
             'Handler' => 'main.handler',
             'Code' => [
