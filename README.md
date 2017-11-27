@@ -6,6 +6,14 @@ Use cases:
 - Slack bots
 - web tasks
 
+## TODO
+
+- Auto-creating the S3 bucket
+- Auto-creating the IAM role
+- Allow configuring the file name of the application (`lambda.php`)
+- Cache binaries in a temp directory
+- Auto-create a webhook URL
+
 ## Creating a lambda
 
 ```shell
@@ -33,6 +41,7 @@ Add a `.lambda.yml` at the root of your project:
 ```yaml
 name: <function-name>
 s3:
+    region: eu-west-1
     bucket: <bucket-name>
 ```
 
