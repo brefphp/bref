@@ -1,3 +1,4 @@
 name: foo
 s3:
+    region: eu-west-1
     bucket: mnapoli

@@ -7,7 +7,7 @@ use Aws\Lambda\LambdaClient;
 use Aws\S3\S3Client;
 use Aws\Sdk;
 use DI\ContainerBuilder;
-use function DI\object;
+use function DI\create;
 use GuzzleHttp\Psr7\Stream;
 use PhpLambda\CommandRunner;
 use Psr\Container\ContainerInterface;
@@ -30,9 +30,10 @@ $containerBuilder = new ContainerBuilder;
 $containerBuilder->addDefinitions([
     'functionName' => $localConfig['name'],
     's3.bucket' => $localConfig['s3']['bucket'],
-    Sdk::class => object()
+    's3.region' => $localConfig['s3']['region'],
+    Sdk::class => create()
         ->constructor([
-            'region' => 'eu-west-1',
+            'region' => \DI\get('s3.region'),
             'version' => 'latest',
         ]),
     LambdaClient::class => function (Sdk $sdk) : LambdaClient {
@@ -171,6 +172,9 @@ function validateLocalConfig(array $localConfig)
         $errors[] = 'You must set a function name in .lambda.yml';
     }
     if (empty($localConfig['s3']['bucket'])) {
+        $errors[] = 'You must configure S3 in .lambda.yml';
+    }
+    if (empty($localConfig['s3']['region'])) {
         $errors[] = 'You must configure S3 in .lambda.yml';
     }
     if (!empty($errors)) {
