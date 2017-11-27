@@ -116,6 +116,9 @@ $app->command('deploy functionName', function (
                 'S3Key' => $s3FileName,
             ],
             'Description' => 'This lambda was created by phplambda.',
+            'Tags' => [
+                'phplambda' => 'phplambda',
+            ],
         ]);
     }
 
