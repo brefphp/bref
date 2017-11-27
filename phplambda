@@ -10,14 +10,24 @@ use DI\ContainerBuilder;
 use function DI\object;
 use GuzzleHttp\Psr7\Stream;
 use PhpLambda\CommandRunner;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
+
+const LOCAL_CONFIG_FILE = '.lambda.yml';
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$app = new Silly\Application();
+$localConfig = [];
+if (file_exists(LOCAL_CONFIG_FILE)) {
+    $localConfig = Yaml::parse(file_get_contents(LOCAL_CONFIG_FILE));
+}
+
+$app = new Silly\Application;
 $containerBuilder = new ContainerBuilder;
 $containerBuilder->addDefinitions([
+    's3.bucket' => $localConfig['s3']['bucket'] ?? '',
     Sdk::class => object()
         ->constructor([
             'region' => 'eu-west-1',
@@ -73,8 +83,12 @@ $app->command('deploy functionName', function (
     Filesystem $filesystem,
     CommandRunner $commandRunner,
     S3Client $s3,
-    LambdaClient $lambda
+    LambdaClient $lambda,
+    ContainerInterface $container
 ) {
+    checkS3Configuration($container);
+    $s3Bucket = $container->get('s3.bucket');
+
     $directory = temporaryDirectoryName($filesystem);
 
     $output->writeln("<comment>Building the archive to deploy in <info>$directory</info></comment>");
@@ -95,7 +109,7 @@ $app->command('deploy functionName', function (
     $output->writeln("<comment>Deploying the archive to the <info>'$functionName'</info> lambda</comment>");
     // Upload the archive to S3
     $s3FileName = "phplambda/$functionName.zip";
-    $s3->upload('mnapoli', $s3FileName, fopen("$directory/app.zip", 'r'));
+    $s3->upload($s3Bucket, $s3FileName, fopen("$directory/app.zip", 'r'));
     // Update the lambda code
     try {
         $lambda->getFunction([
@@ -108,7 +122,7 @@ $app->command('deploy functionName', function (
     if ($lambdaExists) {
         $lambda->updateFunctionCode([
             'FunctionName' => $functionName,
-            'S3Bucket' => 'mnapoli',
+            'S3Bucket' => $s3Bucket,
             'S3Key' => $s3FileName,
         ]);
     } else {
@@ -119,7 +133,7 @@ $app->command('deploy functionName', function (
             'Role' => 'arn:aws:iam::416566615250:role/lambda_basic_execution',
             'Handler' => 'main.handler',
             'Code' => [
-                'S3Bucket' => 'mnapoli',
+                'S3Bucket' => $s3Bucket,
                 'S3Key' => $s3FileName,
             ],
             'Description' => 'This lambda was created by phplambda.',
@@ -134,6 +148,14 @@ $app->command('deploy functionName', function (
 });
 
 $app->run();
+
+function checkS3Configuration(ContainerInterface $container)
+{
+    $s3Bucket = $container->get('s3.bucket');
+    if (empty($s3Bucket)) {
+        throw new Exception('You must configure S3 in a .lambda.yml file');
+    }
+}
 
 function temporaryDirectoryName(Filesystem $filesystem) : string
 {
