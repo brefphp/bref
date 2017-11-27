@@ -9,10 +9,26 @@ process.env['LD_LIBRARY_PATH'] = process.env['LD_LIBRARY_PATH']
 const spawn = require('child_process').spawn;
 const fs = require('fs');
 
-exports.handler = function (event, context, callback) {
+exports.handler = function(event, context, callback) {
+    let recursiveRmDir = function(path) {
+        let files = [];
+        if (fs.existsSync(path)) {
+            files = fs.readdirSync(path);
+            files.forEach(function(file) {
+                const curPath = path + "/" + file;
+                if (fs.lstatSync(curPath).isDirectory()) { // recurse
+                    recursiveRmDir(curPath);
+                } else { // delete file
+                    fs.unlinkSync(curPath);
+                }
+            });
+            fs.rmdirSync(path);
+        }
+    };
+
     // Write the event to file
     if (fs.existsSync('/tmp/.phplambda')) {
-        fs.rmdirSync('/tmp/.phplambda');
+        recursiveRmDir('/tmp/.phplambda');
     }
     fs.mkdirSync('/tmp/.phplambda');
     fs.writeFileSync('/tmp/.phplambda/input.json', JSON.stringify(event));
@@ -42,4 +58,3 @@ exports.handler = function (event, context, callback) {
         }
     });
 };
-
