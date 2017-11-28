@@ -14,6 +14,15 @@ Use cases:
 - Allow configuring the file name of the application (`lambda.php`)
 - Cache binaries in a temp directory
 
+## Setup
+
+You must [install the AWS command line interface](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) and configure it:
+
+- create a *User* in IAM with the policy *AdministratorAccess* (or more precise if you know what you are doing)
+- configure AWS cli with the public and secret key of that user: `aws configure`
+
+Once AWS is setup the phplambda program will use the same credentials than AWS cli to connect to AWS. Everything *should* work out of the box.
+
 ## Creating a lambda
 
 ```shell
