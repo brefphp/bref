@@ -1,4 +1,5 @@
 name: foo
-s3:
+aws:
     region: eu-west-1
-    bucket: mnapoli
+    s3:
+        bucket: mnapoli

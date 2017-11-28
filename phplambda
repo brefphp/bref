@@ -2,6 +2,7 @@
 <?php
 declare(strict_types=1);
 
+use Aws\ApiGateway\ApiGatewayClient;
 use Aws\Lambda\Exception\LambdaException;
 use Aws\Lambda\LambdaClient;
 use Aws\S3\S3Client;
@@ -29,11 +30,11 @@ $app = new Silly\Application;
 $containerBuilder = new ContainerBuilder;
 $containerBuilder->addDefinitions([
     'functionName' => $localConfig['name'],
-    's3.bucket' => $localConfig['s3']['bucket'],
-    's3.region' => $localConfig['s3']['region'],
+    'aws.region' => $localConfig['aws']['region'],
+    'aws.s3.bucket' => $localConfig['aws']['s3']['bucket'],
     Sdk::class => create()
         ->constructor([
-            'region' => \DI\get('s3.region'),
+            'region' => \DI\get('aws.region'),
             'version' => 'latest',
         ]),
     LambdaClient::class => function (Sdk $sdk) : LambdaClient {
@@ -41,6 +42,9 @@ $containerBuilder->addDefinitions([
     },
     S3Client::class => function (Sdk $sdk) : S3Client {
         return $sdk->createS3();
+    },
+    ApiGatewayClient::class => function (Sdk $sdk) : ApiGatewayClient {
+        return $sdk->createApiGateway();
     },
 ]);
 $app->useContainer($containerBuilder->build(), true, true);
@@ -97,12 +101,14 @@ $app->command('deploy [functionName]', function (
     CommandRunner $commandRunner,
     S3Client $s3,
     LambdaClient $lambda,
+    ApiGatewayClient $apiGateway,
     ContainerInterface $container
 ) {
     if (empty($functionName)) {
         $functionName = $container->get('functionName');
     }
-    $s3Bucket = $container->get('s3.bucket');
+    $awsRegion = $container->get('aws.region');
+    $s3Bucket = $container->get('aws.s3.bucket');
     $directory = temporaryDirectoryName($filesystem);
 
     $output->writeln("<comment>Building the archive to deploy in <info>$directory</info></comment>");
@@ -142,7 +148,7 @@ $app->command('deploy [functionName]', function (
         ]);
     } else {
         $output->writeln("<comment>The <info>'$functionName'</info> lambda does not exist, creating...</comment>");
-        $lambda->createFunction([
+        $function = $lambda->createFunction([
             'FunctionName' => $functionName,
             'Runtime' => 'nodejs6.10',
             // TODO: what to do with that?
@@ -157,6 +163,78 @@ $app->command('deploy [functionName]', function (
                 'phplambda' => 'phplambda',
             ],
         ]);
+        $functionArn = $function->get('FunctionArn');
+
+        // Create a webhook with APIGateway
+        // See http://docs.aws.amazon.com/lambda/latest/dg/with-on-demand-https-example-configure-event-source.html
+        $restApi = $apiGateway->createRestApi([
+            'name' => "{$functionName}LambdaTrigger",
+            'description' => "Trigger for the $functionName lambda",
+            'tags' => [
+                'phplambda' => 'phplambda',
+            ],
+        ]);
+        $restApiId = $restApi->get('id');
+        // Create a sub-resource in the API: /trigger (it seems we cannot use the root directly?)
+        $restResources = $apiGateway->getResources([
+            'restApiId' => $restApiId,
+        ]);
+        $restRootResourceId = $restResources->get('items')[0]['id'];
+        $restResource = $apiGateway->createResource([
+            'restApiId' => $restApiId,
+            'parentId' => $restRootResourceId,
+            'pathPart' => 'trigger', // The webhook will be /trigger
+        ]);
+        $restResourceId = $restResource['id'];
+        // Setup any HTTP method on the /trigger endpoint
+        $apiGateway->putMethod([
+            'restApiId' => $restApiId,
+            'resourceId' => $restResourceId,
+            'httpMethod' => 'ANY', // The webhook can be called with any HTTP method
+            'authorizationType' => 'NONE', // The webhook will be public
+        ]);
+        // Configure that the endpoint will return JSON
+        $apiGateway->putMethodResponse([
+            'restApiId' => $restApiId,
+            'resourceId' => $restResourceId,
+            'httpMethod' => 'ANY',
+            'statusCode' => 200,
+            'responseModels' => [
+                'application/json' => 'Empty',
+            ],
+        ]);
+        // A call to that resource will trigger the lambda
+        $apiGateway->putIntegration([
+            'restApiId' => $restApiId,
+            'resourceId' => $restResourceId,
+            'type' => 'AWS',
+            'httpMethod' => 'ANY',
+            'integrationHttpMethod' => 'POST',
+            'uri' => "arn:aws:apigateway:$awsRegion:lambda:path/2015-03-31/functions/$functionArn/invocations",
+        ]);
+        // Configure that the lambda will return JSON
+        $apiGateway->putIntegrationResponse([
+            'restApiId' => $restApiId,
+            'resourceId' => $restResourceId,
+            'httpMethod' => 'ANY',
+            'statusCode' => 200,
+            'responseTemplates' => [
+                'application/json' => '',
+            ],
+        ]);
+        // Deploy the API gateway
+        $apiGateway->createDeployment([
+            'restApiId' => $restApiId,
+            'stageName' => 'prod',
+        ]);
+        // Authorize the API gateway to trigger the lambda…
+        $lambda->addPermission([
+            'FunctionName' => $functionName,
+            'StatementId' => 'apigateway-prod-2', // I don't know what this is
+            'Action' => 'lambda:InvokeFunction',
+            'Principal' => 'apigateway.amazonaws.com',
+        ]);
+        $output->writeln("The lambda function can now be triggered using <info>https://$restApiId.execute-api.$awsRegion.amazonaws.com/prod/trigger</info>");
     }
 
     // Clear the temporary directory
@@ -171,11 +249,11 @@ function validateLocalConfig(array $localConfig)
     if (empty($localConfig['name'])) {
         $errors[] = 'You must set a function name in .lambda.yml';
     }
-    if (empty($localConfig['s3']['bucket'])) {
-        $errors[] = 'You must configure S3 in .lambda.yml';
+    if (empty($localConfig['aws']['region'])) {
+        $errors[] = 'You must configure AWS in .lambda.yml';
     }
-    if (empty($localConfig['s3']['region'])) {
-        $errors[] = 'You must configure S3 in .lambda.yml';
+    if (empty($localConfig['aws']['s3']['bucket'])) {
+        $errors[] = 'You must configure AWS S3 in .lambda.yml';
     }
     if (!empty($errors)) {
         echo implode("\n", $errors);

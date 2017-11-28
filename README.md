@@ -8,11 +8,12 @@ Use cases:
 
 ## TODO
 
-- Auto-create a webhook URL
 - Auto-creating the S3 bucket
 - Auto-creating the IAM role
+- Delete the function
 - Allow configuring the file name of the application (`lambda.php`)
 - Cache binaries in a temp directory
+- Test framework
 
 ## Setup
 
@@ -58,6 +59,8 @@ How to deploy a lambda?
 
 ```shell
 $ phplambda deploy
+The 'foo' lambda does not exist, creating...
+The lambda function can now be triggered using https://xxxxx.execute-api.xxxxx.amazonaws.com/prod/trigger
 ```
 
 How to list deployed PHP lambdas?
@@ -67,6 +70,8 @@ $ phplambda list
 mylambda1
 mylambda2
 ```
+
+How to run the lambda from a webhook? Simply open the URL show after the creation of the lambda.
 
 How to run a lambda from CLI?
 
