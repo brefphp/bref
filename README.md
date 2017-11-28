@@ -8,11 +8,11 @@ Use cases:
 
 ## TODO
 
+- Auto-create a webhook URL
 - Auto-creating the S3 bucket
 - Auto-creating the IAM role
 - Allow configuring the file name of the application (`lambda.php`)
 - Cache binaries in a temp directory
-- Auto-create a webhook URL
 
 ## Creating a lambda
 
