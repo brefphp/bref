@@ -28,6 +28,18 @@ class Application
 
         $result = $handler($event);
 
-        file_put_contents(self::OUTPUT_FILE_NAME, json_encode($result));
+        // This is the format required by the AWS_PROXY lambda integration
+        // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
+        $lambdaResponse = [
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'x-phplambda' => 'phplambda',
+            ],
+            'body' => json_encode($result),
+        ];
+
+        file_put_contents(self::OUTPUT_FILE_NAME, json_encode($lambdaResponse));
     }
 }

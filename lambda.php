@@ -6,7 +6,5 @@ require __DIR__.'/vendor/autoload.php';
 $app = new \PhpLambda\Application();
 
 $app->run(function (array $event) {
-    return [
-        'hello' => $event['name'] ?? 'world',
-    ];
+    return 'Query string parameters: ' . json_encode($event['queryStringParameters']);
 });
