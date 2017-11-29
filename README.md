@@ -8,6 +8,7 @@ Use cases:
 
 ## TODO
 
+- access GET and POST parameters in the lambda
 - Auto-creating the S3 bucket
 - Auto-creating the IAM role
 - Delete the function
