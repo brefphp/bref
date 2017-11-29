@@ -207,7 +207,7 @@ $app->command('deploy [functionName]', function (
         $apiGateway->putIntegration([
             'restApiId' => $restApiId,
             'resourceId' => $restResourceId,
-            'type' => 'AWS',
+            'type' => 'AWS_PROXY', // The AWS_PROXY allows to forward the HTTP headers and URL to the lambda's event
             'httpMethod' => 'ANY',
             'integrationHttpMethod' => 'POST',
             'uri' => "arn:aws:apigateway:$awsRegion:lambda:path/2015-03-31/functions/$functionArn/invocations",
