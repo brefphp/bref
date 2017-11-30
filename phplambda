@@ -29,7 +29,8 @@ validateLocalConfig($localConfig);
 $app = new Silly\Application;
 $containerBuilder = new ContainerBuilder;
 $containerBuilder->addDefinitions([
-    'functionName' => $localConfig['name'],
+    'function.name' => $localConfig['name'],
+    'function.description' => $localConfig['description'] ?? null,
     'aws.region' => $localConfig['aws']['region'],
     'aws.s3.bucket' => $localConfig['aws']['s3']['bucket'],
     Sdk::class => create()
@@ -75,7 +76,7 @@ $app->command('invoke [functionName]', function (
     ContainerInterface $container
 ) {
     if (empty($functionName)) {
-        $functionName = $container->get('functionName');
+        $functionName = $container->get('function.name');
     }
 
     $output->writeln("<info>Invoking $functionName</info>");
@@ -110,7 +111,7 @@ $app->command('deploy [functionName]', function (
     ContainerInterface $container
 ) {
     if (empty($functionName)) {
-        $functionName = $container->get('functionName');
+        $functionName = $container->get('function.name');
     }
     $awsRegion = $container->get('aws.region');
     $s3Bucket = $container->get('aws.s3.bucket');
@@ -153,8 +154,10 @@ $app->command('deploy [functionName]', function (
         ]);
     } else {
         $output->writeln("<comment>The <info>'$functionName'</info> lambda does not exist, creating...</comment>");
+        $functionDescription = $container->get('function.description') ?? 'This lambda was created by phplambda.';
         $function = $lambda->createFunction([
             'FunctionName' => $functionName,
+            'Description' => $functionDescription,
             'Runtime' => 'nodejs6.10',
             // TODO: what to do with that?
             'Role' => 'arn:aws:iam::416566615250:role/lambda_basic_execution',
@@ -163,7 +166,6 @@ $app->command('deploy [functionName]', function (
                 'S3Bucket' => $s3Bucket,
                 'S3Key' => $s3FileName,
             ],
-            'Description' => 'This lambda was created by phplambda.',
             'Tags' => [
                 'phplambda' => 'phplambda',
             ],

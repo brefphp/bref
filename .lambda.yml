@@ -1,4 +1,5 @@
 name: foo
+description: Test lambda.
 aws:
     region: eu-west-1
     s3:
