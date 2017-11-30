@@ -49,7 +49,8 @@ $containerBuilder->addDefinitions([
 ]);
 $app->useContainer($containerBuilder->build(), true, true);
 
-$app->command('list', function (OutputInterface $output, LambdaClient $lambda) {
+$app->command('list', function (OutputInterface $output, LambdaClient $lambda, ContainerInterface $container) {
+    $awsRegion = $container->get('aws.region');
     $functions = $lambda->listFunctions()->get('Functions');
     foreach ($functions as $function) {
         $functionName = $function['FunctionName'];
@@ -59,7 +60,11 @@ $app->command('list', function (OutputInterface $output, LambdaClient $lambda) {
         // Filter by tag
         if (! isset($function['Tags']['phplambda'])) continue;
         $description = $function['Configuration']['Description'];
-        $output->writeln("<info>{$functionName}</info>: {$description}");
+        $output->writeln("- <info>{$functionName}</info>: {$description}");
+        $restApiId = $function['Tags']['phplambda:rest-api-id'] ?? null;
+        if ($restApiId) {
+            $output->writeln("    Webhook: <comment>https://$restApiId.execute-api.$awsRegion.amazonaws.com/prod/trigger</comment>");
+        }
     }
 });
 
@@ -235,6 +240,13 @@ $app->command('deploy [functionName]', function (
             'Principal' => 'apigateway.amazonaws.com',
         ]);
         $output->writeln("The lambda function can now be triggered using <info>https://$restApiId.execute-api.$awsRegion.amazonaws.com/prod/trigger</info>");
+        // Store the rest API ID into a tag in the lambda (so that we can retrieve the webhook)
+        $lambda->tagResource([
+            'Resource' => $functionArn,
+            'Tags' => [
+                'phplambda:rest-api-id' => $restApiId,
+            ],
+        ]);
     }
 
     // Clear the temporary directory

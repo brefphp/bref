@@ -8,7 +8,6 @@ Use cases:
 
 ## TODO
 
-- retrieve the webhook URL of an existing lambda
 - Auto-creating the S3 bucket
 - Auto-creating the IAM role
 - Delete the function
@@ -68,8 +67,9 @@ How to list deployed PHP lambdas?
 
 ```shell
 $ phplambda list
-mylambda1
-mylambda2
+- foo: Some lambda.
+    Webhook: https://xxxxx.execute-api.xxxxx.amazonaws.com/prod/trigger
+- bar: Another lambda.
 ```
 
 How to run the lambda from a webhook? Simply open the URL show after the creation of the lambda.
