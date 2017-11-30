@@ -10,7 +10,6 @@ Use cases:
 
 - Auto-creating the S3 bucket
 - Auto-creating the IAM role
-- Delete the function
 - Allow configuring the file name of the application (`lambda.php`)
 - Cache binaries in a temp directory
 - Test framework
@@ -49,6 +48,7 @@ $app->run(function (array $event) {
 Add a `.lambda.yml` at the root of your project:
 
 ```yaml
+# WATCH OUT: do not use the same name between different projects
 name: <function-name>
 s3:
     region: eu-west-1
@@ -101,6 +101,12 @@ $lambda = \PhpLambda\Client();
 $lambda->invoke($functionName, [
     ...
 ]);
+```
+
+How to delete a deployed lambda?
+
+```shell
+$ phplambda delete foo
 ```
 
 How to test a lambda?

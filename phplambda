@@ -13,6 +13,7 @@ use GuzzleHttp\Psr7\Stream;
 use PhpLambda\CommandRunner;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
@@ -253,6 +254,60 @@ $app->command('deploy [functionName]', function (
 
     // Clear the temporary directory
     $filesystem->remove($directory);
+});
+
+$app->command('delete [functionName]', function (
+    $functionName,
+    SymfonyStyle $io,
+    S3Client $s3,
+    LambdaClient $lambda,
+    ApiGatewayClient $apiGateway,
+    ContainerInterface $container
+) {
+    if (empty($functionName)) {
+        $functionName = $container->get('function.name');
+    }
+    $s3Bucket = $container->get('aws.s3.bucket');
+
+    $io->caution('This is a deletion operation, deleted resources cannot be recovered');
+
+    if (!$io->confirm("Do you really want to delete lambda $functionName?", false)) {
+        $io->writeln('Aborting');
+        return 1;
+    }
+
+    $function = $lambda->getFunction([
+        'FunctionName' => $functionName,
+    ]);
+    if (! isset($function['Tags']['phplambda'])) {
+        $io->error("The $functionName is not a phplambda, aborting to avoid messing things up!");
+        return 1;
+    }
+
+    // Delete the webhook
+    $restApiId = $function['Tags']['phplambda:rest-api-id'] ?? null;
+    if ($restApiId) {
+        $io->writeln("Deleting webhook $functionName");
+        $apiGateway->deleteRestApi([
+            'restApiId' => $restApiId,
+        ]);
+    } else {
+        $io->writeln('No webhook found');
+    }
+    // Delete the lambda
+    $io->writeln("Deleting lambda $functionName");
+    $lambda->deleteFunction([
+        'FunctionName' => $functionName,
+    ]);
+    // Delete the archive on S3
+    $s3FileName = "phplambda/$functionName.zip";
+    $io->writeln("Deleting the archive on S3 ($s3FileName)");
+    $s3->deleteObject([
+        'Bucket' => $s3Bucket,
+        'Key' => $s3FileName,
+    ]);
+    $io->success("Lambda $functionName was successfully deleted");
+    return 0;
 });
 
 $app->run();
