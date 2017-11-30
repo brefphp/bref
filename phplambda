@@ -51,23 +51,28 @@ $containerBuilder->addDefinitions([
 ]);
 $app->useContainer($containerBuilder->build(), true, true);
 
-$app->command('list', function (OutputInterface $output, LambdaClient $lambda, ContainerInterface $container) {
+$app->command('ls', function (SymfonyStyle $io, LambdaClient $lambda, ContainerInterface $container) {
     $awsRegion = $container->get('aws.region');
     $functions = $lambda->listFunctions()->get('Functions');
+    $functionTable = [];
     foreach ($functions as $function) {
-        $functionName = $function['FunctionName'];
         $function = $lambda->getFunction([
-            'FunctionName' => $functionName,
+            'FunctionName' => $function['FunctionName'],
         ]);
         // Filter by tag
         if (! isset($function['Tags']['phplambda'])) continue;
-        $description = $function['Configuration']['Description'];
-        $output->writeln("- <info>{$functionName}</info>: {$description}");
+        $webhook = '';
         $restApiId = $function['Tags']['phplambda:rest-api-id'] ?? null;
         if ($restApiId) {
-            $output->writeln("    Webhook: <comment>https://$restApiId.execute-api.$awsRegion.amazonaws.com/prod/trigger</comment>");
+            $webhook = "https://$restApiId.execute-api.$awsRegion.amazonaws.com/prod/trigger";
         }
+        $functionTable[] = [
+            $function['FunctionName'],
+            $function['Configuration']['Description'],
+            $webhook,
+        ];
     }
+    $io->table(['Lambda name', 'Description', 'Webhook'], $functionTable);
 });
 
 $app->command('invoke [functionName]', function (

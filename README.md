@@ -66,10 +66,13 @@ The lambda function can now be triggered using https://xxxxx.execute-api.xxxxx.a
 How to list deployed PHP lambdas?
 
 ```shell
-$ phplambda list
-- foo: Some lambda.
-    Webhook: https://xxxxx.execute-api.xxxxx.amazonaws.com/prod/trigger
-- bar: Another lambda.
+$ phplambda ls
+ ------------- ----------------- ------------------------------------------------------------
+  Lambda name   Description       Webhook
+ ------------- ----------------- ------------------------------------------------------------
+  foo           Test lambda.      https://xxxxx.execute-api.xxxxx.amazonaws.com/prod/trigger
+  test          Another lambda !
+ ------------- ----------------- ------------------------------------------------------------
 ```
 
 How to run the lambda from a webhook? Simply open the URL show after the creation of the lambda.
