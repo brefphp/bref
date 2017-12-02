@@ -1,3 +1,6 @@
 /vendor
 /.idea
 /.phplambda
+/node_modules
+/.serverless
+/bin
