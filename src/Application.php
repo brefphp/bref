@@ -23,7 +23,18 @@ class Application
 
         $event = [];
         if ($filesystem->exists(self::INPUT_FILE_NAME)) {
-            $event = json_decode(file_get_contents(self::INPUT_FILE_NAME), true);
+            $event = (array) json_decode(file_get_contents(self::INPUT_FILE_NAME), true);
+        }
+
+        if (isset($event['httpMethod'])) {
+            file_put_contents(self::OUTPUT_FILE_NAME, json_encode([
+                'isBase64Encoded' => false,
+                'statusCode' => 400,
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'body' => json_encode('This application must be called through HTTP'),
+            ]));
         }
 
         $result = $handler($event);
@@ -40,6 +51,6 @@ class Application
             'body' => json_encode($result),
         ];
 
-        file_put_contents(self::OUTPUT_FILE_NAME, json_encode($lambdaResponse));
+        file_put_contents(self::OUTPUT_FILE_NAME, json_encode($result));
     }
 }

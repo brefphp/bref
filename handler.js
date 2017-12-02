@@ -33,14 +33,18 @@ exports.handle = function(event, context, callback) {
     fs.mkdirSync('/tmp/.phplambda');
     fs.writeFileSync('/tmp/.phplambda/input.json', JSON.stringify(event));
 
-    let script = spawn('php', ['/var/task/lambda.php']);
+    let script = spawn('php', ['lambda.php']);
+
+    let scriptOutput = '';
     //dynamically collect output
     script.stdout.on('data', function(data) {
-        console.log(data);
+        console.log(data.toString());
+        scriptOutput += data.toString()
     });
     //react to potential errors
     script.stderr.on('data', function(data) {
-        console.log("STDERR: "+data);
+        console.log("STDERR: "+data.toString());
+        scriptOutput += data.toString();
     });
     //finalize when process is done.
     script.on('close', function(code) {
@@ -54,7 +58,7 @@ exports.handle = function(event, context, callback) {
             console.log('Result payload: ' + JSON.stringify(result));
             callback(null, result);
         } else {
-            callback(new Error('Exit code ' + code));
+            callback(new Error('Exit code ' + code + ' - ' + scriptOutput));
         }
     });
 };

@@ -7,7 +7,10 @@
     "require": {
         "mnapoli/silly": "^1.5",
         "php-di/php-di": "^6.0@alpha",
-        "symfony/filesystem": "^3.3"
+        "symfony/filesystem": "^3.3",
+        "symfony/http-foundation": "^4.0",
+        "slim/slim": "^3.9",
+        "symfony/debug": "^4.0"
     },
     "bin": [
         "phplambda"

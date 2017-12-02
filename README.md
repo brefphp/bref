@@ -15,6 +15,7 @@ Use cases:
 - Symfony integration
 - Silly/Symfony Console integration
 - Allow configuring the file name of the application (`lambda.php`)
+- CLI helper to run a CLI command on lambda
 - Test framework
 
 ## Setup
