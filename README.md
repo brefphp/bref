@@ -2,31 +2,34 @@
 
 Use cases:
 
+- APIs
 - GitHub webhooks
 - Slack bots
 - web tasks
+- crons
+- workers
 
 ## TODO
 
-- Auto-creating the S3 bucket
-- Auto-creating the IAM role
+- Slim integration
+- Symfony integration
+- Silly/Symfony Console integration
 - Allow configuring the file name of the application (`lambda.php`)
-- Cache binaries in a temp directory
 - Test framework
 
 ## Setup
 
-You must [install the AWS command line interface](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) and configure it:
+- Create an AWS account if you don't already have one
+- Install [serverless](https://serverless.com): `npm install -g serverless`
+- Setup your AWS credentials: [create an AWS access key](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and either configure it [using an environment variable](https://serverless.com/framework/docs/providers/aws/guide/credentials#quick-setup) or [setup `aws-cli`](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) (and run `aws configure`)
 
-- create a *User* in IAM with the policy *AdministratorAccess* (or more precise if you know what you are doing)
-- configure AWS cli with the public and secret key of that user: `aws configure`
-
-Once AWS is setup the phplambda program will use the same credentials than AWS cli to connect to AWS. Everything *should* work out of the box.
+PHPLambda will then use AWS credentials and the serverless framework to deploy your application.
 
 ## Creating a lambda
 
 ```shell
 $ composer require phplambda/phplambda
+$ vendor/bin/phplambda init
 ```
 
 Write a `lambda.php` file at the root of your project:
@@ -45,47 +48,29 @@ $app->run(function (array $event) {
 });
 ```
 
-Add a `.lambda.yml` at the root of your project:
-
-```yaml
-# WATCH OUT: do not use the same name between different projects
-name: <function-name>
-s3:
-    region: eu-west-1
-    bucket: <bucket-name>
-```
-
-How to deploy a lambda?
+## Deployment
 
 ```shell
-$ phplambda deploy
-The 'foo' lambda does not exist, creating...
-The lambda function can now be triggered using https://xxxxx.execute-api.xxxxx.amazonaws.com/prod/trigger
+$ serverless deploy
 ```
 
-How to list deployed PHP lambdas?
+## Invocation
+
+By default lambdas are deployed with a webhook. You can trigger them by simply calling the webhook. If in doubt, the webhook can be retrieved using `serverless info`.
 
 ```shell
-$ phplambda ls
- ------------- ----------------- ------------------------------------------------------------
-  Lambda name   Description       Webhook
- ------------- ----------------- ------------------------------------------------------------
-  foo           Test lambda.      https://xxxxx.execute-api.xxxxx.amazonaws.com/prod/trigger
-  test          Another lambda !
- ------------- ----------------- ------------------------------------------------------------
+$ curl https://xxxxx.execute-api.xxxxx.amazonaws.com/dev/
 ```
 
-How to run the lambda from a webhook? Simply open the URL show after the creation of the lambda.
-
-How to run a lambda from CLI?
+Triggering a lambda manually:
 
 ```shell
-$ aws lambda invoke --function-name <function-name> --log-type Tail --payload file://input.json output.json
-# or
-$ phplambda invoke <input.json>
+# "main" is the name of the function created by default
+# you can have several functions in the same projects
+$ serverless invoke -f main
 ```
 
-How to run a lambda from PHP?
+Triggering a lambda from another PHP application:
 
 ```php
 $lambda = \AWS::createClient('lambda');
@@ -97,20 +82,17 @@ $lambda->invoke([
         ...
     ]),
 ]);
-
-// or
-
-$lambda = \PhpLambda\Client();
-$lambda->invoke($functionName, [
-    ...
-]);
 ```
 
-How to delete a deployed lambda?
+## Deletion
 
 ```shell
-$ phplambda delete foo
+$ serverless remove
 ```
+
+## Tests
+
+TODO
 
 How to test a lambda?
 

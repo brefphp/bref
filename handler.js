@@ -9,7 +9,7 @@ process.env['LD_LIBRARY_PATH'] = process.env['LD_LIBRARY_PATH']
 const spawn = require('child_process').spawn;
 const fs = require('fs');
 
-exports.handler = function(event, context, callback) {
+exports.handle = function(event, context, callback) {
     let recursiveRmDir = function(path) {
         let files = [];
         if (fs.existsSync(path)) {

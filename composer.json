@@ -7,8 +7,9 @@
     "require": {
         "mnapoli/silly": "^1.5",
         "php-di/php-di": "^6.0@alpha",
-        "aws/aws-sdk-php": "^3.36",
-        "symfony/filesystem": "^3.3",
-        "symfony/yaml": "^3.3"
-    }
+        "symfony/filesystem": "^3.3"
+    },
+    "bin": [
+        "phplambda"
+    ]
 }

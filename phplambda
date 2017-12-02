@@ -2,373 +2,43 @@
 <?php
 declare(strict_types=1);
 
-use Aws\ApiGateway\ApiGatewayClient;
-use Aws\Lambda\Exception\LambdaException;
-use Aws\Lambda\LambdaClient;
-use Aws\S3\S3Client;
-use Aws\Sdk;
 use DI\ContainerBuilder;
-use function DI\create;
-use GuzzleHttp\Psr7\Stream;
 use PhpLambda\CommandRunner;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Yaml\Yaml;
-
-const LOCAL_CONFIG_FILE = '.lambda.yml';
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-$localConfig = [];
-if (file_exists(LOCAL_CONFIG_FILE)) {
-    $localConfig = Yaml::parse(file_get_contents(LOCAL_CONFIG_FILE));
-}
-validateLocalConfig($localConfig);
-
 $app = new Silly\Application;
 $containerBuilder = new ContainerBuilder;
-$containerBuilder->addDefinitions([
-    'function.name' => $localConfig['name'],
-    'function.description' => $localConfig['description'] ?? null,
-    'aws.region' => $localConfig['aws']['region'],
-    'aws.s3.bucket' => $localConfig['aws']['s3']['bucket'],
-    Sdk::class => create()
-        ->constructor([
-            'region' => \DI\get('aws.region'),
-            'version' => 'latest',
-        ]),
-    LambdaClient::class => function (Sdk $sdk) : LambdaClient {
-        return $sdk->createLambda();
-    },
-    S3Client::class => function (Sdk $sdk) : S3Client {
-        return $sdk->createS3();
-    },
-    ApiGatewayClient::class => function (Sdk $sdk) : ApiGatewayClient {
-        return $sdk->createApiGateway();
-    },
-]);
 $app->useContainer($containerBuilder->build(), true, true);
 
-$app->command('ls', function (SymfonyStyle $io, LambdaClient $lambda, ContainerInterface $container) {
-    $awsRegion = $container->get('aws.region');
-    $functions = $lambda->listFunctions()->get('Functions');
-    $functionTable = [];
-    foreach ($functions as $function) {
-        $function = $lambda->getFunction([
-            'FunctionName' => $function['FunctionName'],
-        ]);
-        // Filter by tag
-        if (! isset($function['Tags']['phplambda'])) continue;
-        $webhook = '';
-        $restApiId = $function['Tags']['phplambda:rest-api-id'] ?? null;
-        if ($restApiId) {
-            $webhook = "https://$restApiId.execute-api.$awsRegion.amazonaws.com/prod/trigger";
-        }
-        $functionTable[] = [
-            $function['FunctionName'],
-            $function['Configuration']['Description'],
-            $webhook,
-        ];
+$app->command('init', function (SymfonyStyle $io, CommandRunner $commandRunner) {
+    if (file_exists('serverless.yml')) {
+        $io->error('A serverless.yml file already exists in this directory, aborting.');
+        return;
     }
-    $io->table(['Lambda name', 'Description', 'Webhook'], $functionTable);
+    copy(__DIR__ . '/template/serverless.yml', 'serverless.yml');
+    $commandRunner->run('npm install --save serverless-plugin-scripts');
+    $io->success('Project initialized and configured in file serverless.yml.');
 });
 
-$app->command('invoke [functionName]', function (
-    $functionName,
-    SymfonyStyle $io,
-    LambdaClient $lambda,
-    ContainerInterface $container
-) {
-    if (empty($functionName)) {
-        $functionName = $container->get('function.name');
-    }
-
-    $io->writeln("<info>Invoking $functionName</info>");
-    $result = $lambda->invoke([
-        'FunctionName' => $functionName,
-        'LogType' => 'Tail',
-        'Payload' => json_encode([]),
-    ]);
-    $statusCode = $result->get('StatusCode');
-    $io->writeln("<info>Result status: $statusCode</info>");
-    if ($statusCode !== 200) {
-        $io->error('The lambda finished with an error status');
-    }
-    $io->writeln('<info>Logs:</info>');
-    $io->write('<comment>' . base64_decode($result->get('LogResult')) . '</comment>');
-    $io->writeln('<info>Result payload:</info>');
-    /** @var Stream $payload */
-    $payload = $result->get('Payload');
-    $payload = json_decode($payload->getContents());
-    $io->writeln(json_encode($payload, JSON_PRETTY_PRINT));
-});
-
-$app->command('deploy [functionName]', function (
-    $functionName,
+$app->command('package', function (
     SymfonyStyle $io,
     Filesystem $filesystem,
-    CommandRunner $commandRunner,
-    S3Client $s3,
-    LambdaClient $lambda,
-    ApiGatewayClient $apiGateway,
-    ContainerInterface $container
+    CommandRunner $commandRunner
 ) {
-    if (empty($functionName)) {
-        $functionName = $container->get('function.name');
-    }
-    $awsRegion = $container->get('aws.region');
-    $s3Bucket = $container->get('aws.s3.bucket');
-    $directory = temporaryDirectoryName($filesystem);
+    $io->writeln('phplambda: Downloading PHP 7.1 in the bin/ directory');
 
-    $io->title("Deploying lambda $functionName");
-
-    $io->progressStart(18);
-
-    // Install the application
-    $commandRunner->run("cp -r . $directory");
-    $filesystem->mkdir($directory . '/bin');
-    $io->progressAdvance();
+    $filesystem->mkdir('bin');
     // Install PHP and necessary libraries
-    // TODO store this in a temp directory to avoid re-downloading?
-    $commandRunner->run("curl -sSL https://lambci.s3.amazonaws.com/binaries/libtidy-0.99.tgz | tar -xz -C $directory/bin");
-    $io->progressAdvance();
-    $commandRunner->run("curl -sSL https://lambci.s3.amazonaws.com/binaries/libmcrypt-4.4.8.tgz | tar -xz -C $directory/bin");
-    $io->progressAdvance();
-    $commandRunner->run("curl -sSL https://lambci.s3.amazonaws.com/binaries/php-7.1.2.tgz | tar -xz -C $directory/bin");
-    $io->progressAdvance();
-    $filesystem->rename("$directory/bin/7.1.2", "$directory/bin/php");
-    $filesystem->remove("$directory/bin/php/etc/conf.d/xdebug.ini"); // disable xdebug
-    // Install main.js
-    $filesystem->copy(__DIR__ . '/app/main.js', "$directory/main.js");
-    // Create the archive
-    $commandRunner->runInDirectory($directory, 'zip --symlinks -r app.zip *');
-    $io->progressAdvance();
-
-    // Upload the archive to S3
-    $s3FileName = "phplambda/$functionName.zip";
-    $s3->upload($s3Bucket, $s3FileName, fopen("$directory/app.zip", 'r'));
-    $io->progressAdvance();
-    // Update the lambda code
-    try {
-        $function = $lambda->getFunction([
-            'FunctionName' => $functionName,
-        ]);
-        $lambdaExists = true;
-    } catch (LambdaException $e) {
-        $lambdaExists = false;
+    if (!file_exists('bin/php')) {
+        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/libtidy-0.99.tgz | tar -xz -C bin');
+        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/libmcrypt-4.4.8.tgz | tar -xz -C bin');
+        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/php-7.1.2.tgz | tar -xz -C bin');
+        $filesystem->rename('bin/7.1.2', 'bin/php');
+        $filesystem->remove('bin/php/etc/conf.d/xdebug.ini'); // disable xdebug
     }
-    $io->progressAdvance();
-    $webhook = null;
-    if ($lambdaExists) {
-        $lambda->updateFunctionCode([
-            'FunctionName' => $functionName,
-            'S3Bucket' => $s3Bucket,
-            'S3Key' => $s3FileName,
-        ]);
-        $io->progressAdvance();
-        $restApiId = $function['Tags']['phplambda:rest-api-id'] ?? null;
-        if ($restApiId) {
-            $webhook = "https://$restApiId.execute-api.$awsRegion.amazonaws.com/prod/trigger";
-        }
-    } else {
-        $functionDescription = $container->get('function.description') ?? 'This lambda was created by phplambda.';
-        $function = $lambda->createFunction([
-            'FunctionName' => $functionName,
-            'Description' => $functionDescription,
-            'Runtime' => 'nodejs6.10',
-            // TODO: what to do with that?
-            'Role' => 'arn:aws:iam::416566615250:role/lambda_basic_execution',
-            'Handler' => 'main.handler',
-            'Code' => [
-                'S3Bucket' => $s3Bucket,
-                'S3Key' => $s3FileName,
-            ],
-            'Tags' => [
-                'phplambda' => 'phplambda',
-            ],
-        ]);
-        $io->progressAdvance();
-        $functionArn = $function->get('FunctionArn');
-
-        // Create a webhook with APIGateway
-        // See http://docs.aws.amazon.com/lambda/latest/dg/with-on-demand-https-example-configure-event-source.html
-        $restApi = $apiGateway->createRestApi([
-            'name' => "{$functionName}LambdaTrigger",
-            'description' => "Trigger for the $functionName lambda",
-            'tags' => [
-                'phplambda' => 'phplambda',
-            ],
-        ]);
-        $io->progressAdvance();
-        $restApiId = $restApi->get('id');
-        // Create a sub-resource in the API: /trigger (it seems we cannot use the root directly?)
-        $restResources = $apiGateway->getResources([
-            'restApiId' => $restApiId,
-        ]);
-        $io->progressAdvance();
-        $restRootResourceId = $restResources->get('items')[0]['id'];
-        $restResource = $apiGateway->createResource([
-            'restApiId' => $restApiId,
-            'parentId' => $restRootResourceId,
-            'pathPart' => 'trigger', // The webhook will be /trigger
-        ]);
-        $io->progressAdvance();
-        $restResourceId = $restResource['id'];
-        // Setup any HTTP method on the /trigger endpoint
-        $apiGateway->putMethod([
-            'restApiId' => $restApiId,
-            'resourceId' => $restResourceId,
-            'httpMethod' => 'ANY', // The webhook can be called with any HTTP method
-            'authorizationType' => 'NONE', // The webhook will be public
-        ]);
-        $io->progressAdvance();
-        // Configure that the endpoint will return JSON
-        $apiGateway->putMethodResponse([
-            'restApiId' => $restApiId,
-            'resourceId' => $restResourceId,
-            'httpMethod' => 'ANY',
-            'statusCode' => 200,
-            'responseModels' => [
-                'application/json' => 'Empty',
-            ],
-        ]);
-        $io->progressAdvance();
-        // A call to that resource will trigger the lambda
-        $apiGateway->putIntegration([
-            'restApiId' => $restApiId,
-            'resourceId' => $restResourceId,
-            'type' => 'AWS_PROXY', // The AWS_PROXY allows to forward the HTTP headers and URL to the lambda's event
-            'httpMethod' => 'ANY',
-            'integrationHttpMethod' => 'POST',
-            'uri' => "arn:aws:apigateway:$awsRegion:lambda:path/2015-03-31/functions/$functionArn/invocations",
-        ]);
-        $io->progressAdvance();
-        // Configure that the lambda will return JSON
-        $apiGateway->putIntegrationResponse([
-            'restApiId' => $restApiId,
-            'resourceId' => $restResourceId,
-            'httpMethod' => 'ANY',
-            'statusCode' => 200,
-            'responseTemplates' => [
-                'application/json' => '',
-            ],
-        ]);
-        $io->progressAdvance();
-        // Deploy the API gateway
-        $apiGateway->createDeployment([
-            'restApiId' => $restApiId,
-            'stageName' => 'prod',
-        ]);
-        $io->progressAdvance();
-        // Authorize the API gateway to trigger the lambda…
-        $lambda->addPermission([
-            'FunctionName' => $functionName,
-            'StatementId' => 'apigateway-prod-2', // I don't know what this is
-            'Action' => 'lambda:InvokeFunction',
-            'Principal' => 'apigateway.amazonaws.com',
-        ]);
-        $io->progressAdvance();
-        $webhook = "https://$restApiId.execute-api.$awsRegion.amazonaws.com/prod/trigger";
-        // Store the rest API ID into a tag in the lambda (so that we can retrieve the webhook)
-        $lambda->tagResource([
-            'Resource' => $functionArn,
-            'Tags' => [
-                'phplambda:rest-api-id' => $restApiId,
-            ],
-        ]);
-        $io->progressAdvance();
-    }
-
-    // Clear the temporary directory
-    $filesystem->remove($directory);
-    $io->progressFinish();
-
-    $io->success([
-        "Lambda $functionName was successfully deployed",
-        "It can be triggered using `phplambda invoke`",
-        $webhook ? "or using the webhook: $webhook" : '',
-    ]);
-});
-
-$app->command('delete [functionName]', function (
-    $functionName,
-    SymfonyStyle $io,
-    S3Client $s3,
-    LambdaClient $lambda,
-    ApiGatewayClient $apiGateway,
-    ContainerInterface $container
-) {
-    if (empty($functionName)) {
-        $functionName = $container->get('function.name');
-    }
-    $s3Bucket = $container->get('aws.s3.bucket');
-
-    $io->caution('This is a deletion operation, deleted resources cannot be recovered');
-
-    if (!$io->confirm("Do you really want to delete lambda $functionName?", false)) {
-        $io->writeln('Aborting');
-        return 1;
-    }
-
-    $function = $lambda->getFunction([
-        'FunctionName' => $functionName,
-    ]);
-    if (! isset($function['Tags']['phplambda'])) {
-        $io->error("The $functionName is not a phplambda, aborting to avoid messing things up!");
-        return 1;
-    }
-
-    // Delete the webhook
-    $restApiId = $function['Tags']['phplambda:rest-api-id'] ?? null;
-    if ($restApiId) {
-        $io->writeln("Deleting webhook $functionName");
-        $apiGateway->deleteRestApi([
-            'restApiId' => $restApiId,
-        ]);
-    } else {
-        $io->writeln('No webhook found');
-    }
-    // Delete the lambda
-    $io->writeln("Deleting lambda $functionName");
-    $lambda->deleteFunction([
-        'FunctionName' => $functionName,
-    ]);
-    // Delete the archive on S3
-    $s3FileName = "phplambda/$functionName.zip";
-    $io->writeln("Deleting the archive on S3 ($s3FileName)");
-    $s3->deleteObject([
-        'Bucket' => $s3Bucket,
-        'Key' => $s3FileName,
-    ]);
-    $io->success("Lambda $functionName was successfully deleted");
-    return 0;
 });
 
 $app->run();
-
-function validateLocalConfig(array $localConfig)
-{
-    $errors = [];
-    if (empty($localConfig['name'])) {
-        $errors[] = 'You must set a function name in .lambda.yml';
-    }
-    if (empty($localConfig['aws']['region'])) {
-        $errors[] = 'You must configure AWS in .lambda.yml';
-    }
-    if (empty($localConfig['aws']['s3']['bucket'])) {
-        $errors[] = 'You must configure AWS S3 in .lambda.yml';
-    }
-    if (!empty($errors)) {
-        echo implode("\n", $errors);
-        exit(1);
-    }
-}
-
-function temporaryDirectoryName(Filesystem $filesystem) : string
-{
-    $temporaryFile = tempnam(sys_get_temp_dir(), 'phplambda_');
-    // Remove the file and we'll assume that we can use that name in the rest of the application
-    $filesystem->remove($temporaryFile);
-    return $temporaryFile;
-}
