@@ -14,7 +14,10 @@ class Application
     private const INPUT_FILE_NAME = self::LAMBDA_DIRECTORY . '/input.json';
     private const OUTPUT_FILE_NAME = self::LAMBDA_DIRECTORY . '/output.json';
 
-    public function run(callable $handler)
+    /**
+     * Run an HTTP application.
+     */
+    public function http(HttpApplication $httpApplication) : void
     {
         $filesystem = new Filesystem;
         if (! $filesystem->exists(self::LAMBDA_DIRECTORY)) {
@@ -27,30 +30,17 @@ class Application
         }
 
         if (isset($event['httpMethod'])) {
-            file_put_contents(self::OUTPUT_FILE_NAME, json_encode([
-                'isBase64Encoded' => false,
-                'statusCode' => 400,
-                'headers' => [
+            $response = $httpApplication->process($event);
+        } else {
+            $response = new LambdaResponse(
+                400,
+                [
                     'Content-Type' => 'application/json',
                 ],
-                'body' => json_encode('This application must be called through HTTP'),
-            ]));
+                json_encode('This application must be called through HTTP')
+            );
         }
 
-        $result = $handler($event);
-
-        // This is the format required by the AWS_PROXY lambda integration
-        // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
-        $lambdaResponse = [
-            'isBase64Encoded' => false,
-            'statusCode' => 200,
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'x-phplambda' => 'phplambda',
-            ],
-            'body' => json_encode($result),
-        ];
-
-        file_put_contents(self::OUTPUT_FILE_NAME, json_encode($result));
+        file_put_contents(self::OUTPUT_FILE_NAME, $response->toJson());
     }
 }

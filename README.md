@@ -11,7 +11,6 @@ Use cases:
 
 ## TODO
 
-- Slim integration
 - Symfony integration
 - Silly/Symfony Console integration
 - Allow configuring the file name of the application (`lambda.php`)
@@ -33,20 +32,21 @@ $ composer require phplambda/phplambda
 $ vendor/bin/phplambda init
 ```
 
-Write a `lambda.php` file at the root of your project:
+Write a `lambda.php` file at the root of your project. This file will be run whenever your lambda is triggered. You can for example use the [Slim](https://www.slimframework.com) framework to handle requests:
 
 ```php
 <?php
 
 require __DIR__.'/vendor/autoload.php';
 
-$app = new \PhpLambda\Application;
-
-$app->run(function (array $event) {
-    return [
-        'hello' => $event['name'] ?? 'world',
-    ];
+$slim = new Slim\App;
+$slim->get('/dev', function (ServerRequestInterface $request, ResponseInterface $response) {
+    $response->getBody()->write('Hello world!');
+    return $response;
 });
+
+$app = new \PhpLambda\Application;
+$app->http(new SlimAdapter($slim));
 ```
 
 ## Deployment
