@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace PhpLambda\Bridge\Slim;
 
-use PhpLambda\HttpApplication;
+use PhpLambda\HttpHandler;
 use PhpLambda\LambdaResponse;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
@@ -13,7 +13,7 @@ use Slim\App;
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class SlimAdapter implements HttpApplication
+class SlimAdapter implements HttpHandler
 {
     /**
      * @var App
@@ -25,7 +25,7 @@ class SlimAdapter implements HttpApplication
         $this->slim = $slim;
     }
 
-    public function process(array $event) : LambdaResponse
+    public function handle(array $event) : LambdaResponse
     {
         $request = (new RequestFactory)->createRequest($event);
         $response = $this->slim->getContainer()->get('response');

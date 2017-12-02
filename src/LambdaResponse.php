@@ -50,6 +50,17 @@ class LambdaResponse
         return new self($response->getStatusCode(), $headers, $body);
     }
 
+    public static function fromHtml(string $html) : self
+    {
+        return new self(
+            200,
+            [
+                'Content-Type' => 'text/html; charset=utf-8',
+            ],
+            $html
+        );
+    }
+
     public function toJson() : string
     {
         // This is the format required by the AWS_PROXY lambda integration

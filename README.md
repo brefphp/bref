@@ -15,6 +15,7 @@ Use cases:
 - Silly/Symfony Console integration
 - Allow configuring the file name of the application (`lambda.php`)
 - CLI helper to run a CLI command on lambda
+- Handle errors/exceptions and logs
 - Test framework
 
 ## Setup
@@ -41,14 +42,15 @@ require __DIR__.'/vendor/autoload.php';
 
 $app = new \PhpLambda\Application;
 
-$app->run(function (array $event) {
+$app->simpleHandler(function (array $event) {
     return [
         'hello' => $event['name'] ?? 'world',
     ];
 });
+$app->run();
 ```
 
-Watch out: the `run()` method only works for lambdas invoked manually (`serverless invoke`). If you want to use HTTP (e.g. the webhook) you need to use an HTTP framework. This is described at the end of this page.
+Watch out: if you want to setup an HTTP handler (e.g. for the webhook) you need to use an HTTP framework. This is described at the end of this page.
 
 ## Deployment
 
@@ -99,17 +101,22 @@ PHPLambda provides bridges to use your HTTP framework and write an HTTP applicat
 ```php
 <?php
 
+use PhpLambda\Bridge\Slim\SlimAdapter;
+
 require __DIR__.'/vendor/autoload.php';
 
 $slim = new Slim\App;
-$slim->get('/dev', function (ServerRequestInterface $request, ResponseInterface $response) {
+$slim->get('/dev', function ($request, $response) {
     $response->getBody()->write('Hello world!');
     return $response;
 });
 
 $app = new \PhpLambda\Application;
-$app->http(new SlimAdapter($slim));
+$app->httpHandler(new SlimAdapter($slim));
+$app->run();
 ```
+
+You can also keep the `simpleHandler` so that your lambda handles both HTTP requests and direct invocations.
 
 ## Tests
 

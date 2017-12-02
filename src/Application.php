@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace PhpLambda;
 
+use PhpLambda\Http\WelcomeHandler;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -15,39 +16,62 @@ class Application
     private const OUTPUT_FILE_NAME = self::LAMBDA_DIRECTORY . '/output.json';
 
     /**
-     * Run a simple handler.
+     * @var callable
      */
-    public function run(callable $handler) : void
+    private $simpleHandler;
+
+    /**
+     * @var WelcomeHandler
+     */
+    private $httpHandler;
+
+    public function __construct()
+    {
+        $this->simpleHandler(function () {
+            return 'Welcome to PHPLambda! Define your handler using $application->simpleHandler()';
+        });
+        $this->httpHandler(new WelcomeHandler);
+    }
+
+    /**
+     * Set the handler that will handle simple invocations of the lambda (through `serverless invoke`).
+     *
+     * @param callable $handler This callable takes a $event parameter (array) and must return anything serializable to JSON.
+     */
+    public function simpleHandler(callable $handler) : void
+    {
+        $this->simpleHandler = $handler;
+    }
+
+    /**
+     * Set the handler that will handle HTTP requests.
+     */
+    public function httpHandler(HttpHandler $handler) : void
+    {
+        $this->httpHandler = $handler;
+    }
+
+    /**
+     * Run the application.
+     */
+    public function run() : void
     {
         $this->ensureTempDirectoryExists();
 
         $event = $this->readLambdaEvent();
 
-        $output = $handler($event);
+        // Run the appropriate handler
+        if (isset($event['httpMethod'])) {
+            // HTTP request
+            $response = $this->httpHandler->handle($event);
+            $output = $response->toJson();
+        } else {
+            // Simple invocation
+            $output = ($this->simpleHandler)($event);
+            $output = json_encode($output);
+        }
 
-        $this->writeLambdaOutput(json_encode($output));
-    }
-
-    /**
-     * Run an HTTP application.
-     */
-    public function http(HttpApplication $httpApplication) : void
-    {
-        $this->run(function (array $event) use ($httpApplication) : string {
-            if (isset($event['httpMethod'])) {
-                $response = $httpApplication->process($event);
-            } else {
-                $response = new LambdaResponse(
-                    400,
-                    [
-                        'Content-Type' => 'application/json',
-                    ],
-                    json_encode('This application must be called through HTTP')
-                );
-            }
-
-            return $response->toJson();
-        });
+        $this->writeLambdaOutput($output);
     }
 
     private function ensureTempDirectoryExists() : void
