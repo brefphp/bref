@@ -32,22 +32,23 @@ $ composer require phplambda/phplambda
 $ vendor/bin/phplambda init
 ```
 
-Write a `lambda.php` file at the root of your project. This file will be run whenever your lambda is triggered. You can for example use the [Slim](https://www.slimframework.com) framework to handle requests:
+Write a `lambda.php` file at the root of your project:
 
 ```php
 <?php
 
 require __DIR__.'/vendor/autoload.php';
 
-$slim = new Slim\App;
-$slim->get('/dev', function (ServerRequestInterface $request, ResponseInterface $response) {
-    $response->getBody()->write('Hello world!');
-    return $response;
-});
-
 $app = new \PhpLambda\Application;
-$app->http(new SlimAdapter($slim));
+
+$app->run(function (array $event) {
+    return [
+        'hello' => $event['name'] ?? 'world',
+    ];
+});
 ```
+
+Watch out: the `run()` method only works for lambdas invoked manually (`serverless invoke`). If you want to use HTTP (e.g. the webhook) you need to use an HTTP framework. This is described at the end of this page.
 
 ## Deployment
 
@@ -89,6 +90,25 @@ $lambda->invoke([
 
 ```shell
 $ serverless remove
+```
+
+## HTTP applications
+
+PHPLambda provides bridges to use your HTTP framework and write an HTTP application. Here is an example using the [Slim](https://www.slimframework.com) framework to handle requests:
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+$slim = new Slim\App;
+$slim->get('/dev', function (ServerRequestInterface $request, ResponseInterface $response) {
+    $response->getBody()->write('Hello world!');
+    return $response;
+});
+
+$app = new \PhpLambda\Application;
+$app->http(new SlimAdapter($slim));
 ```
 
 ## Tests

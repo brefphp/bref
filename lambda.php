@@ -25,4 +25,9 @@ $slim->get('/dev/json', function (ServerRequestInterface $request, ResponseInter
 });
 
 $app = new \PhpLambda\Application;
-$app->http(new SlimAdapter($slim));
+$app->run(function (array $event) {
+    return [
+        'hello' => $event['name'] ?? 'world',
+    ];
+});
+//$app->http(new SlimAdapter($slim));
