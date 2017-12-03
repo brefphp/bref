@@ -19,13 +19,16 @@ functions:
   # By default we create one "main" function
   main:
     handler: handler.handle
+    # Use the minimum amount of memory (Mb) by default to optimize costs
+    # Increase if necessary
+    memorySize: 128
     # The function will match all HTTP URLs
     events:
       - http: 'ANY /'
       - http: 'ANY {proxy+}'
 
 plugins:
-  # This plugin allows to
+  # This plugin allows to run scripts on specific hooks
   - serverless-plugin-scripts
 
 custom:
