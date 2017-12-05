@@ -5,12 +5,13 @@
         }
     },
     "require": {
-        "mnapoli/silly": "^1.5",
+        "mnapoli/silly": "^1.7",
         "php-di/php-di": "^6.0@alpha",
         "symfony/filesystem": "^3.3",
         "symfony/http-foundation": "^4.0",
         "slim/slim": "^3.9",
-        "symfony/debug": "^4.0"
+        "symfony/debug": "^4.0",
+        "aws/aws-sdk-php": "^3.44"
     },
     "bin": [
         "phplambda"

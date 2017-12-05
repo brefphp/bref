@@ -4,6 +4,8 @@ declare(strict_types=1);
 use PhpLambda\Bridge\Slim\SlimAdapter;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Silly\Application;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Debug\Debug;
 
 ini_set('display_errors', '1');
@@ -13,6 +15,7 @@ require __DIR__.'/vendor/autoload.php';
 
 Debug::enable();
 
+// HTTP application using Slim
 $slim = new Slim\App;
 $slim->get('/dev', function (ServerRequestInterface $request, ResponseInterface $response) {
     $response->getBody()->write('Hello world!');
@@ -24,6 +27,12 @@ $slim->get('/dev/json', function (ServerRequestInterface $request, ResponseInter
     return $response;
 });
 
+// CLI application using Silly
+$silly = new Application;
+$silly->command('hello [name]', function (string $name = 'World!', OutputInterface $output) {
+    $output->writeln('Hello ' . $name);
+});
+
 $app = new \PhpLambda\Application;
 $app->simpleHandler(function (array $event) {
     return [
@@ -31,4 +40,5 @@ $app->simpleHandler(function (array $event) {
     ];
 });
 $app->httpHandler(new SlimAdapter($slim));
+$app->cliHandler($silly);
 $app->run();

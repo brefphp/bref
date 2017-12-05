@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use DI\ContainerBuilder;
+use GuzzleHttp\Psr7\Stream;
 use PhpLambda\CommandRunner;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
@@ -39,6 +40,53 @@ $app->command('package', function (
         $filesystem->rename('bin/7.1.2', 'bin/php');
         $filesystem->remove('bin/php/etc/conf.d/xdebug.ini'); // disable xdebug
     }
+});
+
+$app->command('cli [arguments]*', function (
+    array $arguments,
+    SymfonyStyle $io,
+    CommandRunner $commandRunner
+) {
+    $serverlessInfo = $commandRunner->run('serverless info');
+    foreach (explode(PHP_EOL, $serverlessInfo) as $line) {
+        if (strpos($line, 'region: ') === 0) {
+            $region = substr($line, strlen('region: '));
+        }
+        if (strpos($line, 'stack: ') === 0) {
+            $functionName = substr($line, strlen('stack: ')) . '-main';
+        }
+    }
+    if (empty($region) || empty($functionName)) {
+        throw new Exception('Unable to parse the output of `serverless info`');
+    }
+
+    $lambda = new \Aws\Lambda\LambdaClient([
+        'version' => 'latest',
+        'region' => $region,
+    ]);
+    $result = $lambda->invoke([
+        'FunctionName' => $functionName,
+        'LogType' => 'Tail',
+        'Payload' => json_encode([
+            'cli' => implode(' ', $arguments),
+        ]),
+    ]);
+
+    /** @var Stream $payload */
+    $payload = $result->get('Payload');
+    $payload = json_decode($payload->getContents(), true);
+    if (isset($payload['output'])) {
+        $io->writeln($payload['output']);
+    } else {
+        $io->error('The command did not return a valid response.');
+        $io->writeln('<info>Logs:</info>');
+        $io->write('<comment>' . base64_decode($result->get('LogResult')) . '</comment>');
+        $io->writeln('<info>Lambda result payload:</info>');
+        $io->writeln(json_encode($payload, JSON_PRETTY_PRINT));
+        return 1;
+    }
+
+    return (int) ($payload['exitCode'] ?? 1);
 });
 
 $app->run();

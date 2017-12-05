@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 namespace PhpLambda;
 
+use PhpLambda\Cli\WelcomeApplication;
 use PhpLambda\Http\WelcomeHandler;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -25,12 +28,18 @@ class Application
      */
     private $httpHandler;
 
+    /**
+     * @var \Symfony\Component\Console\Application
+     */
+    private $cliHandler;
+
     public function __construct()
     {
         $this->simpleHandler(function () {
             return 'Welcome to PHPLambda! Define your handler using $application->simpleHandler()';
         });
         $this->httpHandler(new WelcomeHandler);
+        $this->cliHandler(new WelcomeApplication);
     }
 
     /**
@@ -52,6 +61,17 @@ class Application
     }
 
     /**
+     * Set the handler that will handle CLI requests.
+     */
+    public function cliHandler(\Symfony\Component\Console\Application $console) : void
+    {
+        // Necessary to avoid any `exit()` call :)
+        $console->setAutoExit(false);
+
+        $this->cliHandler = $console;
+    }
+
+    /**
      * Run the application.
      */
     public function run() : void
@@ -65,6 +85,15 @@ class Application
             // HTTP request
             $response = $this->httpHandler->handle($event);
             $output = $response->toJson();
+        } elseif (isset($event['cli'])) {
+            // HTTP request
+            $cliInput = new StringInput($event['cli']);
+            $cliOutput = new BufferedOutput;
+            $exitCode = $this->cliHandler->run($cliInput, $cliOutput);
+            $output = json_encode([
+                'exitCode' => $exitCode,
+                'output' => $cliOutput->fetch(),
+            ]);
         } else {
             // Simple invocation
             $output = ($this->simpleHandler)($event);
