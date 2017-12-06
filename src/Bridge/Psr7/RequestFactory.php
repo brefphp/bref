@@ -1,19 +1,21 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda\Bridge\Slim;
+namespace PhpLambda\Bridge\Psr7;
 
 use Slim\Http\Environment;
 use Slim\Http\Request;
 
 /**
- * Create a Slim request from a lambda event.
+ * Create a PSR-7 request from a lambda event.
+ *
+ * TODO use Diactoros to have less dependencies.
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
 class RequestFactory
 {
-    public function createRequest(array $event) : Request
+    public function fromLambdaEvent(array $event) : Request
     {
         $method = $event['httpMethod'] ?? 'GET';
         $query = $event['queryStringParameters'] ?? '';

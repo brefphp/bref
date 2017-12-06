@@ -3,11 +3,15 @@ declare(strict_types=1);
 
 namespace PhpLambda;
 
+use Interop\Http\Server\RequestHandlerInterface;
+use PhpLambda\Bridge\Psr7\RequestFactory;
 use PhpLambda\Cli\WelcomeApplication;
 use PhpLambda\Http\WelcomeHandler;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
+use Zend\Diactoros\Response\SapiEmitter;
+use Zend\Diactoros\ServerRequestFactory;
 
 /**
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
@@ -24,7 +28,7 @@ class Application
     private $simpleHandler;
 
     /**
-     * @var WelcomeHandler
+     * @var RequestHandlerInterface
      */
     private $httpHandler;
 
@@ -55,7 +59,7 @@ class Application
     /**
      * Set the handler that will handle HTTP requests.
      */
-    public function httpHandler(HttpHandler $handler) : void
+    public function httpHandler(RequestHandlerInterface $handler) : void
     {
         $this->httpHandler = $handler;
     }
@@ -76,6 +80,18 @@ class Application
      */
     public function run() : void
     {
+        if (!$this->isRunningInLambda()) {
+            if (php_sapi_name() == "cli") {
+                $this->cliHandler->setAutoExit(true);
+                $this->cliHandler->run();
+            } else {
+                $request = ServerRequestFactory::fromGlobals();
+                $response = $this->httpHandler->handle($request);
+                (new SapiEmitter)->emit($response);
+            }
+            return;
+        }
+
         $this->ensureTempDirectoryExists();
 
         $event = $this->readLambdaEvent();
@@ -83,10 +99,11 @@ class Application
         // Run the appropriate handler
         if (isset($event['httpMethod'])) {
             // HTTP request
-            $response = $this->httpHandler->handle($event);
-            $output = $response->toJson();
+            $request = (new RequestFactory)->fromLambdaEvent($event);
+            $response = $this->httpHandler->handle($request);
+            $output = LambdaResponse::fromPsr7Response($response)->toJson();
         } elseif (isset($event['cli'])) {
-            // HTTP request
+            // CLI command
             $cliInput = new StringInput($event['cli']);
             $cliOutput = new BufferedOutput;
             $exitCode = $this->cliHandler->run($cliInput, $cliOutput);
@@ -123,5 +140,10 @@ class Application
     private function writeLambdaOutput(string $json) : void
     {
         file_put_contents(self::OUTPUT_FILE_NAME, $json);
+    }
+
+    private function isRunningInLambda() : bool
+    {
+        return getenv('LAMBDA_TASK_ROOT') !== false;
     }
 }

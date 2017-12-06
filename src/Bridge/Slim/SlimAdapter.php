@@ -3,17 +3,17 @@ declare(strict_types=1);
 
 namespace PhpLambda\Bridge\Slim;
 
-use PhpLambda\HttpHandler;
-use PhpLambda\LambdaResponse;
+use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
 
 /**
- * Allows to use the Slim framework.
+ * Adapter for using the Slim framework as a HTTP handler.
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class SlimAdapter implements HttpHandler
+class SlimAdapter implements RequestHandlerInterface
 {
     /**
      * @var App
@@ -25,14 +25,13 @@ class SlimAdapter implements HttpHandler
         $this->slim = $slim;
     }
 
-    public function handle(array $event) : LambdaResponse
+    public function handle(ServerRequestInterface $request) : ResponseInterface
     {
-        $request = (new RequestFactory)->createRequest($event);
         $response = $this->slim->getContainer()->get('response');
 
         /** @var ResponseInterface $response */
         $response = $this->slim->process($request, $response);
 
-        return LambdaResponse::fromPsr7Response($response);
+        return $response;
     }
 }

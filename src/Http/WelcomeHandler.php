@@ -3,20 +3,22 @@ declare(strict_types=1);
 
 namespace PhpLambda\Http;
 
-use PhpLambda\HttpHandler;
-use PhpLambda\LambdaResponse;
+use Interop\Http\Server\RequestHandlerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Zend\Diactoros\Response\HtmlResponse;
 
 /**
  * This is the default HTTP handler that shows a welcome page.
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
-class WelcomeHandler implements HttpHandler
+class WelcomeHandler implements RequestHandlerInterface
 {
-    public function handle(array $event) : LambdaResponse
+    public function handle(ServerRequestInterface $request) : ResponseInterface
     {
         $html = file_get_contents(__DIR__ . '/welcome.html');
 
-        return LambdaResponse::fromHtml($html);
+        return new HtmlResponse($html);
     }
 }

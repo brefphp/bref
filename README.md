@@ -98,7 +98,9 @@ $ serverless remove
 
 ## HTTP applications
 
-PHPLambda provides bridges to use your HTTP framework and write an HTTP application. Here is an example using the [Slim](https://www.slimframework.com) framework to handle requests:
+PHPLambda provides bridges to use your HTTP framework and write an HTTP application. By default it supports any [PSR-15 request handler](https://github.com/http-interop/http-server-handler) implementation, thanks to PSR-7 it is easy to integrate most frameworks.
+
+Here is an example using the [Slim](https://www.slimframework.com) framework to handle requests:
 
 ```php
 <?php
@@ -118,7 +120,15 @@ $app->httpHandler(new SlimAdapter($slim));
 $app->run();
 ```
 
-You can also keep the `simpleHandler` so that your lambda handles both HTTP requests and direct invocations.
+PHPLambda provides a helper to preview the application locally, simply run:
+
+```shell
+$ php -S 127.0.0.1:8000 lambda.php
+```
+
+And open [http://localhost:8000](http://localhost:8000/).
+
+Remember that you can also keep the `simpleHandler` so that your lambda handles both HTTP requests and direct invocations.
 
 ## CLI applications
 
@@ -154,6 +164,12 @@ Hello Bob
 ```
 
 As you can see, all arguments and options after `phplambda cli --` are forwarded to the CLI command running on lambda.
+
+To test your CLI commands locally, simply run:
+
+```shell
+$ php lambda.php <commands and options>
+```
 
 ## Tests
 
