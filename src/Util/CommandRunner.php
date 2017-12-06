@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda;
+namespace PhpLambda\Util;
 
 /**
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
@@ -24,10 +24,5 @@ class CommandRunner
         }
 
         return $output;
-    }
-
-    public function runInDirectory(string $directory, string $command) : string
-    {
-        return $this->run("cd \"$directory\" && $command");
     }
 }
