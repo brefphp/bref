@@ -6,6 +6,7 @@ namespace PhpLambda;
 use Interop\Http\Server\RequestHandlerInterface;
 use PhpLambda\Bridge\Psr7\RequestFactory;
 use PhpLambda\Cli\WelcomeApplication;
+use PhpLambda\Http\LambdaResponse;
 use PhpLambda\Http\WelcomeHandler;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;

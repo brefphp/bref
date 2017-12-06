@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda;
+namespace PhpLambda\Http;
 
 use Psr\Http\Message\ResponseInterface;
 

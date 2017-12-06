@@ -18,6 +18,9 @@
         "http-interop/http-server-handler": "^1.0",
         "zendframework/zend-diactoros": "^1.6"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^6.5"
+    },
     "bin": [
         "phplambda"
     ]
