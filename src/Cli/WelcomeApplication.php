@@ -18,8 +18,8 @@ class WelcomeApplication extends Application
         parent::__construct();
 
         $this->command('hello', function (SymfonyStyle $io) {
-            $io->block('<comment>Welcome! This CLI application is working but has no commands.</comment>');
-            $io->block([
+            $io->writeln('<comment>Welcome! This CLI application is working but has no commands.</comment>');
+            $io->writeln([
                 'Add your own CLI application by registering a Symfony Console application'
                 . ' (or a Silly application) using the <info>$application->cliHandler(...)</info> method.',
             ]);
