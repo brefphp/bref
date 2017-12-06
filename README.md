@@ -12,7 +12,6 @@ Use cases:
 ## TODO
 
 - Symfony integration
-- Silly/Symfony Console integration
 - Allow configuring the file name of the application (`lambda.php`)
 - Handle errors/exceptions and logs
 - Test framework
