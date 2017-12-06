@@ -1,4 +1,7 @@
 {
+    "name": "mnapoli/phplambda",
+    "license": "proprietary",
+    "type": "project",
     "autoload": {
         "psr-4": {
             "PhpLambda\\": "src"
