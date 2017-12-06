@@ -12,6 +12,7 @@ Use cases:
 ## TODO
 
 - init: create files and explain files to add to gitignore (node_modules, etc.)
+- Deploy: auto-add `handler.js`
 - Symfony integration
 - Allow configuring the file name of the application (`lambda.php`)
 - Handle errors/exceptions and logs
