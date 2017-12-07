@@ -13,6 +13,7 @@ Use cases:
 
 - init: create files and explain files to add to gitignore (node_modules, etc.)
 - Deploy: auto-add `handler.js`
+- Deploy: script (e.g. composer install, etc.)
 - Symfony integration
 - Allow configuring the file name of the application (`lambda.php`)
 - Handle errors/exceptions and logs
