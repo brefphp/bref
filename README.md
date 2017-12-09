@@ -17,6 +17,7 @@ Use cases:
 - Symfony integration
 - Allow configuring the file name of the application (`lambda.php`)
 - Handle errors/exceptions and logs
+- Avoid using a temporary file for the output
 - Test framework
 
 ## Setup

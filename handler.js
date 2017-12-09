@@ -31,9 +31,8 @@ exports.handle = function(event, context, callback) {
         recursiveRmDir('/tmp/.phplambda');
     }
     fs.mkdirSync('/tmp/.phplambda');
-    fs.writeFileSync('/tmp/.phplambda/input.json', JSON.stringify(event));
 
-    let script = spawn('php', ['lambda.php']);
+    let script = spawn('php', ['lambda.php', JSON.stringify(event)]);
 
     let scriptOutput = '';
     //dynamically collect output

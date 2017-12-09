@@ -20,7 +20,6 @@ use Zend\Diactoros\ServerRequestFactory;
 class Application
 {
     private const LAMBDA_DIRECTORY = '/tmp/.phplambda';
-    private const INPUT_FILE_NAME = self::LAMBDA_DIRECTORY . '/input.json';
     private const OUTPUT_FILE_NAME = self::LAMBDA_DIRECTORY . '/output.json';
 
     /**
@@ -131,11 +130,8 @@ class Application
 
     private function readLambdaEvent() : array
     {
-        $filesystem = new Filesystem;
-        if ($filesystem->exists(self::INPUT_FILE_NAME)) {
-            return (array) json_decode(file_get_contents(self::INPUT_FILE_NAME), true);
-        }
-        return [];
+        global $argv;
+        return json_decode($argv[1], true) ?: [];
     }
 
     private function writeLambdaOutput(string $json) : void
