@@ -37,12 +37,16 @@ class LambdaResponse
     public static function fromPsr7Response(ResponseInterface $response) : self
     {
         // The lambda proxy integration does not support arrays in headers
-        $headers = array_map(function ($header) {
-            if (is_array($header)) {
-                return $header[0];
+        $headers = [];
+        foreach ($response->getHeaders() as $name => $values) {
+            // See https://github.com/zendframework/zend-diactoros/blob/754a2ceb7ab753aafe6e3a70a1fb0370bde8995c/src/Response/SapiEmitterTrait.php#L96
+            $name = str_replace('-', ' ', $name);
+            $name = ucwords($name);
+            $name = str_replace(' ', '-', $name);
+            foreach ($values as $value) {
+                $headers[$name] = $value;
             }
-            return $header;
-        }, $response->getHeaders());
+        }
 
         $response->getBody()->rewind();
         $body = $response->getBody()->getContents();
