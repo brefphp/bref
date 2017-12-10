@@ -1,7 +1,5 @@
 /vendor
 /.idea
-/.phplambda
-/node_modules
 /.serverless
 /bin
 /tests/Bridge/Symfony/cache

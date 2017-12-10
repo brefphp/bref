@@ -18,14 +18,25 @@ $app = new Silly\Application;
 $containerBuilder = new ContainerBuilder;
 $app->useContainer($containerBuilder->build(), true, true);
 
-$app->command('init', function (SymfonyStyle $io, CommandRunner $commandRunner) {
-    if (file_exists('serverless.yml')) {
-        $io->error('A serverless.yml file already exists in this directory, aborting.');
-        return;
+$app->command('init', function (SymfonyStyle $io, CommandRunner $commandRunner, Filesystem $fs) {
+    if (!file_exists('serverless.yml')) {
+        $io->writeln('Creating serverless.yml');
+        $fs->copy(__DIR__ . '/template/serverless.yml', 'serverless.yml');
     }
-    copy(__DIR__ . '/template/serverless.yml', 'serverless.yml');
-    $commandRunner->run('npm install --save serverless-plugin-scripts');
-    $io->success('Project initialized and configured in file serverless.yml.');
+    if (!file_exists('.serverless_plugins/phplambda.js')) {
+        $io->writeln('Installing the serverless plugin in .serverless_plugins/phplambda.js');
+        $fs->copy(__DIR__ . '/template/serverless-plugin.js', '.serverless_plugins/phplambda.js');
+    }
+    $io->success([
+        'Project initialized and ready to deploy using "serverless deploy"',
+        'If you are using git, you will need to commit the following files:',
+        '- serverless.yml',
+        '- .serverless_plugins/phplambda.js',
+        'You can add the following paths to your .gitignore:',
+        '- /.serverless/',
+        '- /bin/php',
+        '- /bin/usr',
+    ]);
 });
 
 $app->command('package', function (

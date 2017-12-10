@@ -12,13 +12,12 @@ Use cases:
 ## TODO
 
 - init: ask for the project name
-- init: create files and explain files to add to gitignore (node_modules, etc.)
 - Deploy: auto-add `handler.js`
-- Deploy: script (e.g. composer install, etc.)
 - Allow configuring the file name of the application (`lambda.php`)
 - Handle errors/exceptions and logs
 - Avoid using a temporary file for the output
 - Test framework
+- Move to serverless plugin entirely?
 
 ## Setup
 
@@ -242,20 +241,12 @@ To test your CLI commands locally, simply run:
 $ php lambda.php <commands and options>
 ```
 
-## Tests
+## Build hooks
 
-TODO
+You can execute scripts when the lambda is being prepared:
 
-How to test a lambda?
-
-```php
-// Grab the $app
-
-$lambda = \PhpLambda\TestClient($app);
-$result = $lambda->invoke($functionName, [
-    ...
-]);
-
-$this->assertEquals(0, $result->getExitCode());
-$this->assertEquals('Foo bar', $result->getOutput());
+```yaml
+custom:
+  phpbuild:
+    - 'composer install --no-dev --optimize-autoloader'
 ```
