@@ -11,13 +11,13 @@ Use cases:
 
 ## TODO
 
+- init: ask for the project name
 - init: create files and explain files to add to gitignore (node_modules, etc.)
 - Deploy: auto-add `handler.js`
 - Deploy: script (e.g. composer install, etc.)
 - Allow configuring the file name of the application (`lambda.php`)
 - Handle errors/exceptions and logs
 - Avoid using a temporary file for the output
-- Build stage (composer install, caches, etc.)
 - Test framework
 
 ## Setup
@@ -135,12 +135,55 @@ $kernel = new \App\Kernel('prod', false);
 
 $app = new \PhpLambda\Application;
 $app->httpHandler(new SymfonyAdapter($kernel));
+$app->cliHandler(new \Symfony\Bundle\FrameworkBundle\Console\Application($kernel));
 $app->run();
 ```
 
 Things to note about the Symfony integration:
 
 - the `terminate` event is run synchronously before the response is sent back (we are not in a fastcgi setup)
+- you may need to customize the list of directories that will be packaged and deployed into the lambda (in `serverless.yml`)
+- you need to define some environment variable for Symfony to configure itself on the lambda. To do this, edit the generated `serverless.yml` for non-sensitive configuration:
+    ```yaml
+    functions:
+      main:
+        ...
+        # Add this section:
+        environment:
+          APP_ENV: 'prod'
+          APP_DEBUG: '0'
+    ```
+    
+    For sensitive information those should be defined in a more secure way, for example through AWS's console.
+- since you will not be deploying `composer.json` into the lambda (because there is no reason to), you will need to explicitly define the project dir to Symfony by adding this method in your Kernel class:
+    ```php
+    public function getProjectDir()
+    {
+        return realpath(__DIR__.'/../');
+    }
+    ```
+- the filesystem is readonly on lambdas except for `/tmp`, as such you need to customize the paths for caches and logs:
+    ```php
+    public function getCacheDir()
+    {
+        // When on the lambda only /tmp is writeable
+        if (getenv('LAMBDA_TASK_ROOT') !== false) {
+            return '/tmp/cache/'.$this->environment;
+        }
+
+        return $this->getProjectDir().'/var/cache/'.$this->environment;
+    }
+    
+    public function getLogDir()
+    {
+        // When on the lambda only /tmp is writeable
+        if (getenv('LAMBDA_TASK_ROOT') !== false) {
+            return '/tmp/log/';
+        }
+
+        return $this->getProjectDir().'/var/log';
+    }
+    ```
 
 PHPLambda provides a helper to preview the application locally, simply run:
 
@@ -151,6 +194,12 @@ $ php -S 127.0.0.1:8000 lambda.php
 And open [http://localhost:8000](http://localhost:8000/).
 
 Remember that you can also keep the `simpleHandler` so that your lambda handles both HTTP requests and direct invocations.
+
+### Why is there a `/dev` prefix in the URLs on AWS Lambda
+
+See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for a more detailed answer. The short version is AWS requires a prefix containing the stage name (dev/prod).
+
+If you use a custom domain for your application this prefix will disappear. If you don't, you need to write routes with this prefix in your framework.
 
 ## CLI applications
 
