@@ -12,14 +12,14 @@
         "php-di/php-di": "^6.0@alpha",
         "symfony/filesystem": "^3.3",
         "symfony/http-foundation": "^4.0",
-        "slim/slim": "^3.9",
         "symfony/debug": "^4.0",
         "aws/aws-sdk-php": "^3.44",
         "http-interop/http-server-handler": "^1.0",
         "zendframework/zend-diactoros": "^1.6"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.5"
+        "phpunit/phpunit": "^6.5",
+        "slim/slim": "^3.9"
     },
     "bin": [
         "phplambda"
