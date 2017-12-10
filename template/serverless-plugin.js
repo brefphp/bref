@@ -23,7 +23,7 @@ class PhpServerlessPlugin {
 
         // If there are build hooks, execute them
         if (scripts instanceof Array) {
-        for (const script of scripts) {
+            for (const script of scripts) {
                 execSync(script, {stdio: 'inherit' });
             }
         }
