@@ -183,6 +183,14 @@ Things to note about the Symfony integration:
         return $this->getProjectDir().'/var/log';
     }
     ```
+- you need to add build steps in `serverless.yaml`:
+    ```yaml
+    custom:
+      phpbuild:
+        - 'php bin/console cache:clear --env=prod --no-debug --no-warmup'
+        - 'php bin/console cache:warmup --env=prod'
+        - 'composer install --no-dev --optimize-autoloader'
+    ```
 
 PHPLambda provides a helper to preview the application locally, simply run:
 
