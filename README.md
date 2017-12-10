@@ -14,10 +14,10 @@ Use cases:
 - init: create files and explain files to add to gitignore (node_modules, etc.)
 - Deploy: auto-add `handler.js`
 - Deploy: script (e.g. composer install, etc.)
-- Symfony integration
 - Allow configuring the file name of the application (`lambda.php`)
 - Handle errors/exceptions and logs
 - Avoid using a temporary file for the output
+- Build stage (composer install, caches, etc.)
 - Test framework
 
 ## Setup
@@ -121,6 +121,26 @@ $app = new \PhpLambda\Application;
 $app->httpHandler(new SlimAdapter($slim));
 $app->run();
 ```
+
+Here is another example using [Symfony](https://symfony.com/):
+
+```php
+<?php
+
+use PhpLambda\Bridge\Symfony\SymfonyAdapter;
+
+require __DIR__.'/vendor/autoload.php';
+
+$kernel = new \App\Kernel('prod', false);
+
+$app = new \PhpLambda\Application;
+$app->httpHandler(new SymfonyAdapter($kernel));
+$app->run();
+```
+
+Things to note about the Symfony integration:
+
+- the `terminate` event is run synchronously before the response is sent back (we are not in a fastcgi setup)
 
 PHPLambda provides a helper to preview the application locally, simply run:
 
