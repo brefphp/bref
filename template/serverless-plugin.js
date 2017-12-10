@@ -7,7 +7,7 @@ class PhpServerlessPlugin {
         this.serverless = serverless;
         this.options = options;
         this.hooks = {
-            'deploy:createDeploymentArtifacts': this.build.bind(this),
+            'before:package:createDeploymentArtifacts': this.build.bind(this),
         };
     }
 
@@ -24,6 +24,7 @@ class PhpServerlessPlugin {
         // If there are build hooks, execute them
         if (scripts instanceof Array) {
             for (const script of scripts) {
+                this.serverless.cli.log(`Executing: "${script}"`);
                 execSync(script, {stdio: 'inherit' });
             }
         }
