@@ -51,6 +51,20 @@ $app->simpleHandler(function (array $event) {
 $app->run();
 ```
 
+If you want to keep things simple for now, simply use the `λ` shortcut :)
+
+```php
+<?php
+
+require __DIR__.'/vendor/autoload.php';
+
+λ(function (array $event) {
+    return [
+        'hello' => $event['name'] ?? 'world',
+    ];
+});
+```
+
 Watch out: if you want to setup an HTTP handler (e.g. for the webhook) you need to use an HTTP framework. This is described at the end of this page.
 
 ## Deployment
