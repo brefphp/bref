@@ -5,7 +5,10 @@
     "autoload": {
         "psr-4": {
             "PhpLambda\\": "src"
-        }
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
     "require": {
         "mnapoli/silly": "^1.7",
