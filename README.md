@@ -9,6 +9,10 @@ Use cases:
 - crons
 - workers
 
+## License
+
+This project is under a proprietary license.
+
 ## TODO
 
 - init: ask for the project name
@@ -18,6 +22,7 @@ Use cases:
 - Avoid using a temporary file for the output
 - Test framework
 - Move to serverless plugin entirely?
+- Separate the deploy tool from the framework to minimize dependencies
 
 ## Setup
 
