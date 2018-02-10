@@ -35,9 +35,9 @@ $app->command('init', function (SymfonyStyle $io, CommandRunner $commandRunner, 
         '- serverless.yml',
         '- .serverless_plugins/phplambda.js',
         'You can add the following paths to your .gitignore:',
-        '- /.serverless/',
-        '- /bin/php',
-        '- /bin/usr',
+        '/.serverless/',
+        '/bin/php',
+        '/bin/usr',
     ]);
 });
 
