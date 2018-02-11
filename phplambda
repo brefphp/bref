@@ -24,19 +24,16 @@ $app->command('init', function (SymfonyStyle $io) {
         $io->writeln('Creating serverless.yml');
         $fs->copy(__DIR__ . '/template/serverless.yml', 'serverless.yml');
     }
-    if (!file_exists('.serverless_plugins/phplambda.js')) {
-        $io->writeln('Installing the serverless plugin in .serverless_plugins/phplambda.js');
-        $fs->copy(__DIR__ . '/template/serverless-plugin.js', '.serverless_plugins/phplambda.js');
+    if (!file_exists('lambda.php')) {
+        $io->writeln('Creating lambda.php');
+        $fs->copy(__DIR__ . '/template/lambda.php', 'lambda.php');
     }
     $io->success([
-        'Project initialized and ready to deploy using "serverless deploy"',
+        'Project initialized and ready to deploy using "phplambda deploy"',
         'If you are using git, you will need to commit the following files:',
+        '- lambda.php',
         '- serverless.yml',
-        '- .serverless_plugins/phplambda.js',
-        'You can add the following paths to your .gitignore:',
-        '/.serverless/',
-        '/bin/php',
-        '/bin/usr',
+        'You can add `/.phplambda/` to your .gitignore:',
     ]);
 });
 
@@ -61,7 +58,7 @@ $app->command('deploy', function (SymfonyStyle $io) {
     }
 
     $io->writeln('Installing `handler.js`');
-    $fs->copy(__DIR__ . '/handler.js', '.phplambda/handler.js');
+    $fs->copy(__DIR__ . '/template/handler.js', '.phplambda/handler.js');
 
     $commandRunner->run('cd .phplambda && composer install --no-dev --classmap-authoritative');
 

@@ -19,7 +19,6 @@ This project is under a proprietary license.
 - Handle errors/exceptions and logs
 - Avoid using a temporary file for the output
 - Test framework
-- Separate the deploy tool from the framework to minimize dependencies
 
 ## Setup
 
