@@ -47,8 +47,7 @@ class SymfonyAdapterTest extends TestCase
 
     private function createKernel() : HttpKernelInterface
     {
-        return new class('dev', false) extends Kernel implements EventSubscriberInterface
-        {
+        return new class('dev', false) extends Kernel implements EventSubscriberInterface {
             use MicroKernelTrait;
 
             public function registerBundles()
