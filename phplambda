@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Stream;
 use PhpLambda\Util\CommandRunner;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
 
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
@@ -67,9 +68,19 @@ $app->command('deploy', function (
 
     $commandRunner->run('cd .phplambda && composer install --no-dev --classmap-authoritative');
 
-    // TODO get rid of serverless_plugins
     // TODO check there is a lambda.php file
-    // TODO .phplambda.yml
+
+    // Run build hooks defined in .phplambda.yml
+    if ($filesystem->exists('.phplambda/.phplambda.yml')) {
+        $config = Yaml::parse(file_get_contents('.phplambda/.phplambda.yml'));
+        $buildHooks = $config['hooks']['build'] ?? [];
+        foreach ($buildHooks as $buildHook) {
+            $io->writeln('Running ' . $buildHook);
+            $commandRunner->run('cd .phplambda && ' . $buildHook);
+        }
+    }
+
+    $commandRunner->run('cd .phplambda && serverless deploy');
 });
 
 $app->command('cli [arguments]*', function (

@@ -199,13 +199,12 @@ Things to note about the Symfony integration:
         return $this->getProjectDir().'/var/log';
     }
     ```
-- you need to add build steps in `serverless.yaml`:
+- you need to add [build hooks](#build-hooks) in `.phplambda.yml`:
     ```yaml
-    custom:
-      phpbuild:
-        - 'php bin/console cache:clear --env=prod --no-debug --no-warmup'
-        - 'php bin/console cache:warmup --env=prod'
-        - 'composer install --no-dev --optimize-autoloader'
+    build:
+        hooks:
+            - 'php bin/console cache:clear --env=prod --no-debug --no-warmup'
+            - 'php bin/console cache:warmup --env=prod'
     ```
 
 PHPLambda provides a helper to preview the application locally, simply run:
@@ -267,10 +266,12 @@ $ php lambda.php <commands and options>
 
 ## Build hooks
 
-You can execute scripts when the lambda is being prepared:
+When deploying Composer dependencies will be installed and optimized for production (`composer install --no-dev --classmap-authoritative`).
+
+You can execute additional scripts by using a *build hook*. Those can be defined in a `.phplambda.yml` file:
 
 ```yaml
-custom:
-  phpbuild:
-    - 'composer install --no-dev --optimize-autoloader'
+build:
+    hooks:
+        - 'npm install'
 ```
