@@ -12,7 +12,6 @@
     },
     "require": {
         "mnapoli/silly": "^1.7",
-        "php-di/php-di": "^6.0@beta",
         "symfony/filesystem": "^3.1|^4.0",
         "symfony/http-foundation": "^3.1|^4.0",
         "symfony/debug": "^3.1|^4.0",
