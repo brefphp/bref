@@ -18,7 +18,6 @@ This project is under a proprietary license.
 - init: ask for the project name
 - Handle errors/exceptions and logs
 - Avoid using a temporary file for the output
-- Test framework
 
 ## Setup
 
