@@ -41,9 +41,15 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $fs = new Filesystem;
     $commandRunner = new CommandRunner;
 
-    $io->writeln('Copying the project in the `.phplambda` directory');
+    $io->writeln('Cloning the project in the `.phplambda` directory');
     $fs->remove('.phplambda');
     $fs->mkdir('.phplambda');
+
+    if (!$fs->exists('.git')) {
+        $currentDirectory = getcwd();
+        $io->error("The directory `$currentDirectory` is not a git repository");
+        return 1;
+    }
     // TODO check if there are uncommitted changes in the directory, warn the user that these will not be deployed
     $commandRunner->run('cd .phplambda && git clone .. .');
 
