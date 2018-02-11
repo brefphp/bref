@@ -16,12 +16,9 @@ This project is under a proprietary license.
 ## TODO
 
 - init: ask for the project name
-- Deploy: auto-add `handler.js`
-- Allow configuring the file name of the application (`lambda.php`)
 - Handle errors/exceptions and logs
 - Avoid using a temporary file for the output
 - Test framework
-- Move to serverless plugin entirely?
 - Separate the deploy tool from the framework to minimize dependencies
 
 ## Setup
@@ -75,7 +72,7 @@ Watch out: if you want to setup an HTTP handler (e.g. for the webhook) you need 
 ## Deployment
 
 ```shell
-$ serverless deploy
+$ vendor/bin/phplambda deploy
 ```
 
 ## Invocation

@@ -1,4 +1,4 @@
-service: test
+service: phplambda
 
 provider:
   name: aws
@@ -27,10 +27,3 @@ functions:
     events:
       - http: 'ANY /'
       - http: 'ANY {proxy+}'
-
-plugins:
-  - phplambda
-
-custom:
-  phpbuild:
-    - 'composer install --no-dev --optimize-autoloader'

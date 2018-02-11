@@ -41,22 +41,35 @@ $app->command('init', function (SymfonyStyle $io, CommandRunner $commandRunner, 
     ]);
 });
 
-$app->command('package', function (
+$app->command('deploy', function (
     SymfonyStyle $io,
     Filesystem $filesystem,
     CommandRunner $commandRunner
 ) {
-    $io->writeln('phplambda: Downloading PHP 7.1 in the bin/ directory');
+    $io->writeln('Copying the project in the `.phplambda` directory');
+    $filesystem->remove('.phplambda');
+    $filesystem->mkdir('.phplambda');
+    // TODO check if there are uncommitted changes in the directory, warn the user that these will not be deployed
+    $commandRunner->run('cd .phplambda && git clone .. .');
 
-    $filesystem->mkdir('bin');
-    // Install PHP and necessary libraries
-    if (!file_exists('bin/php')) {
-        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/libtidy-0.99.tgz | tar -xz -C bin');
-        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/libmcrypt-4.4.8.tgz | tar -xz -C bin');
-        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/php-7.1.2.tgz | tar -xz -C bin');
-        $filesystem->rename('bin/7.1.2', 'bin/php');
-        $filesystem->remove('bin/php/etc/conf.d/xdebug.ini'); // disable xdebug
+    $io->writeln('Installing PHP in the `bin/` directory');
+    $filesystem->mkdir('.phplambda/bin');
+    if (!$filesystem->exists('.phplambda/bin/php')) {
+        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/libtidy-0.99.tgz | tar -xz -C .phplambda/bin');
+        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/libmcrypt-4.4.8.tgz | tar -xz -C .phplambda/bin');
+        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/php-7.1.2.tgz | tar -xz -C .phplambda/bin');
+        $filesystem->rename('.phplambda/bin/7.1.2', '.phplambda/bin/php');
+        $filesystem->remove('.phplambda/bin/php/etc/conf.d/xdebug.ini'); // disable xdebug
     }
+
+    $io->writeln('Installing `handler.js`');
+    $filesystem->copy(__DIR__ . '/handler.js', '.phplambda/handler.js');
+
+    $commandRunner->run('cd .phplambda && composer install --no-dev --classmap-authoritative');
+
+    // TODO get rid of serverless_plugins
+    // TODO check there is a lambda.php file
+    // TODO .phplambda.yml
 });
 
 $app->command('cli [arguments]*', function (
