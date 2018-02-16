@@ -1,10 +1,5 @@
 process.env['PATH'] = process.env['PATH']
-    + ':' + process.env['LAMBDA_TASK_ROOT'] + '/bin/php/bin'; // for PHP
-
-// It seems to be necessary for lambci's PHP to work
-// @see https://github.com/lambci/lambci/blob/c2a81276b2dcd70fae093f68cddcd42bf086ed8f/actions/build.js#L266-L269
-process.env['LD_LIBRARY_PATH'] = process.env['LD_LIBRARY_PATH']
-    + ':' + process.env['LAMBDA_TASK_ROOT'] + '/bin/usr/lib64';
+    + ':' + process.env['LAMBDA_TASK_ROOT'] + '/.phplambda/bin'; // for PHP
 
 const spawn = require('child_process').spawn;
 const fs = require('fs');

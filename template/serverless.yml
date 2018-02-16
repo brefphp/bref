@@ -11,7 +11,7 @@ package:
   include:
     - handler.js
     - lambda.php
-    - 'bin/**'
+    - '.phplambda/**'
     - 'src/**'
     - 'vendor/**'
 

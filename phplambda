@@ -51,16 +51,13 @@ $app->command('deploy', function (SymfonyStyle $io) {
         return 1;
     }
     // TODO check if there are uncommitted changes in the directory, warn the user that these will not be deployed
+    // TODO replace with rsync
     $commandRunner->run('cd .phplambda && git clone .. .');
 
-    $io->writeln('Installing PHP in the `bin/` directory');
-    $fs->mkdir('.phplambda/bin');
-    if (!$fs->exists('.phplambda/bin/php')) {
-        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/libtidy-0.99.tgz | tar -xz -C .phplambda/bin');
-        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/libmcrypt-4.4.8.tgz | tar -xz -C .phplambda/bin');
-        $commandRunner->run('curl -sSL https://lambci.s3.amazonaws.com/binaries/php-7.1.2.tgz | tar -xz -C .phplambda/bin');
-        $fs->rename('.phplambda/bin/7.1.2', '.phplambda/bin/php');
-        $fs->remove('.phplambda/bin/php/etc/conf.d/xdebug.ini'); // disable xdebug
+    $io->writeln('Installing PHP in the `.phplambda/bin/` directory');
+    $fs->mkdir('.phplambda/.phplambda/bin');
+    if (!$fs->exists('.phplambda/.phplambda/bin/php')) {
+        $commandRunner->run('curl -sSL https://s3.amazonaws.com/bref-php/bin/php-7.2.2.tar.gz | tar -xz -C .phplambda/.phplambda/bin');
     }
 
     $io->writeln('Installing `handler.js`');
@@ -69,6 +66,8 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $commandRunner->run('cd .phplambda && composer install --no-dev --classmap-authoritative');
 
     // TODO check there is a lambda.php file
+
+    // TODO edit serverless.yml to auto-add .phplambda
 
     // Run build hooks defined in .phplambda.yml
     if ($fs->exists('.phplambda/.phplambda.yml')) {
