@@ -1,16 +1,20 @@
 {
-    "name": "mnapoli/phplambda",
+    "name": "mnapoli/bref",
     "license": "proprietary",
     "type": "project",
     "autoload": {
         "psr-4": {
-            "PhpLambda\\": "src"
+            "Bref\\": "src"
         },
         "files": [
             "src/functions.php"
         ]
     },
+    "bin": [
+        "bref"
+    ],
     "require": {
+        "php": "^7.1.0",
         "mnapoli/silly": "^1.7",
         "symfony/filesystem": "^3.1|^4.0",
         "symfony/http-foundation": "^3.1|^4.0",
@@ -25,8 +29,5 @@
         "symfony/symfony": "^3.4|^4.0",
         "slim/slim": "^3.9",
         "friendsofphp/php-cs-fixer": "^2.4"
-    },
-    "bin": [
-        "phplambda"
-    ]
+    }
 }

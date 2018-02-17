@@ -1,5 +1,5 @@
 process.env['PATH'] = process.env['PATH']
-    + ':' + process.env['LAMBDA_TASK_ROOT'] + '/.phplambda/bin'; // for PHP
+    + ':' + process.env['LAMBDA_TASK_ROOT'] + '/.bref/bin'; // for PHP
 
 const spawn = require('child_process').spawn;
 const fs = require('fs');
@@ -22,12 +22,12 @@ exports.handle = function(event, context, callback) {
     };
 
     // Write the event to file
-    if (fs.existsSync('/tmp/.phplambda')) {
-        recursiveRmDir('/tmp/.phplambda');
+    if (fs.existsSync('/tmp/.bref')) {
+        recursiveRmDir('/tmp/.bref');
     }
-    fs.mkdirSync('/tmp/.phplambda');
+    fs.mkdirSync('/tmp/.bref');
 
-    let script = spawn('php', ['lambda.php', JSON.stringify(event)]);
+    let script = spawn('php', ['bref.php', JSON.stringify(event)]);
 
     let scriptOutput = '';
     //dynamically collect output
@@ -43,8 +43,8 @@ exports.handle = function(event, context, callback) {
     //finalize when process is done.
     script.on('close', function(code) {
         let result = null;
-        if (fs.existsSync('/tmp/.phplambda/output.json')) {
-            result = fs.readFileSync('/tmp/.phplambda/output.json', 'utf8');
+        if (fs.existsSync('/tmp/.bref/output.json')) {
+            result = fs.readFileSync('/tmp/.bref/output.json', 'utf8');
             result = JSON.parse(result);
         }
         console.log('Exit code: ' + code);

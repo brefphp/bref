@@ -6,11 +6,11 @@ declare(strict_types=1);
  *
  * @param callable $handler This callable takes a $event parameter (array) and must return anything serializable to JSON.
  *
- * @see \PhpLambda\Application::simpleHandler()
+ * @see \Bref\Application::simpleHandler()
  */
 function λ(callable $handler)
 {
-    $app = new \PhpLambda\Application;
+    $app = new \Bref\Application;
     $app->simpleHandler($handler);
     $app->run();
 }

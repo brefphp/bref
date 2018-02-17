@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use GuzzleHttp\Psr7\Stream;
-use PhpLambda\Util\CommandRunner;
+use Bref\Util\CommandRunner;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
@@ -16,7 +16,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/../../autoload.php';
 }
 
-$app = new Silly\Application;
+$app = new Silly\Application('Deploy serverless PHP applications');
 
 $app->command('init', function (SymfonyStyle $io) {
     $fs = new Filesystem;
@@ -24,16 +24,16 @@ $app->command('init', function (SymfonyStyle $io) {
         $io->writeln('Creating serverless.yml');
         $fs->copy(__DIR__ . '/template/serverless.yml', 'serverless.yml');
     }
-    if (!file_exists('lambda.php')) {
-        $io->writeln('Creating lambda.php');
-        $fs->copy(__DIR__ . '/template/lambda.php', 'lambda.php');
+    if (!file_exists('bref.php')) {
+        $io->writeln('Creating bref.php');
+        $fs->copy(__DIR__ . '/template/bref.php', 'bref.php');
     }
     $io->success([
-        'Project initialized and ready to deploy using "phplambda deploy"',
+        'Project initialized and ready to deploy using "bref deploy"',
         'If you are using git, you will need to commit the following files:',
-        '- lambda.php',
+        '- bref.php',
         '- serverless.yml',
-        'You can add `/.phplambda/` to your .gitignore:',
+        'You can add `/.bref/` to your .gitignore:',
     ]);
 });
 
@@ -41,9 +41,9 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $fs = new Filesystem;
     $commandRunner = new CommandRunner;
 
-    $io->writeln('Cloning the project in the `.phplambda` directory');
-    $fs->remove('.phplambda');
-    $fs->mkdir('.phplambda');
+    $io->writeln('Cloning the project in the `.bref` directory');
+    $fs->remove('.bref');
+    $fs->mkdir('.bref');
 
     if (!$fs->exists('.git')) {
         $currentDirectory = getcwd();
@@ -52,34 +52,34 @@ $app->command('deploy', function (SymfonyStyle $io) {
     }
     // TODO check if there are uncommitted changes in the directory, warn the user that these will not be deployed
     // TODO replace with rsync
-    $commandRunner->run('cd .phplambda && git clone .. .');
+    $commandRunner->run('cd .bref && git clone .. .');
 
-    $io->writeln('Installing PHP in the `.phplambda/bin/` directory');
-    $fs->mkdir('.phplambda/.phplambda/bin');
-    if (!$fs->exists('.phplambda/.phplambda/bin/php')) {
-        $commandRunner->run('curl -sSL https://s3.amazonaws.com/bref-php/bin/php-7.2.2.tar.gz | tar -xz -C .phplambda/.phplambda/bin');
+    $io->writeln('Installing PHP in the `.bref/bin/` directory');
+    $fs->mkdir('.bref/.bref/bin');
+    if (!$fs->exists('.bref/.bref/bin/php')) {
+        $commandRunner->run('curl -sSL https://s3.amazonaws.com/bref-php/bin/php-7.2.2.tar.gz | tar -xz -C .bref/.bref/bin');
     }
 
     $io->writeln('Installing `handler.js`');
-    $fs->copy(__DIR__ . '/template/handler.js', '.phplambda/handler.js');
+    $fs->copy(__DIR__ . '/template/handler.js', '.bref/handler.js');
 
-    $commandRunner->run('cd .phplambda && composer install --no-dev --classmap-authoritative');
+    $commandRunner->run('cd .bref && composer install --no-dev --classmap-authoritative');
 
-    // TODO check there is a lambda.php file
+    // TODO check there is a bref.php file
 
-    // TODO edit serverless.yml to auto-add .phplambda
+    // TODO edit serverless.yml to auto-add .bref
 
-    // Run build hooks defined in .phplambda.yml
-    if ($fs->exists('.phplambda/.phplambda.yml')) {
-        $config = Yaml::parse(file_get_contents('.phplambda/.phplambda.yml'));
+    // Run build hooks defined in .bref.yml
+    if ($fs->exists('.bref/.bref.yml')) {
+        $config = Yaml::parse(file_get_contents('.bref/.bref.yml'));
         $buildHooks = $config['hooks']['build'] ?? [];
         foreach ($buildHooks as $buildHook) {
             $io->writeln('Running ' . $buildHook);
-            $commandRunner->run('cd .phplambda && ' . $buildHook);
+            $commandRunner->run('cd .bref && ' . $buildHook);
         }
     }
 
-    $commandRunner->run('cd .phplambda && serverless deploy');
+    $commandRunner->run('cd .bref && serverless deploy');
 });
 
 $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) {

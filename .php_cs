@@ -3,7 +3,7 @@
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__)
     ->exclude([
-        '.phplambda',
+        '.bref',
         'vendor',
         'tests/Bridge/Symfony/cache',
         'tests/Bridge/Symfony/logs',

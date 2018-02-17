@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda\Http;
+namespace Bref\Http;
 
 use Interop\Http\Server\RequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;

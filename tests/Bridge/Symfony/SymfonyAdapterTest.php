@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda\Test\Bridge\Symfony;
+namespace Bref\Test\Bridge\Symfony;
 
-use PhpLambda\Bridge\Symfony\SymfonyAdapter;
+use Bref\Bridge\Symfony\SymfonyAdapter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;

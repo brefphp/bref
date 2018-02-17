@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda\Bridge\Psr7;
+namespace Bref\Bridge\Psr7;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Zend\Diactoros\ServerRequest;

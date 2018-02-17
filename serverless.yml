@@ -1,4 +1,4 @@
-service: phplambda
+service: bref
 
 provider:
   name: aws
@@ -10,8 +10,8 @@ package:
     - '**'
   include:
     - handler.js
-    - lambda.php
-    - '.phplambda/**'
+    - bref.php
+    - '.bref/**'
     - 'src/**'
     - 'vendor/**'
 

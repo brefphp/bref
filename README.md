@@ -1,4 +1,4 @@
-# Framework for using AWS Lambda in PHP
+# Serverless application framework for PHP
 
 Use cases:
 
@@ -26,23 +26,23 @@ This project is under a proprietary license.
 - Install [serverless](https://serverless.com): `npm install -g serverless`
 - Setup your AWS credentials: [create an AWS access key](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and either configure it [using an environment variable](https://serverless.com/framework/docs/providers/aws/guide/credentials#quick-setup) or [setup `aws-cli`](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) (and run `aws configure`)
 
-PHPLambda will then use AWS credentials and the serverless framework to deploy your application.
+Bref will then use AWS credentials and the serverless framework to deploy your application.
 
 ## Creating a lambda
 
 ```shell
-$ composer require phplambda/phplambda
-$ vendor/bin/phplambda init
+$ composer require mnapoli/bref
+$ vendor/bin/bref init
 ```
 
-Write a `lambda.php` file at the root of your project:
+Write a `bref.php` file at the root of your project:
 
 ```php
 <?php
 
 require __DIR__.'/vendor/autoload.php';
 
-$app = new \PhpLambda\Application;
+$app = new \Bref\Application;
 
 $app->simpleHandler(function (array $event) {
     return [
@@ -71,7 +71,7 @@ Watch out: if you want to setup an HTTP handler (e.g. for the webhook) you need 
 ## Deployment
 
 ```shell
-$ vendor/bin/phplambda deploy
+$ vendor/bin/bref deploy
 ```
 
 ## Invocation
@@ -114,14 +114,14 @@ $ serverless remove
 
 ## HTTP applications
 
-PHPLambda provides bridges to use your HTTP framework and write an HTTP application. By default it supports any [PSR-15 request handler](https://github.com/http-interop/http-server-handler) implementation, thanks to PSR-7 it is easy to integrate most frameworks.
+Bref provides bridges to use your HTTP framework and write an HTTP application. By default it supports any [PSR-15 request handler](https://github.com/http-interop/http-server-handler) implementation, thanks to PSR-7 it is easy to integrate most frameworks.
 
 Here is an example using the [Slim](https://www.slimframework.com) framework to handle requests:
 
 ```php
 <?php
 
-use PhpLambda\Bridge\Slim\SlimAdapter;
+use Bref\Bridge\Slim\SlimAdapter;
 
 require __DIR__.'/vendor/autoload.php';
 
@@ -131,7 +131,7 @@ $slim->get('/dev', function ($request, $response) {
     return $response;
 });
 
-$app = new \PhpLambda\Application;
+$app = new \Bref\Application;
 $app->httpHandler(new SlimAdapter($slim));
 $app->run();
 ```
@@ -141,13 +141,13 @@ Here is another example using [Symfony](https://symfony.com/):
 ```php
 <?php
 
-use PhpLambda\Bridge\Symfony\SymfonyAdapter;
+use Bref\Bridge\Symfony\SymfonyAdapter;
 
 require __DIR__.'/vendor/autoload.php';
 
 $kernel = new \App\Kernel('prod', false);
 
-$app = new \PhpLambda\Application;
+$app = new \Bref\Application;
 $app->httpHandler(new SymfonyAdapter($kernel));
 $app->cliHandler(new \Symfony\Bundle\FrameworkBundle\Console\Application($kernel));
 $app->run();
@@ -198,7 +198,7 @@ Things to note about the Symfony integration:
         return $this->getProjectDir().'/var/log';
     }
     ```
-- you need to add [build hooks](#build-hooks) in `.phplambda.yml`:
+- you need to add [build hooks](#build-hooks) in `.bref.yml`:
     ```yaml
     build:
         hooks:
@@ -206,10 +206,10 @@ Things to note about the Symfony integration:
             - 'php bin/console cache:warmup --env=prod'
     ```
 
-PHPLambda provides a helper to preview the application locally, simply run:
+Bref provides a helper to preview the application locally, simply run:
 
 ```shell
-$ php -S 127.0.0.1:8000 lambda.php
+$ php -S 127.0.0.1:8000 bref.php
 ```
 
 And open [http://localhost:8000](http://localhost:8000/).
@@ -224,7 +224,7 @@ If you use a custom domain for your application this prefix will disappear. If y
 
 ## CLI applications
 
-PHPLambda provides an abstraction to easily run CLI commands in lambdas. You can define a CLI application using [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Silly](https://github.com/mnapoli/silly) (which extends and simplifies Symfony Console). Once the lambda is deployed you can then "invoke" the CLI commands in the lambda using `phplambda cli -- <command>`.
+Bref provides an abstraction to easily run CLI commands in lambdas. You can define a CLI application using [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Silly](https://github.com/mnapoli/silly) (which extends and simplifies Symfony Console). Once the lambda is deployed you can then "invoke" the CLI commands in the lambda using `bref cli -- <command>`.
 
 ```php
 <?php
@@ -236,38 +236,38 @@ $silly->command('hello [name]', function (string $name = 'World!', $output) {
     $output->writeln('Hello ' . $name);
 });
 
-$app = new \PhpLambda\Application;
+$app = new \Bref\Application;
 $app->cliHandler($silly);
 $app->run();
 ```
 
-To run CLI commands in the lambda, simply run `phplambda cli` on your computer:
+To run CLI commands in the lambda, simply run `bref cli` on your computer:
 
 ```shell
-$ vendor/bin/phplambda cli
+$ vendor/bin/bref cli
 […]
 # Runs the CLI application without arguments and displays the help
 
-$ vendor/bin/phplambda cli -- hello
+$ vendor/bin/bref cli -- hello
 Hello World!
 
-$ vendor/bin/phplambda cli -- hello Bob
+$ vendor/bin/bref cli -- hello Bob
 Hello Bob
 ```
 
-As you can see, all arguments and options after `phplambda cli --` are forwarded to the CLI command running on lambda.
+As you can see, all arguments and options after `bref cli --` are forwarded to the CLI command running on lambda.
 
 To test your CLI commands locally, simply run:
 
 ```shell
-$ php lambda.php <commands and options>
+$ php bref.php <commands and options>
 ```
 
 ## Build hooks
 
 When deploying Composer dependencies will be installed and optimized for production (`composer install --no-dev --classmap-authoritative`).
 
-You can execute additional scripts by using a *build hook*. Those can be defined in a `.phplambda.yml` file:
+You can execute additional scripts by using a *build hook*. Those can be defined in a `.bref.yml` file:
 
 ```yaml
 build:

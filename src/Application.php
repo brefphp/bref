@@ -1,13 +1,13 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda;
+namespace Bref;
 
 use Interop\Http\Server\RequestHandlerInterface;
-use PhpLambda\Bridge\Psr7\RequestFactory;
-use PhpLambda\Cli\WelcomeApplication;
-use PhpLambda\Http\LambdaResponse;
-use PhpLambda\Http\WelcomeHandler;
+use Bref\Bridge\Psr7\RequestFactory;
+use Bref\Cli\WelcomeApplication;
+use Bref\Http\LambdaResponse;
+use Bref\Http\WelcomeHandler;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
@@ -19,8 +19,8 @@ use Zend\Diactoros\ServerRequestFactory;
  */
 class Application
 {
-    private const LAMBDA_DIRECTORY = '/tmp/.phplambda';
-    private const OUTPUT_FILE_NAME = self::LAMBDA_DIRECTORY . '/output.json';
+    private const BREF_DIRECTORY = '/tmp/.bref';
+    private const OUTPUT_FILE_NAME = self::BREF_DIRECTORY . '/output.json';
 
     /**
      * @var callable
@@ -40,7 +40,7 @@ class Application
     public function __construct()
     {
         $this->simpleHandler(function () {
-            return 'Welcome to PHPLambda! Define your handler using $application->simpleHandler()';
+            return 'Welcome to Bref! Define your handler using $application->simpleHandler()';
         });
         $this->httpHandler(new WelcomeHandler);
         $this->cliHandler(new WelcomeApplication);
@@ -80,7 +80,7 @@ class Application
      */
     public function run() : void
     {
-        if (!$this->isRunningInLambda()) {
+        if (!$this->isRunningInAwsLambda()) {
             if (php_sapi_name() == "cli") {
                 $this->cliHandler->setAutoExit(true);
                 $this->cliHandler->run();
@@ -123,8 +123,8 @@ class Application
     private function ensureTempDirectoryExists() : void
     {
         $filesystem = new Filesystem;
-        if (! $filesystem->exists(self::LAMBDA_DIRECTORY)) {
-            $filesystem->mkdir(self::LAMBDA_DIRECTORY);
+        if (! $filesystem->exists(self::BREF_DIRECTORY)) {
+            $filesystem->mkdir(self::BREF_DIRECTORY);
         }
     }
 
@@ -139,7 +139,7 @@ class Application
         file_put_contents(self::OUTPUT_FILE_NAME, $json);
     }
 
-    private function isRunningInLambda() : bool
+    private function isRunningInAwsLambda() : bool
     {
         return getenv('LAMBDA_TASK_ROOT') !== false;
     }

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda\Test\Http;
+namespace Bref\Test\Http;
 
-use PhpLambda\Http\LambdaResponse;
+use Bref\Http\LambdaResponse;
 use PHPUnit\Framework\TestCase;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;

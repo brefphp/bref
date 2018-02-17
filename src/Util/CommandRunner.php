@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda\Util;
+namespace Bref\Util;
 
 /**
  * @author Matthieu Napoli <matthieu@mnapoli.fr>

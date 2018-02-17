@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use PhpLambda\Bridge\Slim\SlimAdapter;
+use Bref\Bridge\Slim\SlimAdapter;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Silly\Application;
@@ -33,7 +33,7 @@ $silly->command('hello [name]', function (string $name = 'World!', OutputInterfa
     $output->writeln('Hello ' . $name);
 });
 
-$app = new \PhpLambda\Application;
+$app = new \Bref\Application;
 $app->simpleHandler(function (array $event) {
     return [
         'hello' => $event['name'] ?? 'world',

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda\Test\Bridge\Slim;
+namespace Bref\Test\Bridge\Slim;
 
-use PhpLambda\Bridge\Slim\SlimAdapter;
+use Bref\Bridge\Slim\SlimAdapter;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

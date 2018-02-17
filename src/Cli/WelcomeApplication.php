@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PhpLambda\Cli;
+namespace Bref\Cli;
 
 use Silly\Application;
 use Symfony\Component\Console\Style\SymfonyStyle;
