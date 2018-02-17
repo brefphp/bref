@@ -127,4 +127,9 @@ $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) 
     return (int) ($payload['exitCode'] ?? 1);
 });
 
+$app->command('info', function (SymfonyStyle $io) {
+    $commandRunner = new CommandRunner;
+    $io->write($commandRunner->run('serverless info'));
+});
+
 $app->run();
