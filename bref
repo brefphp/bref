@@ -41,6 +41,10 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $fs = new Filesystem;
     $commandRunner = new CommandRunner;
 
+    if (!$fs->exists('serverless.yml') || !$fs->exists('bref.php')) {
+        throw new Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
+    }
+
     $io->writeln('Cloning the project in the `.bref` directory');
     $fs->remove('.bref');
     $fs->mkdir('.bref');
@@ -64,8 +68,6 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $fs->copy(__DIR__ . '/template/handler.js', '.bref/handler.js');
 
     $commandRunner->run('cd .bref && composer install --no-dev --classmap-authoritative');
-
-    // TODO check there is a bref.php file
 
     // TODO edit serverless.yml to auto-add .bref
 
