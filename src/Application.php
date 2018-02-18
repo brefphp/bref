@@ -3,11 +3,11 @@ declare(strict_types=1);
 
 namespace Bref;
 
-use Interop\Http\Server\RequestHandlerInterface;
 use Bref\Bridge\Psr7\RequestFactory;
 use Bref\Cli\WelcomeApplication;
 use Bref\Http\LambdaResponse;
 use Bref\Http\WelcomeHandler;
+use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
