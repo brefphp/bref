@@ -114,9 +114,9 @@ $ serverless remove
 
 ## HTTP applications
 
-Bref provides bridges to use your HTTP framework and write an HTTP application. By default it supports any [PSR-15 request handler](https://github.com/http-interop/http-server-handler) implementation, thanks to PSR-7 it is easy to integrate most frameworks.
+Bref provides bridges to use your HTTP framework and write an HTTP application. By default it supports any [PSR-15 request handler](https://github.com/php-fig/http-server-handler) implementation, thanks to PSR-7 it is easy to integrate most frameworks.
 
-Here is an example using the [Slim](https://www.slimframework.com) framework to handle requests:
+Here is an example using the [Slim](https://www.slimframework.com) framework to handle requests (native PSR-15 support for Slim [is in the works](https://github.com/slimphp/Slim/pull/2379)):
 
 ```php
 <?php
