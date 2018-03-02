@@ -6,6 +6,7 @@ use GuzzleHttp\Psr7\Stream;
 use Bref\Util\CommandRunner;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
@@ -40,26 +41,26 @@ $app->command('init', function (SymfonyStyle $io) {
 $app->command('deploy', function (SymfonyStyle $io) {
     $fs = new Filesystem;
     $commandRunner = new CommandRunner;
+    $projectDirectory = getcwd();
 
     if (!$fs->exists('serverless.yml') || !$fs->exists('bref.php')) {
         throw new Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
     }
 
-    $io->writeln('Cloning the project in the `.bref` directory');
-    $fs->remove('.bref');
+    $io->writeln('Copying the project in the `.bref` directory');
     $fs->mkdir('.bref');
 
-    if (!$fs->exists('.git')) {
-        $currentDirectory = getcwd();
-        $io->error("The directory `$currentDirectory` is not a git repository");
-        return 1;
-    }
-    // TODO check if there are uncommitted changes in the directory, warn the user that these will not be deployed
-    // TODO replace with rsync
-    $commandRunner->run('cd .bref && git clone .. .');
+    $mirrorFilter = new Finder;
+    $mirrorFilter->in($projectDirectory) // copy all files in the project directory
+        ->exclude($projectDirectory . '.bref'); // except the .bref folder, else it would be a recursive loop
+    $fs->mirror($projectDirectory, $projectDirectory . '.bref', $mirrorFilter, [
+        'override' => true, // target files newer than origin files are overwritten
+        'delete' => true, // delete files that are not in the source directory
+    ]);
 
     $io->writeln('Installing PHP in the `.bref/bin/` directory');
     $fs->mkdir('.bref/.bref/bin');
+    // TODO cache binaries in ~
     if (!$fs->exists('.bref/.bref/bin/php')) {
         $commandRunner->run('curl -sSL https://s3.amazonaws.com/bref-php/bin/php-7.2.2.tar.gz | tar -xz -C .bref/.bref/bin');
     }
@@ -81,7 +82,7 @@ $app->command('deploy', function (SymfonyStyle $io) {
         }
     }
 
-    $commandRunner->run('cd .bref && serverless deploy');
+//    $commandRunner->run('cd .bref && serverless deploy');
 });
 
 $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) {
