@@ -41,22 +41,25 @@ $app->command('init', function (SymfonyStyle $io) {
 $app->command('deploy', function (SymfonyStyle $io) {
     $fs = new Filesystem;
     $commandRunner = new CommandRunner;
-    $projectDirectory = getcwd();
 
     if (!$fs->exists('serverless.yml') || !$fs->exists('bref.php')) {
         throw new Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
     }
 
     $io->writeln('Copying the project in the `.bref` directory');
+    // TODO Mirror the directory instead of recreating it from scratch every time
+    // Blocked by https://github.com/symfony/symfony/pull/26399
+    $fs->remove('.bref');
     $fs->mkdir('.bref');
-
-    $mirrorFilter = new Finder;
-    $mirrorFilter->in($projectDirectory) // copy all files in the project directory
-        ->exclude($projectDirectory . '.bref'); // except the .bref folder, else it would be a recursive loop
-    $fs->mirror($projectDirectory, $projectDirectory . '.bref', $mirrorFilter, [
-        'override' => true, // target files newer than origin files are overwritten
-        'delete' => true, // delete files that are not in the source directory
-    ]);
+    $filesToCopy = new Finder;
+    $filesToCopy->in('.')->depth(0)->exclude('.bref');
+    foreach ($filesToCopy as $fileToCopy) {
+        if (is_file($fileToCopy->getPathname())) {
+            $fs->copy($fileToCopy->getPathname(), '.bref/' . $fileToCopy->getFilename());
+        } else {
+            $fs->mirror($fileToCopy->getPathname(), '.bref/' . $fileToCopy->getFilename());
+        }
+    }
 
     $io->writeln('Installing PHP in the `.bref/bin/` directory');
     $fs->mkdir('.bref/.bref/bin');
@@ -68,6 +71,7 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $io->writeln('Installing `handler.js`');
     $fs->copy(__DIR__ . '/template/handler.js', '.bref/handler.js');
 
+    $io->writeln('Installing composer dependencies');
     $commandRunner->run('cd .bref && composer install --no-dev --classmap-authoritative');
 
     // TODO edit serverless.yml to auto-add .bref
@@ -82,7 +86,7 @@ $app->command('deploy', function (SymfonyStyle $io) {
         }
     }
 
-//    $commandRunner->run('cd .bref && serverless deploy');
+    $commandRunner->run('cd .bref && serverless deploy');
 });
 
 $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) {
