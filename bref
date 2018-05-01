@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use GuzzleHttp\Psr7\Stream;
 use Bref\Util\CommandRunner;
+use Joli\JoliNotif\Notification;
+use Joli\JoliNotif\NotifierFactory;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
@@ -95,6 +97,12 @@ $app->command('deploy', function (SymfonyStyle $io) {
 
     $io->writeln('Uploading the lambda');
     $commandRunner->run('cd .bref/output && serverless deploy');
+
+    $notifier = NotifierFactory::create();
+    $notification = (new Notification)
+        ->setTitle('Deployment success')
+        ->setBody('Bref has deployed your application');
+    $notifier->send($notification);
 });
 
 $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) {
