@@ -27,6 +27,8 @@ exports.handle = function(event, context, callback) {
     }
     fs.mkdirSync('/tmp/.bref');
 
+    let timeStartPhp = new Date().getTime();
+
     let script = spawn('php', ['bref.php', JSON.stringify(event)]);
 
     let scriptOutput = '';
@@ -47,7 +49,7 @@ exports.handle = function(event, context, callback) {
             result = fs.readFileSync('/tmp/.bref/output.json', 'utf8');
             result = JSON.parse(result);
         }
-        console.log('Exit code: ' + code);
+        console.log('Exit code: ' + code + ', PHP run time: ' + ((new Date().getTime()) - timeStartPhp) + 'ms');
         if (code === 0) {
             console.log('Result payload: ' + JSON.stringify(result));
             callback(null, result);
