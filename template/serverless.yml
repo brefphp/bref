@@ -19,9 +19,6 @@ functions:
   # By default we create one "main" function
   main:
     handler: handler.handle
-    # Use the minimum amount of memory (Mb) by default to optimize costs
-    # Increase if necessary
-    memorySize: 128
     timeout: 20
     # The function will match all HTTP URLs
     events:
