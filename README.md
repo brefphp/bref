@@ -13,13 +13,6 @@ Use cases:
 
 This project is under a proprietary license.
 
-## TODO
-
-- init: ask for the project name
-- Handle errors/exceptions and logs
-- Avoid using a temporary file for the output
-- Handle SNS events with an abstraction
-
 ## Setup
 
 - Create an AWS account if you don't already have one
