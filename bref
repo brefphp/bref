@@ -46,11 +46,11 @@ $app->command('deploy', function (SymfonyStyle $io) {
         throw new Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
     }
 
-    $io->writeln('Copying the project in the `.bref` directory');
+    $io->writeln('Building the project in the `.bref/output` directory');
     // TODO Mirror the directory instead of recreating it from scratch every time
     // Blocked by https://github.com/symfony/symfony/pull/26399
-    $fs->remove('.bref');
-    $fs->mkdir('.bref');
+    $fs->remove('.bref/output');
+    $fs->mkdir('.bref/output');
     $filesToCopy = new Finder;
     $filesToCopy->in('.')
         ->depth(0)
@@ -58,38 +58,43 @@ $app->command('deploy', function (SymfonyStyle $io) {
         ->ignoreDotFiles(false);
     foreach ($filesToCopy as $fileToCopy) {
         if (is_file($fileToCopy->getPathname())) {
-            $fs->copy($fileToCopy->getPathname(), '.bref/' . $fileToCopy->getFilename());
+            $fs->copy($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename());
         } else {
-            $fs->mirror($fileToCopy->getPathname(), '.bref/' . $fileToCopy->getFilename());
+            $fs->mirror($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename());
         }
     }
 
-    $io->writeln('Installing PHP in the `.bref/bin/` directory');
-    $fs->mkdir('.bref/.bref/bin');
-    // TODO cache binaries in ~
-    if (!$fs->exists('.bref/.bref/bin/php')) {
-        $commandRunner->run('curl -sSL https://s3.amazonaws.com/bref-php/bin/php-7.2.2.tar.gz | tar -xz -C .bref/.bref/bin');
+    // Cache PHP's binary in `.bref/bin/php`
+    if (!$fs->exists('.bref/bin/php/php-7.2.2.tar.gz')) {
+        $io->writeln('Downloading PHP in the `.bref/bin/` directory');
+        $fs->mkdir('.bref/bin/php');
+        $commandRunner->run('curl -sSL https://s3.amazonaws.com/bref-php/bin/php-7.2.2.tar.gz -o .bref/bin/php/php-7.2.2.tar.gz');
     }
 
+    $io->writeln('Installing the PHP binary');
+    $fs->mkdir('.bref/output/.bref/bin');
+    $commandRunner->run('tar -xzf .bref/bin/php/php-7.2.2.tar.gz -C .bref/output/.bref/bin');
+
     $io->writeln('Installing `handler.js`');
-    $fs->copy(__DIR__ . '/template/handler.js', '.bref/handler.js');
+    $fs->copy(__DIR__ . '/template/handler.js', '.bref/output/handler.js');
 
     $io->writeln('Installing composer dependencies');
-    $commandRunner->run('cd .bref && composer install --no-dev --classmap-authoritative');
+    $commandRunner->run('cd .bref/output && composer install --no-dev --classmap-authoritative');
 
     // TODO edit serverless.yml to auto-add .bref
 
     // Run build hooks defined in .bref.yml
-    if ($fs->exists('.bref/.bref.yml')) {
-        $config = Yaml::parse(file_get_contents('.bref/.bref.yml'));
+    if ($fs->exists('.bref/output/.bref.yml')) {
+        $config = Yaml::parse(file_get_contents('.bref/output/.bref.yml'));
         $buildHooks = $config['hooks']['build'] ?? [];
         foreach ($buildHooks as $buildHook) {
             $io->writeln('Running ' . $buildHook);
-            $commandRunner->run('cd .bref && ' . $buildHook);
+            $commandRunner->run('cd .bref/output && ' . $buildHook);
         }
     }
 
-    $commandRunner->run('cd .bref && serverless deploy');
+    $io->writeln('Uploading the lambda');
+    $commandRunner->run('cd .bref/output && serverless deploy');
 });
 
 $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) {
