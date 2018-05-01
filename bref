@@ -52,7 +52,10 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $fs->remove('.bref');
     $fs->mkdir('.bref');
     $filesToCopy = new Finder;
-    $filesToCopy->in('.')->depth(0)->exclude('.bref');
+    $filesToCopy->in('.')
+        ->depth(0)
+        ->exclude('.bref')
+        ->ignoreDotFiles(false);
     foreach ($filesToCopy as $fileToCopy) {
         if (is_file($fileToCopy->getPathname())) {
             $fs->copy($fileToCopy->getPathname(), '.bref/' . $fileToCopy->getFilename());
