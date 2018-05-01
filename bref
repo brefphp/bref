@@ -108,6 +108,7 @@ $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) 
         throw new Exception('Unable to parse the output of `serverless info`');
     }
 
+    // TODO run using `serverless` instead to avoid coupling to AWS
     $lambda = new \Aws\Lambda\LambdaClient([
         'version' => 'latest',
         'region' => $region,
