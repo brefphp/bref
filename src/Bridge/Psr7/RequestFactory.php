@@ -34,7 +34,7 @@ class RequestFactory
             'REQUEST_URI' => $uri,
         ];
 
-        $request = new ServerRequest(
+        return new ServerRequest(
             $server,
             $files,
             $uri,
@@ -46,7 +46,5 @@ class RequestFactory
             $request,
             $protocolVersion
         );
-
-        return $request;
     }
 }
