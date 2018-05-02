@@ -192,7 +192,7 @@ $ php bref.php <commands and options>
 
 ## Build hooks
 
-When deploying Composer dependencies will be installed and optimized for production (`composer install --no-dev --classmap-authoritative`).
+When deploying Composer dependencies will be installed and optimized for production (`composer install --no-dev --no-scripts --classmap-authoritative`).
 
 You can execute additional scripts by using a *build hook*. Those can be defined in a `.bref.yml` file:
 
