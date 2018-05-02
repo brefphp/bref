@@ -48,6 +48,12 @@ $app->command('deploy', function (SymfonyStyle $io) {
         throw new Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
     }
 
+    // Parse .bref.yml
+    $projectConfig = [];
+    if ($fs->exists('.bref.yml')) {
+        $projectConfig = Yaml::parse(file_get_contents('.bref.yml'));
+    }
+
     $io->writeln('Building the project in the `.bref/output` directory');
     // TODO Mirror the directory instead of recreating it from scratch every time
     // Blocked by https://github.com/symfony/symfony/pull/26399
@@ -88,13 +94,10 @@ $app->command('deploy', function (SymfonyStyle $io) {
     // TODO edit serverless.yml to auto-add .bref
 
     // Run build hooks defined in .bref.yml
-    if ($fs->exists('.bref/output/.bref.yml')) {
-        $config = Yaml::parse(file_get_contents('.bref/output/.bref.yml'));
-        $buildHooks = $config['hooks']['build'] ?? [];
-        foreach ($buildHooks as $buildHook) {
-            $io->writeln('Running ' . $buildHook);
-            $commandRunner->run('cd .bref/output && ' . $buildHook);
-        }
+    $buildHooks = $projectConfig['hooks']['build'] ?? [];
+    foreach ($buildHooks as $buildHook) {
+        $io->writeln('Running ' . $buildHook);
+        $commandRunner->run('cd .bref/output && ' . $buildHook);
     }
 
     $io->writeln('Uploading the lambda');
