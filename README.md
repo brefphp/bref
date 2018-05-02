@@ -129,76 +129,6 @@ $app->httpHandler(new SlimAdapter($slim));
 $app->run();
 ```
 
-Here is another example using [Symfony](https://symfony.com/):
-
-```php
-<?php
-
-use Bref\Bridge\Symfony\SymfonyAdapter;
-
-require __DIR__.'/vendor/autoload.php';
-
-$kernel = new \App\Kernel('prod', false);
-
-$app = new \Bref\Application;
-$app->httpHandler(new SymfonyAdapter($kernel));
-$app->cliHandler(new \Symfony\Bundle\FrameworkBundle\Console\Application($kernel));
-$app->run();
-```
-
-Things to note about the Symfony integration:
-
-- the `terminate` event is run synchronously before the response is sent back (we are not in a fastcgi setup)
-- you may need to customize the list of directories that will be packaged and deployed into the lambda (in `serverless.yml`)
-- you need to define some environment variable for Symfony to configure itself on the lambda. To do this, edit the generated `serverless.yml` for non-sensitive configuration:
-    ```yaml
-    functions:
-      main:
-        ...
-        # Add this section:
-        environment:
-          APP_ENV: 'prod'
-          APP_DEBUG: '0'
-    ```
-    
-    For sensitive information those should be defined in a more secure way, for example through AWS's console.
-- since you will not be deploying `composer.json` into the lambda (because there is no reason to), you will need to explicitly define the project dir to Symfony by adding this method in your Kernel class:
-    ```php
-    public function getProjectDir()
-    {
-        return realpath(__DIR__.'/../');
-    }
-    ```
-- the filesystem is readonly on lambdas except for `/tmp`, as such you need to customize the paths for caches and logs:
-    ```php
-    public function getCacheDir()
-    {
-        // When on the lambda only /tmp is writeable
-        if (getenv('LAMBDA_TASK_ROOT') !== false) {
-            return '/tmp/cache/'.$this->environment;
-        }
-
-        return $this->getProjectDir().'/var/cache/'.$this->environment;
-    }
-    
-    public function getLogDir()
-    {
-        // When on the lambda only /tmp is writeable
-        if (getenv('LAMBDA_TASK_ROOT') !== false) {
-            return '/tmp/log/';
-        }
-
-        return $this->getProjectDir().'/var/log';
-    }
-    ```
-- you need to add [build hooks](#build-hooks) in `.bref.yml`:
-    ```yaml
-    build:
-        hooks:
-            - 'php bin/console cache:clear --env=prod --no-debug --no-warmup'
-            - 'php bin/console cache:warmup --env=prod'
-    ```
-
 Bref provides a helper to preview the application locally, simply run:
 
 ```shell
@@ -208,6 +138,10 @@ $ php -S 127.0.0.1:8000 bref.php
 And open [http://localhost:8000](http://localhost:8000/).
 
 Remember that you can also keep the `simpleHandler` so that your lambda handles both HTTP requests and direct invocations.
+
+### Symfony integration
+
+Read the documentation for [deploying Symfony applications](docs/Symfony.md).
 
 ### Why is there a `/dev` prefix in the URLs on AWS Lambda
 
