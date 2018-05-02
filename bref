@@ -62,7 +62,9 @@ $app->command('deploy', function (SymfonyStyle $io) {
         if (is_file($fileToCopy->getPathname())) {
             $fs->copy($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename());
         } else {
-            $fs->mirror($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename());
+            $fs->mirror($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename(), null, [
+                    'copy_on_windows' => true, // Force to copy symlink content
+            ]);
         }
     }
 
