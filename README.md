@@ -59,7 +59,7 @@ require __DIR__.'/vendor/autoload.php';
 });
 ```
 
-Watch out: if you want to setup an HTTP handler (e.g. for the webhook) you need to use an HTTP framework. This is described at the end of this page.
+Watch out: if you want to setup a HTTP handler (e.g. for the webhook) you need to use a HTTP framework. This is described at the end of this page.
 
 ## Deployment
 
