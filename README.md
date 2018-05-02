@@ -69,7 +69,7 @@ $ vendor/bin/bref deploy
 
 ## Invocation
 
-By default lambdas are deployed with a webhook. You can trigger them by simply calling the webhook. If in doubt, the webhook can be retrieved using `serverless info`.
+By default lambdas are deployed with a webhook. You can trigger them by simply calling the webhook. If in doubt, the webhook can be retrieved using `vendor/bin/bref info`.
 
 ```shell
 $ curl https://xxxxx.execute-api.xxxxx.amazonaws.com/dev/
