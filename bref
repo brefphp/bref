@@ -83,7 +83,7 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $fs->copy(__DIR__ . '/template/handler.js', '.bref/output/handler.js');
 
     $io->writeln('Installing composer dependencies');
-    $commandRunner->run('cd .bref/output && composer install --no-dev --classmap-authoritative');
+    $commandRunner->run('cd .bref/output && composer install --no-dev --classmap-authoritative --no-scripts');
 
     // TODO edit serverless.yml to auto-add .bref
 
