@@ -78,7 +78,10 @@ $app->command('deploy', function (SymfonyStyle $io) {
     if (!$fs->exists('.bref/bin/php/php-7.2.2.tar.gz')) {
         $io->writeln('Downloading PHP in the `.bref/bin/` directory');
         $fs->mkdir('.bref/bin/php');
-        $commandRunner->run('curl -sSL https://s3.amazonaws.com/bref-php/bin/php-7.2.2.tar.gz -o .bref/bin/php/php-7.2.2.tar.gz');
+        $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-7.2.2.tar.gz';
+        // TODO document this option
+        $url = $projectConfig['php'] ?? $defaultUrl;
+        $commandRunner->run("curl -sSL $url -o .bref/bin/php/php-7.2.2.tar.gz");
     }
 
     $io->writeln('Installing the PHP binary');
