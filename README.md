@@ -9,10 +9,6 @@ Use cases:
 - crons
 - workers
 
-## License
-
-This project is under a proprietary license.
-
 ## Setup
 
 - Create an AWS account if you don't already have one
