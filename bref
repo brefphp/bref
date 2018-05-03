@@ -129,7 +129,9 @@ $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) 
         throw new Exception('Unable to parse the output of `serverless info`');
     }
 
-    // TODO run using `serverless` instead to avoid coupling to AWS
+    // We cannot use the `serverless` CLI command here because it
+    // mangles the lambda response (JSON data) with logs on stdout.
+    // Using the AWS SDK allows to collect those data separately and properly.
     $lambda = new \Aws\Lambda\LambdaClient([
         'version' => 'latest',
         'region' => $region,
