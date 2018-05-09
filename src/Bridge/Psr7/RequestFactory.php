@@ -62,7 +62,7 @@ class RequestFactory
 
     private static function createBodyStream(string $body) : StreamInterface
     {
-        $stream = fopen('php://memory','r+');
+        $stream = fopen('php://memory', 'r+');
         fwrite($stream, $body);
         rewind($stream);
 
