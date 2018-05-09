@@ -1,0 +1,29 @@
+language: php
+
+notifications:
+  email:
+    on_success: never
+
+php:
+  - 7.1
+  - 7.2
+  - nightly
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: nightly
+  include:
+    - php: 7.1
+      env: dependencies=lowest
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+before_script:
+  - composer install -n
+  - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest --prefer-stable -n; fi;
+
+script:
+  - vendor/bin/phpunit
