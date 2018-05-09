@@ -193,7 +193,7 @@ When deploying Composer dependencies will be installed and optimized for product
 You can execute additional scripts by using a *build hook*. Those can be defined in a `.bref.yml` file:
 
 ```yaml
-build:
-    hooks:
+hooks:
+    build:
         - 'npm install'
 ```
