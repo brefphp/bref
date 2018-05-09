@@ -11,7 +11,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
-const PHP_VERSION = '7.2.5';
+const PHP_TARGET_VERSION = '7.2.5';
 
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
@@ -77,18 +77,18 @@ $app->command('deploy', function (SymfonyStyle $io) {
     }
 
     // Cache PHP's binary in `.bref/bin/php`
-    if (!$fs->exists('.bref/bin/php/php-' . PHP_VERSION . '.tar.gz')) {
+    if (!$fs->exists('.bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz')) {
         $io->writeln('Downloading PHP in the `.bref/bin/` directory');
         $fs->mkdir('.bref/bin/php');
-        $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . PHP_VERSION . '.tar.gz';
+        $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . PHP_TARGET_VERSION . '.tar.gz';
         // TODO document this option
         $url = $projectConfig['php'] ?? $defaultUrl;
-        $commandRunner->run("curl -sSL $url -o .bref/bin/php/php-' . PHP_VERSION . '.tar.gz");
+        $commandRunner->run("curl -sSL $url -o .bref/bin/php/php-" . PHP_TARGET_VERSION . ".tar.gz");
     }
 
     $io->writeln('Installing the PHP binary');
     $fs->mkdir('.bref/output/.bref/bin');
-    $commandRunner->run('tar -xzf .bref/bin/php/php-' . PHP_VERSION . '.tar.gz -C .bref/output/.bref/bin');
+    $commandRunner->run('tar -xzf .bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz -C .bref/output/.bref/bin');
 
     $io->writeln('Installing `handler.js`');
     $fs->copy(__DIR__ . '/template/handler.js', '.bref/output/handler.js');
