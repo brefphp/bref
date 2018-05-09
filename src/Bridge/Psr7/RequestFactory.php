@@ -4,26 +4,38 @@ declare(strict_types=1);
 namespace Bref\Bridge\Psr7;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\Stream;
 
 /**
- * Create a PSR-7 request from a lambda event.
+ * Creates PSR-7 requests.
  *
  * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
 class RequestFactory
 {
-    public function fromLambdaEvent(array $event) : ServerRequestInterface
+    /**
+     * Create a PSR-7 server request from an AWS Lambda HTTP event.
+     */
+    public static function fromLambdaEvent(array $event) : ServerRequestInterface
     {
         $method = $event['httpMethod'] ?? 'GET';
         $query = $event['queryStringParameters'] ?? [];
-        parse_str($event['body'] ?? '', $request);
+        $bodyString = $event['body'] ?? '';
+        $body = self::createBodyStream($bodyString);
+        $parsedBody = null;
         $files = [];
         $uri = $event['requestContext']['path'] ?? '/';
         $headers = $event['headers'] ?? [];
         $protocolVersion = $event['requestContext']['protocol'] ?? '1.1';
         // TODO
         $cookies = [];
+
+        $contentType = $headers['Content-Type'] ?? null;
+        if ($method === 'POST' && $contentType === 'application/x-www-form-urlencoded') {
+            parse_str($bodyString, $parsedBody);
+        }
 
         $server = [
             'SERVER_PROTOCOL' => $protocolVersion,
@@ -39,12 +51,21 @@ class RequestFactory
             $files,
             $uri,
             $method,
-            'file:///dev/null',
+            $body,
             $headers,
             $cookies,
             $query,
-            $request,
+            $parsedBody,
             $protocolVersion
         );
+    }
+
+    private static function createBodyStream(string $body) : StreamInterface
+    {
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, $body);
+        rewind($stream);
+
+        return new Stream($stream);
     }
 }

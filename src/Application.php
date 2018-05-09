@@ -99,7 +99,7 @@ class Application
         // Run the appropriate handler
         if (isset($event['httpMethod'])) {
             // HTTP request
-            $request = (new RequestFactory)->fromLambdaEvent($event);
+            $request = RequestFactory::fromLambdaEvent($event);
             $response = $this->httpHandler->handle($request);
             $output = LambdaResponse::fromPsr7Response($response)->toJson();
         } elseif (isset($event['cli'])) {
