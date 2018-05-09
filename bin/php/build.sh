@@ -8,7 +8,7 @@
 
 set -e
 
-PHP_VERSION_GIT_BRANCH=php-7.2.2
+PHP_VERSION_GIT_BRANCH=php-7.2.5
 
 echo "Build PHP Binary from current branch '$PHP_VERSION_GIT_BRANCH' on https://github.com/php/php-src"
 

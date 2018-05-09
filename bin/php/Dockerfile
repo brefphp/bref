@@ -26,21 +26,26 @@ WORKDIR /php-src-$PHP_VERSION
 RUN ./buildconf --force
 
 RUN ./configure \
+    # make sure invalid --configure-flags are fatal errors intead of just warnings
+    --enable-option-checking=fatal \
     --enable-static=yes \
     --enable-shared=no \
-    --disable-all \
-    --enable-hash \
-    --enable-json \
-    --enable-libxml \
+    --disable-cgi \
+    --disable-fpm \
+    --disable-phpdbg \
+    # --enable-ftp is included here because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
+    --enable-ftp \
+    # --enable-mbstring is included here because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
     --enable-mbstring \
-    --enable-phar \
+    --enable-mysqlnd \
     --enable-soap \
-    --enable-xml \
+    --enable-zip \
     --with-curl \
-    --with-gd \
-    --with-zlib \
     --with-openssl \
-    --without-pear \
-    --enable-ctype
+    --with-zlib \
+    --with-gd \
+    # https://github.com/docker-library/php/issues/439
+    --with-mhash \
+    --without-pear
 
 RUN make -j 5
