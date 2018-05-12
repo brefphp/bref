@@ -8,9 +8,6 @@ use Silly\Application;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Debug\Debug;
 
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
-
 require __DIR__.'/vendor/autoload.php';
 
 Debug::enable();
