@@ -19,7 +19,7 @@ functions:
   # By default we create one "main" function
   main:
     handler: handler.handle
-    timeout: 20
+    timeout: 20 # Timeout in seconds, the default is 6 seconds
     # The function will match all HTTP URLs
     events:
       - http: 'ANY /'

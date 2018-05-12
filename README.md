@@ -197,3 +197,7 @@ hooks:
     build:
         - 'npm install'
 ```
+
+## Contributing
+
+There are a lot of detailed `TODO` notes in the codebase. Feel free to work on these.

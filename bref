@@ -24,7 +24,16 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 $app = new Silly\Application('Deploy serverless PHP applications');
 
 $app->command('init', function (SymfonyStyle $io) {
+    /*
+     * TODO We should check that dependencies are correctly installed
+     * - check that `serverless` is installed
+     * - check that it is configured with environment variables
+     * If not, print a link to Bref's documentation and exit with an error.
+     */
     $fs = new Filesystem;
+    /*
+     * TODO Ask for a project name and configure it in `serverless.yml`.
+     */
     if (!file_exists('serverless.yml')) {
         $io->writeln('Creating serverless.yml');
         $fs->copy(__DIR__ . '/template/serverless.yml', 'serverless.yml');
@@ -34,11 +43,12 @@ $app->command('init', function (SymfonyStyle $io) {
         $fs->copy(__DIR__ . '/template/bref.php', 'bref.php');
     }
     $io->success([
-        'Project initialized and ready to deploy using "bref deploy"',
+        'Project initialized and ready to deploy using `bref deploy`',
         'If you are using git, you will need to commit the following files:',
         '- bref.php',
         '- serverless.yml',
-        'You can add `/.bref/` to your .gitignore:',
+        // TODO Do this automatically
+        'You can add `/.bref/` to your .gitignore.',
     ]);
 });
 
@@ -53,35 +63,57 @@ $app->command('deploy', function (SymfonyStyle $io) {
     // Parse .bref.yml
     $projectConfig = [];
     if ($fs->exists('.bref.yml')) {
+        /*
+         * TODO validate the content of the config, for example we should
+         * error if there are unknown keys. Using the Symfony Config component
+         * for that could make sense.
+         */
         $projectConfig = Yaml::parse(file_get_contents('.bref.yml'));
     }
 
     $io->writeln('Building the project in the `.bref/output` directory');
-    // TODO Mirror the directory instead of recreating it from scratch every time
-    // Blocked by https://github.com/symfony/symfony/pull/26399
+    /*
+     * TODO Mirror the directory instead of recreating it from scratch every time
+     * Blocked by https://github.com/symfony/symfony/pull/26399
+     * In the meantime we destroy `.bref/output` completely every time which
+     * is not efficient.
+     */
     $fs->remove('.bref/output');
     $fs->mkdir('.bref/output');
     $filesToCopy = new Finder;
     $filesToCopy->in('.')
         ->depth(0)
-        ->exclude('.bref')
+        ->exclude('.bref') // avoid a recursive copy
         ->ignoreDotFiles(false);
     foreach ($filesToCopy as $fileToCopy) {
         if (is_file($fileToCopy->getPathname())) {
             $fs->copy($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename());
         } else {
             $fs->mirror($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename(), null, [
-                    'copy_on_windows' => true, // Force to copy symlink content
+                'copy_on_windows' => true, // Force to copy symlink content
             ]);
         }
     }
 
-    // Cache PHP's binary in `.bref/bin/php`
+    // Cache PHP's binary in `.bref/bin/php` to avoid downloading it
+    // on every deploy.
+    /*
+     * TODO Allow choosing a PHP version instead of using directly the
+     * constant `PHP_TARGET_VERSION`. That could be done using the `.bref.yml`
+     * config file: there could be an option in that config, for example:
+     * php:
+     *     version: 7.2.2
+     */
     if (!$fs->exists('.bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz')) {
         $io->writeln('Downloading PHP in the `.bref/bin/` directory');
         $fs->mkdir('.bref/bin/php');
         $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . PHP_TARGET_VERSION . '.tar.gz';
-        // TODO document this option
+        /*
+         * TODO This option allows to customize the PHP binary used. It should be documented
+         * and probably moved to a dedicated option like:
+         * php:
+         *     url: 'https://s3.amazonaws.com/...'
+         */
         $url = $projectConfig['php'] ?? $defaultUrl;
         $commandRunner->run("curl -sSL $url -o .bref/bin/php/php-" . PHP_TARGET_VERSION . ".tar.gz");
     }
@@ -96,7 +128,12 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $io->writeln('Installing composer dependencies');
     $commandRunner->run('cd .bref/output && composer install --no-dev --classmap-authoritative --no-scripts');
 
-    // TODO edit serverless.yml to auto-add .bref
+    /*
+     * TODO Edit the `serverless.yml` copy (in `.bref/output` to deploy these files:
+     * - bref.php
+     * - handler.js
+     * - .bref/**
+     */
 
     // Run build hooks defined in .bref.yml
     $buildHooks = $projectConfig['hooks']['build'] ?? [];
@@ -108,6 +145,7 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $io->writeln('Uploading the lambda');
     $commandRunner->run('cd .bref/output && serverless deploy');
 
+    // Trigger a desktop notification
     $notifier = NotifierFactory::create();
     $notification = (new Notification)
         ->setTitle('Deployment success')
@@ -115,6 +153,9 @@ $app->command('deploy', function (SymfonyStyle $io) {
     $notifier->send($notification);
 });
 
+/**
+ * Run a CLI command in the remote environment.
+ */
 $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) {
     $commandRunner = new CommandRunner;
 

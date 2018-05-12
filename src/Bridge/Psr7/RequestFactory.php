@@ -29,10 +29,13 @@ class RequestFactory
         $uri = $event['requestContext']['path'] ?? '/';
         $headers = $event['headers'] ?? [];
         $protocolVersion = $event['requestContext']['protocol'] ?? '1.1';
-        // TODO
+        // TODO Parse HTTP headers for cookies.
         $cookies = [];
 
         $contentType = $headers['Content-Type'] ?? null;
+        /*
+         * TODO Multipart form uploads are not supported yet.
+         */
         if ($method === 'POST' && $contentType === 'application/x-www-form-urlencoded') {
             parse_str($bodyString, $parsedBody);
         }

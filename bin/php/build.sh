@@ -8,6 +8,10 @@
 
 set -e
 
+# TODO Make a `Makefile` and let us run this script using make
+# The idea is to hide the details of all the tasks behind a single tool.
+# The PHP version could be passed as a command argument instead of the variable below.
+
 PHP_VERSION_GIT_BRANCH=php-7.2.5
 
 echo "Build PHP Binary from current branch '$PHP_VERSION_GIT_BRANCH' on https://github.com/php/php-src"
@@ -23,3 +27,4 @@ tar czf $PHP_VERSION_GIT_BRANCH.tar.gz php
 rm php
 aws s3 cp $PHP_VERSION_GIT_BRANCH.tar.gz s3://bref-php/bin/
 rm $PHP_VERSION_GIT_BRANCH.tar.gz
+# TODO Automatically make the `.tar.gz` file public on AWS S3.
