@@ -32,7 +32,7 @@ class RequestFactory
         // TODO Parse HTTP headers for cookies.
         $cookies = [];
 
-        $contentType = $headers['Content-Type'] ?? null;
+        $contentType = $headers['content-type'] ?? $headers['Content-Type'] ?? null;
         /*
          * TODO Multipart form uploads are not supported yet.
          */

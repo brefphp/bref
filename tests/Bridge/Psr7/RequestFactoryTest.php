@@ -69,6 +69,20 @@ class RequestFactoryTest extends TestCase
         self::assertEquals(['foo' => 'bar', 'bim' => 'baz'], $request->getParsedBody());
     }
 
+    public function test the content type header is not case sensitive()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'POST',
+            'headers' => [
+                // content-type instead of Content-Type
+                'content-type' => 'application/x-www-form-urlencoded',
+            ],
+            'body' => 'foo=bar&bim=baz',
+        ]);
+        self::assertEquals('POST', $request->getMethod());
+        self::assertEquals(['foo' => 'bar', 'bim' => 'baz'], $request->getParsedBody());
+    }
+
     public function test POST JSON body is not parsed()
     {
         $request = RequestFactory::fromLambdaEvent([
