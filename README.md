@@ -1,19 +1,26 @@
-# Serverless application framework for PHP
+Bref is a serverless application framework for PHP.
 
-Use cases:
+[![Build Status](https://travis-ci.com/mnapoli/bref.svg?branch=master)](https://travis-ci.com/mnapoli/bref)
+[![Latest Version](https://img.shields.io/github/release/mnapoli/bref.svg?style=flat-square)](https://packagist.org/packages/mnapoli/bref)
+[![Total Downloads](https://img.shields.io/packagist/dt/mnapoli/bref.svg?style=flat-square)](https://packagist.org/packages/mnapoli/bref)
+
+It allows to deploy PHP applications on serverless hosting providers (AWS Lambda mostly for now) and provides everything necessary for it to work, including bridges with popular PHP frameworks.
+
+Example of use cases:
 
 - APIs
 - GitHub webhooks
 - Slack bots
-- web tasks
 - crons
 - workers
 
 ## Setup
 
+Bref internally uses [the serverless framework](https://serverless.com/) for deployment in order to avoid reinventing the wheel. As a Bref user you should not have to deal with the serverless framework itself but you need to install it.
+
 - Create an AWS account if you don't already have one
-- Install [serverless](https://serverless.com): `npm install -g serverless`
-- Setup your AWS credentials: [create an AWS access key](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and either configure it [using an environment variable](https://serverless.com/framework/docs/providers/aws/guide/credentials#quick-setup) or [setup `aws-cli`](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) (and run `aws configure`)
+- Install [the serverless framework](https://serverless.com): `npm install -g serverless`
+- Setup your AWS credentials: [create an AWS access key](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and either configure it [using an environment variable](https://serverless.com/framework/docs/providers/aws/guide/credentials#quick-setup) (easy solution) or [setup `aws-cli`](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) (and run `aws configure`)
 
 Bref will then use AWS credentials and the serverless framework to deploy your application.
 
