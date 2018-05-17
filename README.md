@@ -5,6 +5,10 @@ Bref is a serverless application framework for PHP.
 
 It allows to deploy PHP applications on serverless hosting providers (AWS Lambda mostly for now) and provides everything necessary for it to work, including bridges with popular PHP frameworks.
 
+It is currently in beta version, there are a lot of things missing and it is mainly intended for testing (although it is used in production sucessfully). Contributions are welcome!
+
+If you want to understand Serverless in more depth please read the [Serverless and PHP: introducing Bref](http://mnapoli.fr/serverless-php/) article.
+
 Example of use cases:
 
 - APIs
