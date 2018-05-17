@@ -2,7 +2,6 @@ Bref is a serverless application framework for PHP.
 
 [![Build Status](https://travis-ci.com/mnapoli/bref.svg?branch=master)](https://travis-ci.com/mnapoli/bref)
 [![Latest Version](https://img.shields.io/github/release/mnapoli/bref.svg?style=flat-square)](https://packagist.org/packages/mnapoli/bref)
-[![Total Downloads](https://img.shields.io/packagist/dt/mnapoli/bref.svg?style=flat-square)](https://packagist.org/packages/mnapoli/bref)
 
 It allows to deploy PHP applications on serverless hosting providers (AWS Lambda mostly for now) and provides everything necessary for it to work, including bridges with popular PHP frameworks.
 
