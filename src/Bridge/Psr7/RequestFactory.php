@@ -29,8 +29,15 @@ class RequestFactory
         $uri = $event['requestContext']['path'] ?? '/';
         $headers = $event['headers'] ?? [];
         $protocolVersion = $event['requestContext']['protocol'] ?? '1.1';
-        // TODO Parse HTTP headers for cookies.
+
         $cookies = [];
+        if (isset($headers['Cookie'])) {
+            $cookieParts = explode('; ', $headers['Cookie']);
+            foreach ($cookieParts as $cookiePart) {
+                [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
+                $cookies[$cookieName] = urldecode($cookieValue);
+            }
+        }
 
         $contentType = $headers['content-type'] ?? $headers['Content-Type'] ?? null;
         /*
