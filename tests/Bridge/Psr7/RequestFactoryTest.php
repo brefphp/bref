@@ -110,14 +110,18 @@ class RequestFactoryTest extends TestCase
         self::assertNull(null, $request->getParsedBody());
     }
 
-    public function test cookies are not supported()
+    public function test cookies are supported()
     {
         $request = RequestFactory::fromLambdaEvent([
             'httpMethod' => 'GET',
             'headers' => [
-                'Cookie' => 'theme=light',
+                'Cookie' => 'tz=Europe%2FParis; four=two+%2B+2; theme=light',
             ],
         ]);
-        self::assertEquals([], $request->getCookieParams());
+        self::assertEquals([
+            'tz' => 'Europe/Paris',
+            'four' => 'two + 2',
+            'theme' => 'light'
+        ], $request->getCookieParams());
     }
 }
