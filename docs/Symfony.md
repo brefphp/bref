@@ -84,8 +84,8 @@ The best solution however is not to write log on disks because those are lost. Y
 We need to build the production cache before deploying. That avoids having the cache regenerated on each HTTP request. Add the following [build hooks](#build-hooks) in `.bref.yml`:
 
 ```yaml
-build:
-    hooks:
+hooks:
+    build:
         - 'APP_ENV=prod php bin/console cache:clear --no-debug --no-warmup'
         - 'APP_ENV=prod php bin/console cache:warmup'
 ```
