@@ -25,6 +25,5 @@ docker rm $container
 
 tar czf $PHP_VERSION_GIT_BRANCH.tar.gz php
 rm php
-aws s3 cp $PHP_VERSION_GIT_BRANCH.tar.gz s3://bref-php/bin/
+aws s3 cp $PHP_VERSION_GIT_BRANCH.tar.gz s3://bref-php/bin/ --acl public-read
 rm $PHP_VERSION_GIT_BRANCH.tar.gz
-# TODO Automatically make the `.tar.gz` file public on AWS S3.
