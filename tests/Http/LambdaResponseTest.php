@@ -63,6 +63,17 @@ class LambdaResponseTest extends TestCase
         ]);
     }
 
+    /**
+     * @test
+     */
+    public function test empty headers are considered objects()
+    {
+        $response = LambdaResponse::fromPsr7Response(new EmptyResponse);
+
+        // Make sure that the headers are `"headers":{}` (object) and not `"headers":[]` (array)
+        self::assertEquals('{"isBase64Encoded":false,"statusCode":204,"headers":{},"body":""}', $response->toJson());
+    }
+
     private function assertJsonPayload(LambdaResponse $response, array $expected)
     {
         self::assertEquals($expected, json_decode($response->toJson(), true));
