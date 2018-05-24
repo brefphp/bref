@@ -10,10 +10,6 @@ use Bref\Bridge\Symfony\SymfonyAdapter;
 use Symfony\Component\Debug\Debug;
 use Symfony\Component\Dotenv\Dotenv;
 
-# On lambdas the output is not displayed in the HTTP response
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
-
 require __DIR__.'/vendor/autoload.php';
 
 Debug::enable();
