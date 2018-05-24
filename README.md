@@ -17,6 +17,8 @@ Example of use cases:
 - crons
 - workers
 
+Interested about performances? [Head over here](https://github.com/mnapoli/bref-benchmark) for a benchmark.
+
 ## Setup
 
 Bref internally uses [the serverless framework](https://serverless.com/) for deployment in order to avoid reinventing the wheel. As a Bref user you should not have to deal with the serverless framework itself but you need to install it.
