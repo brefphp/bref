@@ -151,6 +151,10 @@ Remember that you can also keep the `simpleHandler` so that your lambda handles 
 
 Read the documentation for [deploying Symfony applications](docs/Symfony.md).
 
+### Laravel integration
+
+Read the documentation for [deploying Laravel applications](docs/Laravel.md).
+
 ### Why is there a `/dev` prefix in the URLs on AWS Lambda
 
 See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for a more detailed answer. The short version is AWS requires a prefix containing the stage name (dev/prod).
