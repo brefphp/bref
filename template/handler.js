@@ -5,27 +5,11 @@ const spawn = require('child_process').spawn;
 const fs = require('fs');
 
 exports.handle = function(event, context, callback) {
-    let recursiveRmDir = function(path) {
-        let files = [];
-        if (fs.existsSync(path)) {
-            files = fs.readdirSync(path);
-            files.forEach(function(file) {
-                const curPath = path + "/" + file;
-                if (fs.lstatSync(curPath).isDirectory()) { // recurse
-                    recursiveRmDir(curPath);
-                } else { // delete file
-                    fs.unlinkSync(curPath);
-                }
-            });
-            fs.rmdirSync(path);
-        }
-    };
-
-    // Write the event to file
-    if (fs.existsSync('/tmp/.bref')) {
-        recursiveRmDir('/tmp/.bref');
+    if (fs.existsSync('/tmp/.bref/output.json')) {
+        fs.unlinkSync('/tmp/.bref/output.json');
+    } else if (!fs.existsSync('/tmp/.bref')) {
+        fs.mkdirSync('/tmp/.bref');
     }
-    fs.mkdirSync('/tmp/.bref');
 
     let timeStartPhp = new Date().getTime();
 
