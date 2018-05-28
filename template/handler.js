@@ -15,16 +15,13 @@ exports.handle = function(event, context, callback) {
 
     let script = spawn('php', ['bref.php', JSON.stringify(event)]);
 
-    let scriptOutput = '';
     //dynamically collect output
     script.stdout.on('data', function(data) {
         console.log(data.toString());
-        scriptOutput += data.toString()
     });
     //react to potential errors
     script.stderr.on('data', function(data) {
         console.log("STDERR: "+data.toString());
-        scriptOutput += data.toString();
     });
     //finalize when process is done.
     script.on('close', function(code) {
@@ -37,7 +34,7 @@ exports.handle = function(event, context, callback) {
         if (code === 0) {
             callback(null, result);
         } else {
-            callback(new Error('Exit code ' + code + ' - ' + scriptOutput));
+            callback(new Error('PHP exit code: ' + code));
         }
     });
 };
