@@ -11,26 +11,24 @@ exports.handle = function(event, context, callback) {
         fs.mkdirSync('/tmp/.bref');
     }
 
-    let timeStartPhp = new Date().getTime();
-
     let script = spawn('php', ['bref.php', JSON.stringify(event)]);
 
-    //dynamically collect output
+    // PHP's output is passed to the lambda's logs
     script.stdout.on('data', function(data) {
         console.log(data.toString());
     });
-    //react to potential errors
+    // PHP's error output is also passed to the lambda's logs
     script.stderr.on('data', function(data) {
-        console.log("STDERR: "+data.toString());
+        console.log('[STDERR] ' + data.toString());
     });
-    //finalize when process is done.
+
     script.on('close', function(code) {
         let result = null;
+        // Read PHP's output
         if (fs.existsSync('/tmp/.bref/output.json')) {
             result = fs.readFileSync('/tmp/.bref/output.json', 'utf8');
             result = JSON.parse(result);
         }
-        console.log('Exit code: ' + code + ', PHP run time: ' + ((new Date().getTime()) - timeStartPhp) + 'ms');
         if (code === 0) {
             callback(null, result);
         } else {
