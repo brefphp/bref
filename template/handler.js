@@ -35,7 +35,6 @@ exports.handle = function(event, context, callback) {
         }
         console.log('Exit code: ' + code + ', PHP run time: ' + ((new Date().getTime()) - timeStartPhp) + 'ms');
         if (code === 0) {
-            console.log('Result payload: ' + JSON.stringify(result));
             callback(null, result);
         } else {
             callback(new Error('Exit code ' + code + ' - ' + scriptOutput));
