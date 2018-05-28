@@ -51,6 +51,14 @@ class JsHandlerTest extends TestCase
         self::assertLambdaError(null);
     }
 
+    public function test PHP errors are forwarded by Node()
+    {
+        $process = $this->runFile('bref.error.php');
+        self::assertProcessResult($process, "Oh no!\n");
+        self::assertLambdaResponse(null);
+        self::assertLambdaError([]);
+    }
+
     private function runFile(string $file, array $event = [])
     {
         $process = new Process('node runner.js ' . escapeshellarg(json_encode($event)));
