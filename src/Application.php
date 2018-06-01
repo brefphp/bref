@@ -156,14 +156,6 @@ class Application
 
     private function writeLambdaOutput(string $json) : void
     {
-        /*
-         * TODO Avoid using a file for the output?
-         * Avoiding using a file would be (most probably) faster and cleaner.
-         * Maybe stdout could be used to pass the output back to `handler.js`
-         * but any `echo` in the code would mess up the JSON output.
-         * That maybe could be mitigated using output buffering, I haven't
-         * explored that solution yet.
-         */
         file_put_contents(self::OUTPUT_FILE_NAME, $json);
     }
 
