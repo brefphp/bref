@@ -27,7 +27,7 @@ class Deployer
 
     public function invoke(SymfonyStyle $io, string $function, ?string $path, ?string $data, ?string $raw, ?string $contextPath, ?string $context)
     {
-        $this->init($io);
+        $this->generateArchive($io);
         $parameters = array_filter([
             '-f' => $function,
             '-p' => $path,
@@ -48,9 +48,9 @@ class Deployer
         return $this->commandRunner->run('cd .bref/output && serverless invoke local' . $p);
     }
 
-    public function deploy(SymfonyStyle $io)
+    public function deploy(SymfonyStyle $io) : void
     {
-        $this->init($io);
+        $this->generateArchive($io);
 
         $io->writeln('Uploading the lambda');
         $this->commandRunner->run('cd .bref/output && serverless deploy');
@@ -63,7 +63,7 @@ class Deployer
         $notifier->send($notification);
     }
 
-    private function init(SymfonyStyle $io)
+    private function generateArchive(SymfonyStyle $io) : void
     {
         if (!$this->fs->exists('serverless.yml') || !$this->fs->exists('bref.php')) {
             throw new \Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
