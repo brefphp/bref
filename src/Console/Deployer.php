@@ -28,13 +28,12 @@ class Deployer
     /**
      * Invoke the function and return the output.
      */
-    public function invoke(SymfonyStyle $io, string $function, ?string $path, ?string $data, bool $raw) : string
+    public function invoke(SymfonyStyle $io, string $function, ?string $data, bool $raw) : string
     {
         $this->generateArchive($io);
 
         $parameters = array_filter([
             '-f' => $function,
-            '-p' => $path,
             '-d' => $data,
             '-raw' => $raw,
         ]);
