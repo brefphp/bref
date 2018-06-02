@@ -2,14 +2,11 @@
 <?php
 declare(strict_types=1);
 
+use Bref\Console\Deployer;
 use GuzzleHttp\Psr7\Stream;
-use Bref\Util\CommandRunner;
-use Joli\JoliNotif\Notification;
-use Joli\JoliNotif\NotifierFactory;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Process\Process;
 
 const PHP_TARGET_VERSION = '7.2.5';
 
@@ -52,114 +49,29 @@ $app->command('init', function (SymfonyStyle $io) {
     ]);
 });
 
+$app->command(
+    'local [-f|--function=] [-d|--data=] [-p|--path=] [--raw]',
+    function (string $function, ?string $data, bool $raw, SymfonyStyle $io) {
+        $io->write((new Deployer)->invoke($io, $function, $data, $raw));
+    })
+    ->defaults([
+        'function' => 'main',
+    ])
+    ->descriptions('Invoke the lambda locally. To pass data to the lambda use the `--data` argument.', [
+        '--function' => 'The name of the function in your service that you want to invoke. In Bref, by default, there is only the `main` function.',
+        '--data' => 'String data to be passed as an event to your function. You can provide JSON data here.',
+        '--raw' => 'Pass data as a raw string even if it is JSON. If not set, JSON data are parsed and passed as an object.',
+    ]);
+
 $app->command('deploy', function (SymfonyStyle $io) {
-    $fs = new Filesystem;
-    $commandRunner = new CommandRunner;
-
-    if (!$fs->exists('serverless.yml') || !$fs->exists('bref.php')) {
-        throw new Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
-    }
-
-    // Parse .bref.yml
-    $projectConfig = [];
-    if ($fs->exists('.bref.yml')) {
-        /*
-         * TODO validate the content of the config, for example we should
-         * error if there are unknown keys. Using the Symfony Config component
-         * for that could make sense.
-         */
-        $projectConfig = Yaml::parse(file_get_contents('.bref.yml'));
-    }
-
-    $io->writeln('Building the project in the `.bref/output` directory');
-    /*
-     * TODO Mirror the directory instead of recreating it from scratch every time
-     * Blocked by https://github.com/symfony/symfony/pull/26399
-     * In the meantime we destroy `.bref/output` completely every time which
-     * is not efficient.
-     */
-    $fs->remove('.bref/output');
-    $fs->mkdir('.bref/output');
-    $filesToCopy = new Finder;
-    $filesToCopy->in('.')
-        ->depth(0)
-        ->exclude('.bref') // avoid a recursive copy
-        ->ignoreDotFiles(false);
-    foreach ($filesToCopy as $fileToCopy) {
-        if (is_file($fileToCopy->getPathname())) {
-            $fs->copy($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename());
-        } else {
-            $fs->mirror($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename(), null, [
-                'copy_on_windows' => true, // Force to copy symlink content
-            ]);
-        }
-    }
-
-    // Cache PHP's binary in `.bref/bin/php` to avoid downloading it
-    // on every deploy.
-    /*
-     * TODO Allow choosing a PHP version instead of using directly the
-     * constant `PHP_TARGET_VERSION`. That could be done using the `.bref.yml`
-     * config file: there could be an option in that config, for example:
-     * php:
-     *     version: 7.2.2
-     */
-    if (!$fs->exists('.bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz')) {
-        $io->writeln('Downloading PHP in the `.bref/bin/` directory');
-        $fs->mkdir('.bref/bin/php');
-        $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . PHP_TARGET_VERSION . '.tar.gz';
-        /*
-         * TODO This option allows to customize the PHP binary used. It should be documented
-         * and probably moved to a dedicated option like:
-         * php:
-         *     url: 'https://s3.amazonaws.com/...'
-         */
-        $url = $projectConfig['php'] ?? $defaultUrl;
-        $commandRunner->run("curl -sSL $url -o .bref/bin/php/php-" . PHP_TARGET_VERSION . ".tar.gz");
-    }
-
-    $io->writeln('Installing the PHP binary');
-    $fs->mkdir('.bref/output/.bref/bin');
-    $commandRunner->run('tar -xzf .bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz -C .bref/output/.bref/bin');
-
-    $io->writeln('Installing `handler.js`');
-    $fs->copy(__DIR__ . '/template/handler.js', '.bref/output/handler.js');
-
-    $io->writeln('Installing composer dependencies');
-    $commandRunner->run('cd .bref/output && composer install --no-dev --classmap-authoritative --no-scripts');
-
-    /*
-     * TODO Edit the `serverless.yml` copy (in `.bref/output` to deploy these files:
-     * - bref.php
-     * - handler.js
-     * - .bref/**
-     */
-
-    // Run build hooks defined in .bref.yml
-    $buildHooks = $projectConfig['hooks']['build'] ?? [];
-    foreach ($buildHooks as $buildHook) {
-        $io->writeln('Running ' . $buildHook);
-        $commandRunner->run('cd .bref/output && ' . $buildHook);
-    }
-
-    $io->writeln('Uploading the lambda');
-    $commandRunner->run('cd .bref/output && serverless deploy');
-
-    // Trigger a desktop notification
-    $notifier = NotifierFactory::create();
-    $notification = (new Notification)
-        ->setTitle('Deployment success')
-        ->setBody('Bref has deployed your application');
-    $notifier->send($notification);
+    (new Deployer)->deploy($io);
 });
 
 /**
  * Run a CLI command in the remote environment.
  */
 $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) {
-    $commandRunner = new CommandRunner;
-
-    $serverlessInfo = $commandRunner->run('serverless info');
+    $serverlessInfo = (new Process('serverless info'))->mustRun()->getOutput();
     foreach (explode(PHP_EOL, $serverlessInfo) as $line) {
         if (strpos($line, 'region: ') === 0) {
             $region = substr($line, strlen('region: '));
@@ -205,8 +117,7 @@ $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) 
 });
 
 $app->command('info', function (SymfonyStyle $io) {
-    $commandRunner = new CommandRunner;
-    $io->write($commandRunner->run('serverless info'));
+    $io->write((new Process('serverless info'))->mustRun()->getOutput());
 });
 
 $app->run();

@@ -61,7 +61,7 @@ class JsHandlerTest extends TestCase
 
     private function runFile(string $file, array $event = [])
     {
-        $process = new Process('node runner.js ' . escapeshellarg(json_encode($event)));
+        $process = new Process('node runner.js ' . escapeshellarg(json_encode($event)), __DIR__);
         $process->setEnv([
             'LAMBDA_TASK_ROOT' => __DIR__,
             'TMP_DIRECTORY' => __DIR__ . '/tmp',
