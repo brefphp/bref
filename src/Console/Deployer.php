@@ -54,6 +54,7 @@ class Deployer
         ));
 
         $process = new Process('serverless invoke local ' . $p, '.bref/output');
+        $process->setTimeout(null);
         $process->mustRun();
         return $process->getOutput();
     }
@@ -151,6 +152,7 @@ class Deployer
              */
             $url = $projectConfig['php'] ?? $defaultUrl;
             (new Process("curl -sSL $url -o .bref/bin/php/php-" . PHP_TARGET_VERSION . ".tar.gz"))
+                ->setTimeout(null)
                 ->mustRun();
         }
         $progress->advance();
@@ -194,6 +196,7 @@ class Deployer
     private function runLocally(string $command) : void
     {
         $process = new Process($command, '.bref/output');
+        $process->setTimeout(null);
         $process->mustRun();
     }
 
