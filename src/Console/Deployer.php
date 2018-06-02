@@ -162,6 +162,8 @@ class Deployer
         $this->fs->mkdir('.bref/output/.bref/bin');
         (new Process('tar -xzf .bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz -C .bref/output/.bref/bin'))
             ->mustRun();
+        // Set correct permissions on the file
+        $this->fs->chmod('.bref/output/.bref/bin', 0755);
         $progress->advance();
 
         $progress->setMessage('Installing `handler.js`');
