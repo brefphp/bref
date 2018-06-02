@@ -4,57 +4,40 @@ process.env['PATH'] = process.env['PATH']
 const spawn = require('child_process').spawn;
 const fs = require('fs');
 
+const TMP_DIRECTORY = process.env['TMP_DIRECTORY'] ? process.env['TMP_DIRECTORY'] : '/tmp/.bref';
+const OUTPUT_FILE = TMP_DIRECTORY + '/output.json';
+const PHP_FILE = process.env['PHP_HANDLER'] ? process.env['PHP_HANDLER'] : 'bref.php';
+
 exports.handle = function(event, context, callback) {
-    let recursiveRmDir = function(path) {
-        let files = [];
-        if (fs.existsSync(path)) {
-            files = fs.readdirSync(path);
-            files.forEach(function(file) {
-                const curPath = path + "/" + file;
-                if (fs.lstatSync(curPath).isDirectory()) { // recurse
-                    recursiveRmDir(curPath);
-                } else { // delete file
-                    fs.unlinkSync(curPath);
-                }
-            });
-            fs.rmdirSync(path);
-        }
-    };
-
-    // Write the event to file
-    if (fs.existsSync('/tmp/.bref')) {
-        recursiveRmDir('/tmp/.bref');
+    if (fs.existsSync(OUTPUT_FILE)) {
+        fs.unlinkSync(OUTPUT_FILE);
+    } else if (!fs.existsSync(TMP_DIRECTORY)) {
+        fs.mkdirSync(TMP_DIRECTORY);
     }
-    fs.mkdirSync('/tmp/.bref');
 
-    let timeStartPhp = new Date().getTime();
+    // Execute bref.php and pass it the event as argument
+    let script = spawn('php', [PHP_FILE, JSON.stringify(event)]);
 
-    let script = spawn('php', ['bref.php', JSON.stringify(event)]);
-
-    let scriptOutput = '';
-    //dynamically collect output
+    // PHP's output is passed to the lambda's logs
     script.stdout.on('data', function(data) {
         console.log(data.toString());
-        scriptOutput += data.toString()
     });
-    //react to potential errors
+    // PHP's error output is also passed to the lambda's logs
     script.stderr.on('data', function(data) {
-        console.log("STDERR: "+data.toString());
-        scriptOutput += data.toString();
+        console.log('[STDERR] ' + data.toString());
     });
-    //finalize when process is done.
+
     script.on('close', function(code) {
         let result = null;
-        if (fs.existsSync('/tmp/.bref/output.json')) {
-            result = fs.readFileSync('/tmp/.bref/output.json', 'utf8');
+        // Read PHP's output
+        if (fs.existsSync(OUTPUT_FILE)) {
+            result = fs.readFileSync(OUTPUT_FILE, 'utf8');
             result = JSON.parse(result);
         }
-        console.log('Exit code: ' + code + ', PHP run time: ' + ((new Date().getTime()) - timeStartPhp) + 'ms');
         if (code === 0) {
-            console.log('Result payload: ' + JSON.stringify(result));
             callback(null, result);
         } else {
-            callback(new Error('Exit code ' + code + ' - ' + scriptOutput));
+            callback(new Error('PHP exit code: ' + code));
         }
     });
 };
