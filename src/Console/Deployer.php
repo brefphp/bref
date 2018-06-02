@@ -132,7 +132,7 @@ class Deployer
         $this->commandRunner->run('tar -xzf .bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz -C .bref/output/.bref/bin');
 
         $io->writeln('Installing `handler.js`');
-        $this->fs->copy(__DIR__ . '/template/handler.js', '.bref/output/handler.js');
+        $this->fs->copy(__DIR__ . '/../../template/handler.js', '.bref/output/handler.js');
 
         $io->writeln('Installing composer dependencies');
         $this->commandRunner->run('cd .bref/output && composer install --no-dev --classmap-authoritative --no-scripts');
