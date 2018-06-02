@@ -63,7 +63,7 @@ class Deployer
         $notifier->send($notification);
     }
 
-    protected function init(SymfonyStyle $io)
+    private function init(SymfonyStyle $io)
     {
         if (!$this->fs->exists('serverless.yml') || !$this->fs->exists('bref.php')) {
             throw new \Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
