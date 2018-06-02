@@ -27,7 +27,7 @@ class Deployer
 
         $p = join(' ', array_map(
             function ($value, $key) {
-                return $key. ' \'' . $value . '\'';
+                return $key . ' \'' . $value . '\'';
             },
             $parameters,
             array_keys($parameters)

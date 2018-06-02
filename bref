@@ -55,8 +55,9 @@ $app->command(
 
         return $deployer->invoke($io, $function, $path, $data, $raw, $contextPath, $context);
     })->defaults([
-    'function' => 'main'
-]);
+        'function' => 'main',
+    ]
+);
 
 $app->command('deploy', function (SymfonyStyle $io) {
     $deployer = new \Bref\Console\Deployer();
