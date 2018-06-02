@@ -107,6 +107,12 @@ $result = $lambda->invoke([
 $payload = json_decode($result->get('Payload')->getContents(), true);
 ```
 
+Bref provides a helper to invoke the lambda locally, on your machine instead of the serverless provider:
+
+```shell
+$ vendor/bin/bref local
+```
+
 ## Deletion
 
 ```shell
