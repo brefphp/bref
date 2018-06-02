@@ -25,7 +25,10 @@ class Deployer
         $this->fs = new Filesystem;
     }
 
-    public function invoke(SymfonyStyle $io, string $function, ?string $path, ?string $data, ?string $raw, ?string $contextPath, ?string $context)
+    /**
+     * Invoke the function and return the output.
+     */
+    public function invoke(SymfonyStyle $io, string $function, ?string $path, ?string $data, ?string $raw, ?string $contextPath, ?string $context) : string
     {
         $this->generateArchive($io);
         $parameters = array_filter([

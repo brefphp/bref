@@ -53,7 +53,7 @@ $app->command(
     function (string $function, ?string $path, ?string $data, ?string $raw, ?string $contextPath, ?string $context, SymfonyStyle $io) {
         $deployer = new \Bref\Console\Deployer();
 
-        return $deployer->invoke($io, $function, $path, $data, $raw, $contextPath, $context);
+        $io->write($deployer->invoke($io, $function, $path, $data, $raw, $contextPath, $context));
     })->defaults([
         'function' => 'main',
     ]
