@@ -28,20 +28,23 @@ class Deployer
     /**
      * Invoke the function and return the output.
      */
-    public function invoke(SymfonyStyle $io, string $function, ?string $path, ?string $data, ?string $raw, ?string $contextPath, ?string $context) : string
+    public function invoke(SymfonyStyle $io, string $function, ?string $path, ?string $data, bool $raw) : string
     {
         $this->generateArchive($io);
+
         $parameters = array_filter([
             '-f' => $function,
             '-p' => $path,
             '-d' => $data,
             '-raw' => $raw,
-            '-x' => $contextPath,
-            '-c' => $context,
         ]);
 
         $p = join(' ', array_map(
             function ($value, $key) {
+                if ($value === true) {
+                    // Support for "flag" arguments
+                    return $key;
+                }
                 return $key . ' ' . escapeshellarg($value);
             },
             $parameters,
