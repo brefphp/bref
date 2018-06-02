@@ -2,10 +2,11 @@
 <?php
 declare(strict_types=1);
 
+use Bref\Console\Deployer;
 use GuzzleHttp\Psr7\Stream;
-use Bref\Util\CommandRunner;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Process;
 
 const PHP_TARGET_VERSION = '7.2.5';
 
@@ -51,9 +52,7 @@ $app->command('init', function (SymfonyStyle $io) {
 $app->command(
     'local [-f|--function=] [-d|--data=] [-p|--path=] [--raw]',
     function (string $function, ?string $data, bool $raw, SymfonyStyle $io) {
-        $deployer = new \Bref\Console\Deployer();
-
-        $io->write($deployer->invoke($io, $function, $data, $raw));
+        $io->write((new Deployer)->invoke($io, $function, $data, $raw));
     })
     ->defaults([
         'function' => 'main',
@@ -65,18 +64,14 @@ $app->command(
     ]);
 
 $app->command('deploy', function (SymfonyStyle $io) {
-    $deployer = new \Bref\Console\Deployer();
-
-    return $deployer->deploy($io);
+    (new Deployer)->deploy($io);
 });
 
 /**
  * Run a CLI command in the remote environment.
  */
 $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) {
-    $commandRunner = new CommandRunner;
-
-    $serverlessInfo = $commandRunner->run('serverless info');
+    $serverlessInfo = (new Process('serverless info'))->mustRun()->getOutput();
     foreach (explode(PHP_EOL, $serverlessInfo) as $line) {
         if (strpos($line, 'region: ') === 0) {
             $region = substr($line, strlen('region: '));
@@ -122,8 +117,7 @@ $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) 
 });
 
 $app->command('info', function (SymfonyStyle $io) {
-    $commandRunner = new CommandRunner;
-    $io->write($commandRunner->run('serverless info'));
+    $io->write((new Process('serverless info'))->mustRun()->getOutput());
 });
 
 $app->run();

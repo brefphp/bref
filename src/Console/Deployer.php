@@ -3,25 +3,21 @@ declare(strict_types=1);
 
 namespace Bref\Console;
 
-use Bref\Util\CommandRunner;
 use Joli\JoliNotif\Notification;
 use Joli\JoliNotif\NotifierFactory;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
 class Deployer
 {
-    /** @var CommandRunner */
-    private $commandRunner;
-
     /** @var Filesystem */
     private $fs;
 
     public function __construct()
     {
-        $this->commandRunner = new CommandRunner;
         $this->fs = new Filesystem;
     }
 
@@ -50,7 +46,9 @@ class Deployer
             array_keys($parameters)
         ));
 
-        return $this->commandRunner->run('cd .bref/output && serverless invoke local ' . $p);
+        $process = new Process('serverless invoke local ' . $p, '.bref/output');
+        $process->mustRun();
+        return $process->getOutput();
     }
 
     public function deploy(SymfonyStyle $io) : void
@@ -58,7 +56,7 @@ class Deployer
         $this->generateArchive($io);
 
         $io->writeln('Uploading the lambda');
-        $this->commandRunner->run('cd .bref/output && serverless deploy');
+        $this->runLocally('serverless deploy');
 
         // Trigger a desktop notification
         $notifier = NotifierFactory::create();
@@ -129,18 +127,20 @@ class Deployer
              *     url: 'https://s3.amazonaws.com/...'
              */
             $url = $projectConfig['php'] ?? $defaultUrl;
-            $this->commandRunner->run("curl -sSL $url -o .bref/bin/php/php-" . PHP_TARGET_VERSION . ".tar.gz");
+            (new Process("curl -sSL $url -o .bref/bin/php/php-" . PHP_TARGET_VERSION . ".tar.gz"))
+                ->mustRun();
         }
 
         $io->writeln('Installing the PHP binary');
         $this->fs->mkdir('.bref/output/.bref/bin');
-        $this->commandRunner->run('tar -xzf .bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz -C .bref/output/.bref/bin');
+        (new Process('tar -xzf .bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz -C .bref/output/.bref/bin'))
+            ->mustRun();
 
         $io->writeln('Installing `handler.js`');
         $this->fs->copy(__DIR__ . '/../../template/handler.js', '.bref/output/handler.js');
 
         $io->writeln('Installing composer dependencies');
-        $this->commandRunner->run('cd .bref/output && composer install --no-dev --classmap-authoritative --no-scripts');
+        $this->runLocally('composer install --no-dev --classmap-authoritative --no-scripts');
 
         /*
          * TODO Edit the `serverless.yml` copy (in `.bref/output` to deploy these files:
@@ -153,7 +153,13 @@ class Deployer
         $buildHooks = $projectConfig['hooks']['build'] ?? [];
         foreach ($buildHooks as $buildHook) {
             $io->writeln('Running ' . $buildHook);
-            $this->commandRunner->run('cd .bref/output && ' . $buildHook);
+            $this->runLocally($buildHook);
         }
+    }
+
+    private function runLocally(string $command) : void
+    {
+        $process = new Process($command, '.bref/output');
+        $process->mustRun();
     }
 }
