@@ -45,7 +45,7 @@ class Deployer
             array_keys($parameters)
         ));
 
-        return $this->commandRunner->run('cd .bref/output && serverless invoke local' . $p);
+        return $this->commandRunner->run('cd .bref/output && serverless invoke local ' . $p);
     }
 
     public function deploy(SymfonyStyle $io) : void
