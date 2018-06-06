@@ -44,6 +44,7 @@ RUN ./configure \
     --with-openssl \
     --with-zlib \
     --with-gd \
+    --with-pdo-mysql \
     # https://github.com/docker-library/php/issues/439
     --with-mhash \
     --without-pear
