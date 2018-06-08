@@ -38,6 +38,9 @@ RUN ./configure \
     # --enable-mbstring is included here because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
     --enable-mbstring \
     --enable-mysqlnd \
+    --enable-opcache \
+    # Allows to use the opcache.file_cache option
+    --enable-opcache-file \
     --enable-soap \
     --enable-zip \
     --with-curl \
@@ -46,7 +49,8 @@ RUN ./configure \
     --with-gd \
     --with-pdo-mysql \
     # https://github.com/docker-library/php/issues/439
-    --with-mhash \
-    --without-pear
+    --with-mhash
 
 RUN make -j 5
+
+RUN make install
