@@ -164,6 +164,8 @@ class Deployer
             ->mustRun();
         // Set correct permissions on the file
         $this->fs->chmod('.bref/output/.bref/bin', 0755);
+        // Install our custom php.ini
+        $this->fs->copy(__DIR__ . '/../../template/php.ini', '.bref/output/.bref/php.ini');
         $progress->advance();
 
         $progress->setMessage('Installing `handler.js`');

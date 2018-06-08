@@ -15,8 +15,13 @@ exports.handle = function(event, context, callback) {
         fs.mkdirSync(TMP_DIRECTORY);
     }
 
+    // Ensure the directory for storing the opcache file exists else PHP crashes
+    if (!fs.existsSync(TMP_DIRECTORY + '/opcache')) {
+        fs.mkdirSync(TMP_DIRECTORY + '/opcache');
+    }
+
     // Execute bref.php and pass it the event as argument
-    let script = spawn('php', [PHP_FILE, JSON.stringify(event)]);
+    let script = spawn('php', ['--php-ini=.bref/php.ini', PHP_FILE, JSON.stringify(event)]);
 
     // PHP's output is passed to the lambda's logs
     script.stdout.on('data', function(data) {
