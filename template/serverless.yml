@@ -9,9 +9,7 @@ package:
     - '*'
     - '**'
   include:
-    - handler.js
     - bref.php
-    - '.bref/**'
     - 'src/**'
     - 'vendor/**'
 
