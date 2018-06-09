@@ -168,8 +168,10 @@ class Deployer
         $this->fs->copy(__DIR__ . '/../../template/php.ini', '.bref/output/.bref/php.ini');
         $progress->advance();
 
-        $progress->setMessage('Installing `handler.js`');
+        $progress->setMessage('Installing Bref files for NodeJS');
         $progress->display();
+        $this->copyServerlessYml();
+        // Install `handler.js`
         $this->fs->copy(__DIR__ . '/../../template/handler.js', '.bref/output/handler.js');
         $progress->advance();
 
@@ -177,13 +179,6 @@ class Deployer
         $progress->display();
         $this->runLocally('composer install --no-dev --classmap-authoritative --no-scripts');
         $progress->advance();
-
-        /*
-         * TODO Edit the `serverless.yml` copy (in `.bref/output` to deploy these files:
-         * - bref.php
-         * - handler.js
-         * - .bref/**
-         */
 
         // Run build hooks defined in .bref.yml
         $progress->setMessage('Running build hooks');
@@ -204,10 +199,6 @@ class Deployer
         $process->mustRun();
     }
 
-    /**
-     * @param SymfonyStyle $io
-     * @return ProgressBar
-     */
     private function createProgressBar(SymfonyStyle $io, int $max) : ProgressBar
     {
         ProgressBar::setFormatDefinition('bref', "<comment>%message%</comment>\n %current%/%max% [%bar%] %elapsed:6s%\n");
@@ -220,5 +211,19 @@ class Deployer
         $progressBar->start();
 
         return $progressBar;
+    }
+
+    /**
+     * Pre-process the `serverless.yml` file and copy it in the lambda directory.
+     */
+    private function copyServerlessYml() : void
+    {
+        $serverlessYml = Yaml::parse(file_get_contents('serverless.yml'));
+
+        // Force deploying the files used by Bref without having the user know about them
+        $serverlessYml['package']['include'][] = 'handler.js';
+        $serverlessYml['package']['include'][] = '.bref/**';
+
+        file_put_contents('.bref/output/serverless.yml', Yaml::dump($serverlessYml, 10));
     }
 }
