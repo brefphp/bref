@@ -67,7 +67,15 @@ class Deployer
 
         $progress->setMessage('Uploading the lambda');
         $progress->display();
-        $this->runLocally('serverless deploy');
+        $process = new Process('serverless deploy', '.bref/output');
+        $process->setTimeout(null);
+        $completeDeployOutput = '';
+        $process->mustRun(function ($type, $buffer) use ($io, $progress, &$completeDeployOutput) {
+            $completeDeployOutput .= $buffer;
+            $progress->clear();
+            $io->writeln($buffer);
+            $progress->display();
+        });
 
         $progress->setMessage('Deployment success');
         $progress->finish();
@@ -201,12 +209,13 @@ class Deployer
 
     private function createProgressBar(SymfonyStyle $io, int $max) : ProgressBar
     {
-        ProgressBar::setFormatDefinition('bref', "<comment>%message%</comment>\n %current%/%max% [%bar%] %elapsed:6s%\n");
+        ProgressBar::setFormatDefinition('bref', "<comment>%message%</comment>\n %current%/%max% [%bar%] %elapsed:6s%");
 
         $progressBar = $io->createProgressBar($max);
         $progressBar->setFormat('bref');
         $progressBar->setBarCharacter('░');
         $progressBar->setEmptyBarCharacter(' ');
+        $progressBar->setMessage('');
 
         $progressBar->start();
 
