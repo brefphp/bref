@@ -25,7 +25,8 @@
         "aws/aws-sdk-php": "^3.44",
         "psr/http-server-handler": "^1.0",
         "zendframework/zend-diactoros": "^1.6",
-        "jolicode/jolinotif": "^2.0"
+        "jolicode/jolinotif": "^2.0",
+        "myclabs/array-comparator": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5",

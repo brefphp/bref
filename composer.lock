@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "e1361ca923326fb1eddeb4e83159ea33",
+    "content-hash": "69f1ecc0138326ea1f4f2fc332044ad3",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -879,6 +879,41 @@
                 "jsonpath"
             ],
             "time": "2016-12-03T22:08:25+00:00"
+        },
+        {
+            "name": "myclabs/array-comparator",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/myclabs/ArrayComparator.git",
+                "reference": "07a29bb93676adbbcc2225af96921f4cb3c94421"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/myclabs/ArrayComparator/zipball/07a29bb93676adbbcc2225af96921f4cb3c94421",
+                "reference": "07a29bb93676adbbcc2225af96921f4cb3c94421",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "ArrayComparator": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Array comparator",
+            "homepage": "https://github.com/myclabs/ArrayComparator",
+            "keywords": [
+                "array",
+                "comparator"
+            ],
+            "time": "2014-08-04T11:36:10+00:00"
         },
         {
             "name": "php-di/invoker",
