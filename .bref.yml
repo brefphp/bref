@@ -1,3 +1,3 @@
 hooks:
     build:
-        - composer install --classmap-authoritative
+        - composer install

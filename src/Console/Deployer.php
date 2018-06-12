@@ -39,7 +39,7 @@ class Deployer
         $parameters = array_filter([
             '-f' => $function,
             '-d' => $data,
-            '-raw' => $raw,
+            '--raw' => $raw,
         ]);
 
         $p = join(' ', array_map(
