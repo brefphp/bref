@@ -116,7 +116,7 @@ $ vendor/bin/bref local
 ## Deletion
 
 ```shell
-$ serverless remove
+$ bref remove
 ```
 
 ## HTTP applications
