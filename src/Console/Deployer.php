@@ -3,14 +3,13 @@ declare(strict_types=1);
 
 namespace Bref\Console;
 
-use Bref\DirectoryMirror;
+use Bref\Filesystem\DirectoryMirror;
 use Joli\JoliNotif\Notification;
 use Joli\JoliNotif\NotifierFactory;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Bref;
+namespace Bref\Filesystem;
 
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
