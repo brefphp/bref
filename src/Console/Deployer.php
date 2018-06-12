@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Bref\Console;
 
-use ArrayComparator\ArrayComparator;
+use Bref\DirectoryMirror;
 use Joli\JoliNotif\Notification;
 use Joli\JoliNotif\NotifierFactory;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -230,50 +230,10 @@ class Deployer
 
         $target = (new Finder)
             ->in('.bref/output')
+            ->exclude('.serverless')
             ->ignoreDotFiles(false);
 
-        $comparator = new ArrayComparator();
-        $comparator->setItemIdentityComparator(function ($keySource, $keyTarget, SplFileInfo $source, SplFileInfo $target) {
-            // We compare relative paths
-            return $source->getRelativePathname() === $target->getRelativePathname();
-        });
-        $comparator->setItemComparator(function (SplFileInfo $source, SplFileInfo $target) {
-            /*
-             * A file's ctime is it's inode change time.
-             * The inode changes when file metadata changes (for example when file permissions change).
-             * The inode also changes whenever the file's contents change.
-             *
-             * We will consider a target file "not up to date" if the source file has been modified since the
-             * target file has been created.
-             */
-            return $source->getCTime() >= $target->getCTime();
-        });
-
-        $comparator
-            // Files (or directories) are different
-            ->whenDifferent(function (SplFileInfo $source, SplFileInfo $target) {
-                if (is_file($source->getPathname())) {
-                    $this->fs->remove($target->getPathname());
-                    $this->fs->copy($source->getPathname(), $target->getPathname());
-                } else {
-                    // TODO sync directory metadata?
-                }
-            })
-            // A file is missing in the output directory
-            ->whenMissingRight(function (SplFileInfo $source) {
-                if (is_file($source->getPathname())) {
-                    $this->fs->copy($source->getPathname(), '.bref/output/' . $source->getRelativePathname());
-                } else {
-                    $this->fs->mirror($source->getPathname(), '.bref/output/' . $source->getRelativePathname(), null, [
-                        'copy_on_windows' => true, // Force to copy symlink content
-                    ]);
-                }
-            })
-            // A file is present in the output directory but not in the source directory
-            ->whenMissingLeft(function (SplFileInfo $target) {
-                $this->fs->remove($target->getPathname());
-            });
-
-        $comparator->compare($source, $target);
+        $directoryMirror = new DirectoryMirror($this->fs);
+        $directoryMirror->mirror($source, $target);
     }
 }
