@@ -55,6 +55,9 @@ class Deployer
         ));
 
         $process = new Process('serverless invoke local ' . $p, '.bref/output');
+        $process->setEnv([
+            'BREF_LOCAL' => 'BREF_LOCAL',
+        ]);
         $process->setTimeout(null);
         $process->mustRun();
         return $process->getOutput();

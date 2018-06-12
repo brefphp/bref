@@ -1,5 +1,7 @@
-process.env['PATH'] = process.env['PATH']
-    + ':' + process.env['LAMBDA_TASK_ROOT'] + '/.bref/bin'; // for PHP
+if (process.env['LAMBDA_TASK_ROOT']) {
+    process.env['PATH'] = process.env['PATH']
+        + ':' + process.env['LAMBDA_TASK_ROOT'] + '/.bref/bin'; // for PHP
+}
 
 const spawn = require('child_process').spawn;
 const fs = require('fs');
@@ -20,8 +22,13 @@ exports.handle = function(event, context, callback) {
         fs.mkdirSync(TMP_DIRECTORY + '/opcache');
     }
 
-    // Execute bref.php and pass it the event as argument
-    let script = spawn('php', ['--php-ini=.bref/php.ini', PHP_FILE, JSON.stringify(event)]);
+    // Execute bref.php and pass the event as argument
+    let phpParameters = [PHP_FILE, JSON.stringify(event)];
+    if (!process.env['BREF_LOCAL']) {
+        // Override php.ini but only when running in production
+        phpParameters.unshift('--php-ini=.bref/php.ini');
+    }
+    let script = spawn('php', phpParameters);
 
     // PHP's output is passed to the lambda's logs
     script.stdout.on('data', function(data) {
