@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Bref;
 
 use Bref\Bridge\Psr7\RequestFactory;
+use Bref\Cli\InvokeCommand;
 use Bref\Cli\WelcomeApplication;
 use Bref\Http\LambdaResponse;
 use Bref\Http\WelcomeHandler;
@@ -89,6 +90,11 @@ class Application
         $console->setAutoExit(false);
 
         $this->cliHandler = $console;
+
+        // Always add our `bref:invoke` command to test the lambda locally
+        $this->cliHandler->add(new InvokeCommand(function () {
+            return $this->simpleHandler;
+        }));
     }
 
     /**

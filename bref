@@ -49,6 +49,9 @@ $app->command('init', function (SymfonyStyle $io) {
     ]);
 });
 
+/**
+ * @deprecated This command is deprecated in favor of running `php bref.php bref:invoke`
+ */
 $app->command(
     'local [-f|--function=] [-d|--data=] [-p|--path=] [--raw]',
     function (string $function, ?string $data, bool $raw, SymfonyStyle $io) {
@@ -57,7 +60,7 @@ $app->command(
     ->defaults([
         'function' => 'main',
     ])
-    ->descriptions('Invoke the lambda locally. To pass data to the lambda use the `--data` argument.', [
+    ->descriptions('**DEPRECATED** Invoke the lambda locally. To pass data to the lambda use the `--data` argument.', [
         '--function' => 'The name of the function in your service that you want to invoke. In Bref, by default, there is only the `main` function.',
         '--data' => 'String data to be passed as an event to your function. You can provide JSON data here.',
         '--raw' => 'Pass data as a raw string even if it is JSON. If not set, JSON data are parsed and passed as an object.',
