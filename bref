@@ -120,4 +120,16 @@ $app->command('info', function (SymfonyStyle $io) {
     $io->write((new Process('serverless info'))->mustRun()->getOutput());
 });
 
+$app->command('remove', function (SymfonyStyle $io) {
+    $io->write((new Process('serverless remove'))->mustRun()->getOutput());
+});
+
+$app->command('logs', function (SymfonyStyle $io) {
+    $io->write((new Process('serverless logs -f main'))->mustRun()->getOutput());
+});
+
+$app->command('invoke', function (SymfonyStyle $io) {
+    $io->write((new Process('serverless invoke -f main'))->mustRun()->getOutput());
+});
+
 $app->run();

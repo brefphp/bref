@@ -86,9 +86,7 @@ $ curl https://xxxxx.execute-api.xxxxx.amazonaws.com/dev/
 Triggering a lambda manually:
 
 ```shell
-# "main" is the name of the function created by default
-# you can have several functions in the same projects
-$ serverless invoke -f main
+$ vendor/bin/bref invoke
 ```
 
 Triggering a lambda from another PHP application:
@@ -116,7 +114,12 @@ $ vendor/bin/bref local
 ## Deletion
 
 ```shell
-$ serverless remove
+$ vendor/bin/bref remove
+```
+
+## Logs
+```shell
+$ vendor/bin/bref logs
 ```
 
 ## HTTP applications
