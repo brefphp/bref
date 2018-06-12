@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Bref\Console;
 
+use Bref\Filesystem\DirectoryMirror;
 use Joli\JoliNotif\Notification;
 use Joli\JoliNotif\NotifierFactory;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -114,28 +115,7 @@ class Deployer
 
         $progress->setMessage('Building the project in the `.bref/output` directory');
         $progress->display();
-        /*
-         * TODO Mirror the directory instead of recreating it from scratch every time
-         * Blocked by https://github.com/symfony/symfony/pull/26399
-         * In the meantime we destroy `.bref/output` completely every time which
-         * is not efficient.
-         */
-        $this->fs->remove('.bref/output');
-        $this->fs->mkdir('.bref/output');
-        $filesToCopy = new Finder;
-        $filesToCopy->in('.')
-            ->depth(0)
-            ->exclude('.bref')// avoid a recursive copy
-            ->ignoreDotFiles(false);
-        foreach ($filesToCopy as $fileToCopy) {
-            if (is_file($fileToCopy->getPathname())) {
-                $this->fs->copy($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename());
-            } else {
-                $this->fs->mirror($fileToCopy->getPathname(), '.bref/output/' . $fileToCopy->getFilename(), null, [
-                    'copy_on_windows' => true, // Force to copy symlink content
-                ]);
-            }
-        }
+        $this->copyProjectToOutputDirectory();
         $progress->advance();
 
         // Cache PHP's binary in `.bref/bin/php` to avoid downloading it
@@ -234,5 +214,29 @@ class Deployer
         $serverlessYml['package']['include'][] = '.bref/**';
 
         file_put_contents('.bref/output/serverless.yml', Yaml::dump($serverlessYml, 10));
+    }
+
+    private function copyProjectToOutputDirectory() : void
+    {
+        if (!$this->fs->exists('.bref/output')) {
+            $this->fs->mkdir('.bref/output');
+        }
+
+        $source = (new Finder)
+            ->in('.')
+            ->exclude('.bref') // avoid a recursive copy
+            ->exclude('vendor') // vendors are installed with Composer so we don't need to copy them
+            ->exclude('.idea')
+            ->ignoreVCS(true)
+            ->ignoreDotFiles(false);
+
+        $target = (new Finder)
+            ->in('.bref/output')
+            ->exclude('vendor') // vendors are installed with Composer so we don't need to copy them
+            ->ignoreVCS(false)
+            ->ignoreDotFiles(false);
+
+        $directoryMirror = new DirectoryMirror($this->fs);
+        $directoryMirror->mirror($source, $target);
     }
 }
