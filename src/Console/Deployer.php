@@ -226,11 +226,15 @@ class Deployer
         $source = (new Finder)
             ->in('.')
             ->exclude('.bref') // avoid a recursive copy
+            ->exclude('vendor') // vendors are installed with Composer so we don't need to copy them
+            ->exclude('.idea')
+            ->ignoreVCS(true)
             ->ignoreDotFiles(false);
 
         $target = (new Finder)
             ->in('.bref/output')
-            ->exclude('.serverless')
+            ->exclude('vendor') // vendors are installed with Composer so we don't need to copy them
+            ->ignoreVCS(false)
             ->ignoreDotFiles(false);
 
         $directoryMirror = new DirectoryMirror($this->fs);
