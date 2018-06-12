@@ -25,6 +25,8 @@ class Deployer
 
     /**
      * Invoke the function and return the output.
+     *
+     * @deprecated in favor of `php bref.php bref:invoke`, will be removed.
      */
     public function invoke(SymfonyStyle $io, string $function, ?string $data, bool $raw) : string
     {

@@ -110,7 +110,10 @@ $payload = json_decode($result->get('Payload')->getContents(), true);
 Bref provides a helper to invoke the lambda locally, on your machine instead of the serverless provider:
 
 ```shell
-$ vendor/bin/bref local
+$ php bref.php bref:invoke
+
+# If you want to pass event data:
+$ php bref.php bref:invoke --event='{"name":"foo"}'
 ```
 
 ## Deletion
@@ -202,11 +205,19 @@ Hello Bob
 
 As you can see, all arguments and options after `bref cli --` are forwarded to the CLI command running on lambda.
 
-To test your CLI commands locally, simply run:
+To test your CLI commands locally (on your machine), simply run:
 
 ```shell
 $ php bref.php <commands and options>
 ```
+
+As you may have seen above, there is a special command that is automatically added to your CLI application:
+
+```shell
+$ php bref.php bref:invoke
+```
+
+That special command lets you invoke the `simpleHandler` on your development machine.
 
 ## Build hooks
 
