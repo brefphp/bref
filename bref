@@ -66,9 +66,14 @@ $app->command(
         '--raw' => 'Pass data as a raw string even if it is JSON. If not set, JSON data are parsed and passed as an object.',
     ]);
 
-$app->command('deploy', function (SymfonyStyle $io) {
-    (new Deployer)->deploy($io);
-});
+$app->command(
+    'deploy [--dry-run]',
+    function (SymfonyStyle $io, bool $dryRun) {
+        (new Deployer)->deploy($io, $dryRun);
+    })
+    ->descriptions('Deploy serverless application', [
+        '--dry-run' => 'Build the serverless package without deploying it',
+    ]);
 
 /**
  * Run a CLI command in the remote environment.
