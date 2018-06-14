@@ -234,6 +234,15 @@ hooks:
         - 'npm install'
 ```
 
+## PHP binary
+
+If you need a specific PHP version, you can define it in a `.bref.yml` file:
+
+```yaml
+php:
+    version: 7.2.6
+``` 
+
 ## Contributing
 
 There are a lot of detailed `TODO` notes in the codebase. Feel free to work on these.
