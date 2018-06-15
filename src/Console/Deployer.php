@@ -159,8 +159,13 @@ class Deployer
             ->mustRun();
         // Set correct permissions on the file
         $this->fs->chmod('.bref/output/.bref/bin', 0755);
-        // Install our custom php.ini
-        $this->fs->copy(__DIR__ . '/../../template/php.ini', '.bref/output/.bref/php.ini');
+        // Check if binary package provides a php.ini
+        $phpIniFile = __DIR__ . '/../../template/php.ini';
+        if ($this->fs->exists($providedPhpIniFile = '.bref/output/.bref/bin/php.ini')) {
+            $phpIniFile = $providedPhpIniFile;
+        }
+        // Install custom php.ini
+        $this->fs->copy($phpIniFile, '.bref/output/.bref/php.ini');
         $progress->advance();
 
         $progress->setMessage('Installing Bref files for NodeJS');
