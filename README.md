@@ -243,6 +243,11 @@ php:
     version: 7.2.6
 ``` 
 
+Here is the list of versions available:
+
+- 7.2.5
+- 7.2.2
+
 ## Contributing
 
 There are a lot of detailed `TODO` notes in the codebase. Feel free to work on these.
