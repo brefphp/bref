@@ -133,6 +133,9 @@ class Deployer
         $progress->display();
         if (!$this->fs->exists('.bref/bin/php/php-' . $phpVersion . '.tar.gz')) {
             $this->fs->mkdir('.bref/bin/php');
+            /*
+             * TODO This option allows to customize the PHP binary used. It should be documented
+             */
             $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . $phpVersion . '.tar.gz';
             $url = $projectConfig['php']['url'] ?? $defaultUrl;
             (new Process("curl -sSL $url -o .bref/bin/php/php-" . $phpVersion . ".tar.gz"))
