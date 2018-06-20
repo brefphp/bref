@@ -256,7 +256,7 @@ class Deployer
 
         $extensions = array_map(function ($extension) {
             if (!$this->fs->exists('.bref/output/.bref/bin/ext/' . $extension . '.so')) {
-                throw new \Exception("The PHP extension '$extension' is not available yet in Bref, please open an issue or a pull request on GitHub to add that extension');
+                throw new \Exception("The PHP extension '$extension' is not available yet in Bref, please open an issue or a pull request on GitHub to add that extension");
             }
 
             return 'extension=' . $extension . '.so';
