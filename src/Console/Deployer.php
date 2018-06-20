@@ -155,7 +155,14 @@ class Deployer
         // Set correct permissions on the file
         $this->fs->chmod('.bref/output/.bref/bin', 0755);
         // Install our custom php.ini
-        $this->fs->copy(__DIR__ . '/../../template/php.ini', '.bref/output/.bref/php.ini');
+        $this->fs->copy(__DIR__ . '/../../template/php.ini', $phpConfigFile = '.bref/output/.bref/php.ini');
+        // Inject additional config in php.ini
+        $this->injectPhpConfig(
+            $phpConfigFile,
+            $projectConfig['php']['configuration'] ?? [],
+            $projectConfig['php']['extensions'] ?? []
+        );
+        //file_put_contents($phpConfigFile, implode())
         $progress->advance();
 
         $progress->setMessage('Installing Bref files for NodeJS');
@@ -240,5 +247,26 @@ class Deployer
 
         $directoryMirror = new DirectoryMirror($this->fs);
         $directoryMirror->mirror($source, $target);
+    }
+
+    private function injectPhpConfig(string $targetFile, array $configs, array $extensions = [])
+    {
+        array_walk($configs, function(&$value, $key) {
+            $value = $key . '=' .$value;
+        });
+
+        $extensions = array_map(function ($extension) {
+            if (!$this->fs->exists('.bref/output/.bref/bin/ext/' . $extension . '.so')) {
+                throw new \Exception('PHP Extension "'. $extension . '" does not exist');
+            }
+
+            return 'extension=' . $extension . '.so';
+        }, $extensions);
+
+        file_put_contents(
+            $targetFile,
+            implode("\n", array_merge($configs, $extensions)),
+            FILE_APPEND
+        );
     }
 }

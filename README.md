@@ -234,7 +234,7 @@ hooks:
         - 'npm install'
 ```
 
-## PHP binary
+## PHP configuration
 
 If you need a specific PHP version, you can define it in a `.bref.yml` file:
 
@@ -247,6 +247,21 @@ Here is the list of versions available:
 
 - 7.2.5
 - 7.2.2
+
+You can also define PHP configuration and activate extensions:
+
+```yaml
+php:
+    configuration:
+        max_execution_time: 300
+    extensions:
+        - redis
+```
+
+Here is the list of extensions available:
+
+- Redis - `redis`
+- MongoDB - `mongodb`
 
 ## Contributing
 
