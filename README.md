@@ -248,7 +248,7 @@ Here is the list of versions available:
 - 7.2.5
 - 7.2.2
 
-You can also define PHP configuration and activate extensions:
+You can also define `php.ini` configuration flags and activate extensions:
 
 ```yaml
 php:
@@ -260,8 +260,8 @@ php:
 
 Here is the list of extensions available:
 
-- Redis - `redis`
-- MongoDB - `mongodb`
+- Redis: `redis`
+- MongoDB: `mongodb`
 
 ## Contributing
 
