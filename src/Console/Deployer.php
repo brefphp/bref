@@ -162,7 +162,6 @@ class Deployer
             $projectConfig['php']['configuration'] ?? [],
             $projectConfig['php']['extensions'] ?? []
         );
-        //file_put_contents($phpConfigFile, implode())
         $progress->advance();
 
         $progress->setMessage('Installing Bref files for NodeJS');

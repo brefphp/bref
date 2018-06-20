@@ -17,7 +17,9 @@ RUN yum --releasever=2017.03 install \
     openssl-devel \
     libpng-devel \
     libjpeg-devel \
-    curl-devel -y
+    curl-devel \
+    findutils \
+    php-pear -y
 
 RUN curl -sL https://github.com/php/php-src/archive/$PHP_VERSION.tar.gz | tar -zxv
 
@@ -54,3 +56,5 @@ RUN ./configure \
 RUN make -j 5
 
 RUN make install
+
+RUN pecl install mongodb redis

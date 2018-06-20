@@ -22,8 +22,7 @@ container=$(docker create php-build)
 
 docker -D cp $container:/php-src-$PHP_VERSION_GIT_BRANCH/sapi/cli/php .
 mkdir -p ext
-docker -D cp $container:/usr/local/lib/php/extensions/no-debug-non-zts-20170718/opcache.a ext/opcache.a
-docker -D cp $container:/usr/local/lib/php/extensions/no-debug-non-zts-20170718/opcache.so ext/opcache.so
+docker -D cp $container:/usr/local/lib/php/extensions/no-debug-non-zts-20170718/. ext/
 docker rm $container
 
 tar czf $PHP_VERSION_GIT_BRANCH.tar.gz php ext
