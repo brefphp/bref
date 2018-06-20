@@ -18,6 +18,7 @@ RUN yum --releasever=2017.03 install \
     libpng-devel \
     libjpeg-devel \
     curl-devel \
+    # The pecl command uses find
     findutils \
     php-pear -y
 
