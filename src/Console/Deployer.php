@@ -6,6 +6,8 @@ namespace Bref\Console;
 use Bref\Filesystem\DirectoryMirror;
 use Joli\JoliNotif\Notification;
 use Joli\JoliNotif\NotifierFactory;
+use Matomo\Ini\IniReader;
+use Matomo\Ini\IniWriter;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
@@ -248,24 +250,26 @@ class Deployer
         $directoryMirror->mirror($source, $target);
     }
 
-    private function injectPhpConfig(string $targetFile, array $configs, array $extensions = [])
+    private function injectPhpConfig(string $targetFile, array $flags, array $extensions = [])
     {
-        array_walk($configs, function(&$value, $key) {
-            $value = $key . '=' .$value;
-        });
+        $config = array_merge(
+            ['flags' => array_merge(
+                (new IniReader())->readFile($targetFile),
+                $flags
+            )],
+            array_combine(
+                $extensions,
+                array_map(function ($extension) {
+                    if (!$this->fs->exists('.bref/output/.bref/bin/ext/' . $extension . '.so')) {
+                        throw new \Exception("The PHP extension '$extension' is not available yet in Bref, please open an issue or a pull request on GitHub to add that extension");
+                    }
 
-        $extensions = array_map(function ($extension) {
-            if (!$this->fs->exists('.bref/output/.bref/bin/ext/' . $extension . '.so')) {
-                throw new \Exception("The PHP extension '$extension' is not available yet in Bref, please open an issue or a pull request on GitHub to add that extension");
-            }
-
-            return 'extension=' . $extension . '.so';
-        }, $extensions);
-
-        file_put_contents(
-            $targetFile,
-            implode("\n", array_merge($configs, $extensions)),
-            FILE_APPEND
+                    return ['extension' => $extension . '.so'];
+                },
+                $extensions
+            ))
         );
+
+        (new IniWriter())->writeToFile($targetFile, $config);
     }
 }
