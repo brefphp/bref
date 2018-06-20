@@ -136,7 +136,7 @@ class Deployer
             /*
              * TODO This option allows to customize the PHP binary used. It should be documented
              * and probably moved to a dedicated option like:
-             * php:	
+             * php:
              *     url: 'https://s3.amazonaws.com/...'
              */
             $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . $phpVersion . '.tar.gz';
