@@ -127,26 +127,21 @@ class Deployer
 
         // Cache PHP's binary in `.bref/bin/php` to avoid downloading it
         // on every deploy.
-        /*
-         * TODO Allow choosing a PHP version instead of using directly the
-         * constant `PHP_TARGET_VERSION`. That could be done using the `.bref.yml`
-         * config file: there could be an option in that config, for example:
-         * php:
-         *     version: 7.2.2
-         */
+        $phpVersion = $projectConfig['php']['version'] ?? DEFAULT_PHP_TARGET_VERSION;
+
         $progress->setMessage('Downloading PHP in the `.bref/bin/` directory');
         $progress->display();
-        if (!$this->fs->exists('.bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz')) {
+        if (!$this->fs->exists('.bref/bin/php/php-' . $phpVersion . '.tar.gz')) {
             $this->fs->mkdir('.bref/bin/php');
-            $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . PHP_TARGET_VERSION . '.tar.gz';
             /*
              * TODO This option allows to customize the PHP binary used. It should be documented
              * and probably moved to a dedicated option like:
              * php:
              *     url: 'https://s3.amazonaws.com/...'
              */
-            $url = $projectConfig['php'] ?? $defaultUrl;
-            (new Process("curl -sSL $url -o .bref/bin/php/php-" . PHP_TARGET_VERSION . ".tar.gz"))
+            $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . $phpVersion . '.tar.gz';
+            $url = $projectConfig['php']['url'] ?? $defaultUrl;
+            (new Process("curl -sSL $url -o .bref/bin/php/php-" . $phpVersion . ".tar.gz"))
                 ->setTimeout(null)
                 ->mustRun();
         }
@@ -155,7 +150,7 @@ class Deployer
         $progress->setMessage('Installing the PHP binary');
         $progress->display();
         $this->fs->mkdir('.bref/output/.bref/bin');
-        (new Process('tar -xzf .bref/bin/php/php-' . PHP_TARGET_VERSION . '.tar.gz -C .bref/output/.bref/bin'))
+        (new Process('tar -xzf .bref/bin/php/php-' . $phpVersion . '.tar.gz -C .bref/output/.bref/bin'))
             ->mustRun();
         // Set correct permissions on the file
         $this->fs->chmod('.bref/output/.bref/bin', 0755);
