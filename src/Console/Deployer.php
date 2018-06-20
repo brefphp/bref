@@ -156,11 +156,10 @@ class Deployer
             ->mustRun();
         // Set correct permissions on the file
         $this->fs->chmod('.bref/output/.bref/bin', 0755);
-        // Install our custom php.ini
-        $this->fs->copy(__DIR__ . '/../../template/php.ini', $phpConfigFile = '.bref/output/.bref/php.ini');
-        // Inject additional config in php.ini
-        $this->injectPhpConfig(
-            $phpConfigFile,
+        // Install our custom php.ini and merge it with user configuration
+        $this->buildPhpConfig(
+            __DIR__  . '/../../template/php.ini',
+            '.bref/output/.bref/php.ini',
             $projectConfig['php']['configuration'] ?? [],
             $projectConfig['php']['extensions'] ?? []
         );
@@ -250,11 +249,11 @@ class Deployer
         $directoryMirror->mirror($source, $target);
     }
 
-    private function injectPhpConfig(string $targetFile, array $flags, array $extensions = [])
+    private function buildPhpConfig(string $sourceFile, string $targetFile, array $flags, array $extensions = [])
     {
         $config = array_merge(
             ['flags' => array_merge(
-                (new IniReader())->readFile($targetFile),
+                (new IniReader())->readFile($sourceFile),
                 $flags
             )],
             array_combine(
