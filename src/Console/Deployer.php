@@ -264,9 +264,8 @@ class Deployer
                     }
 
                     return ['extension' => $extension . '.so'];
-                },
-                $extensions
-            ))
+                }, $extensions)
+            )
         );
 
         (new IniWriter())->writeToFile($targetFile, $config);
