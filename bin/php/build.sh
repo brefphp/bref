@@ -27,8 +27,6 @@ docker rm $container
 
 tar czf $PHP_VERSION_GIT_BRANCH.tar.gz php ext
 rm php
-rm ext/opcache.a
-rm ext/opcache.so
-rmdir ext
+rm -rf ext
 aws s3 cp $PHP_VERSION_GIT_BRANCH.tar.gz s3://bref-php/bin/ --acl public-read
 rm $PHP_VERSION_GIT_BRANCH.tar.gz
