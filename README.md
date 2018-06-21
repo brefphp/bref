@@ -240,13 +240,12 @@ If you need a specific PHP version, you can define it in a `.bref.yml` file:
 
 ```yaml
 php:
-    version: 7.2.6
+    version: 7.2.5
 ``` 
 
 Here is the list of versions available:
 
 - 7.2.5
-- 7.2.2
 
 You can also define `php.ini` configuration flags and activate extensions:
 
