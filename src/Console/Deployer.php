@@ -78,7 +78,7 @@ class Deployer
             $progress->display();
             $serverlessCommand = 'serverless deploy';
             if (null !== $stage) {
-                $serverlessCommand .= ' --stage ' . $stage;
+                $serverlessCommand .= ' --stage ' . escapeshellarg($stage);
             }
             $process = new Process($serverlessCommand, '.bref/output');
             $process->setTimeout(null);
