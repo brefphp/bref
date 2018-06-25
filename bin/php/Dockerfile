@@ -20,7 +20,7 @@ RUN yum --releasever=2017.03 install \
     curl-devel \
     # The pecl command uses find
     findutils \
-    php-pear -y
+    php-pear -y > /dev/null
 
 RUN curl -sL https://github.com/php/php-src/archive/$PHP_VERSION.tar.gz | tar -zxv
 
@@ -52,13 +52,13 @@ RUN ./configure \
     --with-gd \
     --with-pdo-mysql \
     # https://github.com/docker-library/php/issues/439
-    --with-mhash
+    --with-mhash > /dev/null
 
-RUN make -j 5
+RUN make -j 5 > /dev/null
 
-RUN make install
+RUN make install > /dev/null
 
-RUN pecl install mongodb redis
+RUN pecl install mongodb redis > /dev/null
 
 WORKDIR /
 
