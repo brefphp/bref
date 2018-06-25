@@ -161,12 +161,14 @@ class Deployer
         // Set correct permissions on the file
         $this->fs->chmod('.bref/output/.bref/bin', 0755);
         // Install our custom php.ini and merge it with user configuration
-        $this->buildPhpConfig(
+        $phpConfig = $this->buildPhpConfig(
             __DIR__  . '/../../template/php.ini',
             '.bref/output/.bref/php.ini',
             $projectConfig['php']['configuration'] ?? [],
             $projectConfig['php']['extensions'] ?? []
         );
+        // Remove unused extensions
+        $this->removeUnusedExtensions($phpConfig);
         $progress->advance();
 
         $progress->setMessage('Installing Bref files for NodeJS');
@@ -253,7 +255,7 @@ class Deployer
         $directoryMirror->mirror($source, $target);
     }
 
-    private function buildPhpConfig(string $sourceFile, string $targetFile, array $flags, array $extensions = [])
+    private function buildPhpConfig(string $sourceFile, string $targetFile, array $flags, array $extensions): array
     {
         $config = array_merge(
             ['flags' => array_merge(
@@ -273,5 +275,19 @@ class Deployer
         );
 
         (new IniWriter())->writeToFile($targetFile, $config);
+
+        return $config;
+    }
+
+    private function removeUnusedExtensions(array $phpConfig)
+    {
+        foreach (glob('.bref/output/.bref/bin/ext/*.so') as $extensionFile) {
+            if ($extensionFile === '.bref/output/.bref/bin/ext/opcache.so') {
+                continue;
+            }
+            if (!array_key_exists(basename($extensionFile, '.so'), $phpConfig)) {
+                $this->fs->remove($extensionFile);
+            }
+        }
     }
 }
