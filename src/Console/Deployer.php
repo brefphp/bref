@@ -67,7 +67,7 @@ class Deployer
         return $process->getOutput();
     }
 
-    public function deploy(SymfonyStyle $io, bool $dryRun) : void
+    public function deploy(SymfonyStyle $io, bool $dryRun, ?string $stage) : void
     {
         $progress = $this->createProgressBar($io, 8);
 
@@ -76,7 +76,11 @@ class Deployer
         if (!$dryRun) {
             $progress->setMessage('Uploading the lambda');
             $progress->display();
-            $process = new Process('serverless deploy', '.bref/output');
+            $serverlessCommand = 'serverless deploy';
+            if (null !== $stage) {
+                $serverlessCommand .= ' --stage ' . escapeshellarg($stage);
+            }
+            $process = new Process($serverlessCommand, '.bref/output');
             $process->setTimeout(null);
             $completeDeployOutput = '';
             $process->mustRun(function ($type, $buffer) use ($io, $progress, &$completeDeployOutput) {
