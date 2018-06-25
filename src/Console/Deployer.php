@@ -164,15 +164,7 @@ class Deployer
             $projectConfig['php']['extensions'] ?? []
         );
         // Remove unused extensions
-        foreach (glob('.bref/output/.bref/bin/ext/*.so') as $extensionFile) {
-            if ($extensionFile === '.bref/output/.bref/bin/ext/opcache.so') {
-                continue;
-            }
-            $extensionName = substr($extensionFile, strrpos($extensionFile, '/') + 1, -3);
-            if (!array_key_exists($extensionName, $phpConfig)) {
-                $this->fs->remove($extensionFile);
-            }
-        }
+        $this->removeUnusedExtensions($phpConfig);
         $progress->advance();
 
         $progress->setMessage('Installing Bref files for NodeJS');
@@ -281,5 +273,17 @@ class Deployer
         (new IniWriter())->writeToFile($targetFile, $config);
 
         return $config;
+    }
+
+    private function removeUnusedExtensions(array $phpConfig)
+    {
+        foreach (glob('.bref/output/.bref/bin/ext/*.so') as $extensionFile) {
+            if ($extensionFile === '.bref/output/.bref/bin/ext/opcache.so') {
+                continue;
+            }
+            if (!array_key_exists(basename($extensionFile, '.so'), $phpConfig)) {
+                $this->fs->remove($extensionFile);
+            }
+        }
     }
 }
