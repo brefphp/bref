@@ -67,12 +67,13 @@ $app->command(
     ]);
 
 $app->command(
-    'deploy [--dry-run]',
-    function (SymfonyStyle $io, bool $dryRun) {
-        (new Deployer)->deploy($io, $dryRun);
+    'deploy [--dry-run] [--stage=]',
+    function (SymfonyStyle $io, bool $dryRun, ?string $stage) {
+        (new Deployer)->deploy($io, $dryRun, $stage);
     })
     ->descriptions('Deploy serverless application', [
         '--dry-run' => 'Build the serverless package without deploying it',
+        '--stage' => 'Deployment stage'
     ]);
 
 /**
