@@ -261,6 +261,7 @@ Here is the list of extensions available:
 
 - Redis: `redis`
 - MongoDB: `mongodb`
+- Newrelic: `newrelic`
 
 ## Contributing
 

@@ -59,3 +59,13 @@ RUN make -j 5
 RUN make install
 
 RUN pecl install mongodb redis
+
+WORKDIR /
+
+# Install newrelic extension, not available in pecl
+RUN NEWRELIC_VERSION="$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\).tar.gz<.*/\1/p')" \
+   && curl -sS "https://download.newrelic.com/php_agent/release/${NEWRELIC_VERSION}.tar.gz" | gzip -dc | tar xf - \
+   && cd "${NEWRELIC_VERSION}" \
+   && NR_INSTALL_SILENT=true ./newrelic-install install \
+   && NEWRELIC_EXTENSION=/usr/local/lib/php/extensions/no-debug-non-zts-20170718/newrelic.so \
+   && cp -f --remove-destination `readlink ${NEWRELIC_EXTENSION}` ${NEWRELIC_EXTENSION}
