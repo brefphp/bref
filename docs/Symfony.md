@@ -61,6 +61,17 @@ package:
     - 'var/cache/prod/**' # We want to deploy the production caches
 ```
 
+If you are using the `symfony/website-skeleton` package you should also include the `translations` directory in `serverless.yml`:
+
+```yaml
+package:
+  ...
+  include:
+    ...
+    - 'translations/**'
+```
+
+
 The filesystem is readonly on lambdas except for `/tmp`. Because of that you need to customize the path for logs in your `Kernel` class:
 
 ```php
