@@ -71,7 +71,6 @@ package:
     - 'translations/**'
 ```
 
-
 The filesystem is readonly on lambdas except for `/tmp`. Because of that you need to customize the path for logs in your `Kernel` class:
 
 ```php
@@ -95,6 +94,32 @@ hooks:
     build:
         - 'APP_ENV=prod php bin/console cache:clear --no-debug --no-warmup'
         - 'APP_ENV=prod php bin/console cache:warmup'
+```
+
+Additionally, even though the cache is pre-warmed during the deploy process, sometimes Twig needs to perform write operations which can cause "Unable to write to cache" exceptions.
+
+The simplest workaround is to disable Twig caching, which allows the config cache to be pre-warmed as normal but prevents Twig from trying to write to a read-only filesystem on the Lambda host.
+
+For example, `config/packages/twig.yaml`
+
+```
+twig:
+    ...
+    cache: false # this can also be set to '/tmp/twig/' if disabling the Twig cache isn't an option for you
+```
+
+Alternatively you can set the entire application's cache directory to `/tmp/cache` in the same manner as described for the logs directory in the `Kernel` class. However the caveat is that the pre-compiled config cache won't used in the production environment.
+
+```php
+public function getCacheDir()
+{
+    // When on the lambda only /tmp is writeable
+    if (getenv('LAMBDA_TASK_ROOT') !== false) {
+        return '/tmp/cache/'.$this->environment;
+    }
+
+    return $this->getProjectDir().'/var/cache/'.$this->environment;
+}
 ```
 
 ## The `terminate` event
