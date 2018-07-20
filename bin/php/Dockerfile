@@ -20,7 +20,12 @@ RUN yum --releasever=2017.03 install \
     curl-devel \
     # The pecl command uses find
     findutils \
-    php-pear -y > /dev/null
+    php-pear \
+    # C++ & ICU are required by INTL
+    libicu \
+    libicu-devel \
+    c++ \
+    gcc-c++ -y > /dev/null
 
 RUN curl -sL https://github.com/php/php-src/archive/$PHP_VERSION.tar.gz | tar -zxv
 
@@ -46,6 +51,7 @@ RUN ./configure \
     --enable-opcache-file \
     --enable-soap \
     --enable-zip \
+    --enable-intl \
     --with-curl \
     --with-openssl \
     --with-zlib \
