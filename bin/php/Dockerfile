@@ -20,7 +20,12 @@ RUN yum --releasever=2017.03 install \
     curl-devel \
     # The pecl command uses find
     findutils \
-    php-pear -y > /dev/null
+    php-pear \
+    # C++ & ICU are required by INTL
+    libicu \
+    libicu-devel \
+    c++ \
+    gcc-c++ -y > /dev/null
 
 RUN curl -sL https://github.com/php/php-src/archive/$PHP_VERSION.tar.gz | tar -zxv
 
@@ -60,9 +65,22 @@ RUN make install > /dev/null
 
 RUN pecl install mongodb redis > /dev/null
 
-WORKDIR /
+# INTL compilation
+
+WORKDIR /php-src-$PHP_VERSION/ext/intl
+
+RUN phpize
+
+RUN ./configure
+
+RUN make
+
+RUN make install
 
 # Install newrelic extension, not available in pecl
+
+WORKDIR /
+
 RUN NEWRELIC_VERSION="$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\).tar.gz<.*/\1/p')" \
    && curl -sS "https://download.newrelic.com/php_agent/release/${NEWRELIC_VERSION}.tar.gz" | gzip -dc | tar xf - \
    && cd "${NEWRELIC_VERSION}" \

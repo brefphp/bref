@@ -169,6 +169,8 @@ class Deployer
         );
         // Remove unused extensions
         $this->removeUnusedExtensions($phpConfig);
+        // Remove unused libraries
+        $this->removeUnusedLibraries($projectConfig['php']['extensions'] ?? []);
         $progress->advance();
 
         $progress->setMessage('Installing Bref files for NodeJS');
@@ -287,6 +289,29 @@ class Deployer
             }
             if (!array_key_exists(basename($extensionFile, '.so'), $phpConfig)) {
                 $this->fs->remove($extensionFile);
+            }
+        }
+    }
+
+    private function removeUnusedLibraries(array $extensions)
+    {
+        $dependencies = [];
+        $dependenciesFile = '.bref/output/.bref/bin/dependencies.yml';
+        $librariesDir = '.bref/output/.bref/bin/lib/';
+
+        if ($this->fs->exists($dependenciesFile)) {
+            $dependencies = Yaml::parse(file_get_contents($dependenciesFile))['extensions'] ?? [];
+            $this->fs->remove($dependenciesFile);
+        }
+
+        $requiredLibraries = array_unique(call_user_func_array(
+            'array_merge',
+            array_intersect_key($dependencies, array_flip($extensions)) + [[]]
+        ));
+
+        foreach (glob('.bref/output/.bref/bin/lib/**') as $library) {
+            if (!in_array(basename($library), $requiredLibraries)) {
+                $this->fs->remove($library);
             }
         }
     }

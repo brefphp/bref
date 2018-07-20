@@ -252,16 +252,17 @@ You can also define `php.ini` configuration flags and activate extensions:
 ```yaml
 php:
     configuration:
-        max_execution_time: 300
+        memory_limit: 256M
     extensions:
         - redis
 ```
 
 Here is the list of extensions available:
 
-- Redis: `redis`
+- Intl: `intl`
 - MongoDB: `mongodb`
 - New Relic: `newrelic`
+- Redis: `redis`
 
 ## Contributing
 
