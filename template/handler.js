@@ -1,6 +1,11 @@
 if (process.env['LAMBDA_TASK_ROOT']) {
+    // add bin directory to PATH to run PHP binary
     process.env['PATH'] = process.env['PATH']
-        + ':' + process.env['LAMBDA_TASK_ROOT'] + '/.bref/bin'; // for PHP
+        + ':' + process.env['LAMBDA_TASK_ROOT'] + '/.bref/bin';
+
+    // add lib directory to LD_LIBRARY_PATH to make PHP binary able to load required libraries
+    process.env['LD_LIBRARY_PATH'] = process.env['LD_LIBRARY_PATH']
+        + ':' + process.env['LAMBDA_TASK_ROOT'] + '/.bref/bin/lib';
 }
 
 const spawn = require('child_process').spawn;
