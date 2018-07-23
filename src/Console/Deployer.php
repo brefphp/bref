@@ -297,7 +297,6 @@ class Deployer
     {
         $dependencies = [];
         $dependenciesFile = '.bref/output/.bref/bin/dependencies.yml';
-        $librariesDir = '.bref/output/.bref/bin/lib/';
 
         if ($this->fs->exists($dependenciesFile)) {
             $dependencies = Yaml::parse(file_get_contents($dependenciesFile))['extensions'] ?? [];
