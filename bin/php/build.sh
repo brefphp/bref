@@ -33,6 +33,7 @@ docker -D cp $container:/usr/local/lib/php/extensions/no-debug-non-zts-20170718/
 
 # Fetch ICU libraries required by INTL extension
 mkdir -p lib
+# libicui18n.so.50 exists as a symlink pointing to libicui18n.so.50.1.2, the same apply for all ICU's libraries
 docker -D cp $container:/usr/lib64/libicui18n.so.50.1.2 lib/libicui18n.so.50
 docker -D cp $container:/usr/lib64/libicuuc.so.50.1.2 lib/libicuuc.so.50
 docker -D cp $container:/usr/lib64/libicudata.so.50.1.2 lib/libicudata.so.50
