@@ -4,3 +4,4 @@
 /tests/Bridge/Symfony/logs
 /.bref/
 /.php_cs.cache
+/composer.lock
