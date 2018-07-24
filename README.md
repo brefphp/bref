@@ -259,7 +259,7 @@ php:
 
 Here is the list of extensions available:
 
-- Intl: `intl`
+- Intl: `intl` (be aware that this extension [adds about 25mb to your lambda](https://docs.aws.amazon.com/lambda/latest/dg/limits.html))
 - MongoDB: `mongodb`
 - New Relic: `newrelic`
 - Redis: `redis`
