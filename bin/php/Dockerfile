@@ -60,27 +60,21 @@ RUN ./configure \
     --with-mhash > /dev/null
 
 RUN make -j 5 > /dev/null
-
 RUN make install > /dev/null
 
+# Install extensions through pecl
 RUN pecl install mongodb redis > /dev/null
 
-# INTL compilation
-
+# Compile the intl extension because it cannot be installed with pecl
 WORKDIR /php-src-$PHP_VERSION/ext/intl
-
 RUN phpize
-
 RUN ./configure
-
 RUN make
-
 RUN make install
-
-# Install newrelic extension, not available in pecl
 
 WORKDIR /
 
+# Install newrelic extension, not available in pecl
 RUN NEWRELIC_VERSION="$(curl -sS https://download.newrelic.com/php_agent/release/ | sed -n 's/.*>\(.*linux\).tar.gz<.*/\1/p')" \
    && curl -sS "https://download.newrelic.com/php_agent/release/${NEWRELIC_VERSION}.tar.gz" | gzip -dc | tar xf - \
    && cd "${NEWRELIC_VERSION}" \
