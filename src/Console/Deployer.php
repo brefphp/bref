@@ -303,8 +303,7 @@ class Deployer
             $this->fs->remove($dependenciesFile);
         }
 
-        $requiredLibraries = array_unique(call_user_func_array(
-            'array_merge',
+        $requiredLibraries = array_merge(...array_values(
             array_intersect_key($dependencies, array_flip($extensions)) + [[]]
         ));
 
