@@ -31,12 +31,20 @@ docker -D cp $container:/php-src-php-$PHP_VERSION/sapi/cli/php .
 mkdir -p ext
 docker -D cp $container:/usr/local/lib/php/extensions/no-debug-non-zts-20170718/. ext/
 
+# Fetch ICU libraries required by INTL extension
+mkdir -p lib
+# libicui18n.so.50 exists as a symlink pointing to libicui18n.so.50.1.2, the same apply for all ICU's libraries
+docker -D cp $container:/usr/lib64/libicui18n.so.50.1.2 lib/libicui18n.so.50
+docker -D cp $container:/usr/lib64/libicuuc.so.50.1.2 lib/libicuuc.so.50
+docker -D cp $container:/usr/lib64/libicudata.so.50.1.2 lib/libicudata.so.50
+docker -D cp $container:/usr/lib64/libicuio.so.50.1.2 lib/libicuio.so.50
+
 docker rm $container
 
 # Put all that in an archive
-tar czf php-$PHP_VERSION.tar.gz php ext
+tar czf php-$PHP_VERSION.tar.gz php ext lib dependencies.yml
 rm php
-rm -rf ext
+rm -rf ext lib
 
 # Upload the archive to AWS S3
 aws s3 cp php-$PHP_VERSION.tar.gz s3://bref-php/bin/ --acl public-read
