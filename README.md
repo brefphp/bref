@@ -267,3 +267,10 @@ Here is the list of extensions available:
 ## Contributing
 
 There are a lot of detailed `TODO` notes in the codebase. Feel free to work on these.
+
+## Projects using Bref
+
+Here are projects using Bref, feel free to add yours in a pull request:
+
+- [prettyci.com](https://prettyci.com/)
+- [returntrue.win](https://returntrue.win/)
