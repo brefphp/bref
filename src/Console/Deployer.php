@@ -210,8 +210,6 @@ class Deployer
 
         $progressBar = $io->createProgressBar($max);
         $progressBar->setFormat('bref');
-        $progressBar->setBarCharacter('░');
-        $progressBar->setEmptyBarCharacter(' ');
         $progressBar->setMessage('');
 
         $progressBar->start();
