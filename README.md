@@ -247,7 +247,7 @@ Here is the list of versions available:
 
 - 7.2.5
 
-You can also define `php.ini` configuration flags and activate extensions:
+You can also define `php.ini` configuration flags ([full list here](http://php.net/manual/en/ini.list.php)) and activate extensions:
 
 ```yaml
 php:
