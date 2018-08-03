@@ -133,17 +133,17 @@ $app->command('info [--stage=]', function (?string $stage, SymfonyStyle $io) {
 
 $app->command('remove [--stage=]', function (?string $stage, SymfonyStyle $io) {
     $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $io->write((new Process('serverless remove'))->mustRun()->getOutput());
+    $io->write((new Process('serverless remove'.$stageOption))->mustRun()->getOutput());
 });
 
 $app->command('logs [--stage=]', function (?string $stage, SymfonyStyle $io) {
     $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $io->write((new Process('serverless logs -f main'))->mustRun()->getOutput());
+    $io->write((new Process('serverless logs -f main'.$stageOption))->mustRun()->getOutput());
 });
 
 $app->command('invoke [--stage=]', function (?string $stage, SymfonyStyle $io) {
     $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $io->write((new Process('serverless invoke -f main'))->mustRun()->getOutput());
+    $io->write((new Process('serverless invoke -f main'.$stageOption))->mustRun()->getOutput());
 });
 
 $app->run();
