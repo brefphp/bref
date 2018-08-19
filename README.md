@@ -149,6 +149,26 @@ $app->httpHandler(new SlimAdapter($slim));
 $app->run();
 ```
 
+If you don't need a framework, here is a simple example:
+
+```php
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Zend\Diactoros\Response\JsonResponse;
+
+// ...
+
+$app = new \Bref\Application;
+$app->httpHandler(new class implements RequestHandlerInterface {
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return new JsonResponse('Hello world');
+    }
+});
+$app->run();
+```
+
 Bref provides a helper to preview the application locally, simply run:
 
 ```shell
