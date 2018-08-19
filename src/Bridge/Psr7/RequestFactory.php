@@ -21,7 +21,7 @@ class RequestFactory
     public static function fromLambdaEvent(array $event) : ServerRequestInterface
     {
         $method = $event['httpMethod'] ?? 'GET';
-        $query = $event['queryStringParameters'] ?? [];
+        $query = [];
         $bodyString = $event['body'] ?? '';
         $body = self::createBodyStream($bodyString);
         $parsedBody = null;
@@ -29,6 +29,17 @@ class RequestFactory
         $uri = $event['requestContext']['path'] ?? '/';
         $headers = $event['headers'] ?? [];
         $protocolVersion = $event['requestContext']['protocol'] ?? '1.1';
+
+        /*
+         * queryStringParameters does not handle correctly arrays in parameters
+         * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' = > 'value']]
+         * We recreate the original query string and we use parse_str which handles correctly arrays
+         *
+         * There's still an issue: AWS API Gateway does not support multiple query string parameters with the same name
+         * So you can't use something like ?array[]=val1&array[]=val2 because only the 'val2' value will survive
+         */
+        $queryString = http_build_query($event['queryStringParameters'] ?? []);
+        parse_str($queryString, $query);
 
         $cookies = [];
         if (isset($headers['Cookie'])) {
@@ -51,7 +62,7 @@ class RequestFactory
             'SERVER_PROTOCOL' => $protocolVersion,
             'REQUEST_METHOD' => $method,
             'REQUEST_TIME' => $event['requestContext']['requestTimeEpoch'] ?? time(),
-            'QUERY_STRING' => $query ? http_build_query($query) : '',
+            'QUERY_STRING' => $queryString,
             'DOCUMENT_ROOT' => getcwd(),
             'REQUEST_URI' => $uri,
         ];

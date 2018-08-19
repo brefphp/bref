@@ -124,4 +124,24 @@ class RequestFactoryTest extends TestCase
             'theme' => 'light'
         ], $request->getCookieParams());
     }
+
+    public function test arrays in query string are supported()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'GET',
+            'queryStringParameters' => [
+                'vars[val1]' => 'foo',
+                'vars[val2][]' => 'bar',
+            ],
+        ]);
+
+        self::assertEquals([
+            'vars' => [
+                'val1' => 'foo',
+                'val2' => [
+                    'bar',
+                ]
+            ]
+        ], $request->getQueryParams());
+    }
 }
