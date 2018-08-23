@@ -5,6 +5,7 @@ namespace Bref\Test\Bridge\Psr7;
 
 use Bref\Bridge\Psr7\RequestFactory;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\UploadedFileInterface;
 
 class RequestFactoryTest extends TestCase
 {
@@ -97,17 +98,27 @@ class RequestFactoryTest extends TestCase
         self::assertEquals(['foo' => 'bar'], json_decode($request->getBody()->getContents(), true));
     }
 
-    public function test multipart form data is not supported()
+    public function test multipart form data is supported()
     {
         $request = RequestFactory::fromLambdaEvent([
             'httpMethod' => 'POST',
             'headers' => [
-                'Content-Type' => 'multipart/form-data',
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
             ],
-            'body' => 'abcd',
+            'body' =>
+"--testBoundary\r
+Content-Disposition: form-data; name=\"foo\"\r
+\r
+bar\r
+--testBoundary\r
+Content-Disposition: form-data; name=\"bim\"\r
+\r
+baz\r
+--testBoundary--\r
+",
         ]);
         self::assertEquals('POST', $request->getMethod());
-        self::assertNull(null, $request->getParsedBody());
+        self::assertEquals(['foo' => 'bar', 'bim' => 'baz'], $request->getParsedBody());
     }
 
     public function test cookies are supported()
@@ -143,5 +154,135 @@ class RequestFactoryTest extends TestCase
                 ]
             ]
         ], $request->getQueryParams());
+    }
+
+    public function test arrays in name are supported with multipart form data()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+            ],
+            'body' =>
+"--testBoundary\r
+Content-Disposition: form-data; name=\"delete[categories][]\"\r
+\r
+123\r
+--testBoundary\r
+Content-Disposition: form-data; name=\"delete[categories][]\"\r
+\r
+456\r
+--testBoundary--\r
+",
+        ]);
+        self::assertEquals('POST', $request->getMethod());
+        self::assertEquals([
+            'delete' => [
+                'categories' => [
+                    '123',
+                    '456',
+                    ],
+                ],
+            ],
+            $request->getParsedBody()
+        );
+    }
+
+    public function test files are supported with multipart form data()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+            ],
+            'body' =>
+"--testBoundary\r
+Content-Disposition: form-data; name=\"foo\"; filename=\"lorem.txt\"\r
+Content-Type: text/plain\r
+\r
+Lorem ipsum dolor sit amet,
+consectetur adipiscing elit.
+\r
+--testBoundary\r
+Content-Disposition: form-data; name=\"bar\"\r
+Content-Type: text/csv\r
+\r
+Year,Make,Model
+1997,Ford,E350
+2000,Mercury,Cougar
+\r
+--testBoundary\r
+Content-Disposition: form-data; name=\"bim[baz]\"; filename=\"test.js\"\r
+\r
+alert('Hello');
+\r
+--testBoundary--\r
+",
+        ]);
+        self::assertEquals('POST', $request->getMethod());
+        self::assertNull($request->getParsedBody());
+        self::assertEquals([
+                'foo',
+                'bar',
+                'bim',
+            ],
+            array_keys($request->getUploadedFiles())
+        );
+
+        /** @var UploadedFileInterface $foo */
+        $foo = $request->getUploadedFiles()['foo'];
+        self::assertInstanceOf(UploadedFileInterface::class, $foo);
+        self::assertEquals('lorem.txt', $foo->getClientFilename());
+        self::assertEquals('text/plain', $foo->getClientMediaType());
+        self::assertEquals(UPLOAD_ERR_OK, $foo->getError());
+        self::assertEquals(57, $foo->getSize());
+        self::assertEquals(<<<RAW
+Lorem ipsum dolor sit amet,
+consectetur adipiscing elit.
+
+RAW
+            , $foo->getStream()->getContents());
+
+        /** @var UploadedFileInterface $bar */
+        $bar = $request->getUploadedFiles()['bar'];
+        self::assertInstanceOf(UploadedFileInterface::class, $bar);
+        self::assertNull($bar->getClientFilename());
+        self::assertEquals('text/csv', $bar->getClientMediaType());
+        self::assertEquals(UPLOAD_ERR_OK, $bar->getError());
+        self::assertEquals(51, $bar->getSize());
+        self::assertEquals(<<<RAW
+Year,Make,Model
+1997,Ford,E350
+2000,Mercury,Cougar
+
+RAW
+            , $bar->getStream()->getContents());
+
+        /** @var UploadedFileInterface $baz */
+        $baz = $request->getUploadedFiles()['bim']['baz'];
+        self::assertInstanceOf(UploadedFileInterface::class, $baz);
+        self::assertEquals('test.js', $baz->getClientFilename());
+        self::assertNull($baz->getClientMediaType());
+        self::assertEquals(UPLOAD_ERR_OK, $baz->getError());
+        self::assertEquals(16, $baz->getSize());
+        self::assertEquals(<<<RAW
+alert('Hello');
+
+RAW
+            , $baz->getStream()->getContents());
+    }
+
+    public function test POST base64 encoded body is supported()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'POST',
+            'isBase64Encoded' => true,
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+            ],
+            'body' => base64_encode('foo=bar'),
+        ]);
+        self::assertEquals('POST', $request->getMethod());
+        self::assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 }

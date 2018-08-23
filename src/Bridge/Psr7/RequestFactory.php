@@ -7,6 +7,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Stream;
+use Zend\Diactoros\UploadedFile;
 
 /**
  * Creates PSR-7 requests.
@@ -23,12 +24,16 @@ class RequestFactory
         $method = $event['httpMethod'] ?? 'GET';
         $query = [];
         $bodyString = $event['body'] ?? '';
-        $body = self::createBodyStream($bodyString);
         $parsedBody = null;
         $files = [];
         $uri = $event['requestContext']['path'] ?? '/';
         $headers = $event['headers'] ?? [];
         $protocolVersion = $event['requestContext']['protocol'] ?? '1.1';
+
+        if ($event['isBase64Encoded'] ?? false) {
+            $bodyString = base64_decode($bodyString);
+        }
+        $body = self::createBodyStream($bodyString);
 
         /*
          * queryStringParameters does not handle correctly arrays in parameters
@@ -51,11 +56,14 @@ class RequestFactory
         }
 
         $contentType = $headers['content-type'] ?? $headers['Content-Type'] ?? null;
-        /*
-         * TODO Multipart form uploads are not supported yet.
-         */
-        if ($method === 'POST' && $contentType === 'application/x-www-form-urlencoded') {
-            parse_str($bodyString, $parsedBody);
+        if ($method === 'POST' && $contentType !== null) {
+            /** @var string $contentType */
+
+            if ($contentType === 'application/x-www-form-urlencoded') {
+                parse_str($bodyString, $parsedBody);
+            } elseif (strpos($contentType, 'multipart/form-data;') === 0) {
+                self::handleMultipartBody($contentType, $bodyString, $parsedBody, $files);
+            }
         }
 
         $server = [
@@ -88,5 +96,114 @@ class RequestFactory
         rewind($stream);
 
         return new Stream($stream);
+    }
+
+    private static function handleMultipartBody(string $contentType, string $body, &$parsedBody, array &$files)
+    {
+        if (!preg_match('/boundary=(.*)$/', $contentType, $matches)) {
+            return;
+        }
+
+        $boundary = trim($matches[1]);
+
+        $parts = explode('--'.$boundary, $body);
+        unset($parts[0]); // Remove empty part
+        array_pop($parts); // Remove last part (contains --\r\n)
+
+        foreach ($parts as $part) {
+            $subParts = explode("\r\n\r\n", $part, 2);
+
+            if (count($subParts) !== 2) {
+                return;
+            }
+
+            $headers = explode("\r\n" ,$subParts[0]);
+            unset($headers[0]); // Remove empty part
+
+            $value = substr($subParts[1], 0, -2); // -2 to the remove the extra \r\n
+
+            $name = null;
+            $type = null;
+            $filename = null;
+
+            foreach ($headers as $header) {
+                if (preg_match('/^Content-Disposition:\s*form-data;/i', $header)) {
+                    if (preg_match('/name="([^"]+)"/', $header, $matches)) {
+                        $name = $matches[1];
+                    }
+
+                    if (preg_match('/filename="([^"]+)"/', $header, $matches)) {
+                        $filename = $matches[1];
+                    }
+                } elseif (preg_match('/^Content-Type:(.*)$/i', $header, $matches)) {
+                    $type = trim($matches[1]);
+                }
+            }
+
+            if ($name === null) {
+                continue;
+            }
+
+            /** @var string $name */
+
+            if ($filename === null && $type === null) {
+                if ($parsedBody === null) {
+                    $parsedBody = [];
+                }
+                self::parseKeyAndInsertValueInArray($parsedBody, $name, $value);
+
+                continue;
+            }
+
+            // This is a file
+            $tmpName = tempnam(sys_get_temp_dir(), 'bref_upload_');
+            file_put_contents($tmpName, $value);
+            $file = new UploadedFile($tmpName, filesize($tmpName), UPLOAD_ERR_OK, $filename, $type);
+            self::parseKeyAndInsertValueInArray($files, $name, $file);
+        }
+    }
+
+    /**
+     * Parse a string key like "files[id_cards][jpg][]" and do $array['files']['id_cards']['jpg'][] = $value
+     * @param mixed $value
+     */
+    private static function parseKeyAndInsertValueInArray(array &$array, string $key, $value) : void
+    {
+        if (strpos($key, '[') === false) {
+            $array[$key] = $value;
+
+            return;
+        }
+
+        $parts = explode('[', $key); // files[id_cards][jpg][] => [ 'files',  'id_cards]', 'jpg]', ']' ]
+        $pointer = &$array;
+
+        foreach ($parts as $k => $part) {
+            if ($k === 0) {
+                $pointer = &$pointer[$part];
+
+                continue;
+            }
+
+            // Skip two special cases:
+            // [[ in the key produces empty string
+            // [test : starts with [ but does not end with ]
+            if ($part === '' || substr($part, -1) !== ']') {
+                // Malformed key, we use it "as is"
+                $array[$key] = $value;
+
+                return;
+            }
+
+            $part = substr($part, 0, -1); // The last char is a ] => remove it to have the real key
+
+            if ($part === '') { // [] case
+                $pointer = &$pointer[];
+            } else {
+                $pointer = &$pointer[$part];
+            }
+        }
+
+        $pointer = $value;
     }
 }
