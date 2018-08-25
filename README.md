@@ -98,7 +98,7 @@ $lambda = new \Aws\Lambda\LambdaClient([
 ]);
 $result = $lambda->invoke([
     'FunctionName' => '<function-name>',
-    'InvocationType' => 'Event',
+    'InvocationType' => 'RequestResponse',
     'LogType' => 'None',
     'Payload' => json_encode([...]),
 ]);
