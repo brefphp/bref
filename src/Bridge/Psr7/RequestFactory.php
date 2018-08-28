@@ -133,7 +133,8 @@ class RequestFactory
                     }
 
                     if (preg_match('/filename="([^"]+)"/', $header, $matches)) {
-                        $filename = $matches[1];
+                        $filename = basename($matches[1]);
+                        $filename = strlen($filename) > 0 ? $filename : null;
                     }
                 } elseif (preg_match('/^Content-Type:(.*)$/i', $header, $matches)) {
                     $type = trim($matches[1]);
