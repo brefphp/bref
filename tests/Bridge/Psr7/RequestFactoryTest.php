@@ -204,27 +204,20 @@ Lorem ipsum dolor sit amet,
 consectetur adipiscing elit.
 \r
 --testBoundary\r
-Content-Disposition: form-data; name=\"bar\"\r
-Content-Type: text/csv\r
+Content-Disposition: form-data; name=\"bar\"; filename=\"cars.csv\"\r
 \r
 Year,Make,Model
 1997,Ford,E350
 2000,Mercury,Cougar
 \r
---testBoundary\r
-Content-Disposition: form-data; name=\"bim[baz]\"; filename=\"test.js\"\r
-\r
-alert('Hello');
-\r
 --testBoundary--\r
 ",
         ]);
         self::assertEquals('POST', $request->getMethod());
-        self::assertNull($request->getParsedBody());
+        self::assertEquals([], $request->getParsedBody());
         self::assertEquals([
                 'foo',
                 'bar',
-                'bim',
             ],
             array_keys($request->getUploadedFiles())
         );
@@ -246,8 +239,8 @@ RAW
         /** @var UploadedFileInterface $bar */
         $bar = $request->getUploadedFiles()['bar'];
         self::assertInstanceOf(UploadedFileInterface::class, $bar);
-        self::assertNull($bar->getClientFilename());
-        self::assertEquals('text/csv', $bar->getClientMediaType());
+        self::assertEquals('cars.csv', $bar->getClientFilename());
+        self::assertEquals('application/octet-stream', $bar->getClientMediaType()); // not set: fallback to application/octet-stream
         self::assertEquals(UPLOAD_ERR_OK, $bar->getError());
         self::assertEquals(51, $bar->getSize());
         self::assertEquals(<<<RAW
@@ -257,19 +250,6 @@ Year,Make,Model
 
 RAW
             , $bar->getStream()->getContents());
-
-        /** @var UploadedFileInterface $baz */
-        $baz = $request->getUploadedFiles()['bim']['baz'];
-        self::assertInstanceOf(UploadedFileInterface::class, $baz);
-        self::assertEquals('test.js', $baz->getClientFilename());
-        self::assertNull($baz->getClientMediaType());
-        self::assertEquals(UPLOAD_ERR_OK, $baz->getError());
-        self::assertEquals(16, $baz->getSize());
-        self::assertEquals(<<<RAW
-alert('Hello');
-
-RAW
-            , $baz->getStream()->getContents());
     }
 
     public function test POST base64 encoded body is supported()

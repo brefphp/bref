@@ -5,6 +5,7 @@ namespace Bref\Bridge\Psr7;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use Riverline\MultiPartParser\Part;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Stream;
 use Zend\Diactoros\UploadedFile;
@@ -61,8 +62,23 @@ class RequestFactory
 
             if ($contentType === 'application/x-www-form-urlencoded') {
                 parse_str($bodyString, $parsedBody);
-            } elseif (strpos($contentType, 'multipart/form-data;') === 0) {
-                self::handleMultipartBody($contentType, $bodyString, $parsedBody, $files);
+            } else {
+                $document = new Part("Content-type: $contentType\r\n\r\n".$bodyString);
+                if ($document->isMultiPart()) {
+                    $parsedBody = [];
+
+                    foreach ($document->getParts() as $part) {
+                        if ($part->isFile()) {
+                            $tmpPath = tempnam(sys_get_temp_dir(), 'bref_upload_');
+                            file_put_contents($tmpPath, $part->getBody());
+                            $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
+
+                            self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
+                        } else {
+                            self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
+                        }
+                    }
+                }
             }
         }
 
@@ -96,72 +112,6 @@ class RequestFactory
         rewind($stream);
 
         return new Stream($stream);
-    }
-
-    private static function handleMultipartBody(string $contentType, string $body, &$parsedBody, array &$files)
-    {
-        if (!preg_match('/boundary=(.*)$/', $contentType, $matches)) {
-            return;
-        }
-
-        $boundary = trim($matches[1]);
-
-        $parts = explode('--'.$boundary, $body);
-        unset($parts[0]); // Remove empty part
-        array_pop($parts); // Remove last part (contains --\r\n)
-
-        foreach ($parts as $part) {
-            $subParts = explode("\r\n\r\n", $part, 2);
-
-            if (count($subParts) !== 2) {
-                return;
-            }
-
-            $headers = explode("\r\n" ,$subParts[0]);
-            unset($headers[0]); // Remove empty part
-
-            $value = substr($subParts[1], 0, -2); // -2 to the remove the extra \r\n
-
-            $name = null;
-            $type = null;
-            $filename = null;
-
-            foreach ($headers as $header) {
-                if (preg_match('/^Content-Disposition:\s*form-data;/i', $header)) {
-                    if (preg_match('/name="([^"]+)"/', $header, $matches)) {
-                        $name = $matches[1];
-                    }
-
-                    if (preg_match('/filename="([^"]+)"/', $header, $matches)) {
-                        $filename = basename($matches[1]);
-                        $filename = strlen($filename) > 0 ? $filename : null;
-                    }
-                } elseif (preg_match('/^Content-Type:(.*)$/i', $header, $matches)) {
-                    $type = trim($matches[1]);
-                }
-            }
-
-            if ($name === null) {
-                continue;
-            }
-
-            /** @var string $name */
-
-            if ($filename === null && $type === null) {
-                if ($parsedBody === null) {
-                    $parsedBody = [];
-                }
-                self::parseKeyAndInsertValueInArray($parsedBody, $name, $value);
-
-                continue;
-            }
-
-            // This is a file
-            $tmpName = tempnam(sys_get_temp_dir(), 'bref_upload_');
-            file_put_contents($tmpName, $value);
-            $file = new UploadedFile($tmpName, filesize($tmpName), UPLOAD_ERR_OK, $filename, $type);
-            self::parseKeyAndInsertValueInArray($files, $name, $file);
-        }
     }
 
     /**
