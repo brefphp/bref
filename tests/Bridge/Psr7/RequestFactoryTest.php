@@ -176,7 +176,8 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
 ",
         ]);
         self::assertEquals('POST', $request->getMethod());
-        self::assertEquals([
+        self::assertEquals(
+            [
             'delete' => [
                 'categories' => [
                     '123',
@@ -215,7 +216,8 @@ Year,Make,Model
         ]);
         self::assertEquals('POST', $request->getMethod());
         self::assertEquals([], $request->getParsedBody());
-        self::assertEquals([
+        self::assertEquals(
+            [
                 'foo',
                 'bar',
             ],
