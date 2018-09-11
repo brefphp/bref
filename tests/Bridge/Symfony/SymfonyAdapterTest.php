@@ -72,8 +72,8 @@ class SymfonyAdapterTest extends TestCase
             )
         );
 
-        self::assertContains(
-            sprintf("%s=SESSIONID", \session_name()),
+        self::assertSame(
+            sprintf("%s=SESSIONID; path=/; httponly", \session_name()),
             $symfonyResponse->getHeaders()['Set-Cookie'][0]
         );
     }
