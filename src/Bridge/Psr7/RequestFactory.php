@@ -5,8 +5,10 @@ namespace Bref\Bridge\Psr7;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use Riverline\MultiPartParser\Part;
 use Zend\Diactoros\ServerRequest;
 use Zend\Diactoros\Stream;
+use Zend\Diactoros\UploadedFile;
 
 /**
  * Creates PSR-7 requests.
@@ -23,12 +25,16 @@ class RequestFactory
         $method = $event['httpMethod'] ?? 'GET';
         $query = [];
         $bodyString = $event['body'] ?? '';
-        $body = self::createBodyStream($bodyString);
         $parsedBody = null;
         $files = [];
         $uri = $event['requestContext']['path'] ?? '/';
         $headers = $event['headers'] ?? [];
         $protocolVersion = $event['requestContext']['protocol'] ?? '1.1';
+
+        if ($event['isBase64Encoded'] ?? false) {
+            $bodyString = base64_decode($bodyString);
+        }
+        $body = self::createBodyStream($bodyString);
 
         /*
          * queryStringParameters does not handle correctly arrays in parameters
@@ -51,11 +57,29 @@ class RequestFactory
         }
 
         $contentType = $headers['content-type'] ?? $headers['Content-Type'] ?? null;
-        /*
-         * TODO Multipart form uploads are not supported yet.
-         */
-        if ($method === 'POST' && $contentType === 'application/x-www-form-urlencoded') {
-            parse_str($bodyString, $parsedBody);
+        if ($method === 'POST' && $contentType !== null) {
+            /** @var string $contentType */
+
+            if ($contentType === 'application/x-www-form-urlencoded') {
+                parse_str($bodyString, $parsedBody);
+            } else {
+                $document = new Part("Content-type: $contentType\r\n\r\n".$bodyString);
+                if ($document->isMultiPart()) {
+                    $parsedBody = [];
+
+                    foreach ($document->getParts() as $part) {
+                        if ($part->isFile()) {
+                            $tmpPath = tempnam(sys_get_temp_dir(), 'bref_upload_');
+                            file_put_contents($tmpPath, $part->getBody());
+                            $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
+
+                            self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
+                        } else {
+                            self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
+                        }
+                    }
+                }
+            }
         }
 
         $server = [
@@ -88,5 +112,49 @@ class RequestFactory
         rewind($stream);
 
         return new Stream($stream);
+    }
+
+    /**
+     * Parse a string key like "files[id_cards][jpg][]" and do $array['files']['id_cards']['jpg'][] = $value
+     * @param mixed $value
+     */
+    private static function parseKeyAndInsertValueInArray(array &$array, string $key, $value) : void
+    {
+        if (strpos($key, '[') === false) {
+            $array[$key] = $value;
+
+            return;
+        }
+
+        $parts = explode('[', $key); // files[id_cards][jpg][] => [ 'files',  'id_cards]', 'jpg]', ']' ]
+        $pointer = &$array;
+
+        foreach ($parts as $k => $part) {
+            if ($k === 0) {
+                $pointer = &$pointer[$part];
+
+                continue;
+            }
+
+            // Skip two special cases:
+            // [[ in the key produces empty string
+            // [test : starts with [ but does not end with ]
+            if ($part === '' || substr($part, -1) !== ']') {
+                // Malformed key, we use it "as is"
+                $array[$key] = $value;
+
+                return;
+            }
+
+            $part = substr($part, 0, -1); // The last char is a ] => remove it to have the real key
+
+            if ($part === '') { // [] case
+                $pointer = &$pointer[];
+            } else {
+                $pointer = &$pointer[$part];
+            }
+        }
+
+        $pointer = $value;
     }
 }
