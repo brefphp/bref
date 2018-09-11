@@ -35,20 +35,11 @@ class SymfonyAdapter implements RequestHandlerInterface
 
         $symfonyRequest = $httpFoundationFactory->createRequest($request);
 
-        if (!is_null($symfonyRequest->cookies->get(session_name()))) {
-            $this->httpKernel->getContainer()->get('session')->setId(
-                $symfonyRequest->cookies->get(session_name())
-            );
-        }
+        $this->loadSessionFromCookies($symfonyRequest);
 
         $symfonyResponse = $this->httpKernel->handle($symfonyRequest);
 
-        $symfonyResponse->headers->setCookie(
-            new Cookie(
-                session_name(),
-                $this->httpKernel->getContainer()->get('session')->getId()
-            )
-        );
+        $this->addSessionCookieToResponse($symfonyResponse);
 
         if ($this->httpKernel instanceof TerminableInterface) {
             $this->httpKernel->terminate($symfonyRequest, $symfonyResponse);
@@ -58,5 +49,30 @@ class SymfonyAdapter implements RequestHandlerInterface
         $response = $psr7Factory->createResponse($symfonyResponse);
 
         return $response;
+    }
+
+    /**
+     * @param $symfonyRequest
+     */
+    private function loadSessionFromCookies($symfonyRequest): void
+    {
+        if (!is_null($symfonyRequest->cookies->get(session_name()))) {
+            $this->httpKernel->getContainer()->get('session')->setId(
+                $symfonyRequest->cookies->get(session_name())
+            );
+        }
+    }
+
+    /**
+     * @param $symfonyResponse
+     */
+    private function addSessionCookieToResponse($symfonyResponse): void
+    {
+        $symfonyResponse->headers->setCookie(
+            new Cookie(
+                session_name(),
+                $this->httpKernel->getContainer()->get('session')->getId()
+            )
+        );
     }
 }
