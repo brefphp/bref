@@ -8,6 +8,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
@@ -28,12 +29,27 @@ class SymfonyAdapter implements RequestHandlerInterface
         $this->httpKernel = $httpKernel;
     }
 
-    public function handle(ServerRequestInterface $request) : ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $httpFoundationFactory = new HttpFoundationFactory;
+
         $symfonyRequest = $httpFoundationFactory->createRequest($request);
 
+        if (!is_null($symfonyRequest->cookies->get(session_name()))) {
+            $this->httpKernel->getContainer()->get('session')->setId(
+                $symfonyRequest->cookies->get(session_name())
+            );
+        }
+
         $symfonyResponse = $this->httpKernel->handle($symfonyRequest);
+
+        $symfonyResponse->headers->setCookie(
+            new Cookie(
+                session_name(),
+                $this->httpKernel->getContainer()->get('session')->getId()
+            )
+        );
+
         if ($this->httpKernel instanceof TerminableInterface) {
             $this->httpKernel->terminate($symfonyRequest, $symfonyResponse);
         }
