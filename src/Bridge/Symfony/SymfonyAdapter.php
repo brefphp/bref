@@ -71,7 +71,14 @@ class SymfonyAdapter implements RequestHandlerInterface
         $symfonyResponse->headers->setCookie(
             new Cookie(
                 session_name(),
-                $this->httpKernel->getContainer()->get('session')->getId()
+                $this->httpKernel->getContainer()->get('session')->getId(),
+                0,
+                "/",
+                null,
+                false,
+                true,
+                false,
+                Cookie::SAMESITE_LAX
             )
         );
     }
