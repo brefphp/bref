@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -90,7 +90,7 @@ class SymfonyAdapterTest extends TestCase
 
             protected function configureContainer(ContainerBuilder $c)
             {
-                $c->register('session_storage', NativeSessionStorage::class);
+                $c->register('session_storage', MockArraySessionStorage::class);
 
                 $c->loadFromExtension('framework', [
                     'secret'  => 'foo',
