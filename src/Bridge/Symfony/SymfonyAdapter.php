@@ -8,6 +8,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
@@ -28,12 +29,18 @@ class SymfonyAdapter implements RequestHandlerInterface
         $this->httpKernel = $httpKernel;
     }
 
-    public function handle(ServerRequestInterface $request) : ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $httpFoundationFactory = new HttpFoundationFactory;
+
         $symfonyRequest = $httpFoundationFactory->createRequest($request);
 
+        $this->loadSessionFromCookies($symfonyRequest);
+
         $symfonyResponse = $this->httpKernel->handle($symfonyRequest);
+
+        $this->addSessionCookieToResponse($symfonyResponse);
+
         if ($this->httpKernel instanceof TerminableInterface) {
             $this->httpKernel->terminate($symfonyRequest, $symfonyResponse);
         }
@@ -42,5 +49,37 @@ class SymfonyAdapter implements RequestHandlerInterface
         $response = $psr7Factory->createResponse($symfonyResponse);
 
         return $response;
+    }
+
+    /**
+     * @param $symfonyRequest
+     */
+    private function loadSessionFromCookies($symfonyRequest): void
+    {
+        if (!is_null($symfonyRequest->cookies->get(session_name()))) {
+            $this->httpKernel->getContainer()->get('session')->setId(
+                $symfonyRequest->cookies->get(session_name())
+            );
+        }
+    }
+
+    /**
+     * @param $symfonyResponse
+     */
+    private function addSessionCookieToResponse($symfonyResponse): void
+    {
+        $symfonyResponse->headers->setCookie(
+            new Cookie(
+                session_name(),
+                $this->httpKernel->getContainer()->get('session')->getId(),
+                0,
+                "/",
+                null,
+                false,
+                true,
+                false,
+                Cookie::SAMESITE_LAX
+            )
+        );
     }
 }
