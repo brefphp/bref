@@ -15,6 +15,9 @@ const TMP_DIRECTORY = process.env['TMP_DIRECTORY'] ? process.env['TMP_DIRECTORY'
 const OUTPUT_FILE = TMP_DIRECTORY + '/output.json';
 const PHP_FILE = process.env['PHP_HANDLER'] ? process.env['PHP_HANDLER'] : 'bref.php';
 
+/**
+ * This is the JavaScript lambda that is invoked by AWS
+ */
 exports.handle = function(event, context, callback) {
     if (fs.existsSync(OUTPUT_FILE)) {
         fs.unlinkSync(OUTPUT_FILE);
