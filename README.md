@@ -1,27 +1,33 @@
-Bref is a serverless application framework for PHP.
+Bref helps you build serverless PHP applications.
 
 [![Build Status](https://travis-ci.com/mnapoli/bref.svg?branch=master)](https://travis-ci.com/mnapoli/bref)
 [![Latest Version](https://img.shields.io/github/release/mnapoli/bref.svg?style=flat-square)](https://packagist.org/packages/mnapoli/bref)
 
-It allows to deploy PHP applications on serverless hosting providers (AWS Lambda mostly for now) and provides everything necessary for it to work, including bridges with popular PHP frameworks.
+Bref brings support for PHP on serverless providers (AWS Lambda only for now) but also goes beyond that: it provides a deployment process tailored for PHP as well as the ability to create:
 
-It is currently in beta version, there are a lot of things missing and it is mainly intended for testing (although it is used in production sucessfully). Contributions are welcome!
+- classic lambdas (a function taking an "event" and returning a result)
+- HTTP applications written with popular PHP frameworks
+- CLI applications
 
-If you want to understand Serverless in more depth please read the [Serverless and PHP: introducing Bref](http://mnapoli.fr/serverless-php/) article.
+It is currently in beta version and will get more and more complete with time, but it is used in production successfully. Contributions are welcome!
 
-Example of use cases:
+If you want to understand what serverless is please read the [Serverless and PHP: introducing Bref](http://mnapoli.fr/serverless-php/) article.
+
+Use case examples:
 
 - APIs
+- workers
+- crons/batch processes
 - GitHub webhooks
 - Slack bots
-- crons
-- workers
 
 Interested about performances? [Head over here](https://github.com/mnapoli/bref-benchmark) for a benchmark.
 
 ## Setup
 
-Bref internally uses [the serverless framework](https://serverless.com/) for deployment in order to avoid reinventing the wheel. As a Bref user you should not have to deal with the serverless framework itself but you need to install it.
+For now Bref only works with AWS Lambda. Help to support other providers is welcome.
+
+For deploying, Bref internally uses [the serverless framework](https://serverless.com/). At first you should not have to deal with the serverless framework itself but you need to install it.
 
 - Create an AWS account if you don't already have one
 - Install [the serverless framework](https://serverless.com): `npm install -g serverless`
@@ -31,29 +37,14 @@ Bref will then use AWS credentials and the serverless framework to deploy your a
 
 ## Creating a lambda
 
+To create your first lambda application create an empty directory and run the following commands:
+
 ```shell
-$ composer require mnapoli/bref
-$ vendor/bin/bref init
+composer require mnapoli/bref
+vendor/bin/bref init
 ```
 
-Write a `bref.php` file at the root of your project:
-
-```php
-<?php
-
-require __DIR__.'/vendor/autoload.php';
-
-$app = new \Bref\Application;
-
-$app->simpleHandler(function (array $event) {
-    return [
-        'hello' => $event['name'] ?? 'world',
-    ];
-});
-$app->run();
-```
-
-If you want to keep things simple for now, simply use the `λ` shortcut :)
+The `init` command will create the required files, including a `bref.php` file which will be your application:
 
 ```php
 <?php
@@ -67,29 +58,37 @@ require __DIR__.'/vendor/autoload.php';
 });
 ```
 
-Watch out: if you want to setup a HTTP handler (e.g. for the webhook) you need to use a HTTP framework. This is described at the end of this page.
+Note that the `λ` function is just a simple function (with a funny name) that boots Bref and runs it, here is the equivalent code without that shortcut function:
 
-## Deployment
+```php
+$app = new \Bref\Application;
+$app->simpleHandler(function (array $event) {
+    return [
+        'hello' => $event['name'] ?? 'world',
+    ];
+});
+$app->run();
+```
+
+For now our lambda is a simple lambda that can be invoked manually. Creating HTTP applications is covered below in the documentation.
+
+Let's deploy our application:
 
 ```shell
-$ vendor/bin/bref deploy
+vendor/bin/bref deploy
 ```
+
+On the first deploy Bref will create the lambda and every other resource needed. If you redeploy later your existing lambda will be updated.
 
 ## Invocation
 
-By default lambdas are deployed with a webhook. You can trigger them by simply calling the webhook. If in doubt, the webhook can be retrieved using `vendor/bin/bref info`.
+You can trigger your lambda manually using the CLI:
 
 ```shell
-$ curl https://xxxxx.execute-api.xxxxx.amazonaws.com/dev/
+vendor/bin/bref invoke
 ```
 
-Triggering a lambda manually:
-
-```shell
-$ vendor/bin/bref invoke
-```
-
-Triggering a lambda from another PHP application:
+Or using the AWS PHP SDK from another PHP application:
 
 ```php
 $lambda = new \Aws\Lambda\LambdaClient([
@@ -100,36 +99,27 @@ $result = $lambda->invoke([
     'FunctionName' => '<function-name>',
     'InvocationType' => 'Event',
     'LogType' => 'None',
-    'Payload' => json_encode([...]),
+    'Payload' => json_encode([ /* your event data */ ]),
 ]);
 $payload = json_decode($result->get('Payload')->getContents(), true);
 ```
 
+### Invoking locally
+
 Bref provides a helper to invoke the lambda locally, on your machine instead of the serverless provider:
 
 ```shell
-$ php bref.php bref:invoke
+php bref.php bref:invoke
 
 # If you want to pass event data:
-$ php bref.php bref:invoke --event='{"name":"foo"}'
-```
-
-## Deletion
-
-```shell
-$ vendor/bin/bref remove
-```
-
-## Logs
-```shell
-$ vendor/bin/bref logs
+php bref.php bref:invoke --event='{"name":"foo"}'
 ```
 
 ## HTTP applications
 
-Bref provides bridges to use your HTTP framework and write an HTTP application. By default it supports any [PSR-15 request handler](https://github.com/php-fig/http-server-handler) implementation, thanks to PSR-7 it is easy to integrate most frameworks.
+Bref provides bridges to use your HTTP framework to write a HTTP applications. By default Bref supports any [PSR-15](https://github.com/php-fig/http-server-handler) compliant framework, as well as Symfony and Laravel (read below).
 
-Here is an example using the [Slim](https://www.slimframework.com) framework to handle requests (native PSR-15 support for Slim [is in the works](https://github.com/slimphp/Slim/pull/2379)):
+Here is an example using the [Slim framework](https://www.slimframework.com) to handle requests (native PSR-15 support for Slim [is in the works](https://github.com/slimphp/Slim/pull/2379)):
 
 ```php
 <?php
@@ -149,15 +139,23 @@ $app->httpHandler(new SlimAdapter($slim));
 $app->run();
 ```
 
-Bref provides a helper to preview the application locally, simply run:
+The `$app->httpHandler()` method lets us define the handler for HTTP requests.
+
+When your lambda is deployed, a URL will be created so that your application is accessible online. The URL can be retrieved using `vendor/bin/bref info`. Calling the URL will trigger your lambda and Bref will run your "http handler". For example using curl:
 
 ```shell
-$ php -S 127.0.0.1:8000 bref.php
+curl https://xxxxx.execute-api.xxxxx.amazonaws.com/dev/
 ```
 
-And open [http://localhost:8000](http://localhost:8000/).
+Bref provides a helper to preview the application locally. It works with PHP's built-in webserver:
 
-Remember that you can also keep the `simpleHandler` so that your lambda handles both HTTP requests and direct invocations.
+```shell
+php -S 127.0.0.1:8000 bref.php
+```
+
+The application is then available at [http://localhost:8000](http://localhost:8000/).
+
+Since Bref works with PSR-15 you are not even required to use a PHP framework. You could write your own "HTTP handler" by providing an implementation of `Psr\Http\Server\RequestHandlerInterface` to `$app->httpHandler()`.
 
 ### Symfony integration
 
@@ -169,13 +167,13 @@ Read the documentation for [deploying Laravel applications](docs/Laravel.md).
 
 ### Why is there a `/dev` prefix in the URLs on AWS Lambda
 
-See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for a more detailed answer. The short version is AWS requires a prefix containing the stage name (dev/prod).
+See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for a more detailed answer. The short version is AWS requires a prefix containing the stage name (dev/prod/…).
 
 If you use a custom domain for your application this prefix will disappear. If you don't, you need to write routes with this prefix in your framework.
 
 ## CLI applications
 
-Bref provides an abstraction to easily run CLI commands in lambdas. You can define a CLI application using [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Silly](https://github.com/mnapoli/silly) (which extends and simplifies Symfony Console). Once the lambda is deployed you can then "invoke" the CLI commands in the lambda using `bref cli -- <command>`.
+Bref provides an abstraction to easily run CLI commands in lambdas. You can define a CLI application using [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Silly](https://github.com/mnapoli/silly) (which extends and simplifies Symfony Console). Once the lambda is deployed you can then "invoke" the CLI commands *in the lambda* using `bref cli -- <command>`.
 
 ```php
 <?php
@@ -192,7 +190,7 @@ $app->cliHandler($silly);
 $app->run();
 ```
 
-To run CLI commands in the lambda, simply run `bref cli` on your computer:
+To run CLI commands in the lambda, run `bref cli` on your computer:
 
 ```shell
 $ vendor/bin/bref cli
@@ -208,21 +206,67 @@ Hello Bob
 
 As you can see, all arguments and options after `bref cli --` are forwarded to the CLI command running on lambda.
 
-To test your CLI commands locally (on your machine), simply run:
+To test your CLI commands locally (on your machine), run:
 
 ```shell
-$ php bref.php <commands and options>
+php bref.php <commands and options>
 ```
 
-As you may have seen above, there is a special command that is automatically added to your CLI application:
+Bref automatically registers a special `bref:invoke` command to your CLI application. That command lets you invoke on your machine a `simpleHandler` you may have defined:
 
 ```shell
-$ php bref.php bref:invoke
+php bref.php bref:invoke
 ```
 
-That special command lets you invoke the `simpleHandler` on your development machine.
+## Multiple handlers
 
-## Build hooks
+As you may have noted, Bref lets you define 3 kinds of handlers:
+
+```php
+$app->simpleHandler(function () {
+    return 'Hello';
+});
+$app->httpHandler($httpFramework);
+$app->cliHandler($console);
+
+$app->run();
+```
+
+If you want to, you can define those 3 handlers in the same application. On execution Bref recognizes if the application is invoked through HTTP, through `bref cli` (for CLI commands) or simply through a standard invocation. It will then execute the appropriate handler.
+
+## Logging
+
+### Writing logs
+
+The filesystem on lambdas is read-only (except for the `/tmp` folder). You should not try to write application logs to disk.
+
+The easiest solution is to push logs to AWS Cloudwatch (Amazon's solution for logs). Bref (and AWS Lambda) will send to Cloudwatch anything you write on `stdout` (using `echo` for example) or `stderr`. If you are using Monolog this means you will need to configure Monolog to write to the output (contribution welcome: clarify with an example).
+
+If you have more specific needs you can of course push logs to anything, for example Logstash, Papertrail, Loggly, etc.
+
+### Reading logs
+
+You can read the AWS Cloudwatch logs in the AWS console or via the CLI:
+
+```shell
+vendor/bin/bref logs
+```
+
+## Deployment
+
+To deploy the application, run:
+
+```shell
+vendor/bin/bref deploy
+```
+
+A stage can be provided to deploy to multiple stages, for example staging, production, etc:
+
+```shell
+vendor/bin/bref deploy --stage=prod
+```
+
+### Build hooks
 
 When deploying Composer dependencies will be installed and optimized for production (`composer install --no-dev --no-scripts --classmap-authoritative`).
 
@@ -234,7 +278,7 @@ hooks:
         - 'npm install'
 ```
 
-## PHP configuration
+### PHP configuration
 
 If you need a specific PHP version, you can define it in a `.bref.yml` file:
 
@@ -263,6 +307,14 @@ Here is the list of extensions available:
 - MongoDB: `mongodb`
 - New Relic: `newrelic`
 - Redis: `redis`
+
+## Deletion
+
+You can delete your lambda on the hosting provider by running:
+
+```shell
+vendor/bin/bref remove
+```
 
 ## Contributing
 
