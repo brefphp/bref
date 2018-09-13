@@ -34,7 +34,7 @@ class Deployer
     {
         $progress = $this->createProgressBar($io, 7);
 
-        $this->generateArchive($io, $progress);
+        $this->generateArchive($progress);
 
         $progress->setMessage('Invoking the lambda');
         $progress->display();
@@ -71,7 +71,7 @@ class Deployer
     {
         $progress = $this->createProgressBar($io, 8);
 
-        $this->generateArchive($io, $progress);
+        $this->generateArchive($progress);
 
         if (!$dryRun) {
             $progress->setMessage('Uploading the lambda');
@@ -106,7 +106,7 @@ class Deployer
      * @param ProgressBar $progress The progress bar will advance of 7 steps.
      * @throws \Exception
      */
-    private function generateArchive(SymfonyStyle $io, ProgressBar $progress) : void
+    private function generateArchive(ProgressBar $progress) : void
     {
         if (!$this->fs->exists('serverless.yml') || !$this->fs->exists('bref.php')) {
             throw new \Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
