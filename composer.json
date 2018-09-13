@@ -15,6 +15,7 @@
     ],
     "require": {
         "php": "^7.1.0",
+        "ext-json": "*",
         "mnapoli/silly": "^1.7",
         "symfony/filesystem": "^3.1|^4.0",
         "symfony/finder": "^3.1|^4.0",
