@@ -79,8 +79,9 @@ $app->command(
 /**
  * Run a CLI command in the remote environment.
  */
-$app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) {
-    $serverlessInfo = (new Process('serverless info'))->mustRun()->getOutput();
+$app->command('cli [--stage=] [arguments]*', function (?string $stage, array $arguments, SymfonyStyle $io) {
+    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
+    $serverlessInfo = (new Process('serverless info'.$stageOption))->mustRun()->getOutput();
     foreach (explode(PHP_EOL, $serverlessInfo) as $line) {
         if (strpos($line, 'region: ') === 0) {
             $region = substr($line, strlen('region: '));
@@ -125,20 +126,24 @@ $app->command('cli [arguments]*', function (array $arguments, SymfonyStyle $io) 
     return (int) ($payload['exitCode'] ?? 1);
 });
 
-$app->command('info', function (SymfonyStyle $io) {
-    $io->write((new Process('serverless info'))->mustRun()->getOutput());
+$app->command('info [--stage=]', function (?string $stage, SymfonyStyle $io) {
+    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
+    $io->write((new Process('serverless info'.$stageOption))->mustRun()->getOutput());
 });
 
-$app->command('remove', function (SymfonyStyle $io) {
-    $io->write((new Process('serverless remove'))->mustRun()->getOutput());
+$app->command('remove [--stage=]', function (?string $stage, SymfonyStyle $io) {
+    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
+    $io->write((new Process('serverless remove'.$stageOption))->mustRun()->getOutput());
 });
 
-$app->command('logs', function (SymfonyStyle $io) {
-    $io->write((new Process('serverless logs -f main'))->mustRun()->getOutput());
+$app->command('logs [--stage=]', function (?string $stage, SymfonyStyle $io) {
+    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
+    $io->write((new Process('serverless logs -f main'.$stageOption))->mustRun()->getOutput());
 });
 
-$app->command('invoke', function (SymfonyStyle $io) {
-    $io->write((new Process('serverless invoke -f main'))->mustRun()->getOutput());
+$app->command('invoke [--stage=]', function (?string $stage, SymfonyStyle $io) {
+    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
+    $io->write((new Process('serverless invoke -f main'.$stageOption))->mustRun()->getOutput());
 });
 
 $app->run();
