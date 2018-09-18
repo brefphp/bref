@@ -295,6 +295,11 @@ You can execute additional scripts by using a *build hook*. Those can be defined
 
 ```yaml
 hooks:
+    # pre-build hooks are run *before* the deployment package is created (in the current working directory)
+    pre-build:
+        - 'yarn encore production'
+        
+    # build hooks are run on the deployment package *during* its creation (in .bref/)  
     build:
         - 'npm install'
 ```
