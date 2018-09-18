@@ -126,6 +126,17 @@ class Deployer
         }
         $progress->advance();
 
+        // Run pre-build hooks defined in .bref.yml
+        $progress->setMessage('Running pre-build hooks');
+        $progress->display();
+        $buildHooks = $projectConfig['hooks']['pre-build'] ?? [];
+        foreach ($buildHooks as $buildHook) {
+            $progress->setMessage('Running pre-build hook: ' . $buildHook);
+            $progress->display();
+            $this->runInWorkingDirectory($buildHook);
+        }
+        $progress->advance();
+
         $progress->setMessage('Building the project in the `.bref/output` directory');
         $progress->display();
         $this->copyProjectToOutputDirectory();
@@ -195,6 +206,13 @@ class Deployer
             $this->runLocally($buildHook);
         }
         $progress->advance();
+    }
+
+    private function runInWorkingDirectory(string $command) : void
+    {
+        $process = new Process($command);
+        $process->setTimeout(null);
+        $process->mustRun();
     }
 
     private function runLocally(string $command) : void
