@@ -50,6 +50,10 @@ class SymfonyAdapter implements RequestHandlerInterface
 
     private function loadSessionFromRequest(Request $symfonyRequest): ?string
     {
+        if ($this->hasSessionsDisabled()) {
+            return null;
+        }
+
         $this->httpKernel->getContainer()->get('session')->setId(
             $sessionId = $symfonyRequest->cookies->get(session_name())
         );
@@ -59,6 +63,10 @@ class SymfonyAdapter implements RequestHandlerInterface
 
     private function addSessionCookieToResponseIfChanged(?string $requestSessionId, Response $symfonyResponse): void
     {
+        if ($this->hasSessionsDisabled()) {
+            return;
+        }
+
         $responseSessionId = $this->httpKernel->getContainer()->get('session')->getId();
 
         if ($requestSessionId === $responseSessionId) {
@@ -80,5 +88,10 @@ class SymfonyAdapter implements RequestHandlerInterface
                 $cookie['samesite'] ?? null
             )
         );
+    }
+
+    private function hasSessionsDisabled(): bool
+    {
+        return false === $this->httpKernel->getContainer()->has('session');
     }
 }
