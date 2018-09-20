@@ -9,6 +9,8 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
@@ -31,54 +33,51 @@ class SymfonyAdapter implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $httpFoundationFactory = new HttpFoundationFactory;
+        $symfonyRequest = (new HttpFoundationFactory)->createRequest($request);
 
-        $symfonyRequest = $httpFoundationFactory->createRequest($request);
-
-        $this->loadSessionFromCookies($symfonyRequest);
+        $requestSessionId = $this->loadSessionFromRequest($symfonyRequest);
 
         $symfonyResponse = $this->httpKernel->handle($symfonyRequest);
 
-        $this->addSessionCookieToResponse($symfonyResponse);
+        $this->addSessionCookieToResponseIfChanged($requestSessionId, $symfonyResponse);
 
         if ($this->httpKernel instanceof TerminableInterface) {
             $this->httpKernel->terminate($symfonyRequest, $symfonyResponse);
         }
 
-        $psr7Factory = new DiactorosFactory;
-        $response = $psr7Factory->createResponse($symfonyResponse);
-
-        return $response;
+        return (new DiactorosFactory)->createResponse($symfonyResponse);
     }
 
-    /**
-     * @param $symfonyRequest
-     */
-    private function loadSessionFromCookies($symfonyRequest): void
+    private function loadSessionFromRequest(Request $symfonyRequest): ?string
     {
-        if (!is_null($symfonyRequest->cookies->get(session_name()))) {
-            $this->httpKernel->getContainer()->get('session')->setId(
-                $symfonyRequest->cookies->get(session_name())
-            );
+        $this->httpKernel->getContainer()->get('session')->setId(
+            $sessionId = $symfonyRequest->cookies->get(session_name())
+        );
+
+        return $sessionId;
+    }
+
+    private function addSessionCookieToResponseIfChanged(?string $requestSessionId, Response $symfonyResponse): void
+    {
+        $responseSessionId = $this->httpKernel->getContainer()->get('session')->getId();
+
+        if ($requestSessionId === $responseSessionId) {
+            return;
         }
-    }
 
-    /**
-     * @param $symfonyResponse
-     */
-    private function addSessionCookieToResponse($symfonyResponse): void
-    {
+        $cookie = session_get_cookie_params();
+
         $symfonyResponse->headers->setCookie(
             new Cookie(
                 session_name(),
-                $this->httpKernel->getContainer()->get('session')->getId(),
-                0,
-                "/",
-                null,
+                $responseSessionId,
+                $cookie['lifetime'],
+                $cookie['path'],
+                $cookie['domain'],
+                $cookie['secure'],
+                $cookie['httponly'],
                 false,
-                true,
-                false,
-                Cookie::SAMESITE_LAX
+                $cookie['samesite'] ?? null
             )
         );
     }

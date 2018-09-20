@@ -11,6 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -32,7 +33,9 @@ class SymfonyAdapterTest extends TestCase
 
     public function test Symfony applications are adapted()
     {
-        $adapter = new SymfonyAdapter($this->createKernel());
+        $kernel = $this->createKernel();
+        $kernel->boot();
+        $adapter = new SymfonyAdapter($kernel);
         $response = $adapter->handle(new ServerRequest([], [], '/foo'));
 
         self::assertSame('Hello world!', (string) $response->getBody());
@@ -40,7 +43,10 @@ class SymfonyAdapterTest extends TestCase
 
     public function test 404 are PSR7 responses and not exceptions()
     {
-        $adapter = new SymfonyAdapter($this->createKernel());
+        $kernel = $this->createKernel();
+        $kernel->boot();
+        $adapter = new SymfonyAdapter($kernel);
+
         $response = $adapter->handle(new ServerRequest([], [], '/bar'));
 
         self::assertSame(404, $response->getStatusCode());
@@ -48,8 +54,11 @@ class SymfonyAdapterTest extends TestCase
 
     public function test an active session is created()
     {
-        $adapter = new SymfonyAdapter($this->createKernel());
-        $response = $adapter->handle(new ServerRequest([], [], '/bar'));
+        $kernel = $this->createKernel();
+        $kernel->boot();
+        $adapter = new SymfonyAdapter($kernel);
+
+        $response = $adapter->handle(new ServerRequest([], [], '/foo'));
 
         self::assertArrayHasKey('Set-Cookie', $response->getHeaders());
     }
@@ -58,13 +67,13 @@ class SymfonyAdapterTest extends TestCase
     {
         $kernel = $this->createKernel();
         $kernel->boot();
-
         $adapter = new SymfonyAdapter($kernel);
-        $symfonyResponse = $adapter->handle(
+
+        $response = $adapter->handle(
             new ServerRequest(
                 [],
                 [],
-                '/bar',
+                '/foo',
                 null,
                 'php://input',
                 [],
@@ -72,10 +81,7 @@ class SymfonyAdapterTest extends TestCase
             )
         );
 
-        self::assertSame(
-            sprintf("%s=SESSIONID; path=/; httponly; samesite=lax", \session_name()),
-            $symfonyResponse->getHeaders()['Set-Cookie'][0]
-        );
+        self::assertArrayNotHasKey('Set-Cookie', $response->getHeaders());
     }
 
     private function createKernel(): HttpKernelInterface
@@ -105,8 +111,10 @@ class SymfonyAdapterTest extends TestCase
                 $routes->add('/foo', 'kernel:testAction');
             }
 
-            public function testAction()
+            public function testAction(Session $session)
             {
+                $session->set('ACTIVATE', 'SESSIONS');
+
                 return new Response('Hello world!');
             }
 
