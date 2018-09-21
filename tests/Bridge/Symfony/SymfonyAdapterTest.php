@@ -23,6 +23,10 @@ use Zend\Diactoros\ServerRequest;
 
 class SymfonyAdapterTest extends TestCase
 {
+    private const ROUTE_WITHOUT_SESSION = '/';
+    private const ROUTE_WITH_SESSION = '/session';
+    private const ROUTE_NOT_FOUND = '/not-found';
+
     public function setUp()
     {
         parent::setUp();
@@ -33,47 +37,56 @@ class SymfonyAdapterTest extends TestCase
 
     public function test Symfony applications are adapted()
     {
-        $kernel = $this->createKernel();
-        $kernel->boot();
-        $adapter = new SymfonyAdapter($kernel);
-        $response = $adapter->handle(new ServerRequest([], [], '/foo'));
+        $adapter = new SymfonyAdapter($this->createKernel());
 
-        self::assertSame('Hello world!', (string) $response->getBody());
+        $response = $adapter->handle(new ServerRequest([], [], self::ROUTE_WITHOUT_SESSION));
+
+        self::assertEquals(200, $response->getStatusCode());
+        self::assertEquals('Hello world!', (string) $response->getBody());
     }
 
     public function test 404 are PSR7 responses and not exceptions()
     {
-        $kernel = $this->createKernel();
-        $kernel->boot();
-        $adapter = new SymfonyAdapter($kernel);
+        $adapter = new SymfonyAdapter($this->createKernel());
 
-        $response = $adapter->handle(new ServerRequest([], [], '/bar'));
+        $response = $adapter->handle(new ServerRequest([], [], self::ROUTE_NOT_FOUND));
 
-        self::assertSame(404, $response->getStatusCode());
+        self::assertEquals(404, $response->getStatusCode());
+        self::assertEquals('Not found', (string) $response->getBody());
     }
 
-    public function test an active session is created()
+    public function test a session is not created when sessions not used()
     {
-        $kernel = $this->createKernel();
-        $kernel->boot();
-        $adapter = new SymfonyAdapter($kernel);
+        $adapter = new SymfonyAdapter($this->createKernel());
 
-        $response = $adapter->handle(new ServerRequest([], [], '/foo'));
+        $response = $adapter->handle(new ServerRequest([], [], self::ROUTE_WITHOUT_SESSION));
 
-        self::assertArrayHasKey('Set-Cookie', $response->getHeaders());
+        self::assertArrayNotHasKey('Set-Cookie', $response->getHeaders());
     }
 
-    public function test an active session is retrieved()
+    public function test an active session is created when sessions used()
     {
-        $kernel = $this->createKernel();
-        $kernel->boot();
-        $adapter = new SymfonyAdapter($kernel);
+        $adapter = new SymfonyAdapter($kernel = $this->createKernel());
+
+        $response = $adapter->handle(new ServerRequest([], [], self::ROUTE_WITH_SESSION));
+
+        $symfonySessionId = $kernel->getContainer()->get('session')->getId();
+        self::assertEquals($symfonySessionId, (string) $response->getBody());
+        self::assertEquals(
+            sprintf("%s=%s; path=/", \session_name(), $symfonySessionId),
+            $response->getHeaders()['Set-Cookie'][0]
+        );
+    }
+
+    public function test an existing session is used when session provided()
+    {
+        $adapter = new SymfonyAdapter($this->createKernel());
 
         $response = $adapter->handle(
             new ServerRequest(
                 [],
                 [],
-                '/foo',
+                self::ROUTE_WITH_SESSION,
                 null,
                 'php://input',
                 [],
@@ -82,11 +95,12 @@ class SymfonyAdapterTest extends TestCase
         );
 
         self::assertArrayNotHasKey('Set-Cookie', $response->getHeaders());
+        self::assertEquals('SESSIONID', (string) $response->getBody());
     }
 
     private function createKernel(): HttpKernelInterface
     {
-        return new class('dev', false) extends Kernel implements EventSubscriberInterface {
+        $kernel = new class('dev', false) extends Kernel implements EventSubscriberInterface {
             use MicroKernelTrait;
 
             public function registerBundles()
@@ -108,14 +122,20 @@ class SymfonyAdapterTest extends TestCase
 
             protected function configureRoutes(RouteCollectionBuilder $routes)
             {
-                $routes->add('/foo', 'kernel:testAction');
+                $routes->add('/', 'kernel:testActionWithoutSession');
+                $routes->add('/session', 'kernel:testActionWithSession');
             }
 
-            public function testAction(Session $session)
+            public function testActionWithoutSession()
             {
-                $session->set('ACTIVATE', 'SESSIONS');
-
                 return new Response('Hello world!');
+            }
+
+            public function testActionWithSession(Session $session)
+            {
+                $session->set('ACTIVATE', 'SESSIONS'); // ensure that Symfony starts/uses sessions
+
+                return new Response($session->getId());
             }
 
             public static function getSubscribedEvents()
@@ -133,5 +153,9 @@ class SymfonyAdapterTest extends TestCase
                 }
             }
         };
+
+        $kernel->boot();
+
+        return $kernel;
     }
 }
