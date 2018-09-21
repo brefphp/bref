@@ -48,14 +48,14 @@ class SymfonyAdapter implements RequestHandlerInterface
         return (new DiactorosFactory)->createResponse($symfonyResponse);
     }
 
-    private function loadSessionFromRequest(Request $symfonyRequest): ?string
+    private function loadSessionFromRequest(Request $symfonyRequest): string
     {
         if ($this->hasSessionsDisabled()) {
-            return null;
+            return '';
         }
 
         $this->httpKernel->getContainer()->get('session')->setId(
-            $sessionId = $symfonyRequest->cookies->get(session_name())
+            $sessionId = $symfonyRequest->cookies->get(session_name(), '')
         );
 
         return $sessionId;
