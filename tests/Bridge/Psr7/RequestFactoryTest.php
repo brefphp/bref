@@ -268,7 +268,8 @@ RAW
         self::assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 
-    public function test HTTP_HOST is set() {
+    public function test HTTP_HOST is set()
+    {
         $request = RequestFactory::fromLambdaEvent([
             'headers' => [
                 'Host' => 'www.example.com',
