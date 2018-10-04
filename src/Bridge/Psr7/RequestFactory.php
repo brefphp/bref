@@ -27,7 +27,7 @@ class RequestFactory
         $bodyString = $event['body'] ?? '';
         $parsedBody = null;
         $files = [];
-        $uri = $event['requestContext']['path'] ?? '/';
+        $uri = $event['path'] ?? '/';
         $headers = $event['headers'] ?? [];
         $protocolVersion = $event['requestContext']['protocol'] ?? '1.1';
 

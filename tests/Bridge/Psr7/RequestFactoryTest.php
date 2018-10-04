@@ -14,6 +14,7 @@ class RequestFactoryTest extends TestCase
         $currentTimestamp = time();
 
         $request = RequestFactory::fromLambdaEvent([
+            'path' => '/test',
             'httpMethod' => 'GET',
             'queryStringParameters' => [
                 'foo' => 'bar',
@@ -21,7 +22,6 @@ class RequestFactoryTest extends TestCase
             ],
             'requestContext' => [
                 'protocol' => '1.1',
-                'path' => '/test',
                 'requestTimeEpoch' => $currentTimestamp,
             ],
             'headers' => [
