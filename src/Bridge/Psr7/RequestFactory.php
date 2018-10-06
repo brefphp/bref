@@ -91,6 +91,10 @@ class RequestFactory
             'REQUEST_URI' => $uri,
         ];
 
+        if (isset($headers['Host'])) {
+            $server['HTTP_HOST'] = $headers['Host'];
+        }
+
         return new ServerRequest(
             $server,
             $files,
