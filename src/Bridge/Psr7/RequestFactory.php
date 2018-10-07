@@ -86,6 +86,7 @@ class RequestFactory
             'SERVER_PROTOCOL' => $protocolVersion,
             'REQUEST_METHOD' => $method,
             'REQUEST_TIME' => $event['requestContext']['requestTimeEpoch'] ?? time(),
+            'REQUEST_TIME_FLOAT' => microtime(true),
             'QUERY_STRING' => $queryString,
             'DOCUMENT_ROOT' => getcwd(),
             'REQUEST_URI' => $uri,
