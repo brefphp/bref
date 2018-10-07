@@ -31,26 +31,17 @@ $app->command('init', function (SymfonyStyle $io) {
         return 1;
     }
 
-    $configured = true;
     if (getenv('AWS_ACCESS_KEY_ID') === false || getenv('AWS_SECRET_ACCESS_KEY') === false) {
         // Credentials are not configured with environment variables, check aws cli
-        if ($exeFinder->find('aws') !== null) {
-            $awsProcess = new Process('aws configure get aws_access_key_id && aws configure get aws_secret_access_key');
-            if ($awsProcess->run() !== 0) {
-                $configured = false;
-            }
-        } else {
-            $configured = false;
+        $awsProcess = new Process('aws configure get aws_access_key_id && aws configure get aws_secret_access_key');
+        if ($awsProcess->run() !== 0) {
+            $io->error([
+                'AWS credentials not found.',
+                'Please follow the instructions on https://github.com/mnapoli/bref#setup',
+            ]);
+
+            return 1;
         }
-    }
-
-    if (!$configured) {
-        $io->error(
-            'AWS credentials not found.'.PHP_EOL.
-            'Please follow the instructions on https://github.com/mnapoli/bref#setup'
-        );
-
-        return 1;
     }
 
     $fs = new Filesystem;
