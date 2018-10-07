@@ -31,26 +31,17 @@ $app->command('init', function (SymfonyStyle $io) {
         return 1;
     }
 
-    $configured = true;
     if (getenv('AWS_ACCESS_KEY_ID') === false || getenv('AWS_SECRET_ACCESS_KEY') === false) {
         // Credentials are not configured with environment variables, check aws cli
-        if ($exeFinder->find('aws') !== null) {
-            $awsProcess = new Process('aws configure get aws_access_key_id && aws configure get aws_secret_access_key');
-            if ($awsProcess->run() !== 0) {
-                $configured = false;
-            }
-        } else {
-            $configured = false;
+        $awsProcess = new Process('aws configure get aws_access_key_id && aws configure get aws_secret_access_key');
+        if ($awsProcess->run() !== 0) {
+            $io->error([
+                'AWS credentials not found.',
+                'Please follow the instructions on https://github.com/mnapoli/bref#setup',
+            ]);
+
+            return 1;
         }
-    }
-
-    if (!$configured) {
-        $io->error(
-            'AWS credentials not found.'.PHP_EOL.
-            'Please follow the instructions on https://github.com/mnapoli/bref#setup'
-        );
-
-        return 1;
     }
 
     $fs = new Filesystem;
@@ -65,14 +56,39 @@ $app->command('init', function (SymfonyStyle $io) {
         $io->writeln('Creating bref.php');
         $fs->copy(__DIR__ . '/template/bref.php', 'bref.php');
     }
-    $io->success([
-        'Project initialized and ready to deploy using `bref deploy`',
-        'If you are using git, you will need to commit the following files:',
-        '- bref.php',
-        '- serverless.yml',
-        // TODO Do this automatically
-        'You can add `/.bref/` to your .gitignore.',
-    ]);
+
+    /*
+     * We check if this is a git repository to automatically run some commands:
+     * - git add bref.php serverless.yml
+     * - add /.bref/ to .gitignore
+     */
+    if ((new Process('git rev-parse --is-inside-work-tree'))->run() === 0) {
+        (new Process('git add bref.php serverless.yml'))->run();
+
+        /*
+         * Check that .bref is not already gitignored
+         * `git check-ignore` exits with status 1 when "None of the provided paths are ignored."
+         */
+        if ((new Process('git check-ignore -q .bref'))->run() === 1) {
+            $fs->appendToFile('.gitignore', '/.bref/'.PHP_EOL);
+        }
+
+        $io->success([
+            'Project initialized and ready to deploy using `bref deploy`',
+            'As you are using git, we already did the following things automatically:',
+            '- git add bref.php',
+            '- git add serverless.yml',
+            '- `/.bref/` has been added to your .gitignore',
+        ]);
+    } else {
+        $io->success([
+            'Project initialized and ready to deploy using `bref deploy`',
+            'If you are using git, you will need to commit the following files:',
+            '- bref.php',
+            '- serverless.yml',
+            'You can add `/.bref/` to your .gitignore.',
+        ]);
+    }
 });
 
 /**
