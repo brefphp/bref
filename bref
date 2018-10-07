@@ -65,14 +65,39 @@ $app->command('init', function (SymfonyStyle $io) {
         $io->writeln('Creating bref.php');
         $fs->copy(__DIR__ . '/template/bref.php', 'bref.php');
     }
-    $io->success([
-        'Project initialized and ready to deploy using `bref deploy`',
-        'If you are using git, you will need to commit the following files:',
-        '- bref.php',
-        '- serverless.yml',
-        // TODO Do this automatically
-        'You can add `/.bref/` to your .gitignore.',
-    ]);
+
+    /*
+     * We check if this is a git repository to automatically run some commands:
+     * - git add bref.php serverless.yml
+     * - add /.bref/ to .gitignore
+     */
+    if ((new Process('git rev-parse --is-inside-work-tree'))->run() === 0) {
+        (new Process('git add bref.php serverless.yml'))->run();
+
+        /*
+         * Check that .bref is not already gitignored
+         * `git check-ignore` exits with status 1 when "None of the provided paths are ignored."
+         */
+        if ((new Process('git check-ignore -q .bref'))->run() === 1) {
+            $fs->appendToFile('.gitignore', '/.bref/'.PHP_EOL);
+        }
+
+        $io->success([
+            'Project initialized and ready to deploy using `bref deploy`',
+            'As you are using git, we already did the following things automatically:',
+            '- git add bref.php',
+            '- git add serverless.yml',
+            '- `/.bref/` has been added to your .gitignore',
+        ]);
+    } else {
+        $io->success([
+            'Project initialized and ready to deploy using `bref deploy`',
+            'If you are using git, you will need to commit the following files:',
+            '- bref.php',
+            '- serverless.yml',
+            'You can add `/.bref/` to your .gitignore.',
+        ]);
+    }
 });
 
 /**
