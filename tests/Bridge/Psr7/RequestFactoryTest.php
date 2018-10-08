@@ -36,6 +36,8 @@ class RequestFactoryTest extends TestCase
         self::assertEquals([], $request->getAttributes());
         $serverParams = $request->getServerParams();
         unset($serverParams['DOCUMENT_ROOT']);
+        // there is no aws lambda native reqestContext key with microsecond precision, therefore ignore it.
+        unset($serverParams['REQUEST_TIME_FLOAT']);
         self::assertEquals([
             'SERVER_PROTOCOL' => '1.1',
             'REQUEST_METHOD' => 'GET',
