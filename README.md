@@ -273,6 +273,12 @@ You can read the AWS Cloudwatch logs in the AWS console or via the CLI:
 vendor/bin/bref logs
 ```
 
+If you want to tail the logs:
+
+```shell
+vendor/bin/bref logs --tail
+```
+
 ## Deployment
 
 To deploy the application, run:
