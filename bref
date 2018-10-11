@@ -178,9 +178,17 @@ $app->command('remove [--stage=]', function (?string $stage, SymfonyStyle $io) {
     $io->write((new Process('serverless remove'.$stageOption))->mustRun()->getOutput());
 });
 
-$app->command('logs [--stage=]', function (?string $stage, SymfonyStyle $io) {
+$app->command('logs [--stage=] [-t|--tail]', function (?string $stage, bool $tail, SymfonyStyle $io) {
     $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $io->write((new Process('serverless logs -f main'.$stageOption))->mustRun()->getOutput());
+    $tailOption = $tail ? ' --tail ' : '';
+
+    $process = new Process('serverless logs -f main'.$stageOption.$tailOption);
+    $process->setTimeout(null);
+    $process->start(function (string $type, string $data) use ($io) {
+        $type === Process::OUT ? $io->write($data) : $io->getErrorStyle()->write($data);
+    });
+
+    return $process->wait();
 });
 
 $app->command('invoke [--stage=]', function (?string $stage, SymfonyStyle $io) {
