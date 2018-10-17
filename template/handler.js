@@ -55,7 +55,11 @@ exports.handle = function(event, context, callback) {
             result = JSON.parse(result);
         }
         if (code === 0) {
-            callback(null, result);
+            if (null !== result && result.hasOwnProperty('statusCode') && !(result.statusCode >= 200 && result.statusCode < 300)) {
+                callback(new Error(result.body));
+            } else {
+                callback(null, result);
+            }
         } else {
             callback(new Error('PHP exit code: ' + code));
         }
