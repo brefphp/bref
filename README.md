@@ -261,7 +261,9 @@ If you want to, you can define those 3 handlers in the same application. On exec
 
 The filesystem on lambdas is read-only (except for the `/tmp` folder). You should not try to write application logs to disk.
 
-The easiest solution is to push logs to AWS Cloudwatch (Amazon's solution for logs). Bref (and AWS Lambda) will send to Cloudwatch anything you write on `stdout` (using `echo` for example) or `stderr`. If you are using Monolog this means you will need to configure Monolog to write to the output (contribution welcome: clarify with an example).
+The easiest solution is to push logs to AWS Cloudwatch (Amazon's solution for logs). Bref (and AWS Lambda) will send to Cloudwatch anything you write on `stdout` (using `echo` for example) or `stderr`. If you are using Monolog this means you will need to configure Monolog to write to the output.
+For Symfony applications, see a Monolog usage example in [deploying Symfony applications](docs/Symfony.md).
+Additional Monolog strategy contributions welcome. Please clarify with examples.
 
 If you have more specific needs you can of course push logs to anything, for example Logstash, Papertrail, Loggly, etc.
 
