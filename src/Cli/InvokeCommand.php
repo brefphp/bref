@@ -55,7 +55,7 @@ class InvokeCommand extends Command
                 throw new \RuntimeException('The `--path` option is an invalid path: ' . $option);
             }
             if (!is_readable($path)) {
-                throw new \RuntimeException('The `--path` option reference an invalid file path: ' . $option);
+                throw new \RuntimeException('The `--path` option reference an invalid file path or misses permission: ' . $option);
             }
             $fileContent = file_get_contents($path);
             if (!$fileContent) {
