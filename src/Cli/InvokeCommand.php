@@ -58,7 +58,7 @@ class InvokeCommand extends Command
                 throw new \RuntimeException('The `--path` option reference an invalid file path: ' . $option);
             }
             $fileContent = file_get_contents($path);
-            if (!$fileContent){
+            if (!$fileContent) {
                 throw new \RuntimeException('Unable to get file content:' . $option);
             }
             $event = json_decode($fileContent, true);
