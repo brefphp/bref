@@ -25,7 +25,10 @@ class InvokeCommandTest extends TestCase
 
     public static function setUpBeforeClass()
     {
-        self::$invokeCommand = new InvokeCommand(function () { return function ($event) {}; });
+        self::$invokeCommand = new InvokeCommand(function () {
+            return function ($event) {
+            };
+        });
     }
 
     public function setUp()
