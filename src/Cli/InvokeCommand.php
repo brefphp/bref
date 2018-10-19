@@ -50,7 +50,10 @@ class InvokeCommand extends Command
             }
         }
         if ($option = $input->getOption('path')) {
-            $path = realpath(getcwd() . DIRECTORY_SEPARATOR . $option);
+            $path = $option;
+            if (0 !== strpos($option, '/')) {
+                $path = realpath(getcwd() . DIRECTORY_SEPARATOR . $option);
+            }
             if (!$path) {
                 throw new \RuntimeException('The `--path` option is an invalid path: ' . $option);
             }
@@ -66,6 +69,7 @@ class InvokeCommand extends Command
                 throw new \RuntimeException('The `--path` option provided an file with invalid JSON content: ' . $option);
             }
         }
+
 
         $payload = $simpleHandler($event);
 
