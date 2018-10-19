@@ -87,50 +87,6 @@ public function getLogDir()
 
 The best solution however is not to write log on disks because those are lost. You should use a remote log collector (ELK stack) or a cloud solution like Cloudtrail, Papertrail, Loggly, etc.
 
-While `stdout` and `stderr`echo statements get logged directly to CloudWatch, you can easily use Monolog to write to CloudWatch using `php://stderr`.
-
-```shell
-composer require symfony/monolog-bundle
-```
-
-```yaml
-#config/packages/prod/monolog.yaml
-monolog:
-  handlers:
-    # use a handler name of your choice, but here we are using "stderr"
-    stderr:
-      type: stream
-      path: 'php://stderr'
-      level: debug # or any log level of your choosing
-    ...
-```
-
-Once configured, simply inject an instance of `Psr\Log\LoggerInterface`, `@logger`, into any service and use as needed.
-
-```php
-    use Psr\Log\LoggerInterface
-
-    public function __construct(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    public function logSomething(string $message): void
-    {
-        $this->logger->debug($message);
-    }
-```
-or
-```php
-    use Psr\Log\LoggerInterface
-
-    # using autowiring
-    public function someControllerMethod(LoggerInterface $logger)
-    {
-        $logger->info('my message', ['some array key' => 'some array value']);
-    }
-```
-
 We need to build the production cache before deploying. That avoids having the cache regenerated on each HTTP request. Add the following [build hooks](#build-hooks) in `.bref.yml`:
 
 ```yaml
