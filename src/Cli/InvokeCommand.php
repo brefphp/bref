@@ -51,7 +51,7 @@ class InvokeCommand extends Command
         }
         if ($option = $input->getOption('path')) {
             $path = $option;
-            if (0 !== strpos($option, '/')) {
+            if (0 !== strpos($option, '/') && false === (bool)preg_match('#^[a-z]:#i', $path)) {
                 $path = realpath(getcwd() . DIRECTORY_SEPARATOR . $option);
             }
             if (!$path) {
