@@ -43,33 +43,27 @@ class InvokeCommand extends Command
         $simpleHandler = ($this->invokerLocator)();
 
         $event = [];
+
         if ($option = $input->getOption('event')) {
-            $event = json_decode($option, true);
-            if ($event === null) {
+            if (null === $event = json_decode($option, true)) {
                 throw new \RuntimeException('The `--event` option provided contains invalid JSON: ' . $option);
             }
         }
+
         if ($option = $input->getOption('path')) {
-            $path = $option;
-            if (0 !== strpos($option, '/') && false === (bool)preg_match('#^[a-z]:#i', $path)) {
-                $path = realpath(getcwd() . DIRECTORY_SEPARATOR . $option);
-            }
-            if (!$path) {
+            if (!$path = realpath($option)) {
                 throw new \RuntimeException('The `--path` option is an invalid path: ' . $option);
             }
             if (!is_readable($path)) {
                 throw new \RuntimeException('The `--path` option reference an invalid file path or misses permission: ' . $option);
             }
-            $fileContent = file_get_contents($path);
-            if (!$fileContent) {
+            if (!$fileContent = file_get_contents($path)) {
                 throw new \RuntimeException('Unable to get file content:' . $option);
             }
-            $event = json_decode($fileContent, true);
-            if ($event === null) {
+            if (null === $event = json_decode($fileContent, true)) {
                 throw new \RuntimeException('The `--path` option provided an file with invalid JSON content: ' . $option);
             }
         }
-
 
         $payload = $simpleHandler($event);
 
