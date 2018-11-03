@@ -6,8 +6,10 @@ namespace Bref;
 use Bref\Bridge\Psr7\RequestFactory;
 use Bref\Cli\InvokeCommand;
 use Bref\Cli\WelcomeApplication;
-use Bref\Http\LambdaResponse;
+use Bref\Http\LambdaResponseArraySerializer;
 use Bref\Http\WelcomeHandler;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -42,8 +44,43 @@ class Application
      */
     private $cliHandler;
 
-    public function __construct()
+    /**
+     * @var callable
+     */
+    private $httpRequestFactory;
+
+    /**
+     * @var callable
+     */
+    private $httpResponseSerializer;
+
+    /**
+     * Application constructor.
+     * @param callable|null $httpRequestFactory
+     * @param callable|null $httpResponseSerializer
+     */
+    public function __construct(callable $httpRequestFactory = null, callable $httpResponseSerializer = null)
     {
+        if ($httpRequestFactory !== null) {
+            // wrap in closure for return type safety
+            $this->httpRequestFactory = function (array $lambdaEvent) use ($httpRequestFactory) : RequestInterface {
+                return $httpRequestFactory($lambdaEvent);
+            };
+        } else {
+            $this->httpRequestFactory = function (array $lambdaEvent): RequestInterface {
+                return RequestFactory::fromLambdaEvent($lambdaEvent);
+            };
+        }
+
+        if ($httpResponseSerializer !== null) {
+            // wrap in closure for return type safety
+            $this->httpResponseSerializer = function (ResponseInterface $response) use ($httpResponseSerializer) : array {
+                return $httpResponseSerializer($response);
+            };
+        } else {
+            $this->httpResponseSerializer = new LambdaResponseArraySerializer();
+        }
+
         // Define default "demo" handlers
         $this->simpleHandler(function () {
             return 'Welcome to Bref! Define your handler using $application->simpleHandler()';
@@ -124,9 +161,9 @@ class Application
         // Run the appropriate handler
         if (isset($event['httpMethod'])) {
             // HTTP request
-            $request = RequestFactory::fromLambdaEvent($event);
+            $request = ($this->httpRequestFactory)($event);
             $response = $this->httpHandler->handle($request);
-            $output = LambdaResponse::fromPsr7Response($response)->toJson();
+            $output = json_encode(($this->httpResponseSerializer)($response));
         } elseif (isset($event['cli'])) {
             // CLI command
             $cliInput = new StringInput($event['cli']);
