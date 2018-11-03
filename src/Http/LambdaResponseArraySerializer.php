@@ -9,32 +9,52 @@ use Psr\Http\Message\ResponseInterface;
 class LambdaResponseArraySerializer
 {
     /**
+     * @var bool
+     */
+    private $useMultiValueHeaders;
+
+    /**
+     * @param bool $useMultiValueHeaders
+     */
+    public function __construct(bool $useMultiValueHeaders = true)
+    {
+        $this->useMultiValueHeaders = $useMultiValueHeaders;
+    }
+
+    /**
      * @param ResponseInterface $response
      * @return array
      */
     public function __invoke(ResponseInterface $response): array
     {
-        $headers = $response->getHeaders();
+        $headers = [];
+
+        foreach ($response->getHeaders() as $name => $values) {
+            $name = $this->filterHeader($name);
+
+            if ($this->useMultiValueHeaders) {
+                $headers[$name] = $values;
+            } elseif ($value = array_pop($values)) {
+                $headers[$name] = $value;
+            }
+        }
 
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
         if (empty($headers)) {
-            $multiValueHeaders = new \stdClass();
-        } else {
-            $multiValueHeaders = [];
-
-            foreach ($headers as $name => $values) {
-                $multiValueHeaders[$this->filterHeader($name)] = $values;
-            }
+            $headers = new \stdClass();
         }
+
+        /** @var string $headerKey */
+        $headerKey = $this->useMultiValueHeaders ? 'multiValueHeaders' : 'headers';
 
         // This is the format required by the AWS_PROXY lambda integration
         // @see https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-output-format
         return [
             'isBase64Encoded' => false,
             'statusCode' => $response->getStatusCode(),
-            'multiValueHeaders' => $multiValueHeaders,
-            'body' => (string)$response->getBody(),
+            $headerKey => $headers,
+            'body' => (string)$response->getBody()
         ];
     }
 

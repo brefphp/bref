@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Bref\Http;
 
 use Psr\Http\Message\ResponseInterface;
+use Zend\Diactoros\Response\HtmlResponse;
 
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
@@ -13,71 +14,38 @@ use Psr\Http\Message\ResponseInterface;
 class LambdaResponse
 {
     /**
-     * @var int
+     * @var \Psr\Http\Message\ResponseInterface
      */
-    private $statusCode = 200;
+    private $response;
 
     /**
-     * @var array
+     * @var LambdaResponseArraySerializer
      */
-    private $headers;
+    private $serializer;
 
     /**
-     * @var string
+     * LambdaResponse constructor.
+     * @param ResponseInterface $response
+     * @param LambdaResponseArraySerializer|null $serializer
      */
-    private $body;
-
-    public function __construct(int $statusCode, array $headers, string $body)
+    public function __construct(ResponseInterface $response, LambdaResponseArraySerializer $serializer = null)
     {
-        $this->statusCode = $statusCode;
-        $this->headers = $headers;
-        $this->body = $body;
+        $this->response = $response;
+        $this->serializer = $serializer ?: new LambdaResponseArraySerializer(false);
     }
 
-    public static function fromPsr7Response(ResponseInterface $response) : self
+    public static function fromPsr7Response(ResponseInterface $response): self
     {
-        // The lambda proxy integration does not support arrays in headers
-        $headers = [];
-        foreach ($response->getHeaders() as $name => $values) {
-            // See https://github.com/zendframework/zend-diactoros/blob/754a2ceb7ab753aafe6e3a70a1fb0370bde8995c/src/Response/SapiEmitterTrait.php#L96
-            $name = str_replace('-', ' ', $name);
-            $name = ucwords($name);
-            $name = str_replace(' ', '-', $name);
-            foreach ($values as $value) {
-                $headers[$name] = $value;
-            }
-        }
-
-        $response->getBody()->rewind();
-        $body = $response->getBody()->getContents();
-
-        return new self($response->getStatusCode(), $headers, $body);
+        return new self($response);
     }
 
-    public static function fromHtml(string $html) : self
+    public static function fromHtml(string $html): self
     {
-        return new self(
-            200,
-            [
-                'Content-Type' => 'text/html; charset=utf-8',
-            ],
-            $html
-        );
+        return new self(new HtmlResponse($html));
     }
 
-    public function toJson() : string
+    public function toJson(): string
     {
-        // The headers must be a JSON object. If the PHP array is empty it is
-        // serialized to `[]` (we want `{}`) so we force it to an empty object.
-        $headers = empty($this->headers) ? new \stdClass : $this->headers;
-
-        // This is the format required by the AWS_PROXY lambda integration
-        // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
-        return json_encode([
-            'isBase64Encoded' => false,
-            'statusCode' => $this->statusCode,
-            'headers' => $headers,
-            'body' => $this->body,
-        ]);
+        return json_encode($this->serializer->__invoke($this->response));
     }
 }
