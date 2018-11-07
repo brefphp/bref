@@ -20,9 +20,9 @@ if (!is_dir(storage_path('framework/views'))) {
 
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-$app = new \Bref\Application;
-$app->httpHandler(new Bref\Bridge\Laravel\LaravelAdapter($kernel));
-$app->run();
+$bref = new \Bref\Application;
+$bref->httpHandler(new Bref\Bridge\Laravel\LaravelAdapter($kernel));
+$bref->run();
 ```
 
 When generating the optimized config absolute paths will be everywhere, and they will not work because your machine and the lambda environment do not match. To avoid that problem, change `bootstrap/app.php` as shown below. The `APP_DIR` variable will allow us to replace the absolute path by `.` (relative path) when generating the lambda.
