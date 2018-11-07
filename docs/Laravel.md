@@ -65,6 +65,7 @@ package:
     # Add the following lines:
     - 'app/**'
     - 'bootstrap/**'
+    - 'composer.json' # Laravel sometimes uses it to figure out the root directory
     - 'config/**'
     - 'resources/**'
     - 'routes/**'
