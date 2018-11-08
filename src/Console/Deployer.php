@@ -94,6 +94,9 @@ class Deployer
         $progress->setMessage('Deployment success');
         $progress->finish();
 
+        // Finish the output on a new line
+        $io->newLine();
+
         // Trigger a desktop notification
         $notifier = NotifierFactory::create();
         $notification = (new Notification)
