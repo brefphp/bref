@@ -191,9 +191,12 @@ $app->command('logs [--stage=] [-t|--tail]', function (?string $stage, bool $tai
     return $process->wait();
 });
 
-$app->command('invoke [--stage=]', function (?string $stage, SymfonyStyle $io) {
-    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $io->write((new Process('serverless invoke -f main'.$stageOption))->mustRun()->getOutput());
-});
+$app->command('invoke [--stage=] [-e|--event=]', function (?string $stage, ?string $event, SymfonyStyle $io) {
+    $options = $stage ? ' --stage ' . escapeshellarg($stage) : '';
+    $options .= $event ? ' --data ' . escapeshellarg($event) : '';
+    $io->write((new Process('serverless invoke -f main'.$options))->mustRun()->getOutput());
+})->descriptions('Invoke the lambda on the serverless provider', [
+    '--event' => 'Event data as JSON, e.g. `--event \'{"name":"matt"}\'`',
+]);
 
 $app->run();
