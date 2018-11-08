@@ -87,6 +87,8 @@ You can trigger your lambda manually using the CLI:
 
 ```shell
 vendor/bin/bref invoke
+# With event data:
+vendor/bin/bref invoke --event '{"name":"folks"}'
 ```
 
 Or using the AWS PHP SDK from another PHP application:
