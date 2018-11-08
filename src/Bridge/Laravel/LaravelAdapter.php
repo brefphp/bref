@@ -37,6 +37,9 @@ class LaravelAdapter implements RequestHandlerInterface
         // We cannot use Symfony's request directly because the Kernel's implementation
         // expects a `Illuminate\Http\Request` implementation.
         $laravelRequest = \Illuminate\Http\Request::createFromBase($symfonyRequest);
+        // Laravel does not forward the headers from the Symfony request
+        // we need to do that explicitly :'(
+        $laravelRequest->headers->replace($symfonyRequest->headers->all());
 
         /** @var \Illuminate\Http\Response $laravelResponse */
         $laravelResponse = $this->kernel->handle($laravelRequest);
