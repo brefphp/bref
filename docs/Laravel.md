@@ -39,9 +39,10 @@ $bref->run();
 
 When generating the optimized config absolute paths will be everywhere, and they will not work because your machine and the lambda environment do not match. To avoid that problem, change `bootstrap/app.php` as shown below. The `APP_DIR` variable will allow us to replace the absolute path by `.` (relative path) when generating the lambda.
 
-```php
+```diff
 $app = new Bref\Bridge\Laravel\Application(
-    env('APP_DIR', realpath(__DIR__.'/../'))
+-    realpath(__DIR__ . '/../')
++    env('APP_DIR', realpath(__DIR__.'/../'))
 );
 ```
 
