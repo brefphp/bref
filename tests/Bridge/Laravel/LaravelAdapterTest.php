@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace Bref\Test\Bridge\Laravel;
 
-use Bref\Bridge\Laravel\LaravelAdapter;
+use Bref\Bridge\Laravel\Application;
 use Illuminate\Contracts\Http\Kernel;
-use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Router;
@@ -34,7 +33,7 @@ class LaravelAdapterTest extends TestCase
             return new Response('Hello world!');
         });
 
-        $adapter = new LaravelAdapter($app->make(Kernel::class));
+        $adapter = $app->getBrefHttpAdapter();
         $response = $adapter->handle(new ServerRequest([], [], '/'));
 
         self::assertSame('Hello world!', (string) $response->getBody());
@@ -50,7 +49,7 @@ class LaravelAdapterTest extends TestCase
             return new Response('Hello ' . $request->header('X-HELLO'));
         });
 
-        $adapter = new LaravelAdapter($app->make(Kernel::class));
+        $adapter = $app->getBrefHttpAdapter();
         $request = new ServerRequest([], [], '/');
         $request = $request->withHeader('X-HELLO', 'world!');
         $response = $adapter->handle($request);

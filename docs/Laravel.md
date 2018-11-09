@@ -1,6 +1,19 @@
 # Deploying Laravel applications
 
-Here is an example of what your `bref.php` file should contain:
+Deploying Laravel applications requires a few changes for everything to work perfectly.
+
+First let's change `bootstrap/app.php` to use the Bref application class:
+
+```diff
+- $app = new Illuminate\Foundation\Application(
++ $app = new Bref\Bridge\Laravel\Application(
+    realpath(__DIR__ . '/../')
+);
+```
+
+This class extends the Laravel application class to set a few Bref-specific helpers. Everything else stays Laravel.
+
+Then let's write the `bref.php` file. This file will now be the entrypoint of the application and replace `public/index.php`. Here is what it should contain:
 
 ```php
 <?php
@@ -12,28 +25,28 @@ require __DIR__.'/vendor/autoload.php';
 $app = require_once __DIR__.'/bootstrap/app.php';
 
 // Laravel does not create that directory automatically so we have to create it
+// You can remove this if you do not use views in your application (e.g. for an API)
 if (!is_dir(storage_path('framework/views'))) {
     if (!mkdir(storage_path('framework/views'), 0755, true)) {
         die('Cannot create directory ' . storage_path('framework/views'));
     }
 }
 
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-
 $bref = new \Bref\Application;
-$bref->httpHandler(new Bref\Bridge\Laravel\LaravelAdapter($kernel));
+$bref->httpHandler($app->getBrefHttpAdapter());
 $bref->run();
 ```
 
 When generating the optimized config absolute paths will be everywhere, and they will not work because your machine and the lambda environment do not match. To avoid that problem, change `bootstrap/app.php` as shown below. The `APP_DIR` variable will allow us to replace the absolute path by `.` (relative path) when generating the lambda.
 
-```php
-$app = new Illuminate\Foundation\Application(
-    env('APP_DIR', realpath(__DIR__.'/../'))
+```diff
+$app = new Bref\Bridge\Laravel\Application(
+-    realpath(__DIR__ . '/../')
++    env('APP_DIR', realpath(__DIR__.'/../'))
 );
 ```
 
-The filesystem is readonly on lambdas except for `/tmp`. Because of that you need to customize the storage path. Add this line in `bootstrap/app.php` after `$app = new Illuminate\Foundation\Application`:
+The filesystem is readonly on lambdas except for `/tmp`. Because of that you need to customize the storage path. Add this line in `bootstrap/app.php` after `$app = new Bref\Bridge\Laravel\Application`:
 
 ```php
 /*
@@ -113,3 +126,5 @@ Route::get('/dev', function () {
     return view('welcome');
 });
 ```
+
+However if you setup a custom domain in API Gateway the `/dev` prefix will disappear.
