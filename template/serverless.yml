@@ -18,6 +18,7 @@ functions:
   main:
     handler: handler.handle
     timeout: 20 # Timeout in seconds, the default is 6 seconds
+    reservedConcurrency: 20 # Maximum concurrency (parallel executions), the default is 1000
     # The function will match all HTTP URLs
     events:
       - http: 'ANY /'
