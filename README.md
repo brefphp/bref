@@ -336,6 +336,7 @@ Here is the list of extensions available:
 - MongoDB: `mongodb`
 - New Relic: `newrelic`
 - Redis: `redis`
+- BCMath: `bcmath`
 
 ## Deletion
 

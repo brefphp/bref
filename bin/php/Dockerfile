@@ -51,6 +51,7 @@ RUN ./configure \
     --enable-opcache-file \
     --enable-soap \
     --enable-zip \
+    --enable-bcmath \
     --with-curl \
     --with-openssl \
     --with-zlib \
@@ -67,6 +68,13 @@ RUN pecl install mongodb redis > /dev/null
 
 # Compile the intl extension because it cannot be installed with pecl
 WORKDIR /php-src-$PHP_VERSION/ext/intl
+RUN phpize
+RUN ./configure
+RUN make
+RUN make install
+
+# Compile the bcmath extension because it cannot be installed with pecl
+WORKDIR /php-src-$PHP_VERSION/ext/bcmath
 RUN phpize
 RUN ./configure
 RUN make
