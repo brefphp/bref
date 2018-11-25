@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Test\JsHandler;
 
@@ -59,7 +58,7 @@ class JsHandlerTest extends TestCase
         self::assertLambdaError([]);
     }
 
-    private function runFile(string $file, array $event = [])
+    private function runFile(string $file, array $event = []): Process
     {
         $process = new Process('node runner.js ' . escapeshellarg(json_encode($event)), __DIR__);
         $process->setEnv([
@@ -77,7 +76,7 @@ class JsHandlerTest extends TestCase
         string $stdout,
         string $stderr = '',
         int $exitCode = 0
-    ) {
+    ): void {
         $fullOutput = $process->getOutput() . $process->getErrorOutput();
 
         self::assertEquals($exitCode, $process->getExitCode(), $fullOutput);
@@ -85,13 +84,19 @@ class JsHandlerTest extends TestCase
         self::assertEquals($stderr, $process->getErrorOutput());
     }
 
-    private static function assertLambdaResponse($expected) : void
+    /**
+     * @param mixed $expected
+     */
+    private static function assertLambdaResponse($expected): void
     {
         $response = json_decode(file_get_contents(__DIR__ . '/tmp/testResponse.json'), true);
         self::assertEquals($expected, $response);
     }
 
-    private static function assertLambdaError($expected) : void
+    /**
+     * @param mixed $expected
+     */
+    private static function assertLambdaError($expected): void
     {
         $error = json_decode(file_get_contents(__DIR__ . '/tmp/testError.json'), true);
         self::assertEquals($expected, $error);

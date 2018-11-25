@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Test\Http;
 
@@ -56,9 +55,7 @@ class LambdaResponseTest extends TestCase
         $this->assertJsonPayload($response, [
             'isBase64Encoded' => false,
             'statusCode' => 204,
-            'headers' => [
-                'Foo' => 'baz',
-            ],
+            'headers' => ['Foo' => 'baz'],
             'body' => '',
         ]);
     }

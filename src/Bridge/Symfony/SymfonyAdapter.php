@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Symfony;
 
@@ -11,22 +10,19 @@ use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
 /**
  * Adapter for using the Symfony framework as a HTTP handler.
- *
- * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
 class SymfonyAdapter implements RequestHandlerInterface
 {
-    /**
-     * @var HttpKernelInterface
-     */
+    /** @var KernelInterface */
     private $httpKernel;
 
-    public function __construct(HttpKernelInterface $httpKernel)
+    public function __construct(KernelInterface $httpKernel)
     {
         $this->httpKernel = $httpKernel;
     }
@@ -54,9 +50,11 @@ class SymfonyAdapter implements RequestHandlerInterface
             return '';
         }
 
-        $this->httpKernel->getContainer()->get('session')->setId(
-            $sessionId = $symfonyRequest->cookies->get(session_name(), '')
-        );
+        $sessionId = $symfonyRequest->cookies->get(session_name(), '');
+
+        /** @var SessionInterface $session */
+        $session = $this->httpKernel->getContainer()->get('session');
+        $session->setId($sessionId);
 
         return $sessionId;
     }
@@ -67,7 +65,9 @@ class SymfonyAdapter implements RequestHandlerInterface
             return;
         }
 
-        $responseSessionId = $this->httpKernel->getContainer()->get('session')->getId();
+        /** @var SessionInterface $session */
+        $session = $this->httpKernel->getContainer()->get('session');
+        $responseSessionId = $session->getId();
 
         if ($requestSessionId === $responseSessionId) {
             return;
@@ -92,6 +92,6 @@ class SymfonyAdapter implements RequestHandlerInterface
 
     private function hasSessionsDisabled(): bool
     {
-        return false === $this->httpKernel->getContainer()->has('session');
+        return $this->httpKernel->getContainer()->has('session') === false;
     }
 }

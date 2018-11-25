@@ -10,11 +10,16 @@
             "src/functions.php"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Bref\\Test\\": "tests"
+        }
+    },
     "bin": [
         "bref"
     ],
     "require": {
-        "php": "^7.1.0",
+        "php": "^7.2.0",
         "ext-json": "*",
         "mnapoli/silly": "^1.7",
         "symfony/filesystem": "^3.1|^4.0",
@@ -28,16 +33,18 @@
         "zendframework/zend-diactoros": "^1.6",
         "jolicode/jolinotif": "^2.0",
         "matomo/ini": "^2.0",
-        "riverline/multipart-parser": "^1.2"
+        "riverline/multipart-parser": "^1.2",
+        "innmind/json": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5",
         "symfony/symfony": "^3.4|^4.0",
         "symfony/debug": "^3.1|^4.0",
         "slim/slim": "^3.9",
-        "friendsofphp/php-cs-fixer": "^2.4",
         "illuminate/contracts": "^5.0",
         "illuminate/http": "^5.0",
-        "laravel/framework": "^5.6"
+        "laravel/framework": "^5.6",
+        "doctrine/coding-standard": "^5.0",
+        "phpstan/phpstan": "^0.10.5"
     }
 }

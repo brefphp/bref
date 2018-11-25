@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref;
 
@@ -8,6 +7,7 @@ use Bref\Cli\InvokeCommand;
 use Bref\Cli\WelcomeApplication;
 use Bref\Http\LambdaResponse;
 use Bref\Http\WelcomeHandler;
+use Innmind\Json\Json;
 use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -15,9 +15,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Zend\Diactoros\Response\SapiEmitter;
 use Zend\Diactoros\ServerRequestFactory;
 
-/**
- * @author Matthieu Napoli <matthieu@mnapoli.fr>
- */
 class Application
 {
     /**
@@ -27,19 +24,13 @@ class Application
     private const BREF_DIRECTORY = '/tmp/.bref';
     private const OUTPUT_FILE_NAME = self::BREF_DIRECTORY . '/output.json';
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $simpleHandler;
 
-    /**
-     * @var RequestHandlerInterface
-     */
+    /** @var RequestHandlerInterface */
     private $httpHandler;
 
-    /**
-     * @var \Symfony\Component\Console\Application
-     */
+    /** @var \Symfony\Component\Console\Application */
     private $cliHandler;
 
     public function __construct()
@@ -58,7 +49,7 @@ class Application
      *
      * @param callable $handler This callable takes a $event parameter (array) and must return anything serializable to JSON.
      */
-    public function simpleHandler(callable $handler) : void
+    public function simpleHandler(callable $handler): void
     {
         $this->simpleHandler = $handler;
     }
@@ -69,7 +60,7 @@ class Application
      * The handler must be a PSR-15 request handler, it can be any
      * framework that is compatible with PSR-15 for example.
      */
-    public function httpHandler(RequestHandlerInterface $handler) : void
+    public function httpHandler(RequestHandlerInterface $handler): void
     {
         $this->httpHandler = $handler;
     }
@@ -84,7 +75,7 @@ class Application
      * That can also be a Silly (https://github.com/mnapoli/silly) application
      * since Silly is based on the Symfony Console.
      */
-    public function cliHandler(\Symfony\Component\Console\Application $console) : void
+    public function cliHandler(\Symfony\Component\Console\Application $console): void
     {
         // Necessary to avoid any `exit()` call :)
         $console->setAutoExit(false);
@@ -103,10 +94,10 @@ class Application
      * The application will detect how the lambda is being invoked (HTTP,
      * CLI, direct invocation, etc.) and execute the proper handler.
      */
-    public function run() : void
+    public function run(): void
     {
-        if (!$this->isRunningInAwsLambda()) {
-            if (php_sapi_name() == "cli") {
+        if (! $this->isRunningInAwsLambda()) {
+            if (PHP_SAPI === 'cli') {
                 $this->cliHandler->setAutoExit(true);
                 $this->cliHandler->run();
             } else {
@@ -132,20 +123,20 @@ class Application
             $cliInput = new StringInput($event['cli']);
             $cliOutput = new BufferedOutput;
             $exitCode = $this->cliHandler->run($cliInput, $cliOutput);
-            $output = json_encode([
+            $output = Json::encode([
                 'exitCode' => $exitCode,
                 'output' => $cliOutput->fetch(),
             ]);
         } else {
             // Simple invocation
             $output = ($this->simpleHandler)($event);
-            $output = json_encode($output);
+            $output = Json::encode($output);
         }
 
         $this->writeLambdaOutput($output);
     }
 
-    private function ensureTempDirectoryExists() : void
+    private function ensureTempDirectoryExists(): void
     {
         $filesystem = new Filesystem;
         if (! $filesystem->exists(self::BREF_DIRECTORY)) {
@@ -153,19 +144,19 @@ class Application
         }
     }
 
-    private function readLambdaEvent() : array
+    private function readLambdaEvent(): array
     {
         // The lambda event is passed as JSON by `handler.js` as a CLI argument
-        global $argv;
-        return json_decode($argv[1], true) ?: [];
+        $argv = $_SERVER['argv'];
+        return Json::decode($argv[1]) ?: [];
     }
 
-    private function writeLambdaOutput(string $json) : void
+    private function writeLambdaOutput(string $json): void
     {
         file_put_contents(self::OUTPUT_FILE_NAME, $json);
     }
 
-    private function isRunningInAwsLambda() : bool
+    private function isRunningInAwsLambda(): bool
     {
         // LAMBDA_TASK_ROOT is a constant defined by AWS
         // TODO: use a solution that would work with other hosts?

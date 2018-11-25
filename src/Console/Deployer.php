@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Console;
 
@@ -17,6 +16,8 @@ use Symfony\Component\Yaml\Yaml;
 
 class Deployer
 {
+    private const DEFAULT_PHP_TARGET_VERSION = '7.2.5';
+
     /** @var Filesystem */
     private $fs;
 
@@ -30,7 +31,7 @@ class Deployer
      *
      * @deprecated in favor of `php bref.php bref:invoke`, will be removed.
      */
-    public function invoke(SymfonyStyle $io, string $function, ?string $data, bool $raw) : string
+    public function invoke(SymfonyStyle $io, string $function, ?string $data, bool $raw): string
     {
         $progress = $this->createProgressBar($io, 7);
 
@@ -46,7 +47,7 @@ class Deployer
             '--raw' => $raw,
         ]);
 
-        $p = join(' ', array_map(
+        $p = implode(' ', array_map(
             function ($value, $key) {
                 if ($value === true) {
                     // Support for "flag" arguments
@@ -67,23 +68,23 @@ class Deployer
         return $process->getOutput();
     }
 
-    public function deploy(SymfonyStyle $io, bool $dryRun, ?string $stage) : void
+    public function deploy(SymfonyStyle $io, bool $dryRun, ?string $stage): void
     {
         $progress = $this->createProgressBar($io, 8);
 
         $this->generateArchive($progress);
 
-        if (!$dryRun) {
+        if (! $dryRun) {
             $progress->setMessage('Uploading the lambda');
             $progress->display();
             $serverlessCommand = 'serverless deploy';
-            if (null !== $stage) {
+            if ($stage !== null) {
                 $serverlessCommand .= ' --stage ' . escapeshellarg($stage);
             }
             $process = new Process($serverlessCommand, '.bref/output');
             $process->setTimeout(null);
             $completeDeployOutput = '';
-            $process->mustRun(function ($type, $buffer) use ($io, $progress, &$completeDeployOutput) {
+            $process->mustRun(function ($type, $buffer) use ($io, $progress, &$completeDeployOutput): void {
                 $completeDeployOutput .= $buffer;
                 $progress->clear();
                 $io->writeln($buffer);
@@ -109,9 +110,9 @@ class Deployer
      * @param ProgressBar $progress The progress bar will advance of 7 steps.
      * @throws \Exception
      */
-    private function generateArchive(ProgressBar $progress) : void
+    private function generateArchive(ProgressBar $progress): void
     {
-        if (!$this->fs->exists('serverless.yml') || !$this->fs->exists('bref.php')) {
+        if (! $this->fs->exists('serverless.yml') || ! $this->fs->exists('bref.php')) {
             throw new \Exception('The files `bref.php` and `serverless.yml` are required to deploy, run `bref init` to create them');
         }
 
@@ -125,7 +126,7 @@ class Deployer
              * error if there are unknown keys. Using the Symfony Config component
              * for that could make sense.
              */
-            $projectConfig = Yaml::parse(file_get_contents('.bref.yml'));
+            $projectConfig = Yaml::parse($this->readContent('.bref.yml'));
         }
         $progress->advance();
 
@@ -136,11 +137,11 @@ class Deployer
 
         // Cache PHP's binary in `.bref/bin/php` to avoid downloading it
         // on every deploy.
-        $phpVersion = $projectConfig['php']['version'] ?? DEFAULT_PHP_TARGET_VERSION;
+        $phpVersion = $projectConfig['php']['version'] ?? self::DEFAULT_PHP_TARGET_VERSION;
 
         $progress->setMessage('Downloading PHP in the `.bref/bin/` directory');
         $progress->display();
-        if (!$this->fs->exists('.bref/bin/php/php-' . $phpVersion . '.tar.gz')) {
+        if (! $this->fs->exists('.bref/bin/php/php-' . $phpVersion . '.tar.gz')) {
             $this->fs->mkdir('.bref/bin/php');
             /*
              * TODO This option allows to customize the PHP binary used. It should be documented
@@ -150,7 +151,7 @@ class Deployer
              */
             $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . $phpVersion . '.tar.gz';
             $url = $projectConfig['php']['url'] ?? $defaultUrl;
-            (new Process("curl -sSL $url -o .bref/bin/php/php-" . $phpVersion . ".tar.gz"))
+            (new Process("curl -sSL $url -o .bref/bin/php/php-$phpVersion.tar.gz"))
                 ->setTimeout(null)
                 ->mustRun();
         }
@@ -159,13 +160,13 @@ class Deployer
         $progress->setMessage('Installing the PHP binary');
         $progress->display();
         $this->fs->mkdir('.bref/output/.bref/bin');
-        (new Process('tar -xzf .bref/bin/php/php-' . $phpVersion . '.tar.gz -C .bref/output/.bref/bin'))
+        (new Process("tar -xzf .bref/bin/php/php-$phpVersion.tar.gz -C .bref/output/.bref/bin"))
             ->mustRun();
         // Set correct permissions on the file
         $this->fs->chmod('.bref/output/.bref/bin', 0755);
         // Install our custom php.ini and merge it with user configuration
         $phpConfig = $this->buildPhpConfig(
-            __DIR__  . '/../../template/php.ini',
+            __DIR__ . '/../../template/php.ini',
             '.bref/output/.bref/php.ini',
             $projectConfig['php']['configuration'] ?? [],
             $projectConfig['php']['extensions'] ?? []
@@ -200,14 +201,14 @@ class Deployer
         $progress->advance();
     }
 
-    private function runLocally(string $command) : void
+    private function runLocally(string $command): void
     {
         $process = new Process($command, '.bref/output');
         $process->setTimeout(null);
         $process->mustRun();
     }
 
-    private function createProgressBar(SymfonyStyle $io, int $max) : ProgressBar
+    private function createProgressBar(SymfonyStyle $io, int $max): ProgressBar
     {
         ProgressBar::setFormatDefinition('bref', "<comment>%message%</comment>\n %current%/%max% [%bar%] %elapsed:6s%");
 
@@ -223,9 +224,9 @@ class Deployer
     /**
      * Pre-process the `serverless.yml` file and copy it in the lambda directory.
      */
-    private function copyServerlessYml() : void
+    private function copyServerlessYml(): void
     {
-        $serverlessYml = Yaml::parse(file_get_contents('serverless.yml'));
+        $serverlessYml = Yaml::parse($this->readContent('serverless.yml'));
 
         // Force deploying the files used by Bref without having the user know about them
         $serverlessYml['package']['include'][] = 'handler.js';
@@ -234,9 +235,9 @@ class Deployer
         file_put_contents('.bref/output/serverless.yml', Yaml::dump($serverlessYml, 10));
     }
 
-    private function copyProjectToOutputDirectory() : void
+    private function copyProjectToOutputDirectory(): void
     {
-        if (!$this->fs->exists('.bref/output')) {
+        if (! $this->fs->exists('.bref/output')) {
             $this->fs->mkdir('.bref/output');
         }
 
@@ -261,14 +262,13 @@ class Deployer
     private function buildPhpConfig(string $sourceFile, string $targetFile, array $flags, array $extensions): array
     {
         $config = array_merge(
-            ['flags' => array_merge(
-                (new IniReader())->readFile($sourceFile),
-                $flags
-            )],
+            [
+                'flags' => array_merge((new IniReader)->readFile($sourceFile), $flags),
+            ],
             array_combine(
                 $extensions,
                 array_map(function ($extension) {
-                    if (!$this->fs->exists('.bref/output/.bref/bin/ext/' . $extension . '.so')) {
+                    if (! $this->fs->exists(".bref/output/.bref/bin/ext/$extension.so")) {
                         throw new \Exception("The PHP extension '$extension' is not available yet in Bref, please open an issue or a pull request on GitHub to add that extension");
                     }
 
@@ -277,30 +277,31 @@ class Deployer
             )
         );
 
-        (new IniWriter())->writeToFile($targetFile, $config);
+        (new IniWriter)->writeToFile($targetFile, $config);
 
         return $config;
     }
 
-    private function removeUnusedExtensions(array $phpConfig)
+    private function removeUnusedExtensions(array $phpConfig): void
     {
         foreach (glob('.bref/output/.bref/bin/ext/*.so') as $extensionFile) {
             if ($extensionFile === '.bref/output/.bref/bin/ext/opcache.so') {
                 continue;
             }
-            if (!array_key_exists(basename($extensionFile, '.so'), $phpConfig)) {
+            if (! array_key_exists(basename($extensionFile, '.so'), $phpConfig)) {
                 $this->fs->remove($extensionFile);
             }
         }
     }
 
-    private function removeUnusedLibraries(array $extensions)
+    private function removeUnusedLibraries(array $extensions): void
     {
         $dependencies = [];
         $dependenciesFile = '.bref/output/.bref/bin/dependencies.yml';
 
         if ($this->fs->exists($dependenciesFile)) {
-            $dependencies = Yaml::parse(file_get_contents($dependenciesFile))['extensions'] ?? [];
+            $dependenciesConfig = Yaml::parse($this->readContent($dependenciesFile));
+            $dependencies = $dependenciesConfig['extensions'] ?? [];
             $this->fs->remove($dependenciesFile);
         }
 
@@ -309,9 +310,19 @@ class Deployer
         ));
 
         foreach (glob('.bref/output/.bref/bin/lib/**') as $library) {
-            if (!in_array(basename($library), $requiredLibraries)) {
+            if (! in_array(basename($library), $requiredLibraries)) {
                 $this->fs->remove($library);
             }
         }
+    }
+
+    private function readContent(string $file): string
+    {
+        $content = file_get_contents($file);
+        if ($content === false) {
+            throw new \RuntimeException("Unable to read the `$file` file");
+        }
+
+        return $content;
     }
 }

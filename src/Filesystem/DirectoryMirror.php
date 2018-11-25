@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Filesystem;
 
@@ -9,13 +8,11 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
- * @author Matthieu Napoli <matthieu@mnapoli.fr>
+ * Mirrors a directory into another on the filesystem.
  */
 class DirectoryMirror
 {
-    /**
-     * @var Filesystem
-     */
+    /** @var Filesystem */
     private $fs;
 
     public function __construct(Filesystem $fs)
@@ -30,14 +27,14 @@ class DirectoryMirror
      *
      * @throws IOException
      */
-    public function mirror(Finder $source, Finder $target) : void
+    public function mirror(Finder $source, Finder $target): void
     {
         [$sourceFiles, $targetFiles] = $this->indexArraysByRelativePath($source, $target);
 
         $filesToCreate = array_diff_key($sourceFiles, $targetFiles);
         $filesToDelete = array_diff_key($targetFiles, $sourceFiles);
         $filesToVerify = array_intersect_key($sourceFiles, $targetFiles);
-        $filesToUpdate = array_filter($filesToVerify, function (int $sourceCTime, string $sourceRelativePath) use ($targetFiles) : bool {
+        $filesToUpdate = array_filter($filesToVerify, function (int $sourceCTime, string $sourceRelativePath) use ($targetFiles): bool {
             assert(isset($targetFiles[$sourceRelativePath]));
             $targetCTime = $targetFiles[$sourceRelativePath];
             /*
@@ -57,9 +54,9 @@ class DirectoryMirror
     }
 
     /**
-     * @param SplFileInfo[] $filesToCreate
+     * @param int[] $filesToCreate
      */
-    private function createMissingFiles(array $filesToCreate) : void
+    private function createMissingFiles(array $filesToCreate): void
     {
         foreach ($filesToCreate as $relativePath => $cTime) {
             $targetPath = '.bref/output/' . $relativePath;
@@ -73,9 +70,9 @@ class DirectoryMirror
     }
 
     /**
-     * @param SplFileInfo[] $filesToDelete
+     * @param int[] $filesToDelete
      */
-    private function deleteExtraFiles(array $filesToDelete) : void
+    private function deleteExtraFiles(array $filesToDelete): void
     {
         foreach ($filesToDelete as $relativePath => $cTime) {
             $targetPath = '.bref/output/' . $relativePath;
@@ -85,9 +82,9 @@ class DirectoryMirror
     }
 
     /**
-     * @param SplFileInfo[] $filesToUpdate
+     * @param int[] $filesToUpdate
      */
-    private function updateChangedFiles(array $filesToUpdate) : void
+    private function updateChangedFiles(array $filesToUpdate): void
     {
         foreach ($filesToUpdate as $relativePath => $cTime) {
             $targetPath = '.bref/output/' . $relativePath;
@@ -96,11 +93,10 @@ class DirectoryMirror
                 $this->fs->remove($targetPath);
                 $this->fs->copy($relativePath, $targetPath);
             } else {
+                // TODO sync permissions if $targetPath is a directory?
                 if (is_file($targetPath)) {
                     $this->fs->remove($targetPath);
                     $this->fs->mkdir($targetPath);
-                } else {
-                    // TODO sync permissions?
                 }
             }
         }
@@ -109,7 +105,7 @@ class DirectoryMirror
     /**
      * @return int[][]
      */
-    private function indexArraysByRelativePath(Finder $source, Finder $target) : array
+    private function indexArraysByRelativePath(Finder $source, Finder $target): array
     {
         $sourceFiles = iterator_to_array($this->indexFilesCTimeByRelativePath($source));
         $targetFiles = iterator_to_array($this->indexFilesCTimeByRelativePath($target));
@@ -117,7 +113,7 @@ class DirectoryMirror
         return [$sourceFiles, $targetFiles];
     }
 
-    private function indexFilesCTimeByRelativePath(iterable $files) : \Traversable
+    private function indexFilesCTimeByRelativePath(iterable $files): \Traversable
     {
         foreach ($files as $file) {
             /** @var SplFileInfo $file */

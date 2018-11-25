@@ -1,30 +1,22 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Http;
 
+use Innmind\Json\Json;
 use Psr\Http\Message\ResponseInterface;
 
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
- *
- * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
 class LambdaResponse
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $statusCode = 200;
 
-    /**
-     * @var array
-     */
+    /** @var array */
     private $headers;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $body;
 
     public function __construct(int $statusCode, array $headers, string $body)
@@ -34,7 +26,7 @@ class LambdaResponse
         $this->body = $body;
     }
 
-    public static function fromPsr7Response(ResponseInterface $response) : self
+    public static function fromPsr7Response(ResponseInterface $response): self
     {
         // The lambda proxy integration does not support arrays in headers
         $headers = [];
@@ -54,7 +46,7 @@ class LambdaResponse
         return new self($response->getStatusCode(), $headers, $body);
     }
 
-    public static function fromHtml(string $html) : self
+    public static function fromHtml(string $html): self
     {
         return new self(
             200,
@@ -65,7 +57,7 @@ class LambdaResponse
         );
     }
 
-    public function toJson() : string
+    public function toJson(): string
     {
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
@@ -73,7 +65,7 @@ class LambdaResponse
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
-        return json_encode([
+        return Json::encode([
             'isBase64Encoded' => false,
             'statusCode' => $this->statusCode,
             'headers' => $headers,
