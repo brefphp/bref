@@ -4,7 +4,6 @@
     <arg name="extensions" value="php"/>
     <arg name="parallel" value="80"/>
     <arg name="cache" value=".phpcs-cache"/>
-    <arg name="colors"/>
     <!-- Show sniff names -->
     <arg value="s"/>
 
