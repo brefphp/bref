@@ -10,7 +10,8 @@ use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
 /**
@@ -18,10 +19,10 @@ use Symfony\Component\HttpKernel\TerminableInterface;
  */
 class SymfonyAdapter implements RequestHandlerInterface
 {
-    /** @var HttpKernelInterface */
+    /** @var KernelInterface */
     private $httpKernel;
 
-    public function __construct(HttpKernelInterface $httpKernel)
+    public function __construct(KernelInterface $httpKernel)
     {
         $this->httpKernel = $httpKernel;
     }
@@ -50,7 +51,10 @@ class SymfonyAdapter implements RequestHandlerInterface
         }
 
         $sessionId = $symfonyRequest->cookies->get(session_name(), '');
-        $this->httpKernel->getContainer()->get('session')->setId($sessionId);
+
+        /** @var SessionInterface $session */
+        $session = $this->httpKernel->getContainer()->get('session');
+        $session->setId($sessionId);
 
         return $sessionId;
     }
@@ -61,7 +65,9 @@ class SymfonyAdapter implements RequestHandlerInterface
             return;
         }
 
-        $responseSessionId = $this->httpKernel->getContainer()->get('session')->getId();
+        /** @var SessionInterface $session */
+        $session = $this->httpKernel->getContainer()->get('session');
+        $responseSessionId = $session->getId();
 
         if ($requestSessionId === $responseSessionId) {
             return;
