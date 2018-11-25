@@ -8,8 +8,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 
-const DEFAULT_PHP_TARGET_VERSION = '7.2.5';
-
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 } elseif (file_exists(__DIR__ . '/../autoload.php')) {

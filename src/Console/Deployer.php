@@ -16,6 +16,8 @@ use Symfony\Component\Yaml\Yaml;
 
 class Deployer
 {
+    private const DEFAULT_PHP_TARGET_VERSION = '7.2.5';
+
     /** @var Filesystem */
     private $fs;
 
@@ -135,7 +137,7 @@ class Deployer
 
         // Cache PHP's binary in `.bref/bin/php` to avoid downloading it
         // on every deploy.
-        $phpVersion = $projectConfig['php']['version'] ?? DEFAULT_PHP_TARGET_VERSION;
+        $phpVersion = $projectConfig['php']['version'] ?? self::DEFAULT_PHP_TARGET_VERSION;
 
         $progress->setMessage('Downloading PHP in the `.bref/bin/` directory');
         $progress->display();
