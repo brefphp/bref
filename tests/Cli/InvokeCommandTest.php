@@ -31,17 +31,26 @@ class InvokeCommandTest extends TestCase
      */
     public function test event json_decode fail()
     {
-        $this->command->run(new StringInput('--event {fooo'), new NullOutput);
+        $this->runCommandWithParameters([
+            '--event' => '{fooo',
+        ]);
     }
 
     public function test event json_decode success()
     {
+        $output = $this->runCommandWithParameters([
+            '--event' => '{"foo": "bar"}',
+        ]);
+
+        self::assertEquals('"Hello bar"', $output);
+    }
+
+    public function runCommandWithParameters(array $parameters): string
+    {
         $output = new BufferedOutput;
 
-        $this->command->run(new ArrayInput([
-            '--event' => '{"foo": "bar"}',
-        ]), $output);
+        $this->command->run(new ArrayInput($parameters), $output);
 
-        self::assertEquals('"Hello bar"', trim($output->fetch()));
+        return trim($output->fetch());
     }
 }
