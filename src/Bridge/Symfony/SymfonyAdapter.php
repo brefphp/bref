@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Symfony;
 
@@ -16,14 +15,10 @@ use Symfony\Component\HttpKernel\TerminableInterface;
 
 /**
  * Adapter for using the Symfony framework as a HTTP handler.
- *
- * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
 class SymfonyAdapter implements RequestHandlerInterface
 {
-    /**
-     * @var HttpKernelInterface
-     */
+    /** @var HttpKernelInterface */
     private $httpKernel;
 
     public function __construct(HttpKernelInterface $httpKernel)
@@ -54,9 +49,8 @@ class SymfonyAdapter implements RequestHandlerInterface
             return '';
         }
 
-        $this->httpKernel->getContainer()->get('session')->setId(
-            $sessionId = $symfonyRequest->cookies->get(session_name(), '')
-        );
+        $sessionId = $symfonyRequest->cookies->get(session_name(), '');
+        $this->httpKernel->getContainer()->get('session')->setId($sessionId);
 
         return $sessionId;
     }
@@ -92,6 +86,6 @@ class SymfonyAdapter implements RequestHandlerInterface
 
     private function hasSessionsDisabled(): bool
     {
-        return false === $this->httpKernel->getContainer()->has('session');
+        return $this->httpKernel->getContainer()->has('session') === false;
     }
 }

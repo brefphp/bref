@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 $outputFile = getenv('TMP_DIRECTORY') . '/output.json';
 

@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Psr7;
 
@@ -12,15 +11,13 @@ use Zend\Diactoros\UploadedFile;
 
 /**
  * Creates PSR-7 requests.
- *
- * @author Matthieu Napoli <matthieu@mnapoli.fr>
  */
 class RequestFactory
 {
     /**
      * Create a PSR-7 server request from an AWS Lambda HTTP event.
      */
-    public static function fromLambdaEvent(array $event) : ServerRequestInterface
+    public static function fromLambdaEvent(array $event): ServerRequestInterface
     {
         $method = $event['httpMethod'] ?? 'GET';
         $query = [];
@@ -63,7 +60,7 @@ class RequestFactory
             if ($contentType === 'application/x-www-form-urlencoded') {
                 parse_str($bodyString, $parsedBody);
             } else {
-                $document = new Part("Content-type: $contentType\r\n\r\n".$bodyString);
+                $document = new Part("Content-type: $contentType\r\n\r\n" . $bodyString);
                 if ($document->isMultiPart()) {
                     $parsedBody = [];
 
@@ -110,7 +107,7 @@ class RequestFactory
         );
     }
 
-    private static function createBodyStream(string $body) : StreamInterface
+    private static function createBodyStream(string $body): StreamInterface
     {
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, $body);
@@ -121,9 +118,10 @@ class RequestFactory
 
     /**
      * Parse a string key like "files[id_cards][jpg][]" and do $array['files']['id_cards']['jpg'][] = $value
+     *
      * @param mixed $value
      */
-    private static function parseKeyAndInsertValueInArray(array &$array, string $key, $value) : void
+    private static function parseKeyAndInsertValueInArray(array &$array, string $key, $value): void
     {
         if (strpos($key, '[') === false) {
             $array[$key] = $value;

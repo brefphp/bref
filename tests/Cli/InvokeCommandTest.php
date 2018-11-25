@@ -1,10 +1,9 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Test\Cli;
 
-use PHPUnit\Framework\TestCase;
 use Bref\Cli\InvokeCommand;
+use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,7 +25,7 @@ class InvokeCommandTest extends TestCase
     public static function setUpBeforeClass()
     {
         self::$invokeCommand = new InvokeCommand(function () {
-            return function ($event) {
+            return function ($event): void {
             };
         });
     }

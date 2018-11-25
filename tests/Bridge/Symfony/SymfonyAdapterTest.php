@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Test\Bridge\Symfony;
 
@@ -73,7 +72,7 @@ class SymfonyAdapterTest extends TestCase
         $symfonySessionId = $kernel->getContainer()->get('session')->getId();
         self::assertEquals($symfonySessionId, (string) $response->getBody());
         self::assertEquals(
-            sprintf("%s=%s; path=/", \session_name(), $symfonySessionId),
+            sprintf('%s=%s; path=/', \session_name(), $symfonySessionId),
             $response->getHeaders()['Set-Cookie'][0]
         );
     }
@@ -103,42 +102,42 @@ class SymfonyAdapterTest extends TestCase
         $kernel = new class('dev', false) extends Kernel implements EventSubscriberInterface {
             use MicroKernelTrait;
 
-            public function registerBundles()
+            public function registerBundles(): array
             {
                 return [new FrameworkBundle];
             }
 
-            protected function configureContainer(ContainerBuilder $c)
+            protected function configureContainer(ContainerBuilder $c): void
             {
                 $c->register('session_storage', MockArraySessionStorage::class);
 
                 $c->loadFromExtension('framework', [
                     'secret'  => 'foo',
                     'session' => [
-                        'storage_id' => 'session_storage'
-                    ]
+                        'storage_id' => 'session_storage',
+                    ],
                 ]);
             }
 
-            protected function configureRoutes(RouteCollectionBuilder $routes)
+            protected function configureRoutes(RouteCollectionBuilder $routes): void
             {
                 $routes->add('/', 'kernel:testActionWithoutSession');
                 $routes->add('/session', 'kernel:testActionWithSession');
             }
 
-            public function testActionWithoutSession()
+            public function testActionWithoutSession(): Response
             {
                 return new Response('Hello world!');
             }
 
-            public function testActionWithSession(Session $session)
+            public function testActionWithSession(Session $session): Response
             {
                 $session->set('ACTIVATE', 'SESSIONS'); // ensure that Symfony starts/uses sessions
 
                 return new Response($session->getId());
             }
 
-            public static function getSubscribedEvents()
+            public static function getSubscribedEvents(): array
             {
                 return [KernelEvents::EXCEPTION => 'onKernelException'];
             }
@@ -146,7 +145,7 @@ class SymfonyAdapterTest extends TestCase
             /**
              * We have to handle NotFound exceptions ourselves because they are not handled by the micro-kernel
              */
-            public function onKernelException(GetResponseForExceptionEvent $event)
+            public function onKernelException(GetResponseForExceptionEvent $event): void
             {
                 if ($event->getException() instanceof NotFoundHttpException) {
                     $event->setResponse(new Response('Not found', 404));

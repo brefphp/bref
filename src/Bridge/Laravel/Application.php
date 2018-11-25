@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Laravel;
 
@@ -10,6 +9,7 @@ use Illuminate\Contracts\Http\Kernel;
  */
 class Application extends \Illuminate\Foundation\Application
 {
+    /** @var bool|null */
     private $isArtisanConsole = null;
 
     /**
@@ -44,7 +44,7 @@ class Application extends \Illuminate\Foundation\Application
      * - most of the time we don't override the value
      * - when running in Lambda in HTTP we override it to return `false`
      */
-    public function runningInConsole()
+    public function runningInConsole(): bool
     {
         // This allows us to override the value to return
         if ($this->isArtisanConsole !== null) {
@@ -55,7 +55,7 @@ class Application extends \Illuminate\Foundation\Application
         return parent::runningInConsole();
     }
 
-    public function overrideRunningInConsole(bool $value)
+    public function overrideRunningInConsole(bool $value): void
     {
         $this->isArtisanConsole = $value;
     }

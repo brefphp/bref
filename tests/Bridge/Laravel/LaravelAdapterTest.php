@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Test\Bridge\Laravel;
 
@@ -57,7 +56,7 @@ class LaravelAdapterTest extends TestCase
         self::assertSame('Hello world!', (string) $response->getBody());
     }
 
-    private function createLaravel() : Application
+    private function createLaravel(): Application
     {
         $app = new Application(__DIR__);
         $app->singleton(Kernel::class, \Illuminate\Foundation\Http\Kernel::class);
