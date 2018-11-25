@@ -54,7 +54,7 @@ class DirectoryMirror
     }
 
     /**
-     * @param SplFileInfo[] $filesToCreate
+     * @param int[] $filesToCreate
      */
     private function createMissingFiles(array $filesToCreate): void
     {
@@ -70,7 +70,7 @@ class DirectoryMirror
     }
 
     /**
-     * @param SplFileInfo[] $filesToDelete
+     * @param int[] $filesToDelete
      */
     private function deleteExtraFiles(array $filesToDelete): void
     {
@@ -82,7 +82,7 @@ class DirectoryMirror
     }
 
     /**
-     * @param SplFileInfo[] $filesToUpdate
+     * @param int[] $filesToUpdate
      */
     private function updateChangedFiles(array $filesToUpdate): void
     {
