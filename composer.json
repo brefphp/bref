@@ -38,6 +38,7 @@
         "friendsofphp/php-cs-fixer": "^2.4",
         "illuminate/contracts": "^5.0",
         "illuminate/http": "^5.0",
-        "laravel/framework": "^5.6"
+        "laravel/framework": "^5.6",
+        "doctrine/coding-standard": "^5.0"
     }
 }
