@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<ruleset>
+    <arg name="basepath" value="."/>
+    <arg name="extensions" value="php"/>
+    <arg name="parallel" value="80"/>
+    <arg name="cache" value=".phpcs-cache"/>
+    <arg name="colors"/>
+    <!-- Show sniff names -->
+    <arg value="s"/>
+
+    <file>src</file>
+    <file>tests</file>
+    <exclude-pattern>tests/Bridge/Symfony/cache</exclude-pattern>
+    <exclude-pattern>tests/Bridge/Symfony/logs</exclude-pattern>
+    <exclude-pattern>tests/Bridge/Laravel/bootstrap/cache</exclude-pattern>
+
+    <!-- Import the Doctrine coding standard -->
+    <rule ref="Doctrine"/>
+
+    <!-- Allow long lines -->
+    <rule ref="Generic.Files.LineLength.TooLong">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Do not align assignments -->
+    <rule ref="Generic.Formatting.MultipleStatementAlignment">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Require specific order of phpDoc annotations with empty newline between specific groups -->
+    <rule ref="SlevomatCodingStandard.Commenting.DocCommentSpacing">
+        <properties>
+            <property name="linesCountBeforeFirstContent" value="0"/>
+            <property name="linesCountAfterLastContent" value="0"/>
+            <property name="linesCountBetweenDescriptionAndAnnotations" value="1"/>
+            <property name="linesCountBetweenAnnotationsGroups" value="1"/>
+            <property name="annotationsGroups" type="array">
+                <element value="
+                    @ORM\,
+                    @ODM\,
+                "/>
+                <element value="
+                    @param,
+                    @return,
+                    @throws,
+                "/>
+                <element value="
+                    @internal,
+                    @deprecated,
+                    @link,
+                    @see,
+                    @uses,
+                "/>
+            </property>
+        </properties>
+    </rule>
+
+    <!-- Do not enforce usage of early exitx -->
+    <rule ref="SlevomatCodingStandard.ControlStructures.EarlyExit">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Require new instances without parentheses when not passing parameters -->
+    <rule ref="SlevomatCodingStandard.ControlStructures.NewWithParentheses">
+        <severity>0</severity>
+    </rule>
+    <rule ref="SlevomatCodingStandard.ControlStructures.NewWithoutParentheses"/>
+
+    <!-- Require closures not referencing $this be static -->
+    <rule ref="SlevomatCodingStandard.Functions.StaticClosure">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Forbid using absolute class name references (except global ones) -->
+    <rule ref="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly">
+        <properties>
+            <property name="allowFallbackGlobalConstants" value="true"/>
+            <property name="allowFallbackGlobalFunctions" value="true"/>
+            <property name="allowFullyQualifiedGlobalClasses" value="true"/>
+            <property name="allowFullyQualifiedGlobalConstants" value="true"/>
+            <property name="allowFullyQualifiedGlobalFunctions" value="true"/>
+            <property name="allowFullyQualifiedNameForCollidingClasses" value="true"/>
+            <property name="allowFullyQualifiedNameForCollidingConstants" value="true"/>
+            <property name="allowFullyQualifiedNameForCollidingFunctions" value="true"/>
+            <property name="searchAnnotations" value="true"/>
+        </properties>
+    </rule>
+
+    <!-- Require presence of declare(strict_types=1) -->
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+        <properties>
+            <property
+                    name="newlinesCountBetweenOpenTagAndDeclare"
+                    value="0"
+            />
+            <property
+                    name="spacesCountAroundEqualsSign"
+                    value="0"
+            />
+            <property
+                    name="newlinesCountAfterDeclare"
+                    value="2"
+            />
+        </properties>
+    </rule>
+
+    <!-- Require no space before colon in return types -->
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHintSpacing">
+        <properties>
+            <property name="spacesCountBeforeColon" value="0"/>
+        </properties>
+    </rule>
+
+    <rule ref="Squiz.Arrays.ArrayDeclaration">
+        <exclude name="Squiz.Arrays.ArrayDeclaration.MultiLineNotAllowed"/>
+    </rule>
+
+    <!-- Do not forbid declaring functions -->
+    <rule ref="Squiz.Functions.GlobalFunction">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Allow using variables in double quoted strings -->
+    <rule ref="Squiz.Strings.DoubleQuoteUsage.ContainsVar">
+        <severity>0</severity>
+    </rule>
+    <!-- Require types to be written as natively if possible;
+         require iterable types to specify phpDoc with their content;
+         forbid useless/duplicated information in phpDoc -->
+    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration">
+        <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversablePropertyTypeHintSpecification"/>
+        <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversableParameterTypeHintSpecification"/>
+        <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversableReturnTypeHintSpecification"/>
+    </rule>
+
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern type="relative">tests/*</exclude-pattern>
+    </rule>
+
+    <!-- Do not enforce return types in tests else it crowds the test methods with `: void` -->
+    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint">
+        <exclude-pattern type="relative">tests/*</exclude-pattern>
+    </rule>
+
+</ruleset>
