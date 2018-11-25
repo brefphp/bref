@@ -2,6 +2,7 @@
 
 namespace Bref\Http;
 
+use Innmind\Json\Json;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -64,7 +65,7 @@ class LambdaResponse
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
-        return json_encode([
+        return Json::encode([
             'isBase64Encoded' => false,
             'statusCode' => $this->statusCode,
             'headers' => $headers,

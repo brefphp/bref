@@ -15,6 +15,9 @@ class WelcomeHandler implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $html = file_get_contents(__DIR__ . '/welcome.html');
+        if ($html === false) {
+            throw new \RuntimeException('Unable to read the `welcome.html` template');
+        }
 
         return new HtmlResponse($html);
     }

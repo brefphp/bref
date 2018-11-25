@@ -7,6 +7,7 @@ use Bref\Cli\InvokeCommand;
 use Bref\Cli\WelcomeApplication;
 use Bref\Http\LambdaResponse;
 use Bref\Http\WelcomeHandler;
+use Innmind\Json\Json;
 use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -122,14 +123,14 @@ class Application
             $cliInput = new StringInput($event['cli']);
             $cliOutput = new BufferedOutput;
             $exitCode = $this->cliHandler->run($cliInput, $cliOutput);
-            $output = json_encode([
+            $output = Json::encode([
                 'exitCode' => $exitCode,
                 'output' => $cliOutput->fetch(),
             ]);
         } else {
             // Simple invocation
             $output = ($this->simpleHandler)($event);
-            $output = json_encode($output);
+            $output = Json::encode($output);
         }
 
         $this->writeLambdaOutput($output);
@@ -147,7 +148,7 @@ class Application
     {
         // The lambda event is passed as JSON by `handler.js` as a CLI argument
         $argv = $_SERVER['argv'];
-        return json_decode($argv[1], true) ?: [];
+        return Json::decode($argv[1]) ?: [];
     }
 
     private function writeLambdaOutput(string $json): void

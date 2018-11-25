@@ -2,6 +2,8 @@
 
 namespace Bref\Cli;
 
+use Innmind\Json\Exception\RuntimeException;
+use Innmind\Json\Json;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -40,9 +42,11 @@ class InvokeCommand extends Command
 
         $eventOption = $input->getOption('event');
         if ($eventOption) {
-            $event = json_decode($eventOption, true);
-            if ($event === null) {
-                throw new \RuntimeException('The `--event` option provided contains invalid JSON: ' . $eventOption);
+            $eventOption = (string) $eventOption;
+            try {
+                $event = Json::decode($eventOption);
+            } catch (RuntimeException $e) {
+                throw new \RuntimeException("The `--event` option provided contains invalid JSON: $eventOption", 0, $e);
             }
         }
 

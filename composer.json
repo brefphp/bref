@@ -33,7 +33,8 @@
         "zendframework/zend-diactoros": "^1.6",
         "jolicode/jolinotif": "^2.0",
         "matomo/ini": "^2.0",
-        "riverline/multipart-parser": "^1.2"
+        "riverline/multipart-parser": "^1.2",
+        "innmind/json": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5",

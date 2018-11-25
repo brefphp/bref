@@ -126,7 +126,7 @@ class Deployer
              * error if there are unknown keys. Using the Symfony Config component
              * for that could make sense.
              */
-            $projectConfig = Yaml::parse(file_get_contents('.bref.yml'));
+            $projectConfig = Yaml::parse($this->readContent('.bref.yml'));
         }
         $progress->advance();
 
@@ -226,7 +226,7 @@ class Deployer
      */
     private function copyServerlessYml(): void
     {
-        $serverlessYml = Yaml::parse(file_get_contents('serverless.yml'));
+        $serverlessYml = Yaml::parse($this->readContent('serverless.yml'));
 
         // Force deploying the files used by Bref without having the user know about them
         $serverlessYml['package']['include'][] = 'handler.js';
@@ -300,7 +300,8 @@ class Deployer
         $dependenciesFile = '.bref/output/.bref/bin/dependencies.yml';
 
         if ($this->fs->exists($dependenciesFile)) {
-            $dependencies = Yaml::parse(file_get_contents($dependenciesFile))['extensions'] ?? [];
+            $dependenciesConfig = Yaml::parse($this->readContent($dependenciesFile));
+            $dependencies = $dependenciesConfig['extensions'] ?? [];
             $this->fs->remove($dependenciesFile);
         }
 
@@ -313,5 +314,15 @@ class Deployer
                 $this->fs->remove($library);
             }
         }
+    }
+
+    private function readContent(string $file): string
+    {
+        $content = file_get_contents($file);
+        if ($content === false) {
+            throw new \RuntimeException("Unable to read the `$file` file");
+        }
+
+        return $content;
     }
 }

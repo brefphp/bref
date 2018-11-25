@@ -67,6 +67,9 @@ class RequestFactory
                     foreach ($document->getParts() as $part) {
                         if ($part->isFile()) {
                             $tmpPath = tempnam(sys_get_temp_dir(), 'bref_upload_');
+                            if ($tmpPath === false) {
+                                throw new \RuntimeException('Unable to create a temporary directory');
+                            }
                             file_put_contents($tmpPath, $part->getBody());
                             $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
 
