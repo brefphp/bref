@@ -161,6 +161,7 @@ class Deployer
         $progress->display();
         $this->fs->mkdir('.bref/output/.bref/bin');
         (new Process("tar -xzf .bref/bin/php/php-$phpVersion.tar.gz -C .bref/output/.bref/bin"))
+            ->setTimeout(null)
             ->mustRun();
         // Set correct permissions on the file
         $this->fs->chmod('.bref/output/.bref/bin', 0755);
