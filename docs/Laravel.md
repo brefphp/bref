@@ -7,7 +7,7 @@ First let's change `bootstrap/app.php` to use the Bref application class:
 ```diff
 - $app = new Illuminate\Foundation\Application(
 + $app = new Bref\Bridge\Laravel\Application(
-    realpath(__DIR__ . '/../')
+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 ```
 
@@ -41,7 +41,7 @@ When generating the optimized config absolute paths will be everywhere, and they
 
 ```diff
 $app = new Bref\Bridge\Laravel\Application(
--    realpath(__DIR__ . '/../')
+-    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 +    env('APP_DIR', realpath(__DIR__.'/../'))
 );
 ```
@@ -74,7 +74,7 @@ package:
   exclude:
     # ...
   include:
-    # ...
+    - bref.php
     # Add the following lines:
     - 'app/**'
     - 'bootstrap/**'
@@ -85,7 +85,7 @@ package:
     - 'vendor/**'
 ```
 
-We need to build the config cache before deploying. Add the following [build hooks](#build-hooks) in `.bref.yml`:
+We need to build the config cache before deploying. Create the file `.bref.yml` and add the following [build hooks](#build-hooks) in it:
 
 ```yaml
 hooks:
@@ -99,7 +99,9 @@ hooks:
 Since we are writing the config cache to disk, all the paths in the config file will be resolved. Since those paths do not exist on our machine (they exist on the lambda environment only) we will have fake paths in the cached config. This is a problem in `config/views.php` because `realpath()` is used. We need to remove the `realpath()` call:
 
 ```diff
--    'compiled' => realpath(storage_path('framework/views')),
+-    'compiled' => env(
+-    'VIEW_COMPILED_PATH',
+-    realpath(storage_path('framework/views'))
 +    'compiled' => storage_path('framework/views'),
 ```
 
@@ -108,6 +110,8 @@ Write a `.env.production` file and make sure to set the following variables:
 ```dotenv
 APP_ENV=production
 APP_DEBUG=false
+# Don't forget to set your app key
+APP_KEY=
 # We cannot store sessions to disk: if you don't need sessions (API, etc.) use `array`, else store sessions in database
 SESSION_DRIVER=array
 # Logging to stderr allows the logs to end up in Cloudwatch
