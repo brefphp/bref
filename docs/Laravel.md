@@ -26,7 +26,7 @@ The filesystem is readonly on lambdas except for `/tmp`. Because of that you nee
 $app->useStoragePath(env('APP_STORAGE', $app->storagePath()));
 ```
 
-Then let's write the `bref.php` file in the root folder (not the public folder). This file will now be the entrypoint of the application and instead of `public/index.php`. Here is what it should contain:
+Then let's write the `bref.php` file in the root folder (not the public folder). This file will now be the entrypoint of the application instead of `public/index.php`. Here is what it should contain:
 
 ```php
 <?php
@@ -50,7 +50,7 @@ $bref->httpHandler($app->getBrefHttpAdapter());
 $bref->run();
 ```
 
-We need to define the environment variable in the `serverless.yml` file:
+We need to define the environment variables in the `serverless.yml` file:
 
 ```yaml
 functions:
@@ -81,7 +81,7 @@ package:
     - 'vendor/**'
 ```
 
-We need to build the config cache before deploying. Create the file `.bref.yml` and add the following [build hooks](#build-hooks) in it:
+We need to build the config cache before deploying. Create the file `.bref.yml` in the root directory of your project and add the following [build hooks](#build-hooks) in it:
 
 ```yaml
 hooks:
@@ -97,12 +97,16 @@ Write a `.env.production` file and make sure to set the following variables:
 ```dotenv
 APP_ENV=production
 APP_DEBUG=false
+
 # Do not forget to set your app key
 APP_KEY=
+
 # We cannot store sessions to disk: if you don't need sessions (API, etc.) use `array`, else store sessions in database
 SESSION_DRIVER=array
+
 # Logging to stderr allows the logs to end up in Cloudwatch
 LOG_CHANNEL=stderr
+
 # This allows to generate relative file paths for the lambda because when generating the optimized config absolute paths will be everywhere and they will not work because your machine and the lambda environment do not match.
 # To avoid that problem, set APP_BASE_PATH variable will allow us to replace the absolute path by `.` (relative path) when generating the lambda.
 APP_BASE_PATH=.
