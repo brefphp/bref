@@ -81,7 +81,7 @@ class Deployer
             if ($stage !== null) {
                 $serverlessCommand .= ' --stage ' . escapeshellarg($stage);
             }
-            $process = new Process([$serverlessCommand, '.bref/output']);
+            $process = new Process([$serverlessCommand], '.bref/output');
             $process->setTimeout(null);
             $completeDeployOutput = '';
             $process->mustRun(function ($type, $buffer) use ($io, $progress, &$completeDeployOutput): void {
