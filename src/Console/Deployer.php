@@ -203,7 +203,7 @@ class Deployer
 
     private function runLocally(string $command): void
     {
-        $process = new Process([$command, '.bref/output']);
+        $process = new Process([$command], '.bref/output');
         $process->setTimeout(null);
         $process->mustRun();
     }
