@@ -5,3 +5,4 @@
 /.bref/
 /.phpcs-cache
 /composer.lock
+var/cache/
