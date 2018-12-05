@@ -29,7 +29,7 @@ class RequestFactoryTest extends TestCase
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals(['foo' => 'bar', 'bim' => 'baz'], $request->getQueryParams());
         self::assertEquals('1.1', $request->getProtocolVersion());
-        self::assertEquals('/test', $request->getUri()->__toString());
+        self::assertEquals('/test?foo=bar&bim=baz', $request->getUri()->__toString());
         self::assertEquals('', $request->getBody()->getContents());
         self::assertEquals([], $request->getAttributes());
         $serverParams = $request->getServerParams();
@@ -41,9 +41,9 @@ class RequestFactoryTest extends TestCase
             'REQUEST_METHOD' => 'GET',
             'REQUEST_TIME' => $currentTimestamp,
             'QUERY_STRING' => 'foo=bar&bim=baz',
-            'REQUEST_URI' => '/test',
+            'REQUEST_URI' => '/test?foo=bar&bim=baz',
         ], $serverParams);
-        self::assertEquals('/test', $request->getRequestTarget());
+        self::assertEquals('/test?foo=bar&bim=baz', $request->getRequestTarget());
         self::assertEquals([], $request->getHeaders());
     }
 

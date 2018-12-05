@@ -43,6 +43,9 @@ class RequestFactory
          */
         $queryString = http_build_query($event['queryStringParameters'] ?? []);
         parse_str($queryString, $query);
+        if (!empty($queryString)) {
+            $uri .= '?' . $queryString;
+        }
 
         $cookies = [];
         if (isset($headers['Cookie'])) {
