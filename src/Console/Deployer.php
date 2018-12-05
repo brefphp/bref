@@ -59,7 +59,7 @@ class Deployer
             array_keys($parameters)
         ));
 
-        $process = new Process(['serverless invoke local ' . $p, '.bref/output']);
+        $process = new Process(['serverless invoke local ' . $p], '.bref/output');
         $process->setEnv([
             'BREF_LOCAL' => 'BREF_LOCAL',
         ]);
