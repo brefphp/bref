@@ -53,6 +53,7 @@ cd php-src-php-$PHP_VERSION
     --enable-option-checking=fatal \
     --enable-static=yes \
     --enable-shared=no \
+    --with-config-file-path=/opt \
     --disable-cgi \
     --disable-fpm \
     --disable-phpdbg \
@@ -70,7 +71,7 @@ cd php-src-php-$PHP_VERSION
     --with-gd \
     --with-pdo-mysql \
     --with-mhash > /dev/null
-make -j 5 > /dev/null
+make -j 4 > /dev/null
 make install
 
 # Install extensions through pecl
