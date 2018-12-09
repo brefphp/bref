@@ -20,9 +20,9 @@ class RequestFactoryTest extends TestCase
             ],
             'requestContext' => [
                 'protocol' => '1.1',
-                'path' => '/test',
                 'requestTimeEpoch' => $currentTimestamp,
             ],
+            'path' => '/test',
             'headers' => [],
         ]);
 
