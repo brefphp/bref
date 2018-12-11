@@ -3,6 +3,6 @@ runtimes: runtime-default runtime-loop
 runtime-default:
 	cd runtime/default && sh publish.sh
 runtime-loop:
-	cd runtime/default && sh publish.sh
+	cd runtime/loop && sh publish.sh
 
 .PHONY: runtimes runtime-default runtime-loop
