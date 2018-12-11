@@ -41,25 +41,16 @@ class Deployer
         $progress->display();
         $progress->finish();
 
-        $parameters = array_filter([
-            '-f' => $function,
-            '-d' => $data,
-            '--raw' => $raw,
-        ]);
+        $command = ['serverless', 'invoke', 'local', '-f', $function];
+        if ($raw) {
+            $command[] = '--raw';
+        }
+        if ($data !== null) {
+            $command[] = '-d';
+            $command[] = $data;
+        }
 
-        $p = implode(' ', array_map(
-            function ($value, $key) {
-                if ($value === true) {
-                    // Support for "flag" arguments
-                    return $key;
-                }
-                return $key . ' ' . escapeshellarg($value);
-            },
-            $parameters,
-            array_keys($parameters)
-        ));
-
-        $process = new Process('serverless invoke local ' . $p, '.bref/output');
+        $process = new Process($command, '.bref/output');
         $process->setEnv([
             'BREF_LOCAL' => 'BREF_LOCAL',
         ]);
@@ -77,11 +68,12 @@ class Deployer
         if (! $dryRun) {
             $progress->setMessage('Uploading the lambda');
             $progress->display();
-            $serverlessCommand = 'serverless deploy';
+            $command = ['serverless', 'deploy'];
             if ($stage !== null) {
-                $serverlessCommand .= ' --stage ' . escapeshellarg($stage);
+                $command[] = '--stage';
+                $command[] = $stage;
             }
-            $process = new Process($serverlessCommand, '.bref/output');
+            $process = new Process($command, '.bref/output');
             $process->setTimeout(null);
             $completeDeployOutput = '';
             $process->mustRun(function ($type, $buffer) use ($io, $progress, &$completeDeployOutput): void {
@@ -151,7 +143,7 @@ class Deployer
              */
             $defaultUrl = 'https://s3.amazonaws.com/bref-php/bin/php-' . $phpVersion . '.tar.gz';
             $url = $projectConfig['php']['url'] ?? $defaultUrl;
-            (new Process("curl -sSL $url -o .bref/bin/php/php-$phpVersion.tar.gz"))
+            (new Process(['curl', '-sSL', $url, '-o', ".bref/bin/php/php-$phpVersion.tar.gz"]))
                 ->setTimeout(null)
                 ->mustRun();
         }
@@ -160,7 +152,7 @@ class Deployer
         $progress->setMessage('Installing the PHP binary');
         $progress->display();
         $this->fs->mkdir('.bref/output/.bref/bin');
-        (new Process("tar -xzf .bref/bin/php/php-$phpVersion.tar.gz -C .bref/output/.bref/bin"))
+        (new Process(['tar', '-xzf', ".bref/bin/php/php-$phpVersion.tar.gz", '-C', '.bref/output/.bref/bin']))
             ->setTimeout(null)
             ->mustRun();
         // Set correct permissions on the file
@@ -187,7 +179,9 @@ class Deployer
 
         $progress->setMessage('Installing composer dependencies');
         $progress->display();
-        $this->runLocally('composer install --no-dev --classmap-authoritative --no-scripts');
+        $process = new Process(['composer', 'install', '--no-dev', '--classmap-authoritative', '--no-scripts'], '.bref/output');
+        $process->setTimeout(null);
+        $process->mustRun();
         $progress->advance();
 
         // Run build hooks defined in .bref.yml
@@ -197,16 +191,12 @@ class Deployer
         foreach ($buildHooks as $buildHook) {
             $progress->setMessage('Running build hook: ' . $buildHook);
             $progress->display();
-            $this->runLocally($buildHook);
+            $process = new Process([], '.bref/output'); // replace with `fromShellCommandline()` when supporting Symfony ^4.2
+            $process->setCommandLine($buildHook);
+            $process->setTimeout(null);
+            $process->mustRun();
         }
         $progress->advance();
-    }
-
-    private function runLocally(string $command): void
-    {
-        $process = new Process($command, '.bref/output');
-        $process->setTimeout(null);
-        $process->mustRun();
     }
 
     private function createProgressBar(SymfonyStyle $io, int $max): ProgressBar
