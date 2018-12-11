@@ -1,3 +1,8 @@
-# Build all the PHP versions supported by Bref
-build-php:
-	bin/php/build.sh 7.2.5
+# Build the PHP runtimes
+runtimes: runtime-default runtime-loop
+runtime-default:
+	cd runtime/default && sh publish.sh
+runtime-loop:
+	cd runtime/default && sh publish.sh
+
+.PHONY: runtimes runtime-default runtime-loop

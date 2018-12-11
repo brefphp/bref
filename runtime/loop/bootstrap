@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo "Cold start"
+
+php -c php.ini -L index.php

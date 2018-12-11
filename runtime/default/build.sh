@@ -12,10 +12,6 @@ if [[ -z "$PHP_VERSION" ]] ; then
     exit 1
 fi
 
-# Disabled until we have a good bootstrap
-#cp /export/bootstrap /opt/
-cp /export/php.ini /opt/
-
 # Install dependencies
 # --releasever=2017.03: Lambda is based on 2017.03, dont' grab the latest revisions of development packages.
 # findutils: because the pecl command uses find
@@ -98,6 +94,10 @@ cp /usr/lib64/libicui18n.so.50.1.2 /opt/lib/libicui18n.so.50
 cp /usr/lib64/libicuuc.so.50.1.2 /opt/lib/libicuuc.so.50
 cp /usr/lib64/libicudata.so.50.1.2 /opt/lib/libicudata.so.50
 cp /usr/lib64/libicuio.so.50.1.2 /opt/lib/libicuio.so.50
+
+# Disabled until we have a good bootstrap
+#cp /export/bootstrap /opt/
+cp /export/php.ini /opt/
 
 # Package /opt into a zip and make the zip available to the host
 cd /opt
