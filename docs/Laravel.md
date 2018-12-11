@@ -2,18 +2,31 @@
 
 Deploying Laravel applications requires a few changes for everything to work perfectly.
 
+The below changes have been tested on a Laravel 5.7 version (You may need to adapt them for previous versions).
+
+We assume that you have already installed the serverless and bref dependencies via composer and "init" your project with Bref.
+
 First let's change `bootstrap/app.php` to use the Bref application class:
 
 ```diff
 - $app = new Illuminate\Foundation\Application(
 + $app = new Bref\Bridge\Laravel\Application(
-    realpath(__DIR__ . '/../')
+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
 );
 ```
 
 This class extends the Laravel application class to set a few Bref-specific helpers. Everything else stays Laravel.
 
-Then let's write the `bref.php` file. This file will now be the entrypoint of the application and replace `public/index.php`. Here is what it should contain:
+The filesystem is readonly on lambdas except for `/tmp`. Because of that you need to customize the storage path. Add this line in `bootstrap/app.php` after `$app = new Bref\Bridge\Laravel\Application`:
+
+```php
+/*
+ * Allow overriding the storage path in production using an environment variable.
+ */
+$app->useStoragePath(env('APP_STORAGE', $app->storagePath()));
+```
+
+Then let's write the `bref.php` file in the root folder (not the public folder). This file will now be the entrypoint of the application instead of `public/index.php`. Here is what it should contain:
 
 ```php
 <?php
@@ -37,25 +50,7 @@ $bref->httpHandler($app->getBrefHttpAdapter());
 $bref->run();
 ```
 
-When generating the optimized config absolute paths will be everywhere, and they will not work because your machine and the lambda environment do not match. To avoid that problem, change `bootstrap/app.php` as shown below. The `APP_DIR` variable will allow us to replace the absolute path by `.` (relative path) when generating the lambda.
-
-```diff
-$app = new Bref\Bridge\Laravel\Application(
--    realpath(__DIR__ . '/../')
-+    env('APP_DIR', realpath(__DIR__.'/../'))
-);
-```
-
-The filesystem is readonly on lambdas except for `/tmp`. Because of that you need to customize the storage path. Add this line in `bootstrap/app.php` after `$app = new Bref\Bridge\Laravel\Application`:
-
-```php
-/*
- * Allow overriding the storage path in production using an environment variable.
- */
-$app->useStoragePath(env('APP_STORAGE', $app->storagePath()));
-```
-
-Then define the `APP_STORAGE` environment variable in the `serverless.yml` file:
+We need to define the environment variables in the `serverless.yml` file:
 
 ```yaml
 functions:
@@ -63,8 +58,9 @@ functions:
     ...
     # Laravel configuration using environment variables:
     environment:
-      APP_DIR: '.'
+      APP_BASE_PATH: '.'
       APP_STORAGE: '/tmp/storage'
+      VIEW_COMPILED_PATH: '/tmp/storage/framework/views'
 ```
 
 Edit `serverless.yml` to include the Laravel folders:
@@ -74,7 +70,7 @@ package:
   exclude:
     # ...
   include:
-    # ...
+    - bref.php
     # Add the following lines:
     - 'app/**'
     - 'bootstrap/**'
@@ -85,7 +81,7 @@ package:
     - 'vendor/**'
 ```
 
-We need to build the config cache before deploying. Add the following [build hooks](#build-hooks) in `.bref.yml`:
+We need to build the config cache before deploying. Create the file `.bref.yml` in the root directory of your project and add the following [build hooks](#build-hooks) in it:
 
 ```yaml
 hooks:
@@ -96,25 +92,26 @@ hooks:
         - 'php artisan config:cache'
 ```
 
-Since we are writing the config cache to disk, all the paths in the config file will be resolved. Since those paths do not exist on our machine (they exist on the lambda environment only) we will have fake paths in the cached config. This is a problem in `config/views.php` because `realpath()` is used. We need to remove the `realpath()` call:
-
-```diff
--    'compiled' => realpath(storage_path('framework/views')),
-+    'compiled' => storage_path('framework/views'),
-```
-
 Write a `.env.production` file and make sure to set the following variables:
 
 ```dotenv
 APP_ENV=production
 APP_DEBUG=false
+
+# Do not forget to set your app key
+APP_KEY=
+
 # We cannot store sessions to disk: if you don't need sessions (API, etc.) use `array`, else store sessions in database
 SESSION_DRIVER=array
+
 # Logging to stderr allows the logs to end up in Cloudwatch
 LOG_CHANNEL=stderr
-# This allows to generate relative file paths for the lambda
-APP_DIR=.
+
+# This allows to generate relative file paths for the lambda because when generating the optimized config absolute paths will be everywhere and they will not work because your machine and the lambda environment do not match.
+# To avoid that problem, set APP_BASE_PATH variable will allow us to replace the absolute path by `.` (relative path) when generating the lambda.
+APP_BASE_PATH=.
 APP_STORAGE=/tmp/storage
+VIEW_COMPILED_PATH=/tmp/storage/framework/views
 ```
 
 Since AWS requires a suffix to the URLs (e.g. `/dev` or `/prod`) the default route will not work out of the box. We can change the route for the welcome page:
