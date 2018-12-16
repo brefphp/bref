@@ -2,13 +2,13 @@
 
 set -e
 
-# TODO dynamically change the region
-REGION=us-east-2
-BREF_VERSION=0.3
-PHP_VERSION=7.2.5
-LAYER_NAME=php-72-fpm
-# TODO dynamically change the region
-S3_BUCKET=bref-php-us-east-2
+if [[ -z "$REGION" ]] ; then
+    echo 'The region must be passed in the REGION environment variable'
+    exit 1
+fi
+
+LAYER_NAME=php-$PHP_VERSION_SHORT-fpm
+S3_BUCKET=bref-php-$REGION
 S3_KEY=$BREF_VERSION/php-fpm/$PHP_VERSION/php.zip
 
 # Clean previous build
@@ -26,4 +26,4 @@ LAYER_VERSION=$(aws lambda publish-layer-version --region=$REGION --layer-name $
 # Add layer permissions
 aws lambda add-layer-version-permission --region=$REGION --layer-name $LAYER_NAME --version-number $LAYER_VERSION --statement-id=public --action lambda:GetLayerVersion --principal '*'
 
-echo "Done! Published version $LAYER_VERSION!"
+echo "Done! Published $LAYER_NAME version $LAYER_VERSION!"
