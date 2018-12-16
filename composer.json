@@ -20,6 +20,7 @@
     ],
     "require": {
         "php": "^7.2.0",
+        "ext-curl": "*",
         "ext-json": "*",
         "mnapoli/silly": "^1.7",
         "symfony/filesystem": "^3.1|^4.0",
