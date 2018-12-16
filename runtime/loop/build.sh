@@ -97,8 +97,7 @@ cp /usr/lib64/libicuuc.so.50.1.2 /opt/lib/libicuuc.so.50
 cp /usr/lib64/libicudata.so.50.1.2 /opt/lib/libicudata.so.50
 cp /usr/lib64/libicuio.so.50.1.2 /opt/lib/libicuio.so.50
 
-# Disabled until we have a good bootstrap
-#cp /export/bootstrap /opt/
+cp /export/bootstrap /opt/
 cp /export/php.ini /opt/
 
 # Package /opt into a zip and make the zip available to the host
