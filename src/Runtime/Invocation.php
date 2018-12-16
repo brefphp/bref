@@ -33,6 +33,8 @@ class Invocation
 
     /**
      * Call this when the invocation has succeeded.
+     *
+     * @param mixed $responseData
      */
     public function success($responseData = null): void
     {

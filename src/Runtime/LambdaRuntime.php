@@ -56,7 +56,7 @@ class LambdaRuntime
                 return strlen($header);
             }
             [$name, $value] = preg_split('/:\s*/', $header, 2);
-            if (strtolower($name) == 'lambda-runtime-aws-request-id') {
+            if (strtolower($name) === 'lambda-runtime-aws-request-id') {
                 $invocationId = trim($value);
             }
 
@@ -89,9 +89,11 @@ class LambdaRuntime
     }
 
     /**
+     * @param mixed $responseData
+     *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-response
      */
-    public function sendResponse(string $invocationId, $responseData)
+    public function sendResponse(string $invocationId, $responseData): void
     {
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/response";
         $this->postJson($url, $responseData);
@@ -109,6 +111,9 @@ class LambdaRuntime
         ]);
     }
 
+    /**
+     * @param mixed $data
+     */
     private function postJson(string $url, $data): void
     {
         $jsonData = json_encode($data);
