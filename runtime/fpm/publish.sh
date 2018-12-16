@@ -6,10 +6,10 @@ set -e
 REGION=us-east-2
 BREF_VERSION=0.3
 PHP_VERSION=7.2.5
-LAYER_NAME=php-72-loop
+LAYER_NAME=php-72-fpm
 # TODO dynamically change the region
 S3_BUCKET=bref-php-us-east-2
-S3_KEY=$BREF_VERSION/php-loop/$PHP_VERSION/php.zip
+S3_KEY=$BREF_VERSION/php-fpm/$PHP_VERSION/php.zip
 
 # Clean previous build
 rm -f php.zip
