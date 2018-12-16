@@ -1,6 +1,0 @@
-extensions:
-    intl:
-        - libicudata.so.50
-        - libicui18n.so.50
-        - libicuio.so.50
-        - libicuuc.so.50

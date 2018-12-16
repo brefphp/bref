@@ -1,3 +1,15 @@
-# Build all the PHP versions supported by Bref
-build-php:
-	bin/php/build.sh 7.2.5
+BREF_VERSION := 0.3
+REGION := us-east-2
+PHP_VERSION := 7.2.12
+PHP_VERSION_SHORT := 72
+
+# Build the PHP runtimes
+runtimes: runtime-default runtime-fpm runtime-loop
+runtime-default:
+	cd runtime/default && sh publish.sh
+runtime-fpm:
+	cd runtime/fpm && sh publish.sh
+runtime-loop:
+	cd runtime/loop && sh publish.sh
+
+.PHONY: runtimes runtime-default runtime-fpm runtime-loop
