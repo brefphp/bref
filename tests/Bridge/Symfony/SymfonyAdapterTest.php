@@ -32,7 +32,7 @@ class SymfonyAdapterTest extends TestCase
         parent::setUp();
 
         $fs = new Filesystem;
-        $fs->remove(__DIR__ . '/var');
+        $fs->remove([__DIR__ . '/var', __DIR__ . '/cache', __DIR__ . '/logs']);
     }
 
     public function test Symfony applications are adapted()

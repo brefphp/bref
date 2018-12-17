@@ -7,3 +7,5 @@ parameters:
     - %rootDir%/../../../tests/Bridge/Laravel/bootstrap/cache/*
     - %rootDir%/../../../tests/Bridge/Laravel/storage/*
     - %rootDir%/../../../tests/Bridge/Symfony/var/*
+    - %rootDir%/../../../tests/Bridge/Symfony/cache/*
+    - %rootDir%/../../../tests/Bridge/Symfony/logs/*
