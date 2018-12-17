@@ -1,0 +1,14 @@
+#!/opt/bin/php
+<?php
+
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
+while (true) {
+    $handler = getenv('LAMBDA_TASK_ROOT') . '/' . getenv('_HANDLER') . '.php';
+    $handler = escapeshellarg($handler);
+
+    // We redirect stderr to stdout and use passthru so that everything
+    // written on the output ends up in Cloudwatch automatically
+    passthru("/opt/bin/php $handler 2>&1");
+}
