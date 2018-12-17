@@ -5,7 +5,12 @@ ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
 while (true) {
-    $handler = getenv('LAMBDA_TASK_ROOT') . '/' . getenv('_HANDLER') . '.php';
+    $handler = getenv('LAMBDA_TASK_ROOT') . '/' . getenv('_HANDLER');
+    if (!is_file($handler)) {
+        echo "Handler `$handler` doesn't exist";
+        exit(1);
+    }
+
     $handler = escapeshellarg($handler);
 
     // We redirect stderr to stdout and use passthru so that everything
