@@ -6,5 +6,4 @@ parameters:
   excludes_analyse:
     - %rootDir%/../../../tests/Bridge/Laravel/bootstrap/cache/*
     - %rootDir%/../../../tests/Bridge/Laravel/storage/*
-    - %rootDir%/../../../tests/Bridge/Symfony/cache/*
-    - %rootDir%/../../../tests/Bridge/Symfony/logs/*
+    - %rootDir%/../../../tests/Bridge/Symfony/var/*
