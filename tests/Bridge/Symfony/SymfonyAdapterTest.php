@@ -155,6 +155,11 @@ class SymfonyAdapterTest extends TestCase
                     $event->setResponse(new Response('Not found', 404));
                 }
             }
+
+            public function getProjectDir()
+            {
+                return __DIR__;
+            }
         };
 
         $kernel->boot();
