@@ -7,23 +7,15 @@ use Bref\Cli\InvokeCommand;
 use Bref\Cli\WelcomeApplication;
 use Bref\Http\LambdaResponse;
 use Bref\Http\WelcomeHandler;
-use Innmind\Json\Json;
+use Bref\Runtime\LambdaRuntime;
 use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Console\Input\StringInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Filesystem\Filesystem;
 use Zend\Diactoros\Response\SapiEmitter;
 use Zend\Diactoros\ServerRequestFactory;
 
 class Application
 {
-    /**
-     * We should that directory to store the output file.
-     * See `writeLambdaOutput()`.
-     */
-    private const BREF_DIRECTORY = '/tmp/.bref';
-    private const OUTPUT_FILE_NAME = self::BREF_DIRECTORY . '/output.json';
-
     /** @var callable */
     private $simpleHandler;
 
@@ -59,6 +51,8 @@ class Application
      *
      * The handler must be a PSR-15 request handler, it can be any
      * framework that is compatible with PSR-15 for example.
+     *
+     * @deprecated Replaced by PHP-FPM
      */
     public function httpHandler(RequestHandlerInterface $handler): void
     {
@@ -108,52 +102,36 @@ class Application
             return;
         }
 
-        $this->ensureTempDirectoryExists();
+        $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
 
-        $event = $this->readLambdaEvent();
+        $invocation = $lambdaRuntime->waitNextInvocation();
+        $event = $invocation->getEvent();
 
-        // Run the appropriate handler
-        if (isset($event['httpMethod'])) {
-            // HTTP request
-            $request = RequestFactory::fromLambdaEvent($event);
-            $response = $this->httpHandler->handle($request);
-            $output = LambdaResponse::fromPsr7Response($response)->toJson();
-        } elseif (isset($event['cli'])) {
-            // CLI command
-            $cliInput = new StringInput($event['cli']);
-            $cliOutput = new BufferedOutput;
-            $exitCode = $this->cliHandler->run($cliInput, $cliOutput);
-            $output = Json::encode([
-                'exitCode' => $exitCode,
-                'output' => $cliOutput->fetch(),
-            ]);
-        } else {
-            // Simple invocation
-            $output = ($this->simpleHandler)($event);
-            $output = Json::encode($output);
+        try {
+            // Run the appropriate handler
+            if (isset($event['httpMethod'])) {
+                // HTTP request
+                $request = RequestFactory::fromLambdaEvent($event);
+                $response = $this->httpHandler->handle($request);
+                $output = LambdaResponse::fromPsr7Response($response)->toApiGatewayFormat();
+            } elseif (isset($event['cli'])) {
+                // CLI command
+                $cliInput = new StringInput($event['cli']);
+                $cliOutput = new BufferedOutput;
+                $exitCode = $this->cliHandler->run($cliInput, $cliOutput);
+                $output = [
+                    'exitCode' => $exitCode,
+                    'output' => $cliOutput->fetch(),
+                ];
+            } else {
+                // Simple invocation
+                $output = ($this->simpleHandler)($event);
+            }
+
+            $invocation->success($output);
+        } catch (\Throwable $e) {
+            $invocation->failure($e);
         }
-
-        $this->writeLambdaOutput($output);
-    }
-
-    private function ensureTempDirectoryExists(): void
-    {
-        $filesystem = new Filesystem;
-        if (! $filesystem->exists(self::BREF_DIRECTORY)) {
-            $filesystem->mkdir(self::BREF_DIRECTORY);
-        }
-    }
-
-    private function readLambdaEvent(): array
-    {
-        // The lambda event is passed as JSON by `handler.js` as a CLI argument
-        $argv = $_SERVER['argv'];
-        return Json::decode($argv[1]) ?: [];
-    }
-
-    private function writeLambdaOutput(string $json): void
-    {
-        file_put_contents(self::OUTPUT_FILE_NAME, $json);
     }
 
     private function isRunningInAwsLambda(): bool

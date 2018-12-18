@@ -108,6 +108,7 @@ class LambdaRuntime
         $this->postJson($url, [
             'errorMessage' => $error->getMessage(),
             'errorType' => get_class($error),
+            'stackTrace' => $error->getTrace(),
         ]);
     }
 
