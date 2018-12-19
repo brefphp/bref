@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Bref demo'
+
+Globals:
+    Function:
+        Timeout: 10
+
+Resources:
+    CliFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: 'bref-demo-cli'
+            Description: 'Bref CLI demo'
+            CodeUri: .
+            Handler: demo/cli.php
+            Runtime: provided
+            Layers:
+                - 'arn:aws:lambda:us-east-2:416566615250:layer:php-72:9'
+
+    HttpFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: 'bref-demo-http'
+            Description: 'Bref HTTP demo'
+            CodeUri: .
+            Handler: demo/http.php
+            Runtime: provided
+            Layers:
+                - 'arn:aws:lambda:us-east-2:416566615250:layer:php-72-fpm:3'
+            Events:
+                HttpRoot:
+                    Type: Api
+                    Properties:
+                        Path: /
+                        Method: ANY
+                HttpSubPaths:
+                    Type: Api
+                    Properties:
+                        Path: /{proxy+}
+                        Method: ANY
+
+Outputs:
+    DemoHttpApi:
+        Description: 'API Gateway URL for our function'
+        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
