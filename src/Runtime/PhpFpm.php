@@ -85,9 +85,9 @@ class PhpFpm
         $response = $this->client->sendRequest($request);
 
         $headers = $response->getHeaders();
-        $headers['status'] = $headers['status'] ?? '200 Ok';
+        $headers['Status'] = $headers['Status'] ?? '200 Ok';
 
-        [$status] = explode(' ', $headers['status']);
+        [$status] = explode(' ', $headers['Status']);
 
         return new LambdaResponse((int) $status, $headers, $response->getBody());
     }

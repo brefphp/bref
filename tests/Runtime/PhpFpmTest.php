@@ -2,22 +2,15 @@
 
 namespace Bref\Test\Runtime;
 
+use Bref\Http\LambdaResponse;
 use Bref\Runtime\PhpFpm;
 use Bref\Test\HttpRequestProxyTest;
 use PHPUnit\Framework\TestCase;
 
 class PhpFpmTest extends TestCase implements HttpRequestProxyTest
 {
-    /** @var PhpFpm */
+    /** @var PhpFpm|null */
     private $fpm;
-
-    public function setUp()
-    {
-        parent::setUp();
-
-        $this->fpm = new PhpFpm(__DIR__ . '/PhpFpm/request.php', __DIR__ . '/PhpFpm/php-fpm.conf');
-        $this->fpm->start();
-    }
 
     public function tearDown()
     {
@@ -538,8 +531,36 @@ Year,Make,Model
         ]);
     }
 
+    /**
+     * @dataProvider provideStatusCodes
+     */
+    public function test response with status code(int $expectedStatusCode)
+    {
+        $statusCode = $this->get('status-code.php', [
+            'httpMethod' => 'GET',
+            'queryStringParameters' => [
+                'code' => $expectedStatusCode,
+            ],
+        ])->toApiGatewayFormat()['statusCode'];
+
+        self::assertEquals($expectedStatusCode, $statusCode);
+    }
+
+    public function provideStatusCodes(): array
+    {
+        return [[200], [301], [302], [400], [401], [403], [404], [500], [504]];
+    }
+
+    public function test response with cookies()
+    {
+        $cookieHeader = $this->get('cookies.php')->toApiGatewayFormat()['headers']['Set-Cookie'];
+
+        self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
+    }
+
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
+        $this->startFpm(__DIR__ . '/PhpFpm/request.php');
         $response = $this->fpm->proxy($event);
 
         $response = json_decode($response->toApiGatewayFormat()['body'], true);
@@ -586,5 +607,23 @@ Year,Make,Model
         }
 
         return $response;
+    }
+
+    private function get(string $file, array $event = null): LambdaResponse
+    {
+        $this->startFpm(__DIR__ . '/PhpFpm/' . $file);
+
+        return $this->fpm->proxy($event ?? [
+            'httpMethod' => 'GET',
+        ]);
+    }
+
+    private function startFpm(string $handler): void
+    {
+        if ($this->fpm) {
+            $this->fpm->stop();
+        }
+        $this->fpm = new PhpFpm($handler, __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm->start();
     }
 }
