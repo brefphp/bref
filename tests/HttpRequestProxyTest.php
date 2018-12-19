@@ -15,6 +15,8 @@ interface HttpRequestProxyTest
 
     public function test request with arrays in query string();
 
+    public function test request with custom header();
+
     public function test POST request with raw body();
 
     public function test POST request with form data();
