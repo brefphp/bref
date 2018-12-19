@@ -609,7 +609,7 @@ Year,Make,Model
         return $response;
     }
 
-    private function get(string $file, array $event = null): LambdaResponse
+    private function get(string $file, ?array $event = null): LambdaResponse
     {
         $this->startFpm(__DIR__ . '/PhpFpm/' . $file);
 
