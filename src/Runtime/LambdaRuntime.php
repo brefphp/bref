@@ -107,7 +107,7 @@ class LambdaRuntime
      *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-response
      */
-    public function sendResponse(string $invocationId, $responseData): void
+    private function sendResponse(string $invocationId, $responseData): void
     {
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/response";
         $this->postJson($url, $responseData);
@@ -116,7 +116,7 @@ class LambdaRuntime
     /**
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-invokeerror
      */
-    public function signalFailure(string $invocationId, \Throwable $error): void
+    private function signalFailure(string $invocationId, \Throwable $error): void
     {
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
         $this->postJson($url, [
