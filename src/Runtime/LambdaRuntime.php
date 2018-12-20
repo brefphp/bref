@@ -16,10 +16,9 @@ namespace Bref\Runtime;
  * Usage example:
  *
  *     $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
- *     $invocation = $lambdaRuntime->waitNextInvocation();
- *     $event = $invocation->getEvent();
- *     // [...] process the event
- *     $invocation->success($responseData);
+ *     $lambdaRuntime->processNextEvent(function ($event) {
+ *         return <response>;
+ *     });
  */
 class LambdaRuntime
 {
@@ -33,7 +32,22 @@ class LambdaRuntime
 
     public function __construct(string $apiUrl)
     {
+        if ($apiUrl === '') {
+            die('At the moment lambdas can only be executed in an Lambda environment');
+        }
+
         $this->apiUrl = $apiUrl;
+    }
+
+    public function processNextEvent(callable $handler): void
+    {
+        [$invocationId, $event] = $this->waitNextInvocation();
+
+        try {
+            $this->sendResponse($invocationId, $handler($event));
+        } catch (\Throwable $e) {
+            $this->signalFailure($invocationId, $e);
+        }
     }
 
     /**
@@ -43,7 +57,7 @@ class LambdaRuntime
      *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-next
      */
-    public function waitNextInvocation(): Invocation
+    private function waitNextInvocation(): array
     {
         $handler = curl_init("http://{$this->apiUrl}/2018-06-01/runtime/invocation/next");
         curl_setopt($handler, CURLOPT_FOLLOWLOCATION, true);
@@ -85,7 +99,7 @@ class LambdaRuntime
 
         $event = json_decode($body, true);
 
-        return new Invocation($this, $invocationId, $event);
+        return [$invocationId, $event];
     }
 
     /**
@@ -93,7 +107,7 @@ class LambdaRuntime
      *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-response
      */
-    public function sendResponse(string $invocationId, $responseData): void
+    private function sendResponse(string $invocationId, $responseData): void
     {
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/response";
         $this->postJson($url, $responseData);
@@ -102,7 +116,7 @@ class LambdaRuntime
     /**
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-invokeerror
      */
-    public function signalFailure(string $invocationId, \Throwable $error): void
+    private function signalFailure(string $invocationId, \Throwable $error): void
     {
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
         $this->postJson($url, [
