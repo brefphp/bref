@@ -22,14 +22,9 @@ $phpFpm = new PhpFpm($handler);
 $phpFpm->start();
 
 while (true) {
-    $invocation = $lambdaRuntime->waitNextInvocation();
-    try {
-        $lambdaResponse = $phpFpm->proxy($invocation->getEvent());
-
-        $invocation->success($lambdaResponse->toApiGatewayFormat());
-    } catch (\Throwable $e) {
-        $invocation->failure($e);
-    }
+    $lambdaRuntime->processNextEvent(function ($event) use ($phpFpm): array {
+        return $phpFpm->proxy($event)->toApiGatewayFormat();
+    });
 
     try {
         $phpFpm->ensureStillRunning();
