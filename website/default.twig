@@ -121,13 +121,15 @@
             </nav>
         </div>
         <div class="w-full pt-72 lg:ml-400 overflow-x-hidden px-16 py-16">
-            <article class="lg:max-w-700">
+            <div class="lg:max-w-700">
                 {% block content %}
-
-                    {{ content|raw }}
-
+                    <article>
+                        {% block article %}
+                            {{ content|raw }}
+                        {% endblock %}
+                    </article>
                 {% endblock %}
-            </article>
+            </div>
         </div>
     </div>
 </body>

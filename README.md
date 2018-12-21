@@ -1,3 +1,7 @@
+---
+layout: home
+---
+
 Bref helps you build serverless PHP applications.
 
 [![Build Status](https://travis-ci.com/mnapoli/bref.svg?branch=master)](https://travis-ci.com/mnapoli/bref)
