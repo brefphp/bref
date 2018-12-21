@@ -6,3 +6,4 @@
 /.bref/
 /.phpcs-cache
 /composer.lock
+/.couscous/
