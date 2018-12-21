@@ -25,18 +25,6 @@ Use case examples:
 
 Interested about performances? [Head over here](https://github.com/mnapoli/bref-benchmark) for a benchmark.
 
-## Setup
-
-For now Bref only works with AWS Lambda. Help to support other providers is welcome.
-
-For deploying, Bref internally uses [the serverless framework](https://serverless.com/). At first you should not have to deal with the serverless framework itself but you need to install it.
-
-- Create an AWS account if you don't already have one
-- Install [the serverless framework](https://serverless.com): `npm install -g serverless`
-- Setup your AWS credentials: [create an AWS access key](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and either configure it [using an environment variable](https://serverless.com/framework/docs/providers/aws/guide/credentials#quick-setup) (easy solution) or [setup `aws-cli`](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) (and run `aws configure`)
-
-Bref will then use AWS credentials and the serverless framework to deploy your application.
-
 ## Creating a lambda
 
 To create your first lambda application create an empty directory and run the following commands:
@@ -108,87 +96,6 @@ $result = $lambda->invoke([
 $payload = json_decode($result->get('Payload')->getContents(), true);
 ```
 
-### Invoking locally
-
-Bref provides a helper to invoke the lambda locally, on your machine instead of the serverless provider:
-
-```shell
-php bref.php bref:invoke
-
-# If you want to pass event data:
-php bref.php bref:invoke --event='{"name":"foo"}'
-```
-
-## HTTP applications
-
-Bref provides bridges to use your HTTP framework to write a HTTP applications. By default Bref supports any [PSR-15](https://github.com/php-fig/http-server-handler) compliant framework, as well as Symfony and Laravel (read below).
-
-Here is an example using the [Slim framework](https://www.slimframework.com) to handle requests (native PSR-15 support for Slim [is in the works](https://github.com/slimphp/Slim/pull/2379)):
-
-```php
-<?php
-
-use Bref\Bridge\Slim\SlimAdapter;
-
-require __DIR__.'/vendor/autoload.php';
-
-$slim = new Slim\App;
-$slim->get('/dev', function ($request, $response) {
-    $response->getBody()->write('Hello world!');
-    return $response;
-});
-
-$app = new \Bref\Application;
-$app->httpHandler(new SlimAdapter($slim));
-$app->run();
-```
-
-If you don't need a framework, here is a simple example:
-
-```php
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Zend\Diactoros\Response\JsonResponse;
-
-// ...
-
-$app = new \Bref\Application;
-$app->httpHandler(new class implements RequestHandlerInterface {
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        return new JsonResponse('Hello world');
-    }
-});
-$app->run();
-```
-
-The `$app->httpHandler()` method lets us define the handler for HTTP requests.
-
-When your lambda is deployed, a URL will be created so that your application is accessible online. The URL can be retrieved using `vendor/bin/bref info`. Calling the URL will trigger your lambda and Bref will run your "http handler". For example using curl:
-
-```shell
-curl https://xxxxx.execute-api.xxxxx.amazonaws.com/dev/
-```
-
-Bref provides a helper to preview the application locally. It works with PHP's built-in webserver:
-
-```shell
-php -S 127.0.0.1:8000 bref.php
-```
-
-The application is then available at [http://localhost:8000](http://localhost:8000/).
-
-Since Bref works with PSR-15 you are not even required to use a PHP framework. You could write your own "HTTP handler" by providing an implementation of `Psr\Http\Server\RequestHandlerInterface` to `$app->httpHandler()`.
-
-### Symfony integration
-
-Read the documentation for [deploying Symfony applications](docs/Symfony.md).
-
-### Laravel integration
-
-Read the documentation for [deploying Laravel applications](docs/Laravel.md).
-
 ### Why is there a `/dev` prefix in the URLs on AWS Lambda
 
 See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for a more detailed answer. The short version is AWS requires a prefix containing the stage name (dev/prod/…).
@@ -241,22 +148,6 @@ Bref automatically registers a special `bref:invoke` command to your CLI applica
 ```shell
 php bref.php bref:invoke
 ```
-
-## Multiple handlers
-
-As you may have noted, Bref lets you define 3 kinds of handlers:
-
-```php
-$app->simpleHandler(function () {
-    return 'Hello';
-});
-$app->httpHandler($httpFramework);
-$app->cliHandler($console);
-
-$app->run();
-```
-
-If you want to, you can define those 3 handlers in the same application. On execution Bref recognizes if the application is invoked through HTTP, through `bref cli` (for CLI commands) or simply through a standard invocation. It will then execute the appropriate handler.
 
 ## Logging
 

@@ -1,4 +1,4 @@
-# Deploying Laravel applications
+# Serverless Laravel applications
 
 Deploying Laravel applications requires a few changes for everything to work perfectly.
 

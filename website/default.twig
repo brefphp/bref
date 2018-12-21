@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Bref</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:400,600,700" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Open Sans","Helvetica Neue",Arial,sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: "Poppins","Helvetica Neue",Arial,sans-serif;
+        }
+        .lg\:w-400 {
+            width: 400px;
+        }
+        .lg\:ml-400 {
+            margin-left: 400px;
+        }
+        .lg\:max-w-700 {
+            max-width: 700px;
+        }
+        article p {
+            margin-top: 16px;
+            line-height: 24px;
+        }
+        article h1 {
+            margin-bottom: 40px;
+        }
+        article h2 {
+            font-weight: 600;
+            font-size: 24px;
+            line-height: 32px;
+            margin-top: 60px;
+            margin-bottom: 30px;
+            padding-right: 64px;
+        }
+        article h3 {
+            font-size: 18px;
+            line-height: 24px;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 16px;
+        }
+        article ul {
+            margin-top: 8px;
+            margin-left: 16px;
+            padding: 0 0 0 16px;
+        }
+        article ul li {
+            margin-top: 4px;
+            line-height: 24px;
+        }
+        article code {
+            display: inline-block;
+            font-family: Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
+            background-color: #f8fafc;
+            font-size: .9rem;
+            line-height: 1.5;
+            padding: .3rem;
+        }
+        article pre {
+            padding: 1em;
+            margin: 1em 0;
+            background-color: #f8fafc;
+            word-break: normal;
+            overflow: auto;
+        }
+        article pre code {
+            display: block;
+            padding: 0;
+            font-size: .85rem;
+        }
+        article blockquote {
+            border-left-width: 4px;
+            padding: 1rem;
+            color: #2779bd;
+            border-color: #3490dc;
+            background-color: #eff8ff;
+            margin-top: 16px;
+        }
+        article blockquote p:first-child {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex h-full">
+        <div class="fixed flex-no-shrink lg:w-400 lg:flex lg:flex-col z-30 h-screen w-full hidden text-grey-darkest bg-grey-lightest px-8 py-16">
+            <nav>
+                <h3 class="mb-4 text-grey uppercase font-semibold text-sm lg:text-xs tracking-wide">Getting Started</h3>
+                <ul class="list-reset mb-8 ml-6">
+                    <li class="mb-4 mt-4"><a href="#" class="no-underline text-grey-darkest">What is serverless?</a></li>
+                    <li class="mb-4 mt-4"><a href="/docs/installation.html" class="no-underline text-grey-darkest">Installation</a></li>
+                </ul>
+                <h3 class="mb-4 text-grey uppercase font-semibold text-sm lg:text-xs tracking-wide">Functions</h3>
+                <ul class="list-reset mb-8 ml-6">
+                    <li class="mb-4 mt-4"><a href="#" class="no-underline text-grey-darkest">Simple functions</a></li>
+                    <li class="mb-4 mt-4"><a href="#" class="no-underline text-grey-darkest">HTTP</a></li>
+                    <li class="mb-4 mt-4"><a href="#" class="no-underline text-grey-darkest">Console</a></li>
+                </ul>
+                <h3 class="mb-4 text-grey uppercase font-semibold text-sm lg:text-xs tracking-wide">Usage</h3>
+                <ul class="list-reset mb-8 ml-6">
+                    <li class="mb-4 mt-4"><a href="#" class="no-underline text-grey-darkest">Deployment</a></li>
+                    <li class="mb-4 mt-4"><a href="/docs/local-development.html" class="no-underline text-grey-darkest">Local development</a></li>
+                </ul>
+                <h3 class="mb-4 text-grey uppercase font-semibold text-sm lg:text-xs tracking-wide">Configuration</h3>
+                <ul class="list-reset mb-8 ml-6">
+                    <li class="mb-4 mt-4"><a href="#" class="no-underline text-grey-darkest">PHP</a></li>
+                </ul>
+                <h3 class="mb-4 text-grey uppercase font-semibold text-sm lg:text-xs tracking-wide">Frameworks</h3>
+                <ul class="list-reset mb-8 ml-6">
+                    <li class="mb-4 mt-4"><a href="/docs/Laravel.html" class="no-underline text-grey-darkest">Laravel</a></li>
+                    <li class="mb-4 mt-4"><a href="/docs/Symfony.html" class="no-underline text-grey-darkest">Symfony</a></li>
+                </ul>
+                <h3 class="mb-4 text-grey uppercase font-semibold text-sm lg:text-xs tracking-wide">Learning</h3>
+                <ul class="list-reset mb-8 ml-6">
+                    <li class="mb-4 mt-4"><a href="#" class="no-underline text-grey-darkest">Case studies</a></li>
+                </ul>
+            </nav>
+        </div>
+        <div class="w-full pt-72 lg:ml-400 overflow-x-hidden px-16 py-16">
+            <article class="lg:max-w-700">
+                {% block content %}
+
+                    {{ content|raw }}
+
+                {% endblock %}
+            </article>
+        </div>
+    </div>
+</body>
+</html>

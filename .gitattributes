@@ -2,6 +2,7 @@
 demo/ export-ignore
 runtime/ export-ignore
 tests/ export-ignore
+website/ export-ignore
 .gitattributes export-ignore
 .gitignore export-ignore
 .phpcs.xml.dist export-ignore
