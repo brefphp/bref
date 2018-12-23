@@ -9,7 +9,7 @@ class CliTest extends TestCase
 {
     /**
      * @expectedException \Symfony\Component\Process\Exception\ProcessFailedException
-     * @expectedExceptionMessage The files `bref.php` and `serverless.yml` are required to deploy
+     * @expectedExceptionMessage The file `template.yaml` is required to deploy
      */
     public function test deploying requires mandatory files to exist()
     {

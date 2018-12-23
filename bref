@@ -78,7 +78,7 @@ $app->command('init', function (SymfonyStyle $io) {
 
     /*
      * We check if this is a git repository to automatically run some commands:
-     * - git add bref.php serverless.yml
+     * - git add index.php template.yaml
      * - add /.bref/ to .gitignore
      */
     if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {

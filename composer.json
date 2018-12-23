@@ -33,7 +33,6 @@
         "psr/http-server-handler": "^1.0",
         "zendframework/zend-diactoros": "^1.6",
         "jolicode/jolinotif": "^2.0",
-        "matomo/ini": "^2.0",
         "riverline/multipart-parser": "^1.2",
         "innmind/json": "^1.0",
         "hollodotme/fast-cgi-client": "^2.4"
