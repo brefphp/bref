@@ -2,7 +2,6 @@
 <?php
 declare(strict_types=1);
 
-use Bref\Console\Deployer;
 use GuzzleHttp\Psr7\Stream;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
@@ -122,16 +121,6 @@ $app->command('local', function (SymfonyStyle $io) {
         '<info>sam local start-api</info>',
     ]);
 });
-
-$app->command(
-    'deploy [--dry-run] [--stage=]',
-    function (SymfonyStyle $io, bool $dryRun, ?string $stage) {
-        (new Deployer)->deploy($io, $dryRun, $stage);
-    })
-    ->descriptions('Deploy serverless application', [
-        '--dry-run' => 'Build the serverless package without deploying it',
-        '--stage' => 'Deployment stage',
-    ]);
 
 /**
  * Run a CLI command in the remote environment.
