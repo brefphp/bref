@@ -3,9 +3,8 @@
 namespace Bref\Runtime;
 
 use Bref\Http\LambdaResponse;
-use hollodotme\FastCGI\Client;
-use hollodotme\FastCGI\Requests\AbstractRequest;
-use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
+use Hoa\Fastcgi\Responder;
+use Hoa\Socket\Client;
 use Symfony\Component\Process\Process;
 
 /**
@@ -16,7 +15,7 @@ class PhpFpm
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const CONFIG = '/opt/php/fpm/php-fpm.conf';
 
-    /** @var Client */
+    /** @var Responder */
     private $client;
     /** @var string */
     private $handler;
@@ -27,7 +26,9 @@ class PhpFpm
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
-        $this->client = new Client(new UnixDomainSocket(self::SOCKET, 5000, 30000));
+        $this->client = new Responder(
+            new Client('unix://' . self::SOCKET, 30000)
+        );
         $this->handler = $handler;
         $this->configFile = $configFile;
     }
@@ -80,16 +81,19 @@ class PhpFpm
             throw new \Exception('The lambda was not invoked via HTTP through API Gateway: this is not supported by this runtime');
         }
 
-        $request = $this->eventToFastCgiRequest($event);
+        [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
 
-        $response = $this->client->sendRequest($request);
+        $this->client->send($requestHeaders, $requestBody);
 
-        $headers = $response->getHeaders();
-        $headers['Status'] = $headers['Status'] ?? '200 Ok';
+        $responseHeaders = $this->client->getResponseHeaders();
 
-        [$status] = explode(' ', $headers['Status']);
+        $responseHeaders = array_change_key_case($responseHeaders, CASE_LOWER);
 
-        return new LambdaResponse((int) $status, $headers, $response->getBody());
+        $responseHeaders['status'] = $responseHeaders['status'] ?? '200 Ok';
+        [$status] = explode(' ', $responseHeaders['status']);
+        $responseBody = $this->client->getResponseContent();
+
+        return new LambdaResponse((int) $status, $responseHeaders, $responseBody);
     }
 
     private function waitForServerReady(): void
@@ -102,12 +106,10 @@ class PhpFpm
             usleep($wait);
             $elapsed += $wait;
             if ($elapsed > $timeout) {
-                echo 'Timeout while waiting for socket at ' . self::SOCKET;
+                echo 'Timeout while waiting for PHP-FPM socket at ' . self::SOCKET;
                 exit(1);
             }
         }
-
-        echo 'FastCGI started';
     }
 
     private function isReady(): bool
@@ -117,14 +119,12 @@ class PhpFpm
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(array $event): AbstractRequest
+    private function eventToFastCgiRequest(array $event): array
     {
-        $bodyString = $event['body'] ?? '';
+        $requestBody = $event['body'] ?? '';
         if ($event['isBase64Encoded'] ?? false) {
-            $bodyString = base64_decode($bodyString);
+            $requestBody = base64_decode($requestBody);
         }
-
-        $request = new FastCgiRequest($event['httpMethod'], $this->handler, $bodyString);
 
         $uri = $event['path'] ?? '/';
         /*
@@ -140,31 +140,47 @@ class PhpFpm
         if (! empty($queryString)) {
             $uri .= '?' . $queryString;
         }
-        $request->setRequestUri($uri);
-        $request->setCustomVar('QUERY_STRING', http_build_query($queryParameters));
+        $queryString = http_build_query($queryParameters);
 
-        $request->setRemoteAddress('127.0.0.1');
-        $request->setRemotePort(80);
-        $request->setServerName('127.0.0.1');
-        $request->setServerPort(80);
-        if (isset($event['requestContext']['protocol'])) {
-            $request->setServerProtocol($event['requestContext']['protocol']);
-        }
+        $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
 
+        // Normalize headers
         $headers = $event['headers'] ?? [];
-        if (isset($headers['Host'])) {
-            $request->setServerName($headers['Host']);
-        }
+        $headers = array_change_key_case($headers, CASE_LOWER);
 
-        if (isset($headers['Content-Type'])) {
-            $request->setContentType($headers['Content-Type']);
+        $serverName = $headers['host'] ?? 'localhost';
+
+        $requestHeaders = [
+            'GATEWAY_INTERFACE' => 'FastCGI/1.0',
+            'REQUEST_METHOD' => $event['httpMethod'],
+            'REQUEST_URI' => $uri,
+            'SCRIPT_FILENAME' => $this->handler,
+            'SERVER_SOFTWARE' => 'bref',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'REMOTE_PORT' => '80',
+            'SERVER_ADDR' => '127.0.0.1',
+            'SERVER_NAME' => $serverName,
+            'SERVER_PROTOCOL' => $protocol,
+            'PATH_INFO' => $event['path'] ?? '/',
+            'QUERY_STRING' => $queryString,
+        ];
+
+        // See https://stackoverflow.com/a/5519834/245552
+        if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
+            $headers['content-type'] = 'application/x-www-form-urlencoded';
+        }
+        if (isset($headers['content-type'])) {
+            $requestHeaders['CONTENT_TYPE'] = $headers['content-type'];
+        }
+        if (isset($headers['content-length'])) {
+            $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
         }
 
         foreach ($headers as $header => $value) {
             $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
-            $request->setCustomVar($key, $value);
+            $requestHeaders[$key] = $value;
         }
 
-        return $request;
+        return [$requestHeaders, $requestBody];
     }
 }

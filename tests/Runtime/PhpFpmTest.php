@@ -33,9 +33,9 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             '$_COOKIE' => [],
             '$_REQUEST' => [],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '0',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/hello',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
             ],
@@ -66,9 +66,9 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'bim' => 'baz',
             ],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '0',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/hello?foo=bar&bim=baz',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => 'foo=bar&bim=baz',
             ],
@@ -102,11 +102,38 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 ],
             ],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '0',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => 'vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with custom header()
+    {
+        $event = [
+            'httpMethod' => 'GET',
+            'path' => '/',
+            'headers' => [
+                'X-My-Header' => 'Hello world',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => '',
+                'HTTP_X_MY_HEADER' => 'Hello world',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -118,6 +145,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'application/json',
+                'Content-Length' => mb_strlen(json_encode('Hello world!')),
             ],
             'body' => json_encode('Hello world!'),
         ];
@@ -131,9 +159,12 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_LENGTH' => '14',
                 'CONTENT_TYPE' => 'application/json',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/json',
+                'HTTP_CONTENT_LENGTH' => '14',
             ],
             'HTTP_RAW_BODY' => '"Hello world!"',
         ]);
@@ -144,6 +175,9 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         $event = [
             'httpMethod' => 'POST',
             'body' => 'foo=bar&bim=baz',
+            'headers' => [
+                'Content-Length' => mb_strlen('foo=bar&bim=baz'),
+            ],
         ];
         $this->assertGlobalVariables($event, [
             '$_GET' => [],
@@ -161,8 +195,12 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_LENGTH' => '15',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
+                'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'HTTP_CONTENT_LENGTH' => '15',
             ],
             'HTTP_RAW_BODY' => 'foo=bar&bim=baz',
         ]);
@@ -174,43 +212,35 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'httpMethod' => 'POST',
             'headers' => [
                 // content-type instead of Content-Type
-                'content-type' => 'application/x-www-form-urlencoded',
+                'content-type' => 'application/json',
+                'content-length' => mb_strlen('{}'),
             ],
-            'body' => 'foo=bar&bim=baz',
+            'body' => '{}',
         ];
         $this->assertGlobalVariables($event, [
             '$_GET' => [],
-            '$_POST' => [
-                'foo' => 'bar',
-                'bim' => 'baz',
-            ],
+            '$_POST' => [],
             '$_FILES' => [],
             '$_COOKIE' => [],
-            '$_REQUEST' => [
-                'foo' => 'bar',
-                'bim' => 'baz',
-            ],
+            '$_REQUEST' => [],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '15',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'CONTENT_LENGTH' => '2',
+                'CONTENT_TYPE' => 'application/json',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
-                'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'HTTP_CONTENT_TYPE' => 'application/json',
+                'HTTP_CONTENT_LENGTH' => '2',
             ],
-            'HTTP_RAW_BODY' => 'foo=bar&bim=baz',
+            'HTTP_RAW_BODY' => '{}',
         ]);
     }
 
     public function test POST request with multipart form data()
     {
-        $event = [
-            'httpMethod' => 'POST',
-            'headers' => [
-                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
-            ],
-            'body' =>
-                "--testBoundary\r
+        $body = "--testBoundary\r
 Content-Disposition: form-data; name=\"foo\"\r
 \r
 bar\r
@@ -219,7 +249,14 @@ Content-Disposition: form-data; name=\"bim\"\r
 \r
 baz\r
 --testBoundary--\r
-",
+";
+        $event = [
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+                'Content-Length' => mb_strlen($body),
+            ],
+            'body' => $body,
         ];
         $this->assertGlobalVariables($event, [
             '$_GET' => [],
@@ -237,9 +274,12 @@ baz\r
                 'CONTENT_LENGTH' => '152',
                 'CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
+                'HTTP_CONTENT_LENGTH' => '152',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -247,13 +287,7 @@ baz\r
 
     public function test POST request with multipart form data containing arrays()
     {
-        $event = [
-            'httpMethod' => 'POST',
-            'headers' => [
-                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
-            ],
-            'body' =>
-                "--testBoundary\r
+        $body = "--testBoundary\r
 Content-Disposition: form-data; name=\"delete[categories][]\"\r
 \r
 123\r
@@ -262,7 +296,14 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
 \r
 456\r
 --testBoundary--\r
-",
+";
+        $event = [
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+                'Content-Length' => mb_strlen($body),
+            ],
+            'body' => $body,
         ];
         $this->assertGlobalVariables($event, [
             '$_GET' => [],
@@ -288,9 +329,12 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
                 'CONTENT_LENGTH' => '186',
                 'CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
+                'HTTP_CONTENT_LENGTH' => '186',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -315,9 +359,9 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
             ],
             '$_REQUEST' => [],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '0',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
                 'HTTP_COOKIE' => 'tz=Europe%2FParis; four=two+%2B+2; theme=light',
@@ -328,13 +372,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
 
     public function test POST request with multipart file uploads()
     {
-        $event = [
-            'httpMethod' => 'POST',
-            'headers' => [
-                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
-            ],
-            'body' =>
-                "--testBoundary\r
+        $body = "--testBoundary\r
 Content-Disposition: form-data; name=\"foo\"; filename=\"lorem.txt\"\r
 Content-Type: text/plain\r
 \r
@@ -349,7 +387,14 @@ Year,Make,Model
 2000,Mercury,Cougar
 \r
 --testBoundary--\r
-",
+";
+        $event = [
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+                'Content-Length' => mb_strlen($body),
+            ],
+            'body' => $body,
         ];
         $this->assertGlobalVariables($event, [
             '$_GET' => [],
@@ -376,9 +421,12 @@ Year,Make,Model
                 'CONTENT_LENGTH' => '323',
                 'CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
+                'HTTP_CONTENT_LENGTH' => '323',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -391,6 +439,7 @@ Year,Make,Model
             'isBase64Encoded' => true,
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
+                'Content-Length' => mb_strlen('foo=bar'),
             ],
             'body' => base64_encode('foo=bar'),
         ];
@@ -408,9 +457,12 @@ Year,Make,Model
                 'CONTENT_LENGTH' => '7',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'HTTP_CONTENT_LENGTH' => '7',
             ],
             'HTTP_RAW_BODY' => 'foo=bar',
         ]);
@@ -431,9 +483,9 @@ Year,Make,Model
             '$_COOKIE' => [],
             '$_REQUEST' => [],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '0',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
                 'SERVER_NAME' => 'www.example.com',
@@ -455,9 +507,9 @@ Year,Make,Model
             '$_COOKIE' => [],
             '$_REQUEST' => [],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '0',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'PUT',
                 'QUERY_STRING' => '',
             ],
@@ -477,9 +529,9 @@ Year,Make,Model
             '$_COOKIE' => [],
             '$_REQUEST' => [],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '0',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'PATCH',
                 'QUERY_STRING' => '',
             ],
@@ -499,9 +551,9 @@ Year,Make,Model
             '$_COOKIE' => [],
             '$_REQUEST' => [],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '0',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'DELETE',
                 'QUERY_STRING' => '',
             ],
@@ -521,9 +573,9 @@ Year,Make,Model
             '$_COOKIE' => [],
             '$_REQUEST' => [],
             '$_SERVER' => [
-                'CONTENT_LENGTH' => '0',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'OPTIONS',
                 'QUERY_STRING' => '',
             ],
@@ -553,7 +605,7 @@ Year,Make,Model
 
     public function test response with cookies()
     {
-        $cookieHeader = $this->get('cookies.php')->toApiGatewayFormat()['headers']['Set-Cookie'];
+        $cookieHeader = $this->get('cookies.php')->toApiGatewayFormat()['headers']['set-cookie'];
 
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
     }
@@ -584,16 +636,14 @@ Year,Make,Model
         $expectedCommonVariables = [
             'USER' => get_current_user(),
             'SERVER_PROTOCOL' => 'HTTP/1.1',
-            'SERVER_NAME' => '127.0.0.1',
-            'SERVER_PORT' => '80',
+            'SERVER_NAME' => 'localhost',
             'SERVER_ADDR' => '127.0.0.1',
             'REMOTE_PORT' => '80',
             'REMOTE_ADDR' => '127.0.0.1',
-            'SERVER_SOFTWARE' => 'hollodotme/fast-cgi-client',
+            'SERVER_SOFTWARE' => 'bref',
             'SCRIPT_FILENAME' => __DIR__ . '/PhpFpm/request.php',
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'FCGI_ROLE' => 'RESPONDER',
-            'PHP_SELF' => '',
         ];
 
         // Allow to override some keys
