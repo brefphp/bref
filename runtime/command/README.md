@@ -18,6 +18,6 @@ Resources:
 
 Then to execute a command:
 
-```
+```php
 vendor/bin/bref cli -- doctrine:migrate
 ```
