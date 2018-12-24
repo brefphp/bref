@@ -108,20 +108,6 @@ $app->command('init', function (SymfonyStyle $io) {
     }
 });
 
-$app->command('local', function (SymfonyStyle $io) {
-    $io->writeln([
-        'Use <info>sam local</info> commands to test your lambda locally.',
-        '',
-        'For example for classic lambdas:',
-        '<info>sam local invoke {function-name} --no-event</info>',
-        'or',
-        '<info>echo \'{"foo": "bar"}\' | sam local invoke {function-name}</info>',
-        '',
-        'For HTTP lambdas:',
-        '<info>sam local start-api</info>',
-    ]);
-});
-
 /**
  * Run a CLI command in the remote environment.
  */
