@@ -101,6 +101,18 @@ class RequestFactoryTest extends TestCase implements HttpRequestProxyTest
         ], $request->getQueryParams());
     }
 
+    public function test request with custom header()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'X-My-Header' => 'Hello world',
+            ],
+        ]);
+
+        self::assertEquals(['Hello world'], $request->getHeader('X-My-Header'));
+    }
+
     public function test POST request with raw body()
     {
         $request = RequestFactory::fromLambdaEvent([
