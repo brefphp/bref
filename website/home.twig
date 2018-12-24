@@ -2,39 +2,28 @@
 <html lang="en">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Bref</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
+    <title>Bref - Serverless PHP applications made simple</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:200,400,600,700" rel="stylesheet">
+    <link href="/output.css" rel="stylesheet">
     <style>
-        body {
-            font-family: "Open Sans","Helvetica Neue",Arial,sans-serif;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: "Poppins","Helvetica Neue",Arial,sans-serif;
-        }
+        {# Style specific to the home page #}
         h1 {
-            font-size: 150px;
+            font-size: 100px;
             line-height: 1;
         }
     </style>
 </head>
-<body>
-    <section class="border-t-4 border-indigo-darker">
-        <div class="container mx-auto py-32 px-4">
-            <h1 class="mb-12 text-indigo-darkest">PHP <br> online <br> made simple.</h1>
-            <h2 class="mb-12 font-normal text-2xl text-grey-dark">It doesn't have to be about servers, orchestration, containers or provisioning.</h2>
+<body class="font-sans">
+    <section class="border-t-4 border-grey-dark">
+        <div class="container mx-auto py-24 px-4">
+            <h1 class="mb-12">PHP <br> online <br> made simple.</h1>
+            <h2 class="mb-8 font-normal text-2xl text-grey-dark">It doesn't have to be about servers, orchestration, containers or provisioning.</h2>
             <h2 class="font-normal text-4xl">Bref helps you get things done with the best of serverless.</h2>
 
-            <div class="mt-24 flex justify-center">
-                <a class="block text-center font-bold px-10 py-4 border-2 border-indigo-darker rounded-lg bg-indigo-darker text-white hover:border-indigo-dark hover:bg-indigo-dark no-underline mr-8" href="/docs/">Documentation</a>
-                <a class="block text-center font-bold px-10 py-4 border-2 border-indigo-darker rounded-lg bg-white text-indigo-darker hover:border-indigo-dark hover:bg-indigo-dark hover:text-white no-underline" href="https://github.com/mnapoli/bref">GitHub</a>
+            <div class="mt-16 flex justify-center">
+                <a class="block text-center font-bold px-10 py-4 border-2 border-grey-darkest rounded-lg bg-grey-darkest text-white hover:text-white hover:border-black hover:bg-black mr-8" href="/docs/">Documentation</a>
+                <a class="block text-center font-bold px-10 py-4 border-2 border-grey-darkest rounded-lg bg-white text-grey-darkest hover:text-white hover:border-black hover:bg-black" href="https://github.com/mnapoli/bref">GitHub</a>
             </div>
-        </div>
-    </section>
-    <section class="py-32 px-4 bg-indigo-darker text-indigo-lightest">
-        <div class="container mx-auto px-4 font-mono">
-            <div class="mb-4">$ vendor/bin/bref deploy</div>
-            <div class="text-indigo-lighter">Your application has been deployed on AWS Lambda.</div>
         </div>
     </section>
     <section class="py-32 px-4"></section>

@@ -14,4 +14,7 @@ runtime-fpm:
 runtime-loop:
 	cd runtime/loop && sh publish.sh
 
-.PHONY: runtimes runtime-default runtime-fpm runtime-loop
+website-preview:
+	couscous preview
+
+.PHONY: runtimes runtime-default runtime-fpm runtime-loop website-preview

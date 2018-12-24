@@ -1,0 +1,4 @@
+scripts:
+    # Scripts to execute before generating the website
+    before:
+        - cd website && ./node_modules/.bin/tailwind build styles.css -c ./tailwind.js -o ./output.css
