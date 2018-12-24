@@ -14,7 +14,6 @@ $silly->command('phpinfo', function (OutputInterface $output) {
     ob_start();
     phpinfo();
     $phpinfo = ob_get_clean();
-    ob_clean();
     $output->write($phpinfo);
 });
 
