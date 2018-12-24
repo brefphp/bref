@@ -40,6 +40,17 @@ Resources:
                         Path: /{proxy+}
                         Method: ANY
 
+    ConsoleFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: 'bref-demo-console'
+            Description: 'Bref console command demo'
+            CodeUri: .
+            Handler: demo/console.php
+            Runtime: provided
+            Layers:
+                - 'arn:aws:lambda:us-east-2:416566615250:layer:php-72:9'
+
 Outputs:
     DemoHttpApi:
         Description: 'API Gateway URL for our function'
