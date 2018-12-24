@@ -13,7 +13,7 @@ $silly->command('hello [name]', function (string $name = 'World!', OutputInterfa
 $silly->command('phpinfo', function (OutputInterface $output) {
     ob_start();
     phpinfo();
-    $phpinfo = ob_get_contents();
+    $phpinfo = ob_get_clean();
     ob_clean();
     $output->write($phpinfo);
 });
