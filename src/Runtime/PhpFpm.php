@@ -106,12 +106,10 @@ class PhpFpm
             usleep($wait);
             $elapsed += $wait;
             if ($elapsed > $timeout) {
-                echo 'Timeout while waiting for socket at ' . self::SOCKET;
+                echo 'Timeout while waiting for PHP-FPM socket at ' . self::SOCKET;
                 exit(1);
             }
         }
-
-        echo 'FastCGI started';
     }
 
     private function isReady(): bool
@@ -163,7 +161,6 @@ class PhpFpm
             'SERVER_ADDR' => '127.0.0.1',
             'SERVER_NAME' => $serverName,
             'SERVER_PROTOCOL' => $protocol,
-            'CONTENT_LENGTH' => mb_strlen($requestBody, 'UTF-8'),
             'PATH_INFO' => $event['path'] ?? '/',
             'QUERY_STRING' => $queryString,
         ];
@@ -174,6 +171,9 @@ class PhpFpm
         }
         if (isset($headers['content-type'])) {
             $requestHeaders['CONTENT_TYPE'] = $headers['content-type'];
+        }
+        if (isset($headers['content-length'])) {
+            $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
         }
 
         foreach ($headers as $header => $value) {
