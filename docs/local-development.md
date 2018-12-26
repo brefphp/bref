@@ -44,3 +44,9 @@ If you want to keep things simple, remember that you can still run your PHP appl
 - Symfony via `php bin/console server:start` ([documentation](https://symfony.com/doc/current/setup/built_in_web_server.html))
 
 Using SAM is useful to test your application in an environment close to production.
+
+## Console applications
+
+Console applications can be tested just like before: by running the command in your terminal.
+
+For example with Symfony you can run `bin/console <your-command>` , or with Laravel run `php artisan <your-command>`.
