@@ -7,13 +7,10 @@ use Symfony\Component\Process\Process;
 
 class CliTest extends TestCase
 {
-    /**
-     * @expectedException \Symfony\Component\Process\Exception\ProcessFailedException
-     * @expectedExceptionMessage The file `template.yaml` is required to deploy
-     */
-    public function test deploying requires mandatory files to exist()
+    public function test the cli command boots()
     {
-        $process = new Process([__DIR__ . '/../bref', 'deploy'], __DIR__ . '/Fixture/EmptyDirectory');
+        $process = new Process([__DIR__ . '/../bref'], __DIR__ . '/Fixture/EmptyDirectory');
         $process->mustRun();
+        self::assertNotEmpty($process->getOutput());
     }
 }
