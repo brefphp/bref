@@ -16,4 +16,20 @@ runtime-console:
 runtime-loop:
 	cd runtime/loop && sh publish.sh
 
-.PHONY: runtimes runtime-default runtime-fpm runtime-console runtime-loop
+demo:
+	rm -rf .bref .couscous
+	rm -f runtime/default/php.zip
+	rm -f runtime/fpm/php.zip
+	rm -f runtime/loop/php.zip
+	sam package \
+		--region us-east-2 \
+		--template-file template.yaml \
+		--output-template-file output.yaml \
+		--s3-bucket bref-demo-us-east-2
+	sam deploy \
+		--region us-east-2 \
+		--template-file output.yaml \
+		--stack-name bref-demo \
+ 		--capabilities CAPABILITY_IAM
+
+.PHONY: runtimes runtime-default runtime-fpm runtime-console runtime-loop demo
