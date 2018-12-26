@@ -4,6 +4,7 @@ This directory contains the scripts that create and publish the AWS Lambda runti
 
 - default: contains the PHP CLI binary, useful for applications that are not related to HTTP
 - fpm: contains PHP-FPM (and PHP CLI), useful for HTTP applications
+- console: layer that should be used on top of `default` to run console commands (Symfony Console or Laravel Artisan)
 - loop: experimental mode
 
 To use a runtime you need to import the corresponding layer into your Lambda. For example using AWS SAM:
@@ -23,6 +24,7 @@ Each layer's ARN can be composed through the following pattern:
 ```
 arn:aws:lambda:<region>:416566615250:layer:php-72:<version>
 arn:aws:lambda:<region>:416566615250:layer:php-72-fpm:<version>
+arn:aws:lambda:<region>:416566615250:layer:php-72-console:<version>
 arn:aws:lambda:<region>:416566615250:layer:php-72-loop:<version>
 ```
 

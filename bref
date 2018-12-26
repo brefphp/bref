@@ -119,30 +119,13 @@ $app->command(
 /**
  * Run a CLI command in the remote environment.
  */
-$app->command('cli [--stage=] [arguments]*', function (?string $stage, array $arguments, SymfonyStyle $io) {
-    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $serverlessInfo = (new Process('serverless info'.$stageOption))->mustRun()->getOutput();
-    foreach (explode(PHP_EOL, $serverlessInfo) as $line) {
-        if (strpos($line, 'region: ') === 0) {
-            $region = substr($line, strlen('region: '));
-        }
-        if (strpos($line, 'stack: ') === 0) {
-            $functionName = substr($line, strlen('stack: ')) . '-main';
-        }
-    }
-    if (empty($region) || empty($functionName)) {
-        throw new Exception('Unable to parse the output of `serverless info`');
-    }
-
-    // We cannot use the `serverless` CLI command here because it
-    // mangles the lambda response (JSON data) with logs on stdout.
-    // Using the AWS SDK allows to collect those data separately and properly.
+$app->command('cli function [--region=] [arguments]*', function (string $function, ?string $region, array $arguments, SymfonyStyle $io) {
     $lambda = new \Aws\Lambda\LambdaClient([
         'version' => 'latest',
-        'region' => $region,
+        'region' => ($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1',
     ]);
     $result = $lambda->invoke([
-        'FunctionName' => $functionName,
+        'FunctionName' => $function,
         'LogType' => 'Tail',
         'Payload' => json_encode([
             'cli' => implode(' ', $arguments),
