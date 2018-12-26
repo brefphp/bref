@@ -70,22 +70,12 @@ $app->command('init', function (SymfonyStyle $io) {
     $fs->copy(__DIR__ . "/template/$templateDirectory/index.php", 'index.php');
 
     /*
-     * We check if this is a git repository to automatically run some commands:
-     * - git add index.php template.yaml
-     * - add /.bref/ to .gitignore
+     * We check if this is a git repository to automatically add files to git.
      */
     if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {
         (new Process(['git', 'add', 'template.yaml']))->run();
         if (file_exists('index.php')) {
             (new Process(['git', 'add', 'index.php']))->run();
-        }
-
-        /*
-         * Check that .bref is not already gitignored
-         * `git check-ignore` exits with status 1 when "None of the provided paths are ignored."
-         */
-        if ((new Process(['git', 'check-ignore', '-q', '.bref']))->run() === 1) {
-            $fs->appendToFile('.gitignore', '/.bref/' . PHP_EOL);
         }
 
         $io->success([
@@ -95,6 +85,8 @@ $app->command('init', function (SymfonyStyle $io) {
     } else {
         $io->success('Project initialized and ready to test or deploy.');
     }
+
+    return 0;
 });
 
 /**
