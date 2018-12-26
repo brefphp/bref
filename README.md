@@ -53,23 +53,11 @@ The `init` command will create the required files, including a `bref.php` file w
 
 require __DIR__.'/vendor/autoload.php';
 
-λ(function (array $event) {
+lambda(function (array $event) {
     return [
         'hello' => $event['name'] ?? 'world',
     ];
 });
-```
-
-Note that the `λ` function is just a simple function (with a funny name) that boots Bref and runs it, here is the equivalent code without that shortcut function:
-
-```php
-$app = new \Bref\Application;
-$app->simpleHandler(function (array $event) {
-    return [
-        'hello' => $event['name'] ?? 'world',
-    ];
-});
-$app->run();
 ```
 
 For now our lambda is a simple lambda that can be invoked manually. Creating HTTP applications is covered below in the documentation.

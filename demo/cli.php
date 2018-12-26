@@ -4,7 +4,7 @@ require __DIR__.'/../vendor/autoload.php';
 
 ini_set('display_errors', '1');
 
-λ(function (array $event) {
+lambda(function (array $event) {
     return [
         'hello' => $event['name'] ?? 'world',
     ];
