@@ -19,6 +19,14 @@ You will need to:
     - or [setup `aws-cli`](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) and run `aws configure`
 - [install AWS SAM CLI](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/installation.rst)
 
+### Region
+
+The default [region](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) SAM will use is `us-east-1` (North Virginia, USA).
+
+If you know you want to use a different region (for example to host your application closer to your visitors) you can define the `AWS_DEFAULT_REGION` environment variable. For example `export AWS_DEFAULT_REGION=eu-west-1` in your shell.
+
+Alternatively the region can be overridden on every SAM command by setting the `--region` flag.
+
 ## Bref
 
 Install Bref in your project using [Composer](https://getcomposer.org/):
