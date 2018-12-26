@@ -2,7 +2,7 @@
 
 BREF_VERSION := 0.3
 REGION := us-east-2
-PHP_VERSION := 7.2.12
+PHP_VERSION := 7.2.13
 PHP_VERSION_SHORT := 72
 
 # Build the PHP runtimes
