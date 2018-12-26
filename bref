@@ -122,21 +122,6 @@ $app->command('cli function [--region=] [arguments]*', function (string $functio
     return (int) ($payload['exitCode'] ?? 1);
 });
 
-$app->command('info [--stage=]', function () {
-    // TODO
-    throw new Exception('This feature is not yet available');
-});
-
-$app->command('remove [--stage=]', function () {
-    // TODO
-    throw new Exception('This feature is not yet available');
-});
-
-$app->command('logs [--stage=] [-t|--tail]', function () {
-    // TODO
-    throw new Exception('This feature is not yet available, use `sam logs` in the meantime');
-});
-
 $app->command('invoke [--stage=] [-e|--event=]', function () {
     // TODO
     throw new Exception('This feature is not yet available, use `aws lambda invoke --function-name my-function --invocation-type RequestResponse --region us-east-2 --log-type Tail` in the meantime');
