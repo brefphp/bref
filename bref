@@ -20,14 +20,6 @@ $app = new Silly\Application('Deploy serverless PHP applications');
 
 $app->command('init', function (SymfonyStyle $io) {
     $exeFinder = new ExecutableFinder();
-    if (! $exeFinder->find('aws')) {
-        $io->error(
-            'The `aws` command is not installed.' . PHP_EOL .
-            'Please follow the instructions on https://github.com/mnapoli/bref#setup'
-        );
-
-        return 1;
-    }
     if (! $exeFinder->find('sam')) {
         $io->error(
             'The `sam` command is not installed.' . PHP_EOL .
@@ -62,11 +54,13 @@ $app->command('init', function (SymfonyStyle $io) {
         [
             'classic lambda',
             'HTTP application',
+            'Console application',
         ]
     );
     $templateDirectory = [
         'classic lambda' => 'default',
         'HTTP application' => 'http',
+        'Console application' => 'console',
     ][$choice];
 
     $fs = new Filesystem;
@@ -81,7 +75,10 @@ $app->command('init', function (SymfonyStyle $io) {
      * - add /.bref/ to .gitignore
      */
     if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {
-        (new Process(['git', 'add', 'index.php', 'template.yaml']))->run();
+        (new Process(['git', 'add', 'template.yaml']))->run();
+        if (file_exists('index.php')) {
+            (new Process(['git', 'add', 'index.php']))->run();
+        }
 
         /*
          * Check that .bref is not already gitignored
@@ -92,19 +89,11 @@ $app->command('init', function (SymfonyStyle $io) {
         }
 
         $io->success([
-            'Project initialized and ready to deploy using `bref deploy`.',
-            'As you are using git, we already did the following things automatically:',
-            '- `git add index.php template.yaml`',
-            '- `/.bref/` has been added to your .gitignore',
+            'Project initialized and ready to test or deploy.',
+            'The files created were automatically added to git.',
         ]);
     } else {
-        $io->success([
-            'Project initialized and ready to deploy using `bref deploy`.',
-            'If you are using git, you will need to commit the following files:',
-            '- index.php',
-            '- template.yaml',
-            'You can add `/.bref/` to your .gitignore.',
-        ]);
+        $io->success('Project initialized and ready to test or deploy.');
     }
 });
 

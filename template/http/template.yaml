@@ -10,6 +10,7 @@ Resources:
             Description: ''
             CodeUri: .
             Handler: index.php
+            Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
             Runtime: provided
             Layers:
                 - 'arn:aws:lambda:us-east-2:416566615250:layer:php-72-fpm:3'
@@ -26,10 +27,7 @@ Resources:
                         Path: /{proxy+}
                         Method: ANY
 
-Globals:
-    Function:
-        Timeout: 30 # Timeout in seconds
-
+# Outputs show up in the CloudFormation dashboard
 Outputs:
     DemoHttpApi:
         Description: 'URL of our function in the *Prod* environment'

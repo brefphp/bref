@@ -9,8 +9,9 @@ Resources:
             FunctionName: 'my-function'
             Description: ''
             CodeUri: .
-            Handler: index.php
-            Timeout: 10 # Timeout in seconds
+            Handler: app/console # Replace by `artisan` if you are using Laravel
+            Timeout: 30 # in seconds
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-2:416566615250:layer:php-72:9'
+                - 'arn:aws:lambda:us-east-2:416566615250:layer:php-72:9' # PHP
+                - 'arn:aws:lambda:us-east-2:416566615250:layer:console:1' # The "console" layer
