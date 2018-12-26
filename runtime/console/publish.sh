@@ -7,9 +7,9 @@ if [[ -z "$REGION" ]] ; then
     exit 1
 fi
 
-LAYER_NAME=command
+LAYER_NAME=console
 S3_BUCKET=bref-php-$REGION
-S3_KEY=$BREF_VERSION/command/layer.zip
+S3_KEY=$BREF_VERSION/console/layer.zip
 
 # Clean previous build
 rm -f layer.zip
