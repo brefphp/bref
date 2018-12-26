@@ -1,19 +1,11 @@
-#!/opt/bin/php
-<?php declare(strict_types=1);
+#!/opt/bin/sh
 
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
+# Fail on error
+set -e
 
-while (true) {
-    $handler = getenv('LAMBDA_TASK_ROOT') . '/' . getenv('_HANDLER');
-    if (!is_file($handler)) {
-        echo "Handler `$handler` doesn't exist";
-        exit(1);
-    }
-
-    $handler = escapeshellarg($handler);
-
-    // We redirect stderr to stdout and use passthru so that everything
-    // written on the output ends up in Cloudwatch automatically
-    passthru("/opt/bin/php $handler 2>&1");
-}
+while true
+do
+    # We redirect stderr to stdout so that everything
+    # written on the output ends up in Cloudwatch automatically
+    /opt/bin/php $LAMBDA_TASK_ROOT/$_HANDLER 2>&1
+done
