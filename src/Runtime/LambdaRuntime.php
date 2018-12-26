@@ -39,6 +39,17 @@ class LambdaRuntime
         $this->apiUrl = $apiUrl;
     }
 
+    /**
+     * Process the next event.
+     *
+     * @param callable $handler This callable takes a $event parameter (array) and must return anything serializable to JSON.
+     *
+     * Example:
+     *
+     *     $lambdaRuntime->processNextEvent(function (array $event) {
+     *         return 'Hello ' . $event['name'];
+     *     });
+     */
     public function processNextEvent(callable $handler): void
     {
         [$invocationId, $event] = $this->waitNextInvocation();
