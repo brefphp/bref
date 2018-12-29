@@ -493,6 +493,11 @@ tailwind-css-variables@^1.2.0:
   resolved "https://registry.yarnpkg.com/tailwind-css-variables/-/tailwind-css-variables-1.2.0.tgz#acb46aedbb632144722b45bc9b05287fe76ae477"
   integrity sha512-eDLwmyN1xvPoxhdLkNr0H2QLjvbsP5NEcpLs7uwbQjOQqpNOwkw6+Jo9fUDJdkzHsqeag4NiJBytujxYX/0QqQ==
 
+tailwindcss-tables@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/tailwindcss-tables/-/tailwindcss-tables-0.2.0.tgz#41c2e1bb5d8a5f487d91ce48ad44a48bf2c1097c"
+  integrity sha512-TjqRDL9yrYF8ieWiUcBdIh4EmItj4y5u6LyubjQkKSsJKBh+oEiW++RYQy+nNeV9EQz9L/1apEzKpsygJ7g/Ag==
+
 tailwindcss@^0.7.3:
   version "0.7.3"
   resolved "https://registry.yarnpkg.com/tailwindcss/-/tailwindcss-0.7.3.tgz#7b58605dd7857507c4dbc6edaccab4c14d30c054"
