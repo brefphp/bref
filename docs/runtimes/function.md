@@ -43,7 +43,7 @@ There must be only one function defined per PHP file.
 
 ## SAM configuration
 
-The minimal `template.yaml` you will need to create should be:
+Below is a minimal `template.yaml` to deploy a function. To create it automatically run `vendor/bin/bref init`.
 
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
@@ -60,4 +60,4 @@ Resources:
                 - 'arn:aws:lambda:<region>:416566615250:layer:php-72:<version>'
 ```
 
-The runtime to use is `php`. To learn more, check out [the runtimes documentation](/docs/runtimes/README.md).
+The runtime to use is `php`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
