@@ -44,7 +44,7 @@ attach it to a [load balancer](https://aws.amazon.com/ec2/). The load balancer c
 just over $200 per year. Suddenly the _free_ SSL is costing you almost as much as buying a certificate outright!
 
 As your website becomes more popular, you find that your single web server instance is having trouble keeping up with demand,
-and so you add more and more web servers behind your load balancer. For the purpose of this example, let's say we find that 
+so you add more and more web servers behind your load balancer. For the purpose of this example, let's say we find that 
 three web servers will be sufficient to handle the traffic we need to serve.
 
 You have a choice to keep them running all the time to cope with spikes in traffic (each costing a further $17.25 per month),
