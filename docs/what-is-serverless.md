@@ -76,7 +76,7 @@ Now that you have multiple web servers you need to have a centralised data store
         </tr>
         <tr>
             <td>ELB Load Balancer</td>
-            <td class="text-right">16.88</td>
+            <td class="text-right">$16.88</td>
             <td class="text-right">1</td>
             <td class="text-right">$16.88</td>
         </tr>
