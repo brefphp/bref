@@ -62,38 +62,38 @@ Now that you have multiple web servers you need to have a centralised data store
      <thead>
          <tr>
              <th>Service</th>
-             <th style="text-align: right">Cost per instance</th>
-             <th style="text-align: right">Num instances</th>
-             <th style="text-align: right">Total</th> 
+             <th class="text-right">Cost per instance</th>
+             <th class="text-right">Num instances</th>
+             <th class="text-right">Total</th> 
          </tr>
      </thead>
      <tbody>
         <tr>
             <td>EC2 Web Server</td>
-            <td style="text-align: right">$17.25</td>
-            <td style="text-align: right">3</td>
-            <td style="text-align: right">$51.75</td>
+            <td class="text-right">$17.25</td>
+            <td class="text-right">3</td>
+            <td class="text-right">$51.75</td>
         </tr>
         <tr>
             <td>ELB Load Balancer</td>
-            <td style="text-align: right">16.88</td>
-            <td style="text-align: right">1</td>
-            <td style="text-align: right">$16.88</td>
+            <td class="text-right">16.88</td>
+            <td class="text-right">1</td>
+            <td class="text-right">$16.88</td>
         </tr>
         <tr>
             <td>RDS Database</td>
-            <td style="text-align: right">$17.25</td>
-            <td style="text-align: right">1</td>
-            <td style="text-align: right">$17.25</td>
+            <td class="text-right">$17.25</td>
+            <td class="text-right">1</td>
+            <td class="text-right">$17.25</td>
         </tr>
         <tr>
             <td>ACM SSL Cert</td>
-            <td style="text-align: right">$0</td>
-            <td style="text-align: right">1</td>
-            <td style="text-align: right">$0</td>
+            <td class="text-right">$0</td>
+            <td class="text-right">1</td>
+            <td class="text-right">$0</td>
         </tr>
         <tr>
-            <td style="text-align: right" colspan="4">$85.88</td>
+            <td class="text-right" colspan="4">$85.88</td>
         </tr>  
      </tbody>
  </table>
@@ -113,32 +113,32 @@ Assuming our website receives 20 million visits per month, our costs on Lambda w
      <thead>
          <tr>
              <th>Service</th>
-             <th style="text-align: right">Cost per instance / request</th>
-             <th style="text-align: right">Num instances / requests</th>
-             <th style="text-align: right">Total</th> 
+             <th class="text-right">Cost per instance / request</th>
+             <th class="text-right">Num instances / requests</th>
+             <th class="text-right">Total</th> 
          </tr>
      </thead>
      <tbody>
         <tr>
             <td>Lambda</td>
-            <td style="text-align: right">$0.0000002</td>
-            <td style="text-align: right">19,000,000</td>
-            <td style="text-align: right">$3.80</td>
+            <td class="text-right">$0.0000002</td>
+            <td class="text-right">19,000,000</td>
+            <td class="text-right">$3.80</td>
         </tr>
         <tr>
             <td>RDS Database</td>
-            <td style="text-align: right">$17.25</td>
-            <td style="text-align: right">1</td>
-            <td style="text-align: right">$17.25</td>
+            <td class="text-right">$17.25</td>
+            <td class="text-right">1</td>
+            <td class="text-right">$17.25</td>
         </tr>
         <tr>
             <td>ACM SSL Cert</td>
-            <td style="text-align: right">$0</td>
-            <td style="text-align: right">1</td>
-            <td style="text-align: right">$0</td>
+            <td class="text-right">$0</td>
+            <td class="text-right">1</td>
+            <td class="text-right">$0</td>
         </tr>
         <tr>
-            <td style="text-align: right" colspan="4">$21.05</td>
+            <td class="text-right" colspan="4">$21.05</td>
         </tr>  
      </tbody>
  </table>
