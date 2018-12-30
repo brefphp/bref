@@ -29,4 +29,19 @@ Resources:
 
 Some extensions are bundled by default in the PHP layer. Bref intends to include the most common extensions by default. If a major PHP extension is missing please send a pull request to add it.
 
-Any other extension can be added through extra layers by putting them in the `/opt/php/extensions` directory and loading them via `php.ini`.
+Any other extension can be added through extra AWS layers by putting them in the `/opt/php/extensions` directory and loading them via `php.ini`.
+
+### Installed extensions
+
+Here is the list of extensions installed but disabled by default:
+
+- Intl: `intl`
+- MongoDB: `mongodb`
+- Redis: `redis`
+
+You can enable these extensions by loading them in php.ini, for example:
+
+```ini
+extension=intl
+extension=redis
+```

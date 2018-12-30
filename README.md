@@ -66,23 +66,6 @@ Here is the list of versions available:
 
 - 7.2.5
 
-You can also define `php.ini` configuration flags ([full list here](http://php.net/manual/en/ini.list.php)) and activate extensions:
-
-```yaml
-php:
-    configuration:
-        memory_limit: 256M
-    extensions:
-        - redis
-```
-
-Here is the list of extensions available:
-
-- Intl: `intl` (be aware that this extension [adds about 25mb to your lambda](https://docs.aws.amazon.com/lambda/latest/dg/limits.html))
-- MongoDB: `mongodb`
-- New Relic: `newrelic`
-- Redis: `redis`
-
 ## Deletion
 
 You can delete your lambda on the hosting provider by running:
