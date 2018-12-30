@@ -94,53 +94,6 @@ See [this StackOverflow question](https://stackoverflow.com/questions/46857335/h
 
 If you use a custom domain for your application this prefix will disappear. If you don't, you need to write routes with this prefix in your framework.
 
-## CLI applications
-
-Bref provides an abstraction to easily run CLI commands in lambdas. You can define a CLI application using [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Silly](https://github.com/mnapoli/silly) (which extends and simplifies Symfony Console). Once the lambda is deployed you can then "invoke" the CLI commands *in the lambda* using `bref cli -- <command>`.
-
-```php
-<?php
-
-require __DIR__.'/vendor/autoload.php';
-
-$silly = new \Silly\Application;
-$silly->command('hello [name]', function (string $name = 'World!', $output) {
-    $output->writeln('Hello ' . $name);
-});
-
-$app = new \Bref\Application;
-$app->cliHandler($silly);
-$app->run();
-```
-
-To run CLI commands in the lambda, run `bref cli` on your computer:
-
-```shell
-$ vendor/bin/bref cli
-[…]
-# Runs the CLI application without arguments and displays the help
-
-$ vendor/bin/bref cli -- hello
-Hello World!
-
-$ vendor/bin/bref cli -- hello Bob
-Hello Bob
-```
-
-As you can see, all arguments and options after `bref cli --` are forwarded to the CLI command running on lambda.
-
-To test your CLI commands locally (on your machine), run:
-
-```shell
-php bref.php <commands and options>
-```
-
-Bref automatically registers a special `bref:invoke` command to your CLI application. That command lets you invoke on your machine a `simpleHandler` you may have defined:
-
-```shell
-php bref.php bref:invoke
-```
-
 ## Logging
 
 ### Writing logs
