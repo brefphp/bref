@@ -29,65 +29,6 @@ Use case examples:
 
 Interested about performances? [Head over here](https://github.com/mnapoli/bref-benchmark) for a benchmark.
 
-## Creating a lambda
-
-To create your first lambda application create an empty directory and run the following commands:
-
-```shell
-composer require mnapoli/bref
-vendor/bin/bref init
-```
-
-The `init` command will create the required files, including a `bref.php` file which will be your application:
-
-```php
-<?php
-
-require __DIR__.'/vendor/autoload.php';
-
-lambda(function (array $event) {
-    return [
-        'hello' => $event['name'] ?? 'world',
-    ];
-});
-```
-
-For now our lambda is a simple lambda that can be invoked manually. Creating HTTP applications is covered below in the documentation.
-
-Let's deploy our application:
-
-```shell
-vendor/bin/bref deploy
-```
-
-On the first deploy Bref will create the lambda and every other resource needed. If you redeploy later your existing lambda will be updated.
-
-## Invocation
-
-You can trigger your lambda manually using the CLI:
-
-```shell
-vendor/bin/bref invoke
-# With event data:
-vendor/bin/bref invoke --event '{"name":"folks"}'
-```
-
-Or using the AWS PHP SDK from another PHP application:
-
-```php
-$lambda = new \Aws\Lambda\LambdaClient([
-    'version' => 'latest',
-    'region' => 'us-east-1',
-]);
-$result = $lambda->invoke([
-    'FunctionName' => '<function-name>',
-    'InvocationType' => 'RequestResponse',
-    'LogType' => 'None',
-    'Payload' => json_encode([ /* your event data */ ]),
-]);
-$payload = json_decode($result->get('Payload')->getContents(), true);
-```
-
 ### Why is there a `/dev` prefix in the URLs on AWS Lambda
 
 See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for a more detailed answer. The short version is AWS requires a prefix containing the stage name (dev/prod/…).

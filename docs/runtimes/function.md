@@ -61,3 +61,41 @@ Resources:
 ```
 
 The runtime to use is `php`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
+
+## Invocation
+
+A PHP function must be invoked via the AWS Lambda API. If you instead want to write a classic HTTP application read the [HTTP guide](http.md).
+
+### CLI
+
+A PHP function can be triggered manually from the CLI using the `aws` command-line tool:
+
+```bash
+aws lambda invoke \
+    --invocation-type RequestResponse \
+    --log-type Tail \
+    --function-name <function-name> \
+    --payload '{"hello":"world"}'
+```
+
+The `--payload` option contains the event data to pass to the function. Run `aws lambda invoke help` to learn more about the `invoke` command.
+
+### From PHP applications
+
+A PHP function can be triggered from another PHP application using the AWS PHP SDK:
+
+```php
+$lambda = new \Aws\Lambda\LambdaClient([
+    'version' => 'latest',
+    'region' => <region>,
+]);
+
+$result = $lambda->invoke([
+    'FunctionName' => '<function-name>',
+    'InvocationType' => 'RequestResponse',
+    'LogType' => 'None',
+    'Payload' => json_encode(/* event data */),
+]);
+
+$result = json_decode($result->get('Payload')->getContents(), true);
+```
