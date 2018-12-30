@@ -48,4 +48,8 @@ You can read more about this in the next sections.
 
 ## Layer versions
 
-TODO: display the latest version for each layer.
+TODO: keep up to date the latest version for each layer. Maybe generate an image via a Lambda?
+
+- `php-72`: 9
+- `php-72-fpm`: 4
+- `console`: 1
