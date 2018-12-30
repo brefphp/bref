@@ -53,19 +53,6 @@ If you want to tail the logs:
 vendor/bin/bref logs --tail
 ```
 
-### PHP configuration
-
-If you need a specific PHP version, you can define it in a `.bref.yml` file:
-
-```yaml
-php:
-    version: 7.2.5
-``` 
-
-Here is the list of versions available:
-
-- 7.2.5
-
 ## Deletion
 
 You can delete your lambda on the hosting provider by running:
