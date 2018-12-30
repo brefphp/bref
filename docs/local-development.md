@@ -2,7 +2,7 @@
 
 To run your applications locally with an architecture close to production you can use the `sam` command line tool from AWS.
 
-## Simple functions
+## PHP functions
 
 The `sam local invoke` command invokes your function in a Docker container. You can provide an event if your function expects one.
 
