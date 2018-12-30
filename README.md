@@ -29,12 +29,6 @@ Use case examples:
 
 Interested about performances? [Head over here](https://github.com/mnapoli/bref-benchmark) for a benchmark.
 
-### Why is there a `/dev` prefix in the URLs on AWS Lambda
-
-See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for a more detailed answer. The short version is AWS requires a prefix containing the stage name (dev/prod/…).
-
-If you use a custom domain for your application this prefix will disappear. If you don't, you need to write routes with this prefix in your framework.
-
 ## Logging
 
 ### Writing logs
