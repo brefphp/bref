@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Test;
 
@@ -14,7 +13,7 @@ class CliTest extends TestCase
      */
     public function test deploying requires mandatory files to exist()
     {
-        $process = new Process(__DIR__ . '/../bref deploy', __DIR__ . '/Fixture/EmptyDirectory');
+        $process = new Process([__DIR__ . '/../bref', 'deploy'], __DIR__ . '/Fixture/EmptyDirectory');
         $process->mustRun();
     }
 }

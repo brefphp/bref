@@ -1,7 +1,8 @@
 /vendor
 /.idea
+/tests/Bridge/Symfony/var
 /tests/Bridge/Symfony/cache
 /tests/Bridge/Symfony/logs
 /.bref/
-/.php_cs.cache
+/.phpcs-cache
 /composer.lock

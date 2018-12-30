@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Test\Bridge\Psr7;
 
@@ -24,14 +23,13 @@ class RequestFactoryTest extends TestCase
                 'path' => '/test',
                 'requestTimeEpoch' => $currentTimestamp,
             ],
-            'headers' => [
-            ],
+            'headers' => [],
         ]);
 
         self::assertEquals('GET', $request->getMethod());
         self::assertEquals(['foo' => 'bar', 'bim' => 'baz'], $request->getQueryParams());
         self::assertEquals('1.1', $request->getProtocolVersion());
-        self::assertEquals('/test', $request->getUri()->__toString());
+        self::assertEquals('/test?foo=bar&bim=baz', $request->getUri()->__toString());
         self::assertEquals('', $request->getBody()->getContents());
         self::assertEquals([], $request->getAttributes());
         $serverParams = $request->getServerParams();
@@ -43,9 +41,9 @@ class RequestFactoryTest extends TestCase
             'REQUEST_METHOD' => 'GET',
             'REQUEST_TIME' => $currentTimestamp,
             'QUERY_STRING' => 'foo=bar&bim=baz',
-            'REQUEST_URI' => '/test',
+            'REQUEST_URI' => '/test?foo=bar&bim=baz',
         ], $serverParams);
-        self::assertEquals('/test', $request->getRequestTarget());
+        self::assertEquals('/test?foo=bar&bim=baz', $request->getRequestTarget());
         self::assertEquals([], $request->getHeaders());
     }
 
@@ -108,7 +106,7 @@ class RequestFactoryTest extends TestCase
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
             ],
             'body' =>
-"--testBoundary\r
+            "--testBoundary\r
 Content-Disposition: form-data; name=\"foo\"\r
 \r
 bar\r
@@ -134,7 +132,7 @@ baz\r
         self::assertEquals([
             'tz' => 'Europe/Paris',
             'four' => 'two + 2',
-            'theme' => 'light'
+            'theme' => 'light',
         ], $request->getCookieParams());
     }
 
@@ -151,10 +149,8 @@ baz\r
         self::assertEquals([
             'vars' => [
                 'val1' => 'foo',
-                'val2' => [
-                    'bar',
-                ]
-            ]
+                'val2' => ['bar'],
+            ],
         ], $request->getQueryParams());
     }
 
@@ -166,7 +162,7 @@ baz\r
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
             ],
             'body' =>
-"--testBoundary\r
+            "--testBoundary\r
 Content-Disposition: form-data; name=\"delete[categories][]\"\r
 \r
 123\r
@@ -180,10 +176,10 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
         self::assertEquals('POST', $request->getMethod());
         self::assertEquals(
             [
-            'delete' => [
-                'categories' => [
-                    '123',
-                    '456',
+                'delete' => [
+                    'categories' => [
+                        '123',
+                        '456',
                     ],
                 ],
             ],
@@ -199,7 +195,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
             ],
             'body' =>
-"--testBoundary\r
+            "--testBoundary\r
 Content-Disposition: form-data; name=\"foo\"; filename=\"lorem.txt\"\r
 Content-Type: text/plain\r
 \r

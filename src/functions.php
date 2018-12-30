@@ -1,5 +1,6 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
+
+use Bref\Application;
 
 /**
  * Shortcut for creating and running a simple lambda application.
@@ -8,9 +9,9 @@ declare(strict_types=1);
  *
  * @see \Bref\Application::simpleHandler()
  */
-function λ(callable $handler)
+function λ(callable $handler): void
 {
-    $app = new \Bref\Application;
+    $app = new Application;
     $app->simpleHandler($handler);
     $app->run();
 }

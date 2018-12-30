@@ -102,7 +102,7 @@ The simplest workaround is to disable Twig caching, which allows the config cach
 
 For example, `config/packages/twig.yaml`
 
-```
+```yaml
 twig:
     ...
     cache: false # this can also be set to '/tmp/twig/' if disabling the Twig cache isn't an option for you

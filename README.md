@@ -3,6 +3,7 @@ Bref helps you build serverless PHP applications.
 [![Build Status](https://travis-ci.com/mnapoli/bref.svg?branch=master)](https://travis-ci.com/mnapoli/bref)
 [![Latest Version](https://img.shields.io/github/release/mnapoli/bref.svg?style=flat-square)](https://packagist.org/packages/mnapoli/bref)
 [![PrettyCI Status](https://hc4rcprbe1.execute-api.eu-west-1.amazonaws.com/dev?name=mnapoli/bref)](https://prettyci.com/)
+[![Monthly Downloads](https://img.shields.io/packagist/dm/mnapoli/bref.svg)](https://packagist.org/packages/mnapoli/bref/stats)
 
 Bref brings support for PHP on serverless providers (AWS Lambda only for now) but also goes beyond that: it provides a deployment process tailored for PHP as well as the ability to create:
 
@@ -87,6 +88,8 @@ You can trigger your lambda manually using the CLI:
 
 ```shell
 vendor/bin/bref invoke
+# With event data:
+vendor/bin/bref invoke --event '{"name":"folks"}'
 ```
 
 Or using the AWS PHP SDK from another PHP application:
