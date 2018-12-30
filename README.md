@@ -59,32 +59,6 @@ If you want to tail the logs:
 vendor/bin/bref logs --tail
 ```
 
-## Deployment
-
-To deploy the application, run:
-
-```shell
-vendor/bin/bref deploy
-```
-
-A stage can be provided to deploy to multiple stages, for example staging, production, etc:
-
-```shell
-vendor/bin/bref deploy --stage=prod
-```
-
-### Build hooks
-
-When deploying Composer dependencies will be installed and optimized for production (`composer install --no-dev --no-scripts --classmap-authoritative`).
-
-You can execute additional scripts by using a *build hook*. Those can be defined in a `.bref.yml` file:
-
-```yaml
-hooks:
-    build:
-        - 'npm install'
-```
-
 ### PHP configuration
 
 If you need a specific PHP version, you can define it in a `.bref.yml` file:
@@ -122,10 +96,6 @@ You can delete your lambda on the hosting provider by running:
 ```shell
 vendor/bin/bref remove
 ```
-
-## Contributing
-
-There are a lot of detailed `TODO` notes in the codebase. Feel free to work on these.
 
 ## Projects using Bref
 
