@@ -278,4 +278,40 @@ RAW
 
         self::assertSame('www.example.com', $serverParams['HTTP_HOST']);
     }
+
+    public function test REMOTE_ADDR is set()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'POST',
+            'requestContext' => [
+                'identity' => [
+                    'sourceIp' => '1.1.1.1',
+                ],
+            ],
+            'headers' => [],
+        ]);
+
+        $serverParams = $request->getServerParams();
+
+        self::assertSame('1.1.1.1', $serverParams['REMOTE_ADDR']);
+    }
+
+    public function test that REMOTE_ADDR is set to the last x forwarded for header()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'POST',
+            'requestContext' => [
+                'identity' => [
+                    'sourceIp' => '1.1.1.1',
+                ],
+            ],
+            'headers' => [
+                'X-Forwarded-For' => '1.1.1.1, 2.2.2.2,3.3.3.3',
+            ],
+        ]);
+
+        $serverParams = $request->getServerParams();
+
+        self::assertSame('3.3.3.3', $serverParams['REMOTE_ADDR']);
+    }
 }

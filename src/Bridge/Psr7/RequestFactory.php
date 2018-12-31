@@ -95,6 +95,23 @@ class RequestFactory
             'REQUEST_URI' => $uri,
         ];
 
+        if (isset($event['requestContext'])
+            && array_key_exists('identity', $event['requestContext'])
+            && array_key_exists('sourceIp', $event['requestContext']['identity'])) {
+            $server['REMOTE_ADDR'] = $event['requestContext']['identity']['sourceIp'];
+        }
+
+        if (isset($headers['X-Forwarded-For'])) {
+            $ips = [$headers['X-Forwarded-For']];
+            if (strpos($ips[0], ',') !== false) {
+                $ips = preg_split('/,\s?/', $ips[0]);
+                $ip = $ips[count($ips) - 1];
+                if (\filter_var($ip, FILTER_VALIDATE_IP)) {
+                    $server['REMOTE_ADDR'] = $ip;
+                }
+            }
+        }
+
         if (isset($headers['Host'])) {
             $server['HTTP_HOST'] = $headers['Host'];
         }
