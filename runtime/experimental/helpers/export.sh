@@ -1,3 +1,3 @@
 #!/bin/bash
-cp /tmp/php.zip /export/php-fpm-runtime.zip
-cp /tmp/php-cli.zip /export/php-default-runtime.zip
+cp /tmp/php-$(php -r 'echo phpversion();').zip /export/php-fpm-$(php -r 'echo phpversion();').zip
+cp /tmp/php-cli-$(php -r 'echo phpversion();').zip /export/php-default-$(php -r 'echo phpversion();').zip
