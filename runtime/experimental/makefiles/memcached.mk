@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := make_memcached
 
-url_memcached = https://launchpad.net/libmemcached/$(shell echo $(VERSION_MEMCACHED)|cut -d. -f1,2)/${VERSION_MEMCACHED}/+download/libmemcached-${VERSION_MEMCACHED}.tar.gz
+url_memcached = https://launchpad.net/libmemcached/$(shell echo ${VERSION_MEMCACHED}|cut -d. -f1,2)/${VERSION_MEMCACHED}/+download/libmemcached-${VERSION_MEMCACHED}.tar.gz
 upper_memcached = $(shell echo memcached| awk '{print toupper($0)}')
 build_dir_memcached = ${DEPS}/memcached
 
