@@ -102,6 +102,12 @@ sam deploy ...
 
 That will also mean creating AWS access keys so that the continuous integration is allowed to deploy.
 
+## Deletion
+
+Since CloudFormation is used to deploy the application as a "stack", deleting the application can be done by deleting the stack.
+
+Remember to also delete the S3 bucket that was created to hold the application's code (it is not inside the CloudFormation stack).
+
 ## Learn more
 
 Read more about `sam deploy` in [the official documentation](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/deploying_serverless_applications.rst).

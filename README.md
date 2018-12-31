@@ -53,14 +53,6 @@ If you want to tail the logs:
 vendor/bin/bref logs --tail
 ```
 
-## Deletion
-
-You can delete your lambda on the hosting provider by running:
-
-```shell
-vendor/bin/bref remove
-```
-
 ## Projects using Bref
 
 Here are projects using Bref, feel free to add yours in a pull request:
