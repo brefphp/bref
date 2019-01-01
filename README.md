@@ -5,6 +5,14 @@ Bref helps you build serverless PHP applications.
 [![PrettyCI Status](https://hc4rcprbe1.execute-api.eu-west-1.amazonaws.com/dev?name=mnapoli/bref)](https://prettyci.com/)
 [![Monthly Downloads](https://img.shields.io/packagist/dm/mnapoli/bref.svg)](https://packagist.org/packages/mnapoli/bref/stats)
 
+---
+
+**The next version of Bref (v0.3) is in the works and will change almost everything!**
+
+**Check out [what's new in #113](https://github.com/mnapoli/bref/pull/113)**: official support of PHP in AWS Lambda, much better performances, PHP-FPM support, deployments and local development using Docker and AWS SAM, etc.
+
+---
+
 Bref brings support for PHP on serverless providers (AWS Lambda only for now) but also goes beyond that: it provides a deployment process tailored for PHP as well as the ability to create:
 
 - classic lambdas (a function taking an "event" and returning a result)
