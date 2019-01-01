@@ -29,30 +29,6 @@ Use case examples:
 
 Interested about performances? [Head over here](https://github.com/mnapoli/bref-benchmark) for a benchmark.
 
-## Logging
-
-### Writing logs
-
-The filesystem on lambdas is read-only (except for the `/tmp` folder). You should not try to write application logs to disk.
-
-The easiest solution is to push logs to AWS Cloudwatch (Amazon's solution for logs). Bref (and AWS Lambda) will send to Cloudwatch anything you write on `stdout` (using `echo` for example) or `stderr`. If you are using Monolog this means you will need to configure Monolog to write to the output (contribution welcome: clarify with an example).
-
-If you have more specific needs you can of course push logs to anything, for example Logstash, Papertrail, Loggly, etc.
-
-### Reading logs
-
-You can read the AWS Cloudwatch logs in the AWS console or via the CLI:
-
-```shell
-vendor/bin/bref logs
-```
-
-If you want to tail the logs:
-
-```shell
-vendor/bin/bref logs --tail
-```
-
 ## Projects using Bref
 
 Here are projects using Bref, feel free to add yours in a pull request:

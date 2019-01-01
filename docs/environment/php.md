@@ -19,7 +19,7 @@ Resources:
     MyFunction:
         Type: AWS::Serverless::Function
         Properties:
-            [...]
+            # ...
             Environment:
                 Variables:
                     PHP_INI_SCAN_DIR: '/var/task/php'
