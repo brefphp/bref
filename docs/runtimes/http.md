@@ -64,7 +64,7 @@ Resources:
 
 To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
 
-## The `/Prod/` prefix
+## The /Prod/ prefix
 
 API Gateway works with "stages": a stage is an environment (dev, test, prod, etc.).
 

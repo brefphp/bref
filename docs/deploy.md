@@ -49,9 +49,17 @@ The content of this bucket will be managed by AWS SAM. Do not use it in your app
 
 ### Deployment
 
+Before deploying make sure your code is ready to be deployed. For example remove any development files from the project and install Composer dependencies optimized for production:
+
+```bash
+composer install --optimize-autoloader --no-dev
+```
+
+> If you run this command in your local installation this might break your development setup (it will remove dev dependencies). Ideally deployment should be done in a separate directory, from scratch.
+
 **Step1**, upload the code and generate the stack configuration:
 
-```sh
+```bash
 sam package \
     --output-template-file .stack.yaml \
     --s3-bucket <bucket-name>
@@ -63,7 +71,7 @@ The `.stack.yaml` file describes the stack and references the code that was just
 
 **Step2**, deploy the generated stack:
 
-```sh
+```bash
 sam deploy \
     --template-file .stack.yaml \
     --capabilities CAPABILITY_IAM \
@@ -86,7 +94,7 @@ This works fine when testing, but for a production setup it is better to automat
 
 If you are using Gitlab CI, Travis CI, CircleCI or any tool of the sort you will want to automate the deployment to something like this:
 
-```sh
+```bash
 # Install Composer dependencies optimized for production
 composer install --optimize-autoloader --no-dev
 
