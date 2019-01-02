@@ -1,12 +1,12 @@
 ## Experimental Runtime Build System
 This system uses a chain of Docker Containers to build PHP, associated extensions, and any other executables. To achieve this, we use four seperate containers:
 
-1. *compiler* - This container is the base of our system and it is here that we install and configure all the required build tools. [See compiler.Dockerfile]
-2. *libraries* - This is the container, built from *compiler*, in which we compile and install all the non-php libraries that we require in order to build PHP. [See libs.Dockerfile]
-3. *php* -- This is the container, built from *libraries*, in which we compile PHP and any extensions. [See php.Dockerfile]
-4. *export* -- This is the container, built from *php*, in which we package our build and export it from the container to the host system. [See export.Dockerfile]
+1. **compiler** - This container is the base of our system and it is here that we install and configure all the required build tools. [See [compiler.Dockerfile](compiler.Dockerfile)]
+2. **libraries** - This is the container, built from *compiler*, in which we compile and install all the non-php libraries that we require in order to build PHP. [See [libs.Dockerfile](libs.Dockerfile)]
+3. **php** -- This is the container, built from *libraries*, in which we compile PHP and any extensions. [See [php.Dockerfile](php.Dockerfile)]
+4. **export** -- This is the container, built from *php*, in which we package our build and export it from the container to the host system. [See [export.Dockerfile](export.Dockerfile)]
 
-We currently support building either PHP 7.2 or PHP 7.3.
+We currently support building either **PHP 7.2** or **PHP 7.3**.
 
 ## Usage
 From this directory, simply type:
