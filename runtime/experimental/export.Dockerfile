@@ -24,9 +24,10 @@ RUN mkdir -p /opt/bin
 RUN ln -s /opt/bref/bin/* /opt/bin
 RUN ln -s /opt/bref/sbin/* /opt/bin
 
+WORKDIR /opt
 RUN zip -y -o -9 -r /tmp/php-$(php -r 'echo phpversion();').zip . -x "*php-cgi"; zip -ur /tmp/php-$(php -r 'echo phpversion();').zip /versions.json
-RUN cp /tmp/php-$(php -r 'echo phpversion();').zip /tmp/php-cli-$(php -r 'echo phpversion();').zip; zip -d /tmp/php-cli-$(php -r 'echo phpversion();').zip sbin/php-fpm
-RUN cp /tmp/php-$(php -r 'echo phpversion();').zip /tmp/php-fpm-$(php -r 'echo phpversion();').zip; zip -d /tmp/php-fpm-$(php -r 'echo phpversion();').zip bin/php
+RUN cp /tmp/php-$(php -r 'echo phpversion();').zip /tmp/php-cli-$(php -r 'echo phpversion();').zip; zip -d /tmp/php-cli-$(php -r 'echo phpversion();').zip bref/sbin/php-fpm
+RUN cp /tmp/php-$(php -r 'echo phpversion();').zip /tmp/php-fpm-$(php -r 'echo phpversion();').zip; zip -d /tmp/php-fpm-$(php -r 'echo phpversion();').zip bref/bin/php
 
 COPY helpers/export.sh /usr/local/bin/export.sh
 
