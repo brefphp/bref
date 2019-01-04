@@ -17,6 +17,7 @@ runtime-loop:
 	cd runtime/loop && sh publish.sh
 
 website-preview:
+	# See http://couscous.io/
 	couscous preview
 
 demo:
