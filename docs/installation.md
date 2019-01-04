@@ -8,6 +8,8 @@ To set up Bref correctly please complete all the sections below.
 
 You will need an AWS account. To create one, go on [aws.amazon.com](https://aws.amazon.com/) and click *Sign up*.
 
+AWS has a generous free tier that will usually allow you to deploy your first test applications for free.
+
 ## AWS tooling
 
 Bref relies on AWS SAM and AWS access keys to interact with AWS.
