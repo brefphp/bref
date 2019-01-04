@@ -10,3 +10,4 @@
 /.couscous/
 /website/node_modules/
 /website/output.css
+/.netlify/
