@@ -6,15 +6,6 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:400,600,700" rel="stylesheet">
     <link href="/output.css" rel="stylesheet">
     <style>
-        .lg\:w-400 {
-            width: 400px;
-        }
-        .lg\:ml-400 {
-            margin-left: 400px;
-        }
-        .lg\:max-w-700 {
-            max-width: 700px;
-        }
         article p {
             margin-top: 16px;
             line-height: 24px;
@@ -84,9 +75,17 @@
     </style>
 </head>
 <body class="font-sans">
-    <div class="flex h-full">
-        <div class="fixed flex-no-shrink lg:w-400 lg:flex lg:flex-col z-30 h-screen w-full hidden text-grey-darkest bg-grey-lightest px-8 py-16 overflow-auto">
-            <nav>
+    <div class="block lg:hidden flex bg-white border-b border-grey-light fixed pin-t pin-x h-12 items-center">
+        <div class="w-full max-w-screen-xl relative mx-auto px-6">
+            <button class="flex items-center px-3 py-2 border rounded text-grey-dark border-grey-light" onclick="toggleMenu()">
+                <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex h-full mt-12 lg:mt-0">
+        <div id="menu" class="fixed flex-no-shrink lg:w-64 xl:w-96 lg:flex lg:flex-col z-30 h-screen w-full hidden text-grey-darkest bg-grey-lightest px-6 lg:px-8 py-8 lg:py-16 overflow-auto">
+            <nav class="mt-2">
                 <h2 class="mb-8">
                     <a class="text-grey hover:text-grey-darker" href="/" title="Bref home page">Bref</a>
                     <a class="float-right text-grey hover:text-grey-darker" title="Bref on GitHub" href="https://github.com/mnapoli/bref">
@@ -127,12 +126,12 @@
                 </ul>
             </nav>
         </div>
-        <div class="w-full pt-72 lg:ml-400 overflow-x-hidden px-16 py-16">
-            <div class="lg:max-w-700">
+        <div class="w-full lg:ml-64 xl:ml-96 overflow-x-hidden px-4 md:px-6 lg:px-16 py-8 lg:py-16">
+            <div class="lg:max-w-700px">
                 {% block content %}
                     <article>
                         <a href="https://github.com/mnapoli/bref/blob/master/{{ currentFile }}" title="Improve the documentation by editing this file online"
-                           class="float-right text-sm hover:bg-grey-lightest text-grey-darkest py-2 px-4 border border-grey-light rounded">
+                           class="hidden md:inline-block float-right text-sm hover:bg-grey-lightest text-grey-darkest py-2 px-4 border border-grey-light rounded">
                             Edit <span class="hidden lg:inline">on GitHub</span>
                         </a>
 
@@ -145,6 +144,11 @@
         </div>
     </div>
 
+    <script>
+        function toggleMenu() {
+            document.getElementById('menu').classList.toggle('hidden');
+        }
+    </script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/github-gist.min.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/yaml.min.js"></script>
