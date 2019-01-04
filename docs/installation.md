@@ -1,7 +1,5 @@
 # Installation
 
-Bref deploys PHP applications to [AWS Lambda](https://aws.amazon.com/lambda/).
-
 To set up Bref correctly please complete all the sections below.
 
 ## AWS account

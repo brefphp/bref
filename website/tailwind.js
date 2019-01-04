@@ -991,7 +991,6 @@ module.exports = {
         // options
       }
     ),
-    require('tailwindcss-tables')(),
   ],
 
 
