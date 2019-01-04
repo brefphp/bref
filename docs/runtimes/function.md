@@ -22,7 +22,7 @@ exports.myHandler = async function (event, context) {
 
 ## The function
 
-A function can be defined by passing a *callable* to the `lambda()` PHP function. The callable can be an anonymous function or [any kind of callable supported by PHP](http://php.net/manual/en/language.types.callable.php).
+A function can be defined by calling Bref's `lambda()` function and passing it a *callable*. The callable can be an anonymous function or [any kind of callable supported by PHP](http://php.net/manual/en/language.types.callable.php).
 
 ```php
 <?php
