@@ -21,7 +21,7 @@ You can invoke it with or without event data:
 
 ```sh
 $ sam local invoke --no-event
-Hello world!
+Hello world
 
 $ echo '{"name": "John" }' | sam local invoke
 Hello John
