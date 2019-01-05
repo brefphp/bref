@@ -20,6 +20,11 @@ website-preview:
 	# See http://couscous.io/
 	couscous preview
 
+website:
+	# See http://couscous.io/
+	couscous generate
+	netlify deploy --prod --dir=.couscous/generated
+
 demo:
 	rm -rf .bref .couscous
 	rm -f runtime/default/php.zip
