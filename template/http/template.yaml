@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: ''
+
+Resources:
+    MyFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: 'my-function'
+            Description: ''
+            CodeUri: .
+            Handler: index.php
+            Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+            Runtime: provided
+            Layers:
+                - 'arn:aws:lambda:us-east-2:416566615250:layer:php-72-fpm:3'
+            Events:
+                # The function will match all HTTP URLs
+                HttpRoot:
+                    Type: Api
+                    Properties:
+                        Path: /
+                        Method: ANY
+                HttpSubPaths:
+                    Type: Api
+                    Properties:
+                        Path: /{proxy+}
+                        Method: ANY
+
+# Outputs show up in the CloudFormation dashboard
+Outputs:
+    DemoHttpApi:
+        Description: 'URL of our function in the *Prod* environment'
+        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'

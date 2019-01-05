@@ -1,6 +1,7 @@
 parameters:
   level: 5
   paths:
+    - bref
     - src
     - tests
   excludes_analyse:

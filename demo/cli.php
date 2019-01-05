@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-require __DIR__.'/../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
 ini_set('display_errors', '1');
 
