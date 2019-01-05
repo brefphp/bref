@@ -15,10 +15,21 @@ This page is an introduction to the runtimes. The next sections (PHP functions, 
 The name of the runtimes follow this pattern:
 
 ```
-arn:aws:lambda:<region>:416566615250:layer:<layer-name>:<layer-version>
+arn:aws:lambda:<region>:<account-id>:layer:<layer-name>:<layer-version>
 ```
 
-Bref offers the following runtimes (`<layer-name>`):
+### Supported regions (`<region>`)
+
+- `us-east-2`
+- other regions will be supported soon
+
+Remember to use the `<region>` that matches your application, else Lambda will not find the layer.
+
+### Account
+
+Bref Account id is: `416566615250`
+
+### Runtimes (`<layer-name>`)
 
 - `php-72`: contains the PHP binary, for [non-HTTP applications](/docs/runtimes/function.md)
 - `php-72-fpm`: contains PHP-FPM for [HTTP applications](/docs/runtimes/http.md)
@@ -27,12 +38,18 @@ Bref offers the following runtimes (`<layer-name>`):
 
 > `php-72` means PHP 7.2.*. Other versions like PHP 7.3 will be added soon.
 
-Remember to use the `<region>` that matches your application, else Lambda will not find the layer.
+### Layer versions
 
-Supported regions:
+TODO: keep up to date the latest version for each layer. Maybe generate an image via a Lambda?
 
-- `us-east-2`
-- other regions will be supported soon
+- `php-72`: 9
+- `php-72-fpm`: 4
+- `console`: 1
+
+### Examples
+
+- `arn:aws:lambda:us-east-2:416566615250:layer:php-72:9`
+- `arn:aws:lambda:us-east-2:416566615250:layer:php-72-fpm:4`
 
 ## Usage
 
@@ -49,11 +66,3 @@ Resources:
 ```
 
 You can read more about this in the next sections.
-
-## Layer versions
-
-TODO: keep up to date the latest version for each layer. Maybe generate an image via a Lambda?
-
-- `php-72`: 9
-- `php-72-fpm`: 4
-- `console`: 1
