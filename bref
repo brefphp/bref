@@ -24,7 +24,7 @@ $app->command('init', function (SymfonyStyle $io) {
     if (! $exeFinder->find('sam')) {
         $io->error(
             'The `sam` command is not installed.' . PHP_EOL .
-            'Please follow the instructions on https://github.com/mnapoli/bref#setup'
+            'Please follow the instructions at https://bref.sh/docs/installation.html'
         );
 
         return 1;
@@ -37,7 +37,7 @@ $app->command('init', function (SymfonyStyle $io) {
         if (($awsProcess1->run() !== 0) || ($awsProcess2->run() !== 0)) {
             $io->error([
                 'AWS credentials not found.',
-                'Please follow the instructions on https://github.com/mnapoli/bref#setup',
+                'Please follow the instructions at https://bref.sh/docs/installation.html',
             ]);
 
             return 1;
