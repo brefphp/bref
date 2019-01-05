@@ -18,7 +18,6 @@ Everything is deployed through a **[CloudFormation](https://aws.amazon.com/cloud
 - lambda functions
 - S3 buckets
 - databases
-- etc.
 
 Stacks make it easy to group those resources together: the whole stack is updated at once on deployments, and if you delete the stack all the resources inside are deleted together too. Clean and simple.
 
@@ -48,7 +47,7 @@ That means you must **create a S3 bucket** to host your application code:
 aws s3 mb s3://<bucket-name>
 ```
 
-The content of this bucket will be managed by AWS SAM. Do not use it in your application to store things like assets, uploaded files, etc.
+The content of this bucket will be managed by AWS SAM. Do not use it in your application to store things like assets or uploaded files.
 
 ### Deployment
 
@@ -102,7 +101,7 @@ If you are using Gitlab CI, Travis CI, CircleCI or any tool of the sort you will
 composer install --optimize-autoloader --no-dev
 
 # Perform extra tasks for your framework of choice
-# (e.g. generate the framework cache, etc.)
+# (e.g. generate the framework cache)
 # [...]
 
 # Package

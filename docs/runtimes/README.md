@@ -6,9 +6,9 @@ introduction: Bref provides runtimes to bring support for PHP on AWS Lambda.
 
 There is no built-in support for PHP on AWS Lambda. Instead we need to use 3rd party runtimes via the system of Lambda *layers*.
 
-Bref provides the runtimes (aka layers) needed to run PHP applications, whether they run via HTTP, CLI, etc.
+Bref provides the runtimes (aka layers) needed to run PHP applications, whether they run via HTTP or CLI.
 
-This page is an introduction to the runtimes. The next sections (PHP functions, HTTP applications, etc.) will show how to use them in your project.
+This page is an introduction to the runtimes. The next sections (e.g. PHP functions, HTTP applications) will show how to use them in your project.
 
 ## Bref runtimes
 

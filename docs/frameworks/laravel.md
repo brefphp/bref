@@ -62,7 +62,7 @@ APP_DEBUG=false
 # Do not forget to set your app key
 APP_KEY=
 
-# We cannot store sessions to disk: if you don't need sessions (API, etc.)
+# We cannot store sessions to disk: if you don't need sessions (e.g. API)
 # then use `array`, else store sessions in database
 SESSION_DRIVER=array
 

@@ -70,7 +70,7 @@ To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
 
 ## The /Prod/ prefix
 
-API Gateway works with "stages": a stage is an environment (dev, test, prod, etc.).
+API Gateway works with "stages": a stage is an environment (e.g. dev, test, prod).
 
 This is why applications are deployed with URLs ending with the stage name, for example `https://hc4rcprbe2.execute-api.us-east-1.amazonaws.com/Prod/`. See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for more information.
 
@@ -129,4 +129,4 @@ Use `{foo}` as a placeholder for a parameter and `{foo+}` as a parameter that ma
 
 Lambda and API Gateway are only used for executing code. Serving assets via PHP does not make sense as this would be a waste of resources and money.
 
-Deploying a website and serving assets (CSS, JavaScript, images, etc.) will be covered later in another article.
+Deploying a website and serving assets (e.g. CSS, JavaScript, images) will be covered later in another article.
