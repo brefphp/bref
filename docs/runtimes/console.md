@@ -27,6 +27,7 @@ Resources:
             FunctionName: 'my-function'
             CodeUri: .
             Handler: bin/console # or `artisan` for Laravel
+            Runtime: provided
             Layers:
                 # PHP runtime
                 - 'arn:aws:lambda:<region>:416566615250:layer:php-72:<version>'
