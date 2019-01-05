@@ -1,0 +1,3 @@
+# Redirect default Netlify subdomain to primary domain
+http://bref-website.netlify.com/* http://bref.sh/:splat 301!
+https://bref-website.netlify.com/* https://bref.sh/:splat 301!

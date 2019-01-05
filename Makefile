@@ -16,6 +16,15 @@ runtime-console:
 runtime-loop:
 	cd runtime/loop && sh publish.sh
 
+website-preview:
+	# See http://couscous.io/
+	couscous preview
+
+website:
+	# See http://couscous.io/
+	couscous generate
+	netlify deploy --prod --dir=.couscous/generated
+
 demo:
 	rm -rf .bref .couscous
 	rm -f runtime/default/php.zip
@@ -32,4 +41,4 @@ demo:
 		--stack-name bref-demo \
  		--capabilities CAPABILITY_IAM
 
-.PHONY: runtimes runtime-default runtime-fpm runtime-console runtime-loop demo
+.PHONY: runtimes runtime-default runtime-fpm runtime-console runtime-loop website-preview website demo

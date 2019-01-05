@@ -1,4 +1,8 @@
-# Deploying Symfony applications
+---
+title: Serverless Symfony applications
+currentMenu: symfony
+introduction: Learn how to deploy serverless Symfony applications on AWS Lambda using Bref.
+---
 
 Here is an example of what your `bref.php` file should contain:
 
@@ -41,7 +45,7 @@ functions:
       APP_DEBUG: '0'
 ```
 
-The secrets (database passwords, etc.) must however not be committed in this file: define them in the [AWS Console](https://console.aws.amazon.com).
+The secrets (e.g. database passwords) must however not be committed in this file: define them in the [AWS Console](https://console.aws.amazon.com).
 
 By default, `serverless.yml` contains the list of files and directories to deploy. Make sure to edit that file to include the directories used by Symfony:
 
@@ -85,7 +89,7 @@ public function getLogDir()
 }
 ```
 
-The best solution however is not to write log on disks because those are lost. You should use a remote log collector (ELK stack) or a cloud solution like Cloudtrail, Papertrail, Loggly, etc.
+The best solution however is not to write log on disks because those are lost. You should use a remote log collector (ELK stack) or a cloud solution like Cloudtrail, Papertrail, or Loggly.
 
 We need to build the production cache before deploying. That avoids having the cache regenerated on each HTTP request. Add the following [build hooks](#build-hooks) in `.bref.yml`:
 
