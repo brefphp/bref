@@ -1,4 +1,5 @@
-# Do not export those files in the Compose archive (lighter dependency)
+# Do not export those files in the Composer archive (lighter dependency)
+docs/ export-ignore
 demo/ export-ignore
 runtime/ export-ignore
 tests/ export-ignore
