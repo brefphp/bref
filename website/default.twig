@@ -1,79 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Bref</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:400,600,700" rel="stylesheet">
-    <link href="/output.css" rel="stylesheet">
-    <style>
-        article p {
-            margin-top: 16px;
-            line-height: 24px;
-        }
-        article h1 {
-            margin-bottom: 40px;
-        }
-        article h2 {
-            font-weight: 600;
-            font-size: 24px;
-            line-height: 32px;
-            margin-top: 60px;
-            margin-bottom: 30px;
-            padding-right: 64px;
-        }
-        article h3 {
-            font-size: 18px;
-            line-height: 24px;
-            font-weight: 600;
-            margin-top: 40px;
-            margin-bottom: 16px;
-        }
-        article ul, article ol {
-            margin-top: 8px;
-            margin-left: 16px;
-            padding: 0 0 0 16px;
-        }
-        article ul li, article ol li {
-            margin-top: 4px;
-            line-height: 24px;
-        }
-        article code {
-            display: inline-block;
-            font-family: var(--font-mono);
-            background-color: var(--color-grey-lightest);
-            font-size: .9rem;
-            line-height: 1.5;
-            padding: 0 .3rem;
-        }
-        article pre {
-            padding: 1em;
-            margin: 1em 0;
-            background-color: var(--color-grey-lightest);
-            word-break: normal;
-            overflow: auto;
-        }
-        article pre code {
-            display: block;
-            padding: 0;
-            font-size: .85rem;
-        }
-        article blockquote {
-            border-left-width: 4px;
-            padding: 1rem;
-            color: var(--color-blue-dark);
-            border-color: var(--color-blue);
-            background-color: var(--color-blue-lightest);
-            margin-top: 16px;
-        }
-        article blockquote a {
-            text-decoration: underline;
-            text-decoration-color: var(--color-blue-light);
-        }
-        article blockquote p:first-child {
-            margin-top: 0;
-        }
-    </style>
-</head>
+{% extends 'layout.twig' %}
+
+{% block title %}Bref documentation{% endblock %}
+
+{% block body %}
 <body class="font-sans">
     <div class="block lg:hidden flex bg-white border-b border-grey-light fixed pin-t pin-x h-12 items-center">
         <div class="w-full max-w-screen-xl relative mx-auto px-6">
@@ -154,4 +83,4 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/yaml.min.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
 </body>
-</html>
+{% endblock %}
