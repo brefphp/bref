@@ -44,6 +44,7 @@ Transform: AWS::Serverless-2016-10-31
 Resources:
     DemoFunction:
         Type: AWS::Serverless::Function
+        Runtime: provided
         Properties:
             [...]
             Layers:
