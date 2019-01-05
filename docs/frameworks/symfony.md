@@ -1,4 +1,8 @@
-# Deploying Symfony applications
+---
+title: Serverless Symfony applications
+currentMenu: symfony
+introduction: Learn how to deploy serverless Symfony applications on AWS Lambda using Bref.
+---
 
 Here is an example of what your `bref.php` file should contain:
 

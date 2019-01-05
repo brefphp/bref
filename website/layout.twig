@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    {% set metaTitle = metaTitle|default('Bref') %}
+    {% set metaDescription = metaDescription|default('Bref is a framework to run serverless PHP applications on AWS Lambda.') %}
+    <title>{{ metaTitle }}</title>
+    <meta name="description" content="{{ metaDescription|e('html_attr') }}" />
+    <meta property="og:title" content="{{ metaTitle|e('html_attr') }}" />
+    <meta property="og:description" content="{{ metaDescription|e('html_attr') }}" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Bref" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="{{ metaTitle|e('html_attr') }}" />
+    <meta name="twitter:description" content="{{ metaDescription|e('html_attr') }}" />
+    {#<meta name="twitter:site" content="@brefphp" />#}
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:400,600" rel="stylesheet">
+    <link href="/output.css" rel="stylesheet">
+</head>
+{% block body %}{% endblock %}
+</html>
