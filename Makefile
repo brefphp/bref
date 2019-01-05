@@ -41,4 +41,4 @@ demo:
 		--stack-name bref-demo \
  		--capabilities CAPABILITY_IAM
 
-.PHONY: runtimes runtime-default runtime-fpm runtime-console runtime-loop website-preview demo
+.PHONY: runtimes runtime-default runtime-fpm runtime-console runtime-loop website-preview website demo
