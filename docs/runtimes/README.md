@@ -39,6 +39,7 @@ Supported regions:
 To use a runtime you need to import the corresponding layer into your Lambda. For example using AWS SAM:
 
 ```yaml
+Transform: AWS::Serverless-2016-10-31
 Resources:
     DemoFunction:
         Type: AWS::Serverless::Function
