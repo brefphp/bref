@@ -63,4 +63,4 @@ If you are interested in real-world examples as well as cost analyses head over 
 
 ## Getting started
 
-Get started with Bref by reading the [installation documentation](installation.md)
+Get started with Bref by reading the [installation documentation](installation.md).
