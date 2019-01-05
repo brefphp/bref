@@ -32,5 +32,5 @@ sam logs --name <function-name> --tail
 
 ## Advanced use cases
 
-If you have more specific needs you can send logs to other services, for example Logstash, Papertrail, Loggly, etc.
+If you have more specific needs you can send logs to other services, for example Logstash, Papertrail, or Loggly.
 

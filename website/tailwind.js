@@ -37,7 +37,7 @@ let defaultConfig = require('tailwindcss/defaultConfig')()
 | for prototyping, but don't hesitate to change them for your project. You
 | own these colors, nothing will break if you change everything about them.
 |
-| We've used literal color names ("red", "blue", etc.) for the default
+| We've used literal color names (e.g. "red", "blue") for the default
 | palette, but if you'd rather use functional names like "primary" and
 | "secondary", or even a numeric scale like "100" and "200", go for it.
 |

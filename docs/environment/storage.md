@@ -38,7 +38,7 @@ Remember that anything stored in `/tmp` will be lost when a lambda stops. When a
 
 Note that this is useful for deployments: no need to clear caches on deployments since a new version of the lambda will run on new instances (with an empty `/tmp` directory).
 
-This solution is ideal when the cached data is fast to generate and never changes (e.g. template caching, framework caches, etc.).
+This solution is ideal when the cached data is fast to generate and never changes (e.g. template caching, framework caches).
 
 ### Store in a distributed cache service
 
@@ -52,4 +52,4 @@ The disadvantage is that if data format changes between deployments then a deplo
 
 Cache services that can be used include for example Redis or Memcache. AWS offers those as managed services through AWS Elasticache.
 
-This solution is ideal for cache data that can change during the life of the application (e.g. caching a website menu, an API response, etc.).
+This solution is ideal for cache data that can change during the life of the application (e.g. caching a website menu, an API response).
