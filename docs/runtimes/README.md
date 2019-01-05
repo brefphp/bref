@@ -15,7 +15,7 @@ This page is an introduction to the runtimes. The next sections (PHP functions, 
 The name of the runtimes follow this pattern:
 
 ```
-arn:aws:lambda:<region>:<account-id>:layer:<layer-name>:<layer-version>
+arn:aws:lambda:<region>:416566615250:layer:<layer-name>:<layer-version>
 ```
 
 ### Supported regions (`<region>`)
@@ -24,10 +24,6 @@ arn:aws:lambda:<region>:<account-id>:layer:<layer-name>:<layer-version>
 - other regions will be supported soon
 
 Remember to use the `<region>` that matches your application, else Lambda will not find the layer.
-
-### Account
-
-Bref Account id is: `416566615250`
 
 ### Runtimes (`<layer-name>`)
 
