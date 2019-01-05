@@ -94,7 +94,7 @@ $app->command('init', function (SymfonyStyle $io) {
  * Run a CLI command in the remote environment.
  */
 $app->command('cli function [--region=] [arguments]*', function (string $function, ?string $region, array $arguments, SymfonyStyle $io) {
-    $lambda = new SimpleLambdaClient(getRegion($region));
+    $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
 
     try {
         $result = $lambda->invoke($function, json_encode([
@@ -121,7 +121,7 @@ $app->command('cli function [--region=] [arguments]*', function (string $functio
 });
 
 $app->command('invoke function [--region=] [-e|--event=]', function (string $function, ?string $region, ?string $event, SymfonyStyle $io) {
-    $lambda = new SimpleLambdaClient(getRegion($region));
+    $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
 
     try {
         $result = $lambda->invoke($function, $event);
@@ -141,11 +141,3 @@ $app->command('invoke function [--region=] [-e|--event=]', function (string $fun
 ]);
 
 $app->run();
-
-/**
- * Returns a valid AWS region by falling back to a default one if null.
- */
-function getRegion(?string $region): string
-{
-    return ($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1';
-}
