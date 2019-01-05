@@ -5,7 +5,7 @@ currentMenu: deploy
 
 Bref recommends to use SAM to deploy your serverless application.
 
-While you can read [SAM's official deployment documentation](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/deploying_serverless_applications.rst) the following guide is optimized for PHP projects.
+While you can read [SAM's official deployment documentation](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/deploying_serverless_applications.md) the following guide is optimized for PHP projects.
 
 ## How it works
 
@@ -121,4 +121,4 @@ Remember to also delete the S3 bucket that was created to hold the application's
 
 ## Learn more
 
-Read more about `sam deploy` in [the official documentation](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/deploying_serverless_applications.rst).
+Read more about `sam deploy` in [the official documentation](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/deploying_serverless_applications.md).
