@@ -18,6 +18,8 @@ The lambda function used for running console applications must use two Lambda la
 Below is a minimal `template.yaml`. To create it automatically run `vendor/bin/bref init`.
 
 ```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
 Resources:
     MyFunction:
         Type: AWS::Serverless::Function
