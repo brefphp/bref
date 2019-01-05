@@ -12,8 +12,8 @@ The `sam local invoke` command invokes your function in a Docker container. You 
 For example, given this function:
 
 ```php
-λ(function ($event) {
-    return 'Hello ' . ($event['name'] ?? 'world!');
+lambda(function (array $event) {
+    return 'Hello ' . ($event['name'] ?? 'world');
 });
 ```
 
