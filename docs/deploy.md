@@ -121,4 +121,4 @@ Remember to also delete the S3 bucket that was created to hold the application's
 
 ## Learn more
 
-Read more about `sam deploy` in [the official documentation](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/deploying_serverless_applications.md).
+Read more about `sam deploy` in [the official documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-deploy.html).
