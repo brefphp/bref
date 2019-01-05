@@ -1,4 +1,8 @@
-# Console applications
+---
+title: Console applications
+currentMenu: console-applications
+introduction: Learn how to run serverless console commands on AWS Lambda with Symfony Console or Laravel Artisan.
+---
 
 Bref provides a way to run console commands on AWS Lambda.
 

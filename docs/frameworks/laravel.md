@@ -1,4 +1,8 @@
-# Serverless Laravel applications
+---
+title: Serverless Laravel applications
+currentMenu: laravel
+introduction: Learn how to deploy serverless Laravel applications on AWS Lambda using Bref.
+---
 
 Deploying Laravel applications requires a few changes for everything to work perfectly.
 

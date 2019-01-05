@@ -1,4 +1,8 @@
-# PHP functions
+---
+title: PHP functions
+currentMenu: php-functions
+introduction: Learn how to run serverless PHP functions on AWS Lambda using Bref.
+---
 
 The simplest way to write a lambda is to write one in the form of a PHP function:
 

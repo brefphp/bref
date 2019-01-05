@@ -1,4 +1,7 @@
-# Installation
+---
+title: Installation
+currentMenu: installation
+---
 
 To set up Bref correctly please complete all the sections below.
 

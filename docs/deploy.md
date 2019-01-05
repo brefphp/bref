@@ -1,4 +1,7 @@
-# Deployment
+---
+title: Deployment
+currentMenu: deploy
+---
 
 Bref recommends to use SAM to deploy your serverless application.
 

@@ -1,4 +1,8 @@
-# HTTP applications
+---
+title: HTTP applications
+currentMenu: http-applications
+introduction: Learn how to run serverless HTTP applications with PHP on AWS Lambda using Bref.
+---
 
 Bref uses PHP-FPM to run HTTP applications on AWS Lambda, just like any PHP hosting solution.
 

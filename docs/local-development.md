@@ -1,4 +1,7 @@
-# Local development
+---
+title: Local development
+currentMenu: local-development
+---
 
 To run your applications locally with an architecture close to production you can use the `sam` command line tool from AWS.
 

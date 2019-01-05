@@ -1,4 +1,7 @@
-# What is Bref and serverless?
+---
+title: What is Bref and serverless?
+currentMenu: what-is-bref
+---
 
 <p class="text-lg">
 Bref simplifies running PHP applications by taking advantage of the best of serverless.

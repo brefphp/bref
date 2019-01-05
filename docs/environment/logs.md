@@ -1,4 +1,8 @@
-# Logs
+---
+title: Logs
+currentMenu: logs
+introduction: Learn how to write and read PHP logs on AWS Lambda using Bref.
+---
 
 As explained in the [storage documentation](storage.md), the filesystem on AWS Lambda is:
 

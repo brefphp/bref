@@ -2,3 +2,65 @@ scripts:
     # Scripts to execute before generating the website
     before:
         - cd website && ./node_modules/.bin/tailwind build styles.css -c ./tailwind.js -o ./output.css
+
+menu:
+    -   section: Getting Started
+        items:
+            what-is-bref:
+                text: What is Bref and serverless?
+                url: /docs/
+            installation:
+                text: Installation
+                url: /docs/installation.html
+    -   section: Runtimes
+        items:
+            runtimes-introduction:
+                text: Introduction
+                url: /docs/runtimes/
+            php-functions:
+                text: PHP functions
+                url: /docs/runtimes/function.html
+            http-applications:
+                text: HTTP
+                url: /docs/runtimes/http.html
+            console-applications:
+                text: Console
+                url: /docs/runtimes/console.html
+    -   section: Usage
+        items:
+            deploy:
+                text: Deployment
+                url: /docs/deploy.html
+            local-development:
+                text: Local development
+                url: /docs/local-development.html
+    -   section: Environment
+        items:
+            php:
+                text: PHP
+                url: /docs/environment/php.html
+                title: Configuring PHP versions and options with Bref
+            storage:
+                text: Storage
+                url: /docs/environment/storage.html
+                title: Storing files and data with Bref on AWS Lambda
+            logs:
+                text: Logs
+                url: /docs/environment/logs.html
+                title: Managing logs with Bref on AWS Lambda
+    -   section: Frameworks
+        items:
+            laravel:
+                text: Laravel
+                url: /docs/frameworks/laravel.html
+                title: Learn how to deploy serverless Laravel applications
+            symfony:
+                text: Symfony
+                url: /docs/frameworks/symfony.html
+                title: Learn how to deploy serverless Symfony applications
+    -   section: Learning
+        items:
+            case-studies:
+                text: Case studies
+                url: /docs/case-studies.html
+                title: A collection of case studies of serverless PHP applications built using Bref.

@@ -1,4 +1,8 @@
-# Case studies
+---
+title: Case studies
+currentMenu: case-studies
+introduction: A collection of case studies of serverless PHP applications built using Bref. Learn about performances, costs and migrations from existing projects.
+---
 
 This page collects case studies written by Bref users.
 

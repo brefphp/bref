@@ -1,4 +1,8 @@
-# Storage
+---
+title: Storage
+currentMenu: storage
+introduction: Learn how to store data and files in serverless PHP applications running on AWS Lambda.
+---
 
 The filesystem on AWS Lambda **is read-only**, except for the `/tmp` directory.
 

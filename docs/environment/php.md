@@ -1,4 +1,8 @@
-# Configuring PHP
+---
+title: Configuring PHP
+currentMenu: php
+introduction: Configure PHP versions, extensions and options for your serverless application using Bref.
+---
 
 ## php.ini
 
