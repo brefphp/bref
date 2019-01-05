@@ -72,17 +72,26 @@ A PHP function must be invoked via the AWS Lambda API. If you instead want to wr
 
 ### CLI
 
-A PHP function can be triggered manually from the CLI using the `aws` command-line tool:
+A PHP function can be triggered manually from the CLI using the `bref invoke` command:
 
 ```bash
-aws lambda invoke \
-    --invocation-type RequestResponse \
-    --log-type Tail \
-    --function-name <function-name> \
-    --payload '{"hello":"world"}'
+$ vendor/bin/bref invoke <function-name>
+START RequestId: 3afca641-112c-11e9-bd8b-7108ee29dd18 Version: $LATEST
+END RequestId: 3afca641-112c-11e9-bd8b-7108ee29dd18
+REPORT RequestId: c42dce1e-112c-11e9-bed8-3f4bd1a349e2	Duration: 201.14 ms	Billed Duration: 300 ms 	Memory Size: 128 MB	Max Memory Used: 39 MB
+
+"Hello world"
 ```
 
-The `--payload` option contains the event data to pass to the function. Run `aws lambda invoke help` to learn more about the `invoke` command.
+The logs will be displayed above the function's result encoded as JSON.
+
+To pass event data to the lambda use the `--event` option. For example:
+
+```bash
+vendor/bin/bref invoke <function-name> --event='{"name": "John" }'
+```
+
+Run `vendor/bin/bref invoke --help` to learn more about the `invoke` command.
 
 ### From PHP applications
 

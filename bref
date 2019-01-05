@@ -2,7 +2,8 @@
 <?php
 declare(strict_types=1);
 
-use GuzzleHttp\Psr7\Stream;
+use Bref\Lambda\InvocationFailed;
+use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\ExecutableFinder;
@@ -93,40 +94,58 @@ $app->command('init', function (SymfonyStyle $io) {
  * Run a CLI command in the remote environment.
  */
 $app->command('cli function [--region=] [arguments]*', function (string $function, ?string $region, array $arguments, SymfonyStyle $io) {
-    $lambda = new \Aws\Lambda\LambdaClient([
-        'version' => 'latest',
-        'region' => ($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1',
-    ]);
-    $result = $lambda->invoke([
-        'FunctionName' => $function,
-        'LogType' => 'Tail',
-        'Payload' => json_encode([
-            'cli' => implode(' ', $arguments),
-        ]),
-    ]);
+    $lambda = new SimpleLambdaClient(getRegion($region));
 
-    /** @var Stream $payload */
-    $payload = $result->get('Payload');
-    $payload = json_decode($payload->getContents(), true);
-    if (isset($payload['output'])) {
-        $io->writeln($payload['output']);
+    try {
+        $result = $lambda->invoke($function, json_encode([
+            'cli' => implode(' ', $arguments),
+        ]));
+    } catch (InvocationFailed $e) {
+        $io->getErrorStyle()->writeln('<info>' . $e->getInvocationLogs() . '</info>');
+        $io->error($e->getMessage());
+        return 1;
+    }
+
+    if (isset($result->getPayload()['output'])) {
+        $io->writeln($result->getPayload()['output']);
     } else {
         $io->error('The command did not return a valid response.');
         $io->writeln('<info>Logs:</info>');
-        $io->write('<comment>' . base64_decode($result->get('LogResult')) . '</comment>');
+        $io->write('<comment>' . $result->getLogs() . '</comment>');
         $io->writeln('<info>Lambda result payload:</info>');
-        $io->writeln(json_encode($payload, JSON_PRETTY_PRINT));
+        $io->writeln(json_encode($result->getPayload(), JSON_PRETTY_PRINT));
         return 1;
     }
 
     return (int) ($payload['exitCode'] ?? 1);
 });
 
-$app->command('invoke [--stage=] [-e|--event=]', function () {
-    // TODO
-    throw new Exception('This feature is not yet available, use `aws lambda invoke --function-name my-function --invocation-type RequestResponse --region us-east-2 --log-type Tail` in the meantime');
+$app->command('invoke function [--region=] [-e|--event=]', function (string $function, ?string $region, ?string $event, SymfonyStyle $io) {
+    $lambda = new SimpleLambdaClient(getRegion($region));
+
+    try {
+        $result = $lambda->invoke($function, $event);
+    } catch (InvocationFailed $e) {
+        $io->getErrorStyle()->writeln('<info>' . $e->getInvocationLogs() . '</info>');
+        $io->error($e->getMessage());
+        return 1;
+    }
+
+    $io->getErrorStyle()->writeln('<info>' . $result->getLogs() . '</info>');
+
+    $io->writeln(json_encode($result->getPayload(), JSON_PRETTY_PRINT));
+
+    return 0;
 })->descriptions('Invoke the lambda on the serverless provider', [
     '--event' => 'Event data as JSON, e.g. `--event \'{"name":"matt"}\'`',
 ]);
 
 $app->run();
+
+/**
+ * Returns a valid AWS region by falling back to a default one if null.
+ */
+function getRegion(?string $region): string
+{
+    return ($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1';
+}
