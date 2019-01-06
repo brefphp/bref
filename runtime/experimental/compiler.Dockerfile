@@ -25,30 +25,35 @@ WORKDIR ${TARGET}
 RUN sed -i 's/releasever=latest/releaserver=2017.03/' /etc/yum.conf
 RUN yum makecache
 
-# Tools we need
+# Default Development Tools
 RUN yum groupinstall -y "Development Tools"  --setopt=group_package_types=mandatory,default
-RUN yum install -y  jq \
-                    gperf \
-                    expect \
-                    gtk-doc \
-                    texlive \
-                    python35 \
-                    docbook2X \
-                    findutils \
-                    python35-pip
 
-RUN yum clean all
+# Additional Tools
+# jq - Used for manipulating json on the command line
+# gperf - Perfect has generator, some of the build will use it.
+# expect - Allows us to automate some build scripts that require interaction.
+# gtk-doc - Generates API Docs for C code.
+# texlive - Used by some builds for generating documentation.
+# docbook2X - Converts docbook documents into Unix man page format.
+# python35 - Because 2.7 needs to go away? Some of our builds want python3 libs.
+# python35-pip - See above.
+# findutils - Basic directory searching utilities of the GNU operating system.
+# yum clean all - Ensure we are not storing MB's of downloaded RPM files in our Docker images
+RUN yum install -y  jq           \
+                    gperf        \
+                    expect       \
+                    gtk-doc      \
+                    texlive      \
+                    docbook2X    \
+                    findutils    \
+                    && yum clean all
 
-# Install Ninja and Meson
-RUN curl -Ls https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip >> /tmp/ninja.zip && \
-    cd /tmp && unzip /tmp/ninja.zip && \
-    cp /tmp/ninja /usr/local/bin && \
-    /usr/bin/pip-3.5 install meson
+# CMAKE - cross-platform family of tools designed to build, test and package software. The version of cmake we can get from the yum repo is 2.8.12. We need cmake to build a few of our libraries, and at least one library requires a version of cmake greater than the one provided in the repo.
 
-# Install the rust toolchain
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-# We need a newer cmake than is available, so lets build it ourselves.
+# Needed to build:
+# - libzip: minimum required CMAKE version 3.0.2
+# - libssh2: minimum required CMAKE version 2.8.11
+# - jpeg-turbo: minimum required CMAKE version 2.8.12
 RUN mkdir -p /tmp/cmake && \
     cd /tmp/cmake && \
     curl -Ls  https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz | tar xzC /tmp/cmake --strip-components=1 && \
@@ -73,10 +78,8 @@ ENV \
     CXXFLAGS="${FLAGS} -ffunction-sections -fdata-sections" \
     LD_LIBRARY_PATH="${TARGET}/lib64:${TARGET}/lib" \
     SOURCEFORGE_MIRROR="netix" \
-    PATH="${TARGET}/sbin:${TARGET}/bin:/root/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
+    PATH="${TARGET}/sbin:${TARGET}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
     JQ="/usr/bin/jq" \
     TARGS="/usr/local/bin/get_tar_args.sh" \
     CURL='${TARGET}/bin/curl' \
-    CMAKE='/usr/local/bin/cmake' \
-    MESON='/usr/local/bin/meson' \
-    NINJA='/usr/local/bin/ninja'
+    CMAKE='/usr/local/bin/cmake'
