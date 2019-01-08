@@ -386,7 +386,7 @@ RUN pecl install redis
 RUN pecl install APCu
 RUN set -xe; \
     curl -Ls https://elasticache-downloads.s3.amazonaws.com/ClusterClient/PHP-7.0/latest-64bit \
-  | tar xzC ${INSTALL_DIR}/lib/php/extensions/no-debug-non-zts-20180731/ --strip-components=1
+  | tar xzC $(php-config --extension-dir) --strip-components=1
 
 # Strip all the unneeded symbols from shared libraries to reduce size.
 RUN find ${INSTALL_DIR} -type f -name "*.so*" -o -name "*.a"  -exec strip --strip-unneeded {} \;
