@@ -1,8 +1,6 @@
 FROM bref/runtime/php:latest
-
-# Strip all the unneeded symbols from shared libraries to reduce size.
-RUN find /opt/bref -type f -name "*.so*" -o -name "*.a"  -exec strip --strip-unneeded {} \;
-RUN find /opt/bref -type f -executable -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; -print|xargs strip --strip-all
+# Use the bash shell, instead of /bin/sh
+SHELL ["/bin/bash", "-c"]
 
 # We do not support running pear functions in Lambda
 RUN rm -rf /opt/bref/lib/php/PEAR
@@ -20,15 +18,12 @@ RUN rm -rf /opt/bref/libexec
 RUN rm -rf /opt/bref/var
 RUN rm -rf /opt/bref/data
 
-RUN mkdir -p /opt/bin
-RUN ln -s /opt/bref/bin/* /opt/bin
-RUN ln -s /opt/bref/sbin/* /opt/bin
-
 WORKDIR /opt
-RUN zip -y -o -9 -r /tmp/php-$(php -r 'echo phpversion();').zip . -x "*php-cgi"; zip -ur /tmp/php-$(php -r 'echo phpversion();').zip /versions.json
-RUN cp /tmp/php-$(php -r 'echo phpversion();').zip /tmp/php-cli-$(php -r 'echo phpversion();').zip; zip -d /tmp/php-cli-$(php -r 'echo phpversion();').zip bref/sbin/php-fpm
-RUN cp /tmp/php-$(php -r 'echo phpversion();').zip /tmp/php-fpm-$(php -r 'echo phpversion();').zip; zip -d /tmp/php-fpm-$(php -r 'echo phpversion();').zip bref/bin/php
-
-COPY helpers/export.sh /usr/local/bin/export.sh
-
-ENTRYPOINT [ "/usr/local/bin/export.sh" ]
+RUN LD_LIBRARY_PATH= yum -y install zip
+RUN export PHP_ZIP_NAME=/export/php-$(php -r '$version = explode(".", phpversion());printf("%d.%d", $version[0], $version[1]);'); \
+ mkdir -p /export; \
+ zip -y -o -9 -r ${PHP_ZIP_NAME}.zip . -x "*php-cgi"; \
+ cp ${PHP_ZIP_NAME}.zip ${PHP_ZIP_NAME}-cli.zip; \
+ zip -d ${PHP_ZIP_NAME}-cli.zip bref/sbin/php-fpm bin/php-fpm; \
+ cp ${PHP_ZIP_NAME}.zip ${PHP_ZIP_NAME}.fpm.zip; \
+ zip -d ${PHP_ZIP_NAME}.fpm.zip bref/bin/php /bin/php
