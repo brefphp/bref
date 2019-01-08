@@ -3,15 +3,12 @@ SHELL := /bin/bash
 compiler:
 	docker build -f ${PWD}/compiler.Dockerfile -t bref/runtime/compiler:latest .
 
-libs: compiler
-	docker build -f ${PWD}/libs.Dockerfile -t bref/runtime/libs:latest $(shell helpers/docker_args.php libs) .
+php73: make_php73
 
-php73: make_php73 export
-
-make_php73: libs
+make_php73:
 	docker build -f ${PWD}/php.Dockerfile  -t bref/runtime/php:latest $(shell helpers/docker_args.php php73) .
 
-php72: make_php72 export
+php72: make_php72
 
 make_php72: libs
 	docker build -f ${PWD}/php.Dockerfile -t bref/runtime/php:latest $(shell helpers/docker_args.php php72) .
