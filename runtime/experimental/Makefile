@@ -10,8 +10,13 @@ make_php73:
 
 php72: make_php72
 
-make_php72: libs
+make_php72:
 	docker build -f ${PWD}/php.Dockerfile -t bref/runtime/php:latest $(shell helpers/docker_args.php php72) .
+
+php71: make_php71
+
+make_php71:
+		docker build -f ${PWD}/php.Dockerfile -t bref/runtime/php:latest $(shell helpers/docker_args.php php71) .
 
 distro:
 	docker build -f ${PWD}/export.Dockerfile -t bref/runtime/dist:latest .
