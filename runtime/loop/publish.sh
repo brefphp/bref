@@ -2,7 +2,7 @@
 
 set -e
 
-if [[ -z "$REGION" ]] ; then
+if [ -z "$REGION" ] ; then
     echo 'The region must be passed in the REGION environment variable'
     exit 1
 fi
