@@ -1,0 +1,105 @@
+#!/opt/bin/php
+<?php
+
+################################################################
+# INITIALIZATION
+echo 'Cold start' . PHP_EOL;
+
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
+# Lets get the filename and the function to call
+($lambdaFileName, $lambdaFunction) = explode('.', getenv('_HANDLER'));
+$lambdaFilePath = sprintf('%s/%s.php', getenv('LAMBDA_TASK_ROOT'), $lambdaFileName);
+$lambdaRuntimeApi = getenv('AWS_LAMBDA_RUNTIME_API');
+
+$eventRequestId = '';
+$eventRequestBody = '';
+
+$chNext = curl_init("http://$lambdaRuntimeApi/2018-06-01/runtime/invocation/next");
+curl_setopt($chNext, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($chNext, CURLOPT_FAILONERROR, true);
+curl_setopt($chNext, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$eventRequestId) {
+    if (! preg_match('/:\s*/', $header)) {
+        return strlen($header);
+    }
+
+    [$name, $value] = preg_split('/:\s*/', $header, 2);
+
+    if (strtolower($name) == 'lambda-runtime-aws-request-id') {
+        $eventRequestId = trim($value);
+    }
+
+    return strlen($header);
+});
+curl_setopt($chNext, CURLOPT_WRITEFUNCTION, function ($ch, $chunk) use (&$eventRequestBody) {
+    $eventRequestBody .= $chunk;
+    return strlen($chunk);
+});
+
+$chRespond = curl_init("http://$lambdaRuntimeApi/2018-06-01/runtime/invocation/$invocationId/response");
+curl_setopt($chRespond, CURLOPT_CUSTOMREQUEST, 'POST');
+curl_setopt($chRespond, CURLOPT_RETURNTRANSFER, true);
+
+include $lambdaFilePath;
+
+while (true){
+    curl_exec($ch);
+
+    if (curl_error($ch)) {
+        echo 'Failed to fetch next Lambda invocation: ' . curl_error($ch) . PHP_EOL;
+        flush();
+        continue;
+    }
+
+    if (empty($invocationId)) {
+        echo 'Failed to determine Lambda invocation ID'  . PHP_EOL;
+        flush();
+        continue;
+    }
+
+    curl_close($ch);
+
+    curl_setopt($chRespond, CURLOPT_URL, "http://$lambdaRuntimeApi/2018-06-01/runtime/invocation/$invocationId/response");
+    if (! $eventRequestBody) {
+        $response = [];
+        $response['statusCode'] = 500;
+        $response['body'] = 'Empty Lambda invocation response';
+        echo  $response['body'] . PHP_EOL;
+        $response_json = json_encode($response);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $response_json);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($response_json),
+        ]);
+        curl_exec($ch);
+        curl_close($ch);
+        continue;
+    }
+
+    try{
+        $response = $$lambdaFunction($eventRequestBody, $context);
+    }catch(Exception $e){
+        $response = [];
+        $response['statusCode'] = 500;
+        $response['body'] = $e->getMessage();
+        echo  $response['body'] . PHP_EOL;
+        $response_json = json_encode($response);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $response_json);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Content-Length: ' . strlen($response_json),
+        ]);
+        curl_exec($ch);
+        curl_close($ch);
+        continue;
+    }
+
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $response);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'Content-Length: ' . strlen($response_json),
+    ]);
+    curl_exec($ch);
+    curl_close($ch);
+}
