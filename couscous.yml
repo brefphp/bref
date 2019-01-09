@@ -27,6 +27,9 @@ menu:
             installation:
                 text: Installation
                 url: /docs/installation.html
+            first-steps:
+                text: First steps
+                url: /docs/first-steps.html
     -   section: Runtimes
         items:
             runtimes-introduction:
