@@ -9,7 +9,7 @@ While you can read [SAM's official deployment documentation](https://github.com/
 
 ## How it works
 
-Let's look at how serveless applications are deployed on AWS with SAM.
+Let's look at how serverless applications are deployed on AWS with SAM.
 
 ### Stacks
 
