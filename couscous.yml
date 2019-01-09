@@ -1,7 +1,22 @@
+template:
+    # Name of the directory containing the website template (default is "website")
+    directory: website/template
+
+exclude:
+    - demo
+    - runtime
+    - src
+    - template
+    - tests
+    - vendor
+    - website
+    # This special entry will ask Couscous to read the excluded directories from your ".gitignore" file
+    - %gitignore%
+
 scripts:
     # Scripts to execute before generating the website
     before:
-        - cd website && ./node_modules/.bin/tailwind build styles.css -c ./tailwind.js -o ./output.css
+        - make website-assets
 
 menu:
     -   section: Getting Started

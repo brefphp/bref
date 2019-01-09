@@ -9,5 +9,5 @@
 /output.yaml
 /.couscous/
 /website/node_modules/
-/website/output.css
+/website/template/output.css
 /.netlify/
