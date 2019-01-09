@@ -53,13 +53,13 @@ $app->command('init', function (SymfonyStyle $io) {
     $choice = $io->choice(
         'What kind of lambda do you want to create? (you will be able to add more functions later by editing `template.yaml`)',
         [
-            'classic lambda',
+            'PHP function',
             'HTTP application',
             'Console application',
         ]
     );
     $templateDirectory = [
-        'classic lambda' => 'default',
+        'PHP function' => 'default',
         'HTTP application' => 'http',
         'Console application' => 'console',
     ][$choice];
