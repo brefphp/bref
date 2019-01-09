@@ -56,7 +56,8 @@ $app->command('init', function (SymfonyStyle $io) {
             'PHP function',
             'HTTP application',
             'Console application',
-        ]
+        ],
+        'PHP function'
     );
     $templateDirectory = [
         'PHP function' => 'default',
