@@ -3,7 +3,5 @@
 require __DIR__.'/vendor/autoload.php';
 
 lambda(function (array $event) {
-    return [
-        'hello' => $event['name'] ?? 'world',
-    ];
+    return 'Hello ' . ($event['name'] ?? 'world');
 });
