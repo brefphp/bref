@@ -7,13 +7,13 @@ Globals:
         Timeout: 10
 
 Resources:
-    CliFunction:
+    SimpleFunction:
         Type: AWS::Serverless::Function
         Properties:
-            FunctionName: 'bref-demo-cli'
+            FunctionName: 'bref-demo-function'
             Description: 'Bref CLI demo'
             CodeUri: .
-            Handler: demo/cli.php
+            Handler: demo/function.php
             Runtime: provided
             Layers:
                 - 'arn:aws:lambda:us-east-2:416566615250:layer:php-72:9'
