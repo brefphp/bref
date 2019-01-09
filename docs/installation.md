@@ -1,6 +1,13 @@
 ---
 title: Installation
 currentMenu: installation
+introduction: How to install Bref and the required tools.
+previous:
+    link: /docs/
+    title: What is Bref and serverless?
+next:
+    link: /docs/first-steps.html
+    title: First steps
 ---
 
 To set up Bref correctly please complete all the sections below.

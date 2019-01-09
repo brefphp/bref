@@ -1,6 +1,10 @@
 ---
 title: What is Bref and serverless?
 currentMenu: what-is-bref
+introduction: An introduction to what serverless and Bref can offer for PHP applications.
+next:
+    link: /docs/installation.html
+    title: Installation
 ---
 
 <p class="text-lg">
