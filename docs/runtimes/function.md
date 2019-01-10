@@ -2,6 +2,12 @@
 title: PHP functions
 currentMenu: php-functions
 introduction: Learn how to run serverless PHP functions on AWS Lambda using Bref.
+previous:
+    link: /docs/runtimes/
+    title: What are runtimes?
+next:
+    link: /docs/runtimes/http.html
+    title: HTTP applications
 ---
 
 The simplest way to write a lambda is to write one in the form of a PHP function:

@@ -50,6 +50,23 @@
                         {% block article %}
                             {{ content|raw }}
                         {% endblock %}
+
+                        {% if next is defined or previous is defined %}
+                            <div class="mt-12 mb-12 clearfix">
+                                {% if previous is defined %}
+                                    <a class="float-left mt-3" href="{{ previous.link }}" title="{{ previous.title|e('html_attr') }}">
+                                        &#9664;
+                                        Previous: {{ previous.title }}
+                                    </a>
+                                {% endif %}
+                                {% if next is defined %}
+                                    <a class="float-right mt-3" href="{{ next.link }}" title="{{ next.title|e('html_attr') }}">
+                                        Next: {{ next.title }}
+                                        &#9654;
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </article>
                 {% endblock %}
             </div>
