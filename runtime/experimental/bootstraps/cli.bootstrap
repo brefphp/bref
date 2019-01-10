@@ -1,105 +1,425 @@
-#!/opt/bin/php
+#!/opt/bin/php -d extension=pthreads.so
 <?php
-
-################################################################
-# INITIALIZATION
-echo 'Cold start' . PHP_EOL;
-
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
-# Lets get the filename and the function to call
-($lambdaFileName, $lambdaFunction) = explode('.', getenv('_HANDLER'));
-$lambdaFilePath = sprintf('%s/%s.php', getenv('LAMBDA_TASK_ROOT'), $lambdaFileName);
-$lambdaRuntimeApi = getenv('AWS_LAMBDA_RUNTIME_API');
+$bootstrap = new CLIBootstrap();
+require_once $bootstrap->taskPath;
+while (true) {
+    try {
+        $bootstrap->handleInvocation();
+    } catch (Exception $e) {
+        CLIBootstrap::consoleLog($e->getMessage());
+        CLIBootstrap::consoleLog($e->getTraceAsString());
+        exit(1);
+    }
+}
 
-$eventRequestId = '';
-$eventRequestBody = '';
+/**
+ * Class CLIBootstrap
+ * All about managing that Lambda bootstrap
+ */
+class CLIBootstrap
+{
 
-$chNext = curl_init("http://$lambdaRuntimeApi/2018-06-01/runtime/invocation/next");
-curl_setopt($chNext, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($chNext, CURLOPT_FAILONERROR, true);
-curl_setopt($chNext, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$eventRequestId) {
-    if (! preg_match('/:\s*/', $header)) {
-        return strlen($header);
+    /**
+     * The path to the user file entrypoint.
+     * @var string
+     */
+    public $taskPath;
+
+    /**
+     * The name of the Lambda function itself.
+     * @var string
+     */
+    private $lambdaFunction;
+
+    /**
+     * AWS Runtime Version we are using.
+     * @var string
+     */
+    private $rumtimeAPI;
+
+    /**
+     * The invocation ID of the event being processed.
+     * @var string
+     */
+    private $requestId;
+
+    /**
+     * The body of the invocation, the event.
+     * @var string
+     */
+    private $requestBody;
+
+    /**
+     * A cURL handle for retrieving the next task.
+     * @var resource
+     */
+    private $next;
+
+    /**
+     * A cURL handle for reporting errors.
+     * @var resource
+     */
+    private $error;
+
+    /**
+     * A cURL handle for reporting results.
+     * @var resource
+     */
+    private $result;
+
+    /**
+     * A place to store a lot of context information.
+     * @var array
+     */
+    private $context;
+
+
+    /**
+     * CLIBootstrap constructor.
+     * Handle all the initialization here. This is where all the "cold start"
+     * logic should be.
+     */
+    public function __construct()
+    {
+        self::consoleLog('Cold Start');
+        list($lambdaFileName, $lambdaFunction) = explode('.', getenv('_HANDLER'));
+        $this->taskPath = sprintf('%s/%s.php', getenv('LAMBDA_TASK_ROOT'), $lambdaFileName);
+        $this->rumtimeAPI = (string)getenv('AWS_LAMBDA_RUNTIME_API');
+        $this->lambdaFunction = $lambdaFunction;
+        $this->initInvocationFetcher();
+        $this->initInvocationError();
     }
 
-    [$name, $value] = preg_split('/:\s*/', $header, 2);
-
-    if (strtolower($name) == 'lambda-runtime-aws-request-id') {
-        $eventRequestId = trim($value);
+    /**
+     * Helper function to template writing to the console from
+     * the bootstrap.
+     * @param String $message
+     */
+    public static function consoleLog(String $message): void
+    {
+        echo $message . PHP_EOL;
     }
 
-    return strlen($header);
-});
-curl_setopt($chNext, CURLOPT_WRITEFUNCTION, function ($ch, $chunk) use (&$eventRequestBody) {
-    $eventRequestBody .= $chunk;
-    return strlen($chunk);
-});
-
-$chRespond = curl_init("http://$lambdaRuntimeApi/2018-06-01/runtime/invocation/$invocationId/response");
-curl_setopt($chRespond, CURLOPT_CUSTOMREQUEST, 'POST');
-curl_setopt($chRespond, CURLOPT_RETURNTRANSFER, true);
-
-include $lambdaFilePath;
-
-while (true){
-    curl_exec($ch);
-
-    if (curl_error($ch)) {
-        echo 'Failed to fetch next Lambda invocation: ' . curl_error($ch) . PHP_EOL;
-        flush();
-        continue;
+    /**
+     * Initialize the cURL handle for getting the next task.
+     */
+    protected function initInvocationFetcher(): void
+    {
+        $this->next = curl_init(sprintf('http://%s/2018-06-01/runtime/invocation/next', $this->rumtimeAPI));
+        curl_setopt($this->next, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($this->next, CURLOPT_FAILONERROR, true);
+        curl_setopt($this->next, CURLOPT_HEADERFUNCTION, [$this, 'writeHeader']);
+        curl_setopt($this->next, CURLOPT_WRITEFUNCTION, [$this, 'writeData']);
     }
 
-    if (empty($invocationId)) {
-        echo 'Failed to determine Lambda invocation ID'  . PHP_EOL;
-        flush();
-        continue;
+    /**
+     * Initialize the cURL handle for reporting errors.
+     */
+    protected function initInvocationError(): void
+    {
+        $this->error = curl_init();
+        curl_setopt($this->error, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->error, CURLOPT_RETURNTRANSFER, true);
     }
 
-    curl_close($ch);
+    /**
+     * Initialize the cURL handle for reporting results.
+     */
+    protected function initInvocationResult(): void
+    {
+        $this->result = curl_init();
+        curl_setopt($this->result, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->result, CURLOPT_RETURNTRANSFER, true);
+    }
 
-    curl_setopt($chRespond, CURLOPT_URL, "http://$lambdaRuntimeApi/2018-06-01/runtime/invocation/$invocationId/response");
-    if (! $eventRequestBody) {
-        $response = [];
-        $response['statusCode'] = 500;
-        $response['body'] = 'Empty Lambda invocation response';
-        echo  $response['body'] . PHP_EOL;
+    /**
+     * Handles fetching the next task;
+     * @return array
+     */
+    public function getNextTask(): void
+    {
+        // Politely ask cURL to fetch
+        curl_exec($this->next);
+
+        // Check for any errors while fetching.
+        if (curl_error($this->next)) {
+            self::consoleLog('Failed to fetch next Lambda invocation: ' . curl_error($this->next));
+            throw new RuntimeException(curl_error($this->next));
+        }
+
+        // Check to ensure that we figured out what the Invocation ID is.
+        if (empty($this->requestId)) {
+            self::consoleLog('Failed to determine Lambda invocation ID');
+            throw new RuntimeException('Failed to determine Lambda invocation ID');
+        } else {
+            curl_setopt($this->error, CURLOPT_URL,
+                sprintf('http://%s/2018-06-01/runtime/invocation/%s/response',
+                    $this->rumtimeAPI, $this->requestId));
+        }
+
+        // We also need the invocation body, which is where the actual event is.
+        if (empty($this->requestBody)) {
+            self::consoleLog('Empty Event');
+            $response = [
+                "statusCode" => 500,
+                "message" => "An empty event was received",
+                "errorType" => "InvalidEvent",
+                "requestId" => $this->requestId
+            ];
+            $response_json = json_encode($response);
+            curl_setopt($this->error, CURLOPT_POSTFIELDS, $response_json);
+            curl_setopt($this->error, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($response_json),
+            ]);
+            curl_exec($this->error);
+            throw new RuntimeException('Failed to determine Lambda invocation ID');
+        }
+    }
+
+    public function executeLambda(): void
+    {
+        try {
+            $store = new Threaded();
+            $thread = new LambdaRunner($store, $this->lambdaFunction, $this->requestBody, json_encode($this->context));
+            $thread->start() && $thread->join();
+        } catch (Exception $e) {
+            self::consoleLog('ERROR: ' . $e->getMessage());
+            $response = [
+                "statusCode" => 500,
+                "message" => $e->getMessage(),
+                "errorType" => "FailedFunction",
+                "requestId" => $this->requestId
+            ];
+            $response_json = json_encode($response);
+            curl_setopt($this->error, CURLOPT_POSTFIELDS, $response_json);
+            curl_setopt($this->error, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Content-Length: ' . strlen($response_json),
+            ]);
+            curl_exec($this->error);
+            throw new RuntimeException('Failed to execute the Lambda Function.');
+        }
+
+        $this->reportResult($store[0]);
+    }
+
+    /**
+     * Send the result of the lambda back.
+     * @param $response
+     */
+    public function reportResult(array $response): void
+    {
+        self::consoleLog('reportResult');
+        // Initialize a new cURL resource for reporting.
+        $this->initInvocationResult();
+
+        // If we have a body, it needs to be encoded within the response.
+        if (array_key_exists('body', $response)) {
+            $response['body'] = json_encode($response['body']);
+        }
+
+        // Now we can encode everything.
         $response_json = json_encode($response);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $response_json);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Content-Length: ' . strlen($response_json),
+
+        // Set up curl
+        curl_setopt($this->result, CURLOPT_URL,
+            sprintf('http://%s/2018-06-01/runtime/invocation/%s/response',
+                $this->rumtimeAPI, $this->requestId));
+        curl_setopt($this->result, CURLOPT_POSTFIELDS, $response_json);
+        curl_setopt($this->result, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($response_json),
         ]);
-        curl_exec($ch);
-        curl_close($ch);
-        continue;
+
+        // Send the results
+        curl_exec($this->result);
+        // Check for any errors while sending.
+        if (curl_error($this->result)) {
+            self::consoleLog('Failed to report lambda results: ' . curl_error($this->result));
+            throw new RuntimeException(curl_error($this->result));
+        }
     }
 
-    try{
-        $response = $$lambdaFunction($eventRequestBody, $context);
-    }catch(Exception $e){
-        $response = [];
-        $response['statusCode'] = 500;
-        $response['body'] = $e->getMessage();
-        echo  $response['body'] . PHP_EOL;
-        $response_json = json_encode($response);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $response_json);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Content-Length: ' . strlen($response_json),
-        ]);
-        curl_exec($ch);
-        curl_close($ch);
-        continue;
+    /**
+     * Callback for processing headers when getting a new task.
+     *
+     * @param cURL $ch
+     * @param String $header
+     * @return int
+     */
+    protected function writeHeader($ch, String $header): int
+    {
+        $headerLength = strlen($header);
+
+        if (!preg_match('/:\s*/', $header)) {
+            return $headerLength;
+        }
+
+        [$name, $value] = preg_split('/:\s*/', $header, 2);
+        $this->context[trim($name)] = trim($value);
+        if (strtolower($name) == 'lambda-runtime-aws-request-id') {
+            $this->requestId = trim($value);
+        }
+
+        return $headerLength;
     }
 
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $response);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Content-Type: application/json',
-    'Content-Length: ' . strlen($response_json),
-    ]);
-    curl_exec($ch);
-    curl_close($ch);
+    /**
+     * Callback for handling the response body of the get new task.
+     *
+     * @param cURL $ch
+     * @param String $chunk
+     * @return int
+     */
+    protected function writeData($ch, String $chunk): int
+    {
+        $this->requestBody .= $chunk;
+        return strlen($chunk);
+    }
+
+    /**
+     * Ensures we start every task with no data from
+     * the last task.
+     */
+    protected function clearTaskParams(): void
+    {
+        $this->requestId = '';
+        $this->requestBody = '';
+        $this->context = [];
+    }
+
+    /**
+     * This is where the magic happens.
+     */
+    public function handleInvocation(): void
+    {
+        self::consoleLog('handleInvocation');
+        // Reset all our task specific variables.
+        $this->clearTaskParams();
+
+        try {
+            $this->getNextTask();
+        } catch (Exception $e) {
+            self::consoleLog('No task, or other error');
+            // An exception here simply trigger a return.
+            return;
+        }
+
+        // Execute the users lambda.
+        $this->executeLambda();
+    }
+}
+
+class LambdaRunner extends Thread
+{
+    /**
+     * The function to call
+     * @var callable
+     */
+    private $method;
+    /**
+     * Any parameters for the object
+     * @var array|mixed[]
+     */
+    private $params;
+
+    /**
+     * Results from the function
+     * @var mixed
+     */
+    private $store;
+    /**
+     * Whether the thread has joined or not.
+     * @var bool
+     */
+    private $joined;
+
+    /**
+     * Caller constructor
+     *
+     * Provide a passthrough to call_user_func_array
+     *
+     * @param Threaded $store
+     * @param callable $method
+     * @param mixed ...$params
+     */
+    public function __construct(Threaded $store, callable $method, ...$params)
+    {
+        $this->method = $method;
+        $this->params = $params;
+        $this->store = $store;
+        $this->joined = false;
+    }
+
+    /**
+     * Run the function and catch the results.
+     * This is where the thread magic happens,
+     * anything done here, is completely separate
+     * from our main thread.
+     **/
+    public function run(): void
+    {
+        /*
+		The following array cast is necessary to prevent implicit coercion to a
+		Volatile object. Without it, accessing $store in the main thread after
+		this thread has been destroyed would lead to RuntimeException of:
+		"pthreads detected an attempt to connect to an object which has already
+		been destroyed in %s:%d"
+
+		See this StackOverflow post for additional information:
+		https://stackoverflow.com/a/44852650/4530326
+		*/
+        $this->store[] = (array)($this->method)(...$this->params);
+    }
+
+    /**
+     * Static method to create our threads
+     * @param Threaded $store
+     * @param callable $method
+     * @param mixed ...$params
+     * @return LambdaRunner
+     */
+    public static function call(Threaded $store, $method, ...$params): LambdaRunner
+    {
+        $thread = new LambdaRunner($store, $method, ...$params);
+        if ($thread->start()) {
+            return $thread;
+        }
+    }
+
+    /**
+     * Causes the calling context to wait for the referenced Thread to finish executing
+     * @link http://www.php.net/manual/en/thread.join.php
+     * @return boolean <p>A boolean indication of success</p>
+     */
+    public function join(): void
+    {
+        // Make certain we do not attempt to join twice.
+        if (!$this->joined) {
+            $this->joined = true;
+            parent::join();
+        }
+    }
+
+    /**
+     * Fetch the results.
+     * @return string
+     */
+    public function getStore()
+    {
+        $this->join();
+        return $this->store;
+    }
+
+    /**
+     * Ensure we are joined, and then return the result.
+     **/
+    public function __toString(): string
+    {
+        return print_r($this->store, true);
+    }
 }
