@@ -1,5 +1,9 @@
 <?php declare(strict_types=1);
 
+/**
+ * This script publishes all the layers in all the regions.
+ */
+
 use Symfony\Component\Process\Process;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
