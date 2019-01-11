@@ -6,11 +6,7 @@ PHP_VERSION := 7.2.13
 PHP_VERSION_SHORT := 72
 
 # Build the PHP runtimes
-runtimes: runtime-default runtime-fpm runtime-console runtime-loop
-runtime-default:
-	cd runtime/default && sh publish.sh
-runtime-fpm:
-	cd runtime/fpm && sh publish.sh
+runtimes: runtime-console runtime-loop
 runtime-console:
 	cd runtime/console && sh publish.sh
 runtime-loop:
