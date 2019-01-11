@@ -27,12 +27,12 @@ RUN mkdir -p /export; \
 ENV PHP_ZIP_NAME='/export/php-7.2'
 
 # Create the PHP CLI layer
-RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . -x "*php-cgi"; \
- zip -d ${PHP_ZIP_NAME}.zip bref/sbin/php-fpm bin/php-fpm; \
+RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . --exclude "*php-cgi"; \
+ zip --delete ${PHP_ZIP_NAME}.zip bref/sbin/php-fpm bin/php-fpm; \
  cp /tmp/cli.bootstrap /bootstrap; \
  chmod 755 /bootstrap; \
- zip -u ${PHP_ZIP_NAME}.zip /bootstrap;
+ zip --update ${PHP_ZIP_NAME}.zip /bootstrap;
 
 # Create the PHP FPM layer
-RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . -x "*php-cgi"; \
- zip -d ${PHP_ZIP_NAME}-fpm.zip bref/bin/php /bin/php
+RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . --exclude "*php-cgi"; \
+ zip --delete ${PHP_ZIP_NAME}-fpm.zip bref/bin/php /bin/php
