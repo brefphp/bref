@@ -1,5 +1,5 @@
 FROM bref/runtime/php:latest
-# Use the bash shell, instead of /bin/sh
+# Use bash instead of sh because we use bash-specific features below
 SHELL ["/bin/bash", "-c"]
 
 # We do not support running pear functions in Lambda
@@ -20,15 +20,17 @@ RUN rm -rf /opt/bref/data
 
 WORKDIR /opt
 COPY bootstraps/cli.bootstrap /tmp/cli.bootstrap
-RUN export PHP_ZIP_NAME=/export/php-$(php -r '$version = explode(".", phpversion());printf("%d.%d", $version[0], $version[1]);'); \
- mkdir -p /export; \
+RUN export PHP_ZIP_NAME=/export/php-$(php -r '$version = explode(".", phpversion());printf("%d.%d", $version[0], $version[1]);');
+RUN mkdir -p /export; \
  rm -rf /export/*; \
- rm -rf /bootstrap; \
- zip -qr ${PHP_ZIP_NAME}.zip . -x "*php-cgi"; \
- cp ${PHP_ZIP_NAME}.zip ${PHP_ZIP_NAME}-cli.zip; \
+ rm -rf /bootstrap;
+
+# Create the PHP CLI layer
+RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-cli.zip . -x "*php-cgi"; \
  zip -d ${PHP_ZIP_NAME}-cli.zip bref/sbin/php-fpm bin/php-fpm; \
  cp /tmp/cli.bootstrap /bootstrap; \
  chmod 755 /bootstrap; \
- zip -u ${PHP_ZIP_NAME}-cli.zip /bootstrap; \
- cp ${PHP_ZIP_NAME}.zip ${PHP_ZIP_NAME}.fpm.zip; \
- zip -d ${PHP_ZIP_NAME}.fpm.zip bref/bin/php /bin/php
+ zip -u ${PHP_ZIP_NAME}-cli.zip /bootstrap;
+
+# Create the PHP FPM layer
+RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . -x "*php-cgi"
