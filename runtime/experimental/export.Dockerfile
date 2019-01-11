@@ -24,7 +24,7 @@ RUN mkdir -p /export; \
  rm -rf /export/*; \
  rm -rf /bootstrap;
 
-ENV PHP_ZIP_NAME='/export/php-7.2'
+ENV PHP_ZIP_NAME='/export/php-72'
 
 # Create the PHP CLI layer
 RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . --exclude "*php-cgi"; \

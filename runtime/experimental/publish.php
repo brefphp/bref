@@ -9,8 +9,8 @@ use Symfony\Component\Process\Process;
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 $layers = [
-    'php-7.2',
-    'php-7.2-fpm',
+    'php-72',
+    'php-72-fpm',
 ];
 
 $regions = [
