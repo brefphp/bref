@@ -39,12 +39,12 @@ The deployment process with SAM works like this:
 
 > This step must be done only once per application.
 
-To be deployed into AWS Lambda, your code must be uploaded on AWS S3.
+To be deployed into AWS Lambda, your code must be uploaded on AWS S3 in us-east-2 region (Ohio).
 
 That means you must **create a S3 bucket** to host your application code:
 
 ```sh
-aws s3 mb s3://<bucket-name>
+aws --region us-east-2 s3 mb s3://<bucket-name>
 ```
 
 The content of this bucket will be managed by AWS SAM. Do not use it in your application to store things like assets or uploaded files.
@@ -71,12 +71,13 @@ sam package \
 
 The `.stack.yaml` file describes the stack and references the code that was just uploaded to S3. You can add it to `.gitignore` and remove it once you have finished deploying.
 
-**Step2**, deploy the generated stack:
+**Step2**, deploy the generated stack in us-east-2 region (Ohio):
 
 ```bash
 sam deploy \
     --template-file .stack.yaml \
     --capabilities CAPABILITY_IAM \
+    --region us-east-2 \
     --stack-name <stack-name>
 ```
 
