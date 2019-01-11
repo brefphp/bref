@@ -20,17 +20,18 @@ RUN rm -rf /opt/bref/data
 
 WORKDIR /opt
 COPY bootstraps/cli.bootstrap /tmp/cli.bootstrap
-RUN export PHP_ZIP_NAME=/export/php-$(php -r '$version = explode(".", phpversion());printf("%d.%d", $version[0], $version[1]);');
 RUN mkdir -p /export; \
  rm -rf /export/*; \
  rm -rf /bootstrap;
 
+ENV PHP_ZIP_NAME='/export/php-7.2'
+
 # Create the PHP CLI layer
-RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-cli.zip . -x "*php-cgi"; \
- zip -d ${PHP_ZIP_NAME}-cli.zip bref/sbin/php-fpm bin/php-fpm; \
+RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . -x "*php-cgi"; \
+ zip -d ${PHP_ZIP_NAME}.zip bref/sbin/php-fpm bin/php-fpm; \
  cp /tmp/cli.bootstrap /bootstrap; \
  chmod 755 /bootstrap; \
- zip -u ${PHP_ZIP_NAME}-cli.zip /bootstrap;
+ zip -u ${PHP_ZIP_NAME}.zip /bootstrap;
 
 # Create the PHP FPM layer
 RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . -x "*php-cgi"
