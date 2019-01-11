@@ -37,5 +37,15 @@ RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . --exclude "*php-cgi"; \
  zip --update ${PHP_ZIP_NAME}.zip /php.ini;
 
 # Create the PHP FPM layer
+COPY bootstraps/fpm/bootstrap /tmp/fpm.bootstrap
+COPY bootstraps/fpm/php.ini /tmp/fpm.php.ini
+COPY bootstraps/fpm/php-fpm.conf /tmp/fpm.php-fpm.conf
 RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . --exclude "*php-cgi"; \
- zip --delete ${PHP_ZIP_NAME}-fpm.zip bref/bin/php /bin/php
+ zip --delete ${PHP_ZIP_NAME}-fpm.zip bref/bin/php /bin/php \
+ cp /tmp/fpm.bootstrap /bootstrap; \
+ chmod 755 /bootstrap; \
+ zip --update ${PHP_ZIP_NAME}-fpm.zip /bootstrap; \
+ cp /tmp/fpm.php.ini /php.ini; \
+ zip --update ${PHP_ZIP_NAME}.zip /php.ini;
+ cp /tmp/fpm.php-fpm.conf /php-fpm.conf; \
+ zip --update ${PHP_ZIP_NAME}-fpm.zip /php-fpm.conf;
