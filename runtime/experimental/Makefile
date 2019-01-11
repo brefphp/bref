@@ -3,7 +3,6 @@ SHELL := /bin/bash
 REGION ?= us-east-2
 BREF_VERSION ?= 0.3.0
 PHP_VERSION_SHORT ?= 7.2
-S3_BUCKET ?= bref-php-${REGION}
 PHP_VERSION_SHORT_UNDERSCORE = $(subst .,_,${PHP_VERSION_SHORT})
 
 php: build publish
@@ -23,11 +22,6 @@ distribution:
 
 publish: distribution
 	$(eval LAYER_NAME = bref-php-default-${PHP_VERSION_SHORT_UNDERSCORE})
-	$(eval S3_KEY = ${BREF_VERSION}/php-default/${PHP_VERSION_SHORT}/php.zip)
-
-	# Upload to S3
-	#aws s3 cp export/php-${PHP_VERSION_SHORT}-cli.zip s3://${S3_BUCKET}/${S3_KEY}
-	#sleep 15
 
 	# Publish the layer
 	$(eval LAYER_VERSION = $(shell aws lambda publish-layer-version --region=${REGION} --layer-name ${LAYER_NAME} --description "bref PHP ${PHP_VERSION} Default" --license-info "MIT" --zip-file fileb://export/php-${PHP_VERSION_SHORT}-cli.zip --compatible-runtimes provided --output text --query Version))
@@ -42,5 +36,3 @@ publish: distribution
 		--principal '*' | python2 -c "import sys, json; print json.load(sys.stdin)['Statement']" | python2 -c "import sys, json; print json.load(sys.stdin)['Resource']"))
 
 	echo "Done! Published ${RESOURCE}"
-	sed 's/REPLACETHISARN/${RESOURCE}/g' tests/default/template.yaml.static > tests/default/template.yaml
-	cd tests/default;make deploy
