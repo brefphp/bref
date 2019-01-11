@@ -342,6 +342,10 @@ RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel
 # -fpie : Support Address Space Layout Randomization (see -fpic)
 # -0s : Optimize for smallest binaries possible.
 # -I : Add the path to the list of directories to be searched for header files during preprocessing.
+# --enable-option-checking=fatal: make sure invalid --configure-flags are fatal errors instead of just warnings
+# --enable-ftp: because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
+# --enable-mbstring: because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
+# --enable-maintainer-zts: build PHP as ZTS (Zend Thread Safe) to be able to use pthreads
 #
 RUN set -xe \
  && ./buildconf --force \
@@ -355,7 +359,6 @@ RUN set -xe \
         --enable-maintainer-zts \
         --with-config-file-path=${INSTALL_DIR}/etc/php \
         --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/config.d:/var/task/php/config.d \
-        --enable-option-checking=fatal \
         --enable-fpm \
         --enable-cgi \
         --enable-cli \
