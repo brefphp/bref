@@ -51,49 +51,49 @@ The layer bundles two categories of extensions.
       <td  align="left" valign="top">
         <ul>
         <li>Core</li>
-        <li>[ctype](http://php.net/manual/en/intro.ctype.php)</li>
-        <li>[curl](http://php.net/manual/en/book.curl.php)</li>
+        <li><a href="http://php.net/manual/en/intro.ctype.php">ctype</a></li>
+        <li><a href="http://php.net/manual/en/book.curl.php">curl</a></li>
         <li>date</li>
-        <li>[dom](http://php.net/manual/en/book.dom.php)</li>
-        <li>[exif](http://php.net/manual/en/book.exif.php)</li>
-        <li>[fileinfo](http://php.net/manual/en/book.fileinfo.php)</li>
-        <li>[filter](http://php.net/manual/en/book.filter.php)</li>
-        <li>[ftp](http://php.net/manual/en/book.ftp.php)</li>
-        <li>[gettext](http://php.net/manual/en/book.gettext.php)</li>
-        <li>[hash](http://php.net/manual/en/book.hash.php)</li>
-        <li>[iconv](http://php.net/manual/en/book.iconv.php)</li>
+        <li><a href="http://php.net/manual/en/book.dom.php">dom</a></li>
+        <li><a href="http://php.net/manual/en/book.exif.php">exif</a></li>
+        <li><a href="http://php.net/manual/en/book.fileinfo.php">fileinfo</a></li>
+        <li><a href="http://php.net/manual/en/book.filter.php">filter</a></li>
+        <li><a href="http://php.net/manual/en/book.ftp.php">ftp</a></li>
+        <li><a href="http://php.net/manual/en/book.gettext.php">gettext</a></li>
+        <li><a href="http://php.net/manual/en/book.hash.php">hash</a></li>
+        <li><a href="http://php.net/manual/en/book.iconv.php">iconv</a></li>
         </ul>
       </td>
       <td  align="left" valign="top">
         <ul>
-        <li>[json](http://php.net/manual/en/book.json.php)</li>
-        <li>[libxml](http://php.net/manual/en/book.libxml.php)</li>
-        <li>[mbstring]http://php.net/manual/en/book.mbstring.php</li>
-        <li>[mysqlnd](http://php.net/manual/en/book.mysqlnd.php)</li>
-        <li>[openssl](http://php.net/manual/en/book.openssl.php</li>
-        <li>[pcntl](http://php.net/manual/en/book.pcntl.php)</li>
-        <li>[pcre](http://php.net/manual/en/book.pcre.php)</li>
-        <li>[PDO](http://php.net/manual/en/book.PDO.php)</li>
-        <li>[pdo_sqlite](http://php.net/manual/en/book.pdo_sqlite.php)</li>
-        <li>[Phar](http://php.net/manual/en/book.Phar.php)</li>
-        <li>[posix](http://php.net/manual/en/book.posix.php)</li>
-        <li>[readline](http://php.net/manual/en/book.readline.php)</li>
+        <li><a href="http://php.net/manual/en/book.json.php">json</a></li>
+        <li><a href="http://php.net/manual/en/book.libxml.php">libxml</a></li>
+        <li><a href="http://php.net/manual/en/book.mbstring.php">mbstring</a></li>
+        <li><a href="http://php.net/manual/en/book.mysqlnd.php">mysqlnd</a></li>
+        <li><a href="http://php.net/manual/en/book.openssl.php">openssl</a></li>
+        <li><a href="http://php.net/manual/en/book.pcntl.php">pcntl</a></li>
+        <li><a href="http://php.net/manual/en/book.pcre.php">pcre</a></li>
+        <li><a href="http://php.net/manual/en/book.PDO.php">PDO</a></li>
+        <li><a href="http://php.net/manual/en/book.pdo_sqlite.php">pdo_sqlite</a></li>
+        <li><a href="http://php.net/manual/en/book.Phar.php">Phar</a></li>
+        <li><a href="http://php.net/manual/en/book.posix.php">posix</a></li>
+        <li><a href="http://php.net/manual/en/book.readline.php">readline</a></li>
         </ul>
       </td>
       <td align="left" valign="top">
         <ul>
-        <li>[Reflection](http://php.net/manual/en/book.Reflection.php)</li>
-        <li>[session](http://php.net/manual/en/book.session.php)</li>
-        <li>[SimpleXML](http://php.net/manual/en/book.SimpleXML.php)</li>
-        <li>[sodium](http://php.net/manual/en/book.sodium.php)</li>
-        <li>[SPL](http://php.net/manual/en/book.SPL.php)</li>
-        <li>[sqlite3](http://php.net/manual/en/book.sqlite3.php)</li>
-        <li>[standard](http://php.net/manual/en/book.standard.php)</li>
-        <li>[tokenizer](http://php.net/manual/en/book.tokenizer.php)</li>
-        <li>[xml](http://php.net/manual/en/book.xml.php)</li>
-        <li>[xmlreader](http://php.net/manual/en/book.xmlreader.php)</li>
-        <li>[xmlwriter](http://php.net/manual/en/book.xmlwriter.php)</li>
-        <li>[zlib](http://php.net/manual/en/book.zlib.php)</li>
+        <li><a href="http://php.net/manual/en/book.Reflection.php">Reflection</a></li>
+        <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
+        <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
+        <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
+        <li><a href="http://php.net/manual/en/book.SPL.php">SPL</a></li>
+        <li><a href="http://php.net/manual/en/book.sqlite3.php">sqlite3</a></li>
+        <li><a href="http://php.net/manual/en/book.standard.php">standard</a></li>
+        <li><a href="http://php.net/manual/en/book.tokenizer.php">tokenizer</a></li>
+        <li><a href="http://php.net/manual/en/book.xml.php">xml</a></li>
+        <li><a href="http://php.net/manual/en/book.xmlreader.php">xmlreader</a></li>
+        <li><a href="http://php.net/manual/en/book.xmlwriter.php">xmlwriter</a></li>
+        <li><a href="http://php.net/manual/en/book.zlib.php">zlib</a></li>
         </ul>
       </td>
     </tr>
