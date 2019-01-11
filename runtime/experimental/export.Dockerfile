@@ -34,4 +34,5 @@ RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . -x "*php-cgi"; \
  zip -u ${PHP_ZIP_NAME}.zip /bootstrap;
 
 # Create the PHP FPM layer
-RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . -x "*php-cgi"
+RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . -x "*php-cgi"; \
+ zip -d ${PHP_ZIP_NAME}.fpm.zip bref/bin/php /bin/php
