@@ -7,3 +7,7 @@
 /.phpcs-cache
 /composer.lock
 /output.yaml
+/.couscous/
+/website/node_modules/
+/website/template/output.css
+/.netlify/

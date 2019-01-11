@@ -5,7 +5,7 @@ namespace Bref\Test;
 /**
  * This interface standardizes tests for objects that proxy HTTP requests from one format to another.
  *
- * For example from API Gateway to PSR-7, API Gateway to FastCGI, etc.
+ * For example from API Gateway to PSR-7, API Gateway to FastCGI.
  */
 interface HttpRequestProxyTest
 {

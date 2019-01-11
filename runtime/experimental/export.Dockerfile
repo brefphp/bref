@@ -19,11 +19,16 @@ RUN rm -rf /opt/bref/var
 RUN rm -rf /opt/bref/data
 
 WORKDIR /opt
-RUN LD_LIBRARY_PATH= yum -y install zip
+COPY bootstraps/cli.bootstrap /tmp/cli.bootstrap
 RUN export PHP_ZIP_NAME=/export/php-$(php -r '$version = explode(".", phpversion());printf("%d.%d", $version[0], $version[1]);'); \
  mkdir -p /export; \
- zip -y -o -9 -r ${PHP_ZIP_NAME}.zip . -x "*php-cgi"; \
+ rm -rf /export/*; \
+ rm -rf /bootstrap; \
+ zip -qr ${PHP_ZIP_NAME}.zip . -x "*php-cgi"; \
  cp ${PHP_ZIP_NAME}.zip ${PHP_ZIP_NAME}-cli.zip; \
  zip -d ${PHP_ZIP_NAME}-cli.zip bref/sbin/php-fpm bin/php-fpm; \
+ cp /tmp/cli.bootstrap /bootstrap; \
+ chmod 755 /bootstrap; \
+ zip -u ${PHP_ZIP_NAME}-cli.zip /bootstrap; \
  cp ${PHP_ZIP_NAME}.zip ${PHP_ZIP_NAME}.fpm.zip; \
  zip -d ${PHP_ZIP_NAME}.fpm.zip bref/bin/php /bin/php

@@ -352,6 +352,7 @@ RUN set -xe \
         --build=x86_64-pc-linux-gnu \
         --prefix=${INSTALL_DIR} \
         --enable-option-checking=fatal \
+        --enable-maintainer-zts \
         --with-config-file-path=${INSTALL_DIR}/etc/php \
         --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/config.d:/var/task/php/config.d \
         --enable-option-checking=fatal \
@@ -384,9 +385,26 @@ RUN set -xe \
 RUN pecl install mongodb
 RUN pecl install redis
 RUN pecl install APCu
+
 RUN set -xe; \
     curl -Ls https://elasticache-downloads.s3.amazonaws.com/ClusterClient/PHP-7.0/latest-64bit \
   | tar xzC $(php-config --extension-dir) --strip-components=1
+
+ENV VERSION_PTHREADS=3.2.0
+ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
+
+RUN set -xe; \
+    mkdir -p ${PTHREADS_BUILD_DIR}/bin; \
+    curl -Ls https://github.com/krakjoe/pthreads/archive/v${VERSION_PTHREADS}.tar.gz \
+    | tar xzC ${PTHREADS_BUILD_DIR} --strip-components=1
+
+WORKDIR  ${PTHREADS_BUILD_DIR}/
+
+RUN set -xe; \
+    phpize \
+ && ./configure \
+ && make \
+ && make install
 
 # Strip all the unneeded symbols from shared libraries to reduce size.
 RUN find ${INSTALL_DIR} -type f -name "*.so*" -o -name "*.a"  -exec strip --strip-unneeded {} \;
@@ -411,5 +429,5 @@ RUN mkdir -p /opt
 WORKDIR /opt
 # Copy everything we built above into the same dir on the base AmazonLinux container.
 COPY --from=php_builder /opt /opt
-
-
+# We will need this later for packaging
+RUN LD_LIBRARY_PATH= yum -y install zip

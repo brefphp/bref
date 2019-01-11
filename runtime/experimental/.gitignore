@@ -1,3 +1,4 @@
 export/
 helpers/vendor/
 .DS_Store
+.idea/
