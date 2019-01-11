@@ -346,6 +346,7 @@ RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel
 # --enable-ftp: because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
 # --enable-mbstring: because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
 # --enable-maintainer-zts: build PHP as ZTS (Zend Thread Safe) to be able to use pthreads
+# --with-zlib and --with-zlib-dir: See https://stackoverflow.com/a/42978649/245552
 #
 RUN set -xe \
  && ./buildconf --force \
