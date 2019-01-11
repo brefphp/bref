@@ -51,49 +51,49 @@ The layer bundles two categories of extensions.
       <td  align="left" valign="top">
         <ul>
         <li>Core</li>
-        <li>ctype</li>
-        <li>curl</li>
+        <li>[ctype](http://php.net/manual/en/intro.ctype.php)</li>
+        <li>[curl](http://php.net/manual/en/book.curl.php)</li>
         <li>date</li>
-        <li>dom</li>
-        <li>exif</li>
-        <li>fileinfo</li>
-        <li>filter</li>
-        <li>ftp</li>
-        <li>gettext</li>
-        <li>hash</li>
-        <li>iconv</li>
+        <li>[dom](http://php.net/manual/en/book.dom.php)</li>
+        <li>[exif](http://php.net/manual/en/book.exif.php)</li>
+        <li>[fileinfo](http://php.net/manual/en/book.fileinfo.php)</li>
+        <li>[filter](http://php.net/manual/en/book.filter.php)</li>
+        <li>[ftp](http://php.net/manual/en/book.ftp.php)</li>
+        <li>[gettext](http://php.net/manual/en/book.gettext.php)</li>
+        <li>[hash](http://php.net/manual/en/book.hash.php)</li>
+        <li>[iconv](http://php.net/manual/en/book.iconv.php)</li>
         </ul>
       </td>
       <td  align="left" valign="top">
         <ul>
-        <li>json</li>
-        <li>libxml</li>
-        <li>mbstring</li>
-        <li>mysqlnd</li>
-        <li>openssl</li>
-        <li>pcntl</li>
-        <li>pcre</li>
-        <li>PDO</li>
-        <li>pdo_sqlite</li>
-        <li>Phar</li>
-        <li>posix</li>
-        <li>readline</li>
+        <li>[json](http://php.net/manual/en/book.json.php)</li>
+        <li>[libxml](http://php.net/manual/en/book.libxml.php)</li>
+        <li>[mbstring]http://php.net/manual/en/book.mbstring.php</li>
+        <li>[mysqlnd](http://php.net/manual/en/book.mysqlnd.php)</li>
+        <li>[openssl](http://php.net/manual/en/book.openssl.php</li>
+        <li>[pcntl](http://php.net/manual/en/book.pcntl.php)</li>
+        <li>[pcre](http://php.net/manual/en/book.pcre.php)</li>
+        <li>[PDO](http://php.net/manual/en/book.PDO.php)</li>
+        <li>[pdo_sqlite](http://php.net/manual/en/book.pdo_sqlite.php)</li>
+        <li>[Phar](http://php.net/manual/en/book.Phar.php)</li>
+        <li>[posix](http://php.net/manual/en/book.posix.php)</li>
+        <li>[readline](http://php.net/manual/en/book.readline.php)</li>
         </ul>
       </td>
       <td align="left" valign="top">
         <ul>
-        <li>Reflection</li>
-        <li>session</li>
-        <li>SimpleXML</li>
-        <li>sodium</li>
-        <li>SPL</li>
-        <li>sqlite3</li>
-        <li>standard</li>
-        <li>tokenizer</li>
-        <li>xml</li>
-        <li>xmlreader</li>
-        <li>xmlwriter</li>
-        <li>zlib</li>
+        <li>[Reflection](http://php.net/manual/en/book.Reflection.php)</li>
+        <li>[session](http://php.net/manual/en/book.session.php)</li>
+        <li>[SimpleXML](http://php.net/manual/en/book.SimpleXML.php)</li>
+        <li>[sodium](http://php.net/manual/en/book.sodium.php)</li>
+        <li>[SPL](http://php.net/manual/en/book.SPL.php)</li>
+        <li>[sqlite3](http://php.net/manual/en/book.sqlite3.php)</li>
+        <li>[standard](http://php.net/manual/en/book.standard.php)</li>
+        <li>[tokenizer](http://php.net/manual/en/book.tokenizer.php)</li>
+        <li>[xml](http://php.net/manual/en/book.xml.php)</li>
+        <li>[xmlreader](http://php.net/manual/en/book.xmlreader.php)</li>
+        <li>[xmlwriter](http://php.net/manual/en/book.xmlwriter.php)</li>
+        <li>[zlib](http://php.net/manual/en/book.zlib.php)</li>
         </ul>
       </td>
     </tr>
