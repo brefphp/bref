@@ -19,7 +19,6 @@ RUN rm -rf /opt/bref/var
 RUN rm -rf /opt/bref/data
 
 WORKDIR /opt
-COPY bootstraps/cli.bootstrap /tmp/cli.bootstrap
 RUN mkdir -p /export; \
  rm -rf /export/*; \
  rm -rf /bootstrap;
@@ -27,11 +26,15 @@ RUN mkdir -p /export; \
 ENV PHP_ZIP_NAME='/export/php-72'
 
 # Create the PHP CLI layer
+COPY bootstraps/function/bootstrap /tmp/function.bootstrap
+COPY bootstraps/function/php.ini /tmp/function.php.ini
 RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . --exclude "*php-cgi"; \
  zip --delete ${PHP_ZIP_NAME}.zip bref/sbin/php-fpm bin/php-fpm; \
- cp /tmp/cli.bootstrap /bootstrap; \
+ cp /tmp/function.bootstrap /bootstrap; \
  chmod 755 /bootstrap; \
- zip --update ${PHP_ZIP_NAME}.zip /bootstrap;
+ zip --update ${PHP_ZIP_NAME}.zip /bootstrap; \
+ cp /tmp/function.php.ini /php.ini; \
+ zip --update ${PHP_ZIP_NAME}.zip /php.ini;
 
 # Create the PHP FPM layer
 RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . --exclude "*php-cgi"; \
