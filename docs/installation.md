@@ -27,7 +27,7 @@ You will need to:
 - setup AWS credentials: [create AWS access keys](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and either:
     - configure them [using environment variables](https://serverless.com/framework/docs/providers/aws/guide/credentials#quick-setup) (easy solution)
     - or [setup `aws-cli`](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) and run `aws configure`
-- [install AWS SAM CLI](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/installation.rst)
+- [install AWS SAM CLI](https://aws.amazon.com/serverless/sam/)
 
 ### Region
 
