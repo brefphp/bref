@@ -48,6 +48,6 @@ RUN set -xe; \
  chmod 755 /bootstrap; \
  zip --update ${PHP_ZIP_NAME}-fpm.zip /bootstrap; \
  cp /tmp/fpm.php.ini /php.ini; \
- zip --update ${PHP_ZIP_NAME}.zip /php.ini; \
+ zip --update ${PHP_ZIP_NAME}-fpm.zip /php.ini; \
  cp /tmp/fpm.php-fpm.conf /php-fpm.conf; \
  zip --update ${PHP_ZIP_NAME}-fpm.zip /php-fpm.conf;
