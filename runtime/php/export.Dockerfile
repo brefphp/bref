@@ -28,7 +28,8 @@ ENV PHP_ZIP_NAME='/export/php-72'
 # Create the PHP CLI layer
 COPY layers/function/bootstrap /tmp/function.bootstrap
 COPY layers/function/php.ini /tmp/function.php.ini
-RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . --exclude "*php-cgi"; \
+RUN set -xe; \
+ zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . --exclude "*php-cgi"; \
  zip --delete ${PHP_ZIP_NAME}.zip bref/sbin/php-fpm bin/php-fpm; \
  cp /tmp/function.bootstrap /bootstrap; \
  chmod 755 /bootstrap; \
@@ -40,7 +41,8 @@ RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . --exclude "*php-cgi"; \
 COPY layers/fpm/bootstrap /tmp/fpm.bootstrap
 COPY layers/fpm/php.ini /tmp/fpm.php.ini
 COPY layers/fpm/php-fpm.conf /tmp/fpm.php-fpm.conf
-RUN zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . --exclude "*php-cgi"; \
+RUN set -xe; \
+ zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . --exclude "*php-cgi"; \
  zip --delete ${PHP_ZIP_NAME}-fpm.zip bref/bin/php /bin/php \
  cp /tmp/fpm.bootstrap /bootstrap; \
  chmod 755 /bootstrap; \
