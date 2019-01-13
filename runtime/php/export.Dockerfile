@@ -43,7 +43,7 @@ COPY layers/fpm/php.ini /tmp/fpm.php.ini
 COPY layers/fpm/php-fpm.conf /tmp/fpm.php-fpm.conf
 RUN set -xe; \
  zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . --exclude "*php-cgi"; \
- zip --delete ${PHP_ZIP_NAME}-fpm.zip bref/bin/php /bin/php \
+ zip --delete ${PHP_ZIP_NAME}-fpm.zip bref/bin/php /bin/php; \
  cp /tmp/fpm.bootstrap /bootstrap; \
  chmod 755 /bootstrap; \
  zip --update ${PHP_ZIP_NAME}-fpm.zip /bootstrap; \
