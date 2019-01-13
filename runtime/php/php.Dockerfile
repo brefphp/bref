@@ -362,7 +362,7 @@ RUN set -xe \
         --with-config-file-path=${INSTALL_DIR}/etc/php \
         --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/config.d:/var/task/php/config.d \
         --enable-fpm \
-        --enable-cgi \
+        --disable-cgi \
         --enable-cli \
         --disable-phpdbg \
         --disable-phpdbg-webhelper \
