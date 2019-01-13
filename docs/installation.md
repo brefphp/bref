@@ -29,7 +29,7 @@ You will need to:
 
 - setup AWS credentials: [create AWS access keys](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and [configure AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) by either:
     - running `aws configure` (quick configuration)
-    - or by [using environment variables](https://serverless.com/framework/docs/providers/aws/guide/credentials#quick-setup)
+    - or by [using environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html)
 
 ### Region
 
