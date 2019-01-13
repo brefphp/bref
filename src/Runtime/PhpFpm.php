@@ -13,7 +13,7 @@ use Symfony\Component\Process\Process;
 class PhpFpm
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
-    private const CONFIG = '/opt/php/fpm/php-fpm.conf';
+    private const CONFIG = '/opt/bref/etc/php-fpm.conf';
 
     /** @var Responder */
     private $client;
