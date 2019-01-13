@@ -34,8 +34,8 @@ RUN set -xe; \
  cp /tmp/function.bootstrap /bootstrap; \
  chmod 755 /bootstrap; \
  zip --update ${PHP_ZIP_NAME}.zip /bootstrap; \
- cp /tmp/function.php.ini /php.ini; \
- zip --update ${PHP_ZIP_NAME}.zip /bref/etc/php/php.ini;
+ cp /tmp/function.php.ini /opt/bref/etc/php/php.ini; \
+ zip --update ${PHP_ZIP_NAME}.zip bref/etc/php/php.ini;
 
 # Create the PHP FPM layer
 COPY layers/fpm/bootstrap /tmp/fpm.bootstrap
@@ -46,7 +46,7 @@ RUN set -xe; \
  cp /tmp/fpm.bootstrap /bootstrap; \
  chmod 755 /bootstrap; \
  zip --update ${PHP_ZIP_NAME}-fpm.zip /bootstrap; \
- cp /tmp/fpm.php.ini /php.ini; \
- zip --update ${PHP_ZIP_NAME}-fpm.zip /bref/etc/php/php.ini; \
- cp /tmp/fpm.php-fpm.conf /php-fpm.conf; \
- zip --update ${PHP_ZIP_NAME}-fpm.zip /bref/etc/php-fpm.conf;
+ cp /tmp/fpm.php.ini /opt/bref/etc/php/php.ini; \
+ zip --update ${PHP_ZIP_NAME}-fpm.zip bref/etc/php/php.ini; \
+ cp /tmp/fpm.php-fpm.conf /opt/bref/etc/php-fpm.conf; \
+ zip --update ${PHP_ZIP_NAME}-fpm.zip bref/etc/php-fpm.conf;
