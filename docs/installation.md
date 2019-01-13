@@ -24,10 +24,12 @@ Bref relies on AWS SAM and AWS access keys to interact with AWS.
 
 You will need to:
 
-- setup AWS credentials: [create AWS access keys](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and either:
-    - configure them [using environment variables](https://serverless.com/framework/docs/providers/aws/guide/credentials#quick-setup) (easy solution)
-    - or [setup `aws-cli`](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) and run `aws configure`
+- [install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
 - [install AWS SAM CLI](https://aws.amazon.com/serverless/sam/)
+
+- setup AWS credentials: [create AWS access keys](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and [configure AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) by either:
+    - running `aws configure` (quick configuration)
+    - or by [using environment variables](https://serverless.com/framework/docs/providers/aws/guide/credentials#quick-setup)
 
 ### Region
 
