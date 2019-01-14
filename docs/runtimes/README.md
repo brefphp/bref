@@ -42,11 +42,9 @@ Remember to use the `<region>` that matches your application, else Lambda will n
 
 ### Layer versions
 
-TODO: keep up to date the latest version for each layer. Maybe generate an image via a Lambda?
+<iframe src="https://runtimes.bref.sh/embedded" class="w-full h-64"></iframe>
 
-- `php-72`: 9
-- `php-72-fpm`: 4
-- `console`: 1
+The list of runtime versions is available in its own website at [runtimes.bref.sh](https://runtimes.bref.sh/).
 
 ### Examples
 
