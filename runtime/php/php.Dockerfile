@@ -347,6 +347,7 @@ RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel
 # --enable-mbstring: because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
 # --enable-maintainer-zts: build PHP as ZTS (Zend Thread Safe) to be able to use pthreads
 # --with-zlib and --with-zlib-dir: See https://stackoverflow.com/a/42978649/245552
+# --enable-opcache-file: allows to use the `opcache.file_cache` option
 #
 RUN set -xe \
  && ./buildconf --force \
@@ -378,7 +379,8 @@ RUN set -xe \
         --with-pdo-mysql=shared,mysqlnd \
         --enable-pcntl \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
-        --enable-intl=shared
+        --enable-intl=shared \
+        --enable-opcache-file
 RUN set -xe \
  && make -j $(nproc) \
  && make install \
