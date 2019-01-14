@@ -112,7 +112,7 @@ twig:
     cache: false # this can also be set to '/tmp/twig/' if disabling the Twig cache isn't an option for you
 ```
 
-Alternatively you can set the entire application's cache directory to `/tmp/cache` in the same manner as described for the logs directory in the `Kernel` class. However the caveat is that the pre-compiled config cache won't used in the production environment.
+Alternatively you can set the entire application's cache directory to `/tmp/cache` in the same manner as described for the logs directory in the `Kernel` class. However the caveat is that the pre-compiled config cache won't be used in the production environment.
 
 ```php
 public function getCacheDir()
