@@ -89,8 +89,14 @@ class PhpFpm
 
         $responseHeaders = array_change_key_case($responseHeaders, CASE_LOWER);
 
-        $responseHeaders['status'] = $responseHeaders['status'] ?? '200 Ok';
-        [$status] = explode(' ', $responseHeaders['status']);
+        // Extract the status code
+        if (isset($responseHeaders['status'])) {
+            [$status] = explode(' ', $responseHeaders['status']);
+        } else {
+            $status = 200;
+        }
+        unset($responseHeaders['status']);
+
         $responseBody = $this->client->getResponseContent();
 
         return new LambdaResponse((int) $status, $responseHeaders, $responseBody);
