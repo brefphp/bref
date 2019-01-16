@@ -603,6 +603,19 @@ Year,Make,Model
         return [[200], [301], [302], [400], [401], [403], [404], [500], [504]];
     }
 
+    public function test response with headers()
+    {
+        $response = $this->get('response-headers.php', [
+            'httpMethod' => 'GET',
+        ])->toApiGatewayFormat();
+
+        self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
+        unset($response['headers']['x-powered-by']);
+        self::assertEquals([
+            'content-type' => 'application/json',
+        ], $response['headers']);
+    }
+
     public function test response with cookies()
     {
         $cookieHeader = $this->get('cookies.php')->toApiGatewayFormat()['headers']['set-cookie'];
