@@ -13,6 +13,9 @@ $layers = [
     'php-72-fpm',
 ];
 
+/**
+ * These are the regions on which the layers are published.
+ */
 $regions = [
     'ca-central-1',
     'eu-central-1',
@@ -24,6 +27,12 @@ $regions = [
     'us-east-2',
     'us-west-1',
     'us-west-2',
+    'ap-south-1',
+    'ap-northeast-3',
+    'ap-northeast-2',
+    'ap-southeast-1',
+    'ap-southeast-2',
+    'ap-northeast-1',
 ];
 
 foreach ($regions as $region) {
