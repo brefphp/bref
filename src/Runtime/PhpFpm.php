@@ -178,6 +178,11 @@ class PhpFpm
         if (isset($headers['content-type'])) {
             $requestHeaders['CONTENT_TYPE'] = $headers['content-type'];
         }
+        // Auto-add the Content-Length header if it wasn't provided
+        // See https://github.com/mnapoli/bref/issues/162
+        if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
+            $headers['content-length'] = mb_strlen($requestBody);
+        }
         if (isset($headers['content-length'])) {
             $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
         }

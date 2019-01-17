@@ -17,4 +17,4 @@ echo json_encode([
     '$_REQUEST' => $_REQUEST,
     '$_SERVER' => $_SERVER,
     'HTTP_RAW_BODY' => file_get_contents('php://input'),
-]);
+], JSON_PRETTY_PRINT);
