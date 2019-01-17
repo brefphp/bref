@@ -6,12 +6,20 @@
 
 use Symfony\Component\Process\Process;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $layers = [
-    'php-72',
-    'php-72-fpm',
+    'php-72' => 'PHP 7.2 for PHP functions',
+    'php-72-fpm' => 'PHP-FPM 7.2 for HTTP applications',
+    'console' => 'Console runtime for PHP applications',
 ];
+foreach ($layers as $layer => $layerDescription) {
+    $file = __DIR__ . "/export/$layer.zip";
+    if (! file_exists($file)) {
+        echo "File $file does not exist: generate the archives first\n";
+        exit(1);
+    }
+}
 
 /**
  * These are the regions on which the layers are published.
@@ -35,21 +43,54 @@ $regions = [
 ];
 
 foreach ($regions as $region) {
-    foreach ($layers as $layer) {
+    foreach ($layers as $layer => $layerDescription) {
         $file = __DIR__ . "/export/$layer.zip";
 
-        if (! file_exists($file)) {
-            echo "File $file does not exist: generate the archives first\n";
-            exit(1);
-        }
-
-        $process = new Process([__DIR__ . '/helpers/publish.sh']);
-        $process->setEnv([
-            'REGION' => $region,
-            'LAYER_NAME' => $layer,
-            'FILE_NAME' => $file,
+        $publishLayer = new Process([
+            'aws',
+            'lambda',
+            'publish-layer-version',
+            '--region',
+            $region,
+            '--layer-name',
+            $layer,
+            '--description',
+            $layerDescription,
+            '--license-info',
+            'MIT',
+            '--zip-file',
+            'fileb://' . $file,
+            '--compatible-runtimes',
+            'provided',
+            // Output the version so that we can fetch it and use it
+            '--output',
+            'text',
+            '--query',
+            'Version',
         ]);
-        $process->mustRun();
+        $publishLayer->setTimeout(null);
+        $publishLayer->mustRun();
+        $layerVersion = trim($publishLayer->getOutput());
+
+        $addPermissions = new Process([
+            'aws',
+            'lambda',
+            'add-layer-version-permission',
+            '--region',
+            $region,
+            '--layer-name',
+            $layer,
+            '--version-number',
+            $layerVersion,
+            '--statement-id',
+            'public',
+            '--action',
+            'lambda:GetLayerVersion',
+            '--principal',
+            '*',
+        ]);
+        $addPermissions->setTimeout(null);
+        $addPermissions->mustRun();
 
         echo "Published $layer in $region\n";
     }
