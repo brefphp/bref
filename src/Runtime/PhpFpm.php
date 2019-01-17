@@ -181,7 +181,7 @@ class PhpFpm
         // Auto-add the Content-Length header if it wasn't provided
         // See https://github.com/mnapoli/bref/issues/162
         if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
-            $headers['content-length'] = mb_strlen($requestBody);
+            $headers['content-length'] = strlen($requestBody);
         }
         if (isset($headers['content-length'])) {
             $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
