@@ -163,10 +163,11 @@ class PhpFpm
             'SCRIPT_FILENAME' => $this->handler,
             'SERVER_SOFTWARE' => 'bref',
             'REMOTE_ADDR' => '127.0.0.1',
-            'REMOTE_PORT' => '80',
+            'REMOTE_PORT' => $headers['X-Forwarded-Port'] ?? 80,
             'SERVER_ADDR' => '127.0.0.1',
             'SERVER_NAME' => $serverName,
             'SERVER_PROTOCOL' => $protocol,
+            'SERVER_PORT' => $headers['X-Forwarded-Port'] ?? 80,
             'PATH_INFO' => $event['path'] ?? '/',
             'QUERY_STRING' => $queryString,
         ];

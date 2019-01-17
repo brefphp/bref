@@ -717,6 +717,7 @@ Year,Make,Model
             'SERVER_PROTOCOL' => 'HTTP/1.1',
             'SERVER_NAME' => 'localhost',
             'SERVER_ADDR' => '127.0.0.1',
+            'SERVER_PORT' => '80',
             'REMOTE_PORT' => '80',
             'REMOTE_ADDR' => '127.0.0.1',
             'SERVER_SOFTWARE' => 'bref',
