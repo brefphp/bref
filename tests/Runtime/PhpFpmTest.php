@@ -206,6 +206,72 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    /**
+     * @see https://github.com/mnapoli/bref/issues/162
+     */
+    public function test POST request with body and no content length()
+    {
+        $event = [
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'application/json',
+                // The Content-Length header is purposefully omitted
+            ],
+            'body' => json_encode('Hello world!'),
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'CONTENT_LENGTH' => '14',
+                'CONTENT_TYPE' => 'application/json',
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'POST',
+                'QUERY_STRING' => '',
+                'HTTP_CONTENT_TYPE' => 'application/json',
+                'HTTP_CONTENT_LENGTH' => '14',
+            ],
+            'HTTP_RAW_BODY' => '"Hello world!"',
+        ]);
+    }
+
+    public function test POST request supports utf8 characters in body()
+    {
+        $event = [
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'text/plain; charset=UTF-8',
+                // The Content-Length header is purposefully omitted
+            ],
+            // Use a multibyte string
+            'body' => 'Hello 🌍',
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'CONTENT_LENGTH' => '10',
+                'CONTENT_TYPE' => 'text/plain; charset=UTF-8',
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'POST',
+                'QUERY_STRING' => '',
+                'HTTP_CONTENT_TYPE' => 'text/plain; charset=UTF-8',
+                'HTTP_CONTENT_LENGTH' => '10',
+            ],
+            'HTTP_RAW_BODY' => 'Hello 🌍',
+        ]);
+    }
+
     public function test the content type header is not case sensitive()
     {
         $event = [
