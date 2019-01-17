@@ -81,7 +81,7 @@ The filesystem is readonly on lambdas except for `/tmp`. Because of that you nee
 public function getLogDir()
 {
     // When on the lambda only /tmp is writeable
-    if (getenv('LAMBDA_TASK_ROOT') !== false) {
+    if (getenv('SERVER_SOFTWARE') === 'bref') {
         return '/tmp/log/';
     }
 
@@ -118,8 +118,8 @@ Alternatively you can set the entire application's cache directory to `/tmp/cach
 public function getCacheDir()
 {
     // When on the lambda only /tmp is writeable
-    if (getenv('LAMBDA_TASK_ROOT') !== false) {
-        return '/tmp/cache/'.$this->environment;
+    if (getenv('SERVER_SOFTWARE') === 'bref') {
+        return '/tmp/cache/' . $this->environment;
     }
 
     return $this->getProjectDir().'/var/cache/'.$this->environment;
