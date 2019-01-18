@@ -1,16 +1,8 @@
 .EXPORT_ALL_VARIABLES:
 
-BREF_VERSION := 0.3
-REGION := us-east-2
-PHP_VERSION := 7.2.13
-PHP_VERSION_SHORT := 72
-
 # Build the PHP runtimes
-runtimes: runtime-console runtime-loop
-runtime-console:
-	cd runtime/console && sh publish.sh
-runtime-loop:
-	cd runtime/loop && sh publish.sh
+runtimes:
+	cd runtime && make publish
 
 # Generate and deploy the production version of the website using http://couscous.io
 website:
@@ -45,4 +37,4 @@ demo:
 		--stack-name bref-demo \
  		--capabilities CAPABILITY_IAM
 
-.PHONY: runtimes runtime-default runtime-fpm runtime-console runtime-loop website-preview website demo
+.PHONY: runtimes website website-preview website-assets demo
