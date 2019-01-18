@@ -23,9 +23,7 @@ website/node_modules:
 # Deploy the demo functions
 demo:
 	rm -rf .bref .couscous
-	rm -f runtime/default/php.zip
-	rm -f runtime/fpm/php.zip
-	rm -f runtime/loop/php.zip
+	rm -f runtime/export/*.zip
 	sam package \
 		--region us-east-2 \
 		--template-file template.yaml \
