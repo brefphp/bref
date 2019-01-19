@@ -9,6 +9,16 @@ use Symfony\Component\Process\Process;
 
 /**
  * Proxies HTTP events coming from API Gateway to PHP-FPM via FastCGI.
+ *
+ * Usage example:
+ *
+ *     $event = [get the Lambda event];
+ *     $phpFpm = new PhpFpm('index.php');
+ *     $phpFpm->start();
+ *     $lambdaResponse = $phpFpm->proxy($event);
+ *     $phpFpm->stop();
+ *     [send the $lambdaResponse];
+});
  */
 class PhpFpm
 {
@@ -33,6 +43,9 @@ class PhpFpm
         $this->configFile = $configFile;
     }
 
+    /**
+     * Start the PHP-FPM process.
+     */
     public function start(): void
     {
         if (! is_dir(dirname(self::SOCKET))) {
@@ -63,6 +76,9 @@ class PhpFpm
         $this->stop();
     }
 
+    /**
+     * @throws \Exception If the PHP-FPM process is not running anymore.
+     */
     public function ensureStillRunning(): void
     {
         if (! $this->fpm || ! $this->fpm->isRunning()) {
