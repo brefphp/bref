@@ -11,3 +11,4 @@
 /website/node_modules/
 /website/template/output.css
 /.netlify/
+.DS_Store
