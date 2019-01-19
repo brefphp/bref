@@ -16,10 +16,23 @@ Because of that application logs should not be stored on disk.
 
 The simplest solution is to push logs to AWS CloudWatch, AWS' service for logs.
 
+### Writing logs
+
 To send logs to CloudWatch:
 
 - in a [PHP function](/docs/runtimes/function.md): write logs to `stdout` (using `echo` for example) or `stderr`
-- in a [HTTP](/docs/runtimes/http.md) or [console application](/docs/runtimes/console.md): TODO
+- in a [HTTP](/docs/runtimes/http.md): write logs to `stderr`
+
+For example with [Monolog](https://github.com/Seldaek/monolog):
+
+```php
+$log = new Logger('name');
+$log->pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
+
+$log->warning('This is a warning!');
+```
+
+### Reading logs
 
 To read logs, either open the [CloudWatch console](https://us-east-1.console.aws.amazon.com/cloudwatch/home) or use SAM in the CLI:
 

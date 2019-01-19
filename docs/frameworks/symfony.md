@@ -45,7 +45,17 @@ public function getLogDir()
 }
 ```
 
-The best solution however is not to write log on disks because those are lost. You should use a remote log collector (ELK stack) or a cloud solution like Cloudtrail, Papertrail, or Loggly.
+The best solution however is to configure Symfony to [not write logs on disk](/docs/environment/logs.md). To send logs to CloudWatch you can configure Monolog to write logs to `stderr`:
+
+```yaml
+# config/packages/prod/monolog.yaml
+monolog:
+    handlers:
+        # ...
+        nested:
+            type: stream
+            path: "php://stderr"
+```
 
 You should also set the application's cache directory to `/tmp/cache` in the same manner as described for the logs directory in the `Kernel` class.
 
