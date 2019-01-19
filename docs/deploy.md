@@ -13,25 +13,29 @@ Let's look at how serverless applications are deployed on AWS with SAM.
 
 ### Stacks
 
-Everything is deployed through a **[CloudFormation](https://aws.amazon.com/cloudformation/) stack**. A stack is nothing more than a bunch of things that compose an application:
+Everything is deployed through a **[CloudFormation](https://aws.amazon.com/cloudformation/) stack**. A stack defines AWS resources to be created on your account. An AWS resource on CloudFormation can be anything, such as:
 
-- lambda functions
+- Lambda Functions
 - S3 buckets
-- databases
+- RDS
+- DynamoDB
+- VPC
+- Load Balancer
+- API Gateway
 
-Stacks make it easy to group those resources together: the whole stack is updated at once on deployments, and if you delete the stack all the resources inside are deleted together too. Clean and simple.
+Stacks provides an unified way to manage AWS resources. When a stack is first created, all of it's resources definitions are created. You may add additional resources later, remove existing resources or update them. You may also remove all resources at once by removing the entire stack.
 
-All of this is great except CloudFormation configuration is complex. This is where SAM helps.
+CloudFormation primary goal is to provide one unified structure to provision any AWS resource on your account. SAM on the other hand is a wraper around CloudFormation dedicated to facilitating a Lambda function deployment.
 
 ### SAM
 
 SAM offers a simpler configuration format. This is what you are using if you use Bref (the `template.yaml` file).
 
-The deployment process with SAM works like this:
+The deployment process with SAM is divided into three steps:
 
-- upload the application code to a S3 bucket
-- generate a temporary CloudFormation config (YAML file) that references the uploaded code
-- deploy the CloudFormation stack
+- Upload the application code to a S3 bucket
+- Generate a CloudFormation Changeset (YAML file) that references the uploaded code
+- Deploy the CloudFormation stack
 
 ## Deploying with SAM
 
@@ -39,7 +43,7 @@ The deployment process with SAM works like this:
 
 > This step must be done only once per application.
 
-To be deployed into AWS Lambda, your code must be uploaded on AWS S3.
+AWS Lambda requires your code to be stored on a S3 bucket.
 
 That means you must **create a S3 bucket** to host your application code:
 
@@ -47,11 +51,11 @@ That means you must **create a S3 bucket** to host your application code:
 aws s3 mb s3://<bucket-name>
 ```
 
-The content of this bucket will be managed by AWS SAM. Do not use it in your application to store things like assets or uploaded files.
+Note: The content of this bucket will be managed by AWS SAM. Do not use it in your application to store things like assets or uploaded files.
 
 ### Deployment
 
-Before deploying make sure your code is ready to be deployed. For example remove any development files from the project and install Composer dependencies optimized for production:
+Before deploying, make sure your code is ready to be deployed. For example remove any development files from the project and install Composer dependencies optimized for production:
 
 ```bash
 composer install --optimize-autoloader --no-dev
