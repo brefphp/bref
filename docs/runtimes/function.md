@@ -67,7 +67,7 @@ Resources:
             Handler: index.php # the name of your PHP file
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:<region>:416566615250:layer:php-72:<version>'
+                - 'arn:aws:lambda:<region>:416566615250:layer:php-73:<version>'
 ```
 
 The runtime to use is `php`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
