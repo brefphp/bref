@@ -63,7 +63,7 @@ composer install --optimize-autoloader --no-dev
 
 ```bash
 sam package \
-    --output-template-file .stack.yaml \
+    --output-template-file template.yaml \
     --s3-bucket <bucket-name>
 ```
 
@@ -75,7 +75,7 @@ The `.stack.yaml` file describes the stack and references the code that was just
 
 ```bash
 sam deploy \
-    --template-file .stack.yaml \
+    --template-file template.yaml \
     --capabilities CAPABILITY_IAM \
     --stack-name <stack-name>
 ```
