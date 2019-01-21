@@ -52,13 +52,15 @@ class PhpFpm
             mkdir(dirname(self::SOCKET));
         }
 
-        $this->fpm = new Process(['php-fpm', '--nodaemonize', '--fpm-config', $this->configFile]);
+        /**
+         * --nodaemonize: we want to keep control of the process
+         * --force-stderr: force logs to be sent to stderr, which will allow us to send them to CloudWatch
+         */
+        $this->fpm = new Process(['php-fpm', '--nodaemonize', '--force-stderr', '--fpm-config', $this->configFile]);
         $this->fpm->setTimeout(null);
         $this->fpm->start(function ($type, $output): void {
-            if ($type === Process::ERR) {
-                echo $output;
-                exit(1);
-            }
+            // Send any PHP-FPM log to CloudWatch
+            echo $output;
         });
 
         $this->waitForServerReady();
