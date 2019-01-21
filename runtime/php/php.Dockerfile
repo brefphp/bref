@@ -381,12 +381,13 @@ RUN set -xe \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
         --enable-opcache-file
-RUN set -xe \
- && make -j $(nproc) \
- && make install \
- && { find =${INSTALL_DIR}/bin =${INSTALL_DIR}/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; } \
- && make clean \
- && cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
+RUN make -j $(nproc)
+# Run `make install` and override PEAR's PHAR URL because pear.php.net is down
+RUN set -xe; \
+ make install PEAR_INSTALLER_URL='https://github.com/pear/pearweb_phars/raw/master/install-pear-nozlib.phar'; \
+ { find ${INSTALL_DIR}/bin ${INSTALL_DIR}/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; }; \
+ make clean; \
+ cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 RUN pecl install mongodb
 RUN pecl install redis
