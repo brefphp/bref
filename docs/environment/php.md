@@ -114,15 +114,15 @@ The layer bundles two categories of extensions.
 You can enable these extensions by loading them in your project `php/config.d/php.ini`, for example:
 
 ```ini
-extension=opcache
-extension=intl
-extension=apcu
+zend_extension=opcache.so
+extension=intl.so
+extension=apcu.so
 extension=amazon-elasticache-cluster-client.so
-extension=redis
-extension=pdo_pgsql
-extension=pdo_mysql
-extension=mongodb
-extension=pthreads
+extension=redis.so
+extension=pdo_pgsql.so
+extension=pdo_mysql.so
+extension=mongodb.so
+extension=pthreads.so
 ```
 
 ## Other Extensions
