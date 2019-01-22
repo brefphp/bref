@@ -32,6 +32,8 @@ class PhpFpm
     private $configFile;
     /** @var Process|null */
     private $fpm;
+    /** @var bool */
+    private $forwardEnvironmentVariables = true;
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
@@ -57,6 +59,9 @@ class PhpFpm
          */
         $this->fpm = new Process(['php-fpm', '--nodaemonize', '--force-stderr', '--fpm-config', $this->configFile]);
         $this->fpm->setTimeout(null);
+        if (! $this->forwardEnvironmentVariables) {
+            $this->fpm->setEnv([]);
+        }
         $this->fpm->start(function ($type, $output): void {
             // Send any PHP-FPM log to CloudWatch
             echo $output;
@@ -117,6 +122,14 @@ class PhpFpm
         $responseBody = $this->client->getResponseContent();
 
         return new LambdaResponse((int) $status, $responseHeaders, $responseBody);
+    }
+
+    /**
+     * This will disable the forwarding of environment variables to the PHP-FPM process.
+     */
+    public function clearEnvironmentVariables(): void
+    {
+        $this->forwardEnvironmentVariables = false;
     }
 
     private function waitForServerReady(): void
