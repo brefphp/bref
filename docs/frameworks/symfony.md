@@ -29,7 +29,7 @@ Resources:
                     APP_DEBUG: '0'
 ```
 
-The secrets (e.g. database passwords) must however not be committed in this file: define them in the [AWS Console](https://console.aws.amazon.com).
+The secrets (e.g. database passwords) must however not be committed in this file: define them in the [AWS Console](https://console.aws.amazon.com) or [configure your ci/cd pipeline accordingly](/docs/deploy.md).
 
 The filesystem is readonly on lambdas except for `/tmp`. Because of that you need to customize the path for logs in your `Kernel` class:
 
