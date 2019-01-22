@@ -26,7 +26,7 @@ Resources:
             Handler: public/index.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:<region>:416566615250:layer:php-72-fpm:<version>'
+                - 'arn:aws:lambda:<region>:416566615250:layer:php-73-fpm:<version>'
             # This section contains the URL routing configuration of API Gateway
             Events:
                 HttpRoot:
@@ -61,7 +61,7 @@ Resources:
 
 ## Runtime
 
-The runtime (aka layer) is different than with [PHP functions](function.md). Instead of `php-72` it should be `php-72-fpm` because we are using PHP-FPM.
+The runtime (aka layer) is different than with [PHP functions](function.md). Instead of `php-73` it should be `php-73-fpm` because we are using PHP-FPM.
 
 ```yaml
 Resources:
@@ -69,7 +69,7 @@ Resources:
         Properties:
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:<region>:416566615250:layer:php-72-fpm:<version>'
+                - 'arn:aws:lambda:<region>:416566615250:layer:php-73-fpm:<version>'
 ```
 
 To learn more check out [the runtimes documentation](/docs/runtimes/README.md).

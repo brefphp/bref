@@ -33,7 +33,7 @@ Resources:
             Runtime: provided
             Layers:
                 # PHP runtime
-                - 'arn:aws:lambda:<region>:416566615250:layer:php-72:<version>'
+                - 'arn:aws:lambda:<region>:416566615250:layer:php-73:<version>'
                 # Console layer
                 - 'arn:aws:lambda:<region>:416566615250:layer:console:<version>'
 ```

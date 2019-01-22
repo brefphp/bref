@@ -7,8 +7,6 @@ set -u
 # Print all commands before executing them
 set -x
 
-export PHP_ZIP_NAME='/export/php-72'
-
 cd /opt
 
 # We do not support running pear functions in Lambda
@@ -32,9 +30,9 @@ cp /layers/function/bootstrap bootstrap
 chmod 755 bootstrap
 cp /layers/function/php.ini bref/etc/php/php.ini
 # Zip the layer
-zip --quiet --recurse-paths ${PHP_ZIP_NAME}.zip . --exclude "*php-cgi"
+zip --quiet --recurse-paths /export/php-${PHP_SHORT_VERSION}.zip . --exclude "*php-cgi"
 # Remove PHP-FPM from this layer
-zip --delete ${PHP_ZIP_NAME}.zip bref/sbin/php-fpm bin/php-fpm
+zip --delete /export/php-${PHP_SHORT_VERSION}.zip bref/sbin/php-fpm bin/php-fpm
 # Cleanup the files specific to this layer
 rm bootstrap
 rm bref/etc/php/php.ini
@@ -46,7 +44,7 @@ chmod 755 bootstrap
 cp /layers/fpm/php.ini bref/etc/php/php.ini
 cp /layers/fpm/php-fpm.conf bref/etc/php-fpm.conf
 # Zip the layer
-zip --quiet --recurse-paths ${PHP_ZIP_NAME}-fpm.zip . --exclude "*php-cgi"
+zip --quiet --recurse-paths /export/php-${PHP_SHORT_VERSION}-fpm.zip . --exclude "*php-cgi"
 # Cleanup the files specific to this layer
 rm bootstrap
 rm bref/etc/php/php.ini

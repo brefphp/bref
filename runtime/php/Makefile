@@ -1,19 +1,29 @@
 SHELL := /bin/bash
 
 # Build the docker container that will be used to compile PHP and its extensions
-compiler:
+compiler: compiler.Dockerfile
 	docker build -f ${PWD}/compiler.Dockerfile -t bref/runtime/compiler:latest .
 
 # Compile PHP and its extensions
 build: compiler
-	docker build -f ${PWD}/php.Dockerfile -t bref/runtime/php:latest $(shell helpers/docker_args.php php72) .
+	docker build -f ${PWD}/php.Dockerfile -t bref/runtime/php-72:latest $(shell helpers/docker_args.php php72) .
+	docker build -f ${PWD}/php.Dockerfile -t bref/runtime/php-73:latest $(shell helpers/docker_args.php php73) .
 
 # Export the compiled PHP artifacts into zip files that can be uploaded as Lambda layers
 distribution: build
-	# Run the export script in the PHP container
+	# Run the export script for PHP 7.2
 	docker run --rm \
+		--env PHP_SHORT_VERSION=72 \
 		--volume ${PWD}/layers:/layers:ro \
 		--volume ${PWD}/../export:/export \
 		--volume ${PWD}/export.sh:/export.sh:ro \
-		bref/runtime/php:latest \
+		bref/runtime/php-72:latest \
+		/export.sh
+	# Run the export script for PHP 7.3
+	docker run --rm \
+		--env PHP_SHORT_VERSION=73 \
+		--volume ${PWD}/layers:/layers:ro \
+		--volume ${PWD}/../export:/export \
+		--volume ${PWD}/export.sh:/export.sh:ro \
+		bref/runtime/php-73:latest \
 		/export.sh

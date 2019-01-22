@@ -381,12 +381,13 @@ RUN set -xe \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
         --enable-opcache-file
-RUN set -xe \
- && make -j $(nproc) \
- && make install \
- && { find =${INSTALL_DIR}/bin =${INSTALL_DIR}/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; } \
- && make clean \
- && cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
+RUN make -j $(nproc)
+# Run `make install` and override PEAR's PHAR URL because pear.php.net is down
+RUN set -xe; \
+ make install PEAR_INSTALLER_URL='https://github.com/pear/pearweb_phars/raw/master/install-pear-nozlib.phar'; \
+ { find ${INSTALL_DIR}/bin ${INSTALL_DIR}/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; }; \
+ make clean; \
+ cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 RUN pecl install mongodb
 RUN pecl install redis
@@ -396,12 +397,12 @@ RUN set -xe; \
     curl -Ls https://elasticache-downloads.s3.amazonaws.com/ClusterClient/PHP-7.0/latest-64bit \
   | tar xzC $(php-config --extension-dir) --strip-components=1
 
-ENV VERSION_PTHREADS=3.2.0
 ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
 
+# Build from master because there are no pthreads release compatible with PHP 7.3
 RUN set -xe; \
     mkdir -p ${PTHREADS_BUILD_DIR}/bin; \
-    curl -Ls https://github.com/krakjoe/pthreads/archive/v${VERSION_PTHREADS}.tar.gz \
+    curl -Ls https://github.com/krakjoe/pthreads/archive/master.tar.gz \
     | tar xzC ${PTHREADS_BUILD_DIR} --strip-components=1
 
 WORKDIR  ${PTHREADS_BUILD_DIR}/

@@ -24,32 +24,26 @@ The name of the runtimes follow this pattern:
 arn:aws:lambda:<region>:416566615250:layer:<layer-name>:<layer-version>
 ```
 
-### Supported regions (`<region>`)
+### Region (`<region>`)
 
-- `us-east-2`
-- other regions will be supported soon
+The `<region>` placeholder should contain your application's region. **You need to use the same region as the rest of your application** else Lambda will not find the layer.
 
-Remember to use the `<region>` that matches your application, else Lambda will not find the layer.
+### Runtime (`<layer-name>`)
 
-### Runtimes (`<layer-name>`)
-
-- `php-72`: contains the PHP binary, for [non-HTTP applications](/docs/runtimes/function.md)
-- `php-72-fpm`: contains PHP-FPM for [HTTP applications](/docs/runtimes/http.md)
+- `php-73`/`php-72`: contains the PHP binary, for [non-HTTP applications](/docs/runtimes/function.md)
+- `php-73-fpm`/`php-72-fpm`: contains PHP-FPM for [HTTP applications](/docs/runtimes/http.md)
 - `console`: layer that should be used on top of `php-72` to run [console commands](/docs/runtimes/console.md)
 - `php-72-loop`: experimental mode, not documented yet
 
-> `php-72` means PHP 7.2.*. Other versions like PHP 7.3 will be added soon.
+Bref currently provides runtimes for PHP 7.2 and 7.3.
 
-### Layer versions
+> `php-73` means PHP 7.3.\*. It is not possible to require a specific "patch" version.
 
-<iframe src="https://runtimes.bref.sh/embedded" class="w-full h-64"></iframe>
+### Layer version (`<layer-version>`)
 
-The list of runtime versions is available in its own website at [runtimes.bref.sh](https://runtimes.bref.sh/).
+The list of runtime versions is hosted at [runtimes.bref.sh](https://runtimes.bref.sh/) and is shown below:
 
-### Examples
-
-- `arn:aws:lambda:us-east-2:416566615250:layer:php-72:9`
-- `arn:aws:lambda:us-east-2:416566615250:layer:php-72-fpm:4`
+<iframe src="https://runtimes.bref.sh/embedded" class="w-full h-96"></iframe>
 
 ## Usage
 
