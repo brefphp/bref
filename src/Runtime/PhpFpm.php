@@ -18,7 +18,6 @@ use Symfony\Component\Process\Process;
  *     $lambdaResponse = $phpFpm->proxy($event);
  *     $phpFpm->stop();
  *     [send the $lambdaResponse];
-});
  */
 class PhpFpm
 {
@@ -129,9 +128,14 @@ class PhpFpm
         while (! $this->isReady()) {
             usleep($wait);
             $elapsed += $wait;
+
             if ($elapsed > $timeout) {
-                echo 'Timeout while waiting for PHP-FPM socket at ' . self::SOCKET;
-                exit(1);
+                throw new \Exception('Timeout while waiting for PHP-FPM socket at ' . self::SOCKET);
+            }
+
+            // If the process has crashed we can stop immediately
+            if (! $this->fpm->isRunning()) {
+                throw new \Exception('PHP-FPM failed to start');
             }
         }
     }
