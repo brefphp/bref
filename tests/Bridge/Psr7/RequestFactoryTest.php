@@ -14,10 +14,10 @@ class RequestFactoryTest extends TestCase implements HttpRequestProxyTest
         $currentTimestamp = time();
 
         $request = RequestFactory::fromLambdaEvent([
+            'path' => '/test',
             'httpMethod' => 'GET',
             'requestContext' => [
                 'protocol' => '1.1',
-                'path' => '/test',
                 'requestTimeEpoch' => $currentTimestamp,
             ],
             'headers' => [],
@@ -49,6 +49,7 @@ class RequestFactoryTest extends TestCase implements HttpRequestProxyTest
         $currentTimestamp = time();
 
         $request = RequestFactory::fromLambdaEvent([
+            'path' => '/test',
             'httpMethod' => 'GET',
             'queryStringParameters' => [
                 'foo' => 'bar',
@@ -56,7 +57,6 @@ class RequestFactoryTest extends TestCase implements HttpRequestProxyTest
             ],
             'requestContext' => [
                 'protocol' => '1.1',
-                'path' => '/test',
                 'requestTimeEpoch' => $currentTimestamp,
             ],
             'headers' => [],
