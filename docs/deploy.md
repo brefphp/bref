@@ -108,7 +108,7 @@ composer install --optimize-autoloader --no-dev
 sam package ...
 # Deploy
 sam deploy ...
-# Configure (e.g. passing secret env vars - existing env vars from template.yaml will be replaced!)
+# Configure (e.g. passing secret env vars - existing env vars defined in template.yaml will be replaced!)
 aws lambda update-function-configuration
   --function-name cake
   --environment '{"Variables":{
