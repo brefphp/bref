@@ -32,7 +32,7 @@ The `<region>` placeholder should contain your application's region. **You need 
 
 - `php-73`/`php-72`: contains the PHP binary, for [non-HTTP applications](/docs/runtimes/function.md)
 - `php-73-fpm`/`php-72-fpm`: contains PHP-FPM for [HTTP applications](/docs/runtimes/http.md)
-- `console`: layer that should be used on top of `php-72` to run [console commands](/docs/runtimes/console.md)
+- `console`: layer that should be used on top of `php-72`/`php-73` to run [console commands](/docs/runtimes/console.md)
 - `php-72-loop`: experimental mode, not documented yet
 
 Bref currently provides runtimes for PHP 7.2 and 7.3.
