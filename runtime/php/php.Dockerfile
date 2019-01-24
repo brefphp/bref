@@ -246,6 +246,36 @@ RUN set -xe; \
  && cp xml2-config ${INSTALL_DIR}/bin/xml2-config
 
 ###############################################################################
+# LIBZIP Build
+# https://github.com/nih-at/libzip/releases
+# Needed by:
+#   - php
+ARG libzip
+ENV VERSION_ZIP=${libzip}
+ENV ZIP_BUILD_DIR=${BUILD_DIR}/zip
+
+RUN set -xe; \
+    mkdir -p ${ZIP_BUILD_DIR}/bin/; \
+# Download and upack the source code
+    curl -Ls https://github.com/nih-at/libzip/archive/rel-${VERSION_ZIP//./-}.tar.gz \
+  | tar xzC ${ZIP_BUILD_DIR} --strip-components=1
+
+# Move into the unpackaged code directory
+WORKDIR  ${ZIP_BUILD_DIR}/bin/
+
+# Configure the build
+RUN set -xe; \
+    CFLAGS="" \
+    CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
+    LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
+    cmake .. \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+    -DCMAKE_BUILD_TYPE=RELEASE
+
+RUN set -xe; \
+    cmake  --build . --target install
+
+###############################################################################
 # LIBSODIUM Build
 # https://github.com/jedisct1/libsodium/releases
 # Uses:
@@ -379,6 +409,7 @@ RUN set -xe \
         --enable-mbstring \
         --with-pdo-mysql=shared,mysqlnd \
         --enable-pcntl \
+        --enable-zip \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
         --enable-opcache-file
@@ -448,5 +479,3 @@ RUN mkdir -p /opt
 WORKDIR /opt
 # Copy everything we built above into the same dir on the base AmazonLinux container.
 COPY --from=php_builder /opt /opt
-# We will need this later for packaging
-RUN LD_LIBRARY_PATH= yum -y install zip
