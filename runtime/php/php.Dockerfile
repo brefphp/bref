@@ -428,6 +428,8 @@ RUN set -xe; \
 RUN find ${INSTALL_DIR} -type f -name "*.so*" -o -name "*.a"  -exec strip --strip-unneeded {} \;
 RUN find ${INSTALL_DIR} -type f -executable -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; -print|xargs strip --strip-all
 
+# Cleanup all the binaries we don't want.
+RUN find /opt/bref/bin -mindepth 1 -maxdepth 1 ! -name "php" ! -name "pecl" -exec rm {} \+
 
 # Symlink all our binaries into /opt/bin so that Lambda sees them in the path.
 RUN mkdir -p /opt/bin
@@ -441,7 +443,6 @@ FROM amazonlinux:2017.03
 ENV INSTALL_DIR="/opt/bref"
 ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib"
-
 
 RUN mkdir -p /opt
 WORKDIR /opt
