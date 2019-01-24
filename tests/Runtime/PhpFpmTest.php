@@ -753,8 +753,7 @@ Year,Make,Model
         if ($this->fpm) {
             $this->fpm->stop();
         }
-        $this->fpm = new PhpFpm($handler, __DIR__ . '/../../runtime/php/layers/fpm/php-fpm.conf');
-        $this->fpm->clearEnvironmentVariables();
+        $this->fpm = new PhpFpm($handler, __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
     }
 }
