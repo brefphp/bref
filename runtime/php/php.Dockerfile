@@ -374,6 +374,7 @@ RUN set -xe \
         --with-curl \
         --enable-exif \
         --enable-ftp \
+        --enable-opcache-file \
         --with-gettext \
         --enable-mbstring \
         --with-pdo-mysql=shared,mysqlnd \
@@ -412,6 +413,16 @@ RUN set -xe; \
  && ./configure \
  && make \
  && make install
+
+RUN set -xe; \
+    mkdir -p /opt/bref/etc/php/config.d \
+ && echo  zend_extension=opcache.so > /opt/bref/etc/php/config.d/opcache.ini \
+ && echo display_errors=0 >> /opt/bref/etc/php/config.d/opcache.ini \
+ && echo dopcache.enable=1 >> /opt/bref/etc/php/config.d/opcache.ini \
+ && echo dopcache.validate_permission=0 >> /opt/bref/etc/php/config.d/opcache.ini \
+ && echo dopcache.validate_timestamps=0 >> /opt/bref/etc/php/config.d/opcache.ini \
+ && echo dpcache.memory_consumption=128 >> /opt/bref/etc/php/config.d/opcache.ini \
+ && echo dopcache.max_accelerated_files=10000 >> /opt/bref/etc/php/config.d/opcache.ini
 
 # Strip all the unneeded symbols from shared libraries to reduce size.
 RUN find ${INSTALL_DIR} -type f -name "*.so*" -o -name "*.a"  -exec strip --strip-unneeded {} \;
