@@ -404,7 +404,6 @@ RUN set -xe \
         --with-curl \
         --enable-exif \
         --enable-ftp \
-        --enable-opcache-file \
         --with-gettext \
         --enable-mbstring \
         --with-pdo-mysql=shared,mysqlnd \
