@@ -28,7 +28,8 @@ rm -rf bref/data
 # Create the PHP CLI layer
 cp /layers/function/bootstrap bootstrap
 chmod 755 bootstrap
-cp /layers/function/php.ini bref/etc/php/php.ini
+
+cat /layers/function/php.ini >> bref/etc/php/php.ini
 # Zip the layer
 zip --quiet --recurse-paths /export/php-${PHP_SHORT_VERSION}.zip . --exclude "*php-cgi"
 # Remove PHP-FPM from this layer
