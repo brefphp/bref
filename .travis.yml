@@ -9,6 +9,9 @@ php:
   - 7.3
   - nightly
 
+services:
+  - docker
+
 matrix:
   fast_finish: true
   allow_failures:
@@ -24,6 +27,8 @@ cache:
 before_script:
   - composer install -n
   - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest --prefer-stable -n; fi;
+  - pip install awscli
+  - pip install aws-sam-cli
 
 script:
   - vendor/bin/phpunit
