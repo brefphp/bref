@@ -18,17 +18,17 @@ jobs:
     -   name: 'PHPUnit with PHP 7.2'
         php: 7.2
         before_script: composer install -n
-        script: vendor/bin/phpunit
+        script: vendor/bin/phpunit --testsuite small
 
     -   name: 'PHPUnit with PHP 7.3'
         php: 7.3
         before_script: composer install -n
-        script: vendor/bin/phpunit
+        script: vendor/bin/phpunit --testsuite small
 
     -   name: 'PHPUnit with lowest dependencies'
         php: 7.2
         before_script: composer update --prefer-lowest --prefer-stable -n
-        script: vendor/bin/phpunit
+        script: vendor/bin/phpunit --testsuite small
 
     -   name: 'Runtime tests'
         php: 7.3
@@ -36,7 +36,7 @@ jobs:
           - composer install -n
           - pip install --user awscli
           - pip install --user aws-sam-cli
-        script: vendor/bin/phpunit
+        script: vendor/bin/phpunit --testsuite runtimes
 
     -   name: 'PHPStan'
         php: 7.3
