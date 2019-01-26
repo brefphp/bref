@@ -13,7 +13,6 @@ class PhpRuntimeTest extends TestCase
         $process->setWorkingDirectory(__DIR__);
         $process->setTimeout(0);
         $process->mustRun();
-        $result = json_decode(trim($process->getOutput()), true);
-        self::assertSame('Hello world', $result, $process->getErrorOutput());
+        self::assertJsonStringEqualsJsonString('"Hello world"', $process->getOutput(), $process->getErrorOutput());
     }
 }
