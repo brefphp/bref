@@ -7,8 +7,8 @@
             <directory>./tests/</directory>
             <exclude>./tests/Runtime/PhpRuntimeTest.php</exclude>
         </testsuite>
-        <testsuite name="full">
-            <directory>./tests/</directory>
+        <testsuite name="runtimes">
+            <file>./tests/Runtime/PhpRuntimeTest.php</file>
         </testsuite>
     </testsuites>
 
