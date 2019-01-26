@@ -75,6 +75,7 @@ class PhpRuntimeTest extends TestCase
             'xml',
             'xmlreader',
             'xmlwriter',
+            'zip',
             'mysqlnd',
             'Zend OPcache',
         ], $result, $stderr);

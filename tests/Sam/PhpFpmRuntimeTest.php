@@ -80,6 +80,7 @@ class PhpFpmRuntimeTest extends TestCase
             'xml',
             'xmlreader',
             'xmlwriter',
+            'zip',
             'mysqlnd',
             'cgi-fcgi',
             'Zend OPcache',
