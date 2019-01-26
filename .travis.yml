@@ -25,10 +25,10 @@ cache:
     - $HOME/.composer/cache
 
 before_script:
+  - pip install --user awscli
+  - pip install --user aws-sam-cli
   - composer install -n
   - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest --prefer-stable -n; fi;
-  - pip install awscli
-  - pip install aws-sam-cli
 
 script:
   - vendor/bin/phpunit
