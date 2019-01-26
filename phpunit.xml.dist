@@ -5,10 +5,10 @@
     <testsuites>
         <testsuite name="small">
             <directory>./tests/</directory>
-            <exclude>./tests/Runtime/PhpRuntimeTest.php</exclude>
+            <exclude>./tests/Sam</exclude>
         </testsuite>
         <testsuite name="runtimes">
-            <file>./tests/Runtime/PhpRuntimeTest.php</file>
+            <directory>./tests/Sam</directory>
         </testsuite>
     </testsuites>
 
