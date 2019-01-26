@@ -4,33 +4,41 @@ notifications:
   email:
     on_success: never
 
-php:
-  - 7.2
-  - 7.3
-  - nightly
-
 services:
   - docker
-
-matrix:
-  fast_finish: true
-  allow_failures:
-    - php: nightly
-  include:
-    - php: 7.2
-      env: dependencies=lowest
 
 cache:
   directories:
     - $HOME/.composer/cache
     - $HOME/.cache/pip
 
-before_script:
-  - pip install --user awscli
-  - pip install --user aws-sam-cli
-  - composer install -n
-  - if [ "$dependencies" = "lowest" ]; then composer update --prefer-lowest --prefer-stable -n; fi;
+jobs:
+  include:
 
-script:
-  - vendor/bin/phpunit
-  - vendor/bin/phpstan analyse
+    -   name: 'PHPUnit with PHP 7.2'
+        php: 7.2
+        before_script: composer install -n
+        script: vendor/bin/phpunit
+
+    -   name: 'PHPUnit with PHP 7.3'
+        php: 7.3
+        before_script: composer install -n
+        script: vendor/bin/phpunit
+
+    -   name: 'PHPUnit with lowest dependencies'
+        php: 7.2
+        before_script: composer update --prefer-lowest --prefer-stable -n
+        script: vendor/bin/phpunit
+
+    -   name: 'Runtime tests'
+        php: 7.3
+        before_script:
+          - composer install -n
+          - pip install --user awscli
+          - pip install --user aws-sam-cli
+        script: vendor/bin/phpunit
+
+    -   name: 'PHPStan'
+        php: 7.3
+        before_script: composer install -n
+        script: vendor/bin/phpstan analyse
