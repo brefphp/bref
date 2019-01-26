@@ -46,6 +46,7 @@
         "illuminate/http": "^5.0",
         "laravel/framework": "^5.6",
         "doctrine/coding-standard": "^5.0",
-        "phpstan/phpstan": "^0.10.5"
+        "phpstan/phpstan": "^0.10.5",
+        "guzzlehttp/guzzle": "^6.3"
     }
 }

@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+    PhpFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: 'bref-tests-function'
+            CodeUri: ../..
+            Handler: tests/Sam/Php/function.php
+            Runtime: provided
+            Layers:
+                - 'arn:aws:lambda:us-east-1:416566615250:layer:php-73:3'
+
+    HttpFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: 'bref-tests-http'
+            CodeUri: ../..
+            Handler: tests/Sam/PhpFpm/index.php
+            Runtime: provided
+            Layers:
+                - 'arn:aws:lambda:us-east-1:416566615250:layer:php-73-fpm:3'
+            Events:
+                HttpRoot:
+                    Type: Api
+                    Properties:
+                        Path: /
+                        Method: ANY
+                HttpSubPaths:
+                    Type: Api
+                    Properties:
+                        Path: /{proxy+}
+                        Method: ANY
