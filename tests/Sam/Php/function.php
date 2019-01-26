@@ -13,7 +13,6 @@ lambda(function (array $event) {
 
     if ($event['error_log'] ?? false) {
         error_log('This is a test log from error_log');
-        return true;
     }
 
     return 'Hello ' . ($event['name'] ?? 'world');

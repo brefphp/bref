@@ -11,3 +11,24 @@ Resources:
             Runtime: provided
             Layers:
                 - 'arn:aws:lambda:us-east-1:416566615250:layer:php-73:1'
+
+    HttpFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: 'bref-tests-http'
+            CodeUri: ../..
+            Handler: tests/Sam/PhpFpm/index.php
+            Runtime: provided
+            Layers:
+                - 'arn:aws:lambda:us-east-1:416566615250:layer:php-73-fpm:1'
+            Events:
+                HttpRoot:
+                    Type: Api
+                    Properties:
+                        Path: /
+                        Method: ANY
+                HttpSubPaths:
+                    Type: Api
+                    Properties:
+                        Path: /{proxy+}
+                        Method: ANY
