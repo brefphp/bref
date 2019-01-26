@@ -11,6 +11,7 @@ class PhpRuntimeTest extends TestCase
     {
         $process = new Process(['sam', 'local', 'invoke', 'PhpFunction', '--no-event', '--region', 'us-east-1']);
         $process->setWorkingDirectory(__DIR__);
+        $process->setTimeout(0);
         $process->mustRun();
         $result = json_decode(trim($process->getOutput()), true);
         self::assertSame('Hello world', $result, $process->getErrorOutput());
