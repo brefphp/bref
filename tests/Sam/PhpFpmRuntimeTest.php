@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test\Runtime;
+namespace Bref\Test\Sam;
 
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
