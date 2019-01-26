@@ -23,6 +23,7 @@ matrix:
 cache:
   directories:
     - $HOME/.composer/cache
+    - $HOME/.cache/pip
 
 before_script:
   - pip install --user awscli
