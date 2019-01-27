@@ -59,14 +59,15 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.gettext.php">gettext</a></li>
         <li><a href="http://php.net/manual/en/book.hash.php">hash</a></li>
         <li><a href="http://php.net/manual/en/book.iconv.php">iconv</a></li>
+        <li><a href="http://php.net/manual/en/book.json.php">json</a></li>
         </ul>
       </td>
       <td  align="left" valign="top">
         <ul>
-        <li><a href="http://php.net/manual/en/book.json.php">json</a></li>
         <li><a href="http://php.net/manual/en/book.libxml.php">libxml</a></li>
         <li><a href="http://php.net/manual/en/book.mbstring.php">mbstring</a></li>
         <li><a href="http://php.net/manual/en/book.mysqlnd.php">mysqlnd</a></li>
+        <li><a href="http://php.net/manual/en/book.opcache.php">opcache</a></li>
         <li><a href="http://php.net/manual/en/book.openssl.php">openssl</a></li>
         <li><a href="http://php.net/manual/en/book.pcntl.php">pcntl</a></li>
         <li><a href="http://php.net/manual/en/book.pcre.php">pcre</a></li>
@@ -75,11 +76,11 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.Phar.php">Phar</a></li>
         <li><a href="http://php.net/manual/en/book.posix.php">posix</a></li>
         <li><a href="http://php.net/manual/en/book.readline.php">readline</a></li>
+        <li><a href="http://php.net/manual/en/book.Reflection.php">Reflection</a></li>
         </ul>
       </td>
       <td align="left" valign="top">
         <ul>
-        <li><a href="http://php.net/manual/en/book.Reflection.php">Reflection</a></li>
         <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
         <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
@@ -99,7 +100,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 
 ### Extensions installed but disabled by default
 
-- **[OPCache](http://php.net/manual/en/book.opcache.php)** - OPcache improves PHP performance by storing precompiled script bytecode in shared memory, thereby removing the need for PHP to load and parse scripts on each request.
 - **[intl](http://php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
 - **[APCu](http://php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
 - **[ElastiCache php-memcached extension](https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Appendix.PHPAutoDiscoverySetup.html)** - 
@@ -112,7 +112,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 You can enable these extensions by loading them in `php/config.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
 ```ini
-extension=opcache
 extension=intl
 extension=apcu
 extension=amazon-elasticache-cluster-client.so
