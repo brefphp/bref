@@ -9,22 +9,6 @@ set -x
 
 cd /opt
 
-# We do not support running pear functions in Lambda
-rm -rf bref/lib/php/PEAR
-rm -rf bref/share/doc
-rm -rf bref/share/man
-rm -rf bref/share/gtk-doc
-rm -rf bref/include
-rm -rf bref/tests
-rm -rf bref/doc
-rm -rf bref/docs
-rm -rf bref/man
-rm -rf bref/www
-rm -rf bref/cfg
-rm -rf bref/libexec
-rm -rf bref/var
-rm -rf bref/data
-
 # Create the PHP CLI layer
 cp /layers/function/bootstrap bootstrap
 chmod 755 bootstrap

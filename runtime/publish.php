@@ -44,56 +44,108 @@ $regions = [
     'ap-southeast-2',
 ];
 
+// Publish the layers
+/** @var Process[] $publishingProcesses */
+$publishingProcesses = [];
 foreach ($regions as $region) {
     foreach ($layers as $layer => $layerDescription) {
-        $file = __DIR__ . "/export/$layer.zip";
+        $publishingProcesses[$region . $layer] = publishLayer($region, $layer, $layerDescription);
+    }
+}
+runProcessesInParallel($publishingProcesses);
+echo "\nAll layers are published, adding permissions now\n";
 
-        $publishLayer = new Process([
-            'aws',
-            'lambda',
-            'publish-layer-version',
-            '--region',
-            $region,
-            '--layer-name',
-            $layer,
-            '--description',
-            $layerDescription,
-            '--license-info',
-            'MIT',
-            '--zip-file',
-            'fileb://' . $file,
-            '--compatible-runtimes',
-            'provided',
-            // Output the version so that we can fetch it and use it
-            '--output',
-            'text',
-            '--query',
-            'Version',
-        ]);
-        $publishLayer->setTimeout(null);
-        $publishLayer->mustRun();
+// Add public permissions on the layers
+/** @var Process[] $permissionProcesses */
+$permissionProcesses = [];
+foreach ($regions as $region) {
+    foreach ($layers as $layer => $layerDescription) {
+        $publishLayer = $publishingProcesses[$region . $layer];
         $layerVersion = trim($publishLayer->getOutput());
 
-        $addPermissions = new Process([
-            'aws',
-            'lambda',
-            'add-layer-version-permission',
-            '--region',
-            $region,
-            '--layer-name',
-            $layer,
-            '--version-number',
-            $layerVersion,
-            '--statement-id',
-            'public',
-            '--action',
-            'lambda:GetLayerVersion',
-            '--principal',
-            '*',
-        ]);
-        $addPermissions->setTimeout(null);
-        $addPermissions->mustRun();
-
-        echo "Published $layer in $region\n";
+        $permissionProcesses[] = addPublicLayerPermissions($region, $layer, $layerVersion);
     }
+}
+runProcessesInParallel($permissionProcesses);
+echo "\nDone\n";
+
+function publishLayer(string $region, string $layer, string $layerDescription): Process
+{
+    $file = __DIR__ . "/export/$layer.zip";
+
+    $process = new Process([
+        'aws',
+        'lambda',
+        'publish-layer-version',
+        '--region',
+        $region,
+        '--layer-name',
+        $layer,
+        '--description',
+        $layerDescription,
+        '--license-info',
+        'MIT',
+        '--zip-file',
+        'fileb://' . $file,
+        '--compatible-runtimes',
+        'provided',
+        // Output the version so that we can fetch it and use it
+        '--output',
+        'text',
+        '--query',
+        'Version',
+    ]);
+    $process->setTimeout(null);
+
+    return $process;
+}
+
+/**
+ * @param Process[] $processes
+ */
+function runProcessesInParallel(array $processes): void
+{
+    // Run the processes in batches to parallelize them without overloading the machine and the network
+    foreach (array_chunk($processes, 4) as $batch) {
+        // Start all the processes
+        array_map(function (Process $process): void {
+            $process->start();
+        }, $batch);
+        // Wait for them to finish
+        array_map(function (Process $process): void {
+            $status = $process->wait();
+            echo '.';
+            // Make sure the process ran successfully
+            if ($status !== 0) {
+                echo 'Process ' . $process->getCommandLine() . ' failed:' . PHP_EOL;
+                echo $process->getErrorOutput();
+                echo $process->getOutput();
+                exit(1);
+            }
+        }, $batch);
+    }
+}
+
+function addPublicLayerPermissions(string $region, string $layer, string $layerVersion): Process
+{
+    $process = new Process([
+        'aws',
+        'lambda',
+        'add-layer-version-permission',
+        '--region',
+        $region,
+        '--layer-name',
+        $layer,
+        '--version-number',
+        $layerVersion,
+        '--statement-id',
+        'public',
+        '--action',
+        'lambda:GetLayerVersion',
+        '--principal',
+        '*',
+    ]);
+    $process->setTimeout(null);
+
+    return $process;
 }

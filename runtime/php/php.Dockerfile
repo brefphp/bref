@@ -452,6 +452,23 @@ RUN find ${INSTALL_DIR} -type f -executable -exec sh -c "file -i '{}' | grep -q 
 # Cleanup all the binaries we don't want.
 RUN find /opt/bref/bin -mindepth 1 -maxdepth 1 ! -name "php" ! -name "pecl" -exec rm {} \+
 
+# Cleanup all the files we don't want either
+# We do not support running pear functions in Lambda
+RUN rm -rf /opt/bref/lib/php/PEAR \
+  rm -rf /opt/bref/share/doc \
+  rm -rf /opt/bref/share/man \
+  rm -rf /opt/bref/share/gtk-doc \
+  rm -rf /opt/bref/include \
+  rm -rf /opt/bref/tests \
+  rm -rf /opt/bref/doc \
+  rm -rf /opt/bref/docs \
+  rm -rf /opt/bref/man \
+  rm -rf /opt/bref/www \
+  rm -rf /opt/bref/cfg \
+  rm -rf /opt/bref/libexec \
+  rm -rf /opt/bref/var \
+  rm -rf /opt/bref/data
+
 # Symlink all our binaries into /opt/bin so that Lambda sees them in the path.
 RUN mkdir -p /opt/bin
 RUN ln -s /opt/bref/bin/* /opt/bin
