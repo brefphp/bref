@@ -27,7 +27,7 @@ All of this is great except CloudFormation configuration is complex. This is whe
 
 SAM offers a simpler configuration format. This is what you are using if you use Bref (the `template.yaml` file).
 
-The deployment process with SAM works like this:
+Deploying with SAM is done in 3 steps:
 
 - upload the application code to a S3 bucket
 - generate a temporary CloudFormation config (YAML file) that references the uploaded code
@@ -47,7 +47,7 @@ That means you must **create a S3 bucket** to host your application code:
 aws s3 mb s3://<bucket-name>
 ```
 
-The content of this bucket will be managed by AWS SAM. Do not use it in your application to store things like assets or uploaded files.
+Note: the content of this bucket will be managed by AWS SAM. Do not use it in your application to store things like assets or uploaded files.
 
 ### Deployment
 
