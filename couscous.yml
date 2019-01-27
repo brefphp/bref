@@ -54,6 +54,10 @@ menu:
                 url: /docs/local-development.html
     -   section: Environment
         items:
+            variables:
+                text: Variables
+                url: /docs/environment/variables.html
+                title: Configuring environment variables with Bref
             php:
                 text: PHP
                 url: /docs/environment/php.html
