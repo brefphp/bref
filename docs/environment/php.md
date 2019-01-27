@@ -6,45 +6,42 @@ introduction: Configure PHP versions, extensions and options for your serverless
 
 ## php.ini
 
-Bref's default `php.ini` is `/opt/bref/etc/php/php.ini` in the bref layer.
+PHP will read its configuration from:
 
-### Overriding Bref Defaults or Adding other configuration settings.
-You can create configuration files to customize PHP configuration:
+- `/opt/bref/etc/php/php.ini` (PHP's official production configuration)
+- `/opt/bref/etc/php/config.d/bref.ini` (Bref's optimizations for Lambda)
 
-1. create a `php/config.d/` subdirectory in your project.
-1. create a `php.ini` file inside that directory _(the name of the file does not matter, but it must have an `.ini` extensions)_
+These files *cannot be customized*.
 
-PHP will automagically scan that directory and load the `*.ini` files you place there, overridding any of Bref's default settings.
+### Customizing php.ini
 
-### PHP_INI_SCAN_DIR Environment Variable.
-If you would like to have PHP scan a different directory in your project, simply set the environment varialbe to and absolute path to the directory you want scanned.
+You can create your own `php.ini` to customize PHP's configuration:
 
-> The `PHP_INI_SCAN_DIR` must contain an absolute path. Since your code is placed in `/var/task` on AWS Lambda the environment variable should contain something like `/var/task/my/different/dir`.
+1. create a `php/config.d/` subdirectory in your project
+1. create a `php.ini` file inside that directory _(the name of the file does not matter, it must have an `.ini` extensions)_
 
-Here is an example of how to define the Environment variable in your SAM template:
+PHP will automatically include any `*.ini` file found in `php/config.d/` in your project.
 
-```yaml
-Resources:
-    MyFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            # ...
-            Environment:
-                Variables:
-                    PHP_INI_SCAN_DIR: '/var/task/php'
-```
+### Customizing php.ini using a custom path
+
+If you want PHP to scan a different directory than `php/config.d/` in your project, you can override the path by setting it in the [`PHP_INI_SCAN_DIR`](http://php.net/manual/fr/configuration.file.php#configuration.file.scan) environment variable.
+
+> `PHP_INI_SCAN_DIR` must contain an absolute path. Since your code is placed in `/var/task` on AWS Lambda, the environment variable should contain something like `/var/task/my/different/dir`.
+
+Learn how to declare environment variables by reading the [Environment Variables](variables.md) guide.
+
+### Customizing php.ini in extra layers
+
+If you are using Lambda layers, for example to use custom PHP extensions, you can override the default `php.ini` by placing your own configuration file in `/opt/bref/etc/php/config.d/`.
+
+Make sur to give a unique name to your `.ini` file to avoid any collision with other layers.
 
 ## Extensions
 
-Bref strives to include the most common set of extensions in the PHP layer. If a major PHP extension is missing please open an issue to discuss it. Due to space limitations in AWS Lambda tasks, we can not reasonably add every possible extension to the Bref layer. We do provide instructions for how you may bring your own extensions.
+Bref strives to include the most common PHP extensions. If a major PHP extension is missing please open an issue to discuss it.
 
-The layer bundles two categories of extensions.
+### Extensions installed and enabled
 
-1. Those that are enabled and can not be disabled.
-2. Those that are disabled and can be enabled.
-
-## Bundled Extensions
-### Enabled, can not be disabled.
 <table>
   <tbody>
     <tr>
@@ -100,9 +97,10 @@ The layer bundles two categories of extensions.
   </tbody>
 </table>
 
-### Disabled, but can be enabled.
+### Extensions installed but disabled by default
+
 - **[OPCache](http://php.net/manual/en/book.opcache.php)** - OPcache improves PHP performance by storing precompiled script bytecode in shared memory, thereby removing the need for PHP to load and parse scripts on each request.
-- **[intl](http://php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for » ICU library, enabling PHP programmers to perform various locale-aware operations.
+- **[intl](http://php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
 - **[APCu](http://php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
 - **[ElastiCache php-memcached extension](https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Appendix.PHPAutoDiscoverySetup.html)** - 
 - **[phpredis](https://github.com/phpredis/phpredis)** -  The phpredis extension provides an API for communicating with the Redis key-value store. 
@@ -111,7 +109,7 @@ The layer bundles two categories of extensions.
 - **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
 - **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
 
-You can enable these extensions by loading them in your project `php/config.d/php.ini`, for example:
+You can enable these extensions by loading them in `php/config.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
 ```ini
 extension=opcache
@@ -125,5 +123,14 @@ extension=mongodb
 extension=pthreads
 ```
 
-## Other Extensions
-If you need an extension that is not available in the layer, you will need to build the extension (and any required libraries) against the PHP binary and libraries in the Bref Layer. Then you can either include it in your own layer, loaded after the Bref layer, or you could simply package the `extensions.so` in your project and add to PHP by setting `extension=/var/task/extension.so` _(must be a an absolute path)_ in your `php/config.d/php.ini`
+### Custom extensions
+
+Due to space limitations in AWS Lambda, Bref cannot provide every possible extension. It is however possible to provide your own extensions via [custom AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+
+To create your custom layer, you will need to:
+
+- compile the extension (and any required libraries) in the same environment as AWS Lambda and Bref
+- include the compiled extension (and required libraries) in a layer
+- upload the layer to AWS Lambda
+- include it in your project **after the Bref layer**
+- enable the extension in a custom `php.ini`
