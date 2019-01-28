@@ -31,6 +31,7 @@ RUN mkdir -p ${BUILD_DIR}  \
     ${INSTALL_DIR}/bin \
     ${INSTALL_DIR}/doc \
     ${INSTALL_DIR}/etc/php \
+    ${INSTALL_DIR}/etc/php/conf.d \
     ${INSTALL_DIR}/include \
     ${INSTALL_DIR}/lib \
     ${INSTALL_DIR}/lib64 \

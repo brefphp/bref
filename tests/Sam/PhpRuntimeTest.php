@@ -95,8 +95,8 @@ class PhpRuntimeTest extends TestCase
             'display_errors' => '1',
             // This means `stderr` in php-cli (http://php.net/manual/errorfunc.configuration.php#ini.error-log)
             'error_log' => null,
-            // Leave the default value recommended by PHP
-            'error_reporting' => null,
+            // This is the default production value
+            'error_reporting' => (string) (E_ALL & ~E_DEPRECATED & ~E_STRICT),
             'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-zts-20180731',
             // No need for HTML formatting on the CLI
             'html_errors' => '0',
@@ -116,8 +116,8 @@ class PhpRuntimeTest extends TestCase
             'opcache.save_comments' => '1',
             // The code is readonly on lambdas so it never changes
             'opcache.validate_timestamps' => '0',
-            'short_open_tag' => '1',
-            'zend.assertions' => '1',
+            'short_open_tag' => '',
+            'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
         ], $result, $stderr);
     }
