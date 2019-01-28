@@ -31,6 +31,7 @@ RUN mkdir -p ${BUILD_DIR}  \
     ${INSTALL_DIR}/bin \
     ${INSTALL_DIR}/doc \
     ${INSTALL_DIR}/etc/php \
+    ${INSTALL_DIR}/etc/php/conf.d \
     ${INSTALL_DIR}/include \
     ${INSTALL_DIR}/lib \
     ${INSTALL_DIR}/lib64 \
@@ -390,7 +391,7 @@ RUN set -xe \
         --enable-option-checking=fatal \
         --enable-maintainer-zts \
         --with-config-file-path=${INSTALL_DIR}/etc/php \
-        --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/config.d:/var/task/php/config.d \
+        --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/var/task/php/conf.d \
         --enable-fpm \
         --disable-cgi \
         --enable-cli \

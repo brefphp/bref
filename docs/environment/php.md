@@ -9,7 +9,7 @@ introduction: Configure PHP versions, extensions and options for your serverless
 PHP will read its configuration from:
 
 - `/opt/bref/etc/php/php.ini` (PHP's official production configuration)
-- `/opt/bref/etc/php/config.d/bref.ini` (Bref's optimizations for Lambda)
+- `/opt/bref/etc/php/conf.d/bref.ini` (Bref's optimizations for Lambda)
 
 These files *cannot be customized*.
 
@@ -32,7 +32,7 @@ Learn how to declare environment variables by reading the [Environment Variables
 
 ### Customizing php.ini in extra layers
 
-If you are using Lambda layers, for example to use custom PHP extensions, you can override the default `php.ini` by placing your own configuration file in `/opt/bref/etc/php/config.d/`.
+If you are using Lambda layers, for example to use custom PHP extensions, you can override the default `php.ini` by placing your own configuration file in `/opt/bref/etc/php/conf.d/`.
 
 Make sur to give a unique name to your `.ini` file to avoid any collision with other layers.
 
