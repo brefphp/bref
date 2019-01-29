@@ -1,17 +1,18 @@
 <?php declare(strict_types=1);
 
-use Bref\Application;
-
 /**
- * Shortcut for creating and running a simple lambda application.
+ * Define and run a simple lambda function.
  *
  * @param callable $handler This callable takes a $event parameter (array) and must return anything serializable to JSON.
  *
- * @see \Bref\Application::simpleHandler()
+ * Example:
+ *
+ *     lambda(function (array $event) {
+ *         return 'Hello ' . $event['name'];
+ *     });
  */
-function λ(callable $handler): void
+function lambda(callable $handler): void
 {
-    $app = new Application;
-    $app->simpleHandler($handler);
-    $app->run();
+    $lambdaRuntime = Bref\Runtime\LambdaRuntime::fromEnvironmentVariable();
+    $lambdaRuntime->processNextEvent($handler);
 }

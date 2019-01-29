@@ -2,10 +2,11 @@
 <?php
 declare(strict_types=1);
 
-use Bref\Console\Deployer;
-use GuzzleHttp\Psr7\Stream;
+use Bref\Lambda\InvocationFailed;
+use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
@@ -19,11 +20,11 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 $app = new Silly\Application('Deploy serverless PHP applications');
 
 $app->command('init', function (SymfonyStyle $io) {
-    $exeFinder = new \Symfony\Component\Process\ExecutableFinder();
-    if ($exeFinder->find('serverless') === null) {
+    $exeFinder = new ExecutableFinder();
+    if (! $exeFinder->find('sam')) {
         $io->error(
-            'The serverless command is not installed.'.PHP_EOL.
-            'Please follow the instructions on https://github.com/mnapoli/bref#setup'
+            'The `sam` command is not installed.' . PHP_EOL .
+            'Please follow the instructions at https://bref.sh/docs/installation.html'
         );
 
         return 1;
@@ -31,168 +32,111 @@ $app->command('init', function (SymfonyStyle $io) {
 
     if (getenv('AWS_ACCESS_KEY_ID') === false || getenv('AWS_SECRET_ACCESS_KEY') === false) {
         // Credentials are not configured with environment variables, check aws cli
-        $awsProcess = new Process('aws configure get aws_access_key_id && aws configure get aws_secret_access_key');
-        if ($awsProcess->run() !== 0) {
+        $awsProcess1 = new Process(['aws', 'configure', 'get', 'aws_access_key_id']);
+        $awsProcess2 = new Process(['aws', 'configure', 'get', 'aws_secret_access_key']);
+        if (($awsProcess1->run() !== 0) || ($awsProcess2->run() !== 0)) {
             $io->error([
                 'AWS credentials not found.',
-                'Please follow the instructions on https://github.com/mnapoli/bref#setup',
+                'Please follow the instructions at https://bref.sh/docs/installation.html',
             ]);
 
             return 1;
         }
     }
 
+    if (file_exists('template.yaml') || file_exists('index.php')) {
+        $io->error('The directory already contains a `template.yaml` and/or `index.php` file.');
+
+        return 1;
+    }
+
+    $choice = $io->choice(
+        'What kind of lambda do you want to create? (you will be able to add more functions later by editing `template.yaml`)',
+        [
+            'PHP function',
+            'HTTP application',
+            'Console application',
+        ],
+        'PHP function'
+    );
+    $templateDirectory = [
+        'PHP function' => 'default',
+        'HTTP application' => 'http',
+        'Console application' => 'console',
+    ][$choice];
+
     $fs = new Filesystem;
-    /*
-     * TODO Ask for a project name and configure it in `serverless.yml`.
-     */
-    if (!file_exists('serverless.yml')) {
-        $io->writeln('Creating serverless.yml');
-        $fs->copy(__DIR__ . '/template/serverless.yml', 'serverless.yml');
-    }
-    if (!file_exists('bref.php')) {
-        $io->writeln('Creating bref.php');
-        $fs->copy(__DIR__ . '/template/bref.php', 'bref.php');
-    }
+    $io->writeln('Creating template.yaml');
+    $fs->copy(__DIR__ . "/template/$templateDirectory/template.yaml", 'template.yaml');
+    $io->writeln('Creating index.php');
+    $fs->copy(__DIR__ . "/template/$templateDirectory/index.php", 'index.php');
 
     /*
-     * We check if this is a git repository to automatically run some commands:
-     * - git add bref.php serverless.yml
-     * - add /.bref/ to .gitignore
+     * We check if this is a git repository to automatically add files to git.
      */
-    if ((new Process('git rev-parse --is-inside-work-tree'))->run() === 0) {
-        (new Process('git add bref.php serverless.yml'))->run();
-
-        /*
-         * Check that .bref is not already gitignored
-         * `git check-ignore` exits with status 1 when "None of the provided paths are ignored."
-         */
-        if ((new Process('git check-ignore -q .bref'))->run() === 1) {
-            $fs->appendToFile('.gitignore', '/.bref/'.PHP_EOL);
+    if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {
+        (new Process(['git', 'add', 'template.yaml']))->run();
+        if (file_exists('index.php')) {
+            (new Process(['git', 'add', 'index.php']))->run();
         }
 
         $io->success([
-            'Project initialized and ready to deploy using `bref deploy`',
-            'As you are using git, we already did the following things automatically:',
-            '- git add bref.php',
-            '- git add serverless.yml',
-            '- `/.bref/` has been added to your .gitignore',
+            'Project initialized and ready to test or deploy.',
+            'The files created were automatically added to git.',
         ]);
     } else {
-        $io->success([
-            'Project initialized and ready to deploy using `bref deploy`',
-            'If you are using git, you will need to commit the following files:',
-            '- bref.php',
-            '- serverless.yml',
-            'You can add `/.bref/` to your .gitignore.',
-        ]);
+        $io->success('Project initialized and ready to test or deploy.');
     }
+
+    return 0;
 });
-
-/**
- * @deprecated This command is deprecated in favor of running `php bref.php bref:invoke`
- */
-$app->command(
-    'local [-f|--function=] [-d|--data=] [-p|--path=] [--raw]',
-    function (string $function, ?string $data, bool $raw, SymfonyStyle $io) {
-        $io->write((new Deployer)->invoke($io, $function, $data, $raw));
-    })
-    ->defaults([
-        'function' => 'main',
-    ])
-    ->descriptions('**DEPRECATED** Invoke the lambda locally. To pass data to the lambda use the `--data` argument.', [
-        '--function' => 'The name of the function in your service that you want to invoke. In Bref, by default, there is only the `main` function.',
-        '--data' => 'String data to be passed as an event to your function. You can provide JSON data here.',
-        '--raw' => 'Pass data as a raw string even if it is JSON. If not set, JSON data are parsed and passed as an object.',
-    ]);
-
-$app->command(
-    'deploy [--dry-run] [--stage=]',
-    function (SymfonyStyle $io, bool $dryRun, ?string $stage) {
-        (new Deployer)->deploy($io, $dryRun, $stage);
-    })
-    ->descriptions('Deploy serverless application', [
-        '--dry-run' => 'Build the serverless package without deploying it',
-        '--stage' => 'Deployment stage'
-    ]);
 
 /**
  * Run a CLI command in the remote environment.
  */
-$app->command('cli [--stage=] [arguments]*', function (?string $stage, array $arguments, SymfonyStyle $io) {
-    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $serverlessInfo = (new Process('serverless info'.$stageOption))->mustRun()->getOutput();
-    foreach (explode(PHP_EOL, $serverlessInfo) as $line) {
-        if (strpos($line, 'region: ') === 0) {
-            $region = substr($line, strlen('region: '));
-        }
-        if (strpos($line, 'stack: ') === 0) {
-            $functionName = substr($line, strlen('stack: ')) . '-main';
-        }
-    }
-    if (empty($region) || empty($functionName)) {
-        throw new Exception('Unable to parse the output of `serverless info`');
-    }
+$app->command('cli function [--region=] [arguments]*', function (string $function, ?string $region, array $arguments, SymfonyStyle $io) {
+    $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
 
-    // We cannot use the `serverless` CLI command here because it
-    // mangles the lambda response (JSON data) with logs on stdout.
-    // Using the AWS SDK allows to collect those data separately and properly.
-    $lambda = new \Aws\Lambda\LambdaClient([
-        'version' => 'latest',
-        'region' => $region,
-    ]);
-    $result = $lambda->invoke([
-        'FunctionName' => $functionName,
-        'LogType' => 'Tail',
-        'Payload' => json_encode([
+    try {
+        $result = $lambda->invoke($function, json_encode([
             'cli' => implode(' ', $arguments),
-        ]),
-    ]);
+        ]));
+    } catch (InvocationFailed $e) {
+        $io->getErrorStyle()->writeln('<info>' . $e->getInvocationLogs() . '</info>');
+        $io->error($e->getMessage());
+        return 1;
+    }
 
-    /** @var Stream $payload */
-    $payload = $result->get('Payload');
-    $payload = json_decode($payload->getContents(), true);
-    if (isset($payload['output'])) {
-        $io->writeln($payload['output']);
+    if (isset($result->getPayload()['output'])) {
+        $io->writeln($result->getPayload()['output']);
     } else {
         $io->error('The command did not return a valid response.');
         $io->writeln('<info>Logs:</info>');
-        $io->write('<comment>' . base64_decode($result->get('LogResult')) . '</comment>');
+        $io->write('<comment>' . $result->getLogs() . '</comment>');
         $io->writeln('<info>Lambda result payload:</info>');
-        $io->writeln(json_encode($payload, JSON_PRETTY_PRINT));
+        $io->writeln(json_encode($result->getPayload(), JSON_PRETTY_PRINT));
         return 1;
     }
 
     return (int) ($payload['exitCode'] ?? 1);
 });
 
-$app->command('info [--stage=]', function (?string $stage, SymfonyStyle $io) {
-    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $io->write((new Process('serverless info'.$stageOption))->mustRun()->getOutput());
-});
+$app->command('invoke function [--region=] [-e|--event=]', function (string $function, ?string $region, ?string $event, SymfonyStyle $io) {
+    $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
 
-$app->command('remove [--stage=]', function (?string $stage, SymfonyStyle $io) {
-    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $io->write((new Process('serverless remove'.$stageOption))->mustRun()->getOutput());
-});
+    try {
+        $result = $lambda->invoke($function, $event);
+    } catch (InvocationFailed $e) {
+        $io->getErrorStyle()->writeln('<info>' . $e->getInvocationLogs() . '</info>');
+        $io->error($e->getMessage());
+        return 1;
+    }
 
-$app->command('logs [--stage=] [-t|--tail]', function (?string $stage, bool $tail, SymfonyStyle $io) {
-    $stageOption = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $tailOption = $tail ? ' --tail ' : '';
+    $io->getErrorStyle()->writeln('<info>' . $result->getLogs() . '</info>');
 
-    $process = new Process('serverless logs -f main'.$stageOption.$tailOption);
-    $process->setTimeout(null);
-    $process->start(function (string $type, string $data) use ($io) {
-        $type === Process::OUT ? $io->write($data) : $io->getErrorStyle()->write($data);
-    });
+    $io->writeln(json_encode($result->getPayload(), JSON_PRETTY_PRINT));
 
-    return $process->wait();
-});
-
-$app->command('invoke [--stage=] [-e|--event=]', function (?string $stage, ?string $event, SymfonyStyle $io) {
-    $options = $stage ? ' --stage ' . escapeshellarg($stage) : '';
-    $options .= $event ? ' --data ' . escapeshellarg($event) : '';
-    $io->write((new Process('serverless invoke -f main'.$options))->mustRun()->getOutput());
+    return 0;
 })->descriptions('Invoke the lambda on the serverless provider', [
     '--event' => 'Event data as JSON, e.g. `--event \'{"name":"matt"}\'`',
 ]);

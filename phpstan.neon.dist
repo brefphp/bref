@@ -1,6 +1,7 @@
 parameters:
   level: 5
   paths:
+    - bref
     - src
     - tests
   excludes_analyse:
@@ -9,3 +10,5 @@ parameters:
     - %rootDir%/../../../tests/Bridge/Symfony/var/*
     - %rootDir%/../../../tests/Bridge/Symfony/cache/*
     - %rootDir%/../../../tests/Bridge/Symfony/logs/*
+    - %rootDir%/../../../tests/Sam/Php/*
+    - %rootDir%/../../../tests/Sam/PhpFpm/*

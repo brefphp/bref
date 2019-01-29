@@ -1,0 +1,38 @@
+#!/opt/bin/php
+<?php declare(strict_types=1);
+
+use Bref\Runtime\LambdaRuntime;
+
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
+$appRoot = getenv('LAMBDA_TASK_ROOT');
+
+require $appRoot . '/vendor/autoload.php';
+
+$lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
+
+$handler = $appRoot . '/' . getenv('_HANDLER');
+if (!is_file($handler)) {
+    echo "Handler `$handler` doesn't exist";
+    exit(1);
+}
+
+while (true) {
+    $lambdaRuntime->processNextEvent(function ($event) use ($handler): array {
+        $cliOptions = $event['cli'] ?? '';
+
+        // We redirect stderr to stdout and use passthru so that everything
+        // written on the output ends up in Cloudwatch automatically
+        $command = "/opt/bin/php $handler " . $cliOptions . ' 2>&1';
+
+        exec($command, $output, $exitCode);
+
+        $output = implode("\n", $output);
+
+        return [
+            'exitCode' => $exitCode,
+            'output' => $output,
+        ];
+    });
+}

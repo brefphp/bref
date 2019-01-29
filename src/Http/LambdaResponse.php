@@ -2,7 +2,6 @@
 
 namespace Bref\Http;
 
-use Innmind\Json\Json;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -57,7 +56,7 @@ class LambdaResponse
         );
     }
 
-    public function toJson(): string
+    public function toApiGatewayFormat(): array
     {
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
@@ -65,11 +64,11 @@ class LambdaResponse
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
-        return Json::encode([
+        return [
             'isBase64Encoded' => false,
             'statusCode' => $this->statusCode,
             'headers' => $headers,
             'body' => $this->body,
-        ]);
+        ];
     }
 }

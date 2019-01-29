@@ -3,16 +3,53 @@
 namespace Bref\Test\Bridge\Psr7;
 
 use Bref\Bridge\Psr7\RequestFactory;
+use Bref\Test\HttpRequestProxyTest;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\UploadedFileInterface;
 
-class RequestFactoryTest extends TestCase
+class RequestFactoryTest extends TestCase implements HttpRequestProxyTest
 {
-    public function test create basic request()
+    public function test simple request()
     {
         $currentTimestamp = time();
 
         $request = RequestFactory::fromLambdaEvent([
+            'path' => '/test',
+            'httpMethod' => 'GET',
+            'requestContext' => [
+                'protocol' => '1.1',
+                'requestTimeEpoch' => $currentTimestamp,
+            ],
+            'headers' => [],
+        ]);
+
+        self::assertEquals('GET', $request->getMethod());
+        self::assertEquals([], $request->getQueryParams());
+        self::assertEquals('1.1', $request->getProtocolVersion());
+        self::assertEquals('/test', $request->getUri()->__toString());
+        self::assertEquals('', $request->getBody()->getContents());
+        self::assertEquals([], $request->getAttributes());
+        $serverParams = $request->getServerParams();
+        unset($serverParams['DOCUMENT_ROOT']);
+        // there is no aws lambda native reqestContext key with microsecond precision, therefore ignore it.
+        unset($serverParams['REQUEST_TIME_FLOAT']);
+        self::assertEquals([
+            'SERVER_PROTOCOL' => '1.1',
+            'REQUEST_METHOD' => 'GET',
+            'REQUEST_TIME' => $currentTimestamp,
+            'QUERY_STRING' => '',
+            'REQUEST_URI' => '/test',
+        ], $serverParams);
+        self::assertEquals('/test', $request->getRequestTarget());
+        self::assertEquals([], $request->getHeaders());
+    }
+
+    public function test request with query string()
+    {
+        $currentTimestamp = time();
+
+        $request = RequestFactory::fromLambdaEvent([
+            'path' => '/test',
             'httpMethod' => 'GET',
             'queryStringParameters' => [
                 'foo' => 'bar',
@@ -20,7 +57,6 @@ class RequestFactoryTest extends TestCase
             ],
             'requestContext' => [
                 'protocol' => '1.1',
-                'path' => '/test',
                 'requestTimeEpoch' => $currentTimestamp,
             ],
             'headers' => [],
@@ -47,7 +83,37 @@ class RequestFactoryTest extends TestCase
         self::assertEquals([], $request->getHeaders());
     }
 
-    public function test non empty body()
+    public function test request with arrays in query string()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'GET',
+            'queryStringParameters' => [
+                'vars[val1]' => 'foo',
+                'vars[val2][]' => 'bar',
+            ],
+        ]);
+
+        self::assertEquals([
+            'vars' => [
+                'val1' => 'foo',
+                'val2' => ['bar'],
+            ],
+        ], $request->getQueryParams());
+    }
+
+    public function test request with custom header()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'X-My-Header' => 'Hello world',
+            ],
+        ]);
+
+        self::assertEquals(['Hello world'], $request->getHeader('X-My-Header'));
+    }
+
+    public function test POST request with raw body()
     {
         $request = RequestFactory::fromLambdaEvent([
             'httpMethod' => 'GET',
@@ -57,7 +123,7 @@ class RequestFactoryTest extends TestCase
         self::assertEquals('test test test', $request->getBody()->getContents());
     }
 
-    public function test POST body is parsed()
+    public function test POST request with form data()
     {
         $request = RequestFactory::fromLambdaEvent([
             'httpMethod' => 'POST',
@@ -84,21 +150,7 @@ class RequestFactoryTest extends TestCase
         self::assertEquals(['foo' => 'bar', 'bim' => 'baz'], $request->getParsedBody());
     }
 
-    public function test POST JSON body is not parsed()
-    {
-        $request = RequestFactory::fromLambdaEvent([
-            'httpMethod' => 'POST',
-            'headers' => [
-                'Content-Type' => 'application/json',
-            ],
-            'body' => json_encode(['foo' => 'bar']),
-        ]);
-        self::assertEquals('POST', $request->getMethod());
-        self::assertEquals(null, $request->getParsedBody());
-        self::assertEquals(['foo' => 'bar'], json_decode($request->getBody()->getContents(), true));
-    }
-
-    public function test multipart form data is supported()
+    public function test POST request with multipart form data()
     {
         $request = RequestFactory::fromLambdaEvent([
             'httpMethod' => 'POST',
@@ -121,40 +173,7 @@ baz\r
         self::assertEquals(['foo' => 'bar', 'bim' => 'baz'], $request->getParsedBody());
     }
 
-    public function test cookies are supported()
-    {
-        $request = RequestFactory::fromLambdaEvent([
-            'httpMethod' => 'GET',
-            'headers' => [
-                'Cookie' => 'tz=Europe%2FParis; four=two+%2B+2; theme=light',
-            ],
-        ]);
-        self::assertEquals([
-            'tz' => 'Europe/Paris',
-            'four' => 'two + 2',
-            'theme' => 'light',
-        ], $request->getCookieParams());
-    }
-
-    public function test arrays in query string are supported()
-    {
-        $request = RequestFactory::fromLambdaEvent([
-            'httpMethod' => 'GET',
-            'queryStringParameters' => [
-                'vars[val1]' => 'foo',
-                'vars[val2][]' => 'bar',
-            ],
-        ]);
-
-        self::assertEquals([
-            'vars' => [
-                'val1' => 'foo',
-                'val2' => ['bar'],
-            ],
-        ], $request->getQueryParams());
-    }
-
-    public function test arrays in name are supported with multipart form data()
+    public function test POST request with multipart form data containing arrays()
     {
         $request = RequestFactory::fromLambdaEvent([
             'httpMethod' => 'POST',
@@ -162,7 +181,7 @@ baz\r
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
             ],
             'body' =>
-            "--testBoundary\r
+                "--testBoundary\r
 Content-Disposition: form-data; name=\"delete[categories][]\"\r
 \r
 123\r
@@ -187,7 +206,22 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
         );
     }
 
-    public function test files are supported with multipart form data()
+    public function test request with cookies()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Cookie' => 'tz=Europe%2FParis; four=two+%2B+2; theme=light',
+            ],
+        ]);
+        self::assertEquals([
+            'tz' => 'Europe/Paris',
+            'four' => 'two + 2',
+            'theme' => 'light',
+        ], $request->getCookieParams());
+    }
+
+    public function test POST request with multipart file uploads()
     {
         $request = RequestFactory::fromLambdaEvent([
             'httpMethod' => 'POST',
@@ -252,7 +286,7 @@ RAW
             , $bar->getStream()->getContents());
     }
 
-    public function test POST base64 encoded body is supported()
+    public function test POST request with base64 encoded body()
     {
         $request = RequestFactory::fromLambdaEvent([
             'httpMethod' => 'POST',
@@ -266,7 +300,7 @@ RAW
         self::assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 
-    public function test HTTP_HOST is set()
+    public function test HTTP_HOST header()
     {
         $request = RequestFactory::fromLambdaEvent([
             'headers' => [
@@ -277,5 +311,45 @@ RAW
         $serverParams = $request->getServerParams();
 
         self::assertSame('www.example.com', $serverParams['HTTP_HOST']);
+    }
+
+    public function test PUT request()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'PUT',
+        ]);
+
+        self::assertEquals('PUT', $request->getMethod());
+        self::assertEquals('PUT', $request->getServerParams()['REQUEST_METHOD']);
+    }
+
+    public function test PATCH request()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'PATCH',
+        ]);
+
+        self::assertEquals('PATCH', $request->getMethod());
+        self::assertEquals('PATCH', $request->getServerParams()['REQUEST_METHOD']);
+    }
+
+    public function test DELETE request()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'DELETE',
+        ]);
+
+        self::assertEquals('DELETE', $request->getMethod());
+        self::assertEquals('DELETE', $request->getServerParams()['REQUEST_METHOD']);
+    }
+
+    public function test OPTIONS request()
+    {
+        $request = RequestFactory::fromLambdaEvent([
+            'httpMethod' => 'OPTIONS',
+        ]);
+
+        self::assertEquals('OPTIONS', $request->getMethod());
+        self::assertEquals('OPTIONS', $request->getServerParams()['REQUEST_METHOD']);
     }
 }

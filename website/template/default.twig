@@ -1,0 +1,94 @@
+{% extends 'layout.twig' %}
+
+{% set metaTitle = title ~ ' - Bref' %}
+{% set metaDescription = introduction|default %}
+
+{% block body %}
+<body class="font-sans">
+    <div class="block lg:hidden flex bg-white border-b border-grey-light fixed pin-t pin-x h-12 items-center">
+        <div class="w-full max-w-screen-xl relative mx-auto px-6">
+            <button class="flex items-center px-3 py-2 border rounded text-grey-dark border-grey-light" onclick="toggleMenu()">
+                <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex h-full mt-12 lg:mt-0">
+        <div id="menu" class="fixed flex-no-shrink lg:w-64 xl:w-96 lg:flex lg:flex-col z-30 h-screen w-full hidden text-grey-darkest bg-grey-lightest px-6 lg:px-8 py-8 lg:py-16 overflow-auto">
+            <nav class="mt-2">
+                <h2 class="mb-8">
+                    <a class="text-grey hover:text-grey-darker" href="/" title="Bref home page">Bref</a>
+                    <a class="float-right text-grey hover:text-grey-darker" title="Bref on GitHub" href="https://github.com/mnapoli/bref">
+                        <svg class="fill-current w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
+                    </a>
+                </h2>
+                {% for item in menu %}
+                    <h3 class="mb-4 text-grey uppercase font-semibold text-sm lg:text-xs tracking-wide">{{ item.section }}</h3>
+                    <ul class="list-reset mb-8 ml-6">
+                        {% for itemId, item in item.items %}
+                            <li class="mb-4 mt-4">
+                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-primary' : 'text-grey-darkest' }}"
+                                   title="{{ item.title|default(item.text)|e('html_attr') }}">
+                                    {{ item.text }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </nav>
+        </div>
+        <div class="w-full lg:ml-64 xl:ml-96 overflow-x-hidden px-4 md:px-6 lg:px-16 py-8 lg:py-16">
+            <div class="lg:max-w-700px">
+                {% block content %}
+                    <article>
+                        <a href="https://github.com/mnapoli/bref/blob/0.3/{{ currentFile }}" title="Improve the documentation by editing this file online"
+                           class="hidden md:inline-block float-right text-sm hover:bg-grey-lightest text-grey-darkest py-2 px-4 border border-grey-light rounded">
+                            Edit <span class="hidden lg:inline">on GitHub</span>
+                        </a>
+
+                        <h1>{{ title }}</h1>
+
+                        {% block article %}
+                            {{ content|raw }}
+                        {% endblock %}
+
+                        {% if next is defined or previous is defined %}
+                            <div class="mt-12 mb-12 clearfix">
+                                {% if previous is defined %}
+                                    <a class="float-left mt-3" href="{{ previous.link }}" title="{{ previous.title|e('html_attr') }}">
+                                        &#9664;
+                                        Previous: {{ previous.title }}
+                                    </a>
+                                {% endif %}
+                                {% if next is defined %}
+                                    <a class="float-right mt-3" href="{{ next.link }}" title="{{ next.title|e('html_attr') }}">
+                                        Next: {{ next.title }}
+                                        &#9654;
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </article>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('menu').classList.toggle('hidden');
+        }
+    </script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/github-gist.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/yaml.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-15584647-20"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-15584647-20');
+    </script>
+</body>
+{% endblock %}

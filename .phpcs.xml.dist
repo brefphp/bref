@@ -7,8 +7,10 @@
     <!-- Show sniff names -->
     <arg value="s"/>
 
+    <file>bref</file>
     <file>src</file>
     <file>tests</file>
+    <exclude-pattern>tests/Bridge/Symfony/var</exclude-pattern>
     <exclude-pattern>tests/Bridge/Symfony/cache</exclude-pattern>
     <exclude-pattern>tests/Bridge/Symfony/logs</exclude-pattern>
     <exclude-pattern>tests/Bridge/Laravel/bootstrap/cache</exclude-pattern>

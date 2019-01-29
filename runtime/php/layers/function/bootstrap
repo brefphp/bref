@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# Fail on error
+set -e
+
+while true
+do
+    # We redirect stderr to stdout so that everything
+    # written on the output ends up in Cloudwatch automatically
+    /opt/bin/php $LAMBDA_TASK_ROOT/$_HANDLER 2>&1
+done
