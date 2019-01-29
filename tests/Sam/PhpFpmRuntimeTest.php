@@ -166,7 +166,7 @@ class PhpFpmRuntimeTest extends TestCase
             'short_open_tag' => '',
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
-        ], $this->getJsonBody($response), $this->logs);
+        ], $this->getJsonBody($response), false, $this->logs);
     }
 
     private function invoke(string $url): ResponseInterface
