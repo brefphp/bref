@@ -129,11 +129,27 @@ class LambdaRuntime
      */
     private function signalFailure(string $invocationId, \Throwable $error): void
     {
+        if ($error instanceof \Exception) {
+            $errorMessage = 'Uncaught ' . get_class($error) . ': ' . $error->getMessage();
+        } else {
+            $errorMessage = $error->getMessage();
+        }
+
+        // Log the exception in CloudWatch
+        printf(
+            "Fatal error: %s in %s:%d\nStack trace:\n%s",
+            $errorMessage,
+            $error->getFile(),
+            $error->getLine(),
+            $error->getTraceAsString()
+        );
+
+        // Send an "error" Lambda response
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
         $this->postJson($url, [
             'errorMessage' => $error->getMessage(),
             'errorType' => get_class($error),
-            'stackTrace' => $error->getTrace(),
+            'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
         ]);
     }
 

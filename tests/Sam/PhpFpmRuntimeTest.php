@@ -4,45 +4,92 @@ namespace Bref\Test\Sam;
 
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Process\Process;
 
 class PhpFpmRuntimeTest extends TestCase
 {
+    /** @var string */
+    private $logs;
+
+    public function setUp()
+    {
+        parent::setUp();
+        $this->logs = '';
+    }
+
     public function test invocation without event()
     {
-        [$result, $stderr] = $this->invoke('/');
+        $response = $this->invoke('/');
 
-        self::assertEquals('Hello world!', $result, $stderr);
+        $this->assertResponseSuccessful($response);
+        self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
     }
 
     public function test invocation with event()
     {
-        [$result, $stderr] = $this->invoke('/?name=Abby');
+        $response = $this->invoke('/?name=Abby');
 
-        self::assertEquals('Hello Abby', $result, $stderr);
+        $this->assertResponseSuccessful($response);
+        self::assertEquals('Hello Abby', $this->getBody($response), $this->logs);
     }
 
-    public function test stderr ends up in the logs()
+    public function test stderr ends up in logs()
     {
-        [$result, $stderr] = $this->invoke('/?stderr=1');
+        $response = $this->invoke('/?stderr=1');
 
-        self::assertNotContains('This is a test log into stderr', $result);
-        self::assertContains('This is a test log into stderr', $stderr);
+        $this->assertResponseSuccessful($response);
+        self::assertNotContains('This is a test log into stderr', $this->getBody($response));
+        self::assertContains('This is a test log into stderr', $this->logs);
     }
 
     public function test error_log function()
     {
-        [$result, $stderr] = $this->invoke('/?error_log=1');
+        $response = $this->invoke('/?error_log=1');
 
-        self::assertNotContains('This is a test log from error_log', $result);
-        self::assertContains('This is a test log from error_log', $stderr);
+        $this->assertResponseSuccessful($response);
+        self::assertNotContains('This is a test log from error_log', $this->getBody($response));
+        self::assertContains('This is a test log from error_log', $this->logs);
+    }
+
+    public function test uncaught exception appears in logs and returns a 500()
+    {
+        $response = $this->invoke('/?exception=1');
+
+        self::assertSame(500, $response->getStatusCode(), $this->logs);
+        self::assertContains('Fatal error:  Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam', $this->logs);
+    }
+
+    public function test error appears in logs and returns a 500()
+    {
+        $response = $this->invoke('/?error=1');
+
+        self::assertSame(500, $response->getStatusCode(), $this->logs);
+        self::assertContains('PHP Fatal error:  Uncaught ArgumentCountError: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam', $this->logs);
+    }
+
+    public function test fatal error appears in logs()
+    {
+        $response = $this->invoke('/?fatal_error=1');
+
+        // PHP being PHP :'(
+        self::assertSame(200, $response->getStatusCode(), $this->logs);
+        $expectedLogs = "PHP Fatal error:  require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam";
+        self::assertContains($expectedLogs, $this->logs);
+    }
+
+    public function test warnings are logged()
+    {
+        $response = $this->invoke('/?warning=1');
+
+        $this->assertResponseSuccessful($response);
+        self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
+        self::assertContains('Warning:  This is a test warning in /var/task/tests/Sam', $this->logs);
     }
 
     public function test php extensions()
     {
-        [$result, $stderr] = $this->invoke('/?extensions=1');
-
-        $extensions = json_decode($result, true);
+        $response = $this->invoke('/?extensions=1');
 
         self::assertEquals([
             'Core',
@@ -84,7 +131,7 @@ class PhpFpmRuntimeTest extends TestCase
             'mysqlnd',
             'cgi-fcgi',
             'Zend OPcache',
-        ], $extensions, $stderr);
+        ], $this->getJsonBody($response), $this->logs);
     }
 
     /**
@@ -92,9 +139,7 @@ class PhpFpmRuntimeTest extends TestCase
      */
     public function test php config()
     {
-        [$result, $stderr] = $this->invoke('/?php-config=1');
-
-        $config = json_decode($result, true);
+        $response = $this->invoke('/?php-config=1');
 
         self::assertArraySubset([
             // On PHP-FPM we don't want errors to be sent to stdout because that sends them to the HTTP response
@@ -121,10 +166,10 @@ class PhpFpmRuntimeTest extends TestCase
             'short_open_tag' => '',
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
-        ], $config, $stderr);
+        ], $this->getJsonBody($response), false, $this->logs);
     }
 
-    private function invoke(string $url): array
+    private function invoke(string $url): ResponseInterface
     {
         $api = new Process(['sam', 'local', 'start-api', '--region', 'us-east-1']);
         $api->setWorkingDirectory(__DIR__);
@@ -134,24 +179,32 @@ class PhpFpmRuntimeTest extends TestCase
             return strpos($output, 'Running on http://127.0.0.1:3000/') !== false;
         });
 
-        $body = '';
-
         try {
             $http = new Client([
                 'base_uri' => 'http://127.0.0.1:3000',
+                'http_errors' => false,
             ]);
             $response = $http->request('GET', $url);
-            $body = $response->getBody()->getContents();
-        } catch (\Throwable $e) {
-            $stderr = $api->getErrorOutput() . $api->getOutput();
-
-            throw new \Exception($e . PHP_EOL . $stderr);
         } finally {
             $api->stop();
+            $this->logs = $api->getErrorOutput() . $api->getOutput();
         }
 
-        $stderr = $api->getErrorOutput() . $api->getOutput();
+        return $response;
+    }
 
-        return [$body, $stderr];
+    private function assertResponseSuccessful(ResponseInterface $response): void
+    {
+        self::assertSame(200, $response->getStatusCode(), $this->logs);
+    }
+
+    private function getBody(ResponseInterface $response): string
+    {
+        return $response->getBody()->getContents();
+    }
+
+    private function getJsonBody(ResponseInterface $response)
+    {
+        return json_decode($response->getBody()->getContents(), true);
     }
 }
