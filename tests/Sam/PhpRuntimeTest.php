@@ -9,33 +9,134 @@ class PhpRuntimeTest extends TestCase
 {
     public function test invocation without event()
     {
-        [$result, $stderr] = $this->invokeLambda();
+        [$result, $logs] = $this->invokeLambda();
 
-        self::assertEquals('Hello world', $result, $stderr);
+        self::assertEquals('Hello world', $result, $logs);
     }
 
     public function test invocation with event()
     {
-        [$result, $stderr] = $this->invokeLambda([
+        [$result, $logs] = $this->invokeLambda([
             'name' => 'Abby',
         ]);
 
-        self::assertEquals('Hello Abby', $result, $stderr);
+        self::assertEquals('Hello Abby', $result, $logs);
+    }
+
+    public function test stdout ends up in logs()
+    {
+        [$result, $logs] = $this->invokeLambda([
+            'stdout' => true,
+        ]);
+
+        self::assertNotContains('This is a test log by writing to stdout', $result);
+        self::assertContains('This is a test log by writing to stdout', $logs);
+    }
+
+    public function test stderr ends up in logs()
+    {
+        [$result, $logs] = $this->invokeLambda([
+            'stderr' => true,
+        ]);
+
+        self::assertNotContains('This is a test log by writing to stderr', $result);
+        self::assertContains('This is a test log by writing to stderr', $logs);
     }
 
     public function test error_log function()
     {
-        [$result, $stderr] = $this->invokeLambda([
+        [$result, $logs] = $this->invokeLambda([
             'error_log' => true,
         ]);
 
         self::assertNotContains('This is a test log from error_log', $result);
-        self::assertContains('This is a test log from error_log', $stderr);
+        self::assertContains('This is a test log from error_log', $logs);
+    }
+
+    public function test uncaught exception appears in logs and is reported as an invocation error()
+    {
+        [$result, $logs] = $this->invokeLambda([
+            'exception' => true,
+        ]);
+
+        // We don't assert on complete exception traces because they will change over time
+        $expectedLogs = <<<LOGS
+Fatal error: Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam/Php/function.php:27
+Stack trace:
+#0 /var/task/
+LOGS;
+        self::assertContains($expectedLogs, $logs);
+
+        // Check the exception is returned as the lambda result
+        self::assertSame([
+            'errorType',
+            'errorMessage',
+            'stackTrace',
+        ], array_keys($result));
+        self::assertSame('Exception', $result['errorType']);
+        self::assertSame('This is an uncaught exception', $result['errorMessage']);
+        self::assertStringStartsWith('#0 /var/task/', $result['stackTrace'][0]);
+    }
+
+    public function test error appears in logs and is reported as an invocation error()
+    {
+        [$result, $logs] = $this->invokeLambda([
+            'error' => true,
+        ]);
+
+        // We don't assert on complete exception traces because they will change over time
+        $expectedLogs = <<<LOGS
+Fatal error: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam/Php/function.php:31
+Stack trace:
+#0 /var/task/
+LOGS;
+        self::assertContains($expectedLogs, $logs);
+
+        // Check the exception is returned as the lambda result
+        self::assertSame([
+            'errorType',
+            'errorMessage',
+            'stackTrace',
+        ], array_keys($result));
+        self::assertSame('ArgumentCountError', $result['errorType']);
+        self::assertSame('strlen() expects exactly 1 parameter, 0 given', $result['errorMessage']);
+        self::assertStringStartsWith('#0 /var/task/', $result['stackTrace'][0]);
+    }
+
+    public function test fatal error appears in logs and is reported as an invocation error()
+    {
+        [$result, $logs] = $this->invokeLambda([
+            'fatal_error' => true,
+        ]);
+
+        // We don't assert on complete exception traces because they will change over time
+        $expectedLogs = <<<LOGS
+Fatal error: require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam/Php/function.php on line 35
+LOGS;
+        self::assertContains($expectedLogs, $logs);
+
+        // Check the exception is returned as the lambda result
+        self::assertSame([
+            'errorType',
+            'errorMessage',
+        ], array_keys($result));
+        self::assertSame('Runtime.ExitError', $result['errorType']);
+        self::assertContains('Error: Runtime exited without providing a reason', $result['errorMessage']);
+    }
+
+    public function test warnings are logged()
+    {
+        [$result, $logs] = $this->invokeLambda([
+            'warning' => true,
+        ]);
+
+        self::assertNotContains('Warning: This is a test warning', $result);
+        self::assertContains('Warning: This is a test warning in /var/task/tests/Sam/Php/function.php', $logs);
     }
 
     public function test php extensions()
     {
-        [$result, $stderr] = $this->invokeLambda([
+        [$result, $logs] = $this->invokeLambda([
             'extensions' => true,
         ]);
 
@@ -78,7 +179,7 @@ class PhpRuntimeTest extends TestCase
             'zip',
             'mysqlnd',
             'Zend OPcache',
-        ], $result, $stderr);
+        ], $result, $logs);
     }
 
     /**
@@ -86,7 +187,7 @@ class PhpRuntimeTest extends TestCase
      */
     public function test php config()
     {
-        [$result, $stderr] = $this->invokeLambda([
+        [$result, $logs] = $this->invokeLambda([
             'php-config' => true,
         ]);
 
@@ -119,7 +220,7 @@ class PhpRuntimeTest extends TestCase
             'short_open_tag' => '',
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
-        ], $result, $stderr);
+        ], $result, $logs);
     }
 
     /**
@@ -127,6 +228,8 @@ class PhpRuntimeTest extends TestCase
      */
     private function invokeLambda($event = null): array
     {
+        // Use `sam local invoke` because `sam local start-lambda` does not support
+        // fetching the logs (that means we can't do assertions on those logs…)
         $command = ['sam', 'local', 'invoke', 'PhpFunction', '--region', 'us-east-1'];
         if ($event === null) {
             $command[] = '--no-event';
@@ -134,15 +237,35 @@ class PhpRuntimeTest extends TestCase
         $process = new Process($command);
         $process->setWorkingDirectory(__DIR__);
         $process->setTimeout(0);
+        $process->setTty(false);
         if ($event !== null) {
             $process->setInput(json_encode($event));
         }
         $process->mustRun();
 
+        // Cleanup colors from stderr
+        $stderr = $process->getErrorOutput();
+        $stderr = preg_replace('/\x1b\[[0-9;]*m/', '', $stderr);
+
+        // Extract the result from stdout
         $output = explode("\n", trim($process->getOutput()));
         $lastLine = end($output);
-        $result = json_decode($lastLine, true);
+        if (! empty($lastLine)) {
+            $result = json_decode($lastLine, true);
+        } else {
+            $result = null;
+            // Was there an error?
+            preg_match('/REPORT RequestId: [^\n]*(.*)/s', $stderr, $matches);
+            $error = trim($matches[1] ?? '');
+            if ($error !== '') {
+                $result = json_decode($error, true);
+            }
+        }
 
-        return [$result, $process->getErrorOutput()];
+        // Extract the logs from stderr
+        preg_match('/START RequestId: .*REPORT RequestId: [^\n]*/s', $stderr, $matches);
+        $logs = $matches[0];
+
+        return [$result, $logs];
     }
 }
