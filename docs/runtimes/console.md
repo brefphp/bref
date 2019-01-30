@@ -18,7 +18,7 @@ The lambda function used for running console applications must use two Lambda la
 - the base PHP layer (the PHP runtime that provides the `php` binary)
 - the "console" layer that overrides the base runtime to execute your console application
 
-Below is a minimal `template.yaml`. To create it automatically run `vendor/bin/bref init`.
+Below is a minimal `template.yaml`. To create it automatically run `vendor/bin/bref init` and select "Console application".
 
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
@@ -43,26 +43,28 @@ Resources:
 To run a console command on AWS Lambda use `bref cli`:
 
 ```bash
-vendor/bin/bref cli -- <command>
+vendor/bin/bref cli <function-name> -- <command>
 ```
+
+`<function-name>` is the name of the function defined in `template.yaml`. In our example above that would be `my-function`.
 
 Pass your command, arguments and options by putting them after `--`. The `--` delimiter separates between options for the `bref cli` command (before `--`) and your command (after `--`).
 
 ```bash
-vendor/bin/bref cli <bref options> -- <your command, your options>
+vendor/bin/bref cli my-function <bref options> -- <your command, your options>
 ```
 
 For example:
 
 ```bash
 # Runs the CLI application without arguments and displays the help
-$ vendor/bin/bref cli
+$ vendor/bin/bref cli my-function
 # ...
 
-$ vendor/bin/bref cli -- doctrine:migrate
+$ vendor/bin/bref cli my-function -- doctrine:migrate
 Your database will be migrated.
 To execute the SQL queries run the command with the `--force` option.
 
-$ vendor/bin/bref cli -- doctrine:migrate --force
+$ vendor/bin/bref cli my-function -- doctrine:migrate --force
 Your database has been migrated.
 ```
