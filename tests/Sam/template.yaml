@@ -10,7 +10,7 @@ Resources:
             Handler: tests/Sam/Php/function.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:416566615250:layer:php-73:6'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:1'
 
     HttpFunction:
         Type: AWS::Serverless::Function
@@ -20,7 +20,7 @@ Resources:
             Handler: tests/Sam/PhpFpm/index.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:416566615250:layer:php-73-fpm:6'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:1'
             Events:
                 HttpRoot:
                     Type: Api

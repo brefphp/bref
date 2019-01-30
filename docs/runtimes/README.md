@@ -21,7 +21,7 @@ This page is an introduction to the runtimes. The next sections (e.g. PHP functi
 The name of the runtimes follow this pattern:
 
 ```
-arn:aws:lambda:<region>:416566615250:layer:<layer-name>:<layer-version>
+arn:aws:lambda:<region>:209497400698:layer:<layer-name>:<layer-version>
 ```
 
 ### Region (`<region>`)
