@@ -39,7 +39,7 @@ class PhpFpmRuntimeTest extends TestCase
         $response = $this->invoke('/?stderr=1');
 
         $this->assertResponseSuccessful($response);
-        self::assertNotContains('This is a test log into stderr', $this->getBody($response));
+        self::assertNotContains('This is a test log into stderr', $this->responseAsString($response));
         self::assertContains('This is a test log into stderr', $this->logs);
     }
 
@@ -48,7 +48,7 @@ class PhpFpmRuntimeTest extends TestCase
         $response = $this->invoke('/?error_log=1');
 
         $this->assertResponseSuccessful($response);
-        self::assertNotContains('This is a test log from error_log', $this->getBody($response));
+        self::assertNotContains('This is a test log from error_log', $this->responseAsString($response));
         self::assertContains('This is a test log from error_log', $this->logs);
     }
 
@@ -57,6 +57,7 @@ class PhpFpmRuntimeTest extends TestCase
         $response = $this->invoke('/?exception=1');
 
         self::assertSame(500, $response->getStatusCode(), $this->logs);
+        self::assertNotContains('This is an uncaught exception', $this->responseAsString($response));
         self::assertContains('Fatal error:  Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam', $this->logs);
     }
 
@@ -65,6 +66,7 @@ class PhpFpmRuntimeTest extends TestCase
         $response = $this->invoke('/?error=1');
 
         self::assertSame(500, $response->getStatusCode(), $this->logs);
+        self::assertNotContains('strlen() expects exactly 1 parameter, 0 given', $this->responseAsString($response));
         self::assertContains('PHP Fatal error:  Uncaught ArgumentCountError: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam', $this->logs);
     }
 
@@ -74,6 +76,7 @@ class PhpFpmRuntimeTest extends TestCase
 
         // PHP being PHP :'(
         self::assertSame(200, $response->getStatusCode(), $this->logs);
+        self::assertNotContains("require(): Failed opening required 'foo'", $this->responseAsString($response));
         $expectedLogs = "PHP Fatal error:  require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam";
         self::assertContains($expectedLogs, $this->logs);
     }
@@ -206,5 +209,16 @@ class PhpFpmRuntimeTest extends TestCase
     private function getJsonBody(ResponseInterface $response)
     {
         return json_decode($response->getBody()->getContents(), true);
+    }
+
+    private function responseAsString(ResponseInterface $response): string
+    {
+        $string = '';
+        foreach ($response->getHeaders() as $name => $values) {
+            $string .= $name . ': ' . implode(', ', $values) . "\n";
+        }
+        $string .= "\n" . $this->getBody($response) . "\n";
+
+        return $string;
     }
 }

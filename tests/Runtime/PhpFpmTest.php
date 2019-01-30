@@ -689,6 +689,15 @@ Year,Make,Model
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
     }
 
+    public function test response with error_log()
+    {
+        $headers = $this->get('error.php')->toApiGatewayFormat()['headers'];
+
+        self::assertEquals([
+            'content-type' => 'text/html; charset=UTF-8',
+        ], $headers);
+    }
+
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
         $this->startFpm(__DIR__ . '/PhpFpm/request.php');
