@@ -44,7 +44,7 @@ Alternatively the region can be overridden on every SAM command by setting the `
 Install Bref in your project using [Composer](https://getcomposer.org/):
 
 ```
-composer require mnapoli/bref:dev-master
+composer require mnapoli/bref
 ```
 
 The `bref` command line tool can now be used by running `vendor/bin/bref` in your project.
