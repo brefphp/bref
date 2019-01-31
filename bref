@@ -68,8 +68,10 @@ $app->command('init', function (SymfonyStyle $io) {
     $fs = new Filesystem;
     $io->writeln('Creating template.yaml');
     $fs->copy(__DIR__ . "/template/$templateDirectory/template.yaml", 'template.yaml');
-    $io->writeln('Creating index.php');
-    $fs->copy(__DIR__ . "/template/$templateDirectory/index.php", 'index.php');
+    if ($fs->exists(__DIR__ . "/template/$templateDirectory/index.php")) {
+        $io->writeln('Creating index.php');
+        $fs->copy(__DIR__ . "/template/$templateDirectory/index.php", 'index.php');
+    }
 
     /*
      * We check if this is a git repository to automatically add files to git.
