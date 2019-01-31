@@ -54,9 +54,13 @@ class ServiceProvider extends IlluminateServiceProvider
             "/logs"
         ];
 
-        foreach ($storagePaths as $path) {
-            mkdir($storagePath . $path, 0777, true);
+        // Only make the dirs if we have not previously made them
+        if (!is_dir($storagePath.end($storagePaths))) {
+            foreach ($storagePaths as $path) {
+                mkdir($storagePath . $path, 0777, true);
+            }
         }
+
         $this->app->useStoragePath($storagePath);
     }
 
