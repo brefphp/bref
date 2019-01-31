@@ -39,7 +39,7 @@ Resources:
             Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:1'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72-fpm:1'
             Events:
                 # The function will match all HTTP URLs
                 HttpRoot:
@@ -62,7 +62,7 @@ Resources:
             Runtime: provided
             Layers:
                 # PHP runtime
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:1'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72:1'
                 # Console layer
                 - 'arn:aws:lambda:us-east-1:209497400698:layer:console:1'
 
