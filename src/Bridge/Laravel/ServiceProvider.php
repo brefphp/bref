@@ -56,6 +56,7 @@ class ServiceProvider extends IlluminateServiceProvider
 
         // Only make the dirs if we have not previously made them
         if (!is_dir($storagePath.end($storagePaths))) {
+            reset($storagePaths);
             foreach ($storagePaths as $path) {
                 mkdir($storagePath . $path, 0777, true);
             }
