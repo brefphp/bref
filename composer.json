@@ -16,7 +16,8 @@
       "Bref\\": "src"
     },
     "files": [
-      "src/functions.php"
+      "src/functions.php",
+      "src/Bridge/Laravel/helpers.php"
     ]
   },
   "autoload-dev": {
