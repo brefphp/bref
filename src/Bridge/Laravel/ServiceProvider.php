@@ -85,26 +85,24 @@ class ServiceProvider extends IlluminateServiceProvider
      */
     public function setupLogStack(): void
     {
-        // So here is what I am going to do. I will check t
-        // o see if you want me to leave your logging alone.
-        if (getenv('LEAVE_MY_LOGS_ALONE') !== false) {
-            // and if you didn't tell me to leave your settings alone
-            // and if you aren't already using the stderr channel
-            if (Config::get('logging.default') !== 'stderr') {
-                # I will inject stderr into whatever you are doing.
-                if (Config::get('logging.default') == 'stack') {
-                    # Good, you are already using the stack.
-                    $channels = Config::get('logging.channels.stack.channels');
-                    if (!in_array('stderr', $channels)) {
-                        $channels[] = 'stderr';
-                    }
-                } else {
-                    # Just gonna setup a stack log channel for you here.
-                    $channels = ['stderr', Config::get('logging.default')];
-                }
-                Config::Set('logging.channels.stack.channels', $channels);
-                Config::set('logging.default', 'stack');
-            }
+    // If you don't want me messing with this, or you already use stderr, we're done
+    if (env('LEAVE_MY_LOGS_ALONE') || Config::get('logging.default') == 'stderr') {
+      return;
+    }
+
+    // Ok, I will inject stderr into whatever you are doing.
+    if (Config::get('logging.default') == 'stack') {
+        // Good, you are already using the stack.
+        $channels = Config::get('logging.channels.stack.channels');
+        if (!in_array('stderr', $channels)) {
+            $channels[] = 'stderr';
         }
+    } else {
+        // Just gonna setup a stack log channel for you here.
+        $channels = ['stderr', Config::get('logging.default')];
+    }
+
+    Config::set('logging.channels.stack.channels', $channels);
+    Config::set('logging.default', 'stack');
     }
 }
