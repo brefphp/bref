@@ -17,14 +17,14 @@ These files *cannot be customized*.
 
 You can create your own `php.ini` to customize PHP's configuration:
 
-1. create a `php/config.d/` subdirectory in your project
+1. create a `php/conf.d/` subdirectory in your project
 1. create a `php.ini` file inside that directory _(the name of the file does not matter, it must have an `.ini` extensions)_
 
-PHP will automatically include any `*.ini` file found in `php/config.d/` in your project.
+PHP will automatically include any `*.ini` file found in `php/conf.d/` in your project.
 
 ### Customizing php.ini using a custom path
 
-If you want PHP to scan a different directory than `php/config.d/` in your project, you can override the path by setting it in the [`PHP_INI_SCAN_DIR`](http://php.net/manual/fr/configuration.file.php#configuration.file.scan) environment variable.
+If you want PHP to scan a different directory than `php/conf.d/` in your project, you can override the path by setting it in the [`PHP_INI_SCAN_DIR`](http://php.net/manual/fr/configuration.file.php#configuration.file.scan) environment variable.
 
 > `PHP_INI_SCAN_DIR` must contain an absolute path. Since your code is placed in `/var/task` on AWS Lambda, the environment variable should contain something like `/var/task/my/different/dir`.
 
@@ -109,7 +109,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 - **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
 - **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
 
-You can enable these extensions by loading them in `php/config.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
+You can enable these extensions by loading them in `php/conf.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
 ```ini
 extension=intl
