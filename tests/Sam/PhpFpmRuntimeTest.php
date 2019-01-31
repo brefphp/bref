@@ -47,7 +47,7 @@ class PhpFpmRuntimeTest extends TestCase
     {
         $response = $this->invoke('/?error_log=1');
 
-        $this->assertResponseSuccessful($response);
+        self::assertSame(500, $response->getStatusCode(), $this->logs);
         self::assertNotContains('This is a test log from error_log', $this->responseAsString($response));
         self::assertContains('This is a test log from error_log', $this->logs);
     }
@@ -74,8 +74,7 @@ class PhpFpmRuntimeTest extends TestCase
     {
         $response = $this->invoke('/?fatal_error=1');
 
-        // PHP being PHP :'(
-        self::assertSame(200, $response->getStatusCode(), $this->logs);
+        self::assertSame(500, $response->getStatusCode(), $this->logs);
         self::assertNotContains("require(): Failed opening required 'foo'", $this->responseAsString($response));
         $expectedLogs = "PHP Fatal error:  require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam";
         self::assertContains($expectedLogs, $this->logs);
@@ -85,8 +84,10 @@ class PhpFpmRuntimeTest extends TestCase
     {
         $response = $this->invoke('/?warning=1');
 
-        $this->assertResponseSuccessful($response);
-        self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
+        self::assertSame(500, $response->getStatusCode(), $this->logs);
+        // Unfortunately with the temporary fix in https://github.com/mnapoli/bref/pull/216
+        // we must settle for an empty 500 response for now
+//        self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
         self::assertContains('Warning:  This is a test warning in /var/task/tests/Sam', $this->logs);
     }
 

@@ -693,9 +693,7 @@ Year,Make,Model
     {
         $headers = $this->get('error.php')->toApiGatewayFormat()['headers'];
 
-        self::assertEquals([
-            'content-type' => 'text/html; charset=UTF-8',
-        ], $headers);
+        self::assertEquals([], (array) $headers);
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void

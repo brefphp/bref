@@ -106,6 +106,22 @@ class PhpFpm
 
         $responseHeaders = array_change_key_case($responseHeaders, CASE_LOWER);
 
+        /**
+         * In some cases PHP-FPM sends logs into the FastCGI connection. That isn't valid and isn't supported
+         * by our FastCGI client library, so those logs end up mangled in the HTTP headers.
+         * We can't return them to the client as:
+         * - the response is broken
+         * - it contains internal logs
+         * Until we find a better solution we simply return an empty 500 response, because since there were logs sent
+         * through FastCGI something wrong must have happened anyway. Those logs will also be sent to CloudWatch
+         * so debugging is possible.
+         *
+         * @see https://github.com/mnapoli/bref/pull/216
+         */
+        if (isset($responseHeaders['php message'])) {
+            return new LambdaResponse(500, [], '');
+        }
+
         // Extract the status code
         if (isset($responseHeaders['status'])) {
             [$status] = explode(' ', $responseHeaders['status']);
