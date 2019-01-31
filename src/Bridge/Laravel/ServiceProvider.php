@@ -2,11 +2,22 @@
 
 namespace Bref\Bridge\Laravel;
 
+use Bref\Bridge\Laravel\Console\Package;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 
 class ServiceProvider extends IlluminateServiceProvider
 {
+    protected $commandList = [
+        Package::class
+    ];
+
+    /**
+     * Default path to configuration
+     * @var string
+     */
+    protected $configPath = __DIR__ . '/config/bref.php';
+
     /**
      * Bootstrap the application services.
      *
@@ -14,16 +25,23 @@ class ServiceProvider extends IlluminateServiceProvider
      */
     public function boot()
     {
+        require('helpers.php');
+
         // if we are running in lambda, lets shuffle some things around.
         if (runningInLambda()) {
             $this->setupStorage();
             $this->setupSessionDriver();
             $this->setupLogStack();
         }
-        // Allow artisan
-        $this->publishes([
-            __DIR__ . '/config/cloudformation.yaml' => base_path('template.yaml'),
-        ]);
+        // helps deal with Lumen vs Laravel differences
+        if (function_exists('config_path')) {
+            $publishConfigPath = config_path('bref.php');
+        } else {
+            $publishConfigPath = base_path('config/bref.php');
+        }
+
+        $this->publishes([$this->configPath => $publishConfigPath], 'config');
+        $this->publishes([ __DIR__ . '/config/cloudformation.yaml' => base_path('template.yaml')], 'bref');
 
     }
 
@@ -34,6 +52,11 @@ class ServiceProvider extends IlluminateServiceProvider
      */
     public function register()
     {
+        if (is_a($this->app, 'Laravel\Lumen\Application')) {
+            $this->app->configure('bref');
+        }
+        $this->mergeConfigFrom($this->configPath, 'bref');
+        $this->commands($this->commandList);
 
     }
 
