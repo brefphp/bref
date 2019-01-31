@@ -108,12 +108,6 @@ composer install --optimize-autoloader --no-dev
 sam package ...
 # Deploy
 sam deploy ...
-# Configure (e.g. passing secret env vars - existing env vars defined in template.yaml will be replaced!)
-aws lambda update-function-configuration
-  --function-name <function-name>
-  --environment '{"Variables":{
-    "SECRET_ENV_VAR":"'"$SECRET_ENV_VAR_VALUE_FROM_CICD"'",
-  }}' > /dev/null
 ```
 
 That will also mean creating AWS access keys so that the continuous integration is allowed to deploy.
