@@ -16,12 +16,11 @@ Assuming your are in existing Symfony project, let's install Bref via Composer:
 composer require mnapoli/bref
 ```
 
-Instead of initializing Bref from scratch, let's create a `template.yaml` configuration file (at the root of the project) optimized for Symfony:
+Then let's create a `template.yaml` configuration file (at the root of the project) optimized for Symfony:
 
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'Bref Symfony demo'
 
 Globals:
     Function:
@@ -67,13 +66,13 @@ Resources:
 
 Outputs:
     DemoApi:
-        Description: "API Gateway endpoint URL for Prod stage"
-        Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+        Description: 'URL of our function in the *Prod* environment'
+        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
 ```
 
 Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and the logs are storage in the `src/Kernel.php` file. This is done by adding 2 new methods to the class:
+Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and the logs are stored in the `src/Kernel.php` file. This is done by adding 2 new methods to the class:
 
 ```php
     public function getLogDir()
