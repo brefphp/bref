@@ -88,6 +88,7 @@ class ServiceProvider extends IlluminateServiceProvider
         }
 
         $this->app->useStoragePath($storagePath);
+        $this->app['config']['view.compiled'] = realpath(storage_path('framework/views'));
     }
 
     /**
@@ -97,7 +98,7 @@ class ServiceProvider extends IlluminateServiceProvider
     {
         // if you try to we will override
         // you and save you from yourself.
-        if (env(SESSION_DRIVER) == 'file') {
+        if (env('SESSION_DRIVER') == 'file') {
             # If you need sessions, store them
             # in redis, a database, or cookies
             # anything that scales horizontally
