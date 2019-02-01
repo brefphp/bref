@@ -4,6 +4,7 @@ namespace Bref\Bridge\Laravel;
 
 use Bref\Bridge\Laravel\Console\Package;
 use Bref\Bridge\Laravel\Console\SamConfigureRoutes;
+use Bref\Bridge\Laravel\Console\StartApi;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 
@@ -11,7 +12,8 @@ class ServiceProvider extends IlluminateServiceProvider
 {
     protected $commandList = [
         Package::class,
-        SamConfigureRoutes::class
+        SamConfigureRoutes::class,
+        StartApi::class
     ];
 
     /**
