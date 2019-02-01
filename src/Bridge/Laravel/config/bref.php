@@ -18,7 +18,15 @@ return [
             'versions.json',
             '.php_cs.cache',
             'composer.json',
-            'composer.lock'
+            'composer.lock',
+            '.DS_Store',
+            '.editorconfig',
+            '.gitattributes',
+            '.stack.yaml',
+            'package.json',
+            'phpunit.xml',
+            'server.php',
+            'template.yaml'
         ],
         'executables' => [
             'artisan'

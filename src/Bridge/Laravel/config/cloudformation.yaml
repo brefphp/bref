@@ -14,7 +14,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             FunctionName: 'laravel-website'
-            CodeUri: .
+            CodeUri: ./storage/latest.zip
             Handler: public/index.php
             Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
             Runtime: provided
@@ -36,7 +36,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             FunctionName: 'laravel-artisan'
-            CodeUri: .
+            CodeUri: ./storage/latest.zip
             Handler: artisan
             Timeout: 120
             Runtime: provided

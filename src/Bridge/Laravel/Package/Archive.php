@@ -23,6 +23,17 @@ class Archive
      */
     private $items = 0;
 
+    protected static $files = [
+            'vendor/autoload.php',
+            'vendor/composer/autoload_classmap.php',
+            'vendor/composer/autoload_files.php',
+            'vendor/composer/autoload_namespaces.php',
+            'vendor/composer/autoload_psr4.php',
+            'vendor/composer/autoload_real.php',
+            'vendor/composer/autoload_static.php',
+            'vendor/composer/ClassLoader.php',
+            'vendor/composer/installed.json'
+        ];
     /**
      * Archive constructor.
      * @param string $path
@@ -118,12 +129,23 @@ class Archive
     {
         $tmpDir = \tempDir('serverlessVendor', true);
         copy(base_path('composer.json'), sprintf('%s/composer.json', $tmpDir));
-        $process = new Process(sprintf('%s install --no-dev', 'composer'));
+        copy(base_path('composer.lock'), sprintf('%s/composer.lock', $tmpDir));
+
+        $this->collectComposerFiles($tmpDir, 'composer.json');
+        $this->collectComposerFiles($tmpDir, 'composer.lock');
+        copyFolder(base_path('database/seeds'), $tmpDir.'/database/seeds');
+        copyFolder(base_path('database/factories'), $tmpDir.'/database/factories');
+        $process = new Process(sprintf('%s install --no-dev --no-scripts', 'composer'));
         $process->setWorkingDirectory($tmpDir);
         $process->run();
+        rmFolder($tmpDir.'/database');
+
         return $this->getFileCollection($tmpDir);
     }
 
+    protected function collectComposerFiles(string $tmpDir, string $source){
+        copy(base_path($source), sprintf('%s/%s', $tmpDir, $source));
+    }
     /**
      * Works from a base directory and add all files that are not blacklisted.
      * @param string $basePath
