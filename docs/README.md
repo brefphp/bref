@@ -8,7 +8,7 @@ next:
 ---
 
 <p class="text-lg">
-Serverless replaces the traditionnal approaches to deploying and running applications. It provides more scalable, affordable and reliable architectures. However it is not always easy to get things right.
+Serverless replaces the traditional approaches to deploying and running applications. It provides more scalable, affordable and reliable architectures. However it is not always easy to get things right.
 </p>
 
 <p class="text-lg">
