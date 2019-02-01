@@ -46,7 +46,8 @@ Install Bref in your project using [Composer](https://getcomposer.org/):
 ```
 composer require mnapoli/bref
 ```
-> Notice: For running the latest version of Bref, you must have installed PHP 7.2.
+
+> To run the latest version of Bref you must have PHP 7.2 or greater! If you are using PHP 7.1 or less an older (outdated) version of Bref will be installed instead.
 
 The `bref` command line tool can now be used by running `vendor/bin/bref` in your project.
 
