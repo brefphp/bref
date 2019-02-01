@@ -3,13 +3,15 @@
 namespace Bref\Bridge\Laravel;
 
 use Bref\Bridge\Laravel\Console\Package;
+use Bref\Bridge\Laravel\Console\SamConfigureRoutes;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 
 class ServiceProvider extends IlluminateServiceProvider
 {
     protected $commandList = [
-        Package::class
+        Package::class,
+        SamConfigureRoutes::class
     ];
 
     /**
