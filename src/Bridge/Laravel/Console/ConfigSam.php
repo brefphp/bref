@@ -8,12 +8,13 @@
 
 namespace Bref\Bridge\Laravel\Console;
 
+use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 use Illuminate\Routing\RouteCollection;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\Yaml\Yaml;
 
-class SamConfigureRoutes extends Command
+class ConfigSam extends Command
 {
     /**
      * The console command name.
@@ -34,6 +35,15 @@ class SamConfigureRoutes extends Command
         $samConfig = Yaml::parseFile(base_path('template.yaml'), Yaml::PARSE_CUSTOM_TAGS);
         $samConfig['Resources']['Website']['Properties']['FunctionName'] = strtolower(env('APP_NAME') . '-apigateway');
 
+
+        /** @var Dotenv $dotenv */
+        $dotenv = new Dotenv(base_path());
+        $dotenv->load();
+        // Import the environment settings from .env
+        foreach ($dotenv->getEnvironmentVariableNames() as $environmentVariableName){
+            $samConfig['Globals']['Function']['Environment']['Variables'][$environmentVariableName] = (string)env($environmentVariableName, '');
+        }
+
         // Handle the website events.
         $samConfig['Resources']['Website']['Properties']['Events'] = [];
         /** @var RouteCollection $routeCollection */
@@ -43,7 +53,6 @@ class SamConfigureRoutes extends Command
             $methods = $route->methods();
             (collect($methods))->each(function (string $method) use ($route, &$samConfig) {
                 list($name, $config) = $this->routing($method, $route->uri, $route->getName());
-                $this->info('Setting: ' . $name);
                 $samConfig['Resources']['Website']['Properties']['Events'][$name] = $config;
             });
         }
@@ -61,12 +70,8 @@ class SamConfigureRoutes extends Command
      */
     protected function routing(string $method, string $uri, $name): array
     {
-        $this->info('Method: ' . strtolower($method));
         $routeName = ($uri == '/') ? 'root' : preg_replace('/[^A-Za-z0-9\-]/', '', $uri);
-        $this->info('Route Name: ' . $routeName);
         $name = $name ? $name : sprintf("%s%s", ucfirst(strtolower($method)), ucfirst(strtolower($routeName)));
-        $this->info('Name: ' . $name);
-        $this->info('    ');
         $method = strtoupper($method);
         $path = $uri[0] == '/' ? $uri : '/' . $uri;
         $config = [
