@@ -8,7 +8,7 @@ This guide helps you run Laravel applications on AWS Lambda using Bref. These in
 
 A demo application is available on GitHub at [github.com/mnapoli/bref-laravel-demo](https://github.com/mnapoli/bref-laravel-demo).
 
-## Setup
+## Installation
 
 Assuming your are in existing Laravel project, let's install Bref via Composer:
 
@@ -18,104 +18,66 @@ composer require mnapoli/bref
 
 Then let's create a `template.yaml` configuration file (at the root of the project) optimized for Laravel:
 
-```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-
-Globals:
-    Function:
-        Environment:
-            Variables:
-                # Laravel environment variables
-                APP_STORAGE: '/tmp'
-
-Resources:
-    Website:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: 'laravel-website'
-            CodeUri: .
-            Handler: public/index.php
-            Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
-            Runtime: provided
-            Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72-fpm:1'
-            Events:
-                # The function will match all HTTP URLs
-                HttpRoot:
-                    Type: Api
-                    Properties:
-                        Path: /
-                        Method: ANY
-                HttpSubPaths:
-                    Type: Api
-                    Properties:
-                        Path: /{proxy+}
-                        Method: ANY
-    Artisan:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: 'laravel-artisan'
-            CodeUri: .
-            Handler: artisan
-            Timeout: 120
-            Runtime: provided
-            Layers:
-                # PHP runtime
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72:1'
-                # Console layer
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:console:1'
-
-Outputs:
-    DemoHttpApi:
-        Description: 'URL of our function in the *Prod* environment'
-        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
+```
+ artisan vendor:publish --tag bref-sam-template
 ```
 
-Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
-
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache files are stored. Add this line in `bootstrap/app.php` after `$app = new Illuminate\Foundation\Application`:
-
-```php
-/*
- * Allow overriding the storage path in production using an environment variable.
- */
-$app->useStoragePath($_ENV['APP_STORAGE'] ?? $app->storagePath());
+## Configuration
+You will need an S3 bucket to send the Function Package to in order for Cloudformation to consume it. Either use and existing bucket, or create a new one.
+```sh
+aws s3 mb s3://<bucket-name>
 ```
 
-We will also need to customize the location for compiled views, as well as customize a few variables in the `.env` file:
+New edit your `.env` file and add:
 
-```dotenv
-VIEW_COMPILED_PATH=/tmp/storage/framework/views
-
-# We cannot store sessions to disk: if you don't need sessions (e.g. API)
-# then use `array`, else store sessions in database or cookies
-SESSION_DRIVER=array
-
-# Logging to stderr allows the logs to end up in Cloudwatch
-LOG_CHANNEL=stderr
+```ini
+BREF_NAME="<my-lambdas-name>"
+BREF_S3_BUCKET="<bucket-name>"
 ```
 
-Finally we need to edit `app/Providers/AppServiceProvider.php` because Laravel will not create that directory automatically:
-
-```php
-    public function boot()
-    {
-        // Make sure the directory for compiled views exist
-        if (! is_dir(config('view.compiled'))) {
-            mkdir(config('view.compiled'), 0755, true);
-        }
-    }
+*OPTIONAL:* If you would like to do more advanced configuration you may publish the `bref.config` to your Laravel `./config` directory and edit it as well.
+```
+ artisan vendor:publish --tag bref-configuration
 ```
 
-## Deployment
+Lastly, tell Bref to finalize the SAM template for you.
 
-At the moment deploying Laravel with its caches will break in AWS Lambda (because most file paths are different). This is why it is currently necessary to deploy without the config cache file. Simply run `php artisan config:clear` to make sure that file doesn't exist.
+```
+artisan bref:config-sam
+```
 
-Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md#deploying-with-sam).
+## Usage
+### Update Configuration
+This command can be run at anytime to update the template if you change environment variables, routes, or other configuration options.
+```
+artisan bref:config-sam
+```
+
+### Package Project
+This command will zip up your project and store it in the laravel `./storage` directory. It will also symlink `./storage/latest.zip` to the last zip package created.
+```
+artisan bref:config-sam
+```
+### Deploy Project
+This command will deploy your project to SAM. The first time can take a moment. After this is run, your application should be up and running in AWS!
+```
+artisan bref:deploy
+```
+
+### Update Function Code
+Doing a full deploy to test code changes can be an aggravation. Use this command to update the Lambda Function in AWS after you make code changes. However, if you make configuration changes, you will need to run 'bref:deploy` again.
+```
+artisan bref:update
+```
+
+### Local API Testing
+If you have docker installed, and would like to test your code locally. This command will run your code in docker and give you a local testpoint to check it out in.
+```
+artisan bref:start-api
+```
 
 ## Laravel Artisan
 
-As you may have noticed, we define a function of type "console" in `template.yaml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
+As you may have noticed, we define a function of type "Artisan" in `template.yaml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
 
 To use it follow [the "Console" guide](/docs/runtimes/console.md).
