@@ -7,8 +7,10 @@ use Bref\Bridge\Laravel\Console\Deploy;
 use Bref\Bridge\Laravel\Console\Package;
 use Bref\Bridge\Laravel\Console\StartApi;
 use Bref\Bridge\Laravel\Console\Update;
+use Bref\Bridge\Laravel\Events\LambdaPackageRequested;
 use Bref\Bridge\Laravel\Events\SamConfigurationRequested;
 use Bref\Bridge\Laravel\Services\ConfigureSam;
+use Bref\Bridge\Laravel\Services\PackageFunction;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
@@ -21,9 +23,8 @@ class ServiceProvider extends IlluminateServiceProvider
      * @var array
      */
     protected $listen = [
-        SamConfigurationRequested::class => [
-            ConfigureSam::class
-        ]
+        SamConfigurationRequested::class => [ConfigureSam::class],
+        LambdaPackageRequested::class => [PackageFunction::class]
     ];
 
     /**
