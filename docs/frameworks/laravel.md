@@ -56,7 +56,7 @@ artisan bref:config-sam
 ### Package Project
 This command will zip up your project and store it in the laravel `./storage` directory. It will also symlink `./storage/latest.zip` to the last zip package created.
 ```
-artisan bref:config-sam
+artisan bref:package
 ```
 ### Deploy Project
 This command will deploy your project to SAM. The first time can take a moment. After this is run, your application should be up and running in AWS!
