@@ -8,6 +8,7 @@ Globals:
             Variables:
                 # Laravel environment variables
                 APP_STORAGE: '/tmp'
+                BREF_LAMBDA_ENVIRONMENT: true
 
 Resources:
     Website:
