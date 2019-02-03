@@ -8,8 +8,8 @@
 
 namespace Bref\Bridge\Laravel\Console;
 
+use Bref\Bridge\Laravel\Events\DeploymentRequested;
 use Illuminate\Console\Command;
-use Symfony\Component\Process\Process;
 
 class Deploy extends Command
 {
@@ -29,15 +29,7 @@ class Deploy extends Command
     public function handle(): int
     {
 
-        $process = new Process(sprintf('sam deploy --template-file .stack.yaml --capabilities CAPABILITY_IAM --stack-name %s',
-            env('APP_NAME')));
-        $process->setWorkingDirectory(base_path());
-        $process->setTimeout(600);
-        $process->start();
-
-        foreach ($process as $type => $data) {
-            echo $data;
-        }
+        event(new DeploymentRequested());
         return 0;
     }
 }
