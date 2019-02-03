@@ -8,7 +8,7 @@ if (!function_exists('runningInLambda')) {
      */
     function runningInLambda(): bool
     {
-        return getenv('AWS_EXECUTION_ENV') !== false;
+        return getenv('BREF_LAMBDA_ENV') !== false;
     }
 }
 if (!function_exists('tempDir')) {
@@ -20,7 +20,7 @@ if (!function_exists('tempDir')) {
      */
     function tempDir(string $prefix = '', bool $deleteOnShutdown = true): SplFileInfo
     {
-        $tmpFile=tempnam(sys_get_temp_dir(), $prefix);
+        $tmpFile = tempnam(sys_get_temp_dir(), $prefix);
         if (file_exists($tmpFile)) {
             unlink($tmpFile);
         }
@@ -35,7 +35,7 @@ if (!function_exists('tempDir')) {
         }
     }
 }
-if (! function_exists('rmFolder')) {
+if (!function_exists('rmFolder')) {
     /**
      * Recursively Delete a Directory
      * @param string $location
@@ -44,7 +44,7 @@ if (! function_exists('rmFolder')) {
      */
     function rmFolder(string $location): bool
     {
-        if (! is_dir($location)) {
+        if (!is_dir($location)) {
             return false;
         }
         $contents = new RecursiveIteratorIterator(
@@ -57,7 +57,7 @@ if (! function_exists('rmFolder')) {
                 @unlink($file->getPathname());
                 continue;
             }
-            if (! $file->isReadable()) {
+            if (!$file->isReadable()) {
                 throw new RuntimeException("{$file->getFilename()} is not readable.");
             }
             switch ($file->getType()) {
@@ -74,7 +74,7 @@ if (! function_exists('rmFolder')) {
         return rmdir($location);
     }
 }
-if (! function_exists('copyFolder')) {
+if (!function_exists('copyFolder')) {
     /**
      * Recursively Copy a Directory
      * @param string $location
@@ -83,7 +83,7 @@ if (! function_exists('copyFolder')) {
      */
     function copyFolder(string $source, string $destination): bool
     {
-        if (! is_dir($destination)) {
+        if (!is_dir($destination)) {
             mkdir($destination, 0777, true);
         }
         $contents = new RecursiveIteratorIterator(
@@ -92,7 +92,7 @@ if (! function_exists('copyFolder')) {
         foreach ($contents as $item) {
             if ($item->isDir()) {
                 $destDir = $destination . DIRECTORY_SEPARATOR . $contents->getSubPathName();
-                if (! is_dir($destDir)) {
+                if (!is_dir($destDir)) {
                     @mkdir($destDir);
                 }
             } else {
