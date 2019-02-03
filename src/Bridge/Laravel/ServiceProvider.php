@@ -2,16 +2,34 @@
 
 namespace Bref\Bridge\Laravel;
 
+use Bref\Bridge\Laravel\Console\ConfigSam;
 use Bref\Bridge\Laravel\Console\Deploy;
 use Bref\Bridge\Laravel\Console\Package;
-use Bref\Bridge\Laravel\Console\ConfigSam;
 use Bref\Bridge\Laravel\Console\StartApi;
 use Bref\Bridge\Laravel\Console\Update;
+use Bref\Bridge\Laravel\Events\SamConfigurationRequested;
+use Bref\Bridge\Laravel\Services\ConfigureSam;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider as IlluminateServiceProvider;
 
 class ServiceProvider extends IlluminateServiceProvider
 {
+    /**
+     * The event => listener mappings for Bref.
+     *
+     * @var array
+     */
+    protected $listen = [
+        SamConfigurationRequested::class => [
+            ConfigureSam::class
+        ]
+    ];
+
+    /**
+     * Bref Console Commands to register.
+     * @var array
+     */
     protected $commandList = [
         Package::class,
         ConfigSam::class,
@@ -21,10 +39,16 @@ class ServiceProvider extends IlluminateServiceProvider
     ];
 
     /**
-     * Default path to configuration
+     * Default path to laravel configuration file in the package
      * @var string
      */
     protected $configPath = __DIR__ . '/config/bref.php';
+
+    /**
+     * Default path to the SAM Template in the package
+     * @var string
+     */
+    protected $samTemplatePath = __DIR__ . '/config/cloudformation.yaml';
 
     /**
      * Bootstrap the application services.
@@ -33,6 +57,7 @@ class ServiceProvider extends IlluminateServiceProvider
      */
     public function boot()
     {
+        // Load our Laravel Helper functions
         require('helpers.php');
 
         // if we are running in lambda, lets shuffle some things around.
@@ -41,30 +66,9 @@ class ServiceProvider extends IlluminateServiceProvider
             $this->setupSessionDriver();
             $this->setupLogStack();
         }
-        // helps deal with Lumen vs Laravel differences
-        if (function_exists('config_path')) {
-            $publishConfigPath = config_path('bref.php');
-        } else {
-            $publishConfigPath = base_path('config/bref.php');
-        }
+        $this->handlePublishing();
 
-        $this->publishes([$this->configPath => $publishConfigPath], 'config');
-        $this->publishes([ __DIR__ . '/config/cloudformation.yaml' => base_path('template.yaml')], 'bref');
-
-    }
-
-    /**
-     * Register the application services.
-     *
-     * @return void
-     */
-    public function register()
-    {
-        if (is_a($this->app, 'Laravel\Lumen\Application')) {
-            $this->app->configure('bref');
-        }
-        $this->mergeConfigFrom($this->configPath, 'bref');
-        $this->commands($this->commandList);
+        $this->registerEventListeners();
 
     }
 
@@ -86,7 +90,7 @@ class ServiceProvider extends IlluminateServiceProvider
         ];
 
         // Only make the dirs if we have not previously made them
-        if (!is_dir($storagePath.end($storagePaths))) {
+        if (!is_dir($storagePath . end($storagePaths))) {
             reset($storagePaths);
             foreach ($storagePaths as $path) {
                 mkdir($storagePath . $path, 0777, true);
@@ -122,24 +126,76 @@ class ServiceProvider extends IlluminateServiceProvider
      */
     public function setupLogStack(): void
     {
-    // If you don't want me messing with this, or you already use stderr, we're done
-    if (env('LEAVE_MY_LOGS_ALONE') || Config::get('logging.default') == 'stderr') {
-      return;
-    }
-
-    // Ok, I will inject stderr into whatever you are doing.
-    if (Config::get('logging.default') == 'stack') {
-        // Good, you are already using the stack.
-        $channels = Config::get('logging.channels.stack.channels');
-        if (!in_array('stderr', $channels)) {
-            $channels[] = 'stderr';
+        // If you don't want me messing with this, or you already use stderr, we're done
+        if (env('LEAVE_MY_LOGS_ALONE') || Config::get('logging.default') == 'stderr') {
+            return;
         }
-    } else {
-        // Just gonna setup a stack log channel for you here.
-        $channels = ['stderr', Config::get('logging.default')];
+
+        // Ok, I will inject stderr into whatever you are doing.
+        if (Config::get('logging.default') == 'stack') {
+            // Good, you are already using the stack.
+            $channels = Config::get('logging.channels.stack.channels');
+            if (!in_array('stderr', $channels)) {
+                $channels[] = 'stderr';
+            }
+        } else {
+            // Just gonna setup a stack log channel for you here.
+            $channels = ['stderr', Config::get('logging.default')];
+        }
+
+        Config::set('logging.channels.stack.channels', $channels);
+        Config::set('logging.default', 'stack');
     }
 
-    Config::set('logging.channels.stack.channels', $channels);
-    Config::set('logging.default', 'stack');
+    /**
+     * Publish any artifacts to laravel user space
+     */
+    public function handlePublishing(): void
+    {
+        // helps deal with Lumen vs Laravel differences
+        if (function_exists('config_path')) {
+            $publishConfigPath = config_path('bref.php');
+        } else {
+            $publishConfigPath = base_path('config/bref.php');
+        }
+
+        $this->publishes([$this->configPath => $publishConfigPath], 'bref-configuration');
+        $this->publishes([$this->samTemplatePath => base_path('template.yaml')], 'bref-sam-template');
+    }
+
+    /**
+     * Handle registering any event listeners.
+     */
+    public function registerEventListeners(): void
+    {
+        foreach ($this->listens() as $event => $listeners) {
+            foreach ($listeners as $listener) {
+                Event::listen($event, $listener);
+            }
+        }
+    }
+
+    /**
+     * Get the events and handlers.
+     *
+     * @return array
+     */
+    public function listens()
+    {
+        return $this->listen;
+    }
+
+    /**
+     * Register the application services.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        if (is_a($this->app, 'Laravel\Lumen\Application')) {
+            $this->app->configure('bref');
+        }
+        $this->mergeConfigFrom($this->configPath, 'bref');
+        $this->commands($this->commandList);
     }
 }
