@@ -16,8 +16,7 @@
       "Bref\\": "src"
     },
     "files": [
-      "src/functions.php",
-      "src/Bridge/Laravel/helpers.php"
+      "src/functions.php"
     ]
   },
   "autoload-dev": {
@@ -56,7 +55,8 @@
     "laravel/framework": "^5.6",
     "doctrine/coding-standard": "^5.0",
     "phpstan/phpstan": "^0.10.5",
-    "guzzlehttp/guzzle": "^6.3"
+    "guzzlehttp/guzzle": "^6.3",
+    "friendsofphp/php-cs-fixer": "^2.14"
   },
   "extra": {
     "laravel": {
@@ -64,5 +64,10 @@
         "Bref\\Bridge\\Laravel\\ServiceProvider"
       ]
     }
+  },
+  "scripts": {
+    "cs-fix": [
+      "php-cs-fixer fix src --rules=@psr2"
+    ]
   }
 }
