@@ -77,8 +77,8 @@ if (!function_exists('rmFolder')) {
 if (!function_exists('copyFolder')) {
     /**
      * Recursively Copy a Directory
-     * @param string $location
-     *
+     * @param string $source
+     * @param string $destination
      * @return bool
      */
     function copyFolder(string $source, string $destination): bool
