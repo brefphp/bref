@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -49,11 +50,11 @@ return [
             'package.json',
             'phpunit.xml',
             'server.php',
-            'template.yaml'
+            'template.yaml',
         ],
         // Any executables should be here.
         'executables' => [
-            'artisan'
-        ]
-    ]
+            'artisan',
+        ],
+    ],
 ];

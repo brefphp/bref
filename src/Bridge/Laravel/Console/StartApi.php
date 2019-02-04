@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
+
 /**
- * Created by PhpStorm.
  * User: bubba
  * Date: 2019-02-01
  * Time: 14:17
@@ -37,5 +37,4 @@ class StartApi extends Command
         }
         return 0;
     }
-
 }

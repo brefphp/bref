@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Laravel\Console;
 
@@ -23,7 +23,7 @@ class ConfigSam extends Command
 
     public function handle(): int
     {
-        event(new SamConfigurationRequested());
+        event(new SamConfigurationRequested);
         return 0;
     }
 }

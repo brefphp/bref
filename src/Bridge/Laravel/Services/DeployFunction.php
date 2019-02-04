@@ -1,15 +1,13 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Laravel\Services;
-
 
 use Bref\Bridge\Laravel\Events\DeploymentRequested;
 use Symfony\Component\Process\Process;
 
 class DeployFunction
 {
-
-    public function handle(DeploymentRequested $event)
+    public function handle(DeploymentRequested $event): void
     {
         $process = new Process([
             'sam',
@@ -19,7 +17,7 @@ class DeployFunction
             '--capabilities',
             'CAPABILITY_IAM',
             '--stack-name',
-            config('bref.name')
+            config('bref.name'),
         ]);
         $process->setWorkingDirectory(base_path());
         $process->setTimeout(600);

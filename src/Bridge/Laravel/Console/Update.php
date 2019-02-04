@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
+
 /**
- * Created by PhpStorm.
  * User: bubba
  * Date: 2019-02-02
  * Time: 16:24
@@ -28,8 +28,7 @@ class Update extends Command
 
     public function handle(): int
     {
-
-        event(new UpdateRequested());
+        event(new UpdateRequested);
         return 0;
     }
 }

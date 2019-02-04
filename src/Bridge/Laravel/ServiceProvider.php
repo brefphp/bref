@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Laravel;
 
@@ -30,11 +30,12 @@ class ServiceProvider extends IlluminateServiceProvider
         SamConfigurationRequested::class => [ConfigureSam::class],
         LambdaPackageRequested::class => [PackageFunction::class],
         DeploymentRequested::class => [DeployFunction::class],
-        UpdateRequested::class => [UpdateFunction::class]
+        UpdateRequested::class => [UpdateFunction::class],
     ];
 
     /**
      * Bref Console Commands to register.
+     *
      * @var array
      */
     protected $commandList = [
@@ -42,30 +43,30 @@ class ServiceProvider extends IlluminateServiceProvider
         ConfigSam::class,
         StartApi::class,
         Deploy::class,
-        Update::class
+        Update::class,
     ];
 
     /**
      * Default path to laravel configuration file in the package
+     *
      * @var string
      */
     protected $configPath = __DIR__ . '/config/bref.php';
 
     /**
      * Default path to the SAM Template in the package
+     *
      * @var string
      */
     protected $samTemplatePath = __DIR__ . '/config/cloudformation.yaml';
 
     /**
      * Bootstrap the application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         // Load our Laravel Helper functions
-        require('helpers.php');
+        require 'helpers.php';
 
         // if we are running in lambda, lets shuffle some things around.
         if (runningInLambda()) {
@@ -76,7 +77,6 @@ class ServiceProvider extends IlluminateServiceProvider
         $this->handlePublishing();
 
         $this->registerEventListeners();
-
     }
 
     /**
@@ -88,16 +88,16 @@ class ServiceProvider extends IlluminateServiceProvider
         $storagePath = '/tmp/storage';
 
         $storagePaths = [
-            "/app/public",
-            "/framework/cache/data",
-            "/framework/sessions",
-            "/framework/testing",
-            "/framework/views",
-            "/logs"
+            '/app/public',
+            '/framework/cache/data',
+            '/framework/sessions',
+            '/framework/testing',
+            '/framework/views',
+            '/logs',
         ];
 
         // Only make the dirs if we have not previously made them
-        if (!is_dir($storagePath . end($storagePaths))) {
+        if (! is_dir($storagePath . end($storagePaths))) {
             reset($storagePaths);
             foreach ($storagePaths as $path) {
                 mkdir($storagePath . $path, 0777, true);
@@ -115,11 +115,11 @@ class ServiceProvider extends IlluminateServiceProvider
     {
         // if you try to we will override
         // you and save you from yourself.
-        if (env('SESSION_DRIVER') == 'file') {
-            # If you need sessions, store them
-            # in redis, a database, or cookies
-            # anything that scales horizontally
-            putenv("SESSION_DRIVER=array");
+        if (env('SESSION_DRIVER') === 'file') {
+            // If you need sessions, store them
+            // in redis, a database, or cookies
+            // anything that scales horizontally
+            putenv('SESSION_DRIVER=array');
             Config::set('session.driver', 'array');
         }
     }
@@ -134,15 +134,15 @@ class ServiceProvider extends IlluminateServiceProvider
     public function setupLogStack(): void
     {
         // If you don't want me messing with this, or you already use stderr, we're done
-        if (env('LEAVE_MY_LOGS_ALONE') || Config::get('logging.default') == 'stderr') {
+        if (env('LEAVE_MY_LOGS_ALONE') || Config::get('logging.default') === 'stderr') {
             return;
         }
 
         // Ok, I will inject stderr into whatever you are doing.
-        if (Config::get('logging.default') == 'stack') {
+        if (Config::get('logging.default') === 'stack') {
             // Good, you are already using the stack.
             $channels = Config::get('logging.channels.stack.channels');
-            if (!in_array('stderr', $channels)) {
+            if (! in_array('stderr', $channels)) {
                 $channels[] = 'stderr';
             }
         } else {
@@ -187,17 +187,15 @@ class ServiceProvider extends IlluminateServiceProvider
      *
      * @return array
      */
-    public function listens()
+    public function listens(): array
     {
         return $this->listen;
     }
 
     /**
      * Register the application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         if (is_a($this->app, 'Laravel\Lumen\Application')) {
             $this->app->configure('bref');

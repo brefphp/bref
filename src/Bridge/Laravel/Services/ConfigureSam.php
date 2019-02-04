@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Laravel\Services;
 
@@ -8,16 +8,13 @@ use Symfony\Component\Yaml\Yaml;
 
 class ConfigureSam
 {
-    /**
-     * @var Array
-     */
+    /** @var Array */
     protected $config;
 
     /**
      * Handles configuration of our AWS Serverless Application Model template
-     * @param SamConfigurationRequested $event
      */
-    public function handle(SamConfigurationRequested $event)
+    public function handle(SamConfigurationRequested $event): void
     {
         $this->config = Yaml::parseFile(base_path('template.yaml'), Yaml::PARSE_CUSTOM_TAGS);
         $this->setFunctionName('Website', config('bref.website_name'));
@@ -28,8 +25,6 @@ class ConfigureSam
 
     /**
      * Sets the function names for us.
-     * @param string $resource
-     * @param string $functionName
      */
     protected function setFunctionName(string $resource, string $functionName): void
     {
@@ -39,6 +34,7 @@ class ConfigureSam
     /**
      * Given a list of variable names, or defaults to retrieving them from .env
      * we get and set the environment variables in the SAM template
+     *
      * @param array $variableNames
      */
     protected function setEnvironmentVariables(array $variableNames = []): void
@@ -50,8 +46,10 @@ class ConfigureSam
         }
 
         foreach ($variableNames as $variableName) {
-            $this->config['Globals']['Function']['Environment']['Variables'][$variableName] = (string)env($variableName,
-                '');
+            $this->config['Globals']['Function']['Environment']['Variables'][$variableName] = (string) env(
+                $variableName,
+                ''
+            );
         }
     }
 
@@ -70,8 +68,8 @@ class ConfigureSam
         /** @var \Illuminate\Routing\Route $route */
         foreach ($routeCollection->getRoutes() as $route) {
             $methods = $route->methods();
-            (collect($methods))->each(function (string $method) use ($route) {
-                list($name, $config) = $this->routing($method, $route->uri, $route->getName());
+            collect($methods)->each(function (string $method) use ($route): void {
+                [$name, $config] = $this->routing($method, $route->uri, $route->getName());
                 $this->config['Resources']['Website']['Properties']['Events'][$name] = $config;
             });
         }
@@ -80,23 +78,20 @@ class ConfigureSam
     /**
      * Figure out the routing for me.
      *
-     * @param string $method
-     * @param string $uri
-     * @param string $name
      * @return array
      */
     protected function routing(string $method, string $uri, string $name = ''): array
     {
-        $routeName = ($uri == '/') ? 'root' : preg_replace('/[^A-Za-z0-9\-]/', '', $uri);
-        $name = empty($name) ? $name : sprintf("%s%s", ucfirst(strtolower($method)), ucfirst(strtolower($routeName)));
+        $routeName = $uri === '/' ? 'root' : preg_replace('/[^A-Za-z0-9\-]/', '', $uri);
+        $name = empty($name) ? $name : sprintf('%s%s', ucfirst(strtolower($method)), ucfirst(strtolower($routeName)));
         $method = strtoupper($method);
-        $path = $uri[0] == '/' ? $uri : '/' . $uri;
+        $path = $uri[0] === '/' ? $uri : '/' . $uri;
         $config = [
             'Type' => 'Api',
             'Properties' => [
-                "Path" => $path,
-                "Method" => $method
-            ]
+                'Path' => $path,
+                'Method' => $method,
+            ],
         ];
         return [$name, $config];
     }

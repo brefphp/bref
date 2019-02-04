@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Laravel\Package;
 
-use Bref\Bridge\Laravel\Exceptions\PackageException;
+use Bref\Bridge\Laravel\Exceptions\Package;
 use Carbon\Carbon;
 use GisoStallenberg\FilePermissionCalculator\FilePermissionCalculator;
 use Illuminate\Support\Collection;
@@ -11,6 +11,7 @@ use ZipArchive;
 
 class Archive
 {
+    /** @var array */
     protected static $files = [
         'vendor/autoload.php',
         'vendor/composer/autoload_classmap.php',
@@ -20,30 +21,18 @@ class Archive
         'vendor/composer/autoload_real.php',
         'vendor/composer/autoload_static.php',
         'vendor/composer/ClassLoader.php',
-        'vendor/composer/installed.json'
+        'vendor/composer/installed.json',
     ];
     /** @var  ZipArchive */
     protected $zipArchive;
-    /**
-     * @var string
-     */
+    /** @var string */
     private $path;
-    /**
-     * Number of Items added to the Zip
-     * @var int
-     */
-    private $items = 0;
 
-    /**
-     * Archive constructor.
-     * @param string $path
-     */
     public function __construct(string $path)
     {
-        $this->zipArchive = new ZipArchive();
+        $this->zipArchive = new ZipArchive;
         $this->path = $path;
         $this->init();
-
     }
 
     /**
@@ -53,14 +42,12 @@ class Archive
     {
         $res = $this->zipArchive->open($this->path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
         if ($res !== true) {
-            throw new PackageException($this->message($res), $res);
+            throw new Package($this->message($res), $res);
         }
     }
 
     /**
      * Convert ZipArchive Codes to Human Readable Messages
-     * @param int $code
-     * @return string
      */
     protected function message(int $code): string
     {
@@ -121,21 +108,18 @@ class Archive
     /**
      * Just do everything for me so I don't have to
      * think about it, but tell me where you put it.
+     *
      * @return mixed
      */
     public static function laravel()
     {
-        $package = Archive::make();
+        $package = self::make();
         $projectFileList = $package->getFileCollection(base_path());
         $vendorFileList = $package->collectComposerLibraries();
         $package->addCollection($projectFileList)->addCollection($vendorFileList)->close();
         return $package->getPath();
     }
 
-    /**
-     * @param string $filePath
-     * @return Archive
-     */
     public static function make(string $filePath = ''): Archive
     {
         if (empty($filePath)) {
@@ -146,7 +130,6 @@ class Archive
 
     /**
      * Standardize the generation of the archive name.
-     * @return string
      */
     protected static function generateArchiveName(): string
     {
@@ -162,8 +145,6 @@ class Archive
 
     /**
      * Works from a base directory and add all files that are not blacklisted.
-     * @param string $basePath
-     * @return Collection
      */
     public function getFileCollection(string $basePath): Collection
     {
@@ -184,11 +165,6 @@ class Archive
 
     /**
      * Determines whether to ignore the file or path
-     *
-     * @param \SplFileInfo $fileInfo
-     * @param string $path
-     *
-     * @return bool
      */
     protected function ignore(\SplFileInfo $fileInfo, string $path): bool
     {
@@ -203,9 +179,7 @@ class Archive
 
     /**
      * Transforms the iterator list into something usable for Archiving
-     * @param \SplFileInfo $fileInfo
-     * @param string $path
-     * @param string $basePath
+     *
      * @return array
      */
     protected function transform(\SplFileInfo $fileInfo, string $path, string $basePath): array
@@ -216,17 +190,11 @@ class Archive
             $key =>
                 collect([
                     'path' => $fileInfo->getRealPath(),
-                    'permissions' => $this->getPermissions($fileInfo, $key)
-                ])
+                    'permissions' => $this->getPermissions($fileInfo, $key),
+                ]),
         ];
     }
 
-    /**
-     * @param \SplFileInfo $fileInfo
-     * @param string $key
-     *
-     * @return int
-     */
     protected function getPermissions(\SplFileInfo $fileInfo, string $key): int
     {
         $perms = $fileInfo->isDir() ?
@@ -244,7 +212,6 @@ class Archive
     /**
      * We create a temporary directory to deploy composer vendor libraries too w/out and development libraries
      * We will deploy that.
-     * @return Collection
      */
     public function collectComposerLibraries(): Collection
     {
@@ -264,32 +231,29 @@ class Archive
         return $this->getFileCollection($tmpDir);
     }
 
-    protected function collectComposerFiles(string $tmpDir, string $source)
+    protected function collectComposerFiles(string $tmpDir, string $source): void
     {
         copy(base_path($source), sprintf('%s/%s', $tmpDir, $source));
     }
 
     /**
      * Close the archive and release files.
+     *
      * @return $this
      */
     public function close(): Archive
     {
         $res = $this->zipArchive->close();
         if ($res !== true) {
-            throw new PackageException($this->zipArchive->getStatusString(), 66);
+            throw new Package($this->zipArchive->getStatusString(), 66);
         }
         return $this;
     }
 
-    /**
-     * @param Collection $collection
-     * @return Archive
-     */
     public function addCollection(Collection $collection): Archive
     {
         $collection->each(
-            function ($data, $entryName) {
+            function ($data, $entryName): void {
                 if (is_file($data->get('path'))) {
                     $this->addFile($data->get('path'), $entryName);
                 } else {
@@ -304,8 +268,6 @@ class Archive
 
     /**
      * Add a file to the archive
-     * @param string $path
-     * @param string $entryName
      *
      * @return $this
      */
@@ -313,14 +275,13 @@ class Archive
     {
         $res = $this->zipArchive->addFile($path, $entryName);
         if ($res !== true) {
-            throw new PackageException($this->zipArchive->getStatusString(), 66);
+            throw new Package($this->zipArchive->getStatusString(), 66);
         }
         return $this;
     }
 
     /**
      * Add a directory to the archive
-     * @param string $entryName
      *
      * @return $this
      */
@@ -328,16 +289,11 @@ class Archive
     {
         $res = $this->zipArchive->addEmptyDir($entryName);
         if ($res !== true) {
-            throw new PackageException($this->zipArchive->getStatusString(), 66);
+            throw new Package($this->zipArchive->getStatusString(), 66);
         }
         return $this;
     }
 
-    /**
-     * @param string $entryName
-     * @param int $permissions
-     * @return Archive
-     */
     public function setPermissions(string $entryName, int $permissions): Archive
     {
         $permissions = ($permissions & 0xffff) << 16;
@@ -347,7 +303,6 @@ class Archive
 
     /**
      * Close and reopen archive to ensure we release file descriptors
-     * @return Archive
      */
     public function reset(): Archive
     {
@@ -358,18 +313,19 @@ class Archive
 
     /**
      * Opens the archive.
+     *
      * @return $this
      */
     public function open(): Archive
     {
         $res = $this->zipArchive->open($this->path);
         if ($res !== true) {
-            throw new PackageException($this->message($res), $res);
+            throw new Package($this->message($res), $res);
         }
         return $this;
     }
 
-    public function getPath()
+    public function getPath(): string
     {
         return $this->path;
     }

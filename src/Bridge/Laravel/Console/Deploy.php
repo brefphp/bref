@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
+
 /**
- * Created by PhpStorm.
  * User: bubba
  * Date: 2019-01-31
  * Time: 16:27
@@ -28,9 +28,7 @@ class Deploy extends Command
 
     public function handle(): int
     {
-
-        event(new DeploymentRequested());
+        event(new DeploymentRequested);
         return 0;
     }
 }
-

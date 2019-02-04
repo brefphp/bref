@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
+
 /**
- * Created by PhpStorm.
  * User: bubba
  * Date: 2019-01-31
  * Time: 16:27
@@ -28,7 +28,7 @@ class Package extends Command
 
     public function handle(): int
     {
-        event((new LambdaPackageRequested())->setConsole($this));
+        event((new LambdaPackageRequested)->setConsole($this));
         return 0;
     }
 }

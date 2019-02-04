@@ -1,7 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Bref\Bridge\Laravel\Services;
-
 
 use Bref\Bridge\Laravel\Events\LambdaPackageRequested;
 use Bref\Bridge\Laravel\Package\Archive;
@@ -9,8 +8,7 @@ use Symfony\Component\Process\Process;
 
 class PackageFunction
 {
-
-    public function handle(LambdaPackageRequested $event)
+    public function handle(LambdaPackageRequested $event): void
     {
         if (env('BREF_S3_BUCKET', false) === false) {
             $this->error('You must provide the S3 bucket to upload the package to in the BREF_S3_BUCKET environment variable.');
@@ -31,7 +29,7 @@ class PackageFunction
             '--output-template-file',
             '.stack.yaml',
             '--s3-bucket',
-            env('BREF_S3_BUCKET')
+            env('BREF_S3_BUCKET'),
         ]);
         $process->setWorkingDirectory(base_path());
         $process->start();

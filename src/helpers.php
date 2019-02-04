@@ -1,22 +1,18 @@
-<?php
+<?php declare(strict_types=1);
 
-if (!function_exists('runningInLambda')) {
+if (! function_exists('runningInLambda')) {
     /**
      * Heps us check to see if we are running in a Lambda context
      * or not.
-     * @return bool
      */
     function runningInLambda(): bool
     {
         return getenv('BREF_LAMBDA_ENV') !== false;
     }
 }
-if (!function_exists('tempDir')) {
+if (! function_exists('tempDir')) {
     /**
      * Creates a Temporary Directory for us.
-     * @param string $prefix
-     *
-     * @return SplFileInfo
      */
     function tempDir(string $prefix = '', bool $deleteOnShutdown = true): SplFileInfo
     {
@@ -27,7 +23,7 @@ if (!function_exists('tempDir')) {
         mkdir($tmpFile);
         if (is_dir($tmpFile)) {
             if ($deleteOnShutdown) {
-                register_shutdown_function(function () use ($tmpFile) {
+                register_shutdown_function(function () use ($tmpFile): void {
                     rmFolder($tmpFile);
                 });
             }
@@ -35,16 +31,13 @@ if (!function_exists('tempDir')) {
         }
     }
 }
-if (!function_exists('rmFolder')) {
+if (! function_exists('rmFolder')) {
     /**
      * Recursively Delete a Directory
-     * @param string $location
-     *
-     * @return bool
      */
     function rmFolder(string $location): bool
     {
-        if (!is_dir($location)) {
+        if (! is_dir($location)) {
             return false;
         }
         $contents = new RecursiveIteratorIterator(
@@ -53,11 +46,11 @@ if (!function_exists('rmFolder')) {
         );
         /** @var SplFileInfo $file */
         foreach ($contents as $file) {
-            if (is_link($file->getPathname()) && !file_exists($file->getPathname())) {
+            if (is_link($file->getPathname()) && ! file_exists($file->getPathname())) {
                 @unlink($file->getPathname());
                 continue;
             }
-            if (!$file->isReadable()) {
+            if (! $file->isReadable()) {
                 throw new RuntimeException("{$file->getFilename()} is not readable.");
             }
             switch ($file->getType()) {
@@ -74,25 +67,23 @@ if (!function_exists('rmFolder')) {
         return rmdir($location);
     }
 }
-if (!function_exists('copyFolder')) {
+if (! function_exists('copyFolder')) {
     /**
      * Recursively Copy a Directory
-     * @param string $source
-     * @param string $destination
-     * @return bool
      */
     function copyFolder(string $source, string $destination): bool
     {
-        if (!is_dir($destination)) {
+        if (! is_dir($destination)) {
             mkdir($destination, 0777, true);
         }
         $contents = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::SELF_FIRST);
+            RecursiveIteratorIterator::SELF_FIRST
+        );
         foreach ($contents as $item) {
             if ($item->isDir()) {
                 $destDir = $destination . DIRECTORY_SEPARATOR . $contents->getSubPathName();
-                if (!is_dir($destDir)) {
+                if (! is_dir($destDir)) {
                     @mkdir($destDir);
                 }
             } else {
