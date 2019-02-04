@@ -84,9 +84,12 @@ $app->command('init [--baseTemplateDir=]', function (?string $baseTemplateDir, S
      * We check if this is a git repository to automatically add files to git.
      */
     if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {
-        (new Process(['git', 'add', 'template.yaml']))->run();
-        if (file_exists('index.php')) {
-            (new Process(['git', 'add', 'index.php']))->run();
+        foreach ($finder as $file) {
+            $fileName = $file->getFilename();
+            $srcFile = "$baseTemplateDir/$templateDirectory/$fileName";
+            if ($fs->exists($srcFile)) {
+                (new Process(['git', 'add', $fileName]))->run();
+            }
         }
 
         $io->success([
