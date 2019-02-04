@@ -169,7 +169,7 @@ class Archive
     protected function ignore(\SplFileInfo $fileInfo, string $path): bool
     {
         foreach (config('bref.packaging.ignore') as $pattern) {
-            if (strpos($fileInfo->getPathInfo(), $pattern) !== false ||
+            if (strpos($fileInfo->getPathInfo()->getPath(), $pattern) !== false ||
                 $fileInfo->getBasename() === basename($pattern)) {
                 return true;
             }
@@ -219,16 +219,16 @@ class Archive
         copy(base_path('composer.json'), sprintf('%s/composer.json', $tmpDir));
         copy(base_path('composer.lock'), sprintf('%s/composer.lock', $tmpDir));
 
-        $this->collectComposerFiles($tmpDir, 'composer.json');
-        $this->collectComposerFiles($tmpDir, 'composer.lock');
+        $this->collectComposerFiles($tmpDir->getPath(), 'composer.json');
+        $this->collectComposerFiles($tmpDir->getPath(), 'composer.lock');
         copyFolder(base_path('database/seeds'), $tmpDir . '/database/seeds');
         copyFolder(base_path('database/factories'), $tmpDir . '/database/factories');
         $process = new Process(['composer', 'install', '--no-dev', '--no-scripts']);
-        $process->setWorkingDirectory($tmpDir);
+        $process->setWorkingDirectory($tmpDir->getPath());
         $process->run();
         rmFolder($tmpDir . '/database');
 
-        return $this->getFileCollection($tmpDir);
+        return $this->getFileCollection($tmpDir->getPath());
     }
 
     protected function collectComposerFiles(string $tmpDir, string $source): void
