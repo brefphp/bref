@@ -16,9 +16,14 @@ class UpdateFunction
 
     protected function runUpdate(string $functionName)
     {
-        $process = new Process(
-            sprintf('aws lambda update-function-code --function-name %s --zip-file fileb://storage/latest.zip',
-                $functionName)
+        $process = new Process([
+                'aws',
+                'lambda update-function-code',
+                '--function-name',
+                $functionName,
+                '--zip-file',
+                'fileb://storage/latest.zip'
+            ]
         );
         $process->setWorkingDirectory(base_path());
         $process->setTimeout(600);

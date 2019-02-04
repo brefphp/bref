@@ -26,13 +26,14 @@ class StartApi extends Command
      */
     protected $description = 'Starts up the SAM Local API for testing.';
 
-    public function handle(): int {
-        $process = new Process('sam local start-api');
+    public function handle(): int
+    {
+        $process = new Process(['sam', 'local', 'start-api']);
         $process->setWorkingDirectory(base_path());
         $process->start();
 
         foreach ($process as $type => $data) {
-                echo $data;
+            echo $data;
         }
         return 0;
     }

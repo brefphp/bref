@@ -82,13 +82,13 @@ class ConfigureSam
      *
      * @param string $method
      * @param string $uri
-     * @param $name
+     * @param string $name
      * @return array
      */
-    protected function routing(string $method, string $uri, $name): array
+    protected function routing(string $method, string $uri, string $name = ''): array
     {
         $routeName = ($uri == '/') ? 'root' : preg_replace('/[^A-Za-z0-9\-]/', '', $uri);
-        $name = $name ? $name : sprintf("%s%s", ucfirst(strtolower($method)), ucfirst(strtolower($routeName)));
+        $name = empty($name) ? $name : sprintf("%s%s", ucfirst(strtolower($method)), ucfirst(strtolower($routeName)));
         $method = strtoupper($method);
         $path = $uri[0] == '/' ? $uri : '/' . $uri;
         $config = [

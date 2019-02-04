@@ -25,7 +25,14 @@ class PackageFunction
         symlink($packagePath, storage_path('latest.zip'));
         $event->info('Package at: ' . $packagePath);
         $event->info('Running the SAM Package command, generating template file.');
-        $process = new Process('sam package --output-template-file .stack.yaml --s3-bucket ' . env('BREF_S3_BUCKET'));
+        $process = new Process([
+            'sam',
+            'package',
+            '--output-template-file',
+            '.stack.yaml',
+            '--s3-bucket',
+            env('BREF_S3_BUCKET')
+        ]);
         $process->setWorkingDirectory(base_path());
         $process->start();
 

@@ -11,8 +11,16 @@ class DeployFunction
 
     public function handle(DeploymentRequested $event)
     {
-        $process = new Process(sprintf('sam deploy --template-file .stack.yaml --capabilities CAPABILITY_IAM --stack-name %s',
-            config('bref.name')));
+        $process = new Process([
+            'sam',
+            'deploy',
+            '--template-file',
+            '.stack.yaml',
+            '--capabilities',
+            'CAPABILITY_IAM',
+            '--stack-name',
+            config('bref.name')
+        ]);
         $process->setWorkingDirectory(base_path());
         $process->setTimeout(600);
         $process->start();
