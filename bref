@@ -20,8 +20,8 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 $app = new Silly\Application('Deploy serverless PHP applications');
 
-$app->command('init [--baseTemplateDir=]', function (?string $baseTemplateDir, SymfonyStyle $io) {
-    $baseTemplateDir = $baseTemplateDir ?? __DIR__ . "/template";
+$app->command('init', function (SymfonyStyle $io) {
+    $baseTemplateDir = __DIR__ . "/template";
     $exeFinder = new ExecutableFinder();
     if (! $exeFinder->find('sam')) {
         $io->error(
