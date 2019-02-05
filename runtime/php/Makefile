@@ -16,6 +16,7 @@ distribution: build
 		--env PHP_SHORT_VERSION=72 \
 		--volume ${PWD}/layers:/layers:ro \
 		--volume ${PWD}/../export:/export \
+		--volume ${PWD}/../../src:/src \
 		--volume ${PWD}/export.sh:/export.sh:ro \
 		bref/runtime/php-72:latest \
 		/export.sh
@@ -24,6 +25,7 @@ distribution: build
 		--env PHP_SHORT_VERSION=73 \
 		--volume ${PWD}/layers:/layers:ro \
 		--volume ${PWD}/../export:/export \
+		--volume ${PWD}/../../src:/src \
 		--volume ${PWD}/export.sh:/export.sh:ro \
 		bref/runtime/php-73:latest \
 		/export.sh
