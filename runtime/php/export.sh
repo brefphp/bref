@@ -46,11 +46,11 @@ curl https://getcomposer.org/download/1.8.3/composer.phar -o composer.phar -s
 cd bref
 php ../composer.phar install -o --no-dev
 cd ..
+rm composer.phar
 # Zip the layer
 zip --quiet --recurse-paths /export/php-${PHP_SHORT_VERSION}-fpm-self.zip . --exclude "*php-cgi"
 # Cleanup the files specific to this layer
 rm bootstrap
-rm composer.phar
 rm bref/composer.json
 rm -rf bref/vendor
 rm -rf bref/src
