@@ -482,6 +482,7 @@ FROM amazonlinux:2017.03
 ENV INSTALL_DIR="/opt/bref"
 ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib"
+ENV COMPOSER_SIGNATURE="48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5"
 
 RUN mkdir -p /opt
 WORKDIR /opt
@@ -489,4 +490,10 @@ WORKDIR /opt
 COPY --from=php_builder /opt /opt
 
 # Install zip: we will need it later to create the layers as zip files
-RUN LD_LIBRARY_PATH= yum -y install zip
+RUN LD_LIBRARY_PATH= yum -y install zip unzip
+# Install composer
+RUN curl --silent -o composer-setup.php --show-error https://getcomposer.org/installer \
+    && php -r "if (hash_file('sha384', 'composer-setup.php') === '${COMPOSER_SIGNATURE}') { echo 'Installer verified' . PHP_EOL; exit(0); } else { echo 'Installer corrupt' . PHP_EOL; unlink('composer-setup.php'); exit(1); }" \
+    && php composer-setup.php \
+    && rm composer-setup.php
+

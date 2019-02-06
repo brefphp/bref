@@ -42,10 +42,7 @@ cp /layers/fpm-self/php.ini bref/etc/php/conf.d/bref.ini
 cp /layers/fpm-self/php-fpm.conf bref/etc/php-fpm.conf
 cp /layers/fpm-self/bref/composer.json bref/composer.json
 cp -r /src bref/src
-curl https://getcomposer.org/download/1.8.3/composer.phar -o composer.phar -s
-cd bref
-php ../composer.phar install -o --no-dev
-cd ..
+php /opt/composer.phar install -d /opt/bref -o --no-dev
 rm composer.phar
 # Zip the layer
 zip --quiet --recurse-paths /export/php-${PHP_SHORT_VERSION}-fpm-self.zip . --exclude "*php-cgi"
