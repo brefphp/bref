@@ -27,7 +27,7 @@
         "ext-json": "*",
         "mnapoli/silly": "^1.7",
         "symfony/filesystem": "^3.1|^4.0",
-        "symfony/process": "^3.1|^4.0",
+        "symfony/process": "^3.3|^4.0",
         "aws/aws-sdk-php": "^3.44",
         "hoa/fastcgi": "3.17.01.10",
         "hoa/socket": "1.17.05.16",
