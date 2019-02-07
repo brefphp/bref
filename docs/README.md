@@ -7,62 +7,63 @@ next:
     title: Installation
 ---
 
-<p class="text-lg">
-Serverless replaces the traditional approaches to deploying and running applications. It provides more scalable, affordable and reliable architectures. However it is not always easy to get things right.
-</p>
-
-<p class="text-lg">
-<strong>Bref's goal is to make serverless simple for PHP projects.</strong>
-</p>
-
-It does so by selecting the best tools, building those that are missing and providing a complete documentation.
-
-Bref comes as a Composer package and uses 3rd party tools like [AWS SAM](https://github.com/awslabs/aws-sam-cli) to deploy on [AWS Lambda](https://aws.amazon.com/lambda/).
-
 ## Why serverless?
 
-Serverless is a new approach to running applications where **we don't think about servers anymore**.
+Serverless replaces the traditional approaches to running applications. With serverless:
 
-- We don't manage, update, patch, provision servers or containers,
+- We don't manage, update, configure, provision servers or containers,
 - We don't reserve or scale servers or containers, instead they are scaled automatically and transparently for us,
 - We don't pay for fixed resources, instead we pay for what we actually use (e.g. execution time).
 
-This approach can bring several advantages:
+**Serverless can provide more scalable, affordable and reliable architectures for less effort.**
 
-- save time managing servers and deployment processes
-- more scalable applications
-- cost savings
+Serverless includes services like storage as a service, database as a service, message queue as a service, etc. One service in particular is interesting for us developers: *Function as a Service* (FaaS).
 
-Serverless includes services like storage as a service, database as a service, message queue as a service, etc. One service in particular is interesting for us developers: **Function as a Service** (FaaS).
-
-FaaS is a way to run code where the hosting provider takes care of setting up everything, keeping the application available 24/7, scaling it up and down and we are only charged _while the code is actually executing_.
+FaaS is a way to run code where the hosting provider takes care of setting up everything, keeping the application available 24/7, scaling it up and down and we are only charged *while the code is actually executing*.
 
 ## Why Bref?
 
-Since serverless technologies are spreading, using them becomes harder as there are more and more choices to consider.
+<p class="text-xl">
+Bref aims to make running PHP applications simple.
+</p>
 
-On top of that PHP is often not natively supported and few resources exist to help us.
+To reach that goal, Bref takes advantage of serverless technologies. However, while serverless is promising, there are many choices to make, tools to build and best practices to figure out.
 
-Bref is here to provide the missing tools, explain, document and help us get started in a good direction.
+Bref's approach is to:
 
-### Bref choices
+- **simplify problems by removing choices**
 
-Bref deploys applications to [AWS](https://aws.amazon.com).
+    *instead of trying to address every need*
+- **provide simple and familiar solutions**
 
-The choice of this provider is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performances and reliability.
+    *instead of aiming for powerful custom solutions*
+- **empower by sharing knowledge**
+
+    *instead of hiding too much behind leaky abstractions*
+
+### What is Bref
+
+Bref comes as a Composer package and helps you deploy PHP applications to [AWS](https://aws.amazon.com) and run them on [AWS Lambda](https://aws.amazon.com/lambda/).
+
+Bref provides:
+
+- documentation
+- PHP runtimes for AWS Lambda
+- deployment tooling
+- PHP frameworks integration
+
+The choice of AWS as serverless provider is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performances and reliability.
 
 Bref uses [SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html), AWS' official tool to configure and deploy serverless applications. SAM allows to stay up to date with AWS best practices as well as a deep integration with all other AWS tools.
 
-Since **AWS Lambda** is AWS' FaaS service, Bref deploys PHP code to Lambda.
-
 ## Use cases
 
-Bref and AWS Lambda can be used to run any kind of PHP application, for example:
+Bref and AWS Lambda can be used to run many kind of PHP application, for example:
 
-- websites
 - APIs
 - workers
 - batch processes/scripts
+- websites
 
 Bref aims to support any PHP framework as well.
 
