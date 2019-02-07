@@ -33,14 +33,3 @@ Resources:
                 Variables:
                     MY_VARIABLE: 'my value'
 ```
-
-The secrets (e.g. database passwords) must however not be committed in this file: define them in the [AWS Console](https://console.aws.amazon.com) or configure your ci/cd pipeline accordingly:
-
-```bash
-# Configure (e.g. passing secret env vars - existing env vars defined in template.yaml will be replaced!)
-aws lambda update-function-configuration
-  --function-name <function-name>
-  --environment '{"Variables":{
-    "SECRET_ENV_VAR":"'"$SECRET_ENV_VAR_VALUE_FROM_CICD"'",
-  }}' > /dev/null
-```
