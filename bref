@@ -75,7 +75,7 @@ $app->command('init', function (SymfonyStyle $io) {
          */
         $dir = $files->getInnerIterator();
         $fileName = $dir->getSubPathname();
-        $srcFile = "$baseTemplateDir/$templateDirectory/$fileName";
+        $srcFile = "$rootPath/$fileName";
         if ($file->isFile() &&  $fs->exists($srcFile)) {
             $io->writeln("Creating $fileName");
             $fs->copy($srcFile, $fileName);
@@ -92,7 +92,7 @@ $app->command('init', function (SymfonyStyle $io) {
              */
             $dir = $files->getInnerIterator();
             $fileName = $dir->getSubPathname();
-            $srcFile = "$baseTemplateDir/$templateDirectory/$fileName";
+            $srcFile = "$rootPath/$fileName";
             if ($file->isFile() && $fs->exists($srcFile)) {
                 (new Process(['git', 'add', $fileName]))->run();
             }
