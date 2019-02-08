@@ -38,7 +38,7 @@ class CLIBootstrap
      * AWS Runtime Version we are using.
      * @var string
      */
-    private $rumtimeAPI;
+    private $runtimeAPI;
 
     /**
      * The invocation ID of the event being processed.
@@ -87,7 +87,7 @@ class CLIBootstrap
         self::consoleLog('Cold Start');
         list($lambdaFileName, $lambdaFunction) = explode('.', getenv('_HANDLER'));
         $this->taskPath = sprintf('%s/%s.php', getenv('LAMBDA_TASK_ROOT'), $lambdaFileName);
-        $this->rumtimeAPI = (string)getenv('AWS_LAMBDA_RUNTIME_API');
+        $this->runtimeAPI = (string)getenv('AWS_LAMBDA_RUNTIME_API');
         $this->lambdaFunction = $lambdaFunction;
         $this->initInvocationFetcher();
         $this->initInvocationError();
@@ -108,7 +108,7 @@ class CLIBootstrap
      */
     protected function initInvocationFetcher(): void
     {
-        $this->next = curl_init(sprintf('http://%s/2018-06-01/runtime/invocation/next', $this->rumtimeAPI));
+        $this->next = curl_init(sprintf('http://%s/2018-06-01/runtime/invocation/next', $this->runtimeAPI));
         curl_setopt($this->next, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($this->next, CURLOPT_FAILONERROR, true);
         curl_setopt($this->next, CURLOPT_HEADERFUNCTION, [$this, 'writeHeader']);
@@ -157,7 +157,7 @@ class CLIBootstrap
         } else {
             curl_setopt($this->error, CURLOPT_URL,
                 sprintf('http://%s/2018-06-01/runtime/invocation/%s/response',
-                    $this->rumtimeAPI, $this->requestId));
+                    $this->runtimeAPI, $this->requestId));
         }
 
         // We also need the invocation body, which is where the actual event is.
@@ -228,7 +228,7 @@ class CLIBootstrap
         // Set up curl
         curl_setopt($this->result, CURLOPT_URL,
             sprintf('http://%s/2018-06-01/runtime/invocation/%s/response',
-                $this->rumtimeAPI, $this->requestId));
+                $this->runtimeAPI, $this->requestId));
         curl_setopt($this->result, CURLOPT_POSTFIELDS, $response_json);
         curl_setopt($this->result, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
