@@ -27,25 +27,12 @@ cp /layers/fpm/bootstrap bootstrap
 chmod 755 bootstrap
 cp /layers/fpm/php.ini bref/etc/php/conf.d/bref.ini
 cp /layers/fpm/php-fpm.conf bref/etc/php-fpm.conf
-# Zip the layer
-zip --quiet --recurse-paths /export/php-${PHP_SHORT_VERSION}-fpm.zip . --exclude "*php-cgi"
-# Cleanup the files specific to this layer
-rm bootstrap
-rm bref/etc/php/conf.d/bref.ini
-rm bref/etc/php-fpm.conf
-
-# Create the PHP FPM self contained layer
-# Add files specific to this layer
-cp /layers/fpm-self/bootstrap bootstrap
-chmod 755 bootstrap
-cp /layers/fpm-self/php.ini bref/etc/php/conf.d/bref.ini
-cp /layers/fpm-self/php-fpm.conf bref/etc/php-fpm.conf
-cp /layers/fpm-self/bref/composer.json bref/composer.json
+cp /layers/fpm/bref/composer.json bref/composer.json
 cp -r /src bref/src
-php /opt/composer.phar install -d /opt/bref -o --no-dev
+COMPOSER_ALLOW_SUPERUSER=1 php /opt/composer.phar install -d /opt/bref -o --no-dev
 rm composer.phar
 # Zip the layer
-zip --quiet --recurse-paths /export/php-${PHP_SHORT_VERSION}-fpm-self.zip . --exclude "*php-cgi"
+zip --quiet --recurse-paths /export/php-${PHP_SHORT_VERSION}-fpm.zip . --exclude "*php-cgi"
 # Cleanup the files specific to this layer
 rm bootstrap
 rm bref/composer.json
