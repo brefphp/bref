@@ -10,7 +10,7 @@ export/php-%.zip:
 	cd php && make distribution
 
 # The console runtime
-export/console.zip: console/bootstrap
+export/console.zip: console/bootstrap ../src/Runtime/LambdaRuntime.php
 	rm -f export/console.zip
 	cp ../src/Runtime/LambdaRuntime.php console/LambdaRuntime.php
 	cd console && zip ../export/console.zip bootstrap LambdaRuntime.php
