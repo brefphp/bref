@@ -36,6 +36,7 @@ zip --quiet --recurse-paths /export/php-${PHP_SHORT_VERSION}-fpm.zip . --exclude
 # Cleanup the files specific to this layer
 rm bootstrap
 rm bref/composer.json
+rm bref/composer.lock
 rm -rf bref/vendor
 rm -rf bref/src
 rm bref/etc/php/conf.d/bref.ini
