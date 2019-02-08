@@ -12,4 +12,6 @@ export/php-%.zip:
 # The console runtime
 export/console.zip: console/bootstrap
 	rm -f export/console.zip
-	cd console && zip ../export/console.zip bootstrap
+	cp ../src/Runtime/LambdaRuntime.php console/LambdaRuntime.php
+	cd console && zip ../export/console.zip bootstrap LambdaRuntime.php
+	rm console/LambdaRuntime.php
