@@ -6,7 +6,6 @@ use Bref\Lambda\InvocationFailed;
 use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -68,13 +67,16 @@ $app->command('init', function (SymfonyStyle $io) {
     ][$choice];
 
     $fs = new Filesystem;
-    $finder = new Finder();
-    $finder->files()->in("$baseTemplateDir/$templateDirectory");
-
-    foreach ($finder as $file) {
-        $fileName = $file->getRelativePathname();
+    $rootPath = "$baseTemplateDir/$templateDirectory";
+    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($rootPath));
+    /**
+     * @var RecursiveDirectoryIterator $files
+     * @var SplFileInfo $file
+     */
+    foreach ($files as $file) {
+        $fileName = $files->getSubPathname();
         $srcFile = "$baseTemplateDir/$templateDirectory/$fileName";
-        if ($fs->exists($srcFile)) {
+        if ($file->isFile() &&  $fs->exists($srcFile)) {
             $io->writeln("Creating $fileName");
             $fs->copy($srcFile, $fileName);
         }
@@ -84,10 +86,10 @@ $app->command('init', function (SymfonyStyle $io) {
      * We check if this is a git repository to automatically add files to git.
      */
     if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {
-        foreach ($finder as $file) {
-            $fileName = $file->getRelativePathname();
+        foreach ($files as $file) {
+            $fileName = $files->getSubPathName();
             $srcFile = "$baseTemplateDir/$templateDirectory/$fileName";
-            if ($fs->exists($srcFile)) {
+            if ($file->isFile() && $fs->exists($srcFile)) {
                 (new Process(['git', 'add', $fileName]))->run();
             }
         }
