@@ -69,12 +69,12 @@ $app->command('init', function (SymfonyStyle $io) {
     $fs = new Filesystem;
     $rootPath = "$baseTemplateDir/$templateDirectory";
     $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($rootPath));
-    /**
-     * @var RecursiveDirectoryIterator $files
-     * @var SplFileInfo $file
-     */
     foreach ($files as $file) {
-        $fileName = $files->getSubPathname();
+        /**
+         * @var RecursiveDirectoryIterator $dir
+         */
+        $dir = $files->getInnerIterator();
+        $fileName = $dir->getSubPathname();
         $srcFile = "$baseTemplateDir/$templateDirectory/$fileName";
         if ($file->isFile() &&  $fs->exists($srcFile)) {
             $io->writeln("Creating $fileName");
@@ -87,7 +87,11 @@ $app->command('init', function (SymfonyStyle $io) {
      */
     if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {
         foreach ($files as $file) {
-            $fileName = $files->getSubPathName();
+            /**
+             * @var RecursiveDirectoryIterator $dir
+             */
+            $dir = $files->getInnerIterator();
+            $fileName = $dir->getSubPathname();
             $srcFile = "$baseTemplateDir/$templateDirectory/$fileName";
             if ($file->isFile() && $fs->exists($srcFile)) {
                 (new Process(['git', 'add', $fileName]))->run();
