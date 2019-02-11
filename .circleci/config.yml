@@ -8,6 +8,7 @@ workflows:
             - phpunit-72
             - phpunit-73
             - phpunit-lowest-dependencies
+            - phpunit-runtime
 
 jobs:
 
