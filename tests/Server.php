@@ -43,7 +43,7 @@ use Psr\Http\Message\ResponseInterface;
  */
 class Server
 {
-    /** @var Client */
+    /** @var Client|null */
     private static $client;
     private static $started = false;
     public static $url = 'http://127.0.0.1:8126/';

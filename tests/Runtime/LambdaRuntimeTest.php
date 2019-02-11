@@ -25,7 +25,7 @@ class LambdaRuntimeTest extends TestCase
     {
         Server::enqueue([
             new Response( // lambda event
-                '200',
+                200,
                 [
                     'lambda-runtime-aws-request-id' => 1
                 ],
