@@ -13,7 +13,7 @@ jobs:
 
     phpstan:
         docker:
-            -   image: circleci/php:7.3
+            -   image: circleci/php:7.3-fpm
         steps:
             - checkout
             -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
@@ -30,7 +30,7 @@ jobs:
 
     phpunit-72:
         docker:
-            -   image: circleci/php:7.2
+            -   image: circleci/php:7.2-fpm
         steps:
             - checkout
             -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
@@ -47,7 +47,7 @@ jobs:
 
     phpunit-73:
         docker:
-            -   image: circleci/php:7.3
+            -   image: circleci/php:7.3-fpm
         steps:
             - checkout
             -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
@@ -64,7 +64,7 @@ jobs:
 
     phpunit-lowest-dependencies:
         docker:
-            -   image: circleci/php:7.2
+            -   image: circleci/php:7.2-fpm
         steps:
             - checkout
             -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
