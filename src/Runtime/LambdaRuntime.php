@@ -166,6 +166,7 @@ class LambdaRuntime
         $handler = curl_init($url);
         curl_setopt($handler, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($handler, CURLOPT_FAILONERROR, true);
         curl_setopt($handler, CURLOPT_POSTFIELDS, $jsonData);
         curl_setopt($handler, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
@@ -174,6 +175,7 @@ class LambdaRuntime
         curl_exec($handler);
         if (curl_error($handler)) {
             $errorMessage = curl_error($handler);
+            curl_close($handler);
             throw new \Exception('Error while calling the Lambda runtime API: ' . $errorMessage);
         }
         curl_close($handler);
