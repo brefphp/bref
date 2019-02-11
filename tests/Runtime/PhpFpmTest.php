@@ -710,6 +710,8 @@ Year,Make,Model
         unset($response['$_SERVER']['REQUEST_TIME_FLOAT']);
         self::assertEquals(time(), $response['$_SERVER']['REQUEST_TIME'], '', 5);
         unset($response['$_SERVER']['REQUEST_TIME']);
+        unset($response['$_SERVER']['argv']);
+        unset($response['$_SERVER']['argc']);
 
         // Test global variables that never change (simplifies all the tests)
         $response = $this->assertCommonServerVariables($response, $expectedGlobalVariables);
