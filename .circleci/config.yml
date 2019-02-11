@@ -79,15 +79,14 @@ jobs:
                         - vendor
             -   run: vendor/bin/phpunit --testsuite small
 
-#    phpunit-runtime:
-#        branches:
-#            only:
-#                - master
-#        docker:
-#            -   image: circleci/php:7.3
-#        steps:
-#            - checkout
-#            -   setup_remote_docker:
-#                    docker_layer_caching: true
-#            # DLC will explicitly cache layers here and try to avoid rebuilding.
-#            -   run: docker build .
+    phpunit-runtime:
+        docker:
+            -   image: circleci/php:7.3
+        steps:
+            - checkout
+            -   setup_remote_docker:
+                    docker_layer_caching: true
+            -   run: composer install -n --prefer-dist
+            -   run: pip install --user awscli
+            -   run: pip install --user aws-sam-cli
+            -   run: vendor/bin/phpunit --testsuite runtimes
