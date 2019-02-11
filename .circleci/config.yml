@@ -1,0 +1,93 @@
+version: 2
+
+workflows:
+    version: 2
+    all_tests:
+        jobs:
+            - phpstan
+            - phpunit-72
+            - phpunit-73
+            - phpunit-lowest-dependencies
+
+jobs:
+
+    phpstan:
+        docker:
+            -   image: circleci/php:7.3
+        steps:
+            - checkout
+            -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
+                    keys:
+                        - composer-v1-{{ checksum "composer.lock" }}
+                        # fallback to using the latest cache if no exact match is found (See https://circleci.com/docs/2.0/caching/)
+                        - composer-v1-
+            -   run: composer install -n --prefer-dist
+            -   save_cache: # special step to save the dependency cache with the `composer.lock` cache key template
+                    key: composer-v1-{{ checksum "composer.lock" }}
+                    paths:
+                        - vendor
+            -   run: vendor/bin/phpstan analyse
+
+    phpunit-72:
+        docker:
+            -   image: circleci/php:7.2
+        steps:
+            - checkout
+            -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
+                    keys:
+                        - composer-v1-{{ checksum "composer.lock" }}
+                        # fallback to using the latest cache if no exact match is found (See https://circleci.com/docs/2.0/caching/)
+                        - composer-v1-
+            -   run: composer install -n --prefer-dist
+            -   save_cache: # special step to save the dependency cache with the `composer.lock` cache key template
+                    key: composer-v1-{{ checksum "composer.lock" }}
+                    paths:
+                        - vendor
+            -   run: vendor/bin/phpunit --testsuite small
+
+    phpunit-73:
+        docker:
+            -   image: circleci/php:7.3
+        steps:
+            - checkout
+            -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
+                    keys:
+                        - composer-v1-{{ checksum "composer.lock" }}
+                        # fallback to using the latest cache if no exact match is found (See https://circleci.com/docs/2.0/caching/)
+                        - composer-v1-
+            -   run: composer install -n --prefer-dist
+            -   save_cache: # special step to save the dependency cache with the `composer.lock` cache key template
+                    key: composer-v1-{{ checksum "composer.lock" }}
+                    paths:
+                        - vendor
+            -   run: vendor/bin/phpunit --testsuite small
+
+    phpunit-lowest-dependencies:
+        docker:
+            -   image: circleci/php:7.2
+        steps:
+            - checkout
+            -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
+                    keys:
+                        - composer-v1-{{ checksum "composer.lock" }}
+                        # fallback to using the latest cache if no exact match is found (See https://circleci.com/docs/2.0/caching/)
+                        - composer-v1-
+            -   run: composer update --prefer-lowest --prefer-stable -n
+            -   save_cache: # special step to save the dependency cache with the `composer.lock` cache key template
+                    key: composer-v1-{{ checksum "composer.lock" }}
+                    paths:
+                        - vendor
+            -   run: vendor/bin/phpunit --testsuite small
+
+#    phpunit-runtime:
+#        branches:
+#            only:
+#                - master
+#        docker:
+#            -   image: circleci/php:7.3
+#        steps:
+#            - checkout
+#            -   setup_remote_docker:
+#                    docker_layer_caching: true
+#            # DLC will explicitly cache layers here and try to avoid rebuilding.
+#            -   run: docker build .
