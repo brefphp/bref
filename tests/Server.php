@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 /**
  * Copyright (c) 2011-2018 Michael Dowling, https://github.com/mtdowling <mtdowling@gmail.com>
  *
@@ -45,17 +46,23 @@ class Server
 {
     /** @var Client|null */
     private static $client;
+    /** @var bool */
     private static $started = false;
+    /** @var string */
     public static $url = 'http://127.0.0.1:8126/';
+    /** @var int */
     public static $port = 8126;
+
     /**
      * Flush the received requests from the server
+     *
      * @throws \RuntimeException
      */
     public static function flush()
     {
         return self::getClient()->request('DELETE', 'guzzle-server/requests');
     }
+
     /**
      * Queue an array of responses or a single response on the server.
      *
@@ -70,7 +77,7 @@ class Server
     {
         $data = [];
         foreach ((array) $responses as $response) {
-            if (!($response instanceof ResponseInterface)) {
+            if (! ($response instanceof ResponseInterface)) {
                 throw new \Exception('Invalid response given.');
             }
             $headers = array_map(function ($h) {
@@ -80,13 +87,14 @@ class Server
                 'status'  => (string) $response->getStatusCode(),
                 'reason'  => $response->getReasonPhrase(),
                 'headers' => $headers,
-                'body'    => base64_encode((string) $response->getBody())
+                'body'    => base64_encode((string) $response->getBody()),
             ];
         }
         self::getClient()->request('PUT', 'guzzle-server/responses', [
-            'json' => $data
+            'json' => $data,
         ]);
     }
+
     /**
      * Get all of the received requests
      *
@@ -95,7 +103,7 @@ class Server
      */
     public static function received()
     {
-        if (!self::$started) {
+        if (! self::$started) {
             return [];
         }
         $response = self::getClient()->request('GET', 'guzzle-server/requests');
@@ -122,6 +130,7 @@ class Server
             $data
         );
     }
+
     /**
      * Stop running the node.js server
      */
@@ -132,43 +141,47 @@ class Server
         }
         self::$started = false;
     }
-    public static function wait($maxTries = 5)
+
+    public static function wait(int $maxTries = 5)
     {
         $tries = 0;
-        while (!self::isListening() && ++$tries < $maxTries) {
+        while (! self::isListening() && ++$tries < $maxTries) {
             usleep(100000);
         }
-        if (!self::isListening()) {
+        if (! self::isListening()) {
             throw new \RuntimeException('Unable to contact node.js server');
         }
     }
+
     public static function start()
     {
         if (self::$started) {
             return;
         }
-        if (!self::isListening()) {
+        if (! self::isListening()) {
             exec('node ' . __DIR__ . '/server.js '
                 . self::$port . ' >> /tmp/server.log 2>&1 &');
             self::wait();
         }
         self::$started = true;
     }
+
     private static function isListening()
     {
         try {
             self::getClient()->request('GET', 'guzzle-server/perf', [
                 'connect_timeout' => 5,
-                'timeout'         => 5
+                'timeout'         => 5,
             ]);
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return false;
         }
     }
+
     private static function getClient()
     {
-        if (!self::$client) {
+        if (! self::$client) {
             self::$client = new Client([
                 'base_uri' => self::$url,
                 'sync'     => true,

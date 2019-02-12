@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Bref\Test\Runtime;
 
@@ -26,11 +26,11 @@ class LambdaRuntimeTest extends TestCase
             new Response( // lambda event
                 200,
                 [
-                    'lambda-runtime-aws-request-id' => 1
+                    'lambda-runtime-aws-request-id' => 1,
                 ],
                 '{ "Hello": "world!"}'
             ),
-            new Response(200) // lambda response accepted
+            new Response(200), // lambda response accepted
         ]);
 
         $r = new LambdaRuntime('localhost:8126');
@@ -60,7 +60,7 @@ class LambdaRuntimeTest extends TestCase
             new Response( // lambda event
                 404,
                 [
-                    'lambda-runtime-aws-request-id' => 1
+                    'lambda-runtime-aws-request-id' => 1,
                 ],
                 '{ "Hello": "world!"}'
             ),
@@ -100,7 +100,7 @@ class LambdaRuntimeTest extends TestCase
             new Response( // lambda event
                 200,
                 [
-                    'lambda-runtime-aws-request-id' => 1
+                    'lambda-runtime-aws-request-id' => 1,
                 ]
             ),
         ]);
@@ -119,12 +119,12 @@ class LambdaRuntimeTest extends TestCase
             new Response( // lambda event
                 200,
                 [
-                    'lambda-runtime-aws-request-id' => 1
+                    'lambda-runtime-aws-request-id' => 1,
                 ],
                 '{ "Hello": "world!"}'
             ),
             new Response(400),
-            new Response(200)
+            new Response(200),
         ]);
 
         $r = new LambdaRuntime('localhost:8126');
@@ -160,11 +160,11 @@ class LambdaRuntimeTest extends TestCase
             new Response( // lambda event
                 200,
                 [
-                    'lambda-runtime-aws-request-id' => 1
+                    'lambda-runtime-aws-request-id' => 1,
                 ],
                 '{ "Hello": "world!"}'
             ),
-            new Response(200)
+            new Response(200),
         ]);
 
         $r = new LambdaRuntime('localhost:8126');
@@ -188,6 +188,5 @@ class LambdaRuntimeTest extends TestCase
         $error = json_decode($eventFailureLog->getBody());
         $this->expectOutputRegex('/^Fatal error: Uncaught Exception: Failed encoding Lambda JSON response: Malformed UTF-8 characters, possibly incorrectly encoded/');
         $this->assertSame('Failed encoding Lambda JSON response: Malformed UTF-8 characters, possibly incorrectly encoded', $error->errorMessage);
-
     }
 }
