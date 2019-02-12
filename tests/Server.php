@@ -107,7 +107,7 @@ class Server
             return [];
         }
         $response = self::getClient()->request('GET', 'guzzle-server/requests');
-        $data = json_decode($response->getBody(), true);
+        $data = json_decode((string) $response->getBody(), true);
         return array_map(
             function ($message) {
                 $uri = $message['uri'];

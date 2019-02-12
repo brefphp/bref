@@ -149,7 +149,7 @@ class LambdaRuntimeTest extends TestCase
         $this->assertSame('POST', $eventFailureLog->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/error', $eventFailureLog->getUri()->__toString());
 
-        $error = json_decode($eventFailureLog->getBody());
+        $error = json_decode((string) $eventFailureLog->getBody());
         $this->expectOutputRegex('/^Fatal error: Uncaught Exception: Error while calling the Lambda runtime API: The requested URL returned error: 400 Bad Request/');
         $this->assertSame('Error while calling the Lambda runtime API: The requested URL returned error: 400 Bad Request', $error->errorMessage);
     }
@@ -185,7 +185,7 @@ class LambdaRuntimeTest extends TestCase
         $this->assertSame('POST', $eventFailureLog->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/error', $eventFailureLog->getUri()->__toString());
 
-        $error = json_decode($eventFailureLog->getBody());
+        $error = json_decode((string) $eventFailureLog->getBody());
         $this->expectOutputRegex('/^Fatal error: Uncaught Exception: Failed encoding Lambda JSON response: Malformed UTF-8 characters, possibly incorrectly encoded/');
         $this->assertSame('Failed encoding Lambda JSON response: Malformed UTF-8 characters, possibly incorrectly encoded', $error->errorMessage);
     }
