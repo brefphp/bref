@@ -80,7 +80,7 @@ API Gateway works with "stages": a stage is an environment (e.g. dev, test, prod
 
 This is why applications are deployed with URLs ending with the stage name, for example `https://hc4rcprbe2.execute-api.us-east-1.amazonaws.com/Prod/`. See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for more information.
 
-If you setup a custom domain for your application on API Gateway this prefix will disappear. If you don't, you need to take this prefix into account in your application routes in your PHP framework.
+If you [setup a custom domain for your application](/docs/environment/custom-domains.md) this prefix will disappear. If you don't, you need to take this prefix into account in your application routes in your PHP framework.
 
 ## Routing
 

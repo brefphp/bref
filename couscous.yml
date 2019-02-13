@@ -70,6 +70,10 @@ menu:
                 text: Logs
                 url: /docs/environment/logs.html
                 title: Managing logs with Bref on AWS Lambda
+            custom-domains:
+                text: Custom domains
+                url: /docs/environment/custom-domains.html
+                title: Configuring custom domain names for HTTP applications
     -   section: Frameworks
         items:
             laravel:
