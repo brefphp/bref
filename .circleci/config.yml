@@ -87,7 +87,7 @@ jobs:
             - checkout
             - setup_remote_docker
             -   run: sudo apt-get install -y python-pip
-            -   run: pip install --user awscli
-            -   run: pip install --user aws-sam-cli
+            -   run: sudo pip install awscli
+            -   run: sudo pip install aws-sam-cli
             -   run: composer install -n --prefer-dist
             -   run: vendor/bin/phpunit --testsuite runtimes
