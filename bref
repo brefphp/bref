@@ -109,14 +109,15 @@ $app->command('cli function [--region=] [arguments]*', function (string $functio
         return 1;
     }
 
-    if (isset($result->getPayload()['output'])) {
-        $io->writeln($result->getPayload()['output']);
+    $payload = $result->getPayload();
+    if (isset($payload['output'])) {
+        $io->writeln($payload['output']);
     } else {
         $io->error('The command did not return a valid response.');
         $io->writeln('<info>Logs:</info>');
         $io->write('<comment>' . $result->getLogs() . '</comment>');
         $io->writeln('<info>Lambda result payload:</info>');
-        $io->writeln(json_encode($result->getPayload(), JSON_PRETTY_PRINT));
+        $io->writeln(json_encode($payload, JSON_PRETTY_PRINT));
         return 1;
     }
 
