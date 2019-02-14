@@ -168,3 +168,9 @@ article blockquote a {
 article blockquote p:first-child {
     margin-top: 0;
 }
+
+@media (min-width: 1360px) {
+    #in-page-menu {
+        display: block;
+    }
+}
