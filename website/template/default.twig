@@ -93,7 +93,7 @@
 
         $('article h2, article h3, article h4, article h5').each(function () {
             var url = document.URL.replace(/#.*$/, "") + '#' + $(this).attr('id');
-            $(this).prepend(' <a class="anchor inline-block mr-2" href="' + url + '">#</a>');
+            $(this).prepend(' <a class="title-anchor" href="' + url + '">#</a>');
         });
     </script>
 </body>

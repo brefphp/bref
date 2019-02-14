@@ -90,6 +90,9 @@ article p {
     margin-top: 16px;
     line-height: 24px;
 }
+article h1, article h2, article h3, article h4, article h5, article h6 {
+    position: relative;
+}
 article h1 {
     margin-bottom: 40px;
 }
@@ -107,6 +110,19 @@ article h3 {
     font-weight: 600;
     margin-top: 40px;
     margin-bottom: 16px;
+}
+.title-anchor {
+    position: absolute;
+    margin-left: -30px;
+    color: var(--color-blue-lighter);
+    margin-top: 1px;
+    right: 0;
+    left: 0;
+    opacity: 0.5;
+}
+a.title-anchor:hover {
+    text-decoration: none;
+    opacity: 0.75;
 }
 article ul, article ol {
     margin-top: 8px;
