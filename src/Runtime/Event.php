@@ -13,7 +13,7 @@ class Event
     /** @var Client */
     private $client;
 
-    public function __construct($invocationId, array $data, Client $client)
+    public function __construct(string $invocationId, array $data, Client $client)
     {
         $this->invocationId = $invocationId;
         $this->data = $data;
@@ -36,7 +36,7 @@ class Event
     /**
      * @param mixed $response
      */
-    public function reject($response)
+    public function reject($response): void
     {
         $this->client->signalFailure($this->invocationId, $response);
     }
