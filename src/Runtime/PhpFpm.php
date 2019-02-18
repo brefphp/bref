@@ -24,7 +24,7 @@ class PhpFpm
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const CONFIG = '/opt/bref/etc/php-fpm.conf';
 
-    /** @var Responder */
+    /** @var Client */
     private $client;
     /** @var string */
     private $handler;
@@ -35,9 +35,7 @@ class PhpFpm
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
-        $this->client = new Responder(
-            new Client('unix://' . self::SOCKET, 30000)
-        );
+        $this->client = new Client('unix://' . self::SOCKET, 30000);
         $this->handler = $handler;
         $this->configFile = $configFile;
     }
@@ -100,9 +98,10 @@ class PhpFpm
 
         [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
 
-        $this->client->send($requestHeaders, $requestBody);
+        $responder = new Responder($this->client);
+        $responder->send($requestHeaders, $requestBody);
 
-        $responseHeaders = $this->client->getResponseHeaders();
+        $responseHeaders = $responder->getResponseHeaders();
 
         $responseHeaders = array_change_key_case($responseHeaders, CASE_LOWER);
 
@@ -130,7 +129,7 @@ class PhpFpm
         }
         unset($responseHeaders['status']);
 
-        $responseBody = $this->client->getResponseContent();
+        $responseBody = $responder->getResponseContent();
 
         return new LambdaResponse((int) $status, $responseHeaders, $responseBody);
     }
