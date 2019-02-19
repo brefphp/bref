@@ -20,6 +20,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 $app = new Silly\Application('Deploy serverless PHP applications');
 
 $app->command('init', function (SymfonyStyle $io) {
+    $baseTemplateDir = __DIR__ . "/template";
     $exeFinder = new ExecutableFinder();
     if (! $exeFinder->find('sam')) {
         $io->error(
@@ -66,20 +67,35 @@ $app->command('init', function (SymfonyStyle $io) {
     ][$choice];
 
     $fs = new Filesystem;
-    $io->writeln('Creating template.yaml');
-    $fs->copy(__DIR__ . "/template/$templateDirectory/template.yaml", 'template.yaml');
-    if ($fs->exists(__DIR__ . "/template/$templateDirectory/index.php")) {
-        $io->writeln('Creating index.php');
-        $fs->copy(__DIR__ . "/template/$templateDirectory/index.php", 'index.php');
+    $rootPath = "$baseTemplateDir/$templateDirectory";
+    $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($rootPath));
+    foreach ($files as $file) {
+        /**
+         * @var RecursiveDirectoryIterator $dir
+         */
+        $dir = $files->getInnerIterator();
+        $fileName = $dir->getSubPathname();
+        $srcFile = "$rootPath/$fileName";
+        if ($file->isFile() &&  $fs->exists($srcFile)) {
+            $io->writeln("Creating $fileName");
+            $fs->copy($srcFile, $fileName);
+        }
     }
 
     /*
      * We check if this is a git repository to automatically add files to git.
      */
     if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {
-        (new Process(['git', 'add', 'template.yaml']))->run();
-        if (file_exists('index.php')) {
-            (new Process(['git', 'add', 'index.php']))->run();
+        foreach ($files as $file) {
+            /**
+             * @var RecursiveDirectoryIterator $dir
+             */
+            $dir = $files->getInnerIterator();
+            $fileName = $dir->getSubPathname();
+            $srcFile = "$rootPath/$fileName";
+            if ($file->isFile() && $fs->exists($srcFile)) {
+                (new Process(['git', 'add', $fileName]))->run();
+            }
         }
 
         $io->success([
