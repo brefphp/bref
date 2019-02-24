@@ -47,7 +47,7 @@ class PhpFpmRuntimeTest extends TestCase
     {
         $response = $this->invoke('/?error_log=1');
 
-        self::assertSame(500, $response->getStatusCode(), $this->logs);
+        $this->assertResponseSuccessful($response);
         self::assertNotContains('This is a test log from error_log', $this->responseAsString($response));
         self::assertContains('This is a test log from error_log', $this->logs);
     }
@@ -84,10 +84,9 @@ class PhpFpmRuntimeTest extends TestCase
     {
         $response = $this->invoke('/?warning=1');
 
-        self::assertSame(500, $response->getStatusCode(), $this->logs);
-        // Unfortunately with the temporary fix in https://github.com/mnapoli/bref/pull/216
-        // we must settle for an empty 500 response for now
-//        self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
+        $this->assertResponseSuccessful($response);
+        self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
+        self::assertNotContains('This is a test warning', $this->responseAsString($response));
         self::assertContains('Warning:  This is a test warning in /var/task/tests/Sam', $this->logs);
     }
 
