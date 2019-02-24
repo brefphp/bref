@@ -691,9 +691,13 @@ Year,Make,Model
 
     public function test response with error_log()
     {
-        $headers = $this->get('error.php')->toApiGatewayFormat()['headers'];
+        $response = $this->get('error.php')->toApiGatewayFormat();
 
-        self::assertEquals([], (array) $headers);
+        self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
+        unset($response['headers']['x-powered-by']);
+        self::assertEquals([
+            'content-type' => 'text/html; charset=UTF-8',
+        ], $response['headers']);
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
