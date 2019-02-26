@@ -70,6 +70,10 @@
                     </article>
                 {% endblock %}
             </div>
+            <div id="in-page-menu" class="hidden fixed pin-t max-h-screen text-xs text-grey max-w-48 mr-2" style="margin-left: 780px;margin-top: 144px;">
+                <p class="mb-2 uppercase font-semibold tracking-wide">Summary</p>
+                <ul class="list-reset"></ul>
+            </div>
         </div>
     </div>
 
@@ -91,9 +95,16 @@
         gtag('js', new Date());
         gtag('config', 'UA-15584647-20');
 
-        $('article h2, article h3, article h4, article h5').each(function () {
-            var url = document.URL.replace(/#.*$/, "") + '#' + $(this).attr('id');
-            $(this).prepend(' <a class="title-anchor" href="' + url + '">#</a>');
+        $(function() {
+            $('article h2, article h3, article h4, article h5').each(function () {
+                var url = document.URL.replace(/#.*$/, "") + '#' + $(this).attr('id');
+                $(this).prepend(' <a class="title-anchor" href="' + url + '">#</a>');
+            });
+            $('article h2').each(function () {
+                var url = '#' + $(this).attr('id');
+                var caption = $(this).text().substr(2);
+                $('#in-page-menu ul').append('<li class="py-2"><a class="text-grey" href="' + url + '">' + caption + '</a></li>');
+            });
         });
     </script>
 </body>
