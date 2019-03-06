@@ -24,7 +24,7 @@ use Symfony\Component\Process\Process;
 class PhpFpm
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
-    private const CONFIG = '/var/task/php/conf.d/php-fpm.conf';
+    private const CONFIG = '/opt/bref/etc/php-fpm.conf';
 
     /** @var Client|null */
     private $client;
