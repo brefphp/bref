@@ -22,7 +22,7 @@ website/node_modules:
 
 # Deploy the demo functions
 demo:
-	rm -rf .bref .couscous
+	rm -rf .couscous
 	rm -f runtime/export/*.zip
 	sam package \
 		--region us-east-2 \
