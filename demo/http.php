@@ -5,6 +5,10 @@ use Psr\Http\Message\ServerRequestInterface;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+/** @noinspection PhpComposerExtensionStubsInspection */
+$pdo = new \PDO('mysql:host=example.com;dbname=db');
+$pdo->exec('SELECT * FROM foo');
+
 $slim = new Slim\App;
 
 $slim->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
