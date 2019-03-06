@@ -6,7 +6,6 @@ use Bref\Http\LambdaResponse;
 use Hoa\Fastcgi\Exception\Exception as HoaFastCgiException;
 use Hoa\Fastcgi\Responder;
 use Hoa\Socket\Client;
-use Hoa\Socket\Connection\Connection;
 use Hoa\Socket\Exception\Exception as HoaSocketException;
 use Symfony\Component\Process\Process;
 
@@ -27,7 +26,7 @@ class PhpFpm
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const CONFIG = '/var/task/php/conf.d/php-fpm.conf';
 
-    /** @var Client&Connection */
+    /** @var Client|null */
     private $client;
     /** @var string */
     private $handler;
@@ -243,6 +242,11 @@ class PhpFpm
     private function reconnect(): void
     {
         if ($this->client) {
+            /**
+             * Hoa magic
+             *
+             * @see \Hoa\Socket\Connection\Connection
+             */
             $this->client->disconnect();
         }
 
