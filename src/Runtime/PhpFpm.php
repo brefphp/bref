@@ -3,8 +3,10 @@
 namespace Bref\Runtime;
 
 use Bref\Http\LambdaResponse;
+use Hoa\Fastcgi\Exception\Exception as HoaFastCgiException;
 use Hoa\Fastcgi\Responder;
 use Hoa\Socket\Client;
+use Hoa\Socket\Exception\Exception as HoaSocketException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -22,7 +24,7 @@ use Symfony\Component\Process\Process;
 class PhpFpm
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
-    private const CONFIG = '/opt/bref/etc/php-fpm.conf';
+    private const CONFIG = '/var/task/php/conf.d/php-fpm.conf';
 
     /** @var Client */
     private $client;
@@ -45,6 +47,10 @@ class PhpFpm
      */
     public function start(): void
     {
+        if ($this->isReady()) {
+            throw new \Exception('PHP-FPM has already been started, aborting');
+        }
+
         if (! is_dir(dirname(self::SOCKET))) {
             mkdir(dirname(self::SOCKET));
         }
@@ -66,7 +72,10 @@ class PhpFpm
     public function stop(): void
     {
         if ($this->fpm && $this->fpm->isRunning()) {
-            $this->fpm->stop();
+            $this->fpm->stop(2);
+            if ($this->isReady()) {
+                throw new \Exception('PHP-FPM cannot be stopped');
+            }
         }
     }
 
@@ -99,7 +108,27 @@ class PhpFpm
         [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
 
         $responder = new Responder($this->client);
-        $responder->send($requestHeaders, $requestBody);
+
+        try {
+            $responder->send($requestHeaders, $requestBody);
+        } catch (HoaFastCgiException|HoaSocketException $e) {
+            // If we cannot connect to the socket we have to consider PHP-FPM down/broken
+            // If we don't there is a good chance that all the requests served by this lambda end up
+            // in a 500. Instead we will restart PHP-FPM.
+            echo "Error communicating with PHP-FPM, it is probably in a broken state.\n";
+            printf(
+                "%s: %s in %s:%d\nStack trace:\n%s\n",
+                get_class($e),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine(),
+                $e->getTraceAsString()
+            );
+            echo "Restarting PHP-FPM.\n";
+            $this->stop();
+            $this->start();
+            throw new FastCgiCommunicationFailed('Error communicating with PHP-FPM, restarting it');
+        }
 
         $responseHeaders = $responder->getResponseHeaders();
 

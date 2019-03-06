@@ -154,6 +154,39 @@ class LambdaRuntime
     }
 
     /**
+     * Abort the lambda and signal to the runtime API that we failed to initialize this instance.
+     *
+     * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-initerror
+     */
+    public function failInitialization(string $message, ?\Throwable $error = null): void
+    {
+        if ($error instanceof \Exception) {
+            $errorMessage = get_class($error) . ': ' . $error->getMessage();
+        } else {
+            $errorMessage = $error->getMessage();
+        }
+
+        // Log the exception in CloudWatch
+        echo "$message\n";
+        printf(
+            "Fatal error: %s in %s:%d\nStack trace:\n%s",
+            $errorMessage,
+            $error->getFile(),
+            $error->getLine(),
+            $error->getTraceAsString()
+        );
+
+        $url = "http://{$this->apiUrl}/2018-06-01/runtime/init/error";
+        $this->postJson($url, [
+            'errorMessage' => $message . ' ' . $error->getMessage(),
+            'errorType' => get_class($error),
+            'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
+        ]);
+
+        exit(1);
+    }
+
+    /**
      * @param mixed $data
      */
     private function postJson(string $url, $data): void
