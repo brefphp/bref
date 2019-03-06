@@ -118,7 +118,7 @@ class PhpFpm
             // Once the socket gets broken every following request is broken. We need to reconnect.
             $this->reconnect();
             throw new FastCgiCommunicationFailed(sprintf(
-                'Error communicating with PHP-FPM (did the Lambda timeout?). Reconnecting to PHP-FPM. Original exception message: %s %s',
+                'Error communicating with PHP-FPM to read the HTTP response. A common root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will reconnect to PHP-FPM to clean things up. Original exception message: %s %s',
                 get_class($e),
                 $e->getMessage()
             ), 0, $e);
