@@ -27,7 +27,7 @@ class PhpFpm
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const CONFIG = '/var/task/php/conf.d/php-fpm.conf';
 
-    /** @var Client|Connection */
+    /** @var Client&Connection */
     private $client;
     /** @var string */
     private $handler;
@@ -66,9 +66,9 @@ class PhpFpm
             echo $output;
         });
 
-        $this->waitForServerReady();
+        $this->reconnect();
 
-        $this->client = new Client('unix://' . self::SOCKET, 30000);
+        $this->waitForServerReady();
     }
 
     public function stop(): void
@@ -115,22 +115,13 @@ class PhpFpm
         try {
             $responder->send($requestHeaders, $requestBody);
         } catch (HoaFastCgiException|HoaSocketException $e) {
-            // If we cannot connect to the socket we have to consider PHP-FPM down/broken
-            // If we don't there is a good chance that all the requests served by this lambda end up
-            // in a 500. Instead we will restart PHP-FPM.
-            echo "Error communicating with PHP-FPM, it is probably in a broken state.\n";
-            printf(
-                "%s: %s in %s:%d\nStack trace:\n%s\n",
+            // Once the socket gets broken every following request is broken. We need to reconnect.
+            $this->reconnect();
+            throw new FastCgiCommunicationFailed(sprintf(
+                'Error communicating with PHP-FPM (did the Lambda timeout?). Reconnecting to PHP-FPM. Original exception message: %s %s',
                 get_class($e),
-                $e->getMessage(),
-                $e->getFile(),
-                $e->getLine(),
-                $e->getTraceAsString()
-            );
-            echo "Restarting PHP-FPM.\n";
-            $this->stop();
-            $this->start();
-            throw new FastCgiCommunicationFailed('Error communicating with PHP-FPM, restarting it');
+                $e->getMessage()
+            ), 0, $e);
         }
 
         $responseHeaders = $responder->getResponseHeaders();
@@ -247,5 +238,14 @@ class PhpFpm
         }
 
         return [$requestHeaders, $requestBody];
+    }
+
+    private function reconnect(): void
+    {
+        if ($this->client) {
+            $this->client->disconnect();
+        }
+
+        $this->client = new Client('unix://' . self::SOCKET, 30000);
     }
 }
