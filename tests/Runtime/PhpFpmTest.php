@@ -715,7 +715,6 @@ Year,Make,Model
             ]);
             $this->fail('No exception was thrown');
         } catch (FastCgiCommunicationFailed $e) {
-            // No way to salvage the second broken request, but this time PHP-FPM will be restarted
             // PHP-FPM should work after that
             $statusCode = $this->fpm->proxy(['httpMethod' => 'GET'])
                 ->toApiGatewayFormat()['statusCode'];
