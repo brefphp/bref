@@ -6,6 +6,7 @@ use Bref\Http\LambdaResponse;
 use Hoa\Fastcgi\Exception\Exception as HoaFastCgiException;
 use Hoa\Fastcgi\Responder;
 use Hoa\Socket\Client;
+use Hoa\Socket\Connection\Connection;
 use Hoa\Socket\Exception\Exception as HoaSocketException;
 use Symfony\Component\Process\Process;
 
@@ -26,7 +27,7 @@ class PhpFpm
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const CONFIG = '/var/task/php/conf.d/php-fpm.conf';
 
-    /** @var Client */
+    /** @var Client|Connection */
     private $client;
     /** @var string */
     private $handler;
@@ -37,7 +38,6 @@ class PhpFpm
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
-        $this->client = new Client('unix://' . self::SOCKET, 30000);
         $this->handler = $handler;
         $this->configFile = $configFile;
     }
@@ -67,11 +67,14 @@ class PhpFpm
         });
 
         $this->waitForServerReady();
+
+        $this->client = new Client('unix://' . self::SOCKET, 30000);
     }
 
     public function stop(): void
     {
         if ($this->fpm && $this->fpm->isRunning()) {
+            $this->client->disconnect();
             $this->fpm->stop(2);
             if ($this->isReady()) {
                 throw new \Exception('PHP-FPM cannot be stopped');
