@@ -7,7 +7,6 @@ use Bref\Runtime\FastCgiCommunicationFailed;
 use Bref\Runtime\PhpFpm;
 use Bref\Test\HttpRequestProxyTest;
 use PHPUnit\Framework\TestCase;
-use Hoa\Socket\Exception\Exception as HoaSocketException;
 
 class PhpFpmTest extends TestCase implements HttpRequestProxyTest
 {
