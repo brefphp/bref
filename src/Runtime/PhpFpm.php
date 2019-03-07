@@ -3,8 +3,10 @@
 namespace Bref\Runtime;
 
 use Bref\Http\LambdaResponse;
+use Hoa\Fastcgi\Exception\Exception as HoaFastCgiException;
 use Hoa\Fastcgi\Responder;
 use Hoa\Socket\Client;
+use Hoa\Socket\Exception\Exception as HoaSocketException;
 use Symfony\Component\Process\Process;
 
 /**
@@ -24,7 +26,7 @@ class PhpFpm
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const CONFIG = '/opt/bref/etc/php-fpm.conf';
 
-    /** @var Client */
+    /** @var Client|null */
     private $client;
     /** @var string */
     private $handler;
@@ -35,7 +37,6 @@ class PhpFpm
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
-        $this->client = new Client('unix://' . self::SOCKET, 30000);
         $this->handler = $handler;
         $this->configFile = $configFile;
     }
@@ -45,6 +46,10 @@ class PhpFpm
      */
     public function start(): void
     {
+        if ($this->isReady()) {
+            throw new \Exception('PHP-FPM has already been started, aborting');
+        }
+
         if (! is_dir(dirname(self::SOCKET))) {
             mkdir(dirname(self::SOCKET));
         }
@@ -60,13 +65,19 @@ class PhpFpm
             echo $output;
         });
 
+        $this->reconnect();
+
         $this->waitForServerReady();
     }
 
     public function stop(): void
     {
         if ($this->fpm && $this->fpm->isRunning()) {
-            $this->fpm->stop();
+            $this->client->disconnect();
+            $this->fpm->stop(2);
+            if ($this->isReady()) {
+                throw new \Exception('PHP-FPM cannot be stopped');
+            }
         }
     }
 
@@ -99,7 +110,18 @@ class PhpFpm
         [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
 
         $responder = new Responder($this->client);
-        $responder->send($requestHeaders, $requestBody);
+
+        try {
+            $responder->send($requestHeaders, $requestBody);
+        } catch (HoaFastCgiException|HoaSocketException $e) {
+            // Once the socket gets broken every following request is broken. We need to reconnect.
+            $this->reconnect();
+            throw new FastCgiCommunicationFailed(sprintf(
+                'Error communicating with PHP-FPM to read the HTTP response. A common root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will reconnect to PHP-FPM to clean things up. Original exception message: %s %s',
+                get_class($e),
+                $e->getMessage()
+            ), 0, $e);
+        }
 
         $responseHeaders = $responder->getResponseHeaders();
 
@@ -215,5 +237,19 @@ class PhpFpm
         }
 
         return [$requestHeaders, $requestBody];
+    }
+
+    private function reconnect(): void
+    {
+        if ($this->client) {
+            /**
+             * Hoa magic
+             *
+             * @see \Hoa\Socket\Connection\Connection
+             */
+            $this->client->disconnect();
+        }
+
+        $this->client = new Client('unix://' . self::SOCKET, 30000);
     }
 }

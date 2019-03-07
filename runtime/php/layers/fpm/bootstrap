@@ -15,11 +15,15 @@ $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
 
 $handler = $appRoot . '/' . getenv('_HANDLER');
 if (! is_file($handler)) {
-    echo "Handler `$handler` doesn't exist";
-    exit(1);
+    $lambdaRuntime->failInitialization("Handler `$handler` doesn't exist");
 }
+
 $phpFpm = new PhpFpm($handler);
-$phpFpm->start();
+try {
+    $phpFpm->start();
+} catch (\Throwable $e) {
+    $lambdaRuntime->failInitialization('Error while starting PHP-FPM', $e);
+}
 
 while (true) {
     $lambdaRuntime->processNextEvent(function ($event) use ($phpFpm): array {

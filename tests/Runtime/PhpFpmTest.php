@@ -3,6 +3,7 @@
 namespace Bref\Test\Runtime;
 
 use Bref\Http\LambdaResponse;
+use Bref\Runtime\FastCgiCommunicationFailed;
 use Bref\Runtime\PhpFpm;
 use Bref\Test\HttpRequestProxyTest;
 use PHPUnit\Framework\TestCase;
@@ -698,6 +699,27 @@ Year,Make,Model
         self::assertEquals([
             'content-type' => 'text/html; charset=UTF-8',
         ], $response['headers']);
+    }
+
+    public function test timeouts are recovered from()
+    {
+        $this->fpm = new PhpFpm(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm->start();
+
+        try {
+            $this->fpm->proxy([
+                'httpMethod' => 'GET',
+                'queryStringParameters' => [
+                    'timeout' => 10,
+                ],
+            ]);
+            $this->fail('No exception was thrown');
+        } catch (FastCgiCommunicationFailed $e) {
+            // PHP-FPM should work after that
+            $statusCode = $this->fpm->proxy(['httpMethod' => 'GET'])
+                ->toApiGatewayFormat()['statusCode'];
+            self::assertEquals(200, $statusCode);
+        }
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void

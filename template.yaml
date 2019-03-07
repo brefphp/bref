@@ -25,6 +25,8 @@ Resources:
             Description: 'Bref HTTP demo'
             CodeUri: .
             Handler: demo/http.php
+            Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+            MemorySize: 1024 # The memory size is related to the pricing and CPU power
             Runtime: provided
             Layers:
                 - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72-fpm:1'
