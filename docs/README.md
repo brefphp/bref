@@ -77,8 +77,6 @@ This maturity level is a vague metric, however it can be useful to anticipate th
 
 This matrix will be updated as Bref and AWS services evolve over time.
 
-*Details can be found below the table.*
-
 <table class="w-full text-sm text-grey-darker mt-8 mb-6 table-fixed">
     <tr class="bg-grey-lightest">
         <th class="p-4"></th>
@@ -174,13 +172,8 @@ This matrix will be updated as Bref and AWS services evolve over time.
     </tr>
 </table>
 
-<div class="text-right text-xs text-grey-dark mb-6">
-    <p class="m-0">Good use case <span class="maturity-icon maturity-icon-sm shadow bg-green-light"></span></p>
-    <p class="m-0">Some drawbacks <span class="maturity-icon maturity-icon-sm shadow bg-orange-light"></span></p>
-    <p class="m-0">Strong limitations <span class="maturity-icon maturity-icon-sm shadow bg-red-light"></span></p>
-</div>
-
-<div class="text-right text-xs text-grey-dark mb-8">
+<div class="text-left text-xs text-grey-darker mb-10">
+    Legend:
     <span class="mx-2 bg-green-lightest text-green-dark rounded-full px-4 py-1">Good use case</span>
     <span class="mx-2 bg-orange-lightest text-orange-dark rounded-full px-4 py-1">Some drawbacks</span>
     <span class="ml-2 bg-red-lightest text-red-dark rounded-full px-4 py-1">Strong limitations</span>
@@ -188,25 +181,27 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Jobs, Cron**
 
-    Jobs, cron tasks and batch processes are very good candidates for FaaS, especially thanks to the scaling model of AWS Lambda.
+    Jobs, cron tasks and batch processes are very good candidates for FaaS. The scaling model of AWS Lambda can lead to very high throughput in queue processing, and the pay-per-use billing model can sometimes result in drastic costs reduction.
     
-    The main limitation at the moment is the lack of documentation on this topic, as well as the lack of native integration with existing queue libraries like Laravel Queues. While Bref is used to run jobs and batch processes on Lambda in production, you may have to figure some details by yourself.
+    The main limitation at the moment is the lack of documentation on this topic, as well as the lack of native integration with existing queue libraries like Laravel Queues.
 
 - **API**
 
-    APIs run great on AWS Lambda.
+    APIs run well on AWS Lambda thanks to the API Gateway integration.
     
-    Performances are now on par with what you could expect on traditional VPS, with the exception of cold starts which can occasionally add a few hundreds of ms to some requests. While cold starts can be mitigated, those can be a deal breaker with real time APIs where response time is critical.
+    Performances are now similar to what you could expect on traditional VPS, with the exception of cold starts that can occasionally add a few hundreds of ms to some requests. While cold starts can be mitigated, those can be a deal breaker with real time APIs where response time is critical.
 
 - **API with MySQL/PostgreSQL**
 
-    MySQL, PostgreSQL or Aurora imply using [AWS RDS](https://aws.amazon.com/rds/). To access RDS, a Lambda must be inside a VPC. This adds a bit of complexity to `template.yaml` and unfortunately this is not documented in Bref at the moment (resources can be found online).
+    MySQL, PostgreSQL or Aurora imply using [AWS RDS](https://aws.amazon.com/rds/), which means using a VPC. This adds a bit of configuration complexity and this is not documented in Bref at the moment (resources can be found online).
     
-    More importantly, using a VPC means cold starts get much worse: up to 5 seconds. While for some scenarios this can be acceptable, for most APIs this is a deal breaker. AWS is planning on removing VPC in 2019, which will very probably change the game here.
+    More importantly, using a VPC means cold starts get much worse: around 5 seconds. While this can be acceptable for some scenarios, for most APIs this is a deal breaker. AWS is planning on removing VPC in 2019, which will very probably change the game here.
 
 - **Website**
 
-    Websites can run fine on AWS Lambda, but they currently require a bit more effort. Here are a few things to deal with: deploying and hosting assets separately on AWS S3, setting up CloudFront to serve assets and provide the HTTP->HTTPS redirection, store sessions in database or Redis.
+    Websites can run fine on AWS Lambda, but they currently require a bit more effort. Here are a few things to deal with: deploying and hosting assets separately on AWS S3, setting up CloudFront to serve assets and provide the HTTP->HTTPS redirection, and store sessions in database or Redis.
+    
+    Until Bref provides documentation and tools, the "Simplicity" note is "orange".
 
 - **Website with MySQL/PostgreSQL**
 
@@ -216,11 +211,11 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Legacy application**
 
-    Migrating a legacy PHP application to Bref and Lambda can be a challenge. First, as said above, the limitations that come with MySQL/PostgreSQL often apply, but on top of that legacy applications tend to be extra slow and large and performances could suffer.
+    Migrating a legacy PHP application to Bref and Lambda can be a challenge. First, as explained above, the limitations that come with MySQL/PostgreSQL often apply. On top of that legacy applications tend to be extra slow and large which can make performances suffer.
     
-    One could also expect to rewrite a good amount of code to make the application compatible with the read-only filesystem, rewrite how cron tasks or jobs run, etc. Finally there are no case studies or online examples of such a thing being done before (to the extent of our knowledge).
+    One could also expect to rewrite a good amount of code to make the application fit for Lambda. For example file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and possibly SQS. Finally there are no case studies or online examples of such a thing being done before (to the extent of our knowledge).
     
-    Probably not impossible, but definitely not the easiest place to start.
+    Not impossible, but definitely not the easiest place to start.
 
 ## Getting started
 
