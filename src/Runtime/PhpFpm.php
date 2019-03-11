@@ -108,6 +108,8 @@ class PhpFpm
         }
 
         [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
+        $isALB = array_key_exists("elb", $event['requestContext']);
+        $responder->setMultiHeader($isALB);
 
         $responder = new Responder($this->client);
 
@@ -129,7 +131,8 @@ class PhpFpm
 
         // Extract the status code
         if (isset($responseHeaders['status'])) {
-            [$status] = explode(' ', $responseHeaders['status']);
+            $statscode = is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status'];
+            $status = preg_replace('/[^0-9]/', '', $statscode);
         } else {
             $status = 200;
         }
@@ -184,20 +187,25 @@ class PhpFpm
          * There's still an issue: AWS API Gateway does not support multiple query string parameters with the same name
          * So you can't use something like ?array[]=val1&array[]=val2 because only the 'val2' value will survive
          */
-        $queryString = http_build_query($event['queryStringParameters'] ?? []);
-        parse_str($queryString, $queryParameters);
-        if (! empty($queryString)) {
-            $uri .= '?' . $queryString;
+        if (array_key_exists('multiValueQueryStringParameters', $event) && $event['multiValueQueryStringParameters']) {
+            $queryParameters = [];
+            foreach($event['multiValueQueryStringParameters'] as $key => $value) $queryParameters[$key] = $value[0];
+            if ($queryParameters) $uri .= "?".http_build_query($queryParameters);
         }
-        $queryString = http_build_query($queryParameters);
+        else{
+          $queryString = http_build_query($event['queryStringParameters'] ?? []);
+          parse_str($queryString, $queryParameters);
+          if (! empty($queryString)) {
+              $uri .= '?' . $queryString;
+          }
+        }
 
+        if(isset($queryParameters)){
+          $queryString = http_build_query($queryParameters);
+        }
         $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
 
         // Normalize headers
-        $headers = $event['headers'] ?? [];
-        $headers = array_change_key_case($headers, CASE_LOWER);
-
-        $serverName = $headers['host'] ?? 'localhost';
 
         $requestHeaders = [
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
@@ -206,36 +214,63 @@ class PhpFpm
             'SCRIPT_FILENAME' => $this->handler,
             'SERVER_SOFTWARE' => 'bref',
             'REMOTE_ADDR' => '127.0.0.1',
-            'REMOTE_PORT' => $headers['X-Forwarded-Port'] ?? 80,
             'SERVER_ADDR' => '127.0.0.1',
-            'SERVER_NAME' => $serverName,
             'SERVER_PROTOCOL' => $protocol,
-            'SERVER_PORT' => $headers['X-Forwarded-Port'] ?? 80,
             'PATH_INFO' => $event['path'] ?? '/',
-            'QUERY_STRING' => $queryString,
+            'QUERY_STRING' => $queryString ?? '',
         ];
 
-        // See https://stackoverflow.com/a/5519834/245552
-        if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
-            $headers['content-type'] = 'application/x-www-form-urlencoded';
+        if (array_key_exists('multiValueHeaders', $event)) {
+          $headers = $event['multiValueHeaders'];
+          $serverName = $headers['host'][0] ?? 'localhost';
+          if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
+              $headers['content-type'] = ['application/x-www-form-urlencoded'];
+          }
+          if (isset($headers['content-type']))
+            $requestHeaders['CONTENT_TYPE'] = $headers['content-type'][0];
+          $requestHeaders['REMOTE_PORT'] = $headers['X-Forwarded-Port'][0] ?? 80;
+          $requestHeaders['SERVER_PORT'] = $headers['X-Forwarded-Port'][0] ?? 80;
+          $requestHeaders['SERVER_NAME'] = $serverName;
+          if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
+              $headers['content-length'] = [strlen($requestBody)];
+          }
+          if (isset($headers['content-length'])) {
+              $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'][0];
+          }
+          foreach($headers as $name => $values) {
+            foreach($values as $value) {
+              $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+              $requestHeaders[$key] = $value;
+            }
+          }
         }
-        if (isset($headers['content-type'])) {
-            $requestHeaders['CONTENT_TYPE'] = $headers['content-type'];
+        else {
+          $headers = $event['headers'] ?? [];
+          $headers = array_change_key_case($headers, CASE_LOWER);
+          $serverName = $headers['host'] ?? 'localhost';
+          $requestHeaders['REMOTE_PORT'] = $headers['X-Forwarded-Port'] ?? 80;
+          $requestHeaders['SERVER_PORT'] = $headers['X-Forwarded-Port'] ?? 80;
+          $requestHeaders['SERVER_NAME'] = $serverName;
+          // See https://stackoverflow.com/a/5519834/245552
+          if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
+              $headers['content-type'] = 'application/x-www-form-urlencoded';
+          }
+          if (isset($headers['content-type'])) {
+              $requestHeaders['CONTENT_TYPE'] = $headers['content-type'];
+          }
+          // Auto-add the Content-Length header if it wasn't provided
+          // See https://github.com/mnapoli/bref/issues/162
+          if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
+              $headers['content-length'] = strlen($requestBody);
+          }
+          if (isset($headers['content-length'])) {
+              $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
+          }
+          foreach ($headers as $header => $value) {
+              $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+              $requestHeaders[$key] = $value;
+          }
         }
-        // Auto-add the Content-Length header if it wasn't provided
-        // See https://github.com/mnapoli/bref/issues/162
-        if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
-            $headers['content-length'] = strlen($requestBody);
-        }
-        if (isset($headers['content-length'])) {
-            $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
-        }
-
-        foreach ($headers as $header => $value) {
-            $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
-            $requestHeaders[$key] = $value;
-        }
-
         return [$requestHeaders, $requestBody];
     }
 
