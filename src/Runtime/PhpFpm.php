@@ -109,7 +109,7 @@ class PhpFpm
 
         [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
         $responder = new Responder($this->client);
-        $isALB = array_key_exists("elb", $event['requestContext']);
+        $isALB = array_key_exists('elb', $event['requestContext']);
         $responder->setMultiHeader($isALB);
         try {
             $responder->send($requestHeaders, $requestBody);
@@ -191,7 +191,7 @@ class PhpFpm
                 $queryParameters[$key] = $value[0];
             }
             if ($queryParameters) {
-                $uri .= "?".http_build_query($queryParameters);
+                $uri.= '?'.http_build_query($queryParameters);
             }
         } else {
             $queryString = http_build_query($event['queryStringParameters'] ?? []);
