@@ -191,7 +191,7 @@ class PhpFpm
                 $queryParameters[$key] = $value[0];
             }
             if ($queryParameters) {
-                $uri.= '?'.http_build_query($queryParameters);
+                $uri.= '?' . http_build_query($queryParameters);
             }
         } else {
             $queryString = http_build_query($event['queryStringParameters'] ?? []);
