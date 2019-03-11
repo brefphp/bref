@@ -191,15 +191,17 @@ class LambdaRuntime
      */
     private function postJson(string $url, $data): void
     {
+        $isALB = array_key_exists("isALB", $data);
+        if ($isALB) unset($data["isALB"]);
         $jsonData = json_encode($data);
         if ($jsonData === false) {
             throw new \Exception('Failed encoding Lambda JSON response: ' . json_last_error_msg());
         }
-
         $handler = curl_init($url);
         curl_setopt($handler, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($handler, CURLOPT_POSTFIELDS, $jsonData);
+        if (!$isALB) //If We send to ALB it is not always JSON.
         curl_setopt($handler, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Content-Length: ' . strlen($jsonData),
