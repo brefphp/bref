@@ -172,6 +172,17 @@ class PhpFpmRuntimeTest extends TestCase
         ], $this->getJsonBody($response), false, $this->logs);
     }
 
+    /**
+     * Check some PHP config values
+     */
+    public function test error on missing handler()
+    {
+        $response = $this->invoke('/missing-handler');
+
+        self::assertContains('Handler `/var/task/tests/Sam/PhpFpm/UNKNOWN.php` doesn\'t exist', $this->logs);
+        self::assertEquals(['message' => 'Internal server error'], $this->getJsonBody($response), $this->logs);
+    }
+
     private function invoke(string $url): ResponseInterface
     {
         $api = new Process(['sam', 'local', 'start-api', '--region', 'us-east-1']);

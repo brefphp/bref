@@ -27,8 +27,19 @@ Resources:
                     Properties:
                         Path: /
                         Method: ANY
-                HttpSubPaths:
+
+    MissingHandler:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: 'bref-tests-http-missing-handler'
+            CodeUri: ../..
+            Handler: tests/Sam/PhpFpm/UNKNOWN.php
+            Runtime: provided
+            Layers:
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:2'
+            Events:
+                HttpRoot:
                     Type: Api
                     Properties:
-                        Path: /{proxy+}
+                        Path: /missing-handler
                         Method: ANY
