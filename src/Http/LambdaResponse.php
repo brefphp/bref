@@ -75,10 +75,10 @@ class LambdaResponse
     public function toALBFormat(): array
     {
         // This is the format required by the ALB lambda integration https://aws.amazon.com/pt/blogs/networking-and-content-delivery/lambda-functions-as-targets-for-application-load-balancers/
-       $statusDescription = "$this->statusCode ";
-       $statusDescription .= $http_codes[$this->statusCode] ?? "Unknown";
-       $headers = empty($this->headers) ? new \stdClass : $this->headers;
-       return [
+        $statusDescription = "$this->statusCode ";
+        $statusDescription .= $http_codes[$this->statusCode] ?? "Unknown";
+        $headers = empty($this->headers) ? new \stdClass : $this->headers;
+        return [
             'isBase64Encoded' => false,
             'statusCode' => $this->statusCode,
             'statusDescription' => $statusDescription,

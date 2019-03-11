@@ -187,19 +187,22 @@ class PhpFpm
          */
         if (array_key_exists('multiValueQueryStringParameters', $event) && $event['multiValueQueryStringParameters']) {
             $queryParameters = [];
-            foreach($event['multiValueQueryStringParameters'] as $key => $value) $queryParameters[$key] = $value[0];
-            if ($queryParameters) $uri .= "?".http_build_query($queryParameters);
-        }
-        else{
-          $queryString = http_build_query($event['queryStringParameters'] ?? []);
-          parse_str($queryString, $queryParameters);
-          if (! empty($queryString)) {
-              $uri .= '?' . $queryString;
-          }
+            foreach ($event['multiValueQueryStringParameters'] as $key => $value) {
+                $queryParameters[$key] = $value[0];
+            }
+            if ($queryParameters) {
+                $uri .= "?".http_build_query($queryParameters);
+            }
+        } else {
+            $queryString = http_build_query($event['queryStringParameters'] ?? []);
+            parse_str($queryString, $queryParameters);
+            if (! empty($queryString)) {
+                $uri .= '?' . $queryString;
+            }
         }
 
-        if(isset($queryParameters)){
-          $queryString = http_build_query($queryParameters);
+        if (isset($queryParameters)) {
+            $queryString = http_build_query($queryParameters);
         }
         $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
 
@@ -219,55 +222,55 @@ class PhpFpm
         ];
 
         if (array_key_exists('multiValueHeaders', $event)) {
-          $headers = $event['multiValueHeaders'];
-          $serverName = $headers['host'][0] ?? 'localhost';
-          if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
-              $headers['content-type'] = ['application/x-www-form-urlencoded'];
-          }
-          if (isset($headers['content-type']))
-            $requestHeaders['CONTENT_TYPE'] = $headers['content-type'][0];
-          $requestHeaders['REMOTE_PORT'] = $headers['X-Forwarded-Port'][0] ?? 80;
-          $requestHeaders['SERVER_PORT'] = $headers['X-Forwarded-Port'][0] ?? 80;
-          $requestHeaders['SERVER_NAME'] = $serverName;
-          if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
-              $headers['content-length'] = [strlen($requestBody)];
-          }
-          if (isset($headers['content-length'])) {
-              $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'][0];
-          }
-          foreach($headers as $name => $values) {
-            foreach($values as $value) {
-              $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
-              $requestHeaders[$key] = $value;
+            $headers = $event['multiValueHeaders'];
+            $serverName = $headers['host'][0] ?? 'localhost';
+            if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
+                $headers['content-type'] = ['application/x-www-form-urlencoded'];
             }
-          }
-        }
-        else {
-          $headers = $event['headers'] ?? [];
-          $headers = array_change_key_case($headers, CASE_LOWER);
-          $serverName = $headers['host'] ?? 'localhost';
-          $requestHeaders['REMOTE_PORT'] = $headers['X-Forwarded-Port'] ?? 80;
-          $requestHeaders['SERVER_PORT'] = $headers['X-Forwarded-Port'] ?? 80;
-          $requestHeaders['SERVER_NAME'] = $serverName;
-          // See https://stackoverflow.com/a/5519834/245552
-          if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
-              $headers['content-type'] = 'application/x-www-form-urlencoded';
-          }
-          if (isset($headers['content-type'])) {
-              $requestHeaders['CONTENT_TYPE'] = $headers['content-type'];
-          }
-          // Auto-add the Content-Length header if it wasn't provided
-          // See https://github.com/mnapoli/bref/issues/162
-          if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
-              $headers['content-length'] = strlen($requestBody);
-          }
-          if (isset($headers['content-length'])) {
-              $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
-          }
-          foreach ($headers as $header => $value) {
-              $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
-              $requestHeaders[$key] = $value;
-          }
+            if (isset($headers['content-type'])) {
+                $requestHeaders['CONTENT_TYPE'] = $headers['content-type'][0];
+            }
+            $requestHeaders['REMOTE_PORT'] = $headers['X-Forwarded-Port'][0] ?? 80;
+            $requestHeaders['SERVER_PORT'] = $headers['X-Forwarded-Port'][0] ?? 80;
+            $requestHeaders['SERVER_NAME'] = $serverName;
+            if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
+                $headers['content-length'] = [strlen($requestBody)];
+            }
+            if (isset($headers['content-length'])) {
+                $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'][0];
+            }
+            foreach ($headers as $name => $values) {
+                foreach ($values as $value) {
+                    $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+                    $requestHeaders[$key] = $value;
+                }
+            }
+        } else {
+            $headers = $event['headers'] ?? [];
+            $headers = array_change_key_case($headers, CASE_LOWER);
+            $serverName = $headers['host'] ?? 'localhost';
+            $requestHeaders['REMOTE_PORT'] = $headers['X-Forwarded-Port'] ?? 80;
+            $requestHeaders['SERVER_PORT'] = $headers['X-Forwarded-Port'] ?? 80;
+            $requestHeaders['SERVER_NAME'] = $serverName;
+            // See https://stackoverflow.com/a/5519834/245552
+            if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
+                $headers['content-type'] = 'application/x-www-form-urlencoded';
+            }
+            if (isset($headers['content-type'])) {
+                $requestHeaders['CONTENT_TYPE'] = $headers['content-type'];
+            }
+            // Auto-add the Content-Length header if it wasn't provided
+            // See https://github.com/mnapoli/bref/issues/162
+            if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
+                $headers['content-length'] = strlen($requestBody);
+            }
+            if (isset($headers['content-length'])) {
+                $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
+            }
+            foreach ($headers as $header => $value) {
+                $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+                $requestHeaders[$key] = $value;
+            }
         }
         return [$requestHeaders, $requestBody];
     }
