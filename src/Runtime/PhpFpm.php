@@ -109,8 +109,11 @@ class PhpFpm
 
         [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
         $responder = new Responder($this->client);
-        $isALB = array_key_exists('elb', $event['requestContext']);
-        $responder->setMultiHeader($isALB);
+        $context = $event['requestContext'] ?? [];
+        $isALB = array_key_exists('elb', $context);
+        if (method_exists($responder,'setMultiHeader')){
+          $responder->setMultiHeader($isALB);
+        }
         try {
             $responder->send($requestHeaders, $requestBody);
         } catch (HoaFastCgiException|HoaSocketException $e) {
