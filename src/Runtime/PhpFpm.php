@@ -111,8 +111,8 @@ class PhpFpm
         $responder = new Responder($this->client);
         $context = $event['requestContext'] ?? [];
         $isALB = array_key_exists('elb', $context);
-        if (method_exists($responder,'setMultiHeader')){
-          $responder->setMultiHeader($isALB);
+        if (method_exists($responder, 'setMultiHeader')) {
+            $responder->setMultiHeader($isALB);
         }
         try {
             $responder->send($requestHeaders, $requestBody);
