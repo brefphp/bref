@@ -26,6 +26,7 @@ namespace Bref\Test;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -98,7 +99,7 @@ class Server
     /**
      * Get all of the received requests
      *
-     * @return ResponseInterface[]
+     * @return RequestInterface[]
      * @throws \RuntimeException
      */
     public static function received()

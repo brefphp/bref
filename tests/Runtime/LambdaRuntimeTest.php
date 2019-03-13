@@ -4,15 +4,23 @@ namespace Bref\Test\Runtime;
 
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
-use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Tests the communication between `LambdaRuntime` and the Lambda Runtime HTTP API.
+ *
+ * The API is mocked using a fake HTTP server.
+ */
 class LambdaRuntimeTest extends TestCase
 {
+    /** @var LambdaRuntime */
+    private $runtime;
+
     protected function setUp()
     {
         Server::start();
+        $this->runtime = new LambdaRuntime('localhost:8126');
     }
 
     protected function tearDown()
@@ -20,7 +28,7 @@ class LambdaRuntimeTest extends TestCase
         Server::stop();
     }
 
-    public function testRuntime()
+    public function test basic behavior()
     {
         Server::enqueue([
             new Response( // lambda event
@@ -33,19 +41,14 @@ class LambdaRuntimeTest extends TestCase
             new Response(200), // lambda response accepted
         ]);
 
-        $r = new LambdaRuntime('localhost:8126');
-        $r->processNextEvent(
-            function ($event) {
-                return ['hello' => 'world'];
-            }
-        );
+        $this->runtime->processNextEvent(function () {
+            return ['hello' => 'world'];
+        });
+
         $requests = Server::received();
         $this->assertCount(2, $requests);
 
-        /** @var Request $eventRequest */
-        $eventRequest = $requests[0];
-        /** @var Request $eventResponse */
-        $eventResponse = $requests[1];
+        [$eventRequest, $eventResponse] = $requests;
         $this->assertSame('GET', $eventRequest->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
         $this->assertSame('POST', $eventResponse->getMethod());
@@ -53,12 +56,12 @@ class LambdaRuntimeTest extends TestCase
         $this->assertJsonStringEqualsJsonString('{"hello": "world"}', $eventResponse->getBody()->__toString());
     }
 
-    public function testFailedHandler()
+    public function test an error is thrown if the runtime API returns a wrong response()
     {
         $this->expectExceptionMessage('Failed to fetch next Lambda invocation: The requested URL returned error: 404 Not Found');
         Server::enqueue([
             new Response( // lambda event
-                404,
+                404, // 404 instead of 200
                 [
                     'lambda-runtime-aws-request-id' => 1,
                 ],
@@ -66,34 +69,26 @@ class LambdaRuntimeTest extends TestCase
             ),
         ]);
 
-        $r = new LambdaRuntime('localhost:8126');
-        $r->processNextEvent(
-            function ($event) {
-                return ['hello' => 'world'];
-            }
-        );
+        $this->runtime->processNextEvent(function ($event) {
+        });
     }
 
-    public function testMissingInvocationId()
+    public function test an error is thrown if the invocation id is missing()
     {
         $this->expectExceptionMessage('Failed to determine the Lambda invocation ID');
         Server::enqueue([
             new Response( // lambda event
                 200,
-                [],
+                [], // Missing `lambda-runtime-aws-request-id`
                 '{ "Hello": "world!"}'
             ),
         ]);
 
-        $r = new LambdaRuntime('localhost:8126');
-        $r->processNextEvent(
-            function ($event) {
-                return ['hello' => 'world'];
-            }
-        );
+        $this->runtime->processNextEvent(function () {
+        });
     }
 
-    public function testEmptyBody()
+    public function test an error is thrown if the invocation body is empty()
     {
         $this->expectExceptionMessage('Empty Lambda runtime API response');
         Server::enqueue([
@@ -105,15 +100,11 @@ class LambdaRuntimeTest extends TestCase
             ),
         ]);
 
-        $r = new LambdaRuntime('localhost:8126');
-        $r->processNextEvent(
-            function ($event) {
-                return ['hello' => 'world'];
-            }
-        );
+        $this->runtime->processNextEvent(function () {
+        });
     }
 
-    public function testErrorOnResponse()
+    public function test a wrong response from the runtime API turns the invocation into an error()
     {
         Server::enqueue([
             new Response( // lambda event
@@ -123,25 +114,17 @@ class LambdaRuntimeTest extends TestCase
                 ],
                 '{ "Hello": "world!"}'
             ),
-            new Response(400),
+            new Response(400), // The Lambda API returns a 400 instead of a 200
             new Response(200),
         ]);
 
-        $r = new LambdaRuntime('localhost:8126');
-        $r->processNextEvent(
-            function ($event) {
-                return $event;
-            }
-        );
+        $this->runtime->processNextEvent(function ($event) {
+            return $event;
+        });
         $requests = Server::received();
         $this->assertCount(3, $requests);
 
-        /** @var Request $eventRequest */
-        $eventRequest = $requests[0];
-        /** @var Request $eventFailureResponse */
-        $eventFailureResponse = $requests[1];
-        /** @var Request $eventFailureLog */
-        $eventFailureLog = $requests[2];
+        [$eventRequest, $eventFailureResponse, $eventFailureLog] = $requests;
         $this->assertSame('GET', $eventRequest->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
         $this->assertSame('POST', $eventFailureResponse->getMethod());
@@ -154,7 +137,7 @@ class LambdaRuntimeTest extends TestCase
         $this->assertSame('Error while calling the Lambda runtime API: The requested URL returned error: 400 Bad Request', $error->errorMessage);
     }
 
-    public function testInvalidResponse()
+    public function test function results that cannot be encoded are reported as invocation errors()
     {
         Server::enqueue([
             new Response( // lambda event
@@ -164,22 +147,17 @@ class LambdaRuntimeTest extends TestCase
                 ],
                 '{ "Hello": "world!"}'
             ),
-            new Response(200),
+            new Response(200), // lambda response accepted
         ]);
 
-        $r = new LambdaRuntime('localhost:8126');
-        $r->processNextEvent(
-            function ($event) {
-                return "\xB1\x31";
-            }
-        );
+        $this->runtime->processNextEvent(function () {
+            return "\xB1\x31";
+        });
+
         $requests = Server::received();
         $this->assertCount(2, $requests);
 
-        /** @var Request $eventRequest */
-        $eventRequest = $requests[0];
-        /** @var Request $eventFailureLog */
-        $eventFailureLog = $requests[1];
+        [$eventRequest, $eventFailureLog] = $requests;
         $this->assertSame('GET', $eventRequest->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
         $this->assertSame('POST', $eventFailureLog->getMethod());
