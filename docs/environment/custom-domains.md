@@ -44,7 +44,7 @@ After waiting for the DNS change to propagate (sometimes up to 24 hours) your we
 Some applications expose a static website hosted on AWS S3. In those cases the URL will look like this:
 
 ```
-http://<bucket>.s3-website.<region>.amazonaws.com/
+http://<bucket>.s3-website-<region>.amazonaws.com/
 ```
 
 To use a custom domain for a S3 static website the process lies in 2 steps:
@@ -54,6 +54,6 @@ To use a custom domain for a S3 static website the process lies in 2 steps:
   For example for the http://www.example.com website, the S3 bucket has to be named `www.example.com`
 - point the domain to the S3 URL via DNS
 
-  In our example the DNS entry to create would be a CNAME for `www.example.com` pointing to `www.example.com.s3-website.us-east-1.amazonaws.com`
+  In our example the DNS entry to create would be a CNAME for `www.example.com` pointing to `www.example.com.s3-website-us-east-1.amazonaws.com`
 
 > S3 static websites do not support HTTPS. To add HTTPS to your website for free it is possible to use a CDN like [CloudFlare](https://cloudflare.com/) (simplest) or AWS CloudFront.

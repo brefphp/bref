@@ -10,7 +10,11 @@ next:
     title: Console applications
 ---
 
-Bref uses PHP-FPM to run HTTP applications on AWS Lambda, just like any PHP hosting solution.
+AWS Lambda can respond to HTTP requests via [API Gateway](https://aws.amazon.com/api-gateway/).
+
+Instead of dealing with API Gateway's custom request and response formats, **Bref uses PHP-FPM to run PHP**.
+
+That means HTTP applications can run on AWS Lambda just like on any other PHP hosting platform.
 
 Below is a minimal `template.yaml` to deploy HTTP applications. To create it automatically run `vendor/bin/bref init`.
 
