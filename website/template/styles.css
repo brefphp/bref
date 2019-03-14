@@ -124,6 +124,17 @@ a.title-anchor:hover {
     text-decoration: none;
     opacity: 0.75;
 }
+/*
+ * Introduces a little of vertical margin so that the title isn't
+ * hidden behind the menu
+ */
+article [id]:before {
+    display: block;
+    content: " ";
+    margin-top: -75px;
+    height: 75px;
+    visibility: hidden;
+}
 article ul, article ol {
     margin-top: 8px;
     margin-left: 16px;
