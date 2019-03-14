@@ -174,3 +174,11 @@ article blockquote p:first-child {
         display: block;
     }
 }
+
+.maturity-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 9999px;
+    vertical-align: text-top;
+}
