@@ -73,7 +73,7 @@ If you are interested in real-world examples as well as cost analyses head over 
 
 The matrix below provides an overview of the "maturity level" for common PHP applications.
 
-This maturity level is a vague metric, however it can be useful to anticipate the effort and the limitations to expect for each scenario. Be aware that a green note doesn't mean that Bref and Lambda are silver bullets for the use case.
+This maturity level is a vague metric, however it can be useful to anticipate the effort and the limitations to expect for each scenario. While a green note doesn't mean that Bref and Lambda are silver bullets for the use case (there are no silver bullets), a red note doesn't mean this is impossible or advised against.
 
 This matrix will be updated as Bref and AWS services evolve over time.
 
@@ -205,7 +205,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Website with MySQL/PostgreSQL**
 
-    Just like with APIs, websites using RDS will suffer from longer cold starts due to VPCs.
+    Just like with APIs, websites using MySQL or PostgreSQL will suffer from longer cold starts due to VPCs.
     
     However such delays can be more acceptable on websites than on APIs, which explains why APIs are rated "red" and websites "orange".
 
