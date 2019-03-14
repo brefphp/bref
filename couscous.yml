@@ -89,8 +89,4 @@ menu:
             community:
                 text: Community
                 url: /docs/community.html
-                title: Links to places where to exchange about Bref.
-            newsletters:
-                text: Newsletters
-                url: /docs/newsletters.html
-                title: A collection of newsletters related to serverless and PHP.
+                title: Places where to learne and exchange about Bref.
