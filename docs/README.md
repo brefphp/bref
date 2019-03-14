@@ -77,7 +77,7 @@ This maturity level is a vague metric, however it can be useful to anticipate th
 
 This matrix will be updated as Bref and AWS services evolve over time.
 
-<table class="w-full text-sm text-grey-darker mt-8 mb-6 table-fixed">
+<table class="w-full text-xs sm:text-sm text-grey-darker mt-8 mb-5 table-fixed">
     <tr class="bg-grey-lightest">
         <th class="p-4"></th>
         <th class="font-normal p-4 border-b border-grey-light">Simplicity</th>
@@ -111,7 +111,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">API with MySQL/PostgreSQL</td>
+        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">API with MySQL / PostgreSQL</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-orange-light"></span>
         </td>
@@ -135,7 +135,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website with MySQL/PostgreSQL</td>
+        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website with MySQL / PostgreSQL</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-orange-light"></span>
         </td>
@@ -172,11 +172,11 @@ This matrix will be updated as Bref and AWS services evolve over time.
     </tr>
 </table>
 
-<div class="text-left text-xs text-grey-darker mb-10">
+<div class="text-left text-xs text-grey-darker mb-8">
     Legend:
-    <span class="mx-2 bg-green-lightest text-green-dark rounded-full px-4 py-1">Good use case</span>
-    <span class="mx-2 bg-orange-lightest text-orange-dark rounded-full px-4 py-1">Some drawbacks</span>
-    <span class="ml-2 bg-red-lightest text-red-dark rounded-full px-4 py-1">Strong limitations</span>
+    <span class="inline-block my-1  mx-1 sm:mx-2 bg-green-lightest text-green-dark rounded-full px-4 py-1">Good use case</span>
+    <span class="inline-block my-1  mx-1 sm:mx-2 bg-orange-lightest text-orange-dark rounded-full px-4 py-1">Some drawbacks</span>
+    <span class="inline-block my-1  ml-1 sm:ml-2 bg-red-lightest text-red-dark rounded-full px-4 py-1">Strong limitations</span>
 </div>
 
 - **Jobs, Cron**
