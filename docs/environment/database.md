@@ -108,3 +108,5 @@ Connect to your database using your favorite tool. For example using `mysql` in 
 ```bash
 mysql -h<endpoint> -u<root user> -p <database>
 ```
+
+**Remember to revert those changes once you are done!**
