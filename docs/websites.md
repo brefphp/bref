@@ -22,27 +22,43 @@ If you would rather use AWS, the guide below explains how to use [CloudFront](ht
 
 ### Creating a S3 bucket
 
-Create a bucket with the same name as the domain name. For example `assets.example.com`.
+S3 stores files in "buckets". You will need to create one for your website.
 
-Create a S3 bucket:
+If you plan on serving the static files directly from S3 (for example using CloudFlare as explained above), you need to use the same name for the bucket name as the domain name. For example `assets.example.com`.
 
-```bash
-aws s3 mb s3://<bucket-name> --region=<region>
+If you plan to use CloudFront you can use any name for the bucket.
+
+In order to automate everything let's create and configure the bucket using `template.yaml`:
+
+```yaml
+    # The S3 bucket that stores the assets
+    Assets:
+        Type: AWS::S3::Bucket
+        Properties:
+            BucketName: <bucket-name>
+            # Enables static website hosting
+            WebsiteConfiguration:
+                IndexDocument: index.html # Use index.html as the root file
+    # The policy that makes the bucket publicly readable (necessary for a public website)
+    AssetsBucketPolicy:
+        Type: AWS::S3::BucketPolicy
+        Properties:
+            Bucket: !Ref Assets
+            PolicyDocument:
+                Statement:
+                    -   Effect: 'Allow'
+                        Principal: '*' # everyone
+                        Action: 's3:GetObject' # to read
+                        Resource: !Sub '${Assets.Arn}/*' # everything in the bucket
 ```
 
-Enable website hosting on the bucket:
+After [deploying](/docs/deploy.md) the static files will be accessible at `http://<bucket-name>.s3-website-<region>.amazonaws.com`.
 
-```bash
-aws s3 website s3://<bucket-name> --index-document index.html
-```
-
-The website is now published at `<bucket-name>.s3-website-<region>.amazonaws.com`.
-
-You can now [setup your custom domain to point to this URL](custom-domains.md#custom-domains-for-static-websites-on-s3).
+You can either [setup a custom domain to point to this URL](custom-domains.md#custom-domains-for-static-websites-on-s3) or setup CloudFront as explained below.
 
 ### Uploading code to S3
 
-Use the `sync` command to upload files into the bucket:
+It is not possible to use `sam deploy` to upload files to S3, you need to upload them separately. To do this, you can use the `aws s3 sync` command:
 
 ```bash
 aws s3 sync <directory> s3://<bucket-name> --delete --acl public-read
@@ -92,7 +108,7 @@ Resources:
                     # The assets (S3)
                     -   Id: Assets
                         # Watch out, use s3-website URL (https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757)
-                        DomainName: <bucket-name>.s3-website-<region>.amazonaws.com
+                        DomainName: !Sub '${Assets}.s3-website-${AWS::Region}.amazonaws.com'
                         CustomOriginConfig:
                             OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
                 # The default behavior is to send everything to AWS Lambda
@@ -125,8 +141,6 @@ Resources:
                                 Forward: none
                         ViewerProtocolPolicy: redirect-to-https
                         Compress: true # Serve files with gzip for browsers that support it (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html)
-                ViewerCertificate:
-                    CloudFrontDefaultCertificate: true
 ```
 
 > The first deployment takes a lot of time (20 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay.
