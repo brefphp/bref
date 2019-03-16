@@ -701,7 +701,10 @@ Year,Make,Model
         ], $response['headers']);
     }
 
-    public function test timeouts are recovered from()
+    /**
+     * Checks that a timeout cause by the PHP-FPM limit (not the Lambda limit) can be recovered from
+     */
+    public function test FPM timeouts are recovered from()
     {
         $this->fpm = new PhpFpm(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
