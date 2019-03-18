@@ -15,4 +15,6 @@ parameters:
 
   ignoreErrors:
     # https://github.com/phpstan/phpstan/pull/2002
-    - '#Strict comparison using === between int and false will always evaluate to false#'
+    -
+        message: '#^Strict comparison using === between int and false will always evaluate to false\.$#'
+        path: '%currentWorkingDirectory%/src/Runtime/PhpFpm.php'
