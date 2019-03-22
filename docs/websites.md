@@ -69,7 +69,7 @@ It is not possible to use `sam deploy` to upload files to S3, you need to upload
 aws s3 sync <directory> s3://<bucket-name> --delete
 ```
 
-Be aware that `--acl public-read` makes the content of the bucket public!
+Be aware that the content of the bucket is public!
 
 ## Serving PHP and static files via CloudFront
 
