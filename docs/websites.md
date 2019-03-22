@@ -122,7 +122,7 @@ Resources:
                 DefaultCacheBehavior:
                     AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
                     TargetOriginId: Website # the PHP application
-                    # Disable caching for the PHP application
+                    # Disable caching for the PHP application https://aws.amazon.com/premiumsupport/knowledge-center/prevent-cloudfront-from-caching-files/
                     DefaultTTL: 0
                     MinTTL: 0
                     MaxTTL: 0
@@ -148,6 +148,12 @@ Resources:
                                 Forward: none
                         ViewerProtocolPolicy: redirect-to-https
                         Compress: true # Serve files with gzip for browsers that support it (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html)
+                CustomErrorResponses:
+                    # Do not cache 500 HTTP errors
+                    -   ErrorCode: 500
+                        ErrorCachingMinTTL: 0
+                    -   ErrorCode: 504
+                        ErrorCachingMinTTL: 0
 ```
 
 > The first deployment takes a lot of time (20 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay.
