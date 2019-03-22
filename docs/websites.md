@@ -149,7 +149,15 @@ Resources:
                         ViewerProtocolPolicy: redirect-to-https
                         Compress: true # Serve files with gzip for browsers that support it (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html)
                 CustomErrorResponses:
-                    # Do not cache 500 HTTP errors
+                    # Do not cache HTTP errors
+                    -   ErrorCode: 400
+                        ErrorCachingMinTTL: 0
+                    -   ErrorCode: 403
+                        ErrorCachingMinTTL: 0
+                    -   ErrorCode: 404
+                        ErrorCachingMinTTL: 0
+                    -   ErrorCode: 405
+                        ErrorCachingMinTTL: 0
                     -   ErrorCode: 500
                         ErrorCachingMinTTL: 0
                     -   ErrorCode: 504
