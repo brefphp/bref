@@ -41,11 +41,17 @@ After waiting for the DNS change to propagate (sometimes up to 24 hours) your we
 
 ## Custom domains for static websites on S3
 
-Some applications expose a static website hosted on AWS S3. In those cases the URL will look like this:
+Some applications expose a static website hosted on AWS S3. You can read the [Websites](/docs/websites.md#hosting-static-files-with-s3) documentation to learn more.
 
-```
+In those cases the URL will look like this:
+
+```bash
 http://<bucket>.s3-website-<region>.amazonaws.com/
+# or
+http://<bucket>.s3-website.<region>.amazonaws.com/
 ```
+
+The URL depends on the region, see [this page for more information](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_website_region_endpoints).
 
 To use a custom domain for a S3 static website the process lies in 2 steps:
 

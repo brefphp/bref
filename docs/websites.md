@@ -24,6 +24,8 @@ If you would rather use AWS, the guide below explains how to use [CloudFront](ht
 
 S3 stores files in "buckets". You will need to create one for your website.
 
+> Do not confuse this bucket with the S3 bucket [used to store the application code](/docs/deploy.md#setup). This bucket is a separate (public) bucket that stores and serves static files.
+
 If you plan on serving the static files directly from S3 (for example using CloudFlare as explained above), you need to use the same name for the bucket name as the domain name. For example `assets.example.com`.
 
 If you plan to use CloudFront you can use any name for the bucket.
@@ -31,6 +33,9 @@ If you plan to use CloudFront you can use any name for the bucket.
 In order to automate everything let's create and configure the bucket using `template.yaml`:
 
 ```yaml
+Resources:
+    ...
+
     # The S3 bucket that stores the assets
     Assets:
         Type: AWS::S3::Bucket
@@ -52,16 +57,16 @@ In order to automate everything let's create and configure the bucket using `tem
                         Resource: !Sub '${Assets.Arn}/*' # everything in the bucket
 ```
 
-After [deploying](/docs/deploy.md) the static files will be accessible at `http://<bucket-name>.s3-website-<region>.amazonaws.com`.
+After [deploying](/docs/deploy.md), the static files will be served from `http://<bucket-name>.s3-website-<region>.amazonaws.com` or `http://<bucket-name>.s3-website.<region>.amazonaws.com` (see [this AWS article for the correct URL](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_website_region_endpoints)). Read the next section to upload your files.
 
-You can either [setup a custom domain to point to this URL](custom-domains.md#custom-domains-for-static-websites-on-s3) or setup CloudFront as explained below.
+You can either [setup a custom domain to point to this URL](environment/custom-domains.md#custom-domains-for-static-websites-on-s3) or setup CloudFront as explained below.
 
-### Uploading code to S3
+### Uploading files to S3
 
 It is not possible to use `sam deploy` to upload files to S3, you need to upload them separately. To do this, you can use the `aws s3 sync` command:
 
 ```bash
-aws s3 sync <directory> s3://<bucket-name> --delete --acl public-read
+aws s3 sync <directory> s3://<bucket-name> --delete
 ```
 
 Be aware that `--acl public-read` makes the content of the bucket public!
@@ -144,6 +149,8 @@ Resources:
 ```
 
 > The first deployment takes a lot of time (20 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay.
+
+The URL of the deployed CloudFront distribution can be found in [the CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home?region=eu-west-1#) under `Domain Name`.
 
 ### Setting up a domain name
 
