@@ -84,6 +84,8 @@ This diagram helps understand how CloudFront works:
 
 ![](cloudfront.png)
 
+CloudFront dispatches HTTP requests to "Origins" (API Gateway/Lambda, S3, etc.) based on "Cache Behaviors". A cache behavior can match a specific URL pattern, and can have a specific caching configuration (e.g. cache assets for a long time but do not cache PHP responses).
+
 The `template.yaml` example below:
 
 - receives HTTP and HTTPS requests
