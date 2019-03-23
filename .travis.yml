@@ -36,7 +36,7 @@ jobs:
           - composer install -n
           - pip install --user awscli
           - pip install --user aws-sam-cli
-        script: travis_wait vendor/bin/phpunit --testsuite runtimes
+        script: travis_retry vendor/bin/phpunit --testsuite runtimes
         # This job is testing the runtimes that are published online, it doesn't make sense to run it on
         # pull requests and branches, it's more a watchdog than a CI job
         if: branch = master AND fork = false
