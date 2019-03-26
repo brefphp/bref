@@ -84,7 +84,6 @@ $app->command('init', function (SymfonyStyle $io) {
         'us-east-1'
     );
 
-    var_dump(file_get_contents('template.yaml'));
     if ($regionChoice !== 'us-east-1') {
         file_put_contents('template.yaml', str_replace('us-east-1', $regionChoice, file_get_contents('template.yaml')));
     }
