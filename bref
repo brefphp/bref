@@ -79,6 +79,15 @@ $app->command('init', function (SymfonyStyle $io) {
         $filesToGitAdd[] = $file;
     }
 
+    $regionChoice = $io->ask(
+        'In which AWS region do you want to deploy your application? (`us-east-1` is highly recommended for first time users)',
+        'us-east-1'
+    );
+
+    if ($regionChoice !== 'us-east-1') {
+        file_put_contents('template.yaml', str_replace('us-east-1', $regionChoice, file_get_contents('template.yaml')));
+    }
+
     /*
      * We check if this is a git repository to automatically add files to git.
      */
