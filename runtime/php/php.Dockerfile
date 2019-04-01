@@ -412,7 +412,8 @@ RUN set -xe \
         --enable-zip \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
-        --enable-opcache-file
+        --enable-opcache-file \
+        --enable-soap
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
 RUN set -xe; \
