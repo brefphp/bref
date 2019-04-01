@@ -223,6 +223,19 @@ LOGS;
         ], $result, $logs);
     }
 
+    public function test environment variables()
+    {
+        [$result, $logs] = $this->invokeLambda([
+            'env' => true,
+        ]);
+
+        self::assertEquals([
+            '$_ENV' => 'bar',
+            '$_SERVER' => 'bar',
+            'getenv' => 'bar',
+        ], $result, $logs);
+    }
+
     /**
      * @param mixed $event
      */

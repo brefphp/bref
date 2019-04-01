@@ -172,6 +172,17 @@ class PhpFpmRuntimeTest extends TestCase
         ], $this->getJsonBody($response), false, $this->logs);
     }
 
+    public function test environment variables()
+    {
+        $response = $this->invoke('/?env=1');
+
+        self::assertEquals([
+            '$_ENV' => 'bar',
+            '$_SERVER' => 'bar',
+            'getenv' => 'bar',
+        ], $this->getJsonBody($response), $this->logs);
+    }
+
     /**
      * Check some PHP config values
      */
