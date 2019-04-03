@@ -197,7 +197,6 @@ RUN set -xe; \
     --enable-ipv6 \
     --enable-openssl-auto-load-config \
     --enable-cookies \
-    --enable-bcmath \
     --with-gnu-ld \
     --with-ssl \
     --with-libssh2
@@ -411,6 +410,7 @@ RUN set -xe \
         --with-pdo-mysql=shared,mysqlnd \
         --enable-pcntl \
         --enable-zip \
+        --enable-bcmath \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
         --enable-opcache-file \
