@@ -197,6 +197,7 @@ RUN set -xe; \
     --enable-ipv6 \
     --enable-openssl-auto-load-config \
     --enable-cookies \
+    --enable-bcmath \
     --with-gnu-ld \
     --with-ssl \
     --with-libssh2
