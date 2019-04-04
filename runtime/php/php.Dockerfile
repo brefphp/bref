@@ -410,6 +410,7 @@ RUN set -xe \
         --with-pdo-mysql=shared,mysqlnd \
         --enable-pcntl \
         --enable-zip \
+        --enable-bcmath \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
         --enable-opcache-file \
