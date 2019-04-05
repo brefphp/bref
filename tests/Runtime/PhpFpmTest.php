@@ -533,13 +533,10 @@ Year,Make,Model
         ]);
     }
 
-    /**
-     * @dataProvider provideHttpMethodsWithRequestBody
-     */
-    public function test request with base64 encoded body(string $method)
+    public function test POST request with base64 encoded body()
     {
         $event = [
-            'httpMethod' => $method,
+            'httpMethod' => 'POST',
             'isBase64Encoded' => true,
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
