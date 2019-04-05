@@ -307,6 +307,45 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    /**
+     * @dataProvider provideHttpMethodsWithRequestBody
+     */
+    public function test request with base64 encoded body(string $method)
+    {
+        $event = [
+            'httpMethod' => $method,
+            'isBase64Encoded' => true,
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded',
+                'Content-Length' => strlen('foo=bar'),
+            ],
+            'body' => base64_encode('foo=bar'),
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [
+                'foo' => 'bar',
+            ],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'foo' => 'bar',
+            ],
+            '$_SERVER' => [
+                'CONTENT_LENGTH' => '7',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'POST',
+                'QUERY_STRING' => '',
+                'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'HTTP_CONTENT_LENGTH' => '7',
+            ],
+            'HTTP_RAW_BODY' => 'foo=bar',
+        ]);
+    }
+
     public function test the content type header is not case sensitive()
     {
         $event = [
