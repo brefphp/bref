@@ -200,8 +200,6 @@ class PhpFpm
         $headers = $event['headers'] ?? [];
         $headers = array_change_key_case($headers, CASE_LOWER);
 
-        $serverName = $headers['host'] ?? 'localhost';
-
         $requestHeaders = [
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD' => $event['httpMethod'],
@@ -209,17 +207,19 @@ class PhpFpm
             'SCRIPT_FILENAME' => $this->handler,
             'SERVER_SOFTWARE' => 'bref',
             'REMOTE_ADDR' => '127.0.0.1',
-            'REMOTE_PORT' => $headers['X-Forwarded-Port'] ?? 80,
+            'REMOTE_PORT' => $headers['x-forwarded-port'] ?? 80,
             'SERVER_ADDR' => '127.0.0.1',
-            'SERVER_NAME' => $serverName,
+            'SERVER_NAME' => $headers['host'] ?? 'localhost',
             'SERVER_PROTOCOL' => $protocol,
-            'SERVER_PORT' => $headers['X-Forwarded-Port'] ?? 80,
+            'SERVER_PORT' => $headers['x-forwarded-port'] ?? 80,
             'PATH_INFO' => $event['path'] ?? '/',
             'QUERY_STRING' => $queryString,
         ];
 
+        $method = strtoupper($event['httpMethod']);
+
         // See https://stackoverflow.com/a/5519834/245552
-        if ((strtoupper($event['httpMethod']) !== 'GET') && ! isset($headers['content-type'])) {
+        if (! empty ($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
             $headers['content-type'] = 'application/x-www-form-urlencoded';
         }
         if (isset($headers['content-type'])) {
@@ -227,7 +227,7 @@ class PhpFpm
         }
         // Auto-add the Content-Length header if it wasn't provided
         // See https://github.com/mnapoli/bref/issues/162
-        if ((strtoupper($event['httpMethod']) !== 'GET') && ! isset($headers['content-length'])) {
+        if (! empty ($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
             $headers['content-length'] = strlen($requestBody);
         }
         if (isset($headers['content-length'])) {

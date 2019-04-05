@@ -146,7 +146,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Content-Length' => mb_strlen(json_encode('Hello world!')),
+                'Content-Length' => strlen(json_encode('Hello world!')),
             ],
             'body' => json_encode('Hello world!'),
         ];
@@ -177,7 +177,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'httpMethod' => 'POST',
             'body' => 'foo=bar&bim=baz',
             'headers' => [
-                'Content-Length' => mb_strlen('foo=bar&bim=baz'),
+                'Content-Length' => strlen('foo=bar&bim=baz'),
             ],
         ];
         $this->assertGlobalVariables($event, [
@@ -241,37 +241,6 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test PATCH request with body and no content length()
-    {
-        $event = [
-            'httpMethod' => 'PATCH',
-            'headers' => [
-                'Content-Type' => 'application/json',
-                // The Content-Length header is purposefully omitted
-            ],
-            'body' => json_encode('Hello world!'),
-        ];
-        $this->assertGlobalVariables($event, [
-            '$_GET' => [],
-            '$_POST' => [],
-            '$_FILES' => [],
-            '$_COOKIE' => [],
-            '$_REQUEST' => [],
-            '$_SERVER' => [
-                'CONTENT_LENGTH' => '14',
-                'CONTENT_TYPE' => 'application/json',
-                'REQUEST_URI' => '/',
-                'PHP_SELF' => '/',
-                'PATH_INFO' => '/',
-                'REQUEST_METHOD' => 'PATCH',
-                'QUERY_STRING' => '',
-                'HTTP_CONTENT_TYPE' => 'application/json',
-                'HTTP_CONTENT_LENGTH' => '14',
-            ],
-            'HTTP_RAW_BODY' => '"Hello world!"',
-        ]);
-    }
-
     public function test POST request supports utf8 characters in body()
     {
         $event = [
@@ -311,7 +280,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'headers' => [
                 // content-type instead of Content-Type
                 'content-type' => 'application/json',
-                'content-length' => mb_strlen('{}'),
+                'content-length' => strlen('{}'),
             ],
             'body' => '{}',
         ];
@@ -352,7 +321,7 @@ baz\r
             'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
-                'Content-Length' => mb_strlen($body),
+                'Content-Length' => strlen($body),
             ],
             'body' => $body,
         ];
@@ -399,7 +368,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
             'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
-                'Content-Length' => mb_strlen($body),
+                'Content-Length' => strlen($body),
             ],
             'body' => $body,
         ];
@@ -490,7 +459,7 @@ Year,Make,Model
             'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
-                'Content-Length' => mb_strlen($body),
+                'Content-Length' => strlen($body),
             ],
             'body' => $body,
         ];
@@ -537,7 +506,7 @@ Year,Make,Model
             'isBase64Encoded' => true,
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
-                'Content-Length' => mb_strlen('foo=bar'),
+                'Content-Length' => strlen('foo=bar'),
             ],
             'body' => base64_encode('foo=bar'),
         ];
@@ -637,6 +606,40 @@ Year,Make,Model
         ]);
     }
 
+    /**
+     * @see https://github.com/mnapoli/bref/issues/162
+     */
+    public function test PATCH request with body and no content length()
+    {
+        $event = [
+            'httpMethod' => 'PATCH',
+            'headers' => [
+                'Content-Type' => 'application/json',
+                // The Content-Length header is purposefully omitted
+            ],
+            'body' => json_encode('Hello world!'),
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'CONTENT_LENGTH' => '14',
+                'CONTENT_TYPE' => 'application/json',
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'PATCH',
+                'QUERY_STRING' => '',
+                'HTTP_CONTENT_TYPE' => 'application/json',
+                'HTTP_CONTENT_LENGTH' => '14',
+            ],
+            'HTTP_RAW_BODY' => '"Hello world!"',
+        ]);
+    }
+
     public function test DELETE request()
     {
         $event = [
@@ -656,6 +659,40 @@ Year,Make,Model
                 'QUERY_STRING' => '',
             ],
             'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    /**
+     * @see https://github.com/mnapoli/bref/issues/162
+     */
+    public function test DELETE request with body and no content length()
+    {
+        $event = [
+            'httpMethod' => 'DELETE',
+            'headers' => [
+                'Content-Type' => 'application/json',
+                // The Content-Length header is purposefully omitted
+            ],
+            'body' => json_encode('Hello world!'),
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'CONTENT_LENGTH' => '14',
+                'CONTENT_TYPE' => 'application/json',
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'DELETE',
+                'QUERY_STRING' => '',
+                'HTTP_CONTENT_TYPE' => 'application/json',
+                'HTTP_CONTENT_LENGTH' => '14',
+            ],
+            'HTTP_RAW_BODY' => '"Hello world!"',
         ]);
     }
 
