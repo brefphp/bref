@@ -207,13 +207,44 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    public function provideHttpMethodsWithRequestBody(): array
+    {
+        // Only POST, PUT and PATCH are defined to use a request body, TRACE is explicitly forbidden to use one.
+        // All other HTTP methods have "no defined semantics": https://tools.ietf.org/html/rfc7231#section-4.3
+        return [
+            'OPTIONS' => [
+                'method' => 'OPTIONS'
+            ],
+            'HEAD' => [
+                'method' => 'HEAD'
+            ],
+            'GET' => [
+                'method' => 'GET'
+            ],
+            'POST' => [
+                'method' => 'POST'
+            ],
+            'PUT' => [
+                'method' => 'PUT'
+            ],
+            'PATCH' => [
+                'method' => 'PATCH'
+            ],
+            'DELETE' => [
+                'method' => 'DELETE'
+            ],
+        ];
+    }
+
     /**
      * @see https://github.com/mnapoli/bref/issues/162
+     *
+     * @dataProvider provideHttpMethodsWithRequestBody
      */
-    public function test POST request with body and no content length()
+    public function test request with body and no content length(string $method)
     {
         $event = [
-            'httpMethod' => 'POST',
+            'httpMethod' => $method,
             'headers' => [
                 'Content-Type' => 'application/json',
                 // The Content-Length header is purposefully omitted
@@ -241,10 +272,13 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test POST request supports utf8 characters in body()
+    /**
+     * @dataProvider provideHttpMethodsWithRequestBody
+     */
+    public function test request supports utf8 characters in body(string $method)
     {
         $event = [
-            'httpMethod' => 'POST',
+            'httpMethod' => $method,
             'headers' => [
                 'Content-Type' => 'text/plain; charset=UTF-8',
                 // The Content-Length header is purposefully omitted
@@ -499,10 +533,13 @@ Year,Make,Model
         ]);
     }
 
-    public function test POST request with base64 encoded body()
+    /**
+     * @dataProvider provideHttpMethodsWithRequestBody
+     */
+    public function test request with base64 encoded body(string $method)
     {
         $event = [
-            'httpMethod' => 'POST',
+            'httpMethod' => $method,
             'isBase64Encoded' => true,
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
@@ -606,40 +643,6 @@ Year,Make,Model
         ]);
     }
 
-    /**
-     * @see https://github.com/mnapoli/bref/issues/162
-     */
-    public function test PATCH request with body and no content length()
-    {
-        $event = [
-            'httpMethod' => 'PATCH',
-            'headers' => [
-                'Content-Type' => 'application/json',
-                // The Content-Length header is purposefully omitted
-            ],
-            'body' => json_encode('Hello world!'),
-        ];
-        $this->assertGlobalVariables($event, [
-            '$_GET' => [],
-            '$_POST' => [],
-            '$_FILES' => [],
-            '$_COOKIE' => [],
-            '$_REQUEST' => [],
-            '$_SERVER' => [
-                'CONTENT_LENGTH' => '14',
-                'CONTENT_TYPE' => 'application/json',
-                'REQUEST_URI' => '/',
-                'PHP_SELF' => '/',
-                'PATH_INFO' => '/',
-                'REQUEST_METHOD' => 'PATCH',
-                'QUERY_STRING' => '',
-                'HTTP_CONTENT_TYPE' => 'application/json',
-                'HTTP_CONTENT_LENGTH' => '14',
-            ],
-            'HTTP_RAW_BODY' => '"Hello world!"',
-        ]);
-    }
-
     public function test DELETE request()
     {
         $event = [
@@ -659,40 +662,6 @@ Year,Make,Model
                 'QUERY_STRING' => '',
             ],
             'HTTP_RAW_BODY' => '',
-        ]);
-    }
-
-    /**
-     * @see https://github.com/mnapoli/bref/issues/162
-     */
-    public function test DELETE request with body and no content length()
-    {
-        $event = [
-            'httpMethod' => 'DELETE',
-            'headers' => [
-                'Content-Type' => 'application/json',
-                // The Content-Length header is purposefully omitted
-            ],
-            'body' => json_encode('Hello world!'),
-        ];
-        $this->assertGlobalVariables($event, [
-            '$_GET' => [],
-            '$_POST' => [],
-            '$_FILES' => [],
-            '$_COOKIE' => [],
-            '$_REQUEST' => [],
-            '$_SERVER' => [
-                'CONTENT_LENGTH' => '14',
-                'CONTENT_TYPE' => 'application/json',
-                'REQUEST_URI' => '/',
-                'PHP_SELF' => '/',
-                'PATH_INFO' => '/',
-                'REQUEST_METHOD' => 'DELETE',
-                'QUERY_STRING' => '',
-                'HTTP_CONTENT_TYPE' => 'application/json',
-                'HTTP_CONTENT_LENGTH' => '14',
-            ],
-            'HTTP_RAW_BODY' => '"Hello world!"',
         ]);
     }
 
