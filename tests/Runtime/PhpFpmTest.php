@@ -146,7 +146,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Content-Length' => strlen(json_encode('Hello world!')),
+                'Content-Length' => mb_strlen(json_encode('Hello world!')),
             ],
             'body' => json_encode('Hello world!'),
         ];
@@ -177,7 +177,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'httpMethod' => 'POST',
             'body' => 'foo=bar&bim=baz',
             'headers' => [
-                'Content-Length' => strlen('foo=bar&bim=baz'),
+                'Content-Length' => mb_strlen('foo=bar&bim=baz'),
             ],
         ];
         $this->assertGlobalVariables($event, [
@@ -207,45 +207,13 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function provideHttpMethodsWithRequestBodySupport(): array
-    {
-        // Only POST, PUT and PATCH are defined to use a request body, TRACE is explicitly forbidden to use one.
-        // For all other HTTP methods a request body has "no defined semantics":
-        // https://tools.ietf.org/html/rfc7231#section-4.3
-        return [
-            'OPTIONS' => [
-                'method' => 'OPTIONS'
-            ],
-            'HEAD' => [
-                'method' => 'HEAD'
-            ],
-            'GET' => [
-                'method' => 'GET'
-            ],
-            'POST' => [
-                'method' => 'POST'
-            ],
-            'PUT' => [
-                'method' => 'PUT'
-            ],
-            'PATCH' => [
-                'method' => 'PATCH'
-            ],
-            'DELETE' => [
-                'method' => 'DELETE'
-            ],
-        ];
-    }
-
     /**
      * @see https://github.com/mnapoli/bref/issues/162
-     *
-     * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
-    public function test request with body and no content length(string $method)
+    public function test POST request with body and no content length()
     {
         $event = [
-            'httpMethod' => $method,
+            'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'application/json',
                 // The Content-Length header is purposefully omitted
@@ -264,7 +232,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_URI' => '/',
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
-                'REQUEST_METHOD' => $method,
+                'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/json',
                 'HTTP_CONTENT_LENGTH' => '14',
@@ -273,13 +241,10 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provideHttpMethodsWithRequestBodySupport
-     */
-    public function test request supports utf8 characters in body(string $method)
+    public function test POST request supports utf8 characters in body()
     {
         $event = [
-            'httpMethod' => $method,
+            'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'text/plain; charset=UTF-8',
                 // The Content-Length header is purposefully omitted
@@ -299,51 +264,12 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_URI' => '/',
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
-                'REQUEST_METHOD' => $method,
+                'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'text/plain; charset=UTF-8',
                 'HTTP_CONTENT_LENGTH' => '10',
             ],
             'HTTP_RAW_BODY' => 'Hello 🌍',
-        ]);
-    }
-
-    /**
-     * @dataProvider provideHttpMethodsWithRequestBodySupport
-     */
-    public function test request with base64 encoded body(string $method)
-    {
-        $event = [
-            'httpMethod' => $method,
-            'isBase64Encoded' => true,
-            'headers' => [
-                'Content-Type' => 'application/x-www-form-urlencoded',
-                'Content-Length' => strlen('foo=bar'),
-            ],
-            'body' => base64_encode('foo=bar'),
-        ];
-        $this->assertGlobalVariables($event, [
-            '$_GET' => [],
-            '$_POST' => [
-                'foo' => 'bar',
-            ],
-            '$_FILES' => [],
-            '$_COOKIE' => [],
-            '$_REQUEST' => [
-                'foo' => 'bar',
-            ],
-            '$_SERVER' => [
-                'CONTENT_LENGTH' => '7',
-                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
-                'REQUEST_URI' => '/',
-                'PHP_SELF' => '/',
-                'PATH_INFO' => '/',
-                'REQUEST_METHOD' => $method,
-                'QUERY_STRING' => '',
-                'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded',
-                'HTTP_CONTENT_LENGTH' => '7',
-            ],
-            'HTTP_RAW_BODY' => 'foo=bar',
         ]);
     }
 
@@ -354,7 +280,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'headers' => [
                 // content-type instead of Content-Type
                 'content-type' => 'application/json',
-                'content-length' => strlen('{}'),
+                'content-length' => mb_strlen('{}'),
             ],
             'body' => '{}',
         ];
@@ -395,7 +321,7 @@ baz\r
             'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
-                'Content-Length' => strlen($body),
+                'Content-Length' => mb_strlen($body),
             ],
             'body' => $body,
         ];
@@ -442,7 +368,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
             'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
-                'Content-Length' => strlen($body),
+                'Content-Length' => mb_strlen($body),
             ],
             'body' => $body,
         ];
@@ -533,7 +459,7 @@ Year,Make,Model
             'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'multipart/form-data; boundary=testBoundary',
-                'Content-Length' => strlen($body),
+                'Content-Length' => mb_strlen($body),
             ],
             'body' => $body,
         ];
@@ -580,7 +506,7 @@ Year,Make,Model
             'isBase64Encoded' => true,
             'headers' => [
                 'Content-Type' => 'application/x-www-form-urlencoded',
-                'Content-Length' => strlen('foo=bar'),
+                'Content-Length' => mb_strlen('foo=bar'),
             ],
             'body' => base64_encode('foo=bar'),
         ];
