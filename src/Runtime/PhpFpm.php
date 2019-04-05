@@ -219,7 +219,7 @@ class PhpFpm
         ];
 
         // See https://stackoverflow.com/a/5519834/245552
-        if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
+        if ((strtoupper($event['httpMethod']) !== 'GET') && ! isset($headers['content-type'])) {
             $headers['content-type'] = 'application/x-www-form-urlencoded';
         }
         if (isset($headers['content-type'])) {
@@ -227,7 +227,7 @@ class PhpFpm
         }
         // Auto-add the Content-Length header if it wasn't provided
         // See https://github.com/mnapoli/bref/issues/162
-        if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
+        if ((strtoupper($event['httpMethod']) !== 'GET') && ! isset($headers['content-length'])) {
             $headers['content-length'] = strlen($requestBody);
         }
         if (isset($headers['content-length'])) {

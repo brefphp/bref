@@ -241,6 +241,37 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    public function test PATCH request with body and no content length()
+    {
+        $event = [
+            'httpMethod' => 'PATCH',
+            'headers' => [
+                'Content-Type' => 'application/json',
+                // The Content-Length header is purposefully omitted
+            ],
+            'body' => json_encode('Hello world!'),
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'CONTENT_LENGTH' => '14',
+                'CONTENT_TYPE' => 'application/json',
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'PATCH',
+                'QUERY_STRING' => '',
+                'HTTP_CONTENT_TYPE' => 'application/json',
+                'HTTP_CONTENT_LENGTH' => '14',
+            ],
+            'HTTP_RAW_BODY' => '"Hello world!"',
+        ]);
+    }
+
     public function test POST request supports utf8 characters in body()
     {
         $event = [
