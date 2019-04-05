@@ -219,7 +219,7 @@ class PhpFpm
         $method = strtoupper($event['httpMethod']);
 
         // See https://stackoverflow.com/a/5519834/245552
-        if (! empty ($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
+        if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
             $headers['content-type'] = 'application/x-www-form-urlencoded';
         }
         if (isset($headers['content-type'])) {
@@ -227,7 +227,7 @@ class PhpFpm
         }
         // Auto-add the Content-Length header if it wasn't provided
         // See https://github.com/mnapoli/bref/issues/162
-        if (! empty ($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
+        if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
             $headers['content-length'] = strlen($requestBody);
         }
         if (isset($headers['content-length'])) {
