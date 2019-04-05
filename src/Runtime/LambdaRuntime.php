@@ -22,10 +22,10 @@ namespace Bref\Runtime;
  */
 class LambdaRuntime
 {
-    /** @var resource */
+    /** @var resource|null */
     private $handler;
 
-    /** @var resource */
+    /** @var resource|null */
     private $returnHandler;
 
     /** @var string */
