@@ -22,7 +22,10 @@ namespace Bref\Runtime;
  */
 class LambdaRuntime
 {
+    /** @var resource */
     private $handler;
+
+    /** @var resource */
     private $returnHandler;
 
     /** @var string */
@@ -48,16 +51,16 @@ class LambdaRuntime
         $this->closeReturnHandler();
     }
 
-    private function closeHandler()
+    private function closeHandler(): void
     {
-        if (!is_null($this->handler)) {
+        if ($this->handler !== null) {
             curl_close($this->handler);
             $this->handler = null;
         }
     }
-    private function closeReturnHandler()
+    private function closeReturnHandler(): void
     {
-        if (!is_null($this->returnHandler)) {
+        if ($this->returnHandler !== null) {
             curl_close($this->returnHandler);
             $this->returnHandler = null;
         }
@@ -94,7 +97,7 @@ class LambdaRuntime
      */
     private function waitNextInvocation(): array
     {
-        if (is_null($this->handler)) {
+        if ($this->handler === null) {
             $this->handler = curl_init("http://{$this->apiUrl}/2018-06-01/runtime/invocation/next");
             curl_setopt($this->handler, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($this->handler, CURLOPT_FAILONERROR, true);
@@ -223,8 +226,7 @@ class LambdaRuntime
             throw new \Exception('Failed encoding Lambda JSON response: ' . json_last_error_msg());
         }
 
-
-        if (is_null($this->returnHandler)) {
+        if ($this->returnHandler === null) {
             $this->returnHandler = curl_init();
             curl_setopt($this->returnHandler, CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($this->returnHandler, CURLOPT_RETURNTRANSFER, true);
