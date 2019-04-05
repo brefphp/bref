@@ -207,10 +207,11 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function provideHttpMethodsWithRequestBody(): array
+    public function provideHttpMethodsWithRequestBodySupport(): array
     {
         // Only POST, PUT and PATCH are defined to use a request body, TRACE is explicitly forbidden to use one.
-        // All other HTTP methods have "no defined semantics": https://tools.ietf.org/html/rfc7231#section-4.3
+        // For all other HTTP methods a request body has "no defined semantics":
+        // https://tools.ietf.org/html/rfc7231#section-4.3
         return [
             'OPTIONS' => [
                 'method' => 'OPTIONS'
@@ -239,7 +240,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
     /**
      * @see https://github.com/mnapoli/bref/issues/162
      *
-     * @dataProvider provideHttpMethodsWithRequestBody
+     * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
     public function test request with body and no content length(string $method)
     {
@@ -263,7 +264,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_URI' => '/',
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
-                'REQUEST_METHOD' => 'POST',
+                'REQUEST_METHOD' => $method,
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/json',
                 'HTTP_CONTENT_LENGTH' => '14',
@@ -273,7 +274,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
     }
 
     /**
-     * @dataProvider provideHttpMethodsWithRequestBody
+     * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
     public function test request supports utf8 characters in body(string $method)
     {
@@ -298,7 +299,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_URI' => '/',
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
-                'REQUEST_METHOD' => 'POST',
+                'REQUEST_METHOD' => $method,
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'text/plain; charset=UTF-8',
                 'HTTP_CONTENT_LENGTH' => '10',
@@ -308,7 +309,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
     }
 
     /**
-     * @dataProvider provideHttpMethodsWithRequestBody
+     * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
     public function test request with base64 encoded body(string $method)
     {
@@ -337,7 +338,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_URI' => '/',
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
-                'REQUEST_METHOD' => 'POST',
+                'REQUEST_METHOD' => $method,
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'HTTP_CONTENT_LENGTH' => '7',
