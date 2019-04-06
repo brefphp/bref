@@ -408,6 +408,7 @@ RUN set -xe \
         --with-gettext \
         --enable-mbstring \
         --with-pdo-mysql=shared,mysqlnd \
+        --with-mysqli \
         --enable-pcntl \
         --enable-zip \
         --enable-bcmath \
