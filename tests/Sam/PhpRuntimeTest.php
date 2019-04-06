@@ -61,7 +61,7 @@ class PhpRuntimeTest extends TestCase
 
         // We don't assert on complete exception traces because they will change over time
         $expectedLogs = <<<LOGS
-Fatal error: Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam/Php/function.php:27
+Fatal error: Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam/Php/function.php:35
 Stack trace:
 #0 /var/task/
 LOGS;
@@ -86,7 +86,7 @@ LOGS;
 
         // We don't assert on complete exception traces because they will change over time
         $expectedLogs = <<<LOGS
-Fatal error: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam/Php/function.php:31
+Fatal error: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam/Php/function.php:39
 Stack trace:
 #0 /var/task/
 LOGS;
@@ -111,7 +111,7 @@ LOGS;
 
         // We don't assert on complete exception traces because they will change over time
         $expectedLogs = <<<LOGS
-Fatal error: require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam/Php/function.php on line 35
+Fatal error: require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam/Php/function.php on line
 LOGS;
         self::assertContains($expectedLogs, $logs);
 
@@ -149,6 +149,7 @@ LOGS;
             'SPL',
             'SimpleXML',
             'Zend OPcache',
+            'bcmath',
             'ctype',
             'curl',
             'date',
@@ -163,6 +164,7 @@ LOGS;
             'json',
             'libxml',
             'mbstring',
+            'mysqli',
             'mysqlnd',
             'openssl',
             'pcntl',
@@ -171,6 +173,7 @@ LOGS;
             'posix',
             'readline',
             'session',
+            'soap',
             'sodium',
             'sqlite3',
             'standard',
