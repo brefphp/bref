@@ -219,20 +219,6 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'PATCH' => [
                 'method' => 'PATCH',
             ],
-
-            // Should these be supported/tested?
-            'OPTIONS' => [
-                'method' => 'OPTIONS',
-            ],
-            'HEAD' => [
-                'method' => 'HEAD',
-            ],
-            'GET' => [
-                'method' => 'GET',
-            ],
-            'DELETE' => [
-                'method' => 'DELETE',
-            ],
         ];
     }
 
