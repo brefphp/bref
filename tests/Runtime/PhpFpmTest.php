@@ -207,13 +207,44 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    public function provideHttpMethodsWithRequestBodySupport(): array
+    {
+        return [
+            'POST' => [
+                'method' => 'POST',
+            ],
+            'PUT' => [
+                'method' => 'PUT',
+            ],
+            'PATCH' => [
+                'method' => 'PATCH',
+            ],
+
+            // Should these be supported/tested?
+            'OPTIONS' => [
+                'method' => 'OPTIONS',
+            ],
+            'HEAD' => [
+                'method' => 'HEAD',
+            ],
+            'GET' => [
+                'method' => 'GET',
+            ],
+            'DELETE' => [
+                'method' => 'DELETE',
+            ],
+        ];
+    }
+
     /**
      * @see https://github.com/mnapoli/bref/issues/162
+     *
+     * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
-    public function test POST request with body and no content length()
+    public function test request with body and no content length(string $method)
     {
         $event = [
-            'httpMethod' => 'POST',
+            'httpMethod' => $method,
             'headers' => [
                 'Content-Type' => 'application/json',
                 // The Content-Length header is purposefully omitted
@@ -232,7 +263,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_URI' => '/',
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
-                'REQUEST_METHOD' => 'POST',
+                'REQUEST_METHOD' => $method,
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/json',
                 'HTTP_CONTENT_LENGTH' => '14',
@@ -241,10 +272,13 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test POST request supports utf8 characters in body()
+    /**
+     * @dataProvider provideHttpMethodsWithRequestBodySupport
+     */
+    public function test request supports utf8 characters in body(string $method)
     {
         $event = [
-            'httpMethod' => 'POST',
+            'httpMethod' => $method,
             'headers' => [
                 'Content-Type' => 'text/plain; charset=UTF-8',
                 // The Content-Length header is purposefully omitted
@@ -264,7 +298,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_URI' => '/',
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
-                'REQUEST_METHOD' => 'POST',
+                'REQUEST_METHOD' => $method,
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'text/plain; charset=UTF-8',
                 'HTTP_CONTENT_LENGTH' => '10',
