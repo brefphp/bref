@@ -26,9 +26,15 @@ To retrieve the information needed to let AWS Lambda access the database go into
 
 Find:
 
-- the "endpoint", which is the name of the database host (this information is available only after the database creation has completed)
+- the "endpoint", which is the hostname of the database (this information is available only after the database creation has completed)
+
+    ℹ️ Instead of connecting via a socket, via `localhost` or an IP address, PHP will connect to MySQL via this hostname.
 - the "security group ID" (in the "VPC security groups" section), which looks like `sg-03f68e1100481622b`
+
+    ℹ️ A [security group](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) is a firewall that restricts access to/from the VPC using "Inbound rules" and "Outbound rules".
 - the list of "subnets", which look like `subnet-12f4130e` (there are several subnets)
+
+    ℹ️ An AWS region is divided in [availability zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) (different data centers): there is usually one subnet per availability zone.
 
 Put these information in `template.yaml` in your function configuration:
 
@@ -69,9 +75,9 @@ mysql://user:password@dbname.e2sctvp0nqos.us-east-1.rds.amazonaws.com/dbname
 
 By default, a lambda in a VPC can only access resources inside the VPC. It cannot access the internet (for example external APIs) or other AWS services.
 
-To enable external access:
+To enable external access you will need to create a NAT Gateway in the VPC. Watch out, a NAT Gateway will increase the costs as they start at 27$ per month. An alternative to NAT Gateways is to split the work done by a lambda in 2 lambdas: one in the VPC that accesses the database and one outside that accesses the external API.
 
-TODO
+To enable internet access for the lambda you can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12).
 
 ### Learn more
 
