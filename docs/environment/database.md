@@ -98,6 +98,8 @@ For example a PDO connection string could be:
 mysql://user:password@dbname.e2sctvp0nqos.us-east-1.rds.amazonaws.com/dbname
 ```
 
+To learn how to properly store this connection string in your configuration head over to the ["Secrets" section of the Variables documentation](/docs/environment/variables.md#secrets).
+
 ### Accessing the internet
 
 By default, a lambda in a VPC can only access resources inside the VPC. It cannot access the internet (for example external APIs) or other AWS services.
