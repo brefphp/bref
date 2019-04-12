@@ -2,7 +2,7 @@
 layout: home
 ---
 
-[![](docs/readme-screenshot.png)](https://bref.sh/)
+[![Running PHP made simple. Bref provides tools and documentation to easily deploy and run serverless PHP applications. Learn more](docs/readme-screenshot.png)](https://bref.sh/)
 
 [![Build Status](https://travis-ci.com/mnapoli/bref.svg?branch=master)](https://travis-ci.com/mnapoli/bref)
 [![Latest Version](https://img.shields.io/github/release/mnapoli/bref.svg?style=flat-square)](https://packagist.org/packages/mnapoli/bref)
