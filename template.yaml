@@ -12,7 +12,6 @@ Resources:
         Properties:
             FunctionName: 'bref-demo-function'
             Description: 'Bref CLI demo'
-            CodeUri: .
             Handler: demo/function.php
             Runtime: provided
             Layers:
@@ -23,7 +22,6 @@ Resources:
         Properties:
             FunctionName: 'bref-demo-http'
             Description: 'Bref HTTP demo'
-            CodeUri: .
             Handler: demo/http.php
             Timeout: 5 # in seconds (API Gateway has a timeout of 30 seconds)
             MemorySize: 1024 # The memory size is related to the pricing and CPU power
@@ -47,7 +45,6 @@ Resources:
         Properties:
             FunctionName: 'bref-demo-console'
             Description: 'Bref console command demo'
-            CodeUri: .
             Handler: demo/console.php
             Runtime: provided
             Layers:
