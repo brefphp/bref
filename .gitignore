@@ -12,3 +12,4 @@
 /website/template/output.css
 /.netlify/
 .DS_Store
+/.serverless/
