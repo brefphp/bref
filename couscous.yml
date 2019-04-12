@@ -94,7 +94,7 @@ menu:
                 text: Case studies
                 url: /docs/case-studies.html
                 title: A collection of case studies of serverless PHP applications built using Bref.
-            newsletters:
-                text: Newsletters
-                url: /docs/newsletters.html
-                title: A collection of newsletters related to serverless and PHP.
+            community:
+                text: Community
+                url: /docs/community.html
+                title: Places where to learne and exchange about Bref.

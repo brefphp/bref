@@ -16,7 +16,7 @@ Resources:
             Handler: demo/function.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72:1'
+                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72:4'
 
     HttpFunction:
         Type: AWS::Serverless::Function
@@ -25,11 +25,11 @@ Resources:
             Description: 'Bref HTTP demo'
             CodeUri: .
             Handler: demo/http.php
-            Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+            Timeout: 5 # in seconds (API Gateway has a timeout of 30 seconds)
             MemorySize: 1024 # The memory size is related to the pricing and CPU power
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72-fpm:1'
+                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72-fpm:4'
             Events:
                 HttpRoot:
                     Type: Api
@@ -51,8 +51,8 @@ Resources:
             Handler: demo/console.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72:1'
-                - 'arn:aws:lambda:us-east-2:209497400698:layer:console:1'
+                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72:4'
+                - 'arn:aws:lambda:us-east-2:209497400698:layer:console:4'
 
 Outputs:
     DemoHttpApi:

@@ -39,6 +39,8 @@ If you know you want to use a different region (for example to host your applica
 
 Alternatively the region can be overridden on every SAM command by setting the `--region` flag.
 
+> If you are a first time user, using the `us-east-1` region (the default region) is *highly recommended* for the first projects. It simplifies commands and avoids a lot of mistakes when discovering AWS.
+
 ## Bref
 
 Install Bref in your project using [Composer](https://getcomposer.org/):
