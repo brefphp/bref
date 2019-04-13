@@ -14,7 +14,7 @@ functions:
         handler: demo/function.php
         description: 'Bref CLI demo'
         layers:
-            - ${self:custom.bref.layers.php-72}
+            - ${bref:layer.php-72}
 
     http:
         handler: demo/http.php
@@ -33,7 +33,9 @@ functions:
             - ${self:custom.bref.layers.console}
 
 plugins:
-    - database
+    localPath: '.'
+    modules:
+        - bref.js
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events

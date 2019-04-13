@@ -1,13 +1,14 @@
 layers:
-    php-72: ${self:custom.bref.regions.${opt:region, self:provider.region}.php-72}
-    php-72-fpm: 'arn:aws:lambda:${opt:stage, self:provider.stage}:209497400698:layer:php-72-fpm:4'
-    console: 'arn:aws:lambda:${opt:stage, self:provider.stage}:209497400698:layer:console:4'
+#    php-72: ${self:custom.bref.regions.${opt:region, self:provider.region}.php-72}
+    php-72: 'arn:aws:lambda:${opt:region, self:provider.region}:209497400698:layer:php-72:4'
+    php-72-fpm: 'arn:aws:lambda:${opt:region, self:provider.region}:209497400698:layer:php-72-fpm:4'
+    console: 'arn:aws:lambda:${opt:region, self:provider.region}:209497400698:layer:console:4'
 
 regions:
     us-east-2:
-        php-72: 'arn:aws:lambda:us-east-1:209497400698:layer:php-72:4'
-        php-72-fpm: 'arn:aws:lambda:us-east-1:209497400698:layer:php-72-fpm:4'
-        console: 'arn:aws:lambda:us-east-1:209497400698:layer:console:4'
+        php-72: 'arn:aws:lambda:us-east-2:209497400698:layer:php-72:4'
+        php-72-fpm: 'arn:aws:lambda:us-east-2:209497400698:layer:php-72-fpm:4'
+        console: 'arn:aws:lambda:us-east-2:209497400698:layer:console:4'
 
 http-all-urls:
     -   http:
