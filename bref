@@ -2,6 +2,7 @@
 <?php
 declare(strict_types=1);
 
+use Aws\CloudFormation\CloudFormationClient;
 use Bref\Lambda\InvocationFailed;
 use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -156,5 +157,74 @@ $app->command('invoke function [--region=] [-e|--event=]', function (string $fun
 })->descriptions('Invoke the lambda on the serverless provider', [
     '--event' => 'Event data as JSON, e.g. `--event \'{"name":"matt"}\'`',
 ]);
+
+$app->command('deployment stack-name [--region=]', function (string $stackName, ?string $region, SymfonyStyle $io) {
+    $cloudFormation = new CloudFormationClient([
+        'version' => 'latest',
+        'region' => ($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1',
+    ]);
+
+    $result = $cloudFormation->describeStackEvents([
+        'StackName' => $stackName,
+    ]);
+    $events = $result->get('StackEvents');
+
+    // Last events last
+    $events = array_reverse($events);
+    // Keep only events from the last 24 hours
+    $oneDayAgo = new DateTimeImmutable('-1 day');
+    $events = array_filter($events, function (array $event) use ($oneDayAgo) {
+        return $event['Timestamp'] >= $oneDayAgo;
+    });
+
+    if (empty($events)) {
+        $io->writeln('<info>No events were found in the last 24 hours.</info>');
+        return 0;
+    }
+
+    $errors = [];
+    foreach ($events as $event) {
+        /** @var DateTimeInterface $time */
+        $time = $event['Timestamp'];
+
+        $status = $event['ResourceStatus'];
+        $error = false;
+        if (strpos($status, 'FAILED') !== false) {
+            $error = true;
+            $errors[] = $event;
+        }
+
+        $io->write(sprintf(
+            '<comment>%s</comment> %s %s',
+            $time->format('M j G:H'),
+            $error ? "<error>$status</error>" : $status,
+            $event['ResourceType']
+        ));
+
+        if (isset($event['ResourceStatusReason'])) {
+            $io->write(" <info>{$event['ResourceStatusReason']}</info>");
+        }
+        $io->writeln('');
+    }
+    $io->writeln('');
+
+    if (empty($errors)) {
+        $io->writeln('<info>No errors found.</info>');
+    } else {
+        $io->writeln('<error>Summary of the errors found:</error>');
+        foreach ($errors as $event) {
+            /** @var DateTimeInterface $time */
+            $time = $event['Timestamp'];
+            $io->writeln(sprintf(
+                '<comment>%s</comment> <info>%s</info> %s',
+                $time->format('M j G:H'),
+                $event['ResourceType'],
+                $event['ResourceStatusReason'] ?? ''
+            ));
+        }
+    }
+
+    return 0;
+})->descriptions('Displays the latest deployment logs from CloudFormation. Only the logs from the last 24 hours are displayed. Use these logs to debug why a deployment failed.');
 
 $app->run();
