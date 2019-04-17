@@ -209,7 +209,7 @@ class LambdaRuntime
 
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/init/error";
         $this->postJson($url, [
-            'errorMessage' => $message . ' ' . $error->getMessage(),
+            'errorMessage' => $message . ' ' . ($error ? $error->getMessage() : ''),
             'errorType' => $error ? get_class($error) : 'Internal',
             'stackTrace' => $error ? explode(PHP_EOL, $error->getTraceAsString()) : [],
         ]);
