@@ -11,5 +11,11 @@ namespace Bref\Handler;
 
 interface ContextAwareHandler
 {
-    function __invoke(array $event, array $context): array;
+    /**
+     * @param array $event
+     * @param array $context
+     *
+     * @return mixed Anything that can be serialized to JSON
+     */
+    function __invoke(array $event, array $context);
 }
