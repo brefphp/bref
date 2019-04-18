@@ -2,8 +2,7 @@
 
 namespace Bref\Test\Runtime;
 
-use Bref\Handler\ContextAwareHandler;
-use Bref\Runtime\Context;
+use Bref\Context\Context;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
 use GuzzleHttp\Psr7\Response;
@@ -58,7 +57,7 @@ class LambdaRuntimeTest extends TestCase
         $this->assertJsonStringEqualsJsonString('{"hello": "world"}', $eventResponse->getBody()->__toString());
     }
 
-    public function test context aware handler()
+    public function test handler receives context()
     {
         Server::enqueue([
             new Response( // lambda event
@@ -72,14 +71,9 @@ class LambdaRuntimeTest extends TestCase
             new Response(200), // lambda response accepted
         ]);
 
-        $handler = new class implements ContextAwareHandler {
-            public function __invoke(array $event, Context $context): array
-            {
-                return ['hello' => 'world', 'received-function-arn' => $context->getInvokedFunctionArn()];
-            }
-        };
-
-        $this->runtime->processNextEvent($handler);
+        $this->runtime->processNextEvent(function (array $event, Context $context) {
+            return ['hello' => 'world', 'received-function-arn' => $context->getInvokedFunctionArn()];
+        });
 
         $requests = Server::received();
         $this->assertCount(2, $requests);

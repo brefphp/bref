@@ -2,7 +2,8 @@
 
 namespace Bref\Runtime;
 
-use Bref\Handler\ContextAwareHandler;
+use Bref\Context\Context;
+use Bref\Context\ContextBuilder;
 
 /**
  * Client for the AWS Lambda runtime API.
@@ -71,17 +72,13 @@ class LambdaRuntime
     /**
      * Process the next event.
      *
-     * @param callable $handler This callable takes a $event parameter (array) and must return anything serializable to JSON.
+     * @param callable $handler This callable takes two parameters, an $event parameter (array) and a $context parameter (Context) and must return anything serializable to JSON.
      *
      * Example:
      *
-     *     $lambdaRuntime->processNextEvent(function (array $event) {
-     *         return 'Hello ' . $event['name'];
+     *     $lambdaRuntime->processNextEvent(function (array $event, Context $context) {
+     *         return 'Hello ' . $event['name'] . '. We have ' . $context->getRemainingTimeInMillis()/1000 . ' seconds left';
      *     });
-     *
-     * The callable can also be an invokable class that implements ContextAwareHandler interface. In that case it will
-     * also receive a second argument which contains the execution context that can provide extra information such as
-     * invocationId and other headers returned by AWS Runtime API
      * @throws \Exception
      */
     public function processNextEvent(callable $handler): void
@@ -90,11 +87,7 @@ class LambdaRuntime
         [$event, $context] = $this->waitNextInvocation();
 
         try {
-            if ($handler instanceof ContextAwareHandler) {
-                $this->sendResponse($context->getAwsRequestId(), $handler($event, $context));
-            } else {
-                $this->sendResponse($context->getAwsRequestId(), $handler($event));
-            }
+            $this->sendResponse($context->getAwsRequestId(), $handler($event, $context));
         } catch (\Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
         }
@@ -116,23 +109,23 @@ class LambdaRuntime
         }
 
         // Retrieve invocation ID
-        $context = new Context;
-        curl_setopt($this->handler, CURLOPT_HEADERFUNCTION, function ($ch, $header) use ($context) {
+        $contextBuilder = new ContextBuilder;
+        curl_setopt($this->handler, CURLOPT_HEADERFUNCTION, function ($ch, $header) use ($contextBuilder) {
             if (! preg_match('/:\s*/', $header)) {
                 return strlen($header);
             }
             [$name, $value] = preg_split('/:\s*/', $header, 2);
             if (strtolower($name) === 'lambda-runtime-aws-request-id') {
-                $context->setAwsRequestId(trim($value));
+                $contextBuilder->setAwsRequestId(trim($value));
             }
             if (strtolower($name) === 'lambda-runtime-deadline-ms') {
-                $context->setDeadlineMs(intval(trim($value)));
+                $contextBuilder->setDeadlineMs(intval(trim($value)));
             }
             if (strtolower($name) === 'lambda-runtime-invoked-function-arn') {
-                $context->setInvokedFunctionArn(trim($value));
+                $contextBuilder->setInvokedFunctionArn(trim($value));
             }
             if (strtolower($name) === 'lambda-runtime-trace-id') {
-                $context->setTraceId(trim($value));
+                $contextBuilder->setTraceId(trim($value));
             }
 
             return strlen($header);
@@ -152,11 +145,14 @@ class LambdaRuntime
             $this->closeHandler();
             throw new \Exception('Failed to fetch next Lambda invocation: ' . $message);
         }
-        if ($context->getAwsRequestId() === '') {
-            throw new \Exception('Failed to determine the Lambda invocation ID');
-        }
         if ($body === '') {
             throw new \Exception('Empty Lambda runtime API response');
+        }
+
+        $context = $contextBuilder->buildContext();
+
+        if ($context->getAwsRequestId() === '') {
+            throw new \Exception('Failed to determine the Lambda invocation ID');
         }
 
         $event = json_decode($body, true);
