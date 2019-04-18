@@ -64,7 +64,7 @@ class LambdaRuntimeTest extends TestCase
                 200,
                 [
                     'lambda-runtime-aws-request-id' => 1,
-                    'x-context-test-name' => 'test-value'
+                    'x-context-test-name' => 'test-value',
                 ],
                 '{ "Hello": "world!"}'
             ),

@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 namespace Bref\Runtime;
+
 use Bref\Handler\ContextAwareHandler;
 
 /**
@@ -81,7 +82,6 @@ class LambdaRuntime
      * The callable can also be an invokable class that implements ContextAwareHandler interface. In that case it will
      * also receive a second argument which contains the execution context that can provide extra information such as
      * invocationId and other headers returned by AWS Runtime API
-     *
      * @throws \Exception
      */
     public function processNextEvent(callable $handler): void
