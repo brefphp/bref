@@ -44,7 +44,7 @@ class ContextBuilder
         $this->traceId = $traceId;
     }
 
-    public function buildContext()
+    public function buildContext(): Context
     {
         return new Context(
             $this->awsRequestId,
