@@ -2,6 +2,7 @@
 
 namespace Bref\Test\Runtime;
 
+use Bref\Handler\ContextAwareHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
 use GuzzleHttp\Psr7\Response;
@@ -54,6 +55,40 @@ class LambdaRuntimeTest extends TestCase
         $this->assertSame('POST', $eventResponse->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventResponse->getUri()->__toString());
         $this->assertJsonStringEqualsJsonString('{"hello": "world"}', $eventResponse->getBody()->__toString());
+    }
+
+    public function test context aware handler()
+    {
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => 1,
+                    'x-context-test-name' => 'test-value'
+                ],
+                '{ "Hello": "world!"}'
+            ),
+            new Response(200), // lambda response accepted
+        ]);
+
+        $handler = new class implements ContextAwareHandler {
+            public function __invoke(array $event, array $context): array
+            {
+                return ['hello' => 'world', 'received-context-test-name' => $context['x-context-test-name']];
+            }
+        };
+
+        $this->runtime->processNextEvent($handler);
+
+        $requests = Server::received();
+        $this->assertCount(2, $requests);
+
+        [$eventRequest, $eventResponse] = $requests;
+        $this->assertSame('GET', $eventRequest->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
+        $this->assertSame('POST', $eventResponse->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventResponse->getUri()->__toString());
+        $this->assertJsonStringEqualsJsonString('{"hello": "world", "received-context-test-name": "test-value"}', $eventResponse->getBody()->__toString());
     }
 
     public function test an error is thrown if the runtime API returns a wrong response()

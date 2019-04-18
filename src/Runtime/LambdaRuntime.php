@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 namespace Bref\Runtime;
+use Bref\Handler\ContextAwareHandler;
 
 /**
  * Client for the AWS Lambda runtime API.
@@ -76,13 +77,23 @@ class LambdaRuntime
      *     $lambdaRuntime->processNextEvent(function (array $event) {
      *         return 'Hello ' . $event['name'];
      *     });
+     *
+     * The callable can also be an invokable class that implements ContextAwareHandler interface. In that case it will
+     * also receive a second argument which contains the execution context that can provide extra information such as
+     * invocationId and other headers returned by AWS Runtime API
+     *
+     * @throws \Exception
      */
     public function processNextEvent(callable $handler): void
     {
-        [$invocationId, $event] = $this->waitNextInvocation();
+        [$invocationId, $event, $context] = $this->waitNextInvocation();
 
         try {
-            $this->sendResponse($invocationId, $handler($event));
+            if ($handler instanceof ContextAwareHandler) {
+                $this->sendResponse($invocationId, $handler($event, $context));
+            } else {
+                $this->sendResponse($invocationId, $handler($event));
+            }
         } catch (\Throwable $e) {
             $this->signalFailure($invocationId, $e);
         }
@@ -105,7 +116,8 @@ class LambdaRuntime
 
         // Retrieve invocation ID
         $invocationId = '';
-        curl_setopt($this->handler, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$invocationId) {
+        $headers = [];
+        curl_setopt($this->handler, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$invocationId, &$headers) {
             if (! preg_match('/:\s*/', $header)) {
                 return strlen($header);
             }
@@ -113,6 +125,7 @@ class LambdaRuntime
             if (strtolower($name) === 'lambda-runtime-aws-request-id') {
                 $invocationId = trim($value);
             }
+            $headers[$name] = trim($value);
 
             return strlen($header);
         });
@@ -140,7 +153,7 @@ class LambdaRuntime
 
         $event = json_decode($body, true);
 
-        return [$invocationId, $event];
+        return [$invocationId, $event, $headers];
     }
 
     /**
