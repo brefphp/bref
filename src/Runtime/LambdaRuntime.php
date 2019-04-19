@@ -115,17 +115,19 @@ class LambdaRuntime
                 return strlen($header);
             }
             [$name, $value] = preg_split('/:\s*/', $header, 2);
-            if (strtolower($name) === 'lambda-runtime-aws-request-id') {
-                $contextBuilder->setAwsRequestId(trim($value));
+            $name = strtolower($name);
+            $value = trim($value);
+            if ($name === 'lambda-runtime-aws-request-id') {
+                $contextBuilder->setAwsRequestId($value);
             }
-            if (strtolower($name) === 'lambda-runtime-deadline-ms') {
-                $contextBuilder->setDeadlineMs(intval(trim($value)));
+            if ($name === 'lambda-runtime-deadline-ms') {
+                $contextBuilder->setDeadlineMs(intval($value));
             }
-            if (strtolower($name) === 'lambda-runtime-invoked-function-arn') {
-                $contextBuilder->setInvokedFunctionArn(trim($value));
+            if ($name === 'lambda-runtime-invoked-function-arn') {
+                $contextBuilder->setInvokedFunctionArn($value);
             }
-            if (strtolower($name) === 'lambda-runtime-trace-id') {
-                $contextBuilder->setTraceId(trim($value));
+            if ($name === 'lambda-runtime-trace-id') {
+                $contextBuilder->setTraceId($value);
             }
 
             return strlen($header);
