@@ -2,7 +2,12 @@
 
 namespace Bref\Context;
 
-class Context
+/**
+ * The execution context of a Lambda.
+ *
+ * @see https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
+ */
+final class Context
 {
     /** @var string */
     private $awsRequestId;
