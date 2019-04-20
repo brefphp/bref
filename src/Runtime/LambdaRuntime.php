@@ -2,6 +2,9 @@
 
 namespace Bref\Runtime;
 
+use Bref\Context\Context;
+use Bref\Context\ContextBuilder;
+
 /**
  * Client for the AWS Lambda runtime API.
  *
@@ -69,22 +72,24 @@ class LambdaRuntime
     /**
      * Process the next event.
      *
-     * @param callable $handler This callable takes a $event parameter (array) and must return anything serializable to JSON.
+     * @param callable $handler This callable takes two parameters, an $event parameter (array) and a $context parameter (Context) and must return anything serializable to JSON.
      *
      * Example:
      *
-     *     $lambdaRuntime->processNextEvent(function (array $event) {
-     *         return 'Hello ' . $event['name'];
+     *     $lambdaRuntime->processNextEvent(function (array $event, Context $context) {
+     *         return 'Hello ' . $event['name'] . '. We have ' . $context->getRemainingTimeInMillis()/1000 . ' seconds left';
      *     });
+     * @throws \Exception
      */
     public function processNextEvent(callable $handler): void
     {
-        [$invocationId, $event] = $this->waitNextInvocation();
+        /** @var Context $context */
+        [$event, $context] = $this->waitNextInvocation();
 
         try {
-            $this->sendResponse($invocationId, $handler($event));
+            $this->sendResponse($context->getAwsRequestId(), $handler($event, $context));
         } catch (\Throwable $e) {
-            $this->signalFailure($invocationId, $e);
+            $this->signalFailure($context->getAwsRequestId(), $e);
         }
     }
 
@@ -104,14 +109,25 @@ class LambdaRuntime
         }
 
         // Retrieve invocation ID
-        $invocationId = '';
-        curl_setopt($this->handler, CURLOPT_HEADERFUNCTION, function ($ch, $header) use (&$invocationId) {
+        $contextBuilder = new ContextBuilder;
+        curl_setopt($this->handler, CURLOPT_HEADERFUNCTION, function ($ch, $header) use ($contextBuilder) {
             if (! preg_match('/:\s*/', $header)) {
                 return strlen($header);
             }
             [$name, $value] = preg_split('/:\s*/', $header, 2);
-            if (strtolower($name) === 'lambda-runtime-aws-request-id') {
-                $invocationId = trim($value);
+            $name = strtolower($name);
+            $value = trim($value);
+            if ($name === 'lambda-runtime-aws-request-id') {
+                $contextBuilder->setAwsRequestId($value);
+            }
+            if ($name === 'lambda-runtime-deadline-ms') {
+                $contextBuilder->setDeadlineMs(intval($value));
+            }
+            if ($name === 'lambda-runtime-invoked-function-arn') {
+                $contextBuilder->setInvokedFunctionArn($value);
+            }
+            if ($name === 'lambda-runtime-trace-id') {
+                $contextBuilder->setTraceId($value);
             }
 
             return strlen($header);
@@ -131,16 +147,19 @@ class LambdaRuntime
             $this->closeHandler();
             throw new \Exception('Failed to fetch next Lambda invocation: ' . $message);
         }
-        if ($invocationId === '') {
-            throw new \Exception('Failed to determine the Lambda invocation ID');
-        }
         if ($body === '') {
             throw new \Exception('Empty Lambda runtime API response');
         }
 
+        $context = $contextBuilder->buildContext();
+
+        if ($context->getAwsRequestId() === '') {
+            throw new \Exception('Failed to determine the Lambda invocation ID');
+        }
+
         $event = json_decode($body, true);
 
-        return [$invocationId, $event];
+        return [$event, $context];
     }
 
     /**
