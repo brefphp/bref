@@ -104,7 +104,7 @@ To learn how to properly store this connection string in your configuration head
 
 By default, a lambda in a VPC can only access resources inside the VPC. It cannot access the internet (for example external APIs) or other AWS services.
 
-To enable external access you will need to create a NAT Gateway in the VPC. Watch out, a NAT Gateway will increase the costs as they start at 27$ per month. An alternative to NAT Gateways is to split the work done by a lambda in 2 lambdas: one in the VPC that accesses the database and one outside that accesses the external API.
+To enable external access you will need to create a NAT Gateway in the VPC. Watch out, a NAT Gateway will increase the costs as they start at $27 per month. An alternative to NAT Gateways is to split the work done by a lambda in 2 lambdas: one in the VPC that accesses the database and one outside that accesses the external API.
 
 To enable internet access for the lambda you can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12).
 
