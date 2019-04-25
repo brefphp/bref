@@ -3,10 +3,11 @@
 namespace Bref\Runtime;
 
 use Bref\Http\LambdaResponse;
-use Hoa\Fastcgi\Exception\Exception as HoaFastCgiException;
-use Hoa\Fastcgi\Responder;
-use Hoa\Socket\Client;
-use Hoa\Socket\Exception\Exception as HoaSocketException;
+use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
+use Bref\Runtime\FastCgi\FastCgiRequest;
+use hollodotme\FastCGI\Client;
+use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
+use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Symfony\Component\Process\Process;
 
 /**
@@ -68,7 +69,8 @@ class PhpFpm
             echo $output;
         });
 
-        $this->reconnect();
+        $connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
+        $this->client = new Client($connection);
 
         $this->waitUntilReady();
     }
@@ -76,7 +78,6 @@ class PhpFpm
     public function stop(): void
     {
         if ($this->fpm && $this->fpm->isRunning()) {
-            $this->client->disconnect();
             $this->fpm->stop(2);
             if ($this->isReady()) {
                 throw new \Exception('PHP-FPM cannot be stopped');
@@ -110,24 +111,19 @@ class PhpFpm
             throw new \Exception('The lambda was not invoked via HTTP through API Gateway: this is not supported by this runtime');
         }
 
-        [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
-
-        $responder = new Responder($this->client);
+        $request = $this->eventToFastCgiRequest($event);
 
         try {
-            $responder->send($requestHeaders, $requestBody);
-        } catch (HoaFastCgiException|HoaSocketException $e) {
-            // Once the socket gets broken every following request is broken. We need to reconnect.
-            $this->reconnect();
+            $response = $this->client->sendRequest($request);
+        } catch (\Throwable $e) {
             throw new FastCgiCommunicationFailed(sprintf(
-                'Error communicating with PHP-FPM to read the HTTP response. A common root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will reconnect to PHP-FPM to clean things up. Original exception message: %s %s',
+                'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
                 get_class($e),
                 $e->getMessage()
             ), 0, $e);
         }
 
-        $responseHeaders = $responder->getResponseHeaders();
-
+        $responseHeaders = $response->getHeaders();
         $responseHeaders = array_change_key_case($responseHeaders, CASE_LOWER);
 
         // Extract the status code
@@ -138,9 +134,7 @@ class PhpFpm
         }
         unset($responseHeaders['status']);
 
-        $responseBody = (string) $responder->getResponseContent();
-
-        return new LambdaResponse((int) $status, $responseHeaders, $responseBody);
+        return new LambdaResponse((int) $status, $responseHeaders, $response->getBody());
     }
 
     private function waitUntilReady(): void
@@ -171,12 +165,15 @@ class PhpFpm
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(array $event): array
+    private function eventToFastCgiRequest(array $event): ProvidesRequestData
     {
         $requestBody = $event['body'] ?? '';
         if ($event['isBase64Encoded'] ?? false) {
             $requestBody = base64_decode($requestBody);
         }
+
+        $method = strtoupper($event['httpMethod']);
+        $request = new FastCgiRequest($method, $this->handler, $requestBody);
 
         $uri = $event['path'] ?? '/';
         /*
@@ -200,21 +197,15 @@ class PhpFpm
         $headers = $event['headers'] ?? [];
         $headers = array_change_key_case($headers, CASE_LOWER);
 
-        $requestHeaders = [
-            'GATEWAY_INTERFACE' => 'FastCGI/1.0',
-            'REQUEST_METHOD' => $event['httpMethod'],
-            'REQUEST_URI' => $uri,
-            'SCRIPT_FILENAME' => $this->handler,
-            'SERVER_SOFTWARE' => 'bref',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'REMOTE_PORT' => $headers['x-forwarded-port'] ?? 80,
-            'SERVER_ADDR' => '127.0.0.1',
-            'SERVER_NAME' => $headers['host'] ?? 'localhost',
-            'SERVER_PROTOCOL' => $protocol,
-            'SERVER_PORT' => $headers['x-forwarded-port'] ?? 80,
-            'PATH_INFO' => $event['path'] ?? '/',
-            'QUERY_STRING' => $queryString,
-        ];
+        $request->setRequestUri($uri);
+        $request->setRemoteAddress('127.0.0.1');
+        $request->setRemotePort((int) ($headers['x-forwarded-port'] ?? 80));
+        $request->setServerAddress('127.0.0.1');
+        $request->setServerName($headers['host'] ?? 'localhost');
+        $request->setServerProtocol($protocol);
+        $request->setServerPort((int) ($headers['x-forwarded-port'] ?? 80));
+        $request->setCustomVar('PATH_INFO', $event['path'] ?? '/');
+        $request->setCustomVar('QUERY_STRING', $queryString);
 
         $method = strtoupper($event['httpMethod']);
 
@@ -223,37 +214,20 @@ class PhpFpm
             $headers['content-type'] = 'application/x-www-form-urlencoded';
         }
         if (isset($headers['content-type'])) {
-            $requestHeaders['CONTENT_TYPE'] = $headers['content-type'];
+            $request->setContentType($headers['content-type']);
         }
         // Auto-add the Content-Length header if it wasn't provided
         // See https://github.com/mnapoli/bref/issues/162
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
             $headers['content-length'] = strlen($requestBody);
         }
-        if (isset($headers['content-length'])) {
-            $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
-        }
 
         foreach ($headers as $header => $value) {
             $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
-            $requestHeaders[$key] = $value;
+            $request->setCustomVar($key, $value);
         }
 
-        return [$requestHeaders, $requestBody];
-    }
-
-    private function reconnect(): void
-    {
-        if ($this->client) {
-            /**
-             * Hoa magic
-             *
-             * @see \Hoa\Socket\Connection\Connection
-             */
-            $this->client->disconnect();
-        }
-
-        $this->client = new Client('unix://' . self::SOCKET, 30000);
+        return $request;
     }
 
     /**
