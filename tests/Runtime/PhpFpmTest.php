@@ -745,6 +745,19 @@ Year,Make,Model
         }
     }
 
+    /**
+     * @see https://github.com/mnapoli/bref/issues/316
+     */
+    public function test large response()
+    {
+        // Repeat the test 5 times because some errors are random
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->get('large-response.php')->toApiGatewayFormat();
+
+            self::assertStringEqualsFile(__DIR__ . '/PhpFpm/big-json.json', $response['body']);
+        }
+    }
+
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
         $this->startFpm(__DIR__ . '/PhpFpm/request.php');
