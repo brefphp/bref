@@ -260,7 +260,7 @@ class LambdaRuntime
         curl_setopt($this->returnHandler, CURLOPT_URL, $url);
         curl_setopt($this->returnHandler, CURLOPT_POSTFIELDS, $jsonData);
         if (! $isALB) { //If We send to ALB it is not always JSON.
-            curl_setopt($handler, CURLOPT_HTTPHEADER, [
+            curl_setopt($this->returnHandler, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
                 'Content-Length: ' . strlen($jsonData),
             ]);
