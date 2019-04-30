@@ -12,6 +12,16 @@ if ($_GET['php-config'] ?? false) {
     return;
 }
 
+if ($_GET['env'] ?? false) {
+    header('Content-Type: application/json');
+    echo json_encode([
+        '$_ENV' => $_ENV['FOO'] ?? null,
+        '$_SERVER' => $_SERVER['FOO'] ?? null,
+        'getenv' => getenv('FOO'),
+    ], JSON_PRETTY_PRINT);
+    return;
+}
+
 if ($_GET['stderr'] ?? false) {
     $stderr = fopen('php://stderr', 'a');
     fwrite($stderr, 'This is a test log into stderr');

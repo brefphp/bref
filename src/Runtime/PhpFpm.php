@@ -24,6 +24,7 @@ use Symfony\Component\Process\Process;
 class PhpFpm
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
+    private const PID_FILE = '/tmp/.bref/php-fpm.pid';
     private const CONFIG = '/opt/bref/etc/php-fpm.conf';
 
     /** @var Client|null */
@@ -46,8 +47,10 @@ class PhpFpm
      */
     public function start(): void
     {
+        // In case Lambda stopped our process (e.g. because of a timeout) we need to make sure PHP-FPM has stopped
+        // as well and restart it
         if ($this->isReady()) {
-            throw new \Exception('PHP-FPM has already been started, aborting');
+            $this->killExistingFpm();
         }
 
         if (! is_dir(dirname(self::SOCKET))) {
@@ -67,7 +70,7 @@ class PhpFpm
 
         $this->reconnect();
 
-        $this->waitForServerReady();
+        $this->waitUntilReady();
     }
 
     public function stop(): void
@@ -140,7 +143,7 @@ class PhpFpm
         return new LambdaResponse((int) $status, $responseHeaders, $responseBody);
     }
 
-    private function waitForServerReady(): void
+    private function waitUntilReady(): void
     {
         $wait = 5000; // 5ms
         $timeout = 5000000; // 5 secs
@@ -197,8 +200,6 @@ class PhpFpm
         $headers = $event['headers'] ?? [];
         $headers = array_change_key_case($headers, CASE_LOWER);
 
-        $serverName = $headers['host'] ?? 'localhost';
-
         $requestHeaders = [
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'REQUEST_METHOD' => $event['httpMethod'],
@@ -206,17 +207,19 @@ class PhpFpm
             'SCRIPT_FILENAME' => $this->handler,
             'SERVER_SOFTWARE' => 'bref',
             'REMOTE_ADDR' => '127.0.0.1',
-            'REMOTE_PORT' => $headers['X-Forwarded-Port'] ?? 80,
+            'REMOTE_PORT' => $headers['x-forwarded-port'] ?? 80,
             'SERVER_ADDR' => '127.0.0.1',
-            'SERVER_NAME' => $serverName,
+            'SERVER_NAME' => $headers['host'] ?? 'localhost',
             'SERVER_PROTOCOL' => $protocol,
-            'SERVER_PORT' => $headers['X-Forwarded-Port'] ?? 80,
+            'SERVER_PORT' => $headers['x-forwarded-port'] ?? 80,
             'PATH_INFO' => $event['path'] ?? '/',
             'QUERY_STRING' => $queryString,
         ];
 
+        $method = strtoupper($event['httpMethod']);
+
         // See https://stackoverflow.com/a/5519834/245552
-        if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-type'])) {
+        if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
             $headers['content-type'] = 'application/x-www-form-urlencoded';
         }
         if (isset($headers['content-type'])) {
@@ -224,7 +227,7 @@ class PhpFpm
         }
         // Auto-add the Content-Length header if it wasn't provided
         // See https://github.com/mnapoli/bref/issues/162
-        if ((strtoupper($event['httpMethod']) === 'POST') && ! isset($headers['content-length'])) {
+        if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
             $headers['content-length'] = strlen($requestBody);
         }
         if (isset($headers['content-length'])) {
@@ -251,5 +254,67 @@ class PhpFpm
         }
 
         $this->client = new Client('unix://' . self::SOCKET, 30000);
+    }
+
+    /**
+     * This methods makes sure to kill any existing PHP-FPM process.
+     */
+    private function killExistingFpm(): void
+    {
+        // Never seen this happen but just in case
+        if (! file_exists(self::PID_FILE)) {
+            unlink(self::SOCKET);
+            return;
+        }
+
+        $pid = (int) file_get_contents(self::PID_FILE);
+
+        // Never seen this happen but just in case
+        if ($pid <= 0) {
+            echo "PHP-FPM's PID file contained an invalid PID, assuming PHP-FPM isn't running.\n";
+            unlink(self::SOCKET);
+            unlink(self::PID_FILE);
+            return;
+        }
+
+        // Check if the process is running
+        if (posix_getpgid($pid) === false) {
+            // PHP-FPM is not running anymore, we can cleanup
+            unlink(self::SOCKET);
+            unlink(self::PID_FILE);
+            return;
+        }
+
+        echo "PHP-FPM seems to be running already, this might be because Lambda stopped the bootstrap process but didn't leave us an opportunity to stop PHP-FPM. Stopping PHP-FPM now to restart from a blank slate.\n";
+
+        // PHP-FPM is running, let's try to kill it properly
+        $result = posix_kill($pid, SIGTERM);
+        if ($result === false) {
+            echo "PHP-FPM's PID file contained a PID that doesn't exist, assuming PHP-FPM isn't running.\n";
+            unlink(self::SOCKET);
+            unlink(self::PID_FILE);
+            return;
+        }
+
+        $this->waitUntilStopped($pid);
+        unlink(self::SOCKET);
+        unlink(self::PID_FILE);
+    }
+
+    /**
+     * Wait until PHP-FPM has stopped.
+     */
+    private function waitUntilStopped(int $pid): void
+    {
+        $wait = 5000; // 5ms
+        $timeout = 1000000; // 1 sec
+        $elapsed = 0;
+        while (posix_getpgid($pid) !== false) {
+            usleep($wait);
+            $elapsed += $wait;
+            if ($elapsed > $timeout) {
+                throw new \Exception('Timeout while waiting for PHP-FPM to stop');
+            }
+        }
     }
 }
