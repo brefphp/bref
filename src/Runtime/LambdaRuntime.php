@@ -241,7 +241,7 @@ class LambdaRuntime
      */
     private function postJson(string $url, $data): void
     {
-        $isALB = array_key_exists('isALB', $data);
+        $isALB = is_array($data) && array_key_exists('isALB', $data);
         if ($isALB) {
             unset($data['isALB']);
         }
