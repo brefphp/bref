@@ -113,9 +113,10 @@ class PhpFpm
         [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
         $responder = new Responder($this->client);
         $context = $event['requestContext'] ?? [];
-        $isALB = array_key_exists('elb', $context);
-        if (method_exists($responder, 'setMultiHeader')) {
-            $responder->setMultiHeader($isALB);
+        // If is coming from ALB/ELB or has MultiHeaders we Enable it.
+        $isALB = array_key_exists('elb', $context) || (array_key_exists('multiValueHeaders', $event));
+        if (method_exists($responder, 'enableMultiHeaders')) {
+            $responder->enableMultiHeaders($isALB);
         }
         try {
             $responder->send($requestHeaders, $requestBody);
