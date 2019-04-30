@@ -51,6 +51,24 @@ The function:
 
 There must be only one function defined per PHP file.
 
+### Context
+
+The function is invoked with the `$event` parameter as well a `$context` parameter that can be optionally declared if you want to use it:
+
+```php
+<?php
+
+use Bref\Context\Context;
+
+require __DIR__.'/vendor/autoload.php';
+
+lambda(function (array $event, Context $context) {
+    return /* response */;
+});
+```
+
+The `Context` object is inspired from the [`context` parameter in other languages](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html) and provides information about the current lambda invocation (the request ID, the X-Ray trace ID, etc.).
+
 ## SAM configuration
 
 Below is a minimal `template.yaml` to deploy a function. To create it automatically run `vendor/bin/bref init`.

@@ -11,6 +11,14 @@ lambda(function (array $event) {
         return ini_get_all(null, false);
     }
 
+    if ($event['env'] ?? false) {
+        return [
+            '$_ENV' => $_ENV['FOO'] ?? null,
+            '$_SERVER' => $_SERVER['FOO'] ?? null,
+            'getenv' => getenv('FOO'),
+        ];
+    }
+
     if ($event['stdout'] ?? false) {
         echo 'This is a test log by writing to stdout';
     }

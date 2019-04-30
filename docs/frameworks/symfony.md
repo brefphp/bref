@@ -39,7 +39,7 @@ Resources:
             MemorySize: 1024
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:1'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:4'
             Events:
                 HttpRoot:
                     Type: Api
@@ -61,8 +61,8 @@ Resources:
             Timeout: 120 # in seconds
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:1' # PHP
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:console:1' # The "console" layer
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:4' # PHP
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:console:4' # The "console" layer
 
 Outputs:
     DemoApi:
