@@ -87,6 +87,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
         <li><a href="http://php.net/manual/en/book.soap.php">SOAP</a></li>
+        <li><a href="http://php.net/manual/en/book.sockets.php">sockets</a></li>
         <li><a href="http://php.net/manual/en/book.SPL.php">SPL</a></li>
         <li><a href="http://php.net/manual/en/book.sqlite3.php">sqlite3</a></li>
         <li><a href="http://php.net/manual/en/book.standard.php">standard</a></li>
