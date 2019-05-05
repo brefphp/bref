@@ -193,3 +193,14 @@ article blockquote p:first-child {
     border-radius: 9999px;
     vertical-align: text-top;
 }
+
+@media only screen and (max-width: 992px) and (min-width: 768px) {
+     article h1{
+         max-width: calc(100% - 60px);
+    }
+}
+@media only screen and (min-width: 992px) {
+     article h1{
+         max-width: calc(100% - 130px);
+    }
+}
