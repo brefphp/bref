@@ -239,7 +239,6 @@ class PhpFpm
             $request->setRemotePort((int) $port);
             $request->setServerPort((int) $port);
             $request->setServerName($headers['host'][0] ?? 'localhost');
-
             if (($method === 'POST') && ! isset($headers['content-type'])) {
                 $headers['content-type'] = ['application/x-www-form-urlencoded'];
             }
@@ -256,19 +255,20 @@ class PhpFpm
                 }
             }
         } else {
-                  // See https://stackoverflow.com/a/5519834/245552
+            $headers = $event['headers'] ?? [];
+            $headers = array_change_key_case($headers, CASE_LOWER);
+            // See https://stackoverflow.com/a/5519834/245552
             if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
                 $headers['content-type'] = 'application/x-www-form-urlencoded';
             }
             if (isset($headers['content-type'])) {
                 $request->setContentType($headers['content-type']);
             }
-                   // Auto-add the Content-Length header if it wasn't provided
-                   // See https://github.com/mnapoli/bref/issues/162
+            // Auto-add the Content-Length header if it wasn't provided
+            // See https://github.com/mnapoli/bref/issues/162
             if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
                 $headers['content-length'] = strlen($requestBody);
             }
-
             foreach ($headers as $header => $value) {
                 $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
                 $request->setCustomVar($key, $value);
