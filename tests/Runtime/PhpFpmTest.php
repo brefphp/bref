@@ -3,7 +3,7 @@
 namespace Bref\Test\Runtime;
 
 use Bref\Http\LambdaResponse;
-use Bref\Runtime\FastCgiCommunicationFailed;
+use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
 use Bref\Runtime\PhpFpm;
 use Bref\Test\HttpRequestProxyTest;
 use PHPUnit\Framework\TestCase;
@@ -39,6 +39,8 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -72,6 +74,8 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => 'foo=bar&bim=baz',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -108,6 +112,8 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => 'vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -135,6 +141,8 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
                 'HTTP_X_MY_HEADER' => 'Hello world',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -452,6 +460,8 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
                 'HTTP_COOKIE' => 'tz=Europe%2FParis; four=two+%2B+2; theme=light',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -577,6 +587,8 @@ Year,Make,Model
                 'QUERY_STRING' => '',
                 'SERVER_NAME' => 'www.example.com',
                 'HTTP_HOST' => 'www.example.com',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -599,6 +611,8 @@ Year,Make,Model
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'PUT',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -621,6 +635,8 @@ Year,Make,Model
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'PATCH',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -643,6 +659,8 @@ Year,Make,Model
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'DELETE',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -665,6 +683,8 @@ Year,Make,Model
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'OPTIONS',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -742,6 +762,19 @@ Year,Make,Model
             $statusCode = $this->fpm->proxy(['httpMethod' => 'GET'])
                 ->toApiGatewayFormat()['statusCode'];
             self::assertEquals(200, $statusCode);
+        }
+    }
+
+    /**
+     * @see https://github.com/mnapoli/bref/issues/316
+     */
+    public function test large response()
+    {
+        // Repeat the test 5 times because some errors are random
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->get('large-response.php')->toApiGatewayFormat();
+
+            self::assertStringEqualsFile(__DIR__ . '/PhpFpm/big-json.json', $response['body']);
         }
     }
 

@@ -96,6 +96,16 @@ article h1, article h2, article h3, article h4, article h5, article h6 {
 article h1 {
     margin-bottom: 40px;
 }
+@media only screen and (max-width: 992px) and (min-width: 768px) {
+    article h1{
+        max-width: calc(100% - 60px);
+    }
+}
+@media only screen and (min-width: 992px) {
+    article h1{
+        max-width: calc(100% - 130px);
+    }
+}
 article h2 {
     font-weight: 600;
     font-size: 24px;
