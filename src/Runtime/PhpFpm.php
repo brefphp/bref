@@ -7,9 +7,10 @@ use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
 use Bref\Runtime\FastCgi\FastCgiRequest;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
-use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use hollodotme\FastCGI\Responses\Response;
+use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Symfony\Component\Process\Process;
+
 /**
  * Proxies HTTP events coming from API Gateway to PHP-FPM via FastCGI.
  *
