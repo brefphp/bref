@@ -101,29 +101,27 @@ class PhpFpm
     }
     /**
      * Return an array of the response headers.
-     *
-     * @param ProvidesResponseData $response
-     * @param boolean $isMultiHeader
      */
-    private function getHeaders($response,$isMultiHeader): array
+    private function getHeaders(ProvidesResponseData $response, bool $isMultiHeader): array
     {
-      if ($isMultiHeader){
-        $responseHeaders = [];
-        $lines  = explode( PHP_EOL, $response->getRawResponse() );
-        foreach ($lines as $i => $line ){
-          if (preg_match('#^([^\:]+):(.*)$#', $line, $matches )){
-            $key = trim( $matches[1]);
-            if (!array_key_exists($key, $responseHeaders)) $responseHeaders[$key]= [];
-            $responseHeaders[$key][] = trim($matches[2]);
-            continue;
-          }
-          break;
+        if ($isMultiHeader) {
+            $responseHeaders = [];
+            $lines  = explode(PHP_EOL, $response->getRawResponse());
+            foreach ($lines as $i => $line) {
+                if (preg_match('#^([^\:]+):(.*)$#', $line, $matches)) {
+                    $key = trim($matches[1]);
+                    if (! array_key_exists($key, $responseHeaders)) {
+                        $responseHeaders[$key]= [];
+                    }
+                    $responseHeaders[$key][] = trim($matches[2]);
+                    continue;
+                }
+                break;
+            }
+        } else {
+            $responseHeaders = $response->getHeaders();
         }
-      }
-      else {
-        $responseHeaders = $response->getHeaders();
-      }
-      return array_change_key_case($responseHeaders, CASE_LOWER);
+        return array_change_key_case($responseHeaders, CASE_LOWER);
     }
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
@@ -148,12 +146,12 @@ class PhpFpm
             ), 0, $e);
         }
 
-        $isALB = array_key_exists("elb", $event['requestContext']);
-        $responseHeaders = $this->getHeaders($response,$isALB);
-        if (array_key_exists('status', $responseHeaders)){
-          $statscode = is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status'];
-          $status = (int) preg_replace('/[^0-9]/', '', $statscode);
-          unset($responseHeaders['status']);
+        $isALB = array_key_exists('elb', $event['requestContext']);
+        $responseHeaders = $this->getHeaders($response, $isALB);
+        if (array_key_exists('status', $responseHeaders)) {
+            $statscode = is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status'];
+            $status = (int) preg_replace('/[^0-9]/', '', $statscode);
+            unset($responseHeaders['status']);
         }
 
         return new LambdaResponse($status ?? 200, $responseHeaders, $response->getBody());
@@ -206,19 +204,22 @@ class PhpFpm
          * There's still an issue: AWS API Gateway does not support multiple query string parameters with the same name
          * So you can't use something like ?array[]=val1&array[]=val2 because only the 'val2' value will survive
          */
-         if (array_key_exists('multiValueQueryStringParameters', $event) && $event['multiValueQueryStringParameters']) {
-             $queryParameters = [];
-             foreach($event['multiValueQueryStringParameters'] as $key => $value) $queryParameters[$key] = $value[0];
-             if ($queryParameters) $uri .= "?".http_build_query($queryParameters);
-             $queryString = http_build_query($queryParameters);
-         }
-         else{
-           $queryString = http_build_query($event['queryStringParameters'] ?? []);
-           parse_str($queryString, $queryParameters);
-           if (! empty($queryString)) {
-               $uri .= '?' . $queryString;
-           }
-         }
+        if (array_key_exists('multiValueQueryStringParameters', $event) && $event['multiValueQueryStringParameters']) {
+            $queryParameters = [];
+            foreach ($event['multiValueQueryStringParameters'] as $key => $value) {
+                $queryParameters[$key] = $value[0];
+            }
+            if ($queryParameters) {
+                $uri .= '?' . http_build_query($queryParameters);
+            }
+            $queryString = http_build_query($queryParameters);
+        } else {
+            $queryString = http_build_query($event['queryStringParameters'] ?? []);
+            parse_str($queryString, $queryParameters);
+            if (! empty($queryString)) {
+                $uri .= '?' . $queryString;
+            }
+        }
 
          $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
          $path = $event['path'] ?? '/';
@@ -231,49 +232,48 @@ class PhpFpm
          $request->setRemotePort(80);
          $request->setServerName('localhost');
          $request->setServerPort(80);
-         if (array_key_exists('multiValueHeaders', $event)) {
-             $headers = $event['multiValueHeaders'];
-             $headers = array_change_key_case($headers, CASE_LOWER);
-             $port = $headers['x-forwarded-port'][0] ?? 80;
-             $request->setRemotePort((int) $port);
-             $request->setServerPort((int) $port);
-             $request->setServerName($headers['host'][0] ?? 'localhost');
+        if (array_key_exists('multiValueHeaders', $event)) {
+            $headers = $event['multiValueHeaders'];
+            $headers = array_change_key_case($headers, CASE_LOWER);
+            $port = $headers['x-forwarded-port'][0] ?? 80;
+            $request->setRemotePort((int) $port);
+            $request->setServerPort((int) $port);
+            $request->setServerName($headers['host'][0] ?? 'localhost');
 
-             if (($method === 'POST') && ! isset($headers['content-type'])) {
-                 $headers['content-type'] = ['application/x-www-form-urlencoded'];
-             }
-             if (isset($headers['content-type'])) {
-               $request->setContentType($headers['content-type'][0]);
-             }
-             if (($method === 'POST') && ! isset($headers['content-length'])) {
-                 $headers['content-length'] = [strlen($requestBody)];
-             }
-             foreach ($headers as $name => $values) {
-                 foreach ($values as $value) {
-                     $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
-                     $request->setCustomVar($key, $value);
-                 }
-             }
-         }
-         else {
-                   // See https://stackoverflow.com/a/5519834/245552
-                   if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
-                       $headers['content-type'] = 'application/x-www-form-urlencoded';
-                   }
-                   if (isset($headers['content-type'])) {
-                       $request->setContentType($headers['content-type']);
-                   }
+            if (($method === 'POST') && ! isset($headers['content-type'])) {
+                $headers['content-type'] = ['application/x-www-form-urlencoded'];
+            }
+            if (isset($headers['content-type'])) {
+                $request->setContentType($headers['content-type'][0]);
+            }
+            if (($method === 'POST') && ! isset($headers['content-length'])) {
+                $headers['content-length'] = [strlen($requestBody)];
+            }
+            foreach ($headers as $name => $values) {
+                foreach ($values as $value) {
+                    $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+                    $request->setCustomVar($key, $value);
+                }
+            }
+        } else {
+                  // See https://stackoverflow.com/a/5519834/245552
+            if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
+                $headers['content-type'] = 'application/x-www-form-urlencoded';
+            }
+            if (isset($headers['content-type'])) {
+                $request->setContentType($headers['content-type']);
+            }
                    // Auto-add the Content-Length header if it wasn't provided
                    // See https://github.com/mnapoli/bref/issues/162
-                   if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
-                       $headers['content-length'] = strlen($requestBody);
-                   }
+            if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
+                $headers['content-length'] = strlen($requestBody);
+            }
 
-                   foreach ($headers as $header => $value) {
-                       $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
-                       $request->setCustomVar($key, $value);
-                   }
-         }
+            foreach ($headers as $header => $value) {
+                $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+                $request->setCustomVar($key, $value);
+            }
+        }
          return $request;
     }
 
