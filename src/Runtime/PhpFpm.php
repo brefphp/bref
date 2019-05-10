@@ -3,10 +3,11 @@
 namespace Bref\Runtime;
 
 use Bref\Http\LambdaResponse;
-use Hoa\Fastcgi\Exception\Exception as HoaFastCgiException;
-use Hoa\Fastcgi\Responder;
-use Hoa\Socket\Client;
-use Hoa\Socket\Exception\Exception as HoaSocketException;
+use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
+use Bref\Runtime\FastCgi\FastCgiRequest;
+use hollodotme\FastCGI\Client;
+use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
+use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Symfony\Component\Process\Process;
 
 /**
@@ -68,7 +69,8 @@ class PhpFpm
             echo $output;
         });
 
-        $this->reconnect();
+        $connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
+        $this->client = new Client($connection);
 
         $this->waitUntilReady();
     }
@@ -76,7 +78,6 @@ class PhpFpm
     public function stop(): void
     {
         if ($this->fpm && $this->fpm->isRunning()) {
-            $this->client->disconnect();
             $this->fpm->stop(2);
             if ($this->isReady()) {
                 throw new \Exception('PHP-FPM cannot be stopped');
@@ -98,7 +99,32 @@ class PhpFpm
             throw new \Exception('PHP-FPM has stopped for an unknown reason');
         }
     }
-
+    /**
+     * Return an array of the response headers.
+     *
+     * @param ProvidesResponseData $response
+     * @param boolean $isMultiHeader
+     */
+    private function getHeaders($response,$isMultiHeader): array
+    {
+      if ($isMultiHeader){
+        $responseHeaders = [];
+        $lines  = explode( PHP_EOL, $response->getRawResponse() );
+        foreach ($lines as $i => $line ){
+          if (preg_match('#^([^\:]+):(.*)$#', $line, $matches )){
+            $key = trim( $matches[1]);
+            if (!array_key_exists($key, $responseHeaders)) $responseHeaders[$key]= [];
+            $responseHeaders[$key][] = trim($matches[2]);
+            continue;
+          }
+          break;
+        }
+      }
+      else {
+        $responseHeaders = $response->getHeaders();
+      }
+      return array_change_key_case($responseHeaders, CASE_LOWER);
+    }
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
      *
@@ -110,42 +136,27 @@ class PhpFpm
             throw new \Exception('The lambda was not invoked via HTTP through API Gateway: this is not supported by this runtime');
         }
 
-        [$requestHeaders, $requestBody] = $this->eventToFastCgiRequest($event);
-        $responder = new Responder($this->client);
-        $context = $event['requestContext'] ?? [];
-        // If is coming from ALB/ELB or has MultiHeaders we Enable it.
-        $isALB = array_key_exists('elb', $context) || (array_key_exists('multiValueHeaders', $event));
-        if (method_exists($responder, 'enableMultiHeaders')) {
-            $responder->enableMultiHeaders($isALB);
-        }
+        $request = $this->eventToFastCgiRequest($event);
+
         try {
-            $responder->send($requestHeaders, $requestBody);
-        } catch (HoaFastCgiException|HoaSocketException $e) {
-            // Once the socket gets broken every following request is broken. We need to reconnect.
-            $this->reconnect();
+            $response = $this->client->sendRequest($request);
+        } catch (\Throwable $e) {
             throw new FastCgiCommunicationFailed(sprintf(
-                'Error communicating with PHP-FPM to read the HTTP response. A common root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will reconnect to PHP-FPM to clean things up. Original exception message: %s %s',
+                'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
                 get_class($e),
                 $e->getMessage()
             ), 0, $e);
         }
 
-        $responseHeaders = $responder->getResponseHeaders();
-
-        $responseHeaders = array_change_key_case($responseHeaders, CASE_LOWER);
-
-        // Extract the status code
-        if (isset($responseHeaders['status'])) {
-            $statscode = is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status'];
-            $status = preg_replace('/[^0-9]/', '', $statscode);
-        } else {
-            $status = 200;
+        $isALB = array_key_exists("elb", $event['requestContext']);
+        $responseHeaders = $this->getHeaders($response,$isALB);
+        if (array_key_exists('status', $responseHeaders)){
+          $statscode = is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status'];
+          $status = (int) preg_replace('/[^0-9]/', '', $statscode);
+          unset($responseHeaders['status']);
         }
-        unset($responseHeaders['status']);
 
-        $responseBody = (string) $responder->getResponseContent();
-
-        return new LambdaResponse((int) $status, $responseHeaders, $responseBody);
+        return new LambdaResponse($status ?? 200, $responseHeaders, $response->getBody());
     }
 
     private function waitUntilReady(): void
@@ -176,12 +187,15 @@ class PhpFpm
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(array $event): array
+    private function eventToFastCgiRequest(array $event): ProvidesRequestData
     {
         $requestBody = $event['body'] ?? '';
         if ($event['isBase64Encoded'] ?? false) {
             $requestBody = base64_decode($requestBody);
         }
+
+        $method = strtoupper($event['httpMethod']);
+        $request = new FastCgiRequest($method, $this->handler, $requestBody);
 
         $uri = $event['path'] ?? '/';
         /*
@@ -192,108 +206,75 @@ class PhpFpm
          * There's still an issue: AWS API Gateway does not support multiple query string parameters with the same name
          * So you can't use something like ?array[]=val1&array[]=val2 because only the 'val2' value will survive
          */
-        if (array_key_exists('multiValueQueryStringParameters', $event) && $event['multiValueQueryStringParameters']) {
-            $queryParameters = [];
-            foreach ($event['multiValueQueryStringParameters'] as $key => $value) {
-                $queryParameters[$key] = $value[0];
-            }
-            if ($queryParameters) {
-                $uri.= '?' . http_build_query($queryParameters);
-            }
-        } else {
-            $queryString = http_build_query($event['queryStringParameters'] ?? []);
-            parse_str($queryString, $queryParameters);
-            if (! empty($queryString)) {
-                $uri .= '?' . $queryString;
-            }
-        }
+         if (array_key_exists('multiValueQueryStringParameters', $event) && $event['multiValueQueryStringParameters']) {
+             $queryParameters = [];
+             foreach($event['multiValueQueryStringParameters'] as $key => $value) $queryParameters[$key] = $value[0];
+             if ($queryParameters) $uri .= "?".http_build_query($queryParameters);
+             $queryString = http_build_query($queryParameters);
+         }
+         else{
+           $queryString = http_build_query($event['queryStringParameters'] ?? []);
+           parse_str($queryString, $queryParameters);
+           if (! empty($queryString)) {
+               $uri .= '?' . $queryString;
+           }
+         }
 
-        if (isset($queryParameters)) {
-            $queryString = http_build_query($queryParameters);
-        }
-        $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
-        $method = strtoupper($event['httpMethod']);
-        // Normalize headers
-        $requestHeaders = [
-            'GATEWAY_INTERFACE' => 'FastCGI/1.0',
-            'REQUEST_METHOD' => $method,
-            'REQUEST_URI' => $uri,
-            'SCRIPT_FILENAME' => $this->handler,
-            'SERVER_SOFTWARE' => 'bref',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SERVER_ADDR' => '127.0.0.1',
-            'SERVER_PROTOCOL' => $protocol,
-            'PATH_INFO' => $event['path'] ?? '/',
-            'QUERY_STRING' => $queryString ?? '',
-        ];
+         $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
+         $path = $event['path'] ?? '/';
+         $request->setRequestUri($uri);
+         $request->setRemoteAddress('127.0.0.1');
+         $request->setServerAddress('127.0.0.1');
+         $request->setServerProtocol($protocol);
+         $request->setCustomVar('PATH_INFO', $path);
+         $request->setCustomVar('QUERY_STRING', $queryString);
+         $request->setRemotePort(80);
+         $request->setServerName('localhost');
+         $request->setServerPort(80);
+         if (array_key_exists('multiValueHeaders', $event)) {
+             $headers = $event['multiValueHeaders'];
+             $headers = array_change_key_case($headers, CASE_LOWER);
+             $port = $headers['x-forwarded-port'][0] ?? 80;
+             $request->setRemotePort((int) $port);
+             $request->setServerPort((int) $port);
+             $request->setServerName($headers['host'][0] ?? 'localhost');
 
-        if (array_key_exists('multiValueHeaders', $event)) {
-            $headers = $event['multiValueHeaders'];
-            $headers = array_change_key_case($headers, CASE_LOWER);
-            $serverName = $headers['host'][0] ?? 'localhost';
-            if (($method === 'POST') && ! isset($headers['content-type'])) {
-                $headers['content-type'] = ['application/x-www-form-urlencoded'];
-            }
-            if (isset($headers['content-type'])) {
-                $requestHeaders['CONTENT_TYPE'] = $headers['content-type'][0];
-            }
-            $requestHeaders['REMOTE_PORT'] = $headers['x-forwarded-port'][0] ?? 80;
-            $requestHeaders['SERVER_PORT'] = $headers['x-forwarded-port'][0] ?? 80;
-            $requestHeaders['SERVER_NAME'] = $serverName;
-            if (($method === 'POST') && ! isset($headers['content-length'])) {
-                $headers['content-length'] = [strlen($requestBody)];
-            }
-            if (isset($headers['content-length'])) {
-                $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'][0];
-            }
-            foreach ($headers as $name => $values) {
-                foreach ($values as $value) {
-                    $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
-                    $requestHeaders[$key] = $value;
-                }
-            }
-        } else {
-            $headers = $event['headers'] ?? [];
-            $headers = array_change_key_case($headers, CASE_LOWER);
-            $serverName = $headers['host'] ?? 'localhost';
-            $requestHeaders['REMOTE_PORT'] = $headers['x-forwarded-port'] ?? 80;
-            $requestHeaders['SERVER_PORT'] = $headers['x-forwarded-port'] ?? 80;
-            $requestHeaders['SERVER_NAME'] = $serverName;
-            // See https://stackoverflow.com/a/5519834/245552
-            if (($method === 'POST') && ! isset($headers['content-type'])) {
-                $headers['content-type'] = 'application/x-www-form-urlencoded';
-            }
-            if (isset($headers['content-type'])) {
-                $requestHeaders['CONTENT_TYPE'] = $headers['content-type'];
-            }
-            // Auto-add the Content-Length header if it wasn't provided
-            // See https://github.com/mnapoli/bref/issues/162
-            if (($method === 'POST') && ! isset($headers['content-length'])) {
-                $headers['content-length'] = strlen($requestBody);
-            }
-            if (isset($headers['content-length'])) {
-                $requestHeaders['CONTENT_LENGTH'] = $headers['content-length'];
-            }
-            foreach ($headers as $header => $value) {
-                $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
-                $requestHeaders[$key] = $value;
-            }
-        }
-        return [$requestHeaders, $requestBody];
-    }
+             if (($method === 'POST') && ! isset($headers['content-type'])) {
+                 $headers['content-type'] = ['application/x-www-form-urlencoded'];
+             }
+             if (isset($headers['content-type'])) {
+               $request->setContentType($headers['content-type'][0]);
+             }
+             if (($method === 'POST') && ! isset($headers['content-length'])) {
+                 $headers['content-length'] = [strlen($requestBody)];
+             }
+             foreach ($headers as $name => $values) {
+                 foreach ($values as $value) {
+                     $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+                     $request->setCustomVar($key, $value);
+                 }
+             }
+         }
+         else {
+                   // See https://stackoverflow.com/a/5519834/245552
+                   if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
+                       $headers['content-type'] = 'application/x-www-form-urlencoded';
+                   }
+                   if (isset($headers['content-type'])) {
+                       $request->setContentType($headers['content-type']);
+                   }
+                   // Auto-add the Content-Length header if it wasn't provided
+                   // See https://github.com/mnapoli/bref/issues/162
+                   if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
+                       $headers['content-length'] = strlen($requestBody);
+                   }
 
-    private function reconnect(): void
-    {
-        if ($this->client) {
-            /**
-             * Hoa magic
-             *
-             * @see \Hoa\Socket\Connection\Connection
-             */
-            $this->client->disconnect();
-        }
-
-        $this->client = new Client('unix://' . self::SOCKET, 30000);
+                   foreach ($headers as $header => $value) {
+                       $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+                       $request->setCustomVar($key, $value);
+                   }
+         }
+         return $request;
     }
 
     /**
