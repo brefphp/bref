@@ -8,8 +8,8 @@ use Bref\Runtime\FastCgi\FastCgiRequest;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
+use hollodotme\FastCGI\Responses\Response;
 use Symfony\Component\Process\Process;
-
 /**
  * Proxies HTTP events coming from API Gateway to PHP-FPM via FastCGI.
  *
@@ -102,7 +102,7 @@ class PhpFpm
     /**
      * Return an array of the response headers.
      */
-    private function getHeaders(ProvidesResponseData $response, bool $isMultiHeader): array
+    private function getHeaders(Response $response, bool $isMultiHeader): array
     {
         if ($isMultiHeader) {
             $responseHeaders = [];
@@ -146,7 +146,7 @@ class PhpFpm
             ), 0, $e);
         }
 
-        $isALB = array_key_exists('elb', $event['requestContext']);
+        $isALB = array_key_exists('requestContext', $event) && array_key_exists('elb', $event['requestContext']);
         $responseHeaders = $this->getHeaders($response, $isALB);
         if (array_key_exists('status', $responseHeaders)) {
             $statscode = is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status'];
