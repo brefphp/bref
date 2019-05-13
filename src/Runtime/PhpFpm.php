@@ -103,7 +103,7 @@ class PhpFpm
     /**
      * Return an array of the response headers.
      */
-    private function getHeaders(Response $response, bool $isMultiHeader): array
+    private function getHeaders($response, $isMultiHeader): array
     {
         if ($isMultiHeader) {
             $responseHeaders = [];
@@ -220,6 +220,7 @@ class PhpFpm
             if (! empty($queryString)) {
                 $uri .= '?' . $queryString;
             }
+            $queryString = http_build_query($queryParameters);
         }
 
          $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
@@ -231,7 +232,6 @@ class PhpFpm
          $request->setCustomVar('PATH_INFO', $path);
          $request->setCustomVar('QUERY_STRING', $queryString);
          $request->setRemotePort(80);
-         $request->setServerName('localhost');
          $request->setServerPort(80);
         if (array_key_exists('multiValueHeaders', $event)) {
             $headers = $event['multiValueHeaders'];
@@ -258,6 +258,7 @@ class PhpFpm
         } else {
             $headers = $event['headers'] ?? [];
             $headers = array_change_key_case($headers, CASE_LOWER);
+            $request->setServerName($headers['host'] ?? 'localhost');
             // See https://stackoverflow.com/a/5519834/245552
             if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
                 $headers['content-type'] = 'application/x-www-form-urlencoded';
