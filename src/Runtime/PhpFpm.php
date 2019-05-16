@@ -107,6 +107,10 @@ class PhpFpm
      */
     public function proxy($event): LambdaResponse
     {
+        if (isset($event['warmer']) && $event['warmer'] === true) {
+            return new LambdaResponse(100, [], 'Lambda is warm');
+        }
+
         if (! isset($event['httpMethod'])) {
             throw new \Exception('The lambda was not invoked via HTTP through API Gateway: this is not supported by this runtime');
         }
