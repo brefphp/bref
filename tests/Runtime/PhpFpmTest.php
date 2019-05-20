@@ -700,7 +700,7 @@ Year,Make,Model
             'queryStringParameters' => [
                 'code' => $expectedStatusCode,
             ],
-        ])->toApiGatewayFormat()['statusCode'];
+        ])->toResponseFormat()['statusCode'];
 
         self::assertEquals($expectedStatusCode, $statusCode);
     }
@@ -714,7 +714,7 @@ Year,Make,Model
     {
         $response = $this->get('response-headers.php', [
             'httpMethod' => 'GET',
-        ])->toApiGatewayFormat();
+        ])->toResponseFormat();
 
         self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
         unset($response['headers']['x-powered-by']);
@@ -725,14 +725,14 @@ Year,Make,Model
 
     public function test response with cookies()
     {
-        $cookieHeader = $this->get('cookies.php')->toApiGatewayFormat()['headers']['set-cookie'];
+        $cookieHeader = $this->get('cookies.php')->toResponseFormat()['headers']['set-cookie'];
 
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
     }
 
     public function test response with error_log()
     {
-        $response = $this->get('error.php')->toApiGatewayFormat();
+        $response = $this->get('error.php')->toResponseFormat();
 
         self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
         unset($response['headers']['x-powered-by']);
@@ -760,7 +760,7 @@ Year,Make,Model
         } catch (FastCgiCommunicationFailed $e) {
             // PHP-FPM should work after that
             $statusCode = $this->fpm->proxy(['httpMethod' => 'GET'])
-                ->toApiGatewayFormat()['statusCode'];
+                ->toResponseFormat()['statusCode'];
             self::assertEquals(200, $statusCode);
         }
     }
@@ -772,7 +772,7 @@ Year,Make,Model
     {
         // Repeat the test 5 times because some errors are random
         for ($i = 0; $i < 5; $i++) {
-            $response = $this->get('large-response.php')->toApiGatewayFormat();
+            $response = $this->get('large-response.php')->toResponseFormat();
 
             self::assertStringEqualsFile(__DIR__ . '/PhpFpm/big-json.json', $response['body']);
         }
@@ -783,7 +783,7 @@ Year,Make,Model
         $this->startFpm(__DIR__ . '/PhpFpm/request.php');
         $response = $this->fpm->proxy($event);
 
-        $response = json_decode($response->toApiGatewayFormat()['body'], true);
+        $response = json_decode($response->toResponseFormat()['body'], true);
 
         // Test global variables that cannot be hardcoded
         self::assertNotEmpty($response['$_SERVER']['HOME']);

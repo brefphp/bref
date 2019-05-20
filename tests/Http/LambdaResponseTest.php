@@ -19,7 +19,7 @@ class LambdaResponseTest extends TestCase
                 'Content-Type' => 'text/html; charset=utf-8',
             ],
             'body' => '<p>Hello world!</p>',
-        ], $response->toApiGatewayFormat());
+        ], $response->toResponseFormat());
     }
 
     public function test I can create a response from a PSR7 response()
@@ -34,7 +34,7 @@ class LambdaResponseTest extends TestCase
                 'Content-Type' => 'application/json',
             ],
             'body' => json_encode(['foo' => 'bar']),
-        ], $response->toApiGatewayFormat());
+        ], $response->toResponseFormat());
     }
 
     public function test nested arrays in headers are flattened()
@@ -48,7 +48,7 @@ class LambdaResponseTest extends TestCase
             'statusCode' => 204,
             'headers' => ['Foo' => 'baz'],
             'body' => '',
-        ], $response->toApiGatewayFormat());
+        ], $response->toResponseFormat());
     }
 
     public function test empty headers are considered objects()
@@ -56,6 +56,6 @@ class LambdaResponseTest extends TestCase
         $response = LambdaResponse::fromPsr7Response(new EmptyResponse);
 
         // Make sure that the headers are `"headers":{}` (object) and not `"headers":[]` (array)
-        self::assertEquals('{"isBase64Encoded":false,"statusCode":204,"headers":{},"body":""}', json_encode($response->toApiGatewayFormat()));
+        self::assertEquals('{"isBase64Encoded":false,"statusCode":204,"headers":{},"body":""}', json_encode($response->toResponseFormat()));
     }
 }
