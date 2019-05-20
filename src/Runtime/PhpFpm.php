@@ -7,7 +7,6 @@ use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
 use Bref\Runtime\FastCgi\FastCgiRequest;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
-use hollodotme\FastCGI\Responses\Response;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Symfony\Component\Process\Process;
 
@@ -103,7 +102,7 @@ class PhpFpm
     /**
      * Return an array of the response headers.
      */
-    private function getHeaders(Response $response, bool $isMultiHeader): array
+    private function getHeaders($response, $isMultiHeader): array
     {
         if ($isMultiHeader) {
             $responseHeaders = [];
