@@ -101,6 +101,9 @@ class PhpFpm
     }
     /**
      * Return an array of the response headers.
+     *
+     * @param mixed $response
+     * @param bool  $isMultiHeader
      */
     private function getHeaders($response, $isMultiHeader): array
     {
