@@ -220,6 +220,7 @@ class PhpFpm
             if (! empty($queryString)) {
                 $uri .= '?' . $queryString;
             }
+            $queryString = http_build_query($queryParameters);
         }
 
          $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
@@ -258,6 +259,7 @@ class PhpFpm
         } else {
             $headers = $event['headers'] ?? [];
             $headers = array_change_key_case($headers, CASE_LOWER);
+            $request->setServerName($headers['host'] ?? 'localhost');
             // See https://stackoverflow.com/a/5519834/245552
             if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
                 $headers['content-type'] = 'application/x-www-form-urlencoded';
