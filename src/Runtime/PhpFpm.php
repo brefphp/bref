@@ -21,8 +21,10 @@ use Symfony\Component\Process\Process;
  *     $lambdaResponse = $phpFpm->proxy($event);
  *     $phpFpm->stop();
  *     [send the $lambdaResponse];
+ *
+ * @internal
  */
-class PhpFpm
+final class PhpFpm
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const PID_FILE = '/tmp/.bref/php-fpm.pid';

@@ -4,7 +4,10 @@ namespace Bref\Runtime\FastCgi;
 
 use hollodotme\FastCGI\Requests\AbstractRequest;
 
-class FastCgiRequest extends AbstractRequest
+/**
+ * @internal
+ */
+final class FastCgiRequest extends AbstractRequest
 {
     /** @var string */
     private $method;
