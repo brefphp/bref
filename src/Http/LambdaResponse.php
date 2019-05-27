@@ -56,14 +56,17 @@ class LambdaResponse
         );
     }
 
-    public function toResponseFormat(bool $isMultiHeader = false): array
+    public function toArray(bool $multiHeaders = false): array
     {
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
         $headers = empty($this->headers) ? new \stdClass : $this->headers;
+
+        // Support for multi-value headers
+        $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
+
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
-        $headersKey = $isMultiHeader ? 'multiValueHeaders' : 'headers';
         return [
             'isBase64Encoded' => false,
             'statusCode' => $this->statusCode,

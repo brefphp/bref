@@ -27,7 +27,7 @@ for ($i = 0; $i <= 1000; $i++) {
             'protocol' => 'HTTP/1.1',
         ],
     ]);
-    if ($response->toResponseFormat()['statusCode'] !== 200) {
+    if ($response->toArray()['statusCode'] !== 200) {
         die('Error');
     }
     echo '.';
