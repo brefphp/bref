@@ -130,6 +130,7 @@ class PhpFpmRuntimeTest extends TestCase
             'readline',
             'session',
             'soap',
+            'sockets',
             'sodium',
             'sqlite3',
             'standard',
