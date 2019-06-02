@@ -1,0 +1,13 @@
+service: app
+
+provider:
+    name: aws
+    runtime: provided
+
+functions:
+    console:
+        handler: bin/console # Replace by `artisan` if you are using Laravel
+        description: ''
+        layers:
+            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:6' # PHP
+            - 'arn:aws:lambda:us-east-1:209497400698:layer:console:6' # The "console" layer
