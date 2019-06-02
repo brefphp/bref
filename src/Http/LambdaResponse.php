@@ -58,7 +58,7 @@ final class LambdaResponse
         );
     }
 
-    public function toArray(bool $multiHeaders = false): array
+    public function toApiGatewayFormat(bool $multiHeaders = false): array
     {
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.

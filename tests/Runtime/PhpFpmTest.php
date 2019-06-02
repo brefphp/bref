@@ -769,7 +769,7 @@ Year,Make,Model
             'queryStringParameters' => [
                 'code' => $expectedStatusCode,
             ],
-        ])->toArray()['statusCode'];
+        ])->toApiGatewayFormat()['statusCode'];
 
         self::assertEquals($expectedStatusCode, $statusCode);
     }
@@ -783,7 +783,7 @@ Year,Make,Model
     {
         $response = $this->get('response-headers.php', [
             'httpMethod' => 'GET',
-        ])->toArray();
+        ])->toApiGatewayFormat();
 
         self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
         unset($response['headers']['x-powered-by']);
@@ -798,7 +798,7 @@ Year,Make,Model
         $response = $this->get('response-headers.php', [
             'httpMethod' => 'GET',
             'multiValueHeaders' => [],
-        ])->toArray();
+        ])->toApiGatewayFormat();
 
         self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'][0] ?? '');
         unset($response['headers']['x-powered-by']);
@@ -810,7 +810,7 @@ Year,Make,Model
 
     public function test response with cookies()
     {
-        $cookieHeader = $this->get('cookies.php')->toArray()['headers']['set-cookie'];
+        $cookieHeader = $this->get('cookies.php')->toApiGatewayFormat()['headers']['set-cookie'];
 
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
     }
@@ -820,7 +820,7 @@ Year,Make,Model
         $cookieHeader = $this->get('cookies.php', [
             'httpMethod' => 'GET',
             'multiValueHeaders' => [],
-        ])->toArray()['headers']['set-cookie'];
+        ])->toApiGatewayFormat()['headers']['set-cookie'];
 
         self::assertEquals('MyCookie=FirstValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
@@ -828,7 +828,7 @@ Year,Make,Model
 
     public function test response with error_log()
     {
-        $response = $this->get('error.php')->toArray();
+        $response = $this->get('error.php')->toApiGatewayFormat();
 
         self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
         unset($response['headers']['x-powered-by']);
@@ -857,7 +857,7 @@ Year,Make,Model
                 'queryStringParameters' => [
                     'timeout' => 0,
                 ],
-            ])->toArray()['statusCode'];
+            ])->toApiGatewayFormat()['statusCode'];
             self::assertEquals(200, $statusCode);
         }
     }
@@ -869,7 +869,7 @@ Year,Make,Model
     {
         // Repeat the test 5 times because some errors are random
         for ($i = 0; $i < 5; $i++) {
-            $response = $this->get('large-response.php')->toArray();
+            $response = $this->get('large-response.php')->toApiGatewayFormat();
 
             self::assertStringEqualsFile(__DIR__ . '/PhpFpm/big-json.json', $response['body']);
         }
@@ -885,8 +885,8 @@ Year,Make,Model
         $response = $this->fpm->proxy([
             'warmer' => true,
         ]);
-        self::assertEquals(100, $response->toArray()['statusCode']);
-        self::assertEquals('Lambda is warm', $response->toArray()['body']);
+        self::assertEquals(100, $response->toApiGatewayFormat()['statusCode']);
+        self::assertEquals('Lambda is warm', $response->toApiGatewayFormat()['body']);
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
@@ -894,7 +894,7 @@ Year,Make,Model
         $this->startFpm(__DIR__ . '/PhpFpm/request.php');
         $response = $this->fpm->proxy($event);
 
-        $response = json_decode($response->toArray()['body'], true);
+        $response = json_decode($response->toApiGatewayFormat()['body'], true);
 
         // Test global variables that cannot be hardcoded
         self::assertNotEmpty($response['$_SERVER']['HOME']);

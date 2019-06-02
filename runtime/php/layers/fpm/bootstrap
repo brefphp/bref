@@ -30,7 +30,7 @@ while (true) {
         $response = $phpFpm->proxy($event);
 
         $multiHeader = array_key_exists('multiValueHeaders', $event);
-        return $response->toArray($multiHeader);
+        return $response->toApiGatewayFormat($multiHeader);
     });
 
     try {
