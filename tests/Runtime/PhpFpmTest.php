@@ -752,15 +752,16 @@ Year,Make,Model
         try {
             $this->fpm->proxy([
                 'httpMethod' => 'GET',
-                'queryStringParameters' => [
-                    'timeout' => 10,
-                ],
             ]);
             $this->fail('No exception was thrown');
         } catch (FastCgiCommunicationFailed $e) {
             // PHP-FPM should work after that
-            $statusCode = $this->fpm->proxy(['httpMethod' => 'GET'])
-                ->toApiGatewayFormat()['statusCode'];
+            $statusCode = $this->fpm->proxy([
+                'httpMethod' => 'GET',
+                'queryStringParameters' => [
+                    'timeout' => 0,
+                ],
+            ])->toApiGatewayFormat()['statusCode'];
             self::assertEquals(200, $statusCode);
         }
     }
@@ -776,6 +777,20 @@ Year,Make,Model
 
             self::assertStringEqualsFile(__DIR__ . '/PhpFpm/big-json.json', $response['body']);
         }
+    }
+
+    public function test warmer events do not invoke the application()
+    {
+        // Run `timeout.php` to make sure that the handler is not really executed.
+        // If it was, then PHP-FPM would timeout (and error).
+        $this->fpm = new PhpFpm(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm->start();
+
+        $response = $this->fpm->proxy([
+            'warmer' => true,
+        ]);
+        self::assertEquals(100, $response->toApiGatewayFormat()['statusCode']);
+        self::assertEquals('Lambda is warm', $response->toApiGatewayFormat()['body']);
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
