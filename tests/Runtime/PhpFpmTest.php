@@ -885,8 +885,8 @@ Year,Make,Model
         $response = $this->fpm->proxy([
             'warmer' => true,
         ]);
-        self::assertEquals(100, $response->toApiGatewayFormat()['statusCode']);
-        self::assertEquals('Lambda is warm', $response->toApiGatewayFormat()['body']);
+        self::assertEquals(100, $response->toArray()['statusCode']);
+        self::assertEquals('Lambda is warm', $response->toArray()['body']);
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
