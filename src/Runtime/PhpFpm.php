@@ -22,8 +22,10 @@ use Symfony\Component\Process\Process;
  *     $lambdaResponse = $phpFpm->proxy($event);
  *     $phpFpm->stop();
  *     [send the $lambdaResponse];
+ *
+ * @internal
  */
-class PhpFpm
+final class PhpFpm
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const PID_FILE = '/tmp/.bref/php-fpm.pid';
@@ -108,6 +110,10 @@ class PhpFpm
      */
     public function proxy($event): LambdaResponse
     {
+        if (isset($event['warmer']) && $event['warmer'] === true) {
+            return new LambdaResponse(100, [], 'Lambda is warm');
+        }
+
         if (! isset($event['httpMethod'])) {
             throw new \Exception('The lambda was not invoked via HTTP through API Gateway: this is not supported by this runtime');
         }

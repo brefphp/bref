@@ -6,8 +6,10 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
+ *
+ * @internal
  */
-class LambdaResponse
+final class LambdaResponse
 {
     /** @var int */
     private $statusCode = 200;

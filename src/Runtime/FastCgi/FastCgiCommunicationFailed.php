@@ -4,7 +4,9 @@ namespace Bref\Runtime\FastCgi;
 
 /**
  * There was an error while communicating with FastCGI.
+ *
+ * @internal
  */
-class FastCgiCommunicationFailed extends \Exception
+final class FastCgiCommunicationFailed extends \Exception
 {
 }

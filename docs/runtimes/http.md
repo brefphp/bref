@@ -136,3 +136,22 @@ Use `{foo}` as a placeholder for a parameter and `{foo+}` as a parameter that ma
 Lambda and API Gateway are only used for executing code. Serving assets via PHP does not make sense as this would be a waste of resources and money.
 
 Deploying a website and serving assets (e.g. CSS, JavaScript, images) will be covered later in another article.
+
+## Cold starts
+
+AWS Lambda automatically destroys Lambda containers that have been unused for 10 to 60 minutes. Warming up a new container can take some time, especially if your package is large or if your Lambda is connected to a VPC. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).
+
+To mitigate cold starts for HTTP applications, you can periodically send an event to your Lambda including a `{warmer: true}` key. Bref recognizes this event and immediately responds with a `{status: 100}` without executing your code.
+
+You can generate automatically such events using AWS CloudWatch ([read this article for more details](https://www.jeremydaly.com/lambda-warmer-optimize-aws-lambda-function-cold-starts/)). For example :
+
+```yaml
+            Events:
+                # Here are the HTTP events
+                ...
+                Warmer:
+                    Type: Schedule
+                    Properties:
+                        Schedule: rate(5 minutes)
+                        Input: '{"warmer": true}'
+```

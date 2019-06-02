@@ -7,7 +7,7 @@ use Aws\Result;
 /**
  * The result of a successful lambda invocation.
  */
-class InvocationResult
+final class InvocationResult
 {
     /** @var Result */
     private $result;
