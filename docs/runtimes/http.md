@@ -137,16 +137,17 @@ Lambda and API Gateway are only used for executing code. Serving assets via PHP 
 
 Deploying a website and serving assets (e.g. CSS, JavaScript, images) will be covered later in another article.
 
-### Cold start
+## Cold starts
 
-AWS Lambda automatically destroys Lambda containers that have been unused for 10 to 60 minutes. Warming up a new container can take severals seconds, especially if your package is large or if your Lambda is connected to a VPC. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).
+AWS Lambda automatically destroys Lambda containers that have been unused for 10 to 60 minutes. Warming up a new container can take some time, especially if your package is large or if your Lambda is connected to a VPC. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).
 
-To mitigate cold start, you can periodically send an event to your Lambda including a `{warmer: true}` key. Bref recognizes this event and immediately responds with a `{status: 100}` without calling your handler file.  
+To mitigate cold starts for HTTP applications, you can periodically send an event to your Lambda including a `{warmer: true}` key. Bref recognizes this event and immediately responds with a `{status: 100}` without executing your code.
 
-You can generate automatically such events using AWS CloudWatch. For exemple : 
+You can generate automatically such events using AWS CloudWatch. For example :
 
 ```yaml
             Events:
+                # Here are the HTTP events
                 ...
                 Warmer:
                     Type: Schedule
