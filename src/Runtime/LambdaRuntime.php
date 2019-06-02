@@ -22,8 +22,10 @@ use Bref\Context\ContextBuilder;
  *     $lambdaRuntime->processNextEvent(function ($event) {
  *         return <response>;
  *     });
+ *
+ * @internal
  */
-class LambdaRuntime
+final class LambdaRuntime
 {
     /** @var resource|null */
     private $handler;

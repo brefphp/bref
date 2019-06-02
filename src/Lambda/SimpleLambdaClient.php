@@ -8,7 +8,7 @@ use Psr\Http\Message\StreamInterface;
 /**
  * A simpler alternative to the official LambdaClient from the AWS SDK.
  */
-class SimpleLambdaClient
+final class SimpleLambdaClient
 {
     /** @var LambdaClient */
     private $lambda;
