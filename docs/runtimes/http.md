@@ -143,7 +143,7 @@ AWS Lambda automatically destroys Lambda containers that have been unused for 10
 
 To mitigate cold starts for HTTP applications, you can periodically send an event to your Lambda including a `{warmer: true}` key. Bref recognizes this event and immediately responds with a `{status: 100}` without executing your code.
 
-You can generate automatically such events using AWS CloudWatch. For example :
+You can generate automatically such events using AWS CloudWatch ([read this article for more details](https://www.jeremydaly.com/lambda-warmer-optimize-aws-lambda-function-cold-starts/)). For example :
 
 ```yaml
             Events:
