@@ -35,7 +35,7 @@ On average cold starts due to VPC are around **5 seconds**. This can be a deal-b
 
 > 🎉 AWS [will remove this caveat in 2019](https://twitter.com/jeremy_daly/status/1068272580556087296). We will keep this page updated when this happens.
 
-A common workaround is to "ping" the lambda function every 5 minutes to avoid cold starts. This [might not work](https://hackernoon.com/im-afraid-you-re-thinking-about-aws-lambda-cold-starts-all-wrong-7d907f278a4f) for applications with very variable loads.
+A common workaround is to ["ping" the lambda function every 5 minutes](/docs/runtimes/http.html#cold-starts) to avoid cold starts. This [might not work](https://hackernoon.com/im-afraid-you-re-thinking-about-aws-lambda-cold-starts-all-wrong-7d907f278a4f) for applications with very variable loads.
 
 ## Creating a database
 
