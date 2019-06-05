@@ -12,7 +12,7 @@ On top of that, the filesystem is not shared between instances of a lambda when 
 
 Application data must not be stored in `/tmp` because of the behavior described above.
 
-Instead data can be stored in databases or in storage services like AWS S3.
+Instead data can be stored in [databases](/docs/environment/database.md) or in storage services like AWS S3.
 
 ## Application cache
 

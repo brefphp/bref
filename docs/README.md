@@ -113,7 +113,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
     <tr class="border-b border-grey-lighter">
         <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">API with MySQL / PostgreSQL</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-green-light"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-red-light"></span>
@@ -193,9 +193,9 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **API with MySQL/PostgreSQL**
 
-    MySQL, PostgreSQL or Aurora imply using [AWS RDS](https://aws.amazon.com/rds/), which means using a VPC. This adds a bit of configuration complexity and this is not documented in Bref at the moment (resources can be found online).
+    MySQL, PostgreSQL or Aurora imply using [AWS RDS](https://aws.amazon.com/rds/), which means using a VPC. Because of that cold starts get much worse: around 5 seconds. While this can be acceptable for some scenarios, for most APIs this is a deal breaker. This is why we will rate it "red" for now as this is a "strong limitation". AWS has planned to remove this caveat in 2019.
     
-    More importantly, using a VPC means cold starts get much worse: around 5 seconds. While this can be acceptable for some scenarios, for most APIs this is a deal breaker. This is why we will rate it "red" for now as this is a "strong limitation". AWS is planning on removing VPC in 2019, which will very probably change the game here.
+    Read the [full "Databases" documentation](/docs/environment/database.md) to learn more.
 
 - **Website**
 
