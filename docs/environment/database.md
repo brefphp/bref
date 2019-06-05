@@ -14,22 +14,28 @@ Here are the database services offered by RDS:
 - [Aurora PostgreSQL](https://aws.amazon.com/rds/aurora/): optimized closed-source fork
 - [Aurora Serverless MySQL](https://aws.amazon.com/rds/aurora/serverless/): scales automatically on-demand
 
-Aurora serverless can be configured to scale down to 0 instances when unused (which costs $0), however be careful with this option: the database can take up to 30 seconds to un-pause.
+> Aurora Serverless can be configured to scale down to 0 instances when unused (which costs $0), however be careful with this option: the database can take up to 30 seconds to un-pause.
+
+All RDS databases can be setup with Lambda in two ways:
+
+1. the database can be made publicly accessible and protected by a username and password
+2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/fr/vpc/))
+
+While the first solution is simpler, the second is more secure. Using a VPC also comes with a few limitations that are detailed below.
+
+This page documents how to create databases using VPC (the secure solution). If you want to skip using a VPC you can read the instructions in the "Accessing the database from your machine" section.
 
 ## Limitations
 
-RDS databases run inside [VPCs](https://aws.amazon.com/fr/vpc/) (virtual private network) to keep them isolated from the internet. Connecting to a RDS database from Lambda requires either:
+Running a database inside a [VPC](https://aws.amazon.com/fr/vpc/) (virtual private network) will keep it isolated from the internet. That means lambda functions must be in the same VPC to access the database.
 
-- exposing the database publicly (not recommended for security reasons)
-- running the Lambda in the database's VPC
-
-Beside making the configuration more complex, running in a VPC has a major caveat: the lambda suffers from much longer **cold starts**.
+Running in a VPC has a big caveat: the lambda suffers from much longer **cold starts**.
 
 On average cold starts due to VPC are around **5 seconds**. This can be a deal-breaker for scenarios like real-time APIs.
 
-> 🎉 AWS is planning on removing this caveat in 2019. We will keep this page updated when this happens.
+> 🎉 AWS [will remove this caveat in 2019](https://twitter.com/jeremy_daly/status/1068272580556087296). We will keep this page updated when this happens.
 
-A common work-around is to "ping" the lambda functions every 5 minutes to avoid cold starts. This [might not work](https://hackernoon.com/im-afraid-you-re-thinking-about-aws-lambda-cold-starts-all-wrong-7d907f278a4f) for applications with very variable loads.
+A common workaround is to "ping" the lambda function every 5 minutes to avoid cold starts. This [might not work](https://hackernoon.com/im-afraid-you-re-thinking-about-aws-lambda-cold-starts-all-wrong-7d907f278a4f) for applications with very variable loads.
 
 ## Creating a database
 
