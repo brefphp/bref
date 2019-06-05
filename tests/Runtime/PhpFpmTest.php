@@ -3,7 +3,7 @@
 namespace Bref\Test\Runtime;
 
 use Bref\Http\LambdaResponse;
-use Bref\Runtime\FastCgiCommunicationFailed;
+use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
 use Bref\Runtime\PhpFpm;
 use Bref\Test\HttpRequestProxyTest;
 use PHPUnit\Framework\TestCase;
@@ -39,6 +39,8 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -72,6 +74,45 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => 'foo=bar&bim=baz',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with multivalues query string have basic support()
+    {
+        $event = [
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
+            'multiValueQueryStringParameters' => [
+                'foo' => ['bar', 'baz'],
+            ],
+            'queryStringParameters' => [
+                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                // TODO The feature is not implemented yet
+                'foo' => 'bar',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'foo' => 'bar',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?foo=bar',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'foo=bar',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -107,7 +148,9 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar',
+                'QUERY_STRING' => 'vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -135,6 +178,40 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
                 'HTTP_X_MY_HEADER' => 'Hello world',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with custom multi header()
+    {
+        $event = [
+            'httpMethod' => 'GET',
+            'path' => '/',
+            'headers' => [
+                'X-My-Header' => 'Hello world',
+            ],
+            'multiValueHeaders' => [
+                'X-My-Header' => ['Hello world'],
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => '',
+                'HTTP_X_MY_HEADER' => 'Hello world',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -452,6 +529,8 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
                 'HTTP_COOKIE' => 'tz=Europe%2FParis; four=two+%2B+2; theme=light',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -577,6 +656,8 @@ Year,Make,Model
                 'QUERY_STRING' => '',
                 'SERVER_NAME' => 'www.example.com',
                 'HTTP_HOST' => 'www.example.com',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -599,6 +680,8 @@ Year,Make,Model
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'PUT',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -621,6 +704,8 @@ Year,Make,Model
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'PATCH',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -643,6 +728,8 @@ Year,Make,Model
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'DELETE',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -665,6 +752,8 @@ Year,Make,Model
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'OPTIONS',
                 'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -700,6 +789,22 @@ Year,Make,Model
         unset($response['headers']['x-powered-by']);
         self::assertEquals([
             'content-type' => 'application/json',
+            'x-multivalue' => 'bar',
+        ], $response['headers']);
+    }
+
+    public function test response with multivalue headers()
+    {
+        $response = $this->get('response-headers.php', [
+            'httpMethod' => 'GET',
+            'multiValueHeaders' => [],
+        ])->toApiGatewayFormat();
+
+        self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'][0] ?? '');
+        unset($response['headers']['x-powered-by']);
+        self::assertEquals([
+            'content-type' => ['application/json'],
+            'x-multivalue' => ['foo', 'bar'],
         ], $response['headers']);
     }
 
@@ -708,6 +813,17 @@ Year,Make,Model
         $cookieHeader = $this->get('cookies.php')->toApiGatewayFormat()['headers']['set-cookie'];
 
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
+    }
+
+    public function test response with multiple cookies with multiheader()
+    {
+        $cookieHeader = $this->get('cookies.php', [
+            'httpMethod' => 'GET',
+            'multiValueHeaders' => [],
+        ])->toApiGatewayFormat()['headers']['set-cookie'];
+
+        self::assertEquals('MyCookie=FirstValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
+        self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
     }
 
     public function test response with error_log()
@@ -732,17 +848,45 @@ Year,Make,Model
         try {
             $this->fpm->proxy([
                 'httpMethod' => 'GET',
-                'queryStringParameters' => [
-                    'timeout' => 10,
-                ],
             ]);
             $this->fail('No exception was thrown');
         } catch (FastCgiCommunicationFailed $e) {
             // PHP-FPM should work after that
-            $statusCode = $this->fpm->proxy(['httpMethod' => 'GET'])
-                ->toApiGatewayFormat()['statusCode'];
+            $statusCode = $this->fpm->proxy([
+                'httpMethod' => 'GET',
+                'queryStringParameters' => [
+                    'timeout' => 0,
+                ],
+            ])->toApiGatewayFormat()['statusCode'];
             self::assertEquals(200, $statusCode);
         }
+    }
+
+    /**
+     * @see https://github.com/mnapoli/bref/issues/316
+     */
+    public function test large response()
+    {
+        // Repeat the test 5 times because some errors are random
+        for ($i = 0; $i < 5; $i++) {
+            $response = $this->get('large-response.php')->toApiGatewayFormat();
+
+            self::assertStringEqualsFile(__DIR__ . '/PhpFpm/big-json.json', $response['body']);
+        }
+    }
+
+    public function test warmer events do not invoke the application()
+    {
+        // Run `timeout.php` to make sure that the handler is not really executed.
+        // If it was, then PHP-FPM would timeout (and error).
+        $this->fpm = new PhpFpm(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm->start();
+
+        $response = $this->fpm->proxy([
+            'warmer' => true,
+        ]);
+        self::assertEquals(100, $response->toApiGatewayFormat()['statusCode']);
+        self::assertEquals('Lambda is warm', $response->toApiGatewayFormat()['body']);
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void

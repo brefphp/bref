@@ -27,7 +27,10 @@ try {
 
 while (true) {
     $lambdaRuntime->processNextEvent(function ($event) use ($phpFpm): array {
-        return $phpFpm->proxy($event)->toApiGatewayFormat();
+        $response = $phpFpm->proxy($event);
+
+        $multiHeader = array_key_exists('multiValueHeaders', $event);
+        return $response->toApiGatewayFormat($multiHeader);
     });
 
     try {

@@ -2,7 +2,7 @@
 
 namespace Bref\Lambda;
 
-class InvocationFailed extends \Exception
+final class InvocationFailed extends \Exception
 {
     /** @var InvocationResult */
     private $invocationResult;

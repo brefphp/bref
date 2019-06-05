@@ -82,7 +82,13 @@ sam deploy \
 
 > `<stack-name>` can be the name of your project (made of letters, numbers and `-`).
 
-While you wait for your stack to be created you can check out [the CloudFormation dashboard](https://us-east-2.console.aws.amazon.com/cloudformation/home). You will see your stack appear there. In case of an error, click on your stack and check out the *Events* tab to see what went wrong.
+While you wait for your stack to be created you can check out [the CloudFormation dashboard](https://console.aws.amazon.com/cloudformation/home). Your stack will appear there.
+
+If an error occurs, you can either look into the *Events* tab of your stack in the CloudFormation dashboard or use the following Bref command to understand what went wrong:
+
+```bash
+vendor/bin/bref deployment <stack-name>
+```
 
 ## Automating deployments
 
