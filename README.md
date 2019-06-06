@@ -10,3 +10,5 @@ layout: home
 [![Monthly Downloads](https://img.shields.io/packagist/dm/mnapoli/bref.svg)](https://packagist.org/packages/mnapoli/bref/stats)
 
 Read more on [the website](https://bref.sh/).
+
+Bref is a project supported by the [null](https://null.tc/) company.
