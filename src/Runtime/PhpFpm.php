@@ -218,7 +218,7 @@ final class PhpFpm
             $request->setContentType($headers['content-type'][0]);
         }
         // Auto-add the Content-Length header if it wasn't provided
-        // See https://github.com/mnapoli/bref/issues/162
+        // See https://github.com/brefphp/bref/issues/162
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
             $headers['content-length'] = [strlen($requestBody)];
         }

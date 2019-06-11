@@ -12,7 +12,7 @@ FROM amazonlinux:2017.03
 LABEL authors="Bubba Hines <bubba@stechstudio.com>"
 LABEL vendor1="Signature Tech Studio, Inc."
 LABEL vendor2="bref"
-LABEL home="https://github.com/mnapoli/bref"
+LABEL home="https://github.com/brefphp/bref"
 
 
 # Working Directory

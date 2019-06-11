@@ -1,5 +1,5 @@
 {
-    "name": "mnapoli/bref",
+    "name": "bref/bref",
     "license": "MIT",
     "type": "project",
     "description": "Bref is a framework to write and deploy serverless PHP applications on AWS Lambda.",
