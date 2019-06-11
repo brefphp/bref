@@ -70,10 +70,23 @@ final class LambdaResponse
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
         return [
-            'isBase64Encoded' => false,
+            'isBase64Encoded' => $this->isBase64Encoded((array) $headers),
             'statusCode' => $this->statusCode,
             $headersKey => $headers,
             'body' => $this->body,
         ];
+    }
+
+    /**
+     * Determine if the response body is base64 encoded based on the value
+     * provided in the optional `isbase64encoded` header.
+     *
+     * @param array $headers
+     *
+     * @return bool
+     */
+    protected function isBase64Encoded(array $headers): bool
+    {
+        return (bool) ($headers['isbase64encoded'] ?? false);
     }
 }

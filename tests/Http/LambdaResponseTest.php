@@ -58,4 +58,24 @@ class LambdaResponseTest extends TestCase
         // Make sure that the headers are `"headers":{}` (object) and not `"headers":[]` (array)
         self::assertEquals('{"isBase64Encoded":false,"statusCode":204,"headers":{},"body":""}', json_encode($response->toApiGatewayFormat()));
     }
+
+    public function test base64 encoding status is taken from headers()
+    {
+        $encodedResponse = new LambdaResponse(200, ['isbase64encoded' => '1'], "");
+        $unencodedResponse = new LambdaResponse(200, ['isbase64encoded' => '0'], "");
+
+        self::assertSame([
+            'isBase64Encoded' => true,
+            'statusCode' => 200,
+            'headers' => ['isbase64encoded' => '1'],
+            'body' => '',
+        ], $encodedResponse->toApiGatewayFormat());
+
+        self::assertSame([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => ['isbase64encoded' => '0'],
+            'body' => '',
+        ], $unencodedResponse->toApiGatewayFormat());
+    }
 }
