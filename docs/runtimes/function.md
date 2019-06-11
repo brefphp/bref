@@ -69,23 +69,20 @@ lambda(function (array $event, Context $context) {
 
 The `Context` object is inspired from the [`context` parameter in other languages](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html) and provides information about the current lambda invocation (the request ID, the X-Ray trace ID, etc.).
 
-## SAM configuration
+## `serverless.yml` configuration
 
-Below is a minimal `template.yaml` to deploy a function. To create it automatically run `vendor/bin/bref init`.
+Below is a minimal `serverless.yml` to deploy a function. To create it automatically run `vendor/bin/bref init`.
 
 ```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
-Resources:
-    MyFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: 'my-function'
-            CodeUri: .
-            Handler: index.php # the name of your PHP file
-            Runtime: provided
-            Layers:
-                - 'arn:aws:lambda:<region>:209497400698:layer:php-73:<version>'
+service: app
+provider:
+    name: aws
+    runtime: provided
+functions:
+    hello:
+        handler: index.php
+        layers:
+            - 'arn:aws:lambda:<region>:209497400698:layer:php-73:<version>'
 ```
 
 The runtime to use is `php`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).

@@ -92,3 +92,9 @@ or for individual functions using the name of the function in `template.yaml`:
     }
 }
 ```
+
+## Learn more
+
+While this page mentions environment variables, `serverless.yml` allows other types of variables to be used.
+
+Read the [`serverless.yml` variables](https://serverless.com/framework/docs/providers/aws/guide/variables/) documentation to learn more.

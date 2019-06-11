@@ -47,19 +47,18 @@ The list of runtime versions is hosted at [runtimes.bref.sh](https://runtimes.br
 
 ## Usage
 
-To use a runtime you need to import the corresponding layer into your Lambda. For example using AWS SAM:
+To use a runtime you need to import the corresponding layer into your Lambda. For example in `serverless.yml`:
 
 ```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Resources:
-    DemoFunction:
-        Type: AWS::Serverless::Function
-        Runtime: provided
-        Properties:
-            [...]
-            Layers:
-                - '<the layer ARN here>'
+service: app
+provider:
+    name: aws
+    runtime: provided
+functions:
+    hello:
+        [...]
+        layers:
+            - '<the layer ARN here>'
 ```
 
 You can read more about this in the next sections.
