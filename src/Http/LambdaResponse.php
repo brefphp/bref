@@ -77,14 +77,6 @@ final class LambdaResponse
         ];
     }
 
-    /**
-     * Determine if the response body is base64 encoded based on the value
-     * provided in the optional `isbase64encoded` header.
-     *
-     * @param array $headers
-     *
-     * @return bool
-     */
     protected function isBase64Encoded(array $headers): bool
     {
         return (bool) ($headers['isbase64encoded'] ?? false);

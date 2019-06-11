@@ -61,8 +61,8 @@ class LambdaResponseTest extends TestCase
 
     public function test base64 encoding status is taken from headers()
     {
-        $encodedResponse = new LambdaResponse(200, ['isbase64encoded' => '1'], "");
-        $unencodedResponse = new LambdaResponse(200, ['isbase64encoded' => '0'], "");
+        $encodedResponse = new LambdaResponse(200, ['isbase64encoded' => '1'], '');
+        $unencodedResponse = new LambdaResponse(200, ['isbase64encoded' => '0'], '');
 
         self::assertSame([
             'isBase64Encoded' => true,
