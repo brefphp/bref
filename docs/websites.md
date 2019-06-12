@@ -104,6 +104,8 @@ Resources:
                 Enabled: true
                 # Cheapest option by default (https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_DistributionConfig.html)
                 PriceClass: PriceClass_100
+                HttpVersion: http2
+                # Enable http2 transfer for better performance
                 # Origins are where CloudFront fetches content
                 Origins:
                     # The website (AWS Lambda)
