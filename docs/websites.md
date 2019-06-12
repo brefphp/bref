@@ -129,6 +129,8 @@ Resources:
                     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html
                     ForwardedValues:
                         QueryString: true
+                        Cookies:
+                          Forward: all # For PHP Apps you should Forward your cookies to keep session functionality etc
                         # We must *not* forward the `Host` header else it messes up API Gateway
                         Headers:
                             - 'Accept'
