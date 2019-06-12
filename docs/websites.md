@@ -200,6 +200,8 @@ Resources:
                     AcmCertificateArn: <certificate-arn>
                     # See https://docs.aws.amazon.com/fr_fr/cloudfront/latest/APIReference/API_ViewerCertificate.html
                     SslSupportMethod: 'sni-only'
+                    MinimumProtocolVersion: TLSv1.1_2016
+                   
 ```
 
 The last step will be to point your domain name to the CloudFront URL:
