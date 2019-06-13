@@ -18,6 +18,10 @@ composer require bref/bref
 
 Then let's create a `template.yaml` configuration file (at the root of the project) optimized for Laravel:
 
+> Make sure to set all the `Layers` regions to the same region you are deploying into. Otherwise you will see a GetObject error while deploying the stack.
+>
+> For example if deploying in London you would change `us-east-1` to `eu-west-2`
+
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
