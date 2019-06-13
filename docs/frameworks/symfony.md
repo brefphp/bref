@@ -13,7 +13,7 @@ A demo application is available on GitHub at [github.com/mnapoli/bref-symfony-de
 Assuming your are in existing Symfony project, let's install Bref via Composer:
 
 ```
-composer require mnapoli/bref
+composer require bref/bref
 ```
 
 Then let's create a `template.yaml` configuration file (at the root of the project) optimized for Symfony:

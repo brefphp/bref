@@ -46,7 +46,7 @@ Alternatively the region can be overridden on every SAM command by setting the `
 Install Bref in your project using [Composer](https://getcomposer.org/):
 
 ```
-composer require mnapoli/bref
+composer require bref/bref
 ```
 
 > To run the latest version of Bref you must have PHP 7.2 or greater! If you are using PHP 7.1 or less an older (outdated) version of Bref will be installed instead.

@@ -300,7 +300,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
     }
 
     /**
-     * @see https://github.com/mnapoli/bref/issues/162
+     * @see https://github.com/brefphp/bref/issues/162
      *
      * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
@@ -863,7 +863,7 @@ Year,Make,Model
     }
 
     /**
-     * @see https://github.com/mnapoli/bref/issues/316
+     * @see https://github.com/brefphp/bref/issues/316
      */
     public function test large response()
     {
