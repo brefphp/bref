@@ -37,7 +37,7 @@ functions:
         handler: public/index.php
         timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
         layers:
-            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:6'
+            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:7'
         events:
             -   http: 'ANY /'
             -   http: 'ANY {proxy+}'
@@ -45,8 +45,8 @@ functions:
         handler: artisan
         timeout: 120 # in seconds
         layers:
-            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:6' # PHP
-            - 'arn:aws:lambda:us-east-1:209497400698:layer:console:6' # The "console" layer
+            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7' # PHP
+            - 'arn:aws:lambda:us-east-1:209497400698:layer:console:7' # The "console" layer
 ```
 
 Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
