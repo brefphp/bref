@@ -81,6 +81,43 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    public function test request with multivalues query string have basic support()
+    {
+        $event = [
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
+            'multiValueQueryStringParameters' => [
+                'foo' => ['bar', 'baz'],
+            ],
+            'queryStringParameters' => [
+                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                // TODO The feature is not implemented yet
+                'foo' => 'bar',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'foo' => 'bar',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?foo=bar',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'foo=bar',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
     public function test request with arrays in query string()
     {
         $event = [
@@ -111,7 +148,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar',
+                'QUERY_STRING' => 'vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
@@ -126,6 +163,38 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'path' => '/',
             'headers' => [
                 'X-My-Header' => 'Hello world',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => '',
+                'HTTP_X_MY_HEADER' => 'Hello world',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with custom multi header()
+    {
+        $event = [
+            'httpMethod' => 'GET',
+            'path' => '/',
+            'headers' => [
+                'X-My-Header' => 'Hello world',
+            ],
+            'multiValueHeaders' => [
+                'X-My-Header' => ['Hello world'],
             ],
         ];
         $this->assertGlobalVariables($event, [
@@ -231,7 +300,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
     }
 
     /**
-     * @see https://github.com/mnapoli/bref/issues/162
+     * @see https://github.com/brefphp/bref/issues/162
      *
      * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
@@ -720,6 +789,22 @@ Year,Make,Model
         unset($response['headers']['x-powered-by']);
         self::assertEquals([
             'content-type' => 'application/json',
+            'x-multivalue' => 'bar',
+        ], $response['headers']);
+    }
+
+    public function test response with multivalue headers()
+    {
+        $response = $this->get('response-headers.php', [
+            'httpMethod' => 'GET',
+            'multiValueHeaders' => [],
+        ])->toApiGatewayFormat();
+
+        self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'][0] ?? '');
+        unset($response['headers']['x-powered-by']);
+        self::assertEquals([
+            'content-type' => ['application/json'],
+            'x-multivalue' => ['foo', 'bar'],
         ], $response['headers']);
     }
 
@@ -728,6 +813,17 @@ Year,Make,Model
         $cookieHeader = $this->get('cookies.php')->toApiGatewayFormat()['headers']['set-cookie'];
 
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
+    }
+
+    public function test response with multiple cookies with multiheader()
+    {
+        $cookieHeader = $this->get('cookies.php', [
+            'httpMethod' => 'GET',
+            'multiValueHeaders' => [],
+        ])->toApiGatewayFormat()['headers']['set-cookie'];
+
+        self::assertEquals('MyCookie=FirstValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
+        self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
     }
 
     public function test response with error_log()
@@ -767,7 +863,7 @@ Year,Make,Model
     }
 
     /**
-     * @see https://github.com/mnapoli/bref/issues/316
+     * @see https://github.com/brefphp/bref/issues/316
      */
     public function test large response()
     {

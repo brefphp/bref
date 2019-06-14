@@ -7,6 +7,7 @@ use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
 use Bref\Runtime\FastCgi\FastCgiRequest;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
+use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Symfony\Component\Process\Process;
 
@@ -129,18 +130,16 @@ final class PhpFpm
             ), 0, $e);
         }
 
-        $responseHeaders = $response->getHeaders();
-        $responseHeaders = array_change_key_case($responseHeaders, CASE_LOWER);
+        $isMultiHeader = isset($event['multiValueHeaders']);
+        $responseHeaders = $this->getResponseHeaders($response, $isMultiHeader);
 
         // Extract the status code
         if (isset($responseHeaders['status'])) {
-            [$status] = explode(' ', $responseHeaders['status']);
-        } else {
-            $status = 200;
+            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status']);
+            unset($responseHeaders['status']);
         }
-        unset($responseHeaders['status']);
 
-        return new LambdaResponse((int) $status, $responseHeaders, $response->getBody());
+        return new LambdaResponse($status ?? 200, $responseHeaders, $response->getBody());
     }
 
     private function waitUntilReady(): void
@@ -181,56 +180,53 @@ final class PhpFpm
         $method = strtoupper($event['httpMethod']);
         $request = new FastCgiRequest($method, $this->handler, $requestBody);
 
+        $queryString = $this->getQueryString($event);
         $uri = $event['path'] ?? '/';
-        /*
-         * queryStringParameters does not handle correctly arrays in parameters
-         * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' = > 'value']]
-         * We recreate the original query string and we use parse_str which handles correctly arrays
-         *
-         * There's still an issue: AWS API Gateway does not support multiple query string parameters with the same name
-         * So you can't use something like ?array[]=val1&array[]=val2 because only the 'val2' value will survive
-         */
-        $queryString = http_build_query($event['queryStringParameters'] ?? []);
-        parse_str($queryString, $queryParameters);
         if (! empty($queryString)) {
             $uri .= '?' . $queryString;
         }
-        $queryString = http_build_query($queryParameters);
 
         $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
 
         // Normalize headers
-        $headers = $event['headers'] ?? [];
+        if (isset($event['multiValueHeaders'])) {
+            $headers = $event['multiValueHeaders'];
+        } else {
+            $headers = $event['headers'] ?? [];
+            // Turn the headers array into a multi-value array to simplify the code below
+            $headers = array_map(function ($value): array {
+                return [$value];
+            }, $headers);
+        }
         $headers = array_change_key_case($headers, CASE_LOWER);
 
         $request->setRequestUri($uri);
         $request->setRemoteAddress('127.0.0.1');
-        $request->setRemotePort((int) ($headers['x-forwarded-port'] ?? 80));
+        $request->setRemotePort((int) ($headers['x-forwarded-port'][0] ?? 80));
         $request->setServerAddress('127.0.0.1');
-        $request->setServerName($headers['host'] ?? 'localhost');
+        $request->setServerName($headers['host'][0] ?? 'localhost');
         $request->setServerProtocol($protocol);
-        $request->setServerPort((int) ($headers['x-forwarded-port'] ?? 80));
+        $request->setServerPort((int) ($headers['x-forwarded-port'][0] ?? 80));
         $request->setCustomVar('PATH_INFO', $event['path'] ?? '/');
         $request->setCustomVar('QUERY_STRING', $queryString);
 
-        $method = strtoupper($event['httpMethod']);
-
         // See https://stackoverflow.com/a/5519834/245552
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
-            $headers['content-type'] = 'application/x-www-form-urlencoded';
+            $headers['content-type'] = ['application/x-www-form-urlencoded'];
         }
-        if (isset($headers['content-type'])) {
-            $request->setContentType($headers['content-type']);
+        if (isset($headers['content-type'][0])) {
+            $request->setContentType($headers['content-type'][0]);
         }
         // Auto-add the Content-Length header if it wasn't provided
-        // See https://github.com/mnapoli/bref/issues/162
+        // See https://github.com/brefphp/bref/issues/162
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
-            $headers['content-length'] = strlen($requestBody);
+            $headers['content-length'] = [strlen($requestBody)];
         }
-
-        foreach ($headers as $header => $value) {
-            $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
-            $request->setCustomVar($key, $value);
+        foreach ($headers as $header => $values) {
+            foreach ($values as $value) {
+                $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+                $request->setCustomVar($key, $value);
+            }
         }
 
         return $request;
@@ -296,5 +292,67 @@ final class PhpFpm
                 throw new \Exception('Timeout while waiting for PHP-FPM to stop');
             }
         }
+    }
+
+    private function getQueryString(array $event): string
+    {
+        if (isset($event['multiValueQueryStringParameters']) && $event['multiValueQueryStringParameters']) {
+            $queryParameters = [];
+            /*
+             * Watch out: to support multiple query string parameters with the same name like:
+             *     ?array[]=val1&array[]=val2
+             * we need to support "multi-value query string", else only the 'val2' value will survive.
+             * At the moment we only take the first value (which means we DON'T support multiple values),
+             * this needs to be implemented below in the future.
+             */
+            foreach ($event['multiValueQueryStringParameters'] as $key => $value) {
+                $queryParameters[$key] = $value[0];
+            }
+            return http_build_query($queryParameters);
+        }
+
+        if (empty($event['queryStringParameters'])) {
+            return '';
+        }
+
+        /*
+         * Watch out in the future if using $event['queryStringParameters'] directly!
+         *
+         * (that is no longer the case here but it was in the past with the PSR-7 bridge, and it might be
+         * reintroduced in the future)
+         *
+         * queryStringParameters does not handle correctly arrays in parameters
+         * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' = > 'value']]
+         * In that case we should recreate the original query string and use parse_str which handles correctly arrays
+         */
+        return http_build_query($event['queryStringParameters']);
+    }
+
+    /**
+     * Return an array of the response headers.
+     */
+    private function getResponseHeaders(ProvidesResponseData $response, bool $isMultiHeader): array
+    {
+        // TODO this might need some changes when upgrading the hollodotme library
+        // See https://github.com/hollodotme/fast-cgi-client/blob/master/CHANGELOG.md#300-alpha---2019-04-30
+        if ($isMultiHeader) {
+            $responseHeaders = [];
+            $lines  = explode(PHP_EOL, $response->getOutput());
+            foreach ($lines as $i => $line) {
+                if (preg_match('#^([^\:]+):(.*)$#', $line, $matches)) {
+                    $key = trim($matches[1]);
+                    if (! array_key_exists($key, $responseHeaders)) {
+                        $responseHeaders[$key]= [];
+                    }
+                    $responseHeaders[$key][] = trim($matches[2]);
+                    continue;
+                }
+                break;
+            }
+        } else {
+            $responseHeaders = $response->getHeaders();
+        }
+
+        return array_change_key_case($responseHeaders, CASE_LOWER);
     }
 }

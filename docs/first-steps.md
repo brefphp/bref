@@ -19,7 +19,7 @@ Before getting started make sure you have [installed Bref and the required tools
 Starting in an empty directory, install Bref using Composer:
 
 ```
-composer require mnapoli/bref
+composer require bref/bref
 ```
 
 Then let's start by initializing the project by running:

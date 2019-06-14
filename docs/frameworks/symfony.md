@@ -13,7 +13,7 @@ A demo application is available on GitHub at [github.com/mnapoli/bref-symfony-de
 Assuming your are in existing Symfony project, let's install Bref via Composer:
 
 ```
-composer require mnapoli/bref
+composer require bref/bref
 ```
 
 Then let's create a `template.yaml` configuration file (at the root of the project) optimized for Symfony:
@@ -39,7 +39,7 @@ Resources:
             MemorySize: 1024
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:6'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:7'
             Events:
                 HttpRoot:
                     Type: Api
@@ -61,8 +61,8 @@ Resources:
             Timeout: 120 # in seconds
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:6' # PHP
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:console:6' # The "console" layer
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7' # PHP
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:console:7' # The "console" layer
 
 Outputs:
     DemoApi:

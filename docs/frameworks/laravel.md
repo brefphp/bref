@@ -13,10 +13,14 @@ A demo application is available on GitHub at [github.com/mnapoli/bref-laravel-de
 Assuming your are in existing Laravel project, let's install Bref via Composer:
 
 ```
-composer require mnapoli/bref
+composer require bref/bref
 ```
 
 Then let's create a `template.yaml` configuration file (at the root of the project) optimized for Laravel:
+
+> Make sure to set all the `Layers` regions to the same region you are deploying into. Otherwise you will see a GetObject error while deploying the stack.
+>
+> For example if deploying in London you would change `us-east-1` to `eu-west-2`
 
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
@@ -39,7 +43,7 @@ Resources:
             Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72-fpm:6'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72-fpm:7'
             Events:
                 # The function will match all HTTP URLs
                 HttpRoot:
@@ -62,9 +66,9 @@ Resources:
             Runtime: provided
             Layers:
                 # PHP runtime
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72:6'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72:7'
                 # Console layer
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:console:6'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:console:7'
 
 Outputs:
     DemoHttpApi:

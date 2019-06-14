@@ -15,7 +15,7 @@ Resources:
             Handler: demo/function.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72:6'
+                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72:7'
 
     HttpFunction:
         Type: AWS::Serverless::Function
@@ -27,7 +27,7 @@ Resources:
             MemorySize: 1024 # The memory size is related to the pricing and CPU power
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72-fpm:6'
+                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72-fpm:7'
             Events:
                 HttpRoot:
                     Type: Api
@@ -48,8 +48,8 @@ Resources:
             Handler: demo/console.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72:6'
-                - 'arn:aws:lambda:us-east-2:209497400698:layer:console:6'
+                - 'arn:aws:lambda:us-east-2:209497400698:layer:php-72:7'
+                - 'arn:aws:lambda:us-east-2:209497400698:layer:console:7'
 
 Outputs:
     DemoHttpApi:

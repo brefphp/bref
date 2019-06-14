@@ -70,6 +70,10 @@ menu:
                 text: Logs
                 url: /docs/environment/logs.html
                 title: Managing logs with Bref on AWS Lambda
+            database:
+                text: Databases
+                url: /docs/environment/database.html
+                title: Using a database from AWS Lambda
             custom-domains:
                 text: Custom domains
                 url: /docs/environment/custom-domains.html
