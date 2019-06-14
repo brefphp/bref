@@ -16,64 +16,37 @@ Assuming your are in existing Laravel project, let's install Bref via Composer:
 composer require bref/bref
 ```
 
-Then let's create a `template.yaml` configuration file (at the root of the project) optimized for Laravel:
+Then let's create a `serverless.yml` configuration file (at the root of the project) optimized for Laravel:
 
 > Make sure to set all the `Layers` regions to the same region you are deploying into. Otherwise you will see a GetObject error while deploying the stack.
 >
 > For example if deploying in London you would change `us-east-1` to `eu-west-2`
 
 ```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
+service: bref-demo-laravel
 
-Globals:
-    Function:
-        Environment:
-            Variables:
-                # Laravel environment variables
-                APP_STORAGE: '/tmp'
+provider:
+    name: aws
+    runtime: provided
+    environment:
+        # Laravel environment variables
+        APP_STORAGE: '/tmp'
 
-Resources:
-    Website:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: 'laravel-website'
-            CodeUri: .
-            Handler: public/index.php
-            Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
-            Runtime: provided
-            Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72-fpm:7'
-            Events:
-                # The function will match all HTTP URLs
-                HttpRoot:
-                    Type: Api
-                    Properties:
-                        Path: /
-                        Method: ANY
-                HttpSubPaths:
-                    Type: Api
-                    Properties:
-                        Path: /{proxy+}
-                        Method: ANY
-    Artisan:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: 'laravel-artisan'
-            CodeUri: .
-            Handler: artisan
-            Timeout: 120
-            Runtime: provided
-            Layers:
-                # PHP runtime
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-72:7'
-                # Console layer
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:console:7'
-
-Outputs:
-    DemoHttpApi:
-        Description: 'URL of our function in the *Prod* environment'
-        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
+functions:
+    website:
+        handler: public/index.php
+        timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+        layers:
+            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:6'
+        events:
+            -   http: 'ANY /'
+            -   http: 'ANY {proxy+}'
+    artisan:
+        handler: artisan
+        timeout: 120 # in seconds
+        layers:
+            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:6' # PHP
+            - 'arn:aws:lambda:us-east-1:209497400698:layer:console:6' # The "console" layer
 ```
 
 Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
