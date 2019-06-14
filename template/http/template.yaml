@@ -14,7 +14,7 @@ Resources:
             MemorySize: 1024 # The memory size is related to the pricing and CPU power
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:6'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:7'
             Events:
                 # The function will match all HTTP URLs
                 HttpRoot:
