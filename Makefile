@@ -35,4 +35,7 @@ demo:
 		--stack-name bref-demo \
  		--capabilities CAPABILITY_IAM
 
+layers.json:
+	php runtime/layer-list.php
+
 .PHONY: runtimes website website-preview website-assets demo
