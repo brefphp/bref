@@ -6,8 +6,8 @@ compiler: compiler.Dockerfile
 
 # Compile PHP and its extensions
 build: compiler
-	docker build -f ${PWD}/php.Dockerfile -t bref/php-72:latest $(shell helpers/docker_args.php php72) .
-	docker build -f ${PWD}/php.Dockerfile -t bref/php-73:latest $(shell helpers/docker_args.php php73) .
+	docker build -f ${PWD}/php.Dockerfile -t bref/php-72:latest $(shell helpers/docker_args.sh versions.ini php72) .
+	docker build -f ${PWD}/php.Dockerfile -t bref/php-73:latest $(shell helpers/docker_args.sh versions.ini php73) .
 
 # Export the compiled PHP artifacts into zip files that can be uploaded as Lambda layers
 distribution: build
