@@ -27,7 +27,7 @@ functions:
         # This section contains the URL routing configuration of API Gateway
         events:
             -   http: 'ANY /'
-            -   http: 'ANY {proxy+}'
+            -   http: 'ANY /{proxy+}'
 ```
 
 ## Handler
@@ -81,7 +81,7 @@ Here is an example of such configuration:
 ```yaml
         events:
             -   http: 'ANY /'
-            -   http: 'ANY {proxy+}'
+            -   http: 'ANY /{proxy+}'
 ```
 
 ### Advanced routing
@@ -113,7 +113,7 @@ You can generate automatically such events using AWS CloudWatch ([read this arti
 ```yaml
         events:
             -   http: 'ANY /'
-            -   http: 'ANY {proxy+}'
+            -   http: 'ANY /{proxy+}'
             - schedule:
                 rate: rate(5 minutes)
                 input:

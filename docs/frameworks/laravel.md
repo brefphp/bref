@@ -40,7 +40,7 @@ functions:
             - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:7'
         events:
             -   http: 'ANY /'
-            -   http: 'ANY {proxy+}'
+            -   http: 'ANY /{proxy+}'
     artisan:
         handler: artisan
         timeout: 120 # in seconds
