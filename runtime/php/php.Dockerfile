@@ -392,7 +392,7 @@ RUN set -xe \
         --enable-maintainer-zts \
         --enable-sockets \
         --with-config-file-path=${INSTALL_DIR}/etc/php \
-        --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/var/task/php/conf.d \
+        --with-config-file-scan-dir=/var/task/php/conf.d \
         --enable-fpm \
         --disable-cgi \
         --enable-cli \
