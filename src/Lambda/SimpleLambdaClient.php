@@ -15,10 +15,16 @@ final class SimpleLambdaClient
 
     public function __construct(string $region)
     {
-        $this->lambda = new LambdaClient([
+        $args = [
             'version' => 'latest',
             'region' => $region,
-        ]);
+        ];
+
+        if ($awsKey = getenv('AWS_KEY') && $awsSecret =getenv('AWS_SECRET')) {
+            $args['credentials'] = new Credentials($awsKey, $awsSecret);
+        }
+
+        $this->lambda = new LambdaClient($args);
     }
 
     /**
