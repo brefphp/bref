@@ -20,7 +20,9 @@ final class SimpleLambdaClient
             'region' => $region,
         ];
 
-        if ($awsKey = getenv('AWS_KEY') && $awsSecret =getenv('AWS_SECRET')) {
+        $awsKey = getenv('AWS_KEY');
+        $awsSecret = getenv('AWS_SECRET');
+        if ($awsKey && $awsSecret) {
             $args['credentials'] = new Credentials($awsKey, $awsSecret);
         }
 
