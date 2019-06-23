@@ -2,6 +2,7 @@
 
 namespace Bref\Lambda;
 
+use Aws\Credentials\Credentials;
 use Aws\Lambda\LambdaClient;
 use Psr\Http\Message\StreamInterface;
 
