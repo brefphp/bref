@@ -429,18 +429,6 @@ RUN pecl install mongodb
 RUN pecl install redis
 RUN pecl install APCu
 
-RUN set -xe; \
-    curl -Ls https://elasticache-downloads.s3.amazonaws.com/ClusterClient/PHP-7.0/latest-64bit \
-  | tar xzC $(php-config --extension-dir) --strip-components=1
-
-ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
-
-# Build from master because there are no pthreads release compatible with PHP 7.3
-RUN set -xe; \
-    mkdir -p ${PTHREADS_BUILD_DIR}/bin; \
-    curl -Ls https://github.com/krakjoe/pthreads/archive/master.tar.gz \
-    | tar xzC ${PTHREADS_BUILD_DIR} --strip-components=1
-
 WORKDIR  ${PTHREADS_BUILD_DIR}/
 
 RUN set -xe; \
