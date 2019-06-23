@@ -67,4 +67,8 @@ To execute the SQL queries run the command with the `--force` option.
 
 $ vendor/bin/bref cli my-function -- doctrine:migrate --force
 Your database has been migrated.
+
+# Use environment variables to configure your AWS credentials
+$ AWS_DEFAULT_REGION=eu-central-1 AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar vendor/bin/bref cli my-function
+# ...
 ```
