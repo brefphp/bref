@@ -32,6 +32,14 @@ $log->pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
 $log->warning('This is a warning!');
 ```
 
+For simple needs, you can replace Monolog with [Bref's logger](https://github.com/brefphp/logger), a PSR-3 logger designed for AWS Lambda:
+
+```php
+$logger = new \Bref\Logger\StderrLogger();
+
+$log->warning('This is a warning!');
+```
+
 ### Reading logs
 
 To read logs, either open the [CloudWatch console](https://us-east-1.console.aws.amazon.com/cloudwatch/home) or use SAM in the CLI:
@@ -46,4 +54,3 @@ sam logs --name <function-name> --tail
 ## Advanced use cases
 
 If you have more specific needs you can send logs to other services, for example Logstash, Papertrail, or Loggly.
-
