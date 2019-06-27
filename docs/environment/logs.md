@@ -10,18 +10,24 @@ As explained in the [storage documentation](storage.md), the filesystem on AWS L
 - not shared between lambda instances
 - not persistent
 
-Because of that application logs should not be stored on disk.
+Because of that, logs should not be stored on disk.
 
 ## CloudWatch
 
 The simplest solution is to push logs to AWS CloudWatch, AWS' service for logs.
 
+### PHP errors and warnings
+
+By default, all PHP errors, warnings and notices emitted by PHP will be forwarded into CloudWatch.
+
+That means that you don't have to configure anything to log errors, warnings or uncaught exceptions.
+
 ### Writing logs
 
-To send logs to CloudWatch:
+Your application can write logs to CloudWatch:
 
 - in a [PHP function](/docs/runtimes/function.md): write logs to `stdout` (using `echo` for example) or `stderr`
-- in a [HTTP](/docs/runtimes/http.md): write logs to `stderr`
+- in a [HTTP application](/docs/runtimes/http.md): write logs to `stderr`
 
 For example with [Monolog](https://github.com/Seldaek/monolog):
 
@@ -42,7 +48,7 @@ $log->warning('This is a warning!');
 
 ### Reading logs
 
-To read logs, either open the [CloudWatch console](https://us-east-1.console.aws.amazon.com/cloudwatch/home) or use SAM in the CLI:
+To read logs, either open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:) or use SAM in the CLI:
 
 ```bash
 sam logs --name <function-name>
