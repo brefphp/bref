@@ -32,7 +32,7 @@ Your application can write logs to CloudWatch:
 For example with [Monolog](https://github.com/Seldaek/monolog):
 
 ```php
-$log = new Logger('name');
+$log = new Monolog\Logger('name');
 $log->pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
 
 $log->warning('This is a warning!');
