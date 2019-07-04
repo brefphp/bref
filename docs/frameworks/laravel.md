@@ -18,26 +18,26 @@ composer require bref/bref
 
 Then let's create a `serverless.yml` configuration file (at the root of the project) optimized for Laravel:
 
-> Make sure to set all the `Layers` regions to the same region you are deploying into. Otherwise you will see a GetObject error while deploying the stack.
->
-> For example if deploying in London you would change `us-east-1` to `eu-west-2`
-
 ```yaml
 service: bref-demo-laravel
 
 provider:
     name: aws
+    region: us-east-1
     runtime: provided
     environment:
         # Laravel environment variables
         APP_STORAGE: '/tmp'
+
+plugins:
+    - ./vendor/bref/bref
 
 functions:
     website:
         handler: public/index.php
         timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
         layers:
-            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:7'
+            - ${bref:layer.php-73-fpm}
         events:
             -   http: 'ANY /'
             -   http: 'ANY /{proxy+}'
@@ -45,8 +45,8 @@ functions:
         handler: artisan
         timeout: 120 # in seconds
         layers:
-            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7' # PHP
-            - 'arn:aws:lambda:us-east-1:209497400698:layer:console:7' # The "console" layer
+            - ${bref:layer.php-73} # PHP
+            - ${bref:layer.console} # The "console" layer
 ```
 
 Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
@@ -89,10 +89,10 @@ Finally we need to edit `app/Providers/AppServiceProvider.php` because Laravel w
 
 At the moment deploying Laravel with its caches will break in AWS Lambda (because most file paths are different). This is why it is currently necessary to deploy without the config cache file. Simply run `php artisan config:clear` to make sure that file doesn't exist.
 
-Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md#deploying-with-sam).
+Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
 
 ## Laravel Artisan
 
-As you may have noticed, we define a function of type "console" in `template.yaml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
+As you may have noticed, we define a function of type "console" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
 
 To use it follow [the "Console" guide](/docs/runtimes/console.md).
