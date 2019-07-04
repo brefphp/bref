@@ -75,6 +75,20 @@ serverless deploy
 
 That will also mean creating AWS access keys so that the continuous integration is allowed to deploy.
 
+## Regions
+
+AWS runs applications in different [regions](https://aws.amazon.com/about-aws/global-infrastructure/). The default region is `us-east-1` (North Virginia, USA).
+
+If you want to use a different region (for example to host your application closer to your visitors) you can configure it in your `serverless.yml`:
+
+```yaml
+provider:
+    region: eu-west-1 # Ireland, Europe
+    ...
+```
+
+> If you are a first time user, using the `us-east-1` region (the default region) is *highly recommended* for the first projects. It simplifies commands and avoids a lot of mistakes when discovering AWS.
+
 ## Deletion
 
 To delete the whole application you can run:
