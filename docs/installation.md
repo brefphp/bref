@@ -55,4 +55,4 @@ The `bref` command line tool can now be used by running `vendor/bin/bref` in you
 
 ## What's next?
 
-Read the [first steps](/docs/runtimes/function.md) guide to create and deploy your first serverless application using Bref.
+Read the [first steps](/docs/first-steps.md) guide to create and deploy your first serverless application using Bref.

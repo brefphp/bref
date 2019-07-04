@@ -30,6 +30,9 @@ while (true) {
 
         $output = implode("\n", $output);
 
+        // Echo $output so it is written to CLoudwatch logs as well as terminal connections.
+        echo $output;
+
         return [
             'exitCode' => $exitCode,
             'output' => $output,
