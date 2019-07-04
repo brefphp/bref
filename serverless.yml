@@ -8,6 +8,14 @@ provider:
 plugins:
     - ./index.js
 
+package:
+    exclude:
+        - '**'
+    include:
+        - 'demo/**'
+        - 'src/**'
+        - 'vendor/**'
+
 functions:
     function:
         handler: demo/function.php

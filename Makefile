@@ -22,18 +22,7 @@ website/node_modules:
 
 # Deploy the demo functions
 demo:
-	rm -rf .couscous
-	rm -f runtime/export/*.zip
-	sam package \
-		--region us-east-2 \
-		--template-file template.yaml \
-		--output-template-file output.yaml \
-		--s3-bucket bref-demo-us-east-2
-	sam deploy \
-		--region us-east-2 \
-		--template-file output.yaml \
-		--stack-name bref-demo \
- 		--capabilities CAPABILITY_IAM
+	serverless deploy
 
 layers.json:
 	php runtime/layer-list.php

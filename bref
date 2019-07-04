@@ -62,14 +62,14 @@ $app->command('init', function (SymfonyStyle $io) {
         }
     }
 
-    if (file_exists('template.yaml') || file_exists('index.php')) {
-        $io->error('The directory already contains a `template.yaml` and/or `index.php` file.');
+    if (file_exists('serverless.yml') || file_exists('index.php')) {
+        $io->error('The directory already contains a `serverless.yml` and/or `index.php` file.');
 
         return 1;
     }
 
     $choice = $io->choice(
-        'What kind of lambda do you want to create? (you will be able to add more functions later by editing `template.yaml`)',
+        'What kind of lambda do you want to create? (you will be able to add more functions later by editing `serverless.yml`)',
         [
             'PHP function',
             'HTTP application',
@@ -93,15 +93,6 @@ $app->command('init', function (SymfonyStyle $io) {
         $io->writeln("Creating $file");
         $fs->copy("$rootPath/$file", $file);
         $filesToGitAdd[] = $file;
-    }
-
-    $regionChoice = $io->ask(
-        'In which AWS region do you want to deploy your application? (`us-east-1` is highly recommended for first time users)',
-        'us-east-1'
-    );
-
-    if ($regionChoice !== 'us-east-1') {
-        file_put_contents('template.yaml', str_replace('us-east-1', $regionChoice, file_get_contents('template.yaml')));
     }
 
     /*
