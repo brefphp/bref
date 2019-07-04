@@ -2,11 +2,15 @@ service: app
 
 provider:
     name: aws
+    region: us-east-1
     runtime: provided
+
+plugins:
+    - ./vendor/bref/bref
 
 functions:
     function:
         handler: index.php
         description: ''
         layers:
-            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7'
+            - ${bref:layer.php-73}
