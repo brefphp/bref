@@ -48,34 +48,34 @@ web:
         - "8080:80"
     volumes:
         - .:/code
-        - ./site.conf:/etc/nginx/conf.d/default.conf
     links:
         - php
+    environment:
+        NGINX_CONFIG: |
+          server {
+            index index.php index.html;
+            server_name php-docker.local;
+            error_log  /var/log/nginx/error.log;
+            access_log /var/log/nginx/access.log;
+            root /code;
+
+            location ~ \.php$$ {
+              try_files $$uri =404;
+              fastcgi_split_path_info ^(.+\.php)(/.+)$$;
+              fastcgi_pass php:9000;
+              fastcgi_index index.php;
+              include fastcgi_params;
+              fastcgi_param SCRIPT_FILENAME $$document_root$$fastcgi_script_name;
+              fastcgi_param PATH_INFO $$fastcgi_path_info;
+            }
+          }
+    command:
+        /bin/sh -c "echo $$NGINX_CONFIG > /etc/nginx/conf.d/default.conf; nginx -g \"daemon off;\""
 php:
     image: bref/php-72:dev #or bref/php-73:dev
     volumes:
             - .:/code:ro # Read only, like a lambda function
             # - ./var/cache:/code/var/cache # You can make subfolder writable, but you should generate cache before uploading on lambda
-```
-and a `site.conf` file : 
-```
-server {
-    index index.php index.html;
-    server_name php-docker.local;
-    error_log  /var/log/nginx/error.log;
-    access_log /var/log/nginx/access.log;
-    root /code;
-
-    location ~ \.php$ {
-        try_files $uri =404;
-        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass php:9000;
-        fastcgi_index index.php;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param PATH_INFO $fastcgi_path_info;
-    }
-}
 ```
 
 Then, you can execute `docker-compose up` and visit `http://localhost:8080`
