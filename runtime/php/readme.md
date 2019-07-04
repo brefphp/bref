@@ -34,3 +34,48 @@ BREF_VERSION ?= 0.3.0
 PHP_VERSION_SHORT ?= 7.2
 PHP_VERSION_SHORT_UNDERSCORE = $(subst .,_,${PHP_VERSION_SHORT})
 ```
+
+## Use docker image on local env
+
+The build process generate two containers : `bref/php-72:dev` and `bref/php-73:dev`. You can uss this containers with `docker-compose` and `nginx` for local tests.
+
+
+In your project directory, create a `docker-compose.yml` : 
+```yaml
+web:
+    image: nginx:latest
+    ports:
+        - "8080:80"
+    volumes:
+        - .:/code
+        - ./site.conf:/etc/nginx/conf.d/default.conf
+    links:
+        - php
+php:
+    image: bref/php-72:dev #or bref/php-73:dev
+    volumes:
+            - .:/code:ro # Read only, like a lambda function
+            # - ./var/cache:/code/var/cache # You can make subfolder writable, but you should generate cache before uploading on lambda
+```
+and a `site.conf` file : 
+```
+server {
+    index index.php index.html;
+    server_name php-docker.local;
+    error_log  /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+    root /code;
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+}
+```
+
+Then, you can execute `docker-compose up` and visit `http://localhost:8080`
