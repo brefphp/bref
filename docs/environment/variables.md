@@ -48,9 +48,10 @@ It is recommended to prefix the parameter name with your application name, for e
 To import the SSM parameter into an environment variable you can use the [`${ssm:<parameter>}` syntax](https://serverless.com/blog/serverless-secrets-api-keys/):
 
 ```yaml
-        Environment:
-            Variables:
-                MY_PARAMETER: ${ssm:/my-app/my-parameter}
+provider:
+    # ...
+    environment:
+        MY_PARAMETER: ${ssm:/my-app/my-parameter}
 ```
 
 ### An alternative: AWS Secrets Manager
