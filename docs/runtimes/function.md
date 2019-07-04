@@ -78,11 +78,13 @@ service: app
 provider:
     name: aws
     runtime: provided
+plugins:
+    - ./vendor/bref/bref
 functions:
     hello:
         handler: index.php
         layers:
-            - 'arn:aws:lambda:<region>:209497400698:layer:php-73:<version>'
+            - ${bref:layer.php-73}
 ```
 
 The runtime to use is `php`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).

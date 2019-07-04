@@ -19,11 +19,13 @@ service: app
 provider:
     name: aws
     runtime: provided
+plugins:
+    - ./vendor/bref/bref
 functions:
     hello:
         handler: index.php
         layers:
-            - 'arn:aws:lambda:<region>:209497400698:layer:php-73-fpm:<version>'
+            - ${bref:layer.php-73-fpm}
         # This section contains the URL routing configuration of API Gateway
         events:
             -   http: 'ANY /'
@@ -50,7 +52,7 @@ The runtime (aka layer) is different than with [PHP functions](function.md). Ins
 functions:
     hello:
         layers:
-            - 'arn:aws:lambda:<region>:209497400698:layer:php-73-fpm:<version>'
+            - ${bref:layer.php-73-fpm}
 ```
 
 To learn more check out [the runtimes documentation](/docs/runtimes/README.md).

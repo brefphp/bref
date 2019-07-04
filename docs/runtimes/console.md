@@ -9,13 +9,13 @@ previous:
 
 Bref provides a way to run console commands on AWS Lambda.
 
-This can be used to run the [Symfony Console](https://symfony.com/doc/master/components/console.html), [Silly](https://github.com/mnapoli/silly) or Laravel Artisan commands in production.
+This can be used to run the [Symfony Console](https://symfony.com/doc/master/components/console.html), [Silly](https://github.com/mnapoli/silly) or [Laravel Artisan](https://laravel.com/docs/5.8/artisan) commands in production.
 
 ## Configuration
 
 The lambda function used for running console applications must use two Lambda layers:
 
-- the base PHP layer (the PHP runtime that provides the `php` binary)
+- the [base PHP layer](function.md) (the PHP runtime that provides the `php` binary)
 - the "console" layer that overrides the base runtime to execute your console application
 
 Below is a minimal `serverless.yml`. To create it automatically run `vendor/bin/bref init` and select "Console application".
@@ -25,14 +25,14 @@ service: app
 provider:
     name: aws
     runtime: provided
+plugins:
+    - ./vendor/bref/bref
 functions:
     hello:
         handler: bin/console # or `artisan` if you are using Laravel
         layers:
-            # PHP runtime
-            - 'arn:aws:lambda:<region>:209497400698:layer:php-73:<version>'
-            # Console layer
-            - 'arn:aws:lambda:<region>:209497400698:layer:console:<version>'
+            - ${bref:layer.php-73} # PHP runtime
+            - ${bref:layer.console} # Console layer
 ```
 
 ## Usage
