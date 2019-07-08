@@ -65,33 +65,10 @@ However Secrets Manager is not free: [pricing details](https://aws.amazon.com/se
 
 ## Local development
 
-When [developing locally using SAM](/docs/local-development.md) you can override environment variables via the `--env-vars` option:
+When [developing locally using SAM](/docs/local-development.md) you can override environment variables via the `--env` option:
 
 ```bash
-sam local invoke <Function> --env-vars env.json
-```
-
-The `env.json` JSON file can either define environment variables for **all functions** using the `Parameters` key:
-
-```json
-{
-    "Parameters": {
-        "API_KEY": "8358deb1-ffb4-4077-90d7"
-    }
-}
-```
-
-or for individual functions using the name of the function in `template.yaml`:
-
-```json
-{
-    "WebsiteFunction": {
-        "API_KEY": "99016f5d-ab7e-4a80-9892"
-    },
-    "ConsoleFunction": {
-        "API_KEY": "8358deb1-ffb4-4077-90d7"
-    }
-}
+serverless invoke local --docker -f <Function> --env VAR1=val1 --env VAR2=val2
 ```
 
 ## Learn more
