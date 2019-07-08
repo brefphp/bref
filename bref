@@ -145,6 +145,11 @@ $app->command('cli function [--region=] [arguments]*', function (string $functio
 });
 
 $app->command('invoke function [--region=] [-e|--event=]', function (string $function, ?string $region, ?string $event, SymfonyStyle $io) {
+    $io->warning([
+        'The `bref invoke` command is deprecated in favor of the `serverless invoke` command.',
+        'Run `serverless invoke --help` to learn how to use it, or read the documentation here: https://bref.sh/docs/runtimes/function.html#cli',
+    ]);
+
     $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
 
     try {
