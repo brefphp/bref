@@ -8,7 +8,6 @@ use Bref\Lambda\InvocationFailed;
 use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Process\Exception\ProcessSignaledException;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
@@ -26,40 +25,13 @@ $app = new Silly\Application('Deploy serverless PHP applications');
 
 $app->command('init', function (SymfonyStyle $io) {
     $exeFinder = new ExecutableFinder();
-    if (! $exeFinder->find('sam')) {
+    if (! $exeFinder->find('serverless')) {
         $io->error(
-            'The `sam` command is not installed.' . PHP_EOL .
+            'The `serverless` command is not installed.' . PHP_EOL .
             'Please follow the instructions at https://bref.sh/docs/installation.html'
         );
 
         return 1;
-    }
-
-    if (getenv('AWS_ACCESS_KEY_ID') === false || getenv('AWS_SECRET_ACCESS_KEY') === false) {
-        // Credentials are not configured with environment variables, check aws cli
-        $awsProcess1 = new Process(['aws', 'configure', 'get', 'aws_access_key_id']);
-        $awsProcess2 = new Process(['aws', 'configure', 'get', 'aws_secret_access_key']);
-
-        try {
-            $accessKeyProcessResult = $awsProcess1->run();
-            $secretProcessResult = $awsProcess2->run();
-        } catch (ProcessSignaledException $exception) {
-            $io->error([
-                'Running `aws configure` failed',
-                'Please try running `aws configure` yourself for more debug information'
-            ]);
-
-            return 1;
-        }
-
-        if ($accessKeyProcessResult !== 0 || $secretProcessResult !== 0) {
-            $io->error([
-                'AWS credentials not found.',
-                'Please follow the instructions at https://bref.sh/docs/installation.html',
-            ]);
-
-            return 1;
-        }
     }
 
     if (file_exists('serverless.yml') || file_exists('index.php')) {
