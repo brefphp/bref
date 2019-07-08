@@ -37,7 +37,7 @@ PHP_VERSION_SHORT_UNDERSCORE = $(subst .,_,${PHP_VERSION_SHORT})
 
 ## Use docker image on local env
 
-The build process generate two containers : `bref/php-72:dev` and `bref/php-73:dev`. You can uss this containers with `docker-compose` and `nginx` for local tests.
+The build process generate two containers : `bref/php-72-dev:latest` and `bref/php-73-dev:latest`. You can uss this containers with `docker-compose` and `nginx` for local tests.
 
 
 In your project directory, create a `docker-compose.yml` : 
@@ -75,7 +75,7 @@ web:
     command:
         /bin/sh -c "echo \"$$NGINX_CONFIG\" > /etc/nginx/conf.d/default.conf; nginx -g \"daemon off;\""
 php:
-    image: bref/php-72:dev #or bref/php-73:dev
+    image: bref/php-72-dev:latest #or bref/php-73-dev:latest
     volumes:
             - .:/var/task:ro # Read only, like a lambda function
             # - ./var/cache:/var/task/var/cache # You can make subfolder writable, but you should generate cache before uploading on lambda
