@@ -47,35 +47,38 @@ web:
     ports:
         - "8080:80"
     volumes:
-        - .:/code
+        - .:/var/task
     links:
         - php
     environment:
         NGINX_CONFIG: |
           server {
-            index index.php index.html;
-            server_name php-docker.local;
-            error_log  /var/log/nginx/error.log;
-            access_log /var/log/nginx/access.log;
-            root /code;
+            index src/index.php;
+            root /var/task;
+            
+            # We acces λ only through php file
+            location / { deny all; }
+            location = / { }
+            
+            # We simulate S3 bucket. In production, we can't have assets whith the code
+            location /assets/ { }
 
-            location ~ \.php$$ {
-              try_files $$uri =404;
+            # Allow /src/index.php and src/test.php. This two routes should be in the .stack.yaml
+            location ~ (/src/index.php|/src/test.php) {
               fastcgi_split_path_info ^(.+\.php)(/.+)$$;
               fastcgi_pass php:9000;
-              fastcgi_index index.php;
               include fastcgi_params;
               fastcgi_param SCRIPT_FILENAME $$document_root$$fastcgi_script_name;
               fastcgi_param PATH_INFO $$fastcgi_path_info;
             }
           }
     command:
-        /bin/sh -c "echo $$NGINX_CONFIG > /etc/nginx/conf.d/default.conf; nginx -g \"daemon off;\""
+        /bin/sh -c "echo \"$$NGINX_CONFIG\" > /etc/nginx/conf.d/default.conf; nginx -g \"daemon off;\""
 php:
     image: bref/php-72:dev #or bref/php-73:dev
     volumes:
-            - .:/code:ro # Read only, like a lambda function
-            # - ./var/cache:/code/var/cache # You can make subfolder writable, but you should generate cache before uploading on lambda
+            - .:/var/task:ro # Read only, like a lambda function
+            # - ./var/cache:/var/task/var/cache # You can make subfolder writable, but you should generate cache before uploading on lambda
 ```
 
 Then, you can execute `docker-compose up` and visit `http://localhost:8080`
