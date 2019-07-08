@@ -7,7 +7,7 @@ To run your applications locally with an architecture close to production you ca
 
 ## PHP functions
 
-The `sam local invoke` command invokes your function in a Docker container. You can provide an event if your function expects one.
+The `serverless invoke local` command invokes your [PHP functions](/docs/runtimes/function.md) locally. It is necessary to use the `--docker` option so that Bref layers are correctly downloaded. You can provide an event if your function expects one.
 
 For example, given this function:
 
@@ -17,17 +17,27 @@ lambda(function (array $event) {
 });
 ```
 
+```yaml
+# ...
+
+functions:
+    myFunction:
+        handler: index.php
+        layers:
+            - ${bref:layer.php-73}
+```
+
 You can invoke it with or without event data:
 
 ```sh
-$ sam local invoke --no-event
+$ serverless invoke local --docker -f myFunction
 Hello world
 
-$ echo '{"name": "John" }' | sam local invoke
+$ serverless invoke local --docker -f myFunction --data '{"name": "Jane"}'
 Hello John
 ```
 
-> Learn more in the [`sam local` documentation](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/usage.rst#invoke-functions-locally) or run `sam local invoke --help`.
+> Learn more in the [`serverless invoke local` documentation](https://serverless.com/framework/docs/providers/aws/cli-reference/invoke-local/) or run `serverless invoke local --help`.
 
 ## HTTP applications
 
@@ -53,3 +63,21 @@ Using SAM is useful to test your application in an environment close to producti
 Console applications can be tested just like before: by running the command in your terminal.
 
 For example with Symfony you can run `bin/console <your-command>` , or with Laravel run `php artisan <your-command>`.
+
+If you want to run your console in an environment close to production, you can use the Bref Docker images. Here is an example of a `docker-compose.yml` file:
+
+```yaml
+console:
+    image: bref/php-73
+    volumes:
+        - .:/var/task:ro # Read only, like a lambda function
+        # Some directories can be made writable for the development environment:
+        # - ./cache:/var/task/cache
+    command: php /var/task/bin/console
+```
+
+Then commands can be run via:
+
+```bash
+docker-compose run console php /var/task/bin/console <your-command>
+```
