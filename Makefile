@@ -9,6 +9,9 @@ website:
 	# See http://couscous.io/
 	couscous generate
 	netlify deploy --prod --dir=.couscous/generated
+website-staging:
+	couscous generate
+	netlify deploy --dir=.couscous/generated
 
 # Run a local preview of the website using http://couscous.io
 website-preview:
