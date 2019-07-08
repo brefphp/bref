@@ -65,7 +65,7 @@ However Secrets Manager is not free: [pricing details](https://aws.amazon.com/se
 
 ## Local development
 
-When [developing locally using SAM](/docs/local-development.md) you can override environment variables via the `--env` option:
+When [developing locally using `serverless invoke local`](/docs/local-development.md) you can override environment variables via the `--env` option:
 
 ```bash
 serverless invoke local --docker -f <Function> --env VAR1=val1 --env VAR2=val2
