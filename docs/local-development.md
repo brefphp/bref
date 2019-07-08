@@ -41,22 +41,21 @@ Hello John
 
 ## HTTP applications
 
-The `sam local start-api` command starts Docker containers that will emulate AWS Lambda and API Gateway on your machine:
-
-```sh
-sam local start-api
-```
-
-Once started, your application will be available at [http://localhost:3000](http://localhost:3000/).
-
-> Learn more in the [`sam local` documentation](https://github.com/awslabs/aws-sam-cli/blob/develop/docs/usage.rst#run-api-gateway-locally) or run `sam local start-api --help`.
-
-If you want to keep things simple, remember that you can still run your PHP application like you did without Bref. For example with your favorite framework:
+If you want to keep things simple, you can run your PHP application like you did without Bref. For example with your favorite framework:
 
 - Laravel via `php artisan serve` or [Homestead](https://laravel.com/docs/5.7/homestead) or [Laravel Valet](https://laravel.com/docs/5.7/valet)
 - Symfony via `php bin/console server:start` ([documentation](https://symfony.com/doc/current/setup/built_in_web_server.html))
 
-Using SAM is useful to test your application in an environment close to production.
+If you are not using any framework, you can use PHP's built-in server:
+
+```bash
+php -S localhost:8000 index.php
+# The application is now available at http://localhost:8000/
+```
+
+In order to run the application locally in an environment closer to production, we are working on [Docker images in #237](https://github.com/brefphp/bref/issues/237).
+
+There is also a [Serverless plugin called "serverless-offline"](https://github.com/dherault/serverless-offline) that runs API Gateway locally. However it currently doesn't support layers, which means it doesn't work with Bref yet. We are working on this in [#648](https://github.com/dherault/serverless-offline/pull/648).
 
 ## Console applications
 
