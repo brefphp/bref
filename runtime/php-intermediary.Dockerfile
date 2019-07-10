@@ -48,6 +48,7 @@ RUN mkdir -p ${BUILD_DIR}  \
 #   - php
 # Used By:
 #   - xml2
+ARG plop
 ARG zlib
 ENV VERSION_ZLIB=${zlib}
 ENV ZLIB_BUILD_DIR=${BUILD_DIR}/xml2
