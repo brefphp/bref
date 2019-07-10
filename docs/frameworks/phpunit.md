@@ -13,7 +13,7 @@ For this reason, bref provides a Docker image containing the same php binary as 
 ## Usage
 
 ```
-docker run -v /path/to/my/project:/var/task -t bref/php:7.3.2 ./vendor/bin/phpunit
+docker run -v /path/to/my/project:/var/task -t bref/php-73 ./vendor/bin/phpunit
 ```
 
 TODO: Should we tag the Docker image with the PHP version or with the Layer tag?  
