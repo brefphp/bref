@@ -2,6 +2,8 @@
 <?php
 declare(strict_types=1);
 
+use Aws\CloudFormation\CloudFormationClient;
+use Aws\CloudFormation\Exception\CloudFormationException;
 use Bref\Lambda\InvocationFailed;
 use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -23,37 +25,23 @@ $app = new Silly\Application('Deploy serverless PHP applications');
 
 $app->command('init', function (SymfonyStyle $io) {
     $exeFinder = new ExecutableFinder();
-    if (! $exeFinder->find('sam')) {
+    if (! $exeFinder->find('serverless')) {
         $io->error(
-            'The `sam` command is not installed.' . PHP_EOL .
+            'The `serverless` command is not installed.' . PHP_EOL .
             'Please follow the instructions at https://bref.sh/docs/installation.html'
         );
 
         return 1;
     }
 
-    if (getenv('AWS_ACCESS_KEY_ID') === false || getenv('AWS_SECRET_ACCESS_KEY') === false) {
-        // Credentials are not configured with environment variables, check aws cli
-        $awsProcess1 = new Process(['aws', 'configure', 'get', 'aws_access_key_id']);
-        $awsProcess2 = new Process(['aws', 'configure', 'get', 'aws_secret_access_key']);
-        if (($awsProcess1->run() !== 0) || ($awsProcess2->run() !== 0)) {
-            $io->error([
-                'AWS credentials not found.',
-                'Please follow the instructions at https://bref.sh/docs/installation.html',
-            ]);
-
-            return 1;
-        }
-    }
-
-    if (file_exists('template.yaml') || file_exists('index.php')) {
-        $io->error('The directory already contains a `template.yaml` and/or `index.php` file.');
+    if (file_exists('serverless.yml') || file_exists('index.php')) {
+        $io->error('The directory already contains a `serverless.yml` and/or `index.php` file.');
 
         return 1;
     }
 
     $choice = $io->choice(
-        'What kind of lambda do you want to create? (you will be able to add more functions later by editing `template.yaml`)',
+        'What kind of lambda do you want to create? (you will be able to add more functions later by editing `serverless.yml`)',
         [
             'PHP function',
             'HTTP application',
@@ -129,6 +117,11 @@ $app->command('cli function [--region=] [arguments]*', function (string $functio
 });
 
 $app->command('invoke function [--region=] [-e|--event=]', function (string $function, ?string $region, ?string $event, SymfonyStyle $io) {
+    $io->warning([
+        'The `bref invoke` command is deprecated in favor of the `serverless invoke` command.',
+        'Run `serverless invoke --help` to learn how to use it, or read the documentation here: https://bref.sh/docs/runtimes/function.html#cli',
+    ]);
+
     $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
 
     try {
@@ -147,5 +140,106 @@ $app->command('invoke function [--region=] [-e|--event=]', function (string $fun
 })->descriptions('Invoke the lambda on the serverless provider', [
     '--event' => 'Event data as JSON, e.g. `--event \'{"name":"matt"}\'`',
 ]);
+
+$app->command('deployment stack-name [--region=]', function (string $stackName, ?string $region, SymfonyStyle $io) {
+    $region = ($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1';
+    $cloudFormation = new CloudFormationClient([
+        'version' => 'latest',
+        'region' => $region,
+    ]);
+
+    try {
+        $result = $cloudFormation->describeStacks([
+            'StackName' => $stackName,
+        ]);
+        $stacks = $result->get('Stacks');
+        if (!isset($stacks[0])) {
+            $io->error(sprintf('The stack %s cannot be found in region %s', $stackName, $region));
+            return 1;
+        }
+        $stack = $stacks[0];
+    } catch (CloudFormationException $e) {
+        $io->error([
+            "Error while fetching information about the stack `$stackName` in region `$region`:",
+            sprintf('"%s"', $e->getAwsErrorMessage()),
+            "In case the stack was not found make sure that `$region` is the correct region.",
+        ]);
+        return 1;
+    }
+
+    $io->section('Events');
+
+    $result = $cloudFormation->describeStackEvents([
+        'StackName' => $stackName,
+    ]);
+    $events = $result->get('StackEvents');
+
+    // Last events last
+    $events = array_reverse($events);
+    // Keep only events from the last 24 hours
+    $oneDayAgo = new DateTimeImmutable('-1 day');
+    $events = array_filter($events, function (array $event) use ($oneDayAgo) {
+        return $event['Timestamp'] >= $oneDayAgo;
+    });
+
+    if (empty($events)) {
+        $io->text('No events were found in the last 24 hours.');
+    } else {
+        $errors = [];
+        foreach ($events as $event) {
+            /** @var DateTimeInterface $time */
+            $time = $event['Timestamp'];
+
+            $status = $event['ResourceStatus'];
+            $error = false;
+            if (strpos($status, 'FAILED') !== false) {
+                $error = true;
+                $errors[] = $event;
+            }
+
+            $io->write(sprintf(
+                '<comment>%s</comment> %s %s',
+                $time->format('M j G:H'),
+                $error ? "<error>$status</error>" : $status,
+                $event['ResourceType']
+            ));
+
+            if (isset($event['ResourceStatusReason'])) {
+                $io->write(" <info>{$event['ResourceStatusReason']}</info>");
+            }
+            $io->writeln('');
+        }
+        $io->writeln('');
+
+        if (empty($errors)) {
+            $io->writeln('<info>No errors found.</info>');
+        } else {
+            $io->writeln('<error>Summary of the errors found:</error>');
+            foreach ($errors as $event) {
+                /** @var DateTimeInterface $time */
+                $time = $event['Timestamp'];
+                $io->writeln(sprintf(
+                    '<comment>%s</comment> <info>%s</info> %s',
+                    $time->format('M j G:H'),
+                    $event['ResourceType'],
+                    $event['ResourceStatusReason'] ?? ''
+                ));
+            }
+        }
+    }
+
+    if (isset($stack['Outputs']) && !empty($stack['Outputs'])) {
+        $io->section('Outputs');
+        $io->listing(array_map(function (array $output): string {
+            return sprintf(
+                '%s: <info>%s</info>',
+                $output['Description'] ?? $output['OutputKey'],
+                $output['OutputValue']
+            );
+        }, $stack['Outputs']));
+    }
+
+    return 0;
+})->descriptions('Displays the latest deployment logs from CloudFormation. Only the logs from the last 24 hours are displayed. Use these logs to debug why a deployment failed.');
 
 $app->run();

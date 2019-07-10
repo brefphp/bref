@@ -18,33 +18,32 @@ You will need an AWS account. To create one, go on [aws.amazon.com](https://aws.
 
 AWS has a generous free tier that will usually allow you to deploy your first test applications for free.
 
-## AWS tooling
+## Serverless
 
-Bref relies on AWS SAM and AWS access keys to interact with AWS.
+Bref relies on the [Serverless framework](https://serverless.com/) and AWS access keys to deploy applications. You will need to:
 
-You will need to:
+- install the `serverless` command ([more details here](https://serverless.com/framework/docs/providers/aws/guide/quick-start/)):
 
-- [install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
-- [install AWS SAM CLI](https://aws.amazon.com/serverless/sam/)
+    ```bash
+    npm install -g serverless
+    ```
 
-- setup AWS credentials: [create AWS access keys](https://serverless.com/framework/docs/providers/aws/guide/credentials#creating-aws-access-keys) and [configure AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) by either:
-    - running `aws configure` (quick configuration)
-    - or by [using environment variables](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html)
+- [create AWS access keys](/docs/installation/aws-keys.md)
 
-### Region
+- setup those keys by running:
 
-The default [region](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) SAM will use is `us-east-1` (North Virginia, USA).
+    ```bash
+    serverless config credentials --provider aws --key <key> --secret <secret>
+    ```
 
-If you know you want to use a different region (for example to host your application closer to your visitors) you can define the `AWS_DEFAULT_REGION` environment variable. For example `export AWS_DEFAULT_REGION=eu-west-1` in your shell.
-
-Alternatively the region can be overridden on every SAM command by setting the `--region` flag.
+    If you already use the `aws` CLI command, or if you want to use environment variables instead (for example for a shared server like a CI) you can [read the full guide](https://serverless.com/framework/docs/providers/aws/guide/credentials#using-aws-access-keys).
 
 ## Bref
 
 Install Bref in your project using [Composer](https://getcomposer.org/):
 
 ```
-composer require mnapoli/bref
+composer require bref/bref
 ```
 
 > To run the latest version of Bref you must have PHP 7.2 or greater! If you are using PHP 7.1 or less an older (outdated) version of Bref will be installed instead.
@@ -53,4 +52,4 @@ The `bref` command line tool can now be used by running `vendor/bin/bref` in you
 
 ## What's next?
 
-Read the [first steps](/docs/runtimes/function.md) guide to create and deploy your first serverless application using Bref.
+Read the [first steps](/docs/first-steps.md) guide to create and deploy your first serverless application using Bref.

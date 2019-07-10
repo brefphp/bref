@@ -93,48 +93,54 @@ class PhpFpmRuntimeTest extends TestCase
     public function test php extensions()
     {
         $response = $this->invoke('/?extensions=1');
+        $extensions = $this->getJsonBody($response);
+        sort($extensions);
 
         self::assertEquals([
             'Core',
-            'date',
-            'libxml',
-            'openssl',
-            'pcre',
-            'sqlite3',
-            'zlib',
+            'PDO',
+            'Phar',
+            'Reflection',
+            'SPL',
+            'SimpleXML',
+            'Zend OPcache',
+            'bcmath',
+            'cgi-fcgi',
             'ctype',
             'curl',
+            'date',
             'dom',
-            'hash',
+            'exif',
             'fileinfo',
             'filter',
             'ftp',
             'gettext',
-            'SPL',
+            'hash',
             'iconv',
             'json',
+            'libxml',
             'mbstring',
+            'mysqli',
+            'mysqlnd',
+            'openssl',
             'pcntl',
-            'session',
-            'PDO',
+            'pcre',
             'pdo_sqlite',
-            'standard',
             'posix',
             'readline',
-            'Reflection',
-            'Phar',
-            'SimpleXML',
+            'session',
+            'soap',
+            'sockets',
             'sodium',
-            'exif',
+            'sqlite3',
+            'standard',
             'tokenizer',
             'xml',
             'xmlreader',
             'xmlwriter',
             'zip',
-            'mysqlnd',
-            'cgi-fcgi',
-            'Zend OPcache',
-        ], $this->getJsonBody($response), $this->logs);
+            'zlib',
+        ], $extensions, $this->logs);
     }
 
     /**
@@ -170,6 +176,17 @@ class PhpFpmRuntimeTest extends TestCase
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
         ], $this->getJsonBody($response), false, $this->logs);
+    }
+
+    public function test environment variables()
+    {
+        $response = $this->invoke('/?env=1');
+
+        self::assertEquals([
+            '$_ENV' => 'bar',
+            '$_SERVER' => 'bar',
+            'getenv' => 'bar',
+        ], $this->getJsonBody($response), $this->logs);
     }
 
     /**

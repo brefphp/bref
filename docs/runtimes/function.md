@@ -51,23 +51,40 @@ The function:
 
 There must be only one function defined per PHP file.
 
-## SAM configuration
+### Context
 
-Below is a minimal `template.yaml` to deploy a function. To create it automatically run `vendor/bin/bref init`.
+The function is invoked with the `$event` parameter as well a `$context` parameter that can be optionally declared if you want to use it:
+
+```php
+<?php
+
+use Bref\Context\Context;
+
+require __DIR__.'/vendor/autoload.php';
+
+lambda(function (array $event, Context $context) {
+    return /* response */;
+});
+```
+
+The `Context` object is inspired from the [`context` parameter in other languages](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html) and provides information about the current lambda invocation (the request ID, the X-Ray trace ID, etc.).
+
+## `serverless.yml` configuration
+
+Below is a minimal `serverless.yml` to deploy a function. To create it automatically run `vendor/bin/bref init`.
 
 ```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
-Resources:
-    MyFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: 'my-function'
-            CodeUri: .
-            Handler: index.php # the name of your PHP file
-            Runtime: provided
-            Layers:
-                - 'arn:aws:lambda:<region>:209497400698:layer:php-73:<version>'
+service: app
+provider:
+    name: aws
+    runtime: provided
+plugins:
+    - ./vendor/bref/bref
+functions:
+    hello:
+        handler: index.php
+        layers:
+            - ${bref:layer.php-73}
 ```
 
 The runtime to use is `php`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
@@ -78,26 +95,20 @@ A PHP function must be invoked via the AWS Lambda API. If you instead want to wr
 
 ### CLI
 
-A PHP function can be triggered manually from the CLI using the `bref invoke` command:
+A PHP function can be triggered manually from the CLI using the [`serverless invoke` command](https://serverless.com/framework/docs/providers/aws/cli-reference/invoke/):
 
 ```bash
-$ vendor/bin/bref invoke <function-name>
-START RequestId: 3afca641-112c-11e9-bd8b-7108ee29dd18 Version: $LATEST
-END RequestId: 3afca641-112c-11e9-bd8b-7108ee29dd18
-REPORT RequestId: c42dce1e-112c-11e9-bed8-3f4bd1a349e2	Duration: 201.14 ms	Billed Duration: 300 ms 	Memory Size: 128 MB	Max Memory Used: 39 MB
-
+$ serverless invoke -f <function-name>
 "Hello world"
 ```
 
-The logs will be displayed above the function's result encoded as JSON.
-
-To pass event data to the lambda use the `--event` option. For example:
+To pass event data to the lambda use the `--data` option. For example:
 
 ```bash
-vendor/bin/bref invoke <function-name> --event='{"name": "John" }'
+serverless invoke -f <function-name> --data='{"name": "John" }'
 ```
 
-Run `vendor/bin/bref invoke --help` to learn more about the `invoke` command.
+Run `serverless invoke --help` to learn more about the `invoke` command.
 
 ### From PHP applications
 

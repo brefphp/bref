@@ -390,6 +390,7 @@ RUN set -xe \
         --prefix=${INSTALL_DIR} \
         --enable-option-checking=fatal \
         --enable-maintainer-zts \
+        --enable-sockets \
         --with-config-file-path=${INSTALL_DIR}/etc/php \
         --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/var/task/php/conf.d \
         --enable-fpm \
@@ -408,11 +409,14 @@ RUN set -xe \
         --with-gettext \
         --enable-mbstring \
         --with-pdo-mysql=shared,mysqlnd \
+        --with-mysqli \
         --enable-pcntl \
         --enable-zip \
+        --enable-bcmath \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
-        --enable-opcache-file
+        --enable-opcache-file \
+        --enable-soap
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
 RUN set -xe; \
@@ -424,10 +428,6 @@ RUN set -xe; \
 RUN pecl install mongodb
 RUN pecl install redis
 RUN pecl install APCu
-
-RUN set -xe; \
-    curl -Ls https://elasticache-downloads.s3.amazonaws.com/ClusterClient/PHP-7.0/latest-64bit \
-  | tar xzC $(php-config --extension-dir) --strip-components=1
 
 ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
 

@@ -96,6 +96,16 @@ article h1, article h2, article h3, article h4, article h5, article h6 {
 article h1 {
     margin-bottom: 40px;
 }
+@media only screen and (max-width: 992px) and (min-width: 768px) {
+    article h1{
+        max-width: calc(100% - 60px);
+    }
+}
+@media only screen and (min-width: 992px) {
+    article h1{
+        max-width: calc(100% - 130px);
+    }
+}
 article h2 {
     font-weight: 600;
     font-size: 24px;
@@ -123,6 +133,17 @@ article h3 {
 a.title-anchor:hover {
     text-decoration: none;
     opacity: 0.75;
+}
+/*
+ * Introduces a little of vertical margin so that the title isn't
+ * hidden behind the menu
+ */
+article [id]:before {
+    display: block;
+    content: " ";
+    margin-top: -20px;
+    height: 20px;
+    visibility: hidden;
 }
 article ul, article ol {
     margin-top: 8px;
@@ -173,4 +194,12 @@ article blockquote p:first-child {
     #in-page-menu {
         display: block;
     }
+}
+
+.maturity-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 9999px;
+    vertical-align: text-top;
 }

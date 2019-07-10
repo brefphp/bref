@@ -5,17 +5,16 @@ This system uses a chain of Docker Containers to build PHP, associated extension
 2. **php** -- This is the container, built on *compilers*, in which we compile PHP and any libraries or extensions. [See [php.Dockerfile](php.Dockerfile)]
 4. **export** -- This is the container, built from *php*, in which we package our build and export it from the container to the host system. [See [export.Dockerfile](export.Dockerfile)]
 
-We currently support building either **PHP 7.2**.
+We currently support building **PHP 7.2** and **PHP 7.3**.
 
 ## Usage
 From this directory, simply type:
 
-*Generate PHP 7.2*
 ```bash
-export REGION=YOURREGION
-make php
+make distribution
 ls exports/
 ```
+
 ### What does that actually do?
 First, it either creates the 'bref/runtime/compiler:latest' image, or verifies that it is properly cached. Next, we build php by creating the 'bref/runtime/php:latest' image, or verifying that it is properly cached. Then, we build the 'bref/runtime/dist:latest', it is never cached. From it, we copy out the zip files to the local hosts `exports` directory.
 

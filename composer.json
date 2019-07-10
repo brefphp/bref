@@ -1,5 +1,5 @@
 {
-    "name": "mnapoli/bref",
+    "name": "bref/bref",
     "license": "MIT",
     "type": "project",
     "description": "Bref is a framework to write and deploy serverless PHP applications on AWS Lambda.",
@@ -29,15 +29,14 @@
         "symfony/filesystem": "^3.1|^4.0",
         "symfony/process": "^3.3|^4.0",
         "aws/aws-sdk-php": "^3.44",
-        "hoa/fastcgi": "^3.19.02.19",
-        "hoa/socket": "1.17.05.16",
-        "psr/http-message": "^1.0"
+        "psr/http-message": "^1.0",
+        "hollodotme/fast-cgi-client": "^2.7"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5",
         "zendframework/zend-diactoros": "^1.6|^2.0",
         "doctrine/coding-standard": "^5.0",
-        "phpstan/phpstan": "^0.10.5",
+        "phpstan/phpstan": "^0.11.5",
         "guzzlehttp/guzzle": "^6.3"
     }
 }

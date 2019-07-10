@@ -1,0 +1,42 @@
+service: bref-demo
+
+provider:
+    name: aws
+    runtime: provided
+    region: us-east-2
+
+plugins:
+    - ./index.js
+
+package:
+    exclude:
+        - '**'
+    include:
+        - 'demo/**'
+        - 'src/**'
+        - 'vendor/**'
+
+functions:
+    function:
+        handler: demo/function.php
+        description: 'Bref CLI demo'
+        layers:
+            - ${bref:layer.php-73}
+
+    http:
+        handler: demo/http.php
+        description: 'Bref HTTP demo'
+        timeout: 5 # in seconds (API Gateway has a timeout of 30 seconds)
+        memory: 1024
+        layers:
+            - ${bref:layer.php-73-fpm}
+        events:
+            -   http: 'ANY /'
+            -   http: 'ANY /{proxy+}'
+
+    console:
+        handler: demo/console.php
+        description: 'Bref console command demo'
+        layers:
+            - ${bref:layer.php-73}
+            - ${bref:layer.console}

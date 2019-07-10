@@ -6,8 +6,10 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
+ *
+ * @internal
  */
-class LambdaResponse
+final class LambdaResponse
 {
     /** @var int */
     private $statusCode = 200;
@@ -56,18 +58,21 @@ class LambdaResponse
         );
     }
 
-    public function toApiGatewayFormat(): array
+    public function toApiGatewayFormat(bool $multiHeaders = false): array
     {
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
         $headers = empty($this->headers) ? new \stdClass : $this->headers;
+
+        // Support for multi-value headers
+        $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
         return [
             'isBase64Encoded' => false,
             'statusCode' => $this->statusCode,
-            'headers' => $headers,
+            $headersKey => $headers,
             'body' => $this->body,
         ];
     }

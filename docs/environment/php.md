@@ -48,6 +48,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
       <td  align="left" valign="top">
         <ul>
         <li>Core</li>
+        <li><a href="http://php.net/manual/en/book.bc.php">bcmath</a></li>
         <li><a href="http://php.net/manual/en/intro.ctype.php">ctype</a></li>
         <li><a href="http://php.net/manual/en/book.curl.php">curl</a></li>
         <li>date</li>
@@ -66,6 +67,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <ul>
         <li><a href="http://php.net/manual/en/book.libxml.php">libxml</a></li>
         <li><a href="http://php.net/manual/en/book.mbstring.php">mbstring</a></li>
+        <li><a href="http://php.net/manual/en/book.mysqli.php">mysqli</a></li>
         <li><a href="http://php.net/manual/en/book.mysqlnd.php">mysqlnd</a></li>
         <li><a href="http://php.net/manual/en/book.opcache.php">opcache</a></li>
         <li><a href="http://php.net/manual/en/book.openssl.php">openssl</a></li>
@@ -84,6 +86,8 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
         <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
+        <li><a href="http://php.net/manual/en/book.soap.php">SOAP</a></li>
+        <li><a href="http://php.net/manual/en/book.sockets.php">sockets</a></li>
         <li><a href="http://php.net/manual/en/book.SPL.php">SPL</a></li>
         <li><a href="http://php.net/manual/en/book.sqlite3.php">sqlite3</a></li>
         <li><a href="http://php.net/manual/en/book.standard.php">standard</a></li>
@@ -102,7 +106,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 
 - **[intl](http://php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
 - **[APCu](http://php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
-- **[ElastiCache php-memcached extension](https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/Appendix.PHPAutoDiscoverySetup.html)** - 
 - **[phpredis](https://github.com/phpredis/phpredis)** -  The phpredis extension provides an API for communicating with the Redis key-value store. 
 - **[PostgreSQL PDO Driver](http://php.net/manual/en/ref.pdo-pgsql.php)** -  PDO_PGSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to PostgreSQL databases.
 - **[MySQL PDO Driver](http://php.net/manual/en/ref.pdo-mysql.php)** -  PDO_MYSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to MySQL databases.
@@ -114,7 +117,6 @@ You can enable these extensions by loading them in `php/conf.d/php.ini` (as ment
 ```ini
 extension=intl
 extension=apcu
-extension=amazon-elasticache-cluster-client.so
 extension=redis
 extension=pdo_pgsql
 extension=pdo_mysql

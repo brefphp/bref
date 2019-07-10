@@ -19,7 +19,7 @@ Before getting started make sure you have [installed Bref and the required tools
 Starting in an empty directory, install Bref using Composer:
 
 ```
-composer require mnapoli/bref
+composer require bref/bref
 ```
 
 Then let's start by initializing the project by running:
@@ -37,7 +37,7 @@ Accept all the defaults by pressing "Enter" for each question. Congratulations, 
 The following files have been created in your project:
 
 - `index.php` contains the function code
-- `template.yaml` contains the AWS SAM configuration for deploying on AWS
+- `serverless.yml` contains the configuration for deploying on AWS
 
 ## Editing the code
 
