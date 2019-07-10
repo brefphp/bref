@@ -3,13 +3,11 @@ title: Deployment
 currentMenu: deploy
 ---
 
-Bref recommends to use SAM to deploy your serverless application.
+Bref recommends to use [the Serverless framework](https://serverless.com/) to deploy your serverless application.
 
-While you can read [SAM's official deployment documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-deploying.html) the following guide is optimized for PHP projects.
+While you can read [the official deployment documentation](https://serverless.com/framework/docs/providers/aws/guide/deploying/) the following guide is optimized for PHP projects.
 
 ## How it works
-
-Let's look at how serverless applications are deployed on AWS with SAM.
 
 ### Stacks
 
@@ -21,33 +19,13 @@ Everything is deployed through a **[CloudFormation](https://aws.amazon.com/cloud
 
 Stacks make it easy to group those resources together: the whole stack is updated at once on deployments, and if you delete the stack all the resources inside are deleted together too. Clean and simple.
 
-All of this is great except CloudFormation configuration is complex. This is where SAM helps.
+All of this is great except CloudFormation configuration is complex. This is where *Serverless* helps.
 
-### SAM
+### `serverless.yml`
 
-SAM offers a simpler configuration format. This is what you are using if you use Bref (the `template.yaml` file).
+The *Serverless* framework offers a simple configuration format. This is what you are using if you use Bref. That configuration is written in your project in a `serverless.yml` file.
 
-Deploying with SAM is done in 3 steps:
-
-- upload the application code to a S3 bucket
-- generate a temporary CloudFormation config (YAML file) that references the uploaded code
-- deploy the CloudFormation stack
-
-## Deploying with SAM
-
-### Setup
-
-> This step must be done only once per application.
-
-To be deployed into AWS Lambda, your code must be uploaded on AWS S3.
-
-That means you must **create a S3 bucket** to host your application code:
-
-```sh
-aws s3 mb s3://<bucket-name>
-```
-
-Note: the content of this bucket will be managed by AWS SAM. Do not use it in your application to store things like assets or uploaded files.
+## Deploying with Serverless
 
 ### Deployment
 
@@ -59,36 +37,17 @@ composer install --optimize-autoloader --no-dev
 
 > If you run this command in your local installation this might break your development setup (it will remove dev dependencies). Ideally deployment should be done in a separate directory, from scratch.
 
-**Step1**, upload the code and generate the stack configuration:
+Once your project is ready, you can deploy via the following command:
 
 ```bash
-sam package \
-    --output-template-file .stack.yaml \
-    --s3-bucket <bucket-name>
+serverless deploy
 ```
 
-> `<bucket-name>` is the name of the bucket you created in [Setup](#setup).
-
-The `.stack.yaml` file describes the stack and references the code that was just uploaded to S3. You can add it to `.gitignore` and remove it once you have finished deploying.
-
-**Step2**, deploy the generated stack:
-
-```bash
-sam deploy \
-    --template-file .stack.yaml \
-    --capabilities CAPABILITY_IAM \
-    --stack-name <stack-name>
-```
-
-> `<stack-name>` can be the name of your project (made of letters, numbers and `-`).
+A `.serverless/` directory will be created. You can add it to `.gitignore`.
 
 While you wait for your stack to be created you can check out [the CloudFormation dashboard](https://console.aws.amazon.com/cloudformation/home). Your stack will appear there.
 
-If an error occurs, you can either look into the *Events* tab of your stack in the CloudFormation dashboard or use the following Bref command to understand what went wrong:
-
-```bash
-vendor/bin/bref deployment <stack-name>
-```
+If an error occurs, the root cause will be displayed in the CLI output.
 
 ## Automating deployments
 
@@ -96,7 +55,7 @@ Deploying from your machine is not perfect:
 
 - it will deploy development dependencies from Composer
 - it will deploy development configuration
-- it will deploy all the files in the project's directory, even those in `.gitignore`
+- it will deploy all the files in the project directory, even those in `.gitignore`
 
 This works fine when testing, but for a production setup it is better to automate deployments.
 
@@ -110,20 +69,34 @@ composer install --optimize-autoloader --no-dev
 # (e.g. generate the framework cache)
 # [...]
 
-# Package
-sam package ...
 # Deploy
-sam deploy ...
+serverless deploy
 ```
 
 That will also mean creating AWS access keys so that the continuous integration is allowed to deploy.
 
+## Regions
+
+AWS runs applications in different [regions](https://aws.amazon.com/about-aws/global-infrastructure/). The default region is `us-east-1` (North Virginia, USA).
+
+If you want to use a different region (for example to host your application closer to your visitors) you can configure it in your `serverless.yml`:
+
+```yaml
+provider:
+    region: eu-west-1 # Ireland, Europe
+    ...
+```
+
+> If you are a first time user, using the `us-east-1` region (the default region) is *highly recommended* for the first projects. It simplifies commands and avoids a lot of mistakes when discovering AWS.
+
 ## Deletion
 
-Since CloudFormation is used to deploy the application as a "stack", deleting the application can be done by deleting the stack.
+To delete the whole application you can run:
 
-Remember to also delete the S3 bucket that was created to hold the application's code (it is not inside the CloudFormation stack).
+```bash
+serverless remove
+```
 
 ## Learn more
 
-Read more about `sam deploy` in [the official documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-deploying.html).
+Read more about `serverless deploy` in [the official documentation](https://serverless.com/framework/docs/providers/aws/guide/deploying/).

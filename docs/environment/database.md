@@ -69,24 +69,20 @@ Find:
 
     ℹ️ An AWS region is divided in [availability zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) (different data centers): there is usually one subnet per availability zone.
 
-Put these information in `template.yaml` in your function configuration:
+Put these information in `serverless.yml` in your function configuration ([read more about this in the Serverless documentation](https://serverless.com/framework/docs/providers/aws/guide/functions/#vpc-configuration)):
 
 ```yaml
-Resources:
-    MyFunction:
+functions:
+    hello:
         ...
-        Properties:
-            ...
-            VpcConfig:
-                SecurityGroupIds:
-                    - sg-03f68e1100481622b
-                SubnetIds:
-                    - subnet-12f4130e
-                    - subnet-c5fe33e5
-                    - subnet-11aa85dc
-                    - subnet-85dcf240
-            Policies:
-                - AWSLambdaVPCAccessExecutionRole # Allows the lambda to access the VPC
+        vpc:
+            securityGroupIds:
+                - sg-03f68e1100481622b
+            subnetIds:
+                - subnet-12f4130e
+                - subnet-c5fe33e5
+                - subnet-11aa85dc
+                - subnet-85dcf240
 ```
 
 Now we need to authorize connections to the RDS security group (because the lambda is in the VPC but outside of this VPC group) (https://www.reddit.com/r/aws/comments/8nr8ek/lambda_rds_connection_timeout/):

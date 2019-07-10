@@ -8,60 +8,51 @@ Environment variables are the perfect solution to configure the application (as 
 
 ## Definition
 
-Environment variables can be defined in `template.yml`.
+Environment variables can be defined in `serverless.yml`.
 
-To define an environment variable that will be available in **all functions** declare it in the `Globals` section:
+To define an environment variable that will be available in **all functions** declare it in the `provider` section:
 
 ```yaml
-# Define your global variables in the `Globals` section
-Globals:
-    Function:
-        Environment:
-            Variables:
-                MY_VARIABLE: 'my value'
-
-# Define your functions in the `Resources` section
-Resources:
+provider:
     # ...
+    environment:
+        MY_VARIABLE: 'my value'
 ```
 
 To define an environment variable that will be available in **a specific function** declare it inside the function's properties:
 
 ```yaml
-Resources:
-    MyFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            # ...
-            Environment:
-                Variables:
-                    MY_VARIABLE: 'my value'
+functions:
+    foo:
+        # ...
+        environment:
+            MY_VARIABLE: 'my value'
 ```
 
-> Do not store secret values in `template.yaml` directly. Check out the next section to handle secrets.
+> Do not store secret values in `serverless.yml` directly. Check out the next section to handle secrets.
 
 ## Secrets
 
-Secrets (API tokens, database passwords, etc.) should not be defined in `template.yaml` and committed into your git repository.
+Secrets (API tokens, database passwords, etc.) should not be defined in `serverless.yml` and committed into your git repository.
 
 Instead you can use the [SSM parameter store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html), a free service provided by AWS.
 
-To create a parameter:
+To create a parameter you can either do it manually in the [SSM parameter store console](https://console.aws.amazon.com/systems-manager/parameters) or use the following command:
 
-- go into the [SSM parameter store console](https://console.aws.amazon.com/systems-manager/parameters) and make sure you are in the same region as your application
-- click "Create parameter"
-- it is recommended to prefix the parameter name with your application name, e.g. `/my-app/my-parameter`
-- set the secret in "Value" and save
-
-To import the SSM parameter into an environment variable you can use a [dynamic reference](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html): `{{resolve:ssm:<parameter>:<version>}}`, for example:
-
-```yaml
-        Environment:
-            Variables:
-                MY_PARAMETER: '{{resolve:ssm:/my-app/my-parameter:1}}'
+```bash
+aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
 ```
 
-> Remember to update the parameter version in `template.yaml` anytime you change the value of the parameter. You will need to redeploy the application as well.
+It is recommended to prefix the parameter name with your application name, for example: `/my-app/my-parameter`.
+
+To import the SSM parameter into an environment variable you can use the [`${ssm:<parameter>}` syntax](https://serverless.com/blog/serverless-secrets-api-keys/):
+
+```yaml
+provider:
+    # ...
+    environment:
+        MY_PARAMETER: ${ssm:/my-app/my-parameter}
+```
 
 ### An alternative: AWS Secrets Manager
 
@@ -69,37 +60,19 @@ As an alternative you can also store secrets in [AWS Secrets Manager](https://aw
 
 - better permission management using IAM
 - JSON values, allowing to store multiple values in one parameter
-- the version can be omitted from the [`{{resolve:secretsmanager:...}}` syntax](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html#dynamic-references-secretsmanager)
 
 However Secrets Manager is not free: [pricing details](https://aws.amazon.com/secrets-manager/pricing/).
 
 ## Local development
 
-When [developing locally using SAM](/docs/local-development.md) you can override environment variables via the `--env-vars` option:
+When [developing locally using `serverless invoke local`](/docs/local-development.md) you can override environment variables via the `--env` option:
 
 ```bash
-sam local invoke <Function> --env-vars env.json
+serverless invoke local --docker -f <Function> --env VAR1=val1 --env VAR2=val2
 ```
 
-The `env.json` JSON file can either define environment variables for **all functions** using the `Parameters` key:
+## Learn more
 
-```json
-{
-    "Parameters": {
-        "API_KEY": "8358deb1-ffb4-4077-90d7"
-    }
-}
-```
+While this page mentions environment variables, `serverless.yml` allows other types of variables to be used.
 
-or for individual functions using the name of the function in `template.yaml`:
-
-```json
-{
-    "WebsiteFunction": {
-        "API_KEY": "99016f5d-ab7e-4a80-9892"
-    },
-    "ConsoleFunction": {
-        "API_KEY": "8358deb1-ffb4-4077-90d7"
-    }
-}
-```
+Read the [`serverless.yml` variables](https://serverless.com/framework/docs/providers/aws/guide/variables/) documentation to learn more.

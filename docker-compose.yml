@@ -1,0 +1,5 @@
+console:
+    image: bref/php-73
+    volumes:
+        - .:/var/task:ro # Read only, like a lambda function
+    command: php /var/task/demo/console.php
