@@ -54,6 +54,10 @@ menu:
                 url: /docs/local-development.html
     -   section: Environment
         items:
+            serverless-yml:
+                text: serverless.yml
+                url: /docs/environment/serverless-yml.html
+                title: Configure your application with the serverless.yml file
             variables:
                 text: Variables
                 url: /docs/environment/variables.html

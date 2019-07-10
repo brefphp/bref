@@ -16,58 +16,37 @@ Assuming your are in existing Symfony project, let's install Bref via Composer:
 composer require bref/bref
 ```
 
-Then let's create a `template.yaml` configuration file (at the root of the project) optimized for Symfony:
+Then let's create a `serverless.yml` configuration file (at the root of the project) optimized for Symfony:
 
 ```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
+service: bref-demo-symfony
 
-Globals:
-    Function:
-        Environment:
-            Variables:
-                APP_ENV: prod
+provider:
+    name: aws
+    region: us-east-1
+    runtime: provided
+    environment:
+        # Symfony environment variables
+        APP_ENV: prod
 
-Resources:
-    Website:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: 'symfony-website'
-            CodeUri: .
-            Handler: public/index.php
-            Timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
-            MemorySize: 1024
-            Runtime: provided
-            Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:7'
-            Events:
-                HttpRoot:
-                    Type: Api
-                    Properties:
-                        Path: /
-                        Method: ANY
-                HttpSubPaths:
-                    Type: Api
-                    Properties:
-                        Path: /{proxy+}
-                        Method: ANY
+plugins:
+    - ./vendor/bref/bref
 
-    Console:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: 'symfony-console'
-            CodeUri: .
-            Handler: bin/console
-            Timeout: 120 # in seconds
-            Runtime: provided
-            Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7' # PHP
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:console:7' # The "console" layer
-
-Outputs:
-    DemoApi:
-        Description: 'URL of our function in the *Prod* environment'
-        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
+functions:
+    website:
+        handler: public/index.php
+        timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+        layers:
+            - ${bref:layer.php-73-fpm}
+        events:
+            -   http: 'ANY /'
+            -   http: 'ANY /{proxy+}'
+    console:
+        handler: bin/console
+        timeout: 120 # in seconds
+        layers:
+            - ${bref:layer.php-73} # PHP
+            - ${bref:layer.console} # The "console" layer
 ```
 
 Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
@@ -98,11 +77,11 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
 
 ## Deploy
 
-Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md#deploying-with-sam).
+Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
 
 ## Console
 
-As you may have noticed, we define a function of type "console" in `template.yaml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run the Symfony Console on AWS Lambda.
+As you may have noticed, we define a function of type "console" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run the Symfony Console on AWS Lambda.
 
 To use it follow [the "Console" guide](/docs/runtimes/console.md).
 
@@ -124,7 +103,7 @@ monolog:
 
 ## Environment variables
 
-Since Symfony 4, the production parameters are configured through environment variables. You can define some in `template.yaml` in the [Globals section](https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst):
+Since Symfony 4, the production parameters are configured through environment variables. You can define some in `serverless.yml` in the [Globals section](https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst):
 
 ```yaml
 Globals:
@@ -134,4 +113,6 @@ Globals:
                 APP_ENV: prod
 ```
 
-The secrets (e.g. database passwords) must however not be committed in this file: define them in the [AWS Console](https://console.aws.amazon.com).
+The secrets (e.g. database passwords) must however not be committed in this file.
+
+To learn more about all this, read the [environment variables documentation](/docs/environment/variables.md).

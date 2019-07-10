@@ -12,38 +12,24 @@ next:
 
 Bref uses PHP-FPM to run HTTP applications on AWS Lambda, just like any PHP hosting solution.
 
-Below is a minimal `template.yaml` to deploy HTTP applications. To create it automatically run `vendor/bin/bref init`.
+Below is a minimal `serverless.yml` to deploy HTTP applications. To create it automatically run `vendor/bin/bref init`.
 
 ```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Resources:
-    MyFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            FunctionName: 'my-function'
-            CodeUri: .
-            Handler: public/index.php
-            Runtime: provided
-            Layers:
-                - 'arn:aws:lambda:<region>:209497400698:layer:php-73-fpm:<version>'
-            # This section contains the URL routing configuration of API Gateway
-            Events:
-                HttpRoot:
-                    Type: Api
-                    Properties:
-                        Path: /
-                        Method: ANY
-                HttpSubPaths:
-                    Type: Api
-                    Properties:
-                        Path: /{proxy+}
-                        Method: ANY
-# This lets us retrieve the app's URL in the "Outputs" tab in CloudFormation
-Outputs:
-    DemoHttpApi:
-        Description: 'API Gateway URL for our function'
-        Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/'
+service: app
+provider:
+    name: aws
+    runtime: provided
+plugins:
+    - ./vendor/bref/bref
+functions:
+    hello:
+        handler: index.php
+        layers:
+            - ${bref:layer.php-73-fpm}
+        # This section contains the URL routing configuration of API Gateway
+        events:
+            -   http: 'ANY /'
+            -   http: 'ANY /{proxy+}'
 ```
 
 ## Handler
@@ -53,10 +39,9 @@ The *handler* is the file that will be invoked when an HTTP request comes in.
 It is the same file that is traditionally configured in Apache or Nginx. In Symfony and Laravel this is usually `public/index.php` but it can be anything.
 
 ```yaml
-Resources:
-    MyFunction:
-        Properties:
-            Handler: public/index.php
+functions:
+    hello:
+        handler: public/index.php
 ```
 
 ## Runtime
@@ -64,21 +49,19 @@ Resources:
 The runtime (aka layer) is different than with [PHP functions](function.md). Instead of `php-73` it should be `php-73-fpm` because we are using PHP-FPM.
 
 ```yaml
-Resources:
-    MyFunction:
-        Properties:
-            Runtime: provided
-            Layers:
-                - 'arn:aws:lambda:<region>:209497400698:layer:php-73-fpm:<version>'
+functions:
+    hello:
+        layers:
+            - ${bref:layer.php-73-fpm}
 ```
 
 To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
 
-## The /Prod/ prefix
+## The /dev/ prefix
 
 API Gateway works with "stages": a stage is an environment (e.g. dev, test, prod).
 
-This is why applications are deployed with URLs ending with the stage name, for example `https://hc4rcprbe2.execute-api.us-east-1.amazonaws.com/Prod/`. See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for more information.
+This is why applications are deployed with URLs ending with the stage name, for example `https://hc4rcprbe2.execute-api.us-east-1.amazonaws.com/dev/`. See [this StackOverflow question](https://stackoverflow.com/questions/46857335/how-to-remove-stage-from-urls-for-aws-lambda-functions-serverless-framework) for more information.
 
 If you [setup a custom domain for your application](/docs/environment/custom-domains.md) this prefix will disappear. If you don't, you need to take this prefix into account in your application routes in your PHP framework.
 
@@ -86,29 +69,21 @@ If you [setup a custom domain for your application](/docs/environment/custom-dom
 
 On AWS Lambda there is no Apache or Nginx. API Gateway acts as the webserver.
 
-To configure HTTP routing we must configure API Gateway using SAM.
+To configure HTTP routing we must configure API Gateway using `serverless.yml`.
 
 ### Catch-all
 
 The simplest configuration is to catch all incoming requests and send them to PHP. With API Gateway we must define 2 patterns:
 
 - the `/` root URL
-- the `/*` catch-all URL (does not catch `/`)
+- the `/*` catch-all URL (which does not catch `/`)
 
 Here is an example of such configuration:
 
 ```yaml
-            Events:
-                HttpRoot:
-                    Type: Api
-                    Properties:
-                        Path: /
-                        Method: ANY
-                HttpSubPaths:
-                    Type: Api
-                    Properties:
-                        Path: /{proxy+}
-                        Method: ANY
+        events:
+            -   http: 'ANY /'
+            -   http: 'ANY /{proxy+}'
 ```
 
 ### Advanced routing
@@ -116,17 +91,9 @@ Here is an example of such configuration:
 API Gateway provides a routing system that lets us define routes that match specific URLs and HTTP methods. For example:
 
 ```yaml
-            Events:
-                CreateArticle:
-                    Type: Api
-                    Properties:
-                        Path: /articles
-                        Method: POST
-                GetArticle:
-                    Type: Api
-                    Properties:
-                        Path: /articles/{id}
-                        Method: GET
+        events:
+            -   http: 'POST /articles'
+            -   http: 'GET /articles/{id}'
 ```
 
 Use `{foo}` as a placeholder for a parameter and `{foo+}` as a parameter that matches everything, including sub-folders.
@@ -146,12 +113,11 @@ To mitigate cold starts for HTTP applications, you can periodically send an even
 You can generate automatically such events using AWS CloudWatch ([read this article for more details](https://www.jeremydaly.com/lambda-warmer-optimize-aws-lambda-function-cold-starts/)). For example :
 
 ```yaml
-            Events:
-                # Here are the HTTP events
-                ...
-                Warmer:
-                    Type: Schedule
-                    Properties:
-                        Schedule: rate(5 minutes)
-                        Input: '{"warmer": true}'
+        events:
+            -   http: 'ANY /'
+            -   http: 'ANY /{proxy+}'
+            - schedule:
+                rate: rate(5 minutes)
+                input:
+                    warmer: true
 ```

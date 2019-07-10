@@ -48,13 +48,13 @@ $log->warning('This is a warning!');
 
 ### Reading logs
 
-To read logs, either open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:) or use SAM in the CLI:
+To read logs, either open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:) or use `serverless logs`:
 
 ```bash
-sam logs --name <function-name>
+serverless logs -f <function-name>
 
 # Tail logs:
-sam logs --name <function-name> --tail
+serverless logs -f <function-name> --tail
 ```
 
 ## Advanced use cases
