@@ -9,7 +9,9 @@
 class ServerlessPlugin {
     constructor(serverless, options) {
         const fs = require("fs");
-        const layers = JSON.parse(fs.readFileSync('layers.json'));
+        const path = require('path');
+        const filename = path.resolve(__dirname, 'layers.json');
+        const layers = JSON.parse(fs.readFileSync(filename));
 
         // Read the region from the `--region` option, or fallback on the `serverless.yml` config
         const region = (typeof options.region !== 'undefined')
