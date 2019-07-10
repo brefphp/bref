@@ -12,14 +12,15 @@ For this reason, bref provides a Docker image containing the same php binary as 
 
 ## Usage
 
-```
-docker run -v /path/to/my/project:/var/task -t bref/php-73 ./vendor/bin/phpunit
-```
+The following command assumes that you're executing it from the root folder of your project:
 
-TODO: Should we tag the Docker image with the PHP version or with the Layer tag?  
+```
+docker run -v $(pwd):/var/task -w /var/task -t bref/php-73 sh -c "php -r \"copy('https://getcomposer.org/installer', 'composer-setup.php');\" && php composer-setup.php && php composer.phar install && ./vendor/bin/phpunit"
+```
 
 ## How it works?
 
 When building the Lambda Layer, Bref uses a base image provided by Amazon containing the Amazon Linux. This is the same operating system that Lambda is using under the hood.
 The PHP binary is then compiled from source code and packaged into a Lambda layer. 
 Bref pushes the same Docker image used to make up the layer to Docker Hub, which means the exact same binary is being used.
+After starting the container, the command will download and run Composer on the project in order to install all the dependencies, including the development dependencies to bring in the testing framework (e.g. PHPUnit).
