@@ -6,17 +6,19 @@ introduction: Learn how to deal with assets and static files to deploy serverles
 
 Websites usually contain 2 parts:
 
-- PHP code, which runs on AWS Lambda and is [served by API Gateway](/docs/runtimes/http.md)
-- static files, which can be hosted and [served by AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)
+- PHP code, running on [AWS Lambda + API Gateway with the HTTP runtime](/docs/runtimes/http.md)
+- static files (CSS, JS…), [hosted on AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)
 
-It is possible to use these services with custom domains to build websites, however we quickly face the following limitations:
+> Before reading this article we assume that you have read [Bref's introduction](/docs/first-steps.md) and that you are familiar with [Bref's HTTP runtime](/docs/runtimes/http.md).
 
-- API Gateway is *HTTPS only*
-- S3 is *HTTP only*
+It is possible to use these services with custom domains to build websites, however there are limitations:
 
-A simple way to support both HTTP and HTTPS is to use a free CDN like [Cloudflare.com](https://www.cloudflare.com/).
+- API Gateway is *HTTPS only* (there is no HTTP-to-HTTPS redirection)
+- S3 will host assets on a different domain than API Gateway
 
-If you would rather use AWS, the guide below explains how to use [CloudFront](https://aws.amazon.com/cloudfront/) (the AWS CDN) to serve both API Gateway and S3 under the same domain with HTTP and HTTPS.
+If these are acceptable for your use case, that is great. Continue to the next section to learn more.
+
+However, if you need API Gateway to support HTTP (to redirect to HTTPS), or if you need assets to be served via the same domain as the API, then you will need to use [CloudFront](https://aws.amazon.com/cloudfront/) (the AWS CDN). This is detailed below in this page.
 
 ## Hosting static files with S3
 
@@ -24,37 +26,42 @@ If you would rather use AWS, the guide below explains how to use [CloudFront](ht
 
 S3 stores files in "buckets". You will need to create one for your website.
 
-> Do not confuse this bucket with the S3 bucket [used to store the application code](/docs/deploy.md#setup). This bucket is a separate (public) bucket that stores and serves static files.
-
-If you plan on serving the static files directly from S3 (for example using CloudFlare as explained above), you need to use the same name for the bucket name as the domain name. For example `assets.example.com`.
+If you plan on serving the static files directly from S3 using a custom domain, the bucket name must be named after the domain. For example `assets.example.com`. Learn more about this [in the official AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/website-hosting-custom-domain-walkthrough.html).
 
 If you plan to use CloudFront you can use any name for the bucket.
 
-In order to automate everything let's create and configure the bucket using `template.yaml`:
+In order to automate everything let's create and configure the bucket using `serverless.yml`:
 
 ```yaml
-Resources:
-    ...
+...
 
-    # The S3 bucket that stores the assets
-    Assets:
-        Type: AWS::S3::Bucket
-        Properties:
-            BucketName: <bucket-name>
-            # Enables static website hosting
-            WebsiteConfiguration:
-                IndexDocument: index.html # Use index.html as the root file
-    # The policy that makes the bucket publicly readable (necessary for a public website)
-    AssetsBucketPolicy:
-        Type: AWS::S3::BucketPolicy
-        Properties:
-            Bucket: !Ref Assets
-            PolicyDocument:
-                Statement:
-                    -   Effect: 'Allow'
-                        Principal: '*' # everyone
-                        Action: 's3:GetObject' # to read
-                        Resource: !Sub '${Assets.Arn}/*' # everything in the bucket
+resources:
+    Resources:
+        # The S3 bucket that stores the assets
+        Assets:
+            Type: AWS::S3::Bucket
+            Properties:
+                BucketName: <bucket-name>
+                # Enables static website hosting
+                WebsiteConfiguration:
+                    IndexDocument: index.html # Use index.html as the root file
+                # Enables CORS (e.g. when a JS script loads files from S3)
+                CorsConfiguration:
+                    CorsRules:
+                        -   AllowedHeaders: ["*"]
+                            AllowedMethods: [GET]
+                            AllowedOrigins: ["*"]
+        # The policy that makes the bucket publicly readable (necessary for a public website)
+        AssetsBucketPolicy:
+            Type: AWS::S3::BucketPolicy
+            Properties:
+                Bucket: !Ref Assets
+                PolicyDocument:
+                    Statement:
+                        -   Effect: 'Allow'
+                            Principal: '*' # everyone
+                            Action: 's3:GetObject' # to read
+                            Resource: '#{Assets.Arn}/*' # things in the bucket
 ```
 
 After [deploying](/docs/deploy.md), the static files will be served from `http://<bucket-name>.s3-website-<region>.amazonaws.com` or `http://<bucket-name>.s3-website.<region>.amazonaws.com` (see [this AWS article for the correct URL](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_website_region_endpoints)). Read the next section to upload your files.
