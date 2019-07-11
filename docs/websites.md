@@ -61,7 +61,7 @@ resources:
                         -   Effect: 'Allow'
                             Principal: '*' # everyone
                             Action: 's3:GetObject' # to read
-                            Resource: '#{Assets.Arn}/*' # things in the bucket
+                            Resource: 'arn:aws:s3:::<bucket-name>/*' # things in the bucket
 ```
 
 After [deploying](/docs/deploy.md), the static files will be served from `http://<bucket-name>.s3-website-<region>.amazonaws.com` or `http://<bucket-name>.s3-website.<region>.amazonaws.com` (see [this AWS article for the correct URL](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_website_region_endpoints)). Read the next section to upload your files.
