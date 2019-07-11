@@ -111,6 +111,8 @@ Resources:
                 Enabled: true
                 # Cheapest option by default (https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_DistributionConfig.html)
                 PriceClass: PriceClass_100
+                HttpVersion: http2
+                # Enable http2 transfer for better performance
                 # Origins are where CloudFront fetches content
                 Origins:
                     # The website (AWS Lambda)
@@ -136,6 +138,8 @@ Resources:
                     # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html
                     ForwardedValues:
                         QueryString: true
+                        Cookies:
+                          Forward: all # For PHP Apps you should Forward your cookies to keep session functionality etc
                         # We must *not* forward the `Host` header else it messes up API Gateway
                         Headers:
                             - 'Accept'
@@ -203,6 +207,8 @@ Resources:
                     AcmCertificateArn: <certificate-arn>
                     # See https://docs.aws.amazon.com/fr_fr/cloudfront/latest/APIReference/API_ViewerCertificate.html
                     SslSupportMethod: 'sni-only'
+                    MinimumProtocolVersion: TLSv1.1_2016
+                   
 ```
 
 The last step will be to point your domain name to the CloudFront URL:
