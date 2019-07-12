@@ -56,14 +56,21 @@ php -S localhost:8000 index.php
 In order to run the application locally in an environment closer to production, you can use the [Bref Docker images](https://cloud.docker.com/u/bref). For example for an HTTP application, create the following `docker-compose.yml`:
 
 ```yaml
-http:
-    image: bref/php-73-fpm-dev
+web:
+    image: bref/web
     ports:
-        - '8000:80'
-    environment:
-        HANDLER: public/index.php
+        - "8080:80"
     volumes:
-        - .:/var/task:ro # mounted as read-only
+        - .:/var/task
+    links:
+        - php
+    environment:
+        HANDLER: "test.php"
+php:
+    image: bref/php-73-fpm-dev
+    volumes:
+            - .:/var/task:ro
+            # - ./var/cache:/code/var/cache
 ```
 
 After running `docker-compose up`, the application will be available at [http://localhost:8000/](http://localhost:8000/).
@@ -95,15 +102,22 @@ The code will be mounted as read-only in `/var/task`, just like in Lambda. Howev
 If you want to serve assets locally, you can define a `DOCUMENT_ROOT` environment variable:
 
 ```yaml
-http:
-    image: bref/php-73-fpm-dev
+web:
+    image: bref/web
     ports:
-        - '8000:80'
+        - "8080:80"
+    volumes:
+        - .:/var/task
+    links:
+        - php
     environment:
         HANDLER: public/index.php
         DOCUMENT_ROOT: public
+php:
+    image: bref/php-73-fpm-dev
     volumes:
-        - .:/var/task:ro
+            - .:/var/task:ro
+            # - ./var/cache:/code/var/cache
 ```
 
 In the example above, a `public/assets/style.css` file will be accessible at `http://localhost:8000/assets/style.css`.
