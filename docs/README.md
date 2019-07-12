@@ -125,7 +125,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
     <tr class="border-b border-grey-lighter">
         <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-green-light"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-light"></span>
@@ -137,7 +137,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
     <tr class="border-b border-grey-lighter">
         <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website with MySQL / PostgreSQL</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-green-light"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-orange-light"></span>
