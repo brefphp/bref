@@ -185,8 +185,8 @@ resources:
                                 OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
                         # The assets (S3)
                         -   Id: Assets
-                            # Watch out, use s3-website URL (https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757)
-                            DomainName: '#{Assets}.s3-website-#{AWS::Region}.amazonaws.com'
+                            # Use s3-website URLs instead if you host a static website (https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757)
+                            DomainName: '#{Assets}.s3.amazonaws.com'
                             CustomOriginConfig:
                                 OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
                     # The default behavior is to send everything to AWS Lambda
