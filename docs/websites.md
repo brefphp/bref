@@ -76,7 +76,7 @@ Don't forget to replace `<bucket-name>` with the bucket name of your choice.
 
 After [deploying with `serverless deploy`](/docs/deploy.md), the static files will be served from `https://<bucket>.s3.amazonaws.com/`. Read the next section to upload your files.
 
-You can either [setup a custom domain to point to this URL](environment/custom-domains.md#custom-domains-for-static-websites-on-s3) or setup CloudFront as explained below.
+You can either [setup a custom domain to point to this URL](environment/custom-domains.md#custom-domains-for-static-files-on-s3) or setup CloudFront as explained below.
 
 > In this section we explained how to host assets on S3. It is also possible to host static websites on S3 (i.e. HTML files). In that cas you will need to enable this feature and use different S3 URLs. See [the AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html) to learn more.
 
