@@ -43,7 +43,7 @@ This section explains how to host assets on S3.
 
 S3 stores files in "buckets". You will need to create one for your website.
 
-If you plan on serving the static files directly from S3 using a custom domain, the bucket name must be named after the domain. For example `assets.example.com`. Learn more about this [in the official AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/website-hosting-custom-domain-walkthrough.html).
+If you plan on using a custom domain for S3 URLs, the bucket must be named after the domain. For example `assets.website.com`. Learn more about this [in the official AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/website-hosting-custom-domain-walkthrough.html).
 
 If you plan to use CloudFront, you can use any name for the bucket.
 
@@ -59,20 +59,11 @@ resources:
             Type: AWS::S3::Bucket
             Properties:
                 BucketName: <bucket-name>
-                # Enables static website hosting
-                WebsiteConfiguration:
-                    IndexDocument: index.html # Use index.html as the root file
-                # Enables CORS (e.g. when a JS script loads files from S3)
-                CorsConfiguration:
-                    CorsRules:
-                        -   AllowedHeaders: ["*"]
-                            AllowedMethods: [GET]
-                            AllowedOrigins: ["*"]
-        # The policy that makes the bucket publicly readable (necessary for a public website)
+        # The policy that makes the bucket publicly readable
         AssetsBucketPolicy:
             Type: AWS::S3::BucketPolicy
             Properties:
-                Bucket: !Ref Assets
+                Bucket: !Ref Assets # References the bucket we defined above
                 PolicyDocument:
                     Statement:
                         -   Effect: Allow
@@ -81,9 +72,31 @@ resources:
                             Resource: 'arn:aws:s3:::<bucket-name>/*' # things in the bucket
 ```
 
-After [deploying](/docs/deploy.md), the static files will be served from `http://<bucket-name>.s3-website-<region>.amazonaws.com` or `http://<bucket-name>.s3-website.<region>.amazonaws.com` (see [this AWS article for the correct URL](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_website_region_endpoints)). Read the next section to upload your files.
+Don't forget to replace `<bucket-name>` with the bucket name of your choice.
+
+After [deploying with `serverless deploy`](/docs/deploy.md), the static files will be served from `https://<bucket>.s3.amazonaws.com/`. Read the next section to upload your files.
 
 You can either [setup a custom domain to point to this URL](environment/custom-domains.md#custom-domains-for-static-websites-on-s3) or setup CloudFront as explained below.
+
+> In this section we explained how to host assets on S3. It is also possible to host static websites on S3 (i.e. HTML files). In that cas you will need to enable this feature and use different S3 URLs. See [the AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html) to learn more.
+
+If you need to enable CORS, for example if a CSS or JavaScript file needs to load additional resources like fonts from S3:
+
+```yaml
+resources:
+    Resources:
+        Assets:
+            Type: AWS::S3::Bucket
+            Properties:
+                BucketName: <bucket-name>
+                CorsConfiguration:
+                    CorsRules:
+                        -   AllowedHeaders: ["*"]
+                            AllowedMethods: [GET]
+                            AllowedOrigins: ["*"]
+```
+
+More options can be set on the bucket, [read more here](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html).
 
 ### Uploading files to S3
 
