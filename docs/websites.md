@@ -4,23 +4,40 @@ currentMenu: php
 introduction: Learn how to deal with assets and static files to deploy serverless PHP websites.
 ---
 
+> Before reading this article we assume that you have read [Bref's introduction](/docs/first-steps.md) and that you are familiar with [Bref's HTTP runtime](/docs/runtimes/http.md).
+
+## Architectures
+
 Websites usually contain 2 parts:
 
 - PHP code, running on [AWS Lambda + API Gateway with the HTTP runtime](/docs/runtimes/http.md)
-- static files (CSS, JS…), [hosted on AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)
+- static assets (CSS, JS…), [hosted on AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)
 
-> Before reading this article we assume that you have read [Bref's introduction](/docs/first-steps.md) and that you are familiar with [Bref's HTTP runtime](/docs/runtimes/http.md).
+You will find below different architectures for creating websites.
 
-It is possible to use these services with custom domains to build websites, however there are limitations:
+### Separate domains
 
-- API Gateway is *HTTPS only* (there is no HTTP-to-HTTPS redirection)
-- S3 will host assets on a different domain than API Gateway
+![](websites/separate-domains.svg)
 
-If these are acceptable for your use case, that is great. Continue to the next section to learn more.
+This architecture is the simplest. Assets are hosted on a separate domain than the PHP code.
 
-However, if you need API Gateway to support HTTP (to redirect to HTTPS), or if you need assets to be served via the same domain as the API, then you will need to use [CloudFront](https://aws.amazon.com/cloudfront/) (the AWS CDN). This is detailed below in this page.
+The main downside is that **API Gateway only supports HTTPS**. Hosting websites on HTTPS is a good thing, however that means that there is no redirection from HTTP to HTTPS. In short, `https://website.com` will work but not `http://website.com`. It is up to you to decide if this limitation is acceptable for your use case.
+
+**TODO** HTTPS on AWS S3
+
+### Same domain
+
+![](websites/same-domain.svg)
+
+This architecture is more complex, as [CloudFront](https://aws.amazon.com/cloudfront/) (the AWS CDN) serves as a HTTP/HTTPS proxy.
+
+This lets us host everything under the same domain and support both HTTP and HTTPS.
+
+On top of that, CloudFront can act as a CDN and cache assets and web pages all over the world. This is however not documented in this page.
 
 ## Hosting static files with S3
+
+This section explains how to host assets on S3.
 
 ### Creating a S3 bucket
 
@@ -28,7 +45,7 @@ S3 stores files in "buckets". You will need to create one for your website.
 
 If you plan on serving the static files directly from S3 using a custom domain, the bucket name must be named after the domain. For example `assets.example.com`. Learn more about this [in the official AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/website-hosting-custom-domain-walkthrough.html).
 
-If you plan to use CloudFront you can use any name for the bucket.
+If you plan to use CloudFront, you can use any name for the bucket.
 
 In order to automate everything let's create and configure the bucket using `serverless.yml`:
 
@@ -58,7 +75,7 @@ resources:
                 Bucket: !Ref Assets
                 PolicyDocument:
                     Statement:
-                        -   Effect: 'Allow'
+                        -   Effect: Allow
                             Principal: '*' # everyone
                             Action: 's3:GetObject' # to read
                             Resource: 'arn:aws:s3:::<bucket-name>/*' # things in the bucket
@@ -70,7 +87,7 @@ You can either [setup a custom domain to point to this URL](environment/custom-d
 
 ### Uploading files to S3
 
-It is not possible to use `sam deploy` to upload files to S3, you need to upload them separately. To do this, you can use the `aws s3 sync` command:
+It is not possible to use `serverless deploy` to upload files to S3, you need to upload them separately. To do this, you can use the [`aws s3 sync` command](https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html):
 
 ```bash
 aws s3 sync <directory> s3://<bucket-name> --delete
@@ -91,81 +108,115 @@ This diagram helps understand how CloudFront works:
 
 ![](cloudfront.png)
 
-CloudFront dispatches HTTP requests to "Origins" (API Gateway/Lambda, S3, etc.) based on "Cache Behaviors". A cache behavior can match a specific URL pattern, and can have a specific caching configuration (e.g. cache assets for a long time but do not cache PHP responses).
+CloudFront forwards HTTP requests to "Origins" (API Gateway/Lambda, S3, etc.) based on "Cache Behaviors".
 
-The `template.yaml` example below:
+A cache behavior can match a specific URL pattern, and can have a specific caching configuration (e.g. cache the responses for 10 days).
 
-- receives HTTP and HTTPS requests
-- serves everything URL that starts with `/assets/` using S3 (static files)
-- sends all the other requests to PHP via API Gateway
+The `serverless.yml` example below:
 
-Feel free to customize the `/asset/` path. If your application is a JavaScript application backed by a PHP API, you will want to invert API Gateway and S3 (set S3 as the `DefaultCacheBehavior` and serve API Gateway under a `/api/` path).
+- forwards URLs that start with `/assets/` to S3 (static files)
+- forwards all the other requests to Lambda
+
+CloudFront is configured via CloudFormation template, which explains why a lot of YAML is involved. To keep it simpler and to circumvent a `serverless.yml` limitation, we will use the [serverless-pseudo-parameters](https://github.com/svdgraaf/serverless-pseudo-parameters) plugin. To install it, run:
+
+```bash
+npm install serverless-pseudo-parameters
+```
+
+That will let us for example replace `!Sub '${Assets.Arn}/*'` (not supported in `serverless.yml`) with `'#{Assets.Arn}/*'`.
 
 ```yaml
-Resources:
-    ...
-    WebsiteCDN:
-        Type: AWS::CloudFront::Distribution
-        Properties:
-            DistributionConfig:
-                Enabled: true
-                # Cheapest option by default (https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_DistributionConfig.html)
-                PriceClass: PriceClass_100
-                HttpVersion: http2
-                # Enable http2 transfer for better performance
-                # Origins are where CloudFront fetches content
-                Origins:
-                    # The website (AWS Lambda)
-                    -   Id: Website
-                        DomainName: !Sub '${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com'
-                        OriginPath: '/Prod'
-                        CustomOriginConfig:
-                            OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
-                    # The assets (S3)
-                    -   Id: Assets
-                        # Watch out, use s3-website URL (https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757)
-                        DomainName: !Sub '${Assets}.s3-website-${AWS::Region}.amazonaws.com'
-                        CustomOriginConfig:
-                            OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
-                # The default behavior is to send everything to AWS Lambda
-                DefaultCacheBehavior:
-                    AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
-                    TargetOriginId: Website # the PHP application
-                    # Disable caching for the PHP application https://aws.amazon.com/premiumsupport/knowledge-center/prevent-cloudfront-from-caching-files/
-                    DefaultTTL: 0
-                    MinTTL: 0
-                    MaxTTL: 0
-                    # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html
-                    ForwardedValues:
-                        QueryString: true
-                        Cookies:
-                          Forward: all # For PHP Apps you should Forward your cookies to keep session functionality etc
-                        # We must *not* forward the `Host` header else it messes up API Gateway
-                        Headers:
-                            - 'Accept'
-                            - 'Accept-Language'
-                            - 'Origin'
-                            - 'Referer'
-                    ViewerProtocolPolicy: redirect-to-https
-                CacheBehaviors:
-                    # Assets will be served under the `/assets/` prefix
-                    -   PathPattern: 'assets/*'
-                        TargetOriginId: Assets # the static files on S3
-                        AllowedMethods: [GET, HEAD]
+service: app
+provider:
+    name: aws
+    runtime: provided
+
+functions:
+    website:
+        handler: public/index.php
+        layers:
+            - ${bref:layer.php-73-fpm}
+        events:
+            -   http: 'ANY /'
+            -   http: 'ANY {proxy+}'
+
+plugins:
+    - ./vendor/bref/bref
+    # This lets us use `#{Assets.Arn}` variables
+    - serverless-pseudo-parameters
+
+resources:
+    Resources:
+        # The S3 bucket that stores the assets
+        Assets:
+            # [...] see the previous section for details 
+        AssetsBucketPolicy:
+            # [...] see the previous section for details 
+    
+        WebsiteCDN:
+            Type: AWS::CloudFront::Distribution
+            Properties:
+                DistributionConfig:
+                    Enabled: true
+                    # Cheapest option by default (https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_DistributionConfig.html)
+                    PriceClass: PriceClass_100
+                    # Enable http2 transfer for better performances
+                    HttpVersion: http2
+                    # Origins are where CloudFront fetches content
+                    Origins:
+                        # The website (AWS Lambda)
+                        -   Id: Website
+                            DomainName: '#{ApiGatewayRestApi}.execute-api.#{AWS::Region}.amazonaws.com'
+                            OriginPath: '/dev'
+                            CustomOriginConfig:
+                                OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
+                        # The assets (S3)
+                        -   Id: Assets
+                            # Watch out, use s3-website URL (https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757)
+                            DomainName: '#{Assets}.s3-website-#{AWS::Region}.amazonaws.com'
+                            CustomOriginConfig:
+                                OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
+                    # The default behavior is to send everything to AWS Lambda
+                    DefaultCacheBehavior:
+                        AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+                        TargetOriginId: Website # the PHP application
+                        # Disable caching for the PHP application https://aws.amazon.com/premiumsupport/knowledge-center/prevent-cloudfront-from-caching-files/
+                        DefaultTTL: 0
+                        MinTTL: 0
+                        MaxTTL: 0
+                        # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-cloudfront-distribution-forwardedvalues.html
                         ForwardedValues:
-                            # No need for all that with assets
-                            QueryString: 'false'
+                            QueryString: true
                             Cookies:
-                                Forward: none
+                                Forward: all # Forward cookies to use them in PHP
+                            # We must *not* forward the `Host` header else it messes up API Gateway
+                            Headers:
+                                - 'Accept'
+                                - 'Accept-Language'
+                                - 'Origin'
+                                - 'Referer'
                         ViewerProtocolPolicy: redirect-to-https
-                        Compress: true # Serve files with gzip for browsers that support it (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html)
-                CustomErrorResponses:
-                    # Do not cache HTTP errors
-                    -   ErrorCode: 500
-                        ErrorCachingMinTTL: 0
-                    -   ErrorCode: 504
-                        ErrorCachingMinTTL: 0
+                    CacheBehaviors:
+                        # Assets will be served under the `/assets/` prefix
+                        -   PathPattern: 'assets/*'
+                            TargetOriginId: Assets # the static files on S3
+                            AllowedMethods: [GET, HEAD]
+                            ForwardedValues:
+                                # No need for all that with assets
+                                QueryString: 'false'
+                                Cookies:
+                                    Forward: none
+                            ViewerProtocolPolicy: redirect-to-https
+                            Compress: true # Serve files with gzip for browsers that support it (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html)
+                    CustomErrorResponses:
+                        # Do not cache HTTP errors
+                        -   ErrorCode: 500
+                            ErrorCachingMinTTL: 0
+                        -   ErrorCode: 504
+                            ErrorCachingMinTTL: 0
 ```
+
+Feel free to customize the `/asset/` path. If your application is a JS application backed by a PHP API, you will want to invert API Gateway and S3 (set S3 as the `DefaultCacheBehavior` and serve API Gateway under a `/api/` path).
 
 > The first deployment takes a lot of time (20 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay.
 
@@ -192,23 +243,23 @@ arn:aws:acm:us-east-1:216536346254:certificate/322f12ee-1165-4bfa-a41f-08c932a29
 Add your domain name under `Aliases` and configure `ViewerCertificate` to use your custom HTTPS certificate:
 
 ```yaml
-Resources:
-    ...
-    WebsiteCDN:
-        Type: AWS::CloudFront::Distribution
-        Properties:
-            DistributionConfig:
-                ...
-                # Custom domain name
-                Aliases:
-                    - <custom-domain> # e.g. example.com
-                ViewerCertificate:
-                    # ARN of the certificate created in ACM
-                    AcmCertificateArn: <certificate-arn>
-                    # See https://docs.aws.amazon.com/fr_fr/cloudfront/latest/APIReference/API_ViewerCertificate.html
-                    SslSupportMethod: 'sni-only'
-                    MinimumProtocolVersion: TLSv1.1_2016
-                   
+...
+resources:
+    Resources:
+        WebsiteCDN:
+            Type: AWS::CloudFront::Distribution
+            Properties:
+                DistributionConfig:
+                    ...
+                    # Custom domain name
+                    Aliases:
+                        - <custom-domain> # e.g. example.com
+                    ViewerCertificate:
+                        # ARN of the certificate created in ACM
+                        AcmCertificateArn: <certificate-arn>
+                        # See https://docs.aws.amazon.com/fr_fr/cloudfront/latest/APIReference/API_ViewerCertificate.html
+                        SslSupportMethod: 'sni-only'
+                        MinimumProtocolVersion: TLSv1.1_2016
 ```
 
 The last step will be to point your domain name to the CloudFront URL:
