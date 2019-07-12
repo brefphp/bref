@@ -1,9 +1,6 @@
-ARG LAYER_IMAGE=bref/php-73:latest
+ARG LAYER_IMAGE
 FROM $LAYER_IMAGE
 
-WORKDIR /opt/bin
+COPY ./php-fpm.conf /opt/bref/etc/php-fpm.conf
 EXPOSE 9000
-
-COPY ./local/php-fpm.conf /opt/bref/etc/php-fpm.conf
-
-CMD [ "php-fpm", "-F", "-y", "/opt/bref/etc/php-fpm.conf" ]
+CMD /opt/bin/php-fpm -F -y /opt/bref/etc/php-fpm.conf

@@ -48,7 +48,6 @@ RUN mkdir -p ${BUILD_DIR}  \
 #   - php
 # Used By:
 #   - xml2
-ARG plop
 ARG zlib
 ENV VERSION_ZLIB=${zlib}
 ENV ZLIB_BUILD_DIR=${BUILD_DIR}/xml2
@@ -479,7 +478,7 @@ RUN ln -s /opt/bref/sbin/* /opt/bin
 
 # Now we get rid of everything that is unnecessary. All the build tools, source code, and anything else
 # that might have created intermediate layers for docker. Back to base AmazonLinux we started with.
-FROM amazonlinux:2017.03
+FROM amazonlinux:2
 ENV INSTALL_DIR="/opt/bref"
 ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib"
