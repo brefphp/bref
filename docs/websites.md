@@ -23,8 +23,6 @@ This architecture is the simplest. Assets are hosted on a separate domain than t
 
 The main downside is that **API Gateway only supports HTTPS**. Hosting websites on HTTPS is a good thing, however that means that there is no redirection from HTTP to HTTPS. In short, `https://website.com` will work but not `http://website.com`. It is up to you to decide if this limitation is acceptable for your use case.
 
-**TODO** HTTPS on AWS S3
-
 ### Same domain
 
 ![](websites/same-domain.svg)
