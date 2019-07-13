@@ -10,11 +10,15 @@ next:
     title: Console applications
 ---
 
-AWS Lambda can respond to HTTP requests via [API Gateway](https://aws.amazon.com/api-gateway/).
+It is possible to run HTTP APIs and websites on AWS Lambda.
 
-Instead of dealing with API Gateway's custom request and response formats, **Bref uses PHP-FPM to run PHP**.
+To do that, Bref runs your code on AWS Lambda **using PHP-FPM**. That means HTTP applications can run on AWS Lambda just like on any other PHP hosting platform.
 
-That means HTTP applications can run on AWS Lambda just like on any other PHP hosting platform.
+If you are interested in the details, know that AWS Lambda can react to HTTP requests via [API Gateway](https://aws.amazon.com/api-gateway/).
+
+> Every code we deploy on AWS Lambda is called a "Function". Do not let this name confuse you: we do deploy HTTP **applications** in a Lambda Function.
+>
+> In the Lambda world, an HTTP application is a *function* that is called by a request and returns a response. Good news: this is exactly what our PHP applications do.
 
 Below is a minimal `serverless.yml` to deploy HTTP applications. To create it automatically run `vendor/bin/bref init`.
 
@@ -26,7 +30,7 @@ provider:
 plugins:
     - ./vendor/bref/bref
 functions:
-    hello:
+    website:
         handler: index.php
         layers:
             - ${bref:layer.php-73-fpm}
@@ -44,7 +48,7 @@ It is the same file that is traditionally configured in Apache or Nginx. In Symf
 
 ```yaml
 functions:
-    hello:
+    website:
         handler: public/index.php
 ```
 
@@ -54,7 +58,7 @@ The runtime (aka layer) is different than with [PHP functions](function.md). Ins
 
 ```yaml
 functions:
-    hello:
+    website:
         layers:
             - ${bref:layer.php-73-fpm}
 ```
@@ -106,7 +110,7 @@ Use `{foo}` as a placeholder for a parameter and `{foo+}` as a parameter that ma
 
 Lambda and API Gateway are only used for executing code. Serving assets via PHP does not make sense as this would be a waste of resources and money.
 
-Deploying a website and serving assets (e.g. CSS, JavaScript, images) will be covered later in another article.
+Deploying a website and serving assets (e.g. CSS, JavaScript, images) is covered in [the "Websites" documentation](/docs/websites.md).
 
 ## Cold starts
 
