@@ -4,7 +4,7 @@
 {% set metaDescription = introduction|default %}
 
 {% block body %}
-<body class="font-sans">
+
     <div class="block lg:hidden flex bg-white border-b border-grey-light fixed pin-t pin-x h-12 items-center z-10">
         <div class="w-full max-w-screen-xl relative mx-auto px-6">
             <button class="flex items-center px-3 py-2 border rounded text-grey-dark border-grey-light" onclick="toggleMenu()">
@@ -15,11 +15,12 @@
 
     <div class="flex h-full mt-12 lg:mt-0">
         <div id="menu" class="fixed flex-no-shrink lg:w-64 xl:w-96 lg:flex lg:flex-col z-30 h-screen w-full hidden text-grey-darkest bg-grey-lightest px-6 lg:px-8 py-8 lg:py-16 overflow-auto">
-            <nav class="mt-2">
+            <nav class="mt-1">
                 <h2 class="mb-8">
-                    <a class="text-grey hover:text-grey-darker" href="/" title="Bref home page">Bref</a>
+                    <a class="text-grey hover:text-grey-darker font-bref text-2xl"
+                       href="/" title="Bref home page">bref</a>
                     <a class="float-right text-grey hover:text-grey-darker" title="Bref on GitHub" href="https://github.com/brefphp/bref">
-                        <svg class="fill-current w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
+                        <svg class="fill-current w-5 h-5 mt-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
                     </a>
                 </h2>
                 {% for item in menu %}
@@ -87,14 +88,7 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/yaml.min.js"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-15584647-20"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'UA-15584647-20');
-
         $(function() {
             $('article h2, article h3, article h4, article h5').each(function () {
                 var url = document.URL.replace(/#.*$/, "") + '#' + $(this).attr('id');
@@ -107,5 +101,5 @@
             });
         });
     </script>
-</body>
+
 {% endblock %}
