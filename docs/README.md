@@ -125,7 +125,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
     <tr class="border-b border-grey-lighter">
         <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-green-light"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-light"></span>
@@ -137,7 +137,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
     <tr class="border-b border-grey-lighter">
         <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website with MySQL / PostgreSQL</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-green-light"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-orange-light"></span>
@@ -199,9 +199,9 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Website**
 
-    Websites can run fine on AWS Lambda, but they currently require a bit more effort. Here are a few things to deal with: deploying and hosting assets separately on AWS S3, setting up CloudFront to serve assets and provide the HTTP->HTTPS redirection, and store sessions in database or Redis.
+    Websites can run fine on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md).
     
-    Until Bref provides documentation and tools, the "Simplicity" note is "orange".
+    Performances are as good as any server. Cold starts often have less impact in websites than in APIs: a full page load *and render* in a browser is often a few seconds.
 
 - **Website with MySQL/PostgreSQL**
 
