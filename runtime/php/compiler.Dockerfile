@@ -27,7 +27,9 @@ RUN set -xe \
 # Download yum repository data to cache
  && yum makecache \
 # Default Development Tools
- && yum groupinstall -y "Development Tools"  --setopt=group_package_types=mandatory,default
+ && yum groupinstall -y "Development Tools"  --setopt=group_package_types=mandatory,default \
+# Upgrade gcc
+ && yum install -y gcc72 gcc72-c++
 
 
 # CMAKE - cross-platform family of tools designed to build, test and package software. The
