@@ -2,13 +2,13 @@
 # for AWS Lambda. Nothing installed or built in this container should ever
 # be packaged into a Lambda Task nor Layer.
 #
-# Lambda tasks use the amzn-ami-hvm-2017.03.1.20170812-x86_64-gp2 AMI, as
+# Lambda tasks use the amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2 AMI, as
 # documented under the AWS Lambda Runtimes.
 #
 # https://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html
 # AWS has kindly provided us with it as a base docker image.
-# https://github.com/aws/amazon-linux-docker-images/tree/2017.03
-FROM amazonlinux:2017.03
+# https://github.com/aws/amazon-linux-docker-images/tree/2018.03
+FROM amazonlinux:2018.03
 LABEL authors="Bubba Hines <bubba@stechstudio.com>"
 LABEL vendor1="Signature Tech Studio, Inc."
 LABEL vendor2="bref"
@@ -19,8 +19,8 @@ LABEL home="https://github.com/brefphp/bref"
 WORKDIR /tmp
 
 
-# Lambda is based on 2017.03. Lock YUM to that release version.
-RUN sed -i 's/releasever=latest/releaserver=2017.03/' /etc/yum.conf
+# Lambda is based on 2018.03. Lock YUM to that release version.
+RUN sed -i 's/releasever=latest/releaserver=2018.03/' /etc/yum.conf
 
 
 RUN set -xe \
