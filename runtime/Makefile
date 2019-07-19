@@ -35,7 +35,7 @@ build: compiler
 	cd layers/fpm ; docker build -t bref/php-73-fpm:latest --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest . ; cd ../..
 	cd layers/fpm-dev ; docker build -t bref/php-73-fpm-dev:latest --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest . ; cd ../..
 	cd layers/function ; docker build -t bref/php-73:latest --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest . ; cd ../..
-	cd layers/web; docker build -t bref/web:latest . ; cd ../..
+	cd layers/web; docker build -t bref/fpm-dev-gateway:latest . ; cd ../..
 
 publish: build
 	docker push bref/php-72:latest
