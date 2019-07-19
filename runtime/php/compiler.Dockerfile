@@ -28,7 +28,11 @@ RUN set -xe \
  && yum makecache \
 # Default Development Tools
  && yum groupinstall -y "Development Tools"  --setopt=group_package_types=mandatory,default \
-# Upgrade gcc
+# PHP will use gcc 7.2 (installed because of `kernel-devel`) to compile itself.
+# But the intl extension is C++ code. Since gcc-c++ 7.2 is not installed by default, gcc-c++ 4 will be used.
+# The mismatch breaks the build, see https://github.com/brefphp/bref/pull/373
+# To fix this, we install gcc-c++ 7.2. We also install gcc 7.2 explicitly to make sure we keep the same
+# version in the future.
  && yum install -y gcc72 gcc72-c++
 
 
