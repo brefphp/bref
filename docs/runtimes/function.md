@@ -1,6 +1,6 @@
 ---
 title: PHP functions
-currentMenu: php-functions
+current_menu: php-functions
 introduction: Learn how to run serverless PHP functions on AWS Lambda using Bref.
 previous:
     link: /docs/runtimes/

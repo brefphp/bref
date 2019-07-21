@@ -1,6 +1,6 @@
 ---
 title: Installation
-currentMenu: installation
+current_menu: installation
 introduction: How to install Bref and the required tools.
 previous:
     link: /docs/

@@ -1,6 +1,6 @@
 ---
 title: Runtimes
-currentMenu: runtimes-introduction
+current_menu: runtimes-introduction
 introduction: Bref provides runtimes to bring support for PHP on AWS Lambda.
 previous:
     link: /docs/first-steps.html

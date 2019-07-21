@@ -1,6 +1,6 @@
 ---
 title: Custom domain names
-currentMenu: php
+current_menu: custom-domains
 introduction: Configure custom domain names for your web applications.
 ---
 
