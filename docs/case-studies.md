@@ -27,3 +27,9 @@ Enoptea is a french startup that migrated their infrastructure of PHP workers fr
 - [MyBuilder](https://mybuilder.com)
 
 MyBuilder is an online marketplace matching tradespeople with home owners. They used Lambda with Bref to create a highly scalable on-demand microservice to generate PDF reports. The solution involved [creating their own layer](https://tech.mybuilder.com/compiling-wkhtmltopdf-aws-lambda-with-bref-easier-than-you-think/) to include a self-compiled binary file to use alongside Bref's base PHP layer.
+
+## Others
+
+- [Serverless](https://serverless.com/learn/case-studies/)
+
+It isn't exactly about PHP over Serverless, but it gives us a general overview of how hundreds of teams are handling with serverless across a diversity of projects. There are a lot of case studies since from [Us Department of Defense streamlining open source contributions](https://serverless.com/blog/dept-of-defense-doc-bot/) until project which has [reduced back-end costs by 95%](https://serverless.com/blog/abstract-partner-program-announcement/) and much more.
