@@ -1,6 +1,6 @@
 ---
 title: Creating serverless PHP websites
-currentMenu: php
+current_menu: websites
 introduction: Learn how to deal with assets and static files to deploy serverless PHP websites.
 ---
 

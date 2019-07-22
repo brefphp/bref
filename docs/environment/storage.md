@@ -1,6 +1,6 @@
 ---
 title: Storage
-currentMenu: storage
+current_menu: storage
 introduction: Learn how to store data and files in serverless PHP applications running on AWS Lambda.
 ---
 

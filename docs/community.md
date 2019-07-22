@@ -1,6 +1,6 @@
 ---
 title: Community
-currentMenu: community
+current_menu: community
 introduction: A collection of links to places where to discuss and learn about Bref.
 ---
 

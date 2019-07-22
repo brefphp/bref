@@ -1,6 +1,6 @@
 ---
 title: Logs
-currentMenu: logs
+current_menu: logs
 introduction: Learn how to write and read PHP logs on AWS Lambda using Bref.
 ---
 

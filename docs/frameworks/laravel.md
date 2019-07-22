@@ -1,6 +1,6 @@
 ---
 title: Serverless Laravel applications
-currentMenu: laravel
+current_menu: laravel
 introduction: Learn how to deploy serverless Laravel applications on AWS Lambda using Bref.
 ---
 

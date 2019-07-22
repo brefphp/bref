@@ -1,6 +1,6 @@
 ---
 title: Serverless Symfony applications
-currentMenu: symfony
+current_menu: symfony
 introduction: Learn how to deploy serverless Symfony applications on AWS Lambda using Bref.
 ---
 

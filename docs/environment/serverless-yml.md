@@ -1,6 +1,6 @@
 ---
 title: serverless.yml
-currentMenu: serverless-yml
+current_menu: serverless-yml
 introduction: Configure your application with the serverless.yml file.
 ---
 

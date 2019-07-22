@@ -1,6 +1,6 @@
 ---
 title: Configuring PHP
-currentMenu: php
+current_menu: php
 introduction: Configure PHP versions, extensions and options for your serverless application using Bref.
 ---
 
