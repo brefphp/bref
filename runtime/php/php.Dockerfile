@@ -371,7 +371,7 @@ RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel
 # -fstack-protector-strong : Be paranoid about stack overflows
 # -fpic : Make PHP's main executable position-independent (improves ASLR security mechanism, and has no performance impact on x86_64)
 # -fpie : Support Address Space Layout Randomization (see -fpic)
-# -0s : Optimize for smallest binaries possible.
+# -O3 : Optimize for fastest binaries possible.
 # -I : Add the path to the list of directories to be searched for header files during preprocessing.
 # --enable-option-checking=fatal: make sure invalid --configure-flags are fatal errors instead of just warnings
 # --enable-ftp: because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
@@ -382,8 +382,8 @@ RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel
 #
 RUN set -xe \
  && ./buildconf --force \
- && CFLAGS="-fstack-protector-strong -fpic -fpie -Os -I${INSTALL_DIR}/include -I/usr/include -ffunction-sections -fdata-sections" \
-    CPPFLAGS="-fstack-protector-strong -fpic -fpie -Os -I${INSTALL_DIR}/include -I/usr/include -ffunction-sections -fdata-sections" \
+ && CFLAGS="-fstack-protector-strong -fpic -fpie -O3 -I${INSTALL_DIR}/include -I/usr/include -ffunction-sections -fdata-sections" \
+    CPPFLAGS="-fstack-protector-strong -fpic -fpie -O3 -I${INSTALL_DIR}/include -I/usr/include -ffunction-sections -fdata-sections" \
     LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib -Wl,-O1 -Wl,--strip-all -Wl,--hash-style=both -pie" \
     ./configure \
         --build=x86_64-pc-linux-gnu \
