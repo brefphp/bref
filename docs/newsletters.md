@@ -1,6 +1,6 @@
 ---
 title: Newsletters
-currentMenu: newsletters
+current_menu: newsletters
 introduction: A collection of newsletters related to serverless and PHP.
 ---
 

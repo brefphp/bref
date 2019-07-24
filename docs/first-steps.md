@@ -1,6 +1,6 @@
 ---
 title: First steps
-currentMenu: first-steps
+current_menu: first-steps
 introduction: First steps to discover Bref and deploy your first PHP function on AWS Lambda.
 previous:
     link: /docs/installation.html

@@ -1,6 +1,6 @@
 ---
 title: Using a database
-currentMenu: php
+current_menu: database
 introduction: Configure Bref to use a database in your PHP application on AWS Lambda.
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Environment variables
-currentMenu: php
+current_menu: variables
 introduction: Define environment variables for your Bref application.
 ---
 

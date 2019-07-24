@@ -1,6 +1,6 @@
 ---
 title: Custom domain names
-currentMenu: php
+current_menu: custom-domains
 introduction: Configure custom domain names for your web applications.
 ---
 
@@ -39,13 +39,11 @@ After validating the domain and the certificate we can now link the custom domai
 
 After waiting for the DNS change to propagate (sometimes up to 24 hours) your website is now accessible via your custom domain.
 
-## Custom domains for static websites on S3
+## Custom domains for static files on S3
 
-Some applications expose a static website hosted on AWS S3. In those cases the URL will look like this:
+Some applications serve static files hosted on AWS S3. You can read the [Websites](/docs/websites.md#hosting-static-files-with-s3) documentation to learn more.
 
-```
-http://<bucket>.s3-website.<region>.amazonaws.com/
-```
+The S3 bucket can be accessed at this URL: `https://<bucket>.s3.amazonaws.com/` (supports both HTTP and HTTPS).
 
 To use a custom domain for a S3 static website the process lies in 2 steps:
 
@@ -54,6 +52,20 @@ To use a custom domain for a S3 static website the process lies in 2 steps:
   For example for the http://www.example.com website, the S3 bucket has to be named `www.example.com`
 - point the domain to the S3 URL via DNS
 
-  In our example the DNS entry to create would be a CNAME for `www.example.com` pointing to `www.example.com.s3-website.us-east-1.amazonaws.com`
+  In our example the DNS entry to create would be a CNAME for `www.example.com` pointing to `www.example.com.s3.amazonaws.com`
 
-> S3 static websites do not support HTTPS. To add HTTPS to your website for free it is possible to use a CDN like [CloudFlare](https://cloudflare.com/) (simplest) or AWS CloudFront.
+### Static websites
+
+If you are hosting a full static website with HTML files ([per this documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)), the URLs to use will be different:
+
+```bash
+http://<bucket>.s3-website-<region>.amazonaws.com/
+# or
+http://<bucket>.s3-website.<region>.amazonaws.com/
+```
+
+In that case you need to use the domains above for the CNAME.
+
+Note that the URL is **HTTP-only** and [depends on the region](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_website_region_endpoints).
+
+To add HTTPS to your website for free it is possible to use a CDN like [CloudFlare](https://cloudflare.com/) (simplest) or [AWS CloudFront](/docs/websites.md#serving-php-and-static-files-via-cloudfront).

@@ -478,7 +478,7 @@ RUN ln -s /opt/bref/sbin/* /opt/bin
 
 # Now we get rid of everything that is unnecessary. All the build tools, source code, and anything else
 # that might have created intermediate layers for docker. Back to base AmazonLinux we started with.
-FROM amazonlinux:2
+FROM amazonlinux:2018.03
 ENV INSTALL_DIR="/opt/bref"
 ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib"

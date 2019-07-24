@@ -232,6 +232,11 @@ module.exports = {
       'Helvetica Neue',
       'sans-serif',
     ],
+    'bref': [
+      'Dosis',
+      'Helvetica Neue',
+      'sans-serif',
+    ],
     'serif': [
       'Constantia',
       'Lucida Bright',
@@ -308,7 +313,7 @@ module.exports = {
 
   fontWeights: {
     // 'hairline': 100,
-    // 'thin': 200,
+    'thin': 200,
     // 'light': 300,
     'normal': 400,
     // 'medium': 500,
