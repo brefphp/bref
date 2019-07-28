@@ -90,6 +90,12 @@ $app->command('init', function (SymfonyStyle $io) {
  */
 $app->command('cli function [--region=] [arguments]*', function (string $function, ?string $region, array $arguments, SymfonyStyle $io) {
     $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
+    
+    // Because arguments may contain spaces, and are going to be executed remotely
+    // as a separate process, we need to escape all arguments.
+    $arguments = array_map(static function (string $arg): string {
+        return escapeshellarg($arg);
+    }, $arguments);
 
     try {
         $result = $lambda->invoke($function, json_encode([
