@@ -10,3 +10,5 @@ FROM lambci/lambda:provided
 
 WORKDIR /
 COPY --from=0  /opt /opt
+RUN pwd
+WORKDIR /var/task
