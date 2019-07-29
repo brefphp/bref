@@ -460,6 +460,9 @@ RUN rm -rf /opt/bref/lib/php/PEAR \
   rm -rf /opt/bref/share/man \
   rm -rf /opt/bref/share/gtk-doc \
   rm -rf /opt/bref/include \
+  rm -rf /opt/bref/lib/php/test \
+  rm -rf /opt/bref/lib/php/doc \
+  rm -rf /opt/bref/lib/php/docs \
   rm -rf /opt/bref/tests \
   rm -rf /opt/bref/doc \
   rm -rf /opt/bref/docs \

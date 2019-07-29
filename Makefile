@@ -30,4 +30,4 @@ demo:
 layers.json:
 	php runtime/layer-list.php
 
-.PHONY: runtimes website website-preview website-assets demo
+.PHONY: runtimes website website-preview website-assets demo layers.json

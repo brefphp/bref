@@ -12,6 +12,7 @@ functions:
     console:
         handler: bin/console # Replace by `artisan` if you are using Laravel
         description: ''
+        timeout: 30 # in seconds
         layers:
             - ${bref:layer.php-73} # PHP
             - ${bref:layer.console} # The "console" layer
