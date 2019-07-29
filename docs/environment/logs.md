@@ -41,7 +41,7 @@ $log->warning('This is a warning!');
 For simple needs, you can replace Monolog with [Bref's logger](https://github.com/brefphp/logger), a PSR-3 logger designed for AWS Lambda:
 
 ```php
-$logger = new \Bref\Logger\StderrLogger();
+$log = new \Bref\Logger\StderrLogger();
 
 $log->warning('This is a warning!');
 ```
