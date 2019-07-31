@@ -184,7 +184,7 @@ article blockquote p:first-child {
     margin-top: 0;
 }
 article table {
-    @apply w-full my-5;
+    @apply w-full my-8 border-t border-b border-grey-light;
 }
 article table th {
     @apply text-sm font-bold text-grey-darker p-2 bg-grey-lightest;
