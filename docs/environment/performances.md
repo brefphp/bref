@@ -53,7 +53,7 @@ functions:
     foo:
         handler: index.php
         # ...
-        memory: 512
+        memory: 512 # set to 512M instead of 1024M (the default)
 ```
 
 In the benchmark below, we run [PHP's official `bench.php` script](https://github.com/php/php-src/blob/master/Zend/bench.php). This script is CPU-intensive.
