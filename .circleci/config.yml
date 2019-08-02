@@ -17,14 +17,14 @@ jobs:
             -   image: circleci/php:7.3-fpm
         steps:
             - checkout
-            -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
+            -   restore_cache: # special step to restore the dependency cache if `composer.json` does not change
                     keys:
-                        - composer-v1-{{ checksum "composer.lock" }}
+                        - composer-v1-{{ checksum "composer.json" }}
                         # fallback to using the latest cache if no exact match is found (See https://circleci.com/docs/2.0/caching/)
                         - composer-v1-
             -   run: composer install -n --prefer-dist
-            -   save_cache: # special step to save the dependency cache with the `composer.lock` cache key template
-                    key: composer-v1-{{ checksum "composer.lock" }}
+            -   save_cache: # special step to save the dependency cache with the `composer.json` cache key template
+                    key: composer-v1-{{ checksum "composer.json" }}
                     paths:
                         - vendor
             -   run: vendor/bin/phpstan analyse
@@ -34,14 +34,14 @@ jobs:
             -   image: circleci/php:7.2-fpm-node-browsers
         steps:
             - checkout
-            -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
+            -   restore_cache: # special step to restore the dependency cache if `composer.json` does not change
                     keys:
-                        - composer-v1-{{ checksum "composer.lock" }}
+                        - composer-v1-{{ checksum "composer.json" }}
                         # fallback to using the latest cache if no exact match is found (See https://circleci.com/docs/2.0/caching/)
                         - composer-v1-
             -   run: composer install -n --prefer-dist
-            -   save_cache: # special step to save the dependency cache with the `composer.lock` cache key template
-                    key: composer-v1-{{ checksum "composer.lock" }}
+            -   save_cache: # special step to save the dependency cache with the `composer.json` cache key template
+                    key: composer-v1-{{ checksum "composer.json" }}
                     paths:
                         - vendor
             -   run: vendor/bin/phpunit --testsuite small
@@ -51,14 +51,14 @@ jobs:
             -   image: circleci/php:7.3-fpm-node-browsers
         steps:
             - checkout
-            -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
+            -   restore_cache: # special step to restore the dependency cache if `composer.json` does not change
                     keys:
-                        - composer-v1-{{ checksum "composer.lock" }}
+                        - composer-v1-{{ checksum "composer.json" }}
                         # fallback to using the latest cache if no exact match is found (See https://circleci.com/docs/2.0/caching/)
                         - composer-v1-
             -   run: composer install -n --prefer-dist
-            -   save_cache: # special step to save the dependency cache with the `composer.lock` cache key template
-                    key: composer-v1-{{ checksum "composer.lock" }}
+            -   save_cache: # special step to save the dependency cache with the `composer.json` cache key template
+                    key: composer-v1-{{ checksum "composer.json" }}
                     paths:
                         - vendor
             -   run: vendor/bin/phpunit --testsuite small
@@ -68,14 +68,14 @@ jobs:
             -   image: circleci/php:7.2-fpm-node-browsers
         steps:
             - checkout
-            -   restore_cache: # special step to restore the dependency cache if `composer.lock` does not change
+            -   restore_cache: # special step to restore the dependency cache if `composer.json` does not change
                     keys:
-                        - composer-v1-{{ checksum "composer.lock" }}
+                        - composer-v1-{{ checksum "composer.json" }}
                         # fallback to using the latest cache if no exact match is found (See https://circleci.com/docs/2.0/caching/)
                         - composer-v1-
             -   run: composer update --prefer-lowest --prefer-stable -n
-            -   save_cache: # special step to save the dependency cache with the `composer.lock` cache key template
-                    key: composer-v1-{{ checksum "composer.lock" }}
+            -   save_cache: # special step to save the dependency cache with the `composer.json` cache key template
+                    key: composer-v1-{{ checksum "composer.json" }}
                     paths:
                         - vendor
             -   run: vendor/bin/phpunit --testsuite small
