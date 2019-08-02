@@ -1,0 +1,16 @@
+service: app
+
+provider:
+    name: aws
+    region: us-east-1
+    runtime: provided
+
+plugins:
+    - ./vendor/bref/bref
+
+functions:
+    function:
+        handler: index.php
+        description: ''
+        layers:
+            - ${bref:layer.php-73}

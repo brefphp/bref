@@ -1,20 +1,9 @@
 <?php declare(strict_types=1);
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-
 require __DIR__ . '/../vendor/autoload.php';
 
-$slim = new Slim\App;
+if (isset($_GET['sleep'])) {
+    sleep(10);
+}
 
-$slim->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-    $response->getBody()->write('Hello world!');
-    return $response;
-});
-$slim->get('/json', function (ServerRequestInterface $request, ResponseInterface $response) {
-    $response->getBody()->write(json_encode(['hello' => 'json']));
-    $response = $response->withHeader('Content-Type', 'application/json');
-    return $response;
-});
-
-$slim->run();
+echo 'Hello world!';

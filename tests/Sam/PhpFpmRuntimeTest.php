@@ -47,7 +47,7 @@ class PhpFpmRuntimeTest extends TestCase
     {
         $response = $this->invoke('/?error_log=1');
 
-        self::assertSame(500, $response->getStatusCode(), $this->logs);
+        $this->assertResponseSuccessful($response);
         self::assertNotContains('This is a test log from error_log', $this->responseAsString($response));
         self::assertContains('This is a test log from error_log', $this->logs);
     }
@@ -84,58 +84,63 @@ class PhpFpmRuntimeTest extends TestCase
     {
         $response = $this->invoke('/?warning=1');
 
-        self::assertSame(500, $response->getStatusCode(), $this->logs);
-        // Unfortunately with the temporary fix in https://github.com/mnapoli/bref/pull/216
-        // we must settle for an empty 500 response for now
-//        self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
+        $this->assertResponseSuccessful($response);
+        self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
+        self::assertNotContains('This is a test warning', $this->responseAsString($response));
         self::assertContains('Warning:  This is a test warning in /var/task/tests/Sam', $this->logs);
     }
 
     public function test php extensions()
     {
         $response = $this->invoke('/?extensions=1');
+        $extensions = $this->getJsonBody($response);
+        sort($extensions);
 
         self::assertEquals([
             'Core',
-            'date',
-            'libxml',
-            'openssl',
-            'pcre',
-            'sqlite3',
-            'zlib',
+            'PDO',
+            'Phar',
+            'Reflection',
+            'SPL',
+            'SimpleXML',
+            'Zend OPcache',
+            'bcmath',
+            'cgi-fcgi',
             'ctype',
             'curl',
+            'date',
             'dom',
-            'hash',
+            'exif',
             'fileinfo',
             'filter',
             'ftp',
             'gettext',
-            'SPL',
+            'hash',
             'iconv',
             'json',
+            'libxml',
             'mbstring',
+            'mysqli',
+            'mysqlnd',
+            'openssl',
             'pcntl',
-            'session',
-            'PDO',
+            'pcre',
             'pdo_sqlite',
-            'standard',
             'posix',
             'readline',
-            'Reflection',
-            'Phar',
-            'SimpleXML',
+            'session',
+            'soap',
+            'sockets',
             'sodium',
-            'exif',
+            'sqlite3',
+            'standard',
             'tokenizer',
             'xml',
             'xmlreader',
             'xmlwriter',
             'zip',
-            'mysqlnd',
-            'cgi-fcgi',
-            'Zend OPcache',
-        ], $this->getJsonBody($response), $this->logs);
+            'zlib',
+        ], $extensions, $this->logs);
     }
 
     /**
@@ -171,6 +176,28 @@ class PhpFpmRuntimeTest extends TestCase
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
         ], $this->getJsonBody($response), false, $this->logs);
+    }
+
+    public function test environment variables()
+    {
+        $response = $this->invoke('/?env=1');
+
+        self::assertEquals([
+            '$_ENV' => 'bar',
+            '$_SERVER' => 'bar',
+            'getenv' => 'bar',
+        ], $this->getJsonBody($response), $this->logs);
+    }
+
+    /**
+     * Check some PHP config values
+     */
+    public function test error on missing handler()
+    {
+        $response = $this->invoke('/missing-handler');
+
+        self::assertContains('Handler `/var/task/tests/Sam/PhpFpm/UNKNOWN.php` doesn\'t exist', $this->logs);
+        self::assertEquals(['message' => 'Internal server error'], $this->getJsonBody($response), $this->logs);
     }
 
     private function invoke(string $url): ResponseInterface

@@ -15,8 +15,19 @@
     <meta name="twitter:description" content="{{ metaDescription|e('html_attr') }}" />
     <meta name="google-site-verification" content="RRmKDrWI2l69B0nMwv4ndrYOHSuaTBfarvCgtJxMpXA" />
     {#<meta name="twitter:site" content="@brefphp" />#}
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Poppins:400,600" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Dosis:200|Open+Sans:400,700|Poppins:400,600&display=swap" rel="stylesheet">
     <link href="/output.css" rel="stylesheet">
 </head>
-{% block body %}{% endblock %}
+<body class="font-sans">
+
+    {% block body %}{% endblock %}
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-15584647-20"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-15584647-20');
+    </script>
+</body>
 </html>

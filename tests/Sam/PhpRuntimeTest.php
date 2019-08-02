@@ -61,7 +61,7 @@ class PhpRuntimeTest extends TestCase
 
         // We don't assert on complete exception traces because they will change over time
         $expectedLogs = <<<LOGS
-Fatal error: Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam/Php/function.php:27
+Fatal error: Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam/Php/function.php:35
 Stack trace:
 #0 /var/task/
 LOGS;
@@ -86,7 +86,7 @@ LOGS;
 
         // We don't assert on complete exception traces because they will change over time
         $expectedLogs = <<<LOGS
-Fatal error: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam/Php/function.php:31
+Fatal error: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam/Php/function.php:39
 Stack trace:
 #0 /var/task/
 LOGS;
@@ -111,7 +111,7 @@ LOGS;
 
         // We don't assert on complete exception traces because they will change over time
         $expectedLogs = <<<LOGS
-Fatal error: require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam/Php/function.php on line 35
+Fatal error: require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam/Php/function.php on line
 LOGS;
         self::assertContains($expectedLogs, $logs);
 
@@ -139,46 +139,51 @@ LOGS;
         [$result, $logs] = $this->invokeLambda([
             'extensions' => true,
         ]);
+        sort($result);
 
         self::assertEquals([
             'Core',
-            'date',
-            'libxml',
-            'openssl',
-            'pcre',
-            'sqlite3',
-            'zlib',
+            'PDO',
+            'Phar',
+            'Reflection',
+            'SPL',
+            'SimpleXML',
+            'Zend OPcache',
+            'bcmath',
             'ctype',
             'curl',
+            'date',
             'dom',
-            'hash',
+            'exif',
             'fileinfo',
             'filter',
             'ftp',
             'gettext',
-            'SPL',
+            'hash',
             'iconv',
             'json',
+            'libxml',
             'mbstring',
+            'mysqli',
+            'mysqlnd',
+            'openssl',
             'pcntl',
-            'session',
-            'PDO',
+            'pcre',
             'pdo_sqlite',
-            'standard',
             'posix',
             'readline',
-            'Reflection',
-            'Phar',
-            'SimpleXML',
+            'session',
+            'soap',
+            'sockets',
             'sodium',
-            'exif',
+            'sqlite3',
+            'standard',
             'tokenizer',
             'xml',
             'xmlreader',
             'xmlwriter',
             'zip',
-            'mysqlnd',
-            'Zend OPcache',
+            'zlib',
         ], $result, $logs);
     }
 
@@ -220,6 +225,19 @@ LOGS;
             'short_open_tag' => '',
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
+        ], $result, $logs);
+    }
+
+    public function test environment variables()
+    {
+        [$result, $logs] = $this->invokeLambda([
+            'env' => true,
+        ]);
+
+        self::assertEquals([
+            '$_ENV' => 'bar',
+            '$_SERVER' => 'bar',
+            'getenv' => 'bar',
         ], $result, $logs);
     }
 
