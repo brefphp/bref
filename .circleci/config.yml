@@ -17,6 +17,7 @@ jobs:
             -   image: circleci/php:7.3-fpm
         steps:
             - checkout
+            -   run: sudo docker-php-ext-install pcntl
             -   restore_cache: # special step to restore the dependency cache if `composer.json` does not change
                     keys:
                         - composer-v1-{{ checksum "composer.json" }}
