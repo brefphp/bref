@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Aws\CloudFormation\CloudFormationClient;
 use Aws\CloudFormation\Exception\CloudFormationException;
 use Bref\Console\LoadingAnimation;
+use Bref\Console\OpenUrl;
 use Bref\Lambda\InvocationFailed;
 use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -336,7 +337,9 @@ $app->command('dashboard [--port=]', function (int $port = 8000, SymfonyStyle $i
 
         return 1;
     }
-    $io->writeln("Dashboard started: <fg=green;options=bold,underscore>http://localhost:$port</>");
+    $url = "http://localhost:$port";
+    $io->writeln("Dashboard started: <fg=green;options=bold,underscore>$url</>");
+    OpenUrl::open($url);
     $process->wait(function ($type, $buffer) {
         if (Process::ERR === $type) {
             echo 'ERR > '.$buffer;
