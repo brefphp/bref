@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Aws\CloudFormation\CloudFormationClient;
 use Aws\CloudFormation\Exception\CloudFormationException;
+use Bref\Console\LoadingAnimation;
 use Bref\Lambda\InvocationFailed;
 use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -270,16 +271,12 @@ $app->command('dashboard [--port=]', function (int $port = 8000, SymfonyStyle $i
 
     $servelessInfo = new Process(['serverless', 'info']);
     $servelessInfo->start();
-    $symbols = ['⠇', '⠋', '⠙', '⠸', '⠴', '⠦'];
-    $i = 0;
+    $animation = new LoadingAnimation($io);
     do {
-        $io->write("\r");
-        $io->write('<fg=red>' . $symbols[$i % count($symbols)] . '</> Retrieving the stack');
-        $i++;
+        $animation->tick('Retrieving the stack');
         usleep(100*1000);
     } while ($servelessInfo->isRunning());
-    $io->write("\r");
-    $servelessInfo->wait();
+    $animation->clear();
 
     if (!$servelessInfo->isSuccessful()) {
         $io->error('The command `serverless info` failed' . PHP_EOL . $servelessInfo->getErrorOutput());
@@ -303,14 +300,12 @@ $app->command('dashboard [--port=]', function (int $port = 8000, SymfonyStyle $i
     $process->setTimeout(null);
     $process->start();
     do {
-        $io->write("\r");
-        $io->write('<fg=red>' . $symbols[$i % count($symbols)] . '</> Starting the dashboard');
-        $i++;
+        $animation->tick('Starting the dashboard');
         usleep(100*1000);
         $serverOutput = $process->getOutput();
         $hasStarted = (strpos($serverOutput, 'Development Server started') !== false);
     } while ($process->isRunning() && !$hasStarted);
-    $io->write("\r");
+    $animation->clear();
     if (!$process->isRunning()) {
         $io->error([
             'The dashboard failed to start',
