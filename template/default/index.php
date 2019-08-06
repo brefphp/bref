@@ -2,6 +2,6 @@
 
 require __DIR__.'/vendor/autoload.php';
 
-lambda(function (array $event) {
+lambda(function ($event) {
     return 'Hello ' . ($event['name'] ?? 'world');
 });
