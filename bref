@@ -296,6 +296,22 @@ $app->command('dashboard [--port=]', function (int $port = 8000, SymfonyStyle $i
 
     $io->writeln("Stack: <fg=yellow>$stack ($region)</>");
 
+    $dockerPull = new Process(['docker', 'pull', 'bref/dashboard']);
+    $dockerPull->start();
+    do {
+        $animation->tick('Retrieving the latest version of the dashboard');
+        usleep(100*1000);
+    } while ($dockerPull->isRunning());
+    $animation->clear();
+    if (! $dockerPull->isSuccessful()) {
+        $io->error([
+            'The command `docker pull bref/dashboard` failed',
+            $servelessInfo->getErrorOutput(),
+        ]);
+
+        return 1;
+    }
+
     $process = new Process(['docker', 'run', '--rm', '-p', $port.':8000', '-v', getenv('HOME').'/.aws:/root/.aws:ro', '--env', 'STACKNAME='.$stack, '--env', 'REGION='.$region, 'bref/dashboard']);
     $process->setTimeout(null);
     $process->start();
