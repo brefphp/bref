@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use Aws\CloudFormation\CloudFormationClient;
 use Aws\CloudFormation\Exception\CloudFormationException;
+use Bref\Console\LoadingAnimation;
+use Bref\Console\OpenUrl;
 use Bref\Lambda\InvocationFailed;
 use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -90,7 +92,7 @@ $app->command('init', function (SymfonyStyle $io) {
  */
 $app->command('cli function [--region=] [arguments]*', function (string $function, ?string $region, array $arguments, SymfonyStyle $io) {
     $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
-    
+
     // Because arguments may contain spaces, and are going to be executed remotely
     // as a separate process, we need to escape all arguments.
     $arguments = array_map(static function (string $arg): string {
@@ -247,5 +249,106 @@ $app->command('deployment stack-name [--region=]', function (string $stackName, 
 
     return 0;
 })->descriptions('Displays the latest deployment logs from CloudFormation. Only the logs from the last 24 hours are displayed. Use these logs to debug why a deployment failed.');
+
+$app->command('dashboard [--port=]', function (int $port = 8000, SymfonyStyle $io) {
+    if (! file_exists('serverless.yml')) {
+        $io->error('No `serverless.yml` file found.');
+
+        return 1;
+    }
+
+    $exeFinder = new ExecutableFinder();
+    if (! $exeFinder->find('docker')) {
+        $io->error(
+            'The `docker` command is not installed.' . PHP_EOL .
+            'Please follow the instructions at https://docs.docker.com/install/'
+        );
+
+        return 1;
+    }
+
+    if (! $exeFinder->find('serverless')) {
+        $io->error(
+            'The `serverless` command is not installed.' . PHP_EOL .
+            'Please follow the instructions at https://bref.sh/docs/installation.html'
+        );
+
+        return 1;
+    }
+
+    $servelessInfo = new Process(['serverless', 'info']);
+    $servelessInfo->start();
+    $animation = new LoadingAnimation($io);
+    do {
+        $animation->tick('Retrieving the stack');
+        usleep(100*1000);
+    } while ($servelessInfo->isRunning());
+    $animation->clear();
+
+    if (!$servelessInfo->isSuccessful()) {
+        $io->error('The command `serverless info` failed' . PHP_EOL . $servelessInfo->getErrorOutput());
+
+        return 1;
+    }
+
+    $servelessInfoOutput = $servelessInfo->getOutput();
+
+    $region = [];
+    preg_match('/region: ([a-z0-9-]*)/', $servelessInfoOutput, $region);
+    $region = $region[1];
+
+    $stack = [];
+    preg_match('/stack: ([a-zA-Z0-9-]*)/', $servelessInfoOutput, $stack);
+    $stack = $stack[1];
+
+    $io->writeln("Stack: <fg=yellow>$stack ($region)</>");
+
+    $dockerPull = new Process(['docker', 'pull', 'bref/dashboard']);
+    $dockerPull->start();
+    do {
+        $animation->tick('Retrieving the latest version of the dashboard');
+        usleep(100*1000);
+    } while ($dockerPull->isRunning());
+    $animation->clear();
+    if (! $dockerPull->isSuccessful()) {
+        $io->error([
+            'The command `docker pull bref/dashboard` failed',
+            $servelessInfo->getErrorOutput(),
+        ]);
+
+        return 1;
+    }
+
+    $process = new Process(['docker', 'run', '--rm', '-p', $port.':8000', '-v', getenv('HOME').'/.aws:/root/.aws:ro', '--env', 'STACKNAME='.$stack, '--env', 'REGION='.$region, 'bref/dashboard']);
+    $process->setTimeout(null);
+    $process->start();
+    do {
+        $animation->tick('Starting the dashboard');
+        usleep(100*1000);
+        $serverOutput = $process->getOutput();
+        $hasStarted = (strpos($serverOutput, 'Development Server started') !== false);
+    } while ($process->isRunning() && !$hasStarted);
+    $animation->clear();
+    if (!$process->isRunning()) {
+        $io->error([
+            'The dashboard failed to start',
+            $process->getErrorOutput(),
+        ]);
+
+        return 1;
+    }
+    $url = "http://localhost:$port";
+    $io->writeln("Dashboard started: <fg=green;options=bold,underscore>$url</>");
+    OpenUrl::open($url);
+    $process->wait(function ($type, $buffer) {
+        if (Process::ERR === $type) {
+            echo 'ERR > '.$buffer;
+        } else {
+            echo 'OUT > '.$buffer;
+        }
+    });
+
+    return $process->getExitCode();
+})->descriptions('Start the dashboard');
 
 $app->run();
