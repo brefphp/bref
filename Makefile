@@ -4,6 +4,16 @@
 runtimes:
 	cd runtime && make publish
 
+docker-images:
+	cd runtime && make build
+	docker push bref/php-72
+	docker push bref/php-72-fpm
+	docker push bref/php-72-fpm-dev
+	docker push bref/php-73
+	docker push bref/php-73-fpm
+	docker push bref/php-73-fpm-dev
+	docker push bref/fpm-dev-gateway
+
 # Generate and deploy the production version of the website using http://couscous.io
 website:
 	# See http://couscous.io/
