@@ -53,7 +53,7 @@ php -S localhost:8000 index.php
 # The application is now available at http://localhost:8000/
 ```
 
-In order to run the application locally in an environment closer to production, you can use the [Bref Docker images](https://cloud.docker.com/u/bref). For example for an HTTP application, create the following `docker-compose.yml`:
+In order to run the application locally in an environment closer to production, you can use the [Bref Docker images](https://hub.docker.com/u/bref). For example for an HTTP application, create the following `docker-compose.yml`:
 
 ```yaml
 version: "3.5"
