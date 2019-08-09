@@ -56,7 +56,7 @@ php -S localhost:8000 index.php
 In order to run the application locally in an environment closer to production, you can use the [Bref Docker images](https://cloud.docker.com/u/bref). For example for an HTTP application, create the following `docker-compose.yml`:
 
 ```yaml
-version: "2.1"
+version: "3.5"
 
 services:
     web:
@@ -65,7 +65,7 @@ services:
             - '8000:80'
         volumes:
             - .:/var/task
-        links:
+        depends_on:
             - php
         environment:
             HANDLER: index.php
