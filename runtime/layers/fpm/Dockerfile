@@ -11,4 +11,3 @@ COPY php-fpm.conf bref/etc/php-fpm.conf
 FROM lambci/lambda:provided
 
 COPY --from=0  /opt /opt
-WORKDIR /var/task

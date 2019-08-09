@@ -13,4 +13,3 @@ RUN rm bref/sbin/php-fpm bin/php-fpm
 FROM lambci/lambda:provided
 
 COPY --from=0  /opt /opt
-WORKDIR /var/task
