@@ -72,8 +72,7 @@ final class PhpFpm
             echo $output;
         });
 
-        $connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
-        $this->client = new Client($connection);
+        $this->client = new Client();
 
         $this->waitUntilReady();
     }
@@ -119,9 +118,10 @@ final class PhpFpm
         }
 
         $request = $this->eventToFastCgiRequest($event);
+        $connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
 
         try {
-            $response = $this->client->sendRequest($request);
+            $response = $this->client->sendRequest($connection, $request);
         } catch (\Throwable $e) {
             throw new FastCgiCommunicationFailed(sprintf(
                 'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
@@ -351,6 +351,11 @@ final class PhpFpm
             }
         } else {
             $responseHeaders = $response->getHeaders();
+
+            foreach ($responseHeaders as $key => $value) {
+                $responseHeaders[$key] = array_values(array_slice($value, -1))[0];
+            }
+
         }
 
         return array_change_key_case($responseHeaders, CASE_LOWER);
