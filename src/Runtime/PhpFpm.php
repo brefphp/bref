@@ -72,7 +72,7 @@ final class PhpFpm
             echo $output;
         });
 
-        $this->client = new Client();
+        $this->client = new Client;
 
         $this->waitUntilReady();
     }
@@ -355,7 +355,6 @@ final class PhpFpm
             foreach ($responseHeaders as $key => $value) {
                 $responseHeaders[$key] = array_values(array_slice($value, -1))[0];
             }
-
         }
 
         return array_change_key_case($responseHeaders, CASE_LOWER);
