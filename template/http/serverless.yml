@@ -12,7 +12,7 @@ functions:
     api:
         handler: index.php
         description: ''
-        timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+        timeout: 29 # in seconds (API Gateway has a timeout of 30 seconds)
         layers:
             - ${bref:layer.php-73-fpm}
         events:
