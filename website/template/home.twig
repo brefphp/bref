@@ -5,23 +5,126 @@
 
 {% block body %}
 
-    <section class="text-center">
-        <div class="container mx-auto py-10 lg:py-24 xl:py-32 px-4">
-            <img src="/logo.svg" alt="Bref" class="h-48">
-            <h1 class="text-center mb-12 lg:mb-24 text-3xl md:text-4xl lg:text-5xl text-grey-darkest font-bref font-thin">running PHP made simple</h1>
+    <nav class="bg-primary-800 p-6 font-light fixed sticky top-0 z-30">
+        <div class="container mx-auto flex items-center justify-between flex-wrap">
+            <div class="flex items-center flex-shrink-0 text-lg">
+                <a href="/docs/" title="Bref documentation for serverless PHP applications"
+                   class="inline-block text-gray-400 hover:text-white mr-4">
+                    Documentation
+                </a>
+            </div>
+            <div>
+                <a href="https://github.com/brefphp/bref" title="Bref on GitHub"
+                   class="inline-block text-gray-500 hover:text-white">
+                    <svg class="fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
+                </a>
+            </div>
+        </div>
+    </nav>
 
-            <h2 class="font-normal font-sans text-lg md:text-xl lg:text-xl">Bref provides the tools and documentation <br> to easily deploy and run serverless PHP applications.</h2>
+    <section class="text-center bg-primary-800 text-white">
+        <div class="container mx-auto py-10 lg:py-18 xl:py-24 px-4">
+            <h1 class="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bref font-thin">bref</h1>
 
-            <div class="mt-8 md:flex justify-center">
-                <a class="block text-center px-10 py-4 border-2 border-grey-darkest rounded-lg bg-grey-darkest text-white hover:text-white hover:border-black hover:bg-black mb-4 md:mr-8" href="/docs/" title="Bref documentation for serverless PHP applications">Learn more</a>
-                <a class="block text-center px-10 py-4 border-2 border-grey-darkest rounded-lg bg-white text-grey-darkest hover:text-white hover:border-black hover:bg-black mb-4" href="https://github.com/brefphp/bref" title="Bref on GitHub">GitHub</a>
+            <h2 class="mb-10 lg:mb-18 xl:mb-20 text-3xl md:text-4xl lg:text-4xl xl:text-5xl text-primary-400 font-bref font-thin">
+                running PHP made simple
+            </h2>
+
+            <h2 class="font-normal font-sans text-lg md:text-xl lg:text-xl xl:text-2xl font-bref text-primary-100">
+                Everything you need to easily <br>
+                deploy and run serverless PHP applications.
+            </h2>
+
+        </div>
+    </section>
+
+    <div class="w-full">
+        <svg viewBox="0 0 1280 304" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M-44 0H1310V254L1211.5 180.5L1113 220L941.5 113.5L809.5 171L667 69L580 121.5L516.5 53L290.5 189.5L166 153L-44 269.5V0Z" fill="#3D4852"/>
+            <path d="M1214 177L1110.5 215.5L943.295 108.5L807.5 168.5L666 66.5L581 116L517 49.5L288.5 184L163.5 148L-34.5 264.5L163.5 168.5L259 194L230.5 281.5L325.5 194L517 80.5L618 233.5L605 132.5L666 89.5L931 304L855 194L955.5 132.5L1161 288.5L1127 225.5L1214 201.5L1298 248L1317 258.5L1214 177Z" fill="#B8C2CC"/>
+        </svg>
+    </div>
+
+    <section class="py-48 pt-24">
+        <div class="container mx-auto px-4">
+            <div class="flex">
+                <div class="flex-1 mx-6">
+                    <h2 class="mb-12 text-3xl md:text-4xl lg:text-5xl font-bref text-primary-700">
+                        Standing on top of giants,
+                    </h2>
+                    <p class="mb-3">
+                        Creating and running modern and scalable PHP applications doesn’t have to be limited to a few experts. By using serverless technologies, we can focus on development and worry less about infrastructure.
+                    </p>
+                    <p>
+                        Bref provides open source layers to bring full support for PHP on AWS Lambda.
+                    </p>
+                </div>
+                <div class="flex-1 mx-6 text-center">
+                    <div class="flex justify-center mb-6 mt-16">
+                        <img src="/img/aws.svg" alt="AWS" class="w-16">
+                    </div>
+                    <h3 class="text-xl">Mature, production-ready <br> PHP runtimes for AWS Lambda</h3>
+                </div>
             </div>
 
-            <div class="mt-20 md:flex justify-center">
-                <p class="font-normal md:text-lg text-grey">Bref is a project supported by the <a href="https://null.tc/" title="null is a consulting and web development company.">null</a> company.</p>
+            <div class="flex mt-24 xl:mt-32">
+                <div class="flex-1 mx-6 text-center">
+                    <div class="flex justify-center mb-6 mt-16">
+                        <svg class="w-12" width="54" height="43" viewBox="0 0 54 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 33.9789H9.558L6.59665 42.9153H0V33.9789ZM0 16.9892H15.1875L12.2268 25.9256H0V16.9894V16.9892ZM0 0H20.8178L17.8563 8.9362H0V0ZM30.2377 0H54V8.9362H27.2767L30.2377 0ZM24.608 16.9892H54V25.9258H21.6468L24.608 16.9894V16.9892ZM18.978 33.9789H54V42.9153H16.0171L18.978 33.9789Z" fill="#FD5650"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl">Simple cloud orchestration <br> via the Serverless framework</h3>
+                </div>
+                <div class="flex-1 mx-6">
+                    <h2 class="mb-12 text-3xl md:text-4xl lg:text-5xl font-bref text-primary-700">
+                        for a better view of the cloud.
+                    </h2>
+                    <p class="mb-3">
+                        Bref integrates with the Serverless framework to let us configure and deploy applications.
+                    </p>
+                    <p>
+                        We get the best of both world: powerful yet simple tooling to go serverless, as well as extensive documentation and examples for PHP developers.
+                    </p>
+                </div>
             </div>
 
         </div>
+    </section>
+
+    <section class="py-48 bg-primary-800 text-white relative overflow-hidden">
+        <div class="container mx-auto px-4">
+            <div class="flex">
+                <div class="flex-1 mx-6">
+                    <h2 class="mb-16 text-3xl md:text-5xl lg:text-6xl font-bref font-thin">
+                        bref dashboard
+                    </h2>
+                    <p class="mb-3 text-primary-300">
+                        Get a visual overview of what is happening in seconds.
+                    </p>
+                    <p class="mb-3 text-primary-300">
+                        The dashboard runs on your laptop. No setup required, no third party involved.
+                    </p>
+                </div>
+                <div class="flex-1">
+                    <svg class="absolute" style="bottom: -62px" width="590" height="469" viewBox="0 0 590 469" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M530.25 380.971V98.802C530.25 87.6762 520.9 78.5625 509.892 78.5625H96.1078C85.1003 78.5625 75.75 87.5578 75.75 98.802V380.971H18.8191C18.8191 392.688 30.5367 403.222 41.189 407.838C54.0902 413.283 75.75 419.438 99.4218 419.438H506.578C530.25 419.438 551.791 414.111 563.746 409.022C574.99 404.288 587.181 393.162 587.181 380.971H530.25ZM303 88.0312C305.604 88.0312 307.734 90.1617 307.734 92.7656C307.734 95.3695 305.604 97.5 303 97.5C300.396 97.5 298.266 95.3695 298.266 92.7656C298.266 90.1617 300.396 88.0312 303 88.0312ZM97.0546 107.205H508.945C510.247 107.205 511.312 108.271 511.312 109.573V359.666C511.312 360.968 510.247 362.033 508.945 362.033H97.0546C95.7527 362.033 94.6874 360.968 94.6874 359.666V109.573C94.6874 108.152 95.7527 107.205 97.0546 107.205ZM353.066 390.439H252.934C246.779 390.439 241.453 383.338 241.453 381.562H364.547C364.547 383.338 360.996 390.439 353.066 390.439Z" fill="#B8C2CC"/>
+                        <path d="M320.958 154.875V208.625H444.625V154.875H320.958ZM320.958 316.125H444.625V226.542H320.958V316.125ZM166.375 316.125H290.042V262.375H166.375V316.125ZM166.375 244.458H290.042V154.875H166.375V244.458Z" fill="#8795A1"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-64">
+        <div class="container mx-auto px-4">
+            <p class="font-bref text-2xl text-primary-700 text-center">
+                Bref is a project supported by the <a href="https://null.tc/" title="null is a consulting and web development company.">null</a> company.
+            </p>
+        </div>
+    </section>
+
+    <section class="py-24 bg-primary-800 text-white">
     </section>
 
 {% endblock %}

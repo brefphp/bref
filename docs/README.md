@@ -77,88 +77,88 @@ This maturity level is a vague metric, however it can be useful to anticipate th
 
 This matrix will be updated as Bref and AWS services evolve over time.
 
-<table class="w-full text-xs sm:text-sm text-grey-darker mt-8 mb-5 table-fixed">
-    <tr class="bg-grey-lightest">
+<table class="w-full text-xs sm:text-sm text-gray-700 mt-8 mb-5 table-fixed">
+    <tr class="bg-gray-100">
         <th class="p-4"></th>
-        <th class="font-normal p-4 border-b border-grey-light">Simplicity</th>
-        <th class="font-normal p-4 border-b border-grey-light">Performances</th>
-        <th class="font-normal p-4 border-b border-grey-light">Reliability</th>
+        <th class="font-normal p-4 border-b border-gray-400">Simplicity</th>
+        <th class="font-normal p-4 border-b border-gray-400">Performances</th>
+        <th class="font-normal p-4 border-b border-gray-400">Reliability</th>
     </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">
             Jobs, Cron
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-orange-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">API</td>
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">API</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
-        </td>
-    </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">API with MySQL / PostgreSQL</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-light"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website</td>
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">API with MySQL / PostgreSQL</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-red-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
-        </td>
-    </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website with MySQL / PostgreSQL</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-orange-400"></span>
         </td>
     </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Legacy application</td>
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Website</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
-    <tr class="text-xs text-center leading-normal text-grey-dark">
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Website with MySQL / PostgreSQL</td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-orange-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-orange-400"></span>
+        </td>
+    </tr>
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Legacy application</td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-red-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-orange-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-red-400"></span>
+        </td>
+    </tr>
+    <tr class="text-xs text-center leading-normal text-gray-600">
         <td></td>
         <td class="p-3">
             Is this documented and simple to achieve?
@@ -172,11 +172,11 @@ This matrix will be updated as Bref and AWS services evolve over time.
     </tr>
 </table>
 
-<div class="text-left text-xs text-grey-darker mb-8">
+<div class="text-left text-xs text-gray-700 mb-8">
     Legend:
-    <span class="inline-block my-1  mx-1 sm:mx-2 bg-green-lightest text-green-dark rounded-full px-4 py-1">Good use case</span>
-    <span class="inline-block my-1  mx-1 sm:mx-2 bg-orange-lightest text-orange-dark rounded-full px-4 py-1">Some drawbacks</span>
-    <span class="inline-block my-1  ml-1 sm:ml-2 bg-red-lightest text-red-dark rounded-full px-4 py-1">Strong limitations</span>
+    <span class="inline-block my-1 mx-1 sm:mx-2 bg-green-100 text-green-600 rounded-full px-4 py-1">Good use case</span>
+    <span class="inline-block my-1 mx-1 sm:mx-2 bg-orange-100 text-orange-600 rounded-full px-4 py-1">Some drawbacks</span>
+    <span class="inline-block my-1 ml-1 sm:ml-2 bg-red-100 text-red-600 rounded-full px-4 py-1">Strong limitations</span>
 </div>
 
 - **Jobs, Cron**
