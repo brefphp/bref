@@ -7,7 +7,7 @@ publish: layers
 	php publish.php
 
 # Build the layers
-layers: export/console.zip export/php-72.zip export/php-73.zip export/php-72-fpm.zip export/php-73-fpm.zip
+layers: export/console.zip export/php-72.zip export/php-73.zip export/php-74.zip export/php-72-fpm.zip export/php-73-fpm.zip export/php-74-fpm.zip
 
 # The PHP runtimes
 export/php%.zip: build
@@ -36,4 +36,9 @@ build: compiler
 	cd layers/fpm ; docker build -t bref/php-73-fpm:$(TAG) --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest . ; cd ../..
 	cd layers/fpm-dev ; docker build -t bref/php-73-fpm-dev:$(TAG) --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest . ; cd ../..
 	cd layers/function ; docker build -t bref/php-73:$(TAG) --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest . ; cd ../..
+	cd layers/web; docker build -t bref/fpm-dev-gateway:$(TAG) . ; cd ../..
+	docker build -f ${PWD}/php-intermediary.Dockerfile -t bref/php-74-intermediary:latest $(shell helpers/docker_args.sh versions.ini php74) .
+	cd layers/fpm ; docker build -t bref/php-74-fpm:$(TAG) --build-arg LAYER_IMAGE=bref/php-74-intermediary:latest . ; cd ../..
+	cd layers/fpm-dev ; docker build -t bref/php-74-fpm-dev:$(TAG) --build-arg LAYER_IMAGE=bref/php-74-intermediary:latest . ; cd ../..
+	cd layers/function ; docker build -t bref/php-74:$(TAG) --build-arg LAYER_IMAGE=bref/php-74-intermediary:latest . ; cd ../..
 	cd layers/web; docker build -t bref/fpm-dev-gateway:$(TAG) . ; cd ../..

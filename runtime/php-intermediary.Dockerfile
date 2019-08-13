@@ -365,7 +365,7 @@ WORKDIR  ${PHP_BUILD_DIR}/
 # readline-devel : needed for the --with-libedit flag
 # gettext-devel : needed for the --with-gettext flag
 # libicu-devel : needed for
-RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel
+RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel sqlite-devel
 
 # Configure the build
 # -fstack-protector-strong : Be paranoid about stack overflows
@@ -411,11 +411,11 @@ RUN set -xe \
         --with-pdo-mysql=shared,mysqlnd \
         --with-mysqli \
         --enable-pcntl \
-        --enable-zip \
+        --with-zip \
         --enable-bcmath \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
-        --enable-opcache-file \
+        # --enable-opcache-file \ replaced with opcache.file_cache INI directive
         --enable-soap
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down

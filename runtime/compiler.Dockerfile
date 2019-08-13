@@ -52,3 +52,33 @@ RUN  set -xe \
  && ./bootstrap --prefix=/usr/local \
  && make \
  && make install
+
+# BISON parser - 3.0 - required by PHP
+RUN  set -xe \
+ && mkdir -p /tmp/bison \
+ && cd /tmp/bison \
+ && curl -Ls https://ftp.gnu.org/gnu/bison/bison-3.4.1.tar.gz \
+  | tar xzC /tmp/bison --strip-components=1 \
+ && ./configure --prefix=/usr/local \
+ && make \
+ && make install
+
+# rec2c - required by PHP
+RUN  set -xe \
+ && mkdir -p /tmp/rec2c \
+ && cd /tmp/rec2c \
+ && curl -Ls https://github.com/skvadrik/re2c/releases/download/0.13.6/re2c-0.13.6.tar.gz \
+  | tar xzC /tmp/rec2c --strip-components=1 \
+ && ./configure --prefix=/usr/local \
+ && make \
+ && make install
+
+# oniguruma - required by PHP
+RUN  set -xe \
+ && mkdir -p /tmp/oniguruma \
+ && cd /tmp/oniguruma \
+ && curl -Ls https://github.com/kkos/oniguruma/releases/download/v6.9.3/onig-6.9.3.tar.gz \
+  | tar xzC /tmp/oniguruma --strip-components=1 \
+ && ./configure --prefix=/opt/bref/lib/pkgconfig \
+ && make \
+ && make install
