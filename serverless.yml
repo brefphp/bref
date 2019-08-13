@@ -26,7 +26,7 @@ functions:
     http:
         handler: demo/http.php
         description: 'Bref HTTP demo'
-        timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
+        timeout: 5 # in seconds (API Gateway has a timeout of 28 seconds)
         memory: 1024
         layers:
             - ${bref:layer.php-73-fpm}
