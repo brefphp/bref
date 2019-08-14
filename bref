@@ -250,7 +250,10 @@ $app->command('deployment stack-name [--region=]', function (string $stackName, 
     return 0;
 })->descriptions('Displays the latest deployment logs from CloudFormation. Only the logs from the last 24 hours are displayed. Use these logs to debug why a deployment failed.');
 
-$app->command('dashboard [--port=]', function (int $port = 8000, SymfonyStyle $io) {
+$app->command('dashboard [--host=] [--port=]', function (string $host = 'localhost', int $port = 8000, SymfonyStyle $io) {
+    if ($host === 'localhost') {
+        $host = '127.0.0.1';
+    }
     if (! file_exists('serverless.yml')) {
         $io->error('No `serverless.yml` file found.');
 
@@ -320,7 +323,7 @@ $app->command('dashboard [--port=]', function (int $port = 8000, SymfonyStyle $i
         return 1;
     }
 
-    $process = new Process(['docker', 'run', '--rm', '-p', $port.':8000', '-v', getenv('HOME').'/.aws:/root/.aws:ro', '--env', 'STACKNAME='.$stack, '--env', 'REGION='.$region, 'bref/dashboard']);
+    $process = new Process(['docker', 'run', '--rm', '-p', $host . ':' . $port.':8000', '-v', getenv('HOME').'/.aws:/root/.aws:ro', '--env', 'STACKNAME='.$stack, '--env', 'REGION='.$region, 'bref/dashboard']);
     $process->setTimeout(null);
     $process->start();
     do {
@@ -338,7 +341,7 @@ $app->command('dashboard [--port=]', function (int $port = 8000, SymfonyStyle $i
 
         return 1;
     }
-    $url = "http://localhost:$port";
+    $url = "http://$host:$port";
     $io->writeln("Dashboard started: <fg=green;options=bold,underscore>$url</>");
     OpenUrl::open($url);
     $process->wait(function ($type, $buffer) {
