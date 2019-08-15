@@ -487,9 +487,9 @@ ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib"
 
 RUN mkdir -p /opt
-WORKDIR /opt
 # Copy everything we built above into the same dir on the base AmazonLinux container.
 COPY --from=php_builder /opt /opt
 
 # Install zip: we will need it later to create the layers as zip files
 RUN LD_LIBRARY_PATH= yum -y install zip
+WORKDIR /var/task
