@@ -35,7 +35,7 @@ plugins:
 functions:
     website:
         handler: public/index.php
-        timeout: 28 # in seconds (API Gateway has a timeout of 28 seconds)
+        timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
         layers:
             - ${bref:layer.php-73-fpm}
         events:
