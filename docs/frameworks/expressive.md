@@ -10,7 +10,7 @@ A demo application is available on GitHub at [github.com/leonhusmann/expressive-
 
 ## Setup
 
-Assuming your are in existing Zend Expressive project, let's install Bref via Composer:
+Assuming you are in existing Zend Expressive project, let's install Bref via Composer:
 
 ```
 composer require bref/bref
@@ -61,7 +61,7 @@ index 66df694..a22f39a 100644
 
 ## Deploy
 
-Make sure your not in development mode when deploying.
+Make sure you're not in development mode when deploying.
 
 ```shell
 $ composer development-disable
