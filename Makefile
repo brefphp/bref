@@ -31,7 +31,7 @@ website-assets: website/template/output.css
 website/template/output.css: website/node_modules website/template/styles.css website/tailwind.js
 	./website/node_modules/.bin/tailwind build website/template/styles.css -c website/tailwind.js -o website/template/output.css
 website/node_modules:
-	yarn install
+	cd website && yarn install
 
 # Deploy the demo functions
 demo:
