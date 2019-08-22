@@ -324,7 +324,7 @@ $app->command('dashboard [--host=] [--port=] [--profile=]', function (string $ho
         return 1;
     }
 
-    $process = new Process(['docker', 'run', '--rm', '-p', $host . ':' . $port.':8000', '-v', getenv('HOME').'/.aws:/root/.aws:ro', '--env', 'STACKNAME='.$stack, '--env', 'REGION='.$region, 'bref/dashboard']);
+    $process = new Process(['docker', 'run', '--rm', '-p', $host . ':' . $port.':8000', '-v', getenv('HOME').'/.aws:/root/.aws:ro', '--env', 'STACKNAME='.$stack, '--env', 'REGION='.$region, '--env', 'AWS_PROFILE='.$profile, 'bref/dashboard']);
     $process->setTimeout(null);
     $process->start();
     do {
