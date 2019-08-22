@@ -250,10 +250,11 @@ $app->command('deployment stack-name [--region=]', function (string $stackName, 
     return 0;
 })->descriptions('Displays the latest deployment logs from CloudFormation. Only the logs from the last 24 hours are displayed. Use these logs to debug why a deployment failed.');
 
-$app->command('dashboard [--host=] [--port=]', function (string $host = 'localhost', int $port = 8000, SymfonyStyle $io) {
+$app->command('dashboard [--host=] [--port=] [--profile=]', function (string $host = 'localhost', int $port = 8000, string $profile = 'default', SymfonyStyle $io) {
     if ($host === 'localhost') {
         $host = '127.0.0.1';
     }
+
     if (! file_exists('serverless.yml')) {
         $io->error('No `serverless.yml` file found.');
 
@@ -279,7 +280,7 @@ $app->command('dashboard [--host=] [--port=]', function (string $host = 'localho
         return 1;
     }
 
-    $servelessInfo = new Process(['serverless', 'info']);
+    $servelessInfo = new Process(['serverless', 'info', '--aws-profile', $profile]);
     $servelessInfo->start();
     $animation = new LoadingAnimation($io);
     do {
