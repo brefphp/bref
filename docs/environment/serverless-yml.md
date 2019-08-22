@@ -165,30 +165,7 @@ provider:
             Resource: 'arn:aws:dynamodb:us-east-1:111110002222:table/example'
 ```
 
-If you only want to define some permissions **per function**, instead of globally (ie: in the provider), you should install and enable the Serverless plugin [`serverless-iam-roles-per-function`](https://github.com/functionalone/serverless-iam-roles-per-function) and then use the `iamRoleStatements` at the function definition block:
-
-```yaml
-functions:
-    foo:
-        handler: foo.php
-        layers:
-            - ${bref:layer.php-73}
-        iamRoleStatements:
-            # Allow to put a file in the `my-bucket` S3 bucket
-            -   Effect: Allow
-                Action: s3:PutObject
-                Resource: 'arn:aws:s3:::my-bucket/*'
-            # Allow to query and update the `example` DynamoDB table
-            -   Effect: Allow
-                Action:
-                    - dynamodb:Query
-                    - dynamodb:Scan
-                    - dynamodb:GetItem
-                    - dynamodb:PutItem
-                    - dynamodb:UpdateItem
-                    - dynamodb:DeleteItem
-                Resource: 'arn:aws:dynamodb:us-east-1:111110002222:table/example'
-```
+If you only want to define some permissions **per function**, instead of globally (ie: in the provider), you should install and enable the Serverless plugin [`serverless-iam-roles-per-function`](https://github.com/functionalone/serverless-iam-roles-per-function) and then use the `iamRoleStatements` at the function definition block.
 
 ## Resources
 
