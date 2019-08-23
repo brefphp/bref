@@ -213,7 +213,28 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
     Migrating a legacy PHP application to Bref and Lambda can be a challenge. First, as explained above, the limitations that come with MySQL/PostgreSQL often apply. On top of that legacy applications tend to be extra slow and large which can make performances suffer.
     
-    One could also expect to rewrite a good amount of code to make the application fit for Lambda. For example file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and possibly SQS. Finally there are no case studies or online examples of such a thing being done before (to the extent of our knowledge).
+    One could also expect to rewrite a good amount of code to make the application fit for Lambda. For example file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and possibly SQS. 
+
+    As of August 2019 there is only one such thing in existence (to the extent of our knowledge ):
+    [Laravel Vapor](https://vapor.laravel.com/)
+
+    Laravel Vapor is an auto-scaling, serverless deployment platform for Laravel, powered by AWS Lambda. 
+
+    Vapor abstracts the complexity of managing Laravel applications on AWS Lambda, as well as interfacing those applications with SQS queues, databases, Redis clusters, networks, CloudFront CDN, and more. Some highlights of Vapor's features include:
+
+    - Auto-scaling web / queue infrastructure fine tuned for Laravel
+    - Zero-downtime deployments and rollbacks
+    - Environment variable / secret management
+    - Database management, including point-in-time restores and scaling
+    - Redis Cache management, including cluster scaling
+    - Database and cache tunnels, allowing for easy local inspection
+    - Automatic uploading of assets to Cloudfront CDN during deployment
+    - Unique, Vapor assigned vanity URLs for each environment, allowing immediate inspection
+    - Custom application domains
+    - DNS management
+    - Certificate management and renewal
+    - Application, database, and cache metrics
+    - CI friendly
     
     Not impossible, but definitely not the easiest place to start.
 
