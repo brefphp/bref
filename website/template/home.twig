@@ -26,7 +26,7 @@
         <div class="container mx-auto py-10 lg:py-18 xl:py-24 px-4">
             <h1 class="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bref font-thin">bref</h1>
 
-            <h2 class="mb-10 lg:mb-18 xl:mb-20 text-3xl md:text-4xl lg:text-4xl xl:text-5xl text-primary-400 font-bref font-thin">
+            <h2 class="mb-10 lg:mb-18 xl:mb-20 text-3xl md:text-4xl lg:text-4xl xl:text-5xl text-primary-400 font-bref font-hairline">
                 running PHP made simple
             </h2>
 
@@ -50,13 +50,13 @@
             <div class="flex">
                 <div class="flex-1 mx-6">
                     <h2 class="mb-12 text-3xl md:text-4xl lg:text-5xl font-bref text-primary-700">
-                        Standing on top of giants,
+                        A higher level stack
                     </h2>
                     <p class="mb-3">
-                        Creating and running modern and scalable PHP applications doesn’t have to be limited to a few experts. By using serverless technologies, we can focus on development and worry less about infrastructure.
+                        Creating and running <strong>modern and scalable PHP applications</strong> can be simple. By using serverless technologies, like AWS Lambda, we can focus on development and worry less about servers.
                     </p>
                     <p>
-                        Bref provides open source layers to bring full support for PHP on AWS Lambda.
+                        Bref is an open source project that brings full support for PHP and its frameworks on AWS Lambda.
                     </p>
                 </div>
                 <div class="flex-1 mx-6 text-center">
@@ -81,38 +81,28 @@
                         for a better view of the cloud.
                     </h2>
                     <p class="mb-3">
-                        Bref integrates with the Serverless framework to let us configure and deploy applications.
+                        While serverless is very interesting, getting started can be overwhelming.
+                    </p>
+                    <p class="mb-3">
+                        Bref integrates with the Serverless framework for configuration and deployment.
+                        We get the best of both world: <strong>powerful, yet simple</strong>.
                     </p>
                     <p>
-                        We get the best of both world: powerful yet simple tooling to go serverless, as well as extensive documentation and examples for PHP developers.
+                        On top of Serverless' documentation and ecosystem, Bref provides complete documentation and examples for PHP applications.
                     </p>
                 </div>
+            </div>
+
+            <div class="pt-40 text-center">
+                <a href="/docs/" class="bg-blue-400 hover:bg-blue-500 text-white text-lg py-3 px-6 rounded">Learn more</a>
             </div>
 
         </div>
     </section>
 
-    <section class="py-48 bg-primary-800 text-white relative overflow-hidden">
-        <div class="container mx-auto px-4">
-            <div class="flex">
-                <div class="flex-1 mx-6">
-                    <h2 class="mb-16 text-3xl md:text-5xl lg:text-6xl font-bref font-thin">
-                        bref dashboard
-                    </h2>
-                    <p class="mb-3 text-primary-300">
-                        Get a visual overview of what is happening in seconds.
-                    </p>
-                    <p class="mb-3 text-primary-300">
-                        The dashboard runs on your laptop. No setup required, no third party involved.
-                    </p>
-                </div>
-                <div class="flex-1">
-                    <svg class="absolute" style="bottom: -62px" width="590" height="469" viewBox="0 0 590 469" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M530.25 380.971V98.802C530.25 87.6762 520.9 78.5625 509.892 78.5625H96.1078C85.1003 78.5625 75.75 87.5578 75.75 98.802V380.971H18.8191C18.8191 392.688 30.5367 403.222 41.189 407.838C54.0902 413.283 75.75 419.438 99.4218 419.438H506.578C530.25 419.438 551.791 414.111 563.746 409.022C574.99 404.288 587.181 393.162 587.181 380.971H530.25ZM303 88.0312C305.604 88.0312 307.734 90.1617 307.734 92.7656C307.734 95.3695 305.604 97.5 303 97.5C300.396 97.5 298.266 95.3695 298.266 92.7656C298.266 90.1617 300.396 88.0312 303 88.0312ZM97.0546 107.205H508.945C510.247 107.205 511.312 108.271 511.312 109.573V359.666C511.312 360.968 510.247 362.033 508.945 362.033H97.0546C95.7527 362.033 94.6874 360.968 94.6874 359.666V109.573C94.6874 108.152 95.7527 107.205 97.0546 107.205ZM353.066 390.439H252.934C246.779 390.439 241.453 383.338 241.453 381.562H364.547C364.547 383.338 360.996 390.439 353.066 390.439Z" fill="#B8C2CC"/>
-                        <path d="M320.958 154.875V208.625H444.625V154.875H320.958ZM320.958 316.125H444.625V226.542H320.958V316.125ZM166.375 316.125H290.042V262.375H166.375V316.125ZM166.375 244.458H290.042V154.875H166.375V244.458Z" fill="#8795A1"/>
-                    </svg>
-                </div>
-            </div>
+    <section class="py-32 bg-primary-800 text-white relative overflow-hidden">
+        <div class="container mx-auto px-4 text-center">
+            <a href="/docs/" class="bg-gray-400 hover:bg-gray-500 text-gray-800 text-lg py-3 px-6 rounded">Get started</a>
         </div>
     </section>
 
@@ -124,7 +114,14 @@
         </div>
     </section>
 
-    <section class="py-24 bg-primary-800 text-white">
+    <section class="py-24 bg-primary-800 text-gray-500">
+        <div class="container mx-auto px-4">
+            <p class="font-bref text-lg text-center">
+                Bref is a project supported by the
+                <a href="https://null.tc/" title="null is a consulting and web development company." class="text-blue-500">null</a>
+                company.
+            </p>
+        </div>
     </section>
 
 {% endblock %}
