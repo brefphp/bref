@@ -280,7 +280,7 @@ $app->command('dashboard [--host=] [--port=] [--profile=] [--stage=]', function 
         return 1;
     }
 
-    $servelessInfo = new Process(['serverless', 'info', '--stage', $stage], '--aws-profile', $profile);
+    $servelessInfo = new Process(['serverless', 'info', '--stage', $stage, '--aws-profile', $profile]);
     $servelessInfo->start();
     $animation = new LoadingAnimation($io);
     do {
