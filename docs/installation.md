@@ -46,7 +46,7 @@ Install Bref in your project using [Composer](https://getcomposer.org/):
 composer require bref/bref
 ```
 
-> Make sure that you have installed a version greater than or equal to 0.5.* of Bref, to make use of the serverless plugin. Older version of Bref won't work with the serverless plugin.
+> Make sure that you have installed a version greater than or equal to 0.5.* of Bref.
 
 > To run the latest version of Bref you must have PHP 7.2 or greater! If you are using PHP 7.1 or less an older (outdated) version of Bref will be installed instead.
 
