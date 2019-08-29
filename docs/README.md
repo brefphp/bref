@@ -187,9 +187,9 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **API**
 
-    APIs run well on AWS Lambda thanks to the API Gateway integration.
+    APIs run on AWS Lambda without problems.
     
-    Performances are now similar to what you could expect on traditional VPS, with the exception of cold starts that can occasionally add a few hundreds of ms to some requests. While cold starts can be mitigated, those can be a deal breaker with real time APIs where response time is critical.
+    Performances are now similar to what you could expect on traditional VPS, with the exception of cold starts that can occasionally add a few hundreds of ms to some requests (usually 0.5% of the requests). While cold starts can be mitigated, those can be a deal breaker with real time APIs where response time is critical.
 
 - **API with MySQL/PostgreSQL**
 
@@ -199,7 +199,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Website**
 
-    Websites can run fine on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md).
+    Websites can run on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md).
     
     Performances are as good as any server. Cold starts often have less impact in websites than in APIs: a full page load *and render* in a browser is often a few seconds.
 
