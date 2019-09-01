@@ -34,7 +34,7 @@ $ serverless invoke local --docker -f myFunction
 Hello world
 
 $ serverless invoke local --docker -f myFunction --data '{"name": "Jane"}'
-Hello John
+Hello Jane
 ```
 
 > Learn more in the [`serverless invoke local` documentation](https://serverless.com/framework/docs/providers/aws/cli-reference/invoke-local/) or run `serverless invoke local --help`.
