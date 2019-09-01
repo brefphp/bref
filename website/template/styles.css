@@ -1,14 +1,18 @@
 @tailwind base;
 
+body {
+    -webkit-font-smoothing: antialiased;
+}
+
 h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-title);
+    @apply font-title;
 }
 
 a {
-    color: theme('colors.blue.600');
+    color: theme('colors.blue.700');
 }
 a:hover {
-    color: theme('colors.blue.700');
+    color: theme('colors.blue.800');
 }
 
 ul {
@@ -18,6 +22,24 @@ ul {
 ol {
     list-style-type: decimal;
     padding-left: theme('padding.4');
+}
+
+/* Home */
+.hero {
+    background: linear-gradient(123.19deg, #266488 3.98%, #258ECB 94.36%);
+}
+.home-logo {
+    width: 140px;
+}
+@media only screen and (min-width: 768px) {
+    .home-logo {
+        width: 230px;
+    }
+}
+@media only screen and (min-width: 1024px) {
+    .home-logo {
+        width: 280px;
+    }
 }
 
 /* Cancel highlight.js defaults */
