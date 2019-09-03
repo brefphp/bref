@@ -61,7 +61,7 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
             return '/tmp/log/';
         }
 
-        return $this->getProjectDir().'/var/log';
+        return parent::getLogDir();;
     }
 
     public function getCacheDir()
@@ -71,7 +71,7 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
             return '/tmp/cache/'.$this->environment;
         }
 
-        return $this->getProjectDir().'/var/cache/'.$this->environment;
+        return parent::getCacheDir();
     }
 ```
 
