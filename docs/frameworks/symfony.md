@@ -61,7 +61,7 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
             return '/tmp/log/';
         }
 
-        return parent::getLogDir();;
+        return parent::getLogDir();
     }
 
     public function getCacheDir()
