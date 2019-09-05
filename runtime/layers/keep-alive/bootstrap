@@ -13,11 +13,11 @@ if (! is_file($callableFile)) {
 
 $callable = include $callableFile;
 if (!is_callable($callable)) {
-    throw new LogicException('The handler must return a callable when using keep-alive.');
+    $lambdaRuntime->failInitialization("The handler must return a callable when using keep-alive");
 }
 
 if (!class_exists(LambdaRuntime::class)) {
-    throw new LogicException('You must load composer\'s autoloader.');
+    $lambdaRuntime->failInitialization("You must load composer's autoloader");
 }
 
 $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
