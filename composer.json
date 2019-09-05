@@ -37,6 +37,7 @@
         "zendframework/zend-diactoros": "^1.6|^2.0",
         "doctrine/coding-standard": "^5.0",
         "phpstan/phpstan": "^0.11.5",
-        "guzzlehttp/guzzle": "^6.3"
+        "guzzlehttp/guzzle": "^6.3",
+        "symfony/http-foundation": "^4.3"
     }
 }

@@ -17,6 +17,7 @@ const LAYER_NAMES = [
     'php-72',
     'php-72-fpm',
     'console',
+    'keep-alive',
 ];
 
 $regions = json_decode(file_get_contents(__DIR__ . '/regions.json'), true);

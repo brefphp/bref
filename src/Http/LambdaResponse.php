@@ -3,6 +3,7 @@
 namespace Bref\Http;
 
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
@@ -27,6 +28,9 @@ final class LambdaResponse
         $this->body = $body;
     }
 
+    /**
+     * TODO make sure to test this. I think it is broken // Tobias
+     */
     public static function fromPsr7Response(ResponseInterface $response): self
     {
         // The lambda proxy integration does not support arrays in headers
@@ -37,12 +41,25 @@ final class LambdaResponse
             $name = ucwords($name);
             $name = str_replace(' ', '-', $name);
             foreach ($values as $value) {
+                // TODO this will overwrite all but last header
                 $headers[$name] = $value;
             }
         }
 
         $response->getBody()->rewind();
         $body = $response->getBody()->getContents();
+
+        return new self($response->getStatusCode(), $headers, $body);
+    }
+
+    public static function fromSymfonyResponse(Response $response): self
+    {
+        $headers = [];
+        foreach ($response->headers->all() as $name => $values) {
+            $headers[$name] = [implode($values, '; ')];
+        }
+
+        $body = $response->getContent();
 
         return new self($response->getStatusCode(), $headers, $body);
     }

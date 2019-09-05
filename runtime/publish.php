@@ -14,6 +14,7 @@ $layers = [
     'php-72' => 'PHP 7.2 for PHP functions',
     'php-72-fpm' => 'PHP-FPM 7.2 for HTTP applications',
     'console' => 'Console runtime for PHP applications',
+    'keep-alive' => 'Keep your application alive',
 ];
 foreach ($layers as $layer => $layerDescription) {
     $file = __DIR__ . "/export/$layer.zip";

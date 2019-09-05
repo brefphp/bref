@@ -1,0 +1,43 @@
+#!/opt/bin/php
+<?php declare(strict_types=1);
+
+use Bref\Http\LambdaRequest;
+use Bref\Http\LambdaResponse;
+use Bref\Runtime\LambdaRuntime;
+
+$appRoot = getenv('LAMBDA_TASK_ROOT');
+$callableFile = $appRoot . '/' . getenv('_HANDLER');
+if (! is_file($callableFile)) {
+    $lambdaRuntime->failInitialization("Handler `$handler` doesn't exist");
+}
+
+$callable = include $callableFile;
+if (!is_callable($callable)) {
+    throw new LogicException('The handler must return a callable when using keep-alive.');
+}
+
+if (!class_exists(LambdaRuntime::class)) {
+    throw new LogicException('You must load composer\'s autoloader.');
+}
+
+$lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
+$memoryMax = getenv('BREF_MEMORY_MAX') ?: 1000000000;
+$loopMax = getenv('BREF_LOOP_MAX') ?: 50;
+$loops = 0;
+while (true) {
+    if (++$loops > $loopMax || memory_get_usage() > $memoryMax) {
+        // Quit.
+        return;
+    }
+
+    $lambdaRuntime->processNextEvent(function ($event) use ($callable): array {
+        $response = $callable(LambdaRequest::create($event));
+
+        if (!$response instanceof LambdaResponse) {
+            throw new LogicException('Wrong response type');
+        }
+
+        $multiHeader = array_key_exists('multiValueHeaders', $event);
+        return $response->toApiGatewayFormat($multiHeader);
+    });
+}

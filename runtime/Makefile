@@ -7,7 +7,7 @@ publish: layers
 	php publish.php
 
 # Build the layers
-layers: export/console.zip export/php-72.zip export/php-73.zip export/php-72-fpm.zip export/php-73-fpm.zip
+layers: export/console.zip export/keep-alive.zip export/php-72.zip export/php-73.zip export/php-72-fpm.zip export/php-73-fpm.zip
 
 # The PHP runtimes
 export/php%.zip: build
@@ -21,6 +21,11 @@ export/php%.zip: build
 export/console.zip: layers/console/bootstrap
 	rm -f export/console.zip
 	cd layers/console && zip ../../export/console.zip bootstrap
+
+# The keep-alive runtime
+export/keep-alive.zip: layers/keep-alive/bootstrap
+	rm -f export/keep-alive.zip
+	cd layers/keep-alive && zip ../../export/keep-alive.zip bootstrap
 
 # Build the docker container that will be used to compile PHP and its extensions
 compiler: compiler.Dockerfile
