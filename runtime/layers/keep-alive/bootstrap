@@ -30,8 +30,8 @@ while (true) {
         return;
     }
 
-    $lambdaRuntime->processNextEvent(function ($event) use ($callable): array {
-        $response = $callable(LambdaRequest::create($event));
+    $lambdaRuntime->processNextEvent(function ($event, $context) use ($callable): array {
+        $response = $callable(LambdaRequest::create($event), $context);
 
         if (!$response instanceof LambdaResponse) {
             throw new LogicException('Wrong response type');
