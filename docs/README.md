@@ -116,7 +116,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
             <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-400"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-orange-400"></span>
@@ -140,7 +140,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
             <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-400"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-orange-400"></span>
@@ -152,7 +152,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
             <span class="maturity-icon shadow bg-red-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-400"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-red-400"></span>
