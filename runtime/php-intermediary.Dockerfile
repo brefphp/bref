@@ -365,7 +365,9 @@ WORKDIR  ${PHP_BUILD_DIR}/
 # readline-devel : needed for the --with-libedit flag
 # gettext-devel : needed for the --with-gettext flag
 # libicu-devel : needed for
-RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel sqlite-devel
+# libpng-devel : needed for gd
+# libjpeg-devel : needed for gd
+RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel sqlite-devel
 
 # Configure the build
 # -fstack-protector-strong : Be paranoid about stack overflows
@@ -416,7 +418,10 @@ RUN set -xe \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
         # --enable-opcache-file \ replaced with opcache.file_cache INI directive
-        --enable-soap
+        --enable-soap \
+        --with-gd \
+        --with-png-dir=${INSTALL_DIR} \
+        --with-jpeg-dir=${INSTALL_DIR}
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
 RUN set -xe; \
@@ -487,9 +492,9 @@ ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib"
 
 RUN mkdir -p /opt
-WORKDIR /opt
 # Copy everything we built above into the same dir on the base AmazonLinux container.
 COPY --from=php_builder /opt /opt
 
 # Install zip: we will need it later to create the layers as zip files
 RUN LD_LIBRARY_PATH= yum -y install zip
+WORKDIR /var/task

@@ -77,88 +77,88 @@ This maturity level is a vague metric, however it can be useful to anticipate th
 
 This matrix will be updated as Bref and AWS services evolve over time.
 
-<table class="w-full text-xs sm:text-sm text-grey-darker mt-8 mb-5 table-fixed">
-    <tr class="bg-grey-lightest">
+<table class="w-full text-xs sm:text-sm text-gray-700 mt-8 mb-5 table-fixed">
+    <tr class="bg-gray-100">
         <th class="p-4"></th>
-        <th class="font-normal p-4 border-b border-grey-light">Simplicity</th>
-        <th class="font-normal p-4 border-b border-grey-light">Performances</th>
-        <th class="font-normal p-4 border-b border-grey-light">Reliability</th>
+        <th class="font-normal p-4 border-b border-gray-400">Simplicity</th>
+        <th class="font-normal p-4 border-b border-gray-400">Performances</th>
+        <th class="font-normal p-4 border-b border-gray-400">Reliability</th>
     </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">
             Jobs, Cron
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-orange-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">API</td>
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">API</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
-        </td>
-    </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">API with MySQL / PostgreSQL</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-light"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website</td>
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">API with MySQL / PostgreSQL</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
-        </td>
-    </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Website with MySQL / PostgreSQL</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-light"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-orange-400"></span>
         </td>
     </tr>
-    <tr class="border-b border-grey-lighter">
-        <td class="p-4 bg-grey-lightest font-bold border-r border-grey-light">Legacy application</td>
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Website</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-light"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
-    <tr class="text-xs text-center leading-normal text-grey-dark">
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Website with MySQL / PostgreSQL</td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-orange-400"></span>
+        </td>
+    </tr>
+    <tr class="border-b border-gray-200">
+        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Legacy application</td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-red-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-red-400"></span>
+        </td>
+    </tr>
+    <tr class="text-xs text-center leading-normal text-gray-600">
         <td></td>
         <td class="p-3">
             Is this documented and simple to achieve?
@@ -172,49 +172,47 @@ This matrix will be updated as Bref and AWS services evolve over time.
     </tr>
 </table>
 
-<div class="text-left text-xs text-grey-darker mb-8">
+<div class="text-left text-xs text-gray-700 mb-8">
     Legend:
-    <span class="inline-block my-1  mx-1 sm:mx-2 bg-green-lightest text-green-dark rounded-full px-4 py-1">Good use case</span>
-    <span class="inline-block my-1  mx-1 sm:mx-2 bg-orange-lightest text-orange-dark rounded-full px-4 py-1">Some drawbacks</span>
-    <span class="inline-block my-1  ml-1 sm:ml-2 bg-red-lightest text-red-dark rounded-full px-4 py-1">Strong limitations</span>
+    <span class="inline-block my-1 mx-1 sm:mx-2 bg-green-100 text-green-600 rounded-full px-4 py-1">Good use case</span>
+    <span class="inline-block my-1 mx-1 sm:mx-2 bg-orange-100 text-orange-600 rounded-full px-4 py-1">Some drawbacks</span>
+    <span class="inline-block my-1 ml-1 sm:ml-2 bg-red-100 text-red-600 rounded-full px-4 py-1">Strong limitations</span>
 </div>
 
 - **Jobs, Cron**
 
     Jobs, cron tasks and batch processes are very good candidates for FaaS. The scaling model of AWS Lambda can lead to very high throughput in queue processing, and the pay-per-use billing model can sometimes result in drastic costs reduction.
-    
+
     The main limitation at the moment is the lack of documentation on this topic, as well as the lack of native integration with existing queue libraries like Laravel Queues.
 
 - **API**
 
-    APIs run well on AWS Lambda thanks to the API Gateway integration.
-    
-    Performances are now similar to what you could expect on traditional VPS, with the exception of cold starts that can occasionally add a few hundreds of ms to some requests. While cold starts can be mitigated, those can be a deal breaker with real time APIs where response time is critical.
+    APIs run on AWS Lambda without problems.
+
+    Performances are now similar to what you could expect on traditional VPS.
 
 - **API with MySQL/PostgreSQL**
 
-    MySQL, PostgreSQL or Aurora imply using [AWS RDS](https://aws.amazon.com/rds/), which means using a VPC. Because of that cold starts get much worse: around 5 seconds. While this can be acceptable for some scenarios, for most APIs this is a deal breaker. This is why we will rate it "red" for now as this is a "strong limitation". AWS has planned to remove this caveat in 2019.
-    
+    MySQL, PostgreSQL or Aurora imply using [AWS RDS](https://aws.amazon.com/rds/), which means using a VPC.
+
     Read the [full "Databases" documentation](/docs/environment/database.md) to learn more.
 
 - **Website**
 
-    Websites can run fine on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md).
-    
-    Performances are as good as any server. Cold starts often have less impact in websites than in APIs: a full page load *and render* in a browser is often a few seconds.
+    Websites can run on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md).
+
+    Performances are as good as any server.
 
 - **Website with MySQL/PostgreSQL**
 
-    Just like with APIs, websites using MySQL or PostgreSQL will suffer from longer cold starts due to VPCs.
-    
-    However such delays can be more acceptable on websites than on APIs, which explains why APIs are rated "red" and websites "orange".
+    Performances are as good as any server.
 
 - **Legacy application**
 
     Migrating a legacy PHP application to Bref and Lambda can be a challenge. First, as explained above, the limitations that come with MySQL/PostgreSQL often apply. On top of that legacy applications tend to be extra slow and large which can make performances suffer.
-    
+
     One could also expect to rewrite a good amount of code to make the application fit for Lambda. For example file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and possibly SQS. Finally there are no case studies or online examples of such a thing being done before (to the extent of our knowledge).
-    
+
     Not impossible, but definitely not the easiest place to start.
 
 ## Getting started

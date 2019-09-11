@@ -35,7 +35,7 @@ plugins:
 functions:
     website:
         handler: public/index.php
-        timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+        timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
         layers:
             - ${bref:layer.php-73-fpm}
         events:
@@ -61,7 +61,7 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
             return '/tmp/log/';
         }
 
-        return $this->getProjectDir().'/var/log';
+        return parent::getLogDir();
     }
 
     public function getCacheDir()
@@ -71,7 +71,7 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
             return '/tmp/cache/'.$this->environment;
         }
 
-        return $this->getProjectDir().'/var/cache/'.$this->environment;
+        return parent::getCacheDir();
     }
 ```
 
