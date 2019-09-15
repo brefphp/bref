@@ -84,7 +84,7 @@ class LambdaRequest
     public function getPsr7Request(): RequestInterface
     {
         if (!class_exists(Request::class)) {
-            throw new \RuntimeException('You need to Symfony HTTP foundation to use this function. Please run "composer require guzzle/psr7".');
+            throw new \RuntimeException('You need to Symfony HTTP foundation to use this function. Please run "composer require guzzlehttp/psr7".');
         }
 
         $method = $event['httpMethod'] ?? 'GET';
