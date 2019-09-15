@@ -28,22 +28,12 @@ final class LambdaResponse
         $this->body = $body;
     }
 
-    /**
-     * TODO make sure to test this. I think it is broken // Tobias
-     */
     public static function fromPsr7Response(ResponseInterface $response): self
     {
         // The lambda proxy integration does not support arrays in headers
         $headers = [];
         foreach ($response->getHeaders() as $name => $values) {
-            // See https://github.com/zendframework/zend-diactoros/blob/754a2ceb7ab753aafe6e3a70a1fb0370bde8995c/src/Response/SapiEmitterTrait.php#L96
-            $name = str_replace('-', ' ', $name);
-            $name = ucwords($name);
-            $name = str_replace(' ', '-', $name);
-            foreach ($values as $value) {
-                // TODO this will overwrite all but last header
-                $headers[$name] = $value;
-            }
+            $headers[strtolower($name)] = [implode($values, '; ')];
         }
 
         $response->getBody()->rewind();
@@ -56,7 +46,7 @@ final class LambdaResponse
     {
         $headers = [];
         foreach ($response->headers->all() as $name => $values) {
-            $headers[$name] = [implode($values, '; ')];
+            $headers[strtolower($name)] = [implode($values, '; ')];
         }
 
         $body = $response->getContent();
