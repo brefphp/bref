@@ -15,7 +15,7 @@ final class LambdaResponse
     /** @var int */
     private $statusCode = 200;
 
-    /** @var array */
+    /** @var array<string, string> */
     private $headers;
 
     /** @var string */
@@ -33,7 +33,7 @@ final class LambdaResponse
         // The lambda proxy integration does not support arrays in headers
         $headers = [];
         foreach ($response->getHeaders() as $name => $values) {
-            $headers[strtolower($name)] = [implode($values, '; ')];
+            $headers[strtolower($name)] = implode($values, '; ');
         }
 
         $response->getBody()->rewind();
@@ -46,7 +46,7 @@ final class LambdaResponse
     {
         $headers = [];
         foreach ($response->headers->all() as $name => $values) {
-            $headers[strtolower($name)] = [implode($values, '; ')];
+            $headers[strtolower($name)] = implode($values, '; ');
         }
 
         $body = $response->getContent();
