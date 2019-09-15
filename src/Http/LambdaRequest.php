@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class LambdaRequest
 {
+    /** @var array */
     private $event;
 
     private function __construct()
@@ -32,8 +33,9 @@ class LambdaRequest
     }
 
     /**
-     * @experimental
      * There is currently no support for uploading files
+     *
+     * @experimental
      */
     public function getSymfonyRequest(): Request
     {
@@ -73,6 +75,8 @@ class LambdaRequest
     }
 
     /**
+     * There are no test coverage that prove that this is 100% correct.
+     *
      * @experimental
      */
     public function getPsr7Request(): RequestInterface
