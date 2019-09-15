@@ -1,0 +1,133 @@
+{
+  "resource": "/hello-world",
+  "path": "/hello-world",
+  "httpMethod": "GET",
+  "headers": {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-US,en;q=0.9,sv;q=0.8,la;q=0.7",
+    "CloudFront-Forwarded-Proto": "https",
+    "CloudFront-Is-Desktop-Viewer": "true",
+    "CloudFront-Is-Mobile-Viewer": "false",
+    "CloudFront-Is-SmartTV-Viewer": "false",
+    "CloudFront-Is-Tablet-Viewer": "false",
+    "CloudFront-Viewer-Country": "SE",
+    "Cookie": "PHPSESSID=7tk4oc6dsa6e4chai4sljcffha",
+    "Host": "abc123.execute-api.eu-west-1.amazonaws.com",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36",
+    "Via": "2.0 0123456789.cloudfront.net (CloudFront)",
+    "X-Amz-Cf-Id": "uT34zMm8aYW-q3RC_Z6_NMYu5kQxoxpMJOPfJy-Vd1hqjp9ak5VxLg==",
+    "X-Amzn-Trace-Id": "Root=1-5d7e228c-2e1603a0d1c5aec07d8e1eb0",
+    "X-Forwarded-For": "22.22.22.22, 11.11.11.11",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https"
+  },
+  "multiValueHeaders": {
+    "Accept": [
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"
+    ],
+    "Accept-Encoding": [
+      "gzip, deflate, br"
+    ],
+    "Accept-Language": [
+      "en-US,en;q=0.9,sv;q=0.8,la;q=0.7"
+    ],
+    "CloudFront-Forwarded-Proto": [
+      "https"
+    ],
+    "CloudFront-Is-Desktop-Viewer": [
+      "true"
+    ],
+    "CloudFront-Is-Mobile-Viewer": [
+      "false"
+    ],
+    "CloudFront-Is-SmartTV-Viewer": [
+      "false"
+    ],
+    "CloudFront-Is-Tablet-Viewer": [
+      "false"
+    ],
+    "CloudFront-Viewer-Country": [
+      "SE"
+    ],
+    "Cookie": [
+      "PHPSESSID=7tk4oc6dsa6e4chai4sljcffha"
+    ],
+    "Host": [
+      "abc123.execute-api.eu-west-1.amazonaws.com"
+    ],
+    "sec-fetch-mode": [
+      "navigate"
+    ],
+    "sec-fetch-site": [
+      "none"
+    ],
+    "sec-fetch-user": [
+      "?1"
+    ],
+    "upgrade-insecure-requests": [
+      "1"
+    ],
+    "User-Agent": [
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36"
+    ],
+    "Via": [
+      "2.0 0123456789.cloudfront.net (CloudFront)"
+    ],
+    "X-Amz-Cf-Id": [
+      "uT34zMm8aYW-q3RC_Z6_NMYu5kQxoxpMJOPfJy-Vd1hqjp9ak5VxLg=="
+    ],
+    "X-Amzn-Trace-Id": [
+      "Root=1-5d7e228c-2e1603a0d1c5aec07d8e1eb0"
+    ],
+    "X-Forwarded-For": [
+      "22.22.22.22, 11.11.11.11"
+    ],
+    "X-Forwarded-Port": [
+      "443"
+    ],
+    "X-Forwarded-Proto": [
+      "https"
+    ]
+  },
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": null,
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "4obcbv",
+    "resourcePath": "/hello-world",
+    "httpMethod": "GET",
+    "extendedRequestId": "ADpV7F21DoEFcug=",
+    "requestTime": "15/Sep/2019:11:37:48 +0000",
+    "path": "/dev/hello-world",
+    "accountId": "863577320427",
+    "protocol": "HTTP/1.1",
+    "stage": "dev",
+    "domainPrefix": "abc123",
+    "requestTimeEpoch": 1568547468262,
+    "requestId": "be0d2f51-722d-4ee2-8258-3fcaa6907815",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "22.22.22.22",
+      "principalOrgId": null,
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.75 Safari/537.36",
+      "user": null
+    },
+    "domainName": "abc123.execute-api.eu-west-1.amazonaws.com",
+    "apiId": "abc123"
+  },
+  "body": null,
+  "isBase64Encoded": false
+}
