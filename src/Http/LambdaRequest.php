@@ -114,7 +114,7 @@ class LambdaRequest
                 if ($document->isMultiPart()) {
                     $parsedBody = [];
                     foreach ($document->getParts() as $part) {
-                        if (!$part->isFile()) {
+                        if (! $part->isFile()) {
                             $this->parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
                             continue;
                         }

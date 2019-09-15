@@ -85,8 +85,8 @@ string
 --578de3b0e3c46.2334ba3--');
 
         $request->headers->add([
-            "Content-Type"=> "multipart/form-data; boundary=\"578de3b0e3c46.2334ba3\"",
-            "Host"=> "example.com"
+            'Content-Type'=> 'multipart/form-data; boundary="578de3b0e3c46.2334ba3"',
+            'Host'=> 'example.com',
         ]);
 
         yield 'lambdaRequest1.json' => [$dir . 'lambdaRequest1.json', $request];
@@ -109,10 +109,13 @@ string
 
         yield 'lambdaRequest0.json' => [$dir . 'lambdaRequest0.json', $request];
 
-        $request = new Psr7Request('POST', '/multipart-post', [
-            "Content-Type"=> "multipart/form-data; boundary=\"578de3b0e3c46.2334ba3\"",
-            "Host"=> "example.com"
-        ],
+        $request = new Psr7Request(
+            'POST',
+            '/multipart-post',
+            [
+                'Content-Type'=> 'multipart/form-data; boundary="578de3b0e3c46.2334ba3"',
+                'Host'=> 'example.com',
+            ],
             $this->createStream('--578de3b0e3c46.2334ba3
 Content-Disposition: form-data; name="foo"
 Content-Length: 15
@@ -134,9 +137,10 @@ string
                 'DOCUMENT_ROOT' => getcwd(),
                 'REQUEST_URI' => '/multipart-post',
                 'HTTP_HOST' => 'example.com',
-        ]);
-        $request = $request->withParsedBody(['foo'=>'A normal stream', 'baz'=>'string']);
-        $request = $request->withQueryParams(['foo'=>['bar','baz'], 'foobar'=>'baz', 'test'=>'']);
+            ]
+        );
+        $request = $request->withParsedBody(['foo' => 'A normal stream', 'baz' => 'string']);
+        $request = $request->withQueryParams(['foo' => ['bar', 'baz'], 'foobar' => 'baz', 'test' => '']);
         yield 'lambdaRequest1.json' => [$dir . 'lambdaRequest1.json', $request];
     }
 
