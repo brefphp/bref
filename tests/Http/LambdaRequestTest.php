@@ -71,7 +71,7 @@ class LambdaRequestTest extends TestCase
         $request->headers->add($this->getDefaultHeaders());
         yield 'lambdaRequest0.json' => [$dir . 'lambdaRequest0.json', $request];
 
-        $request = SfRequest::create('/multipart-post', 'POST', [], [], [], [], '--578de3b0e3c46.2334ba3
+        $request = SfRequest::create('/multipart-post?foo[]=bar&foo[]=baz&foobar=baz&test', 'POST', [], [], [], [], '--578de3b0e3c46.2334ba3
 Content-Disposition: form-data; name="foo"
 Content-Length: 15
 

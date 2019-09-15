@@ -32,10 +32,8 @@ class LambdaRequest
     }
 
     /**
-     * TODO this class needs some more work
-     * Currently we only support GET request
-     *
      * @experimental
+     * There is currently no support for uploading files
      */
     public function getSymfonyRequest(): Request
     {
@@ -74,6 +72,9 @@ class LambdaRequest
         return $request;
     }
 
+    /**
+     * @experimental
+     */
     public function getPsr7Request(): RequestInterface
     {
         if (! class_exists(Request::class)) {
