@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\Stream;
 use GuzzleHttp\Psr7\UploadedFile;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
-use Riverline\MultiPartParser\Part;
+use Riverline\MultiPartParser\StreamedPart;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -86,6 +86,9 @@ class LambdaRequest
         if (!class_exists(Request::class)) {
             throw new \RuntimeException('You need to Symfony HTTP foundation to use this function. Please run "composer require guzzlehttp/psr7".');
         }
+        if (!class_exists(StreamedPart::class)) {
+            throw new \RuntimeException('You need to Symfony HTTP foundation to use this function. Please run "composer require riverline/multipart-parser".');
+        }
 
         $method = $event['httpMethod'] ?? 'GET';
         $query = [];
@@ -123,7 +126,7 @@ class LambdaRequest
             if ($contentType === 'application/x-www-form-urlencoded') {
                 parse_str($bodyString, $parsedBody);
             } else {
-                $document = new Part("Content-type: $contentType\r\n\r\n" . $bodyString);
+                $document = new StreamedPart("Content-type: $contentType\r\n\r\n" . $bodyString);
                 if ($document->isMultiPart()) {
                     $parsedBody = [];
                     foreach ($document->getParts() as $part) {
