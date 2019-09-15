@@ -37,6 +37,12 @@ class LambdaRequest
         return $this->event;
     }
 
+    /**
+     * TODO this class needs some more work
+     * Currently we only support GET request
+     *
+     * @experimental
+     */
     public function getSymfonyRequest(): Request
     {
         if (!class_exists(Request::class)) {
