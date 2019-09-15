@@ -69,8 +69,27 @@ class LambdaRequestTest extends TestCase
 
         $request = SfRequest::create('/hello-world', 'GET', [], ['PHPSESSID' => '7tk4oc6dsa6e4chai4sljcffha'], [], [], '');
         $request->headers->add($this->getDefaultHeaders());
-
         yield 'lambdaRequest0.json' => [$dir . 'lambdaRequest0.json', $request];
+
+        $request = SfRequest::create('/multipart-post', 'POST', [], [], [], [], '--578de3b0e3c46.2334ba3
+Content-Disposition: form-data; name="foo"
+Content-Length: 15
+
+A normal stream
+--578de3b0e3c46.2334ba3
+Content-Type: text/plain
+Content-Disposition: form-data; name="baz"
+Content-Length: 6
+
+string
+--578de3b0e3c46.2334ba3--');
+
+        $request->headers->add([
+            "Content-Type"=> "multipart/form-data; boundary=\"578de3b0e3c46.2334ba3\"",
+            "Host"=> "example.com"
+        ]);
+
+        yield 'lambdaRequest1.json' => [$dir . 'lambdaRequest1.json', $request];
     }
 
     public function psr7RequestProvider()
