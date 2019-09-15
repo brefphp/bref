@@ -1,0 +1,68 @@
+{
+  "resource": "/multipart-post",
+  "path": "/multipart-post",
+  "httpMethod": "POST",
+  "headers": {
+    "Content-Type": "multipart/form-data; boundary=\"578de3b0e3c46.2334ba3\"",
+    "Host": "example.com"
+  },
+  "multiValueHeaders": {
+    "Content-Type": [
+      "multipart/form-data; boundary=\"578de3b0e3c46.2334ba3\""
+    ],
+    "Host": [
+      "example.com"
+    ]
+  },
+  "queryStringParameters": {
+    "foo[]": "baz",
+    "foobar": "baz",
+    "test": ""
+  },
+  "multiValueQueryStringParameters": {
+    "foo[]": [
+      "bar",
+      "baz"
+    ],
+    "foobar": [
+      "baz"
+    ],
+    "test": [
+      ""
+    ]
+  },
+  "pathParameters": null,
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "4obcbv",
+    "resourcePath": "/multipart-post",
+    "httpMethod": "POST",
+    "extendedRequestId": "AEPPLH2RjoEF-zg=",
+    "requestTime": "15/Sep/2019:15:56:29 +0000",
+    "path": "/dev/multipart-post",
+    "accountId": "863577320427",
+    "protocol": "HTTP/1.1",
+    "stage": "dev",
+    "domainPrefix": "mwmkks635j",
+    "requestTimeEpoch": 1568562989871,
+    "requestId": "ae163dd5-3df3-43c8-9120-d83b1f1dfca5",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "22.22.22.22",
+      "principalOrgId": null,
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "PostmanRuntime/7.15.2",
+      "user": null
+    },
+    "domainName": "abc123.execute-api.eu-west-1.amazonaws.com",
+    "apiId": "mwmkks635j"
+  },
+  "body": "--578de3b0e3c46.2334ba3\nContent-Disposition: form-data; name=\"foo\"\nContent-Length: 15\n\nA normal stream\n--578de3b0e3c46.2334ba3\nContent-Type: text/plain\nContent-Disposition: form-data; name=\"baz\"\nContent-Length: 6\n\nstring\n--578de3b0e3c46.2334ba3--",
+  "isBase64Encoded": false
+}

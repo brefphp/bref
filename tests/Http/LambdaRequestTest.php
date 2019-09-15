@@ -89,6 +89,36 @@ class LambdaRequestTest extends TestCase
         $request = $request->withCookieParams(['PHPSESSID' => '7tk4oc6dsa6e4chai4sljcffha']);
 
         yield 'lambdaRequest0.json' => [$dir . 'lambdaRequest0.json', $request];
+
+        $request = new Psr7Request('POST', '/multipart-post', [
+            "Content-Type"=> "multipart/form-data; boundary=\"578de3b0e3c46.2334ba3\"",
+            "Host"=> "example.com"
+        ],
+            $this->createStream('--578de3b0e3c46.2334ba3
+Content-Disposition: form-data; name="foo"
+Content-Length: 15
+
+A normal stream
+--578de3b0e3c46.2334ba3
+Content-Type: text/plain
+Content-Disposition: form-data; name="baz"
+Content-Length: 6
+
+string
+--578de3b0e3c46.2334ba3--'),
+            '1.1',
+            [
+                'SERVER_PROTOCOL' => '1.1',
+                'REQUEST_METHOD' => 'POST',
+                'REQUEST_TIME' => 1568562989871,
+                'QUERY_STRING' => 'foo[]=bar&foo[]=baz&foobar=baz&test',
+                'DOCUMENT_ROOT' => getcwd(),
+                'REQUEST_URI' => '/multipart-post',
+                'HTTP_HOST' => 'example.com',
+        ]);
+        $request = $request->withParsedBody(['foo'=>'A normal stream', 'baz'=>'string']);
+        $request = $request->withQueryParams(['foo'=>['bar','baz'], 'foobar'=>'baz', 'test'=>'']);
+        yield 'lambdaRequest1.json' => [$dir . 'lambdaRequest1.json', $request];
     }
 
     private function getRequestFromJsonFile(string $file): LambdaRequest

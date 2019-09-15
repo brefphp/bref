@@ -95,7 +95,7 @@ class LambdaRequest
         if ($event['isBase64Encoded'] ?? false) {
             $bodyString = base64_decode($bodyString);
         }
-        $body = self::createBodyStream($bodyString);
+        $body = $this->createBodyStream($bodyString);
 
         $queryString = $this->getQueryString($event);
         parse_str($queryString, $query);
@@ -105,21 +105,26 @@ class LambdaRequest
             if ($contentType === 'application/x-www-form-urlencoded') {
                 parse_str($bodyString, $parsedBody);
             } else {
-                $document = new StreamedPart("Content-type: $contentType\r\n\r\n" . $bodyString);
+                $stream = fopen('php://temp', 'r+');
+                fwrite($stream, "Content-type: $contentType\r\n\r\n" . $bodyString);
+                rewind($stream);
+
+                $document = new StreamedPart($stream);
                 if ($document->isMultiPart()) {
                     $parsedBody = [];
                     foreach ($document->getParts() as $part) {
-                        if ($part->isFile()) {
-                            $tmpPath = tempnam(sys_get_temp_dir(), 'bref_upload_');
-                            if ($tmpPath === false) {
-                                throw new \RuntimeException('Unable to create a temporary directory');
-                            }
-                            file_put_contents($tmpPath, $part->getBody());
-                            $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
-                            self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
-                        } else {
-                            self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
+                        if (!$part->isFile()) {
+                            $this->parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
+                            continue;
                         }
+
+                        $tmpPath = tempnam(sys_get_temp_dir(), 'bref_upload_');
+                        if ($tmpPath === false) {
+                            throw new \RuntimeException('Unable to create a temporary directory');
+                        }
+                        file_put_contents($tmpPath, $part->getBody());
+                        $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
+                        $this->parseKeyAndInsertValueInArray($files, $part->getName(), $file);
                     }
                 }
             }
@@ -146,7 +151,7 @@ class LambdaRequest
 
     private function createBodyStream(string $body): StreamInterface
     {
-        $stream = fopen('php://memory', 'r+');
+        $stream = fopen('php://temp', 'r+');
         fwrite($stream, $body);
         rewind($stream);
 
@@ -158,7 +163,7 @@ class LambdaRequest
      *
      * @param mixed $value
      */
-    private static function parseKeyAndInsertValueInArray(array &$array, string $key, $value): void
+    private function parseKeyAndInsertValueInArray(array &$array, string $key, $value): void
     {
         if (strpos($key, '[') === false) {
             $array[$key] = $value;
@@ -193,20 +198,19 @@ class LambdaRequest
 
     private function getQueryString(array $event): string
     {
-        if (isset($event['multiValueQueryStringParameters']) && $event['multiValueQueryStringParameters']) {
-            $queryParameters = [];
-            /*
-             * Watch out: to support multiple query string parameters with the same name like:
-             *     ?array[]=val1&array[]=val2
-             * we need to support "multi-value query string", else only the 'val2' value will survive.
-             * At the moment we only take the first value (which means we DON'T support multiple values),
-             * this needs to be implemented below in the future.
-             */
-            foreach ($event['multiValueQueryStringParameters'] as $key => $value) {
-                $queryParameters[$key] = $value[0];
+        if (isset($event['multiValueQueryStringParameters']) && is_array($event['multiValueQueryStringParameters'])) {
+            $query = '';
+            foreach ($event['multiValueQueryStringParameters'] as $key => $values) {
+                foreach ($values as $value) {
+                    if ($value === '') {
+                        $query .= sprintf('%s&', $key);
+                    } else {
+                        $query .= sprintf('%s=%s&', $key, $value);
+                    }
+                }
             }
 
-            return http_build_query($queryParameters);
+            return rtrim($query, '&');
         }
 
         if (empty($event['queryStringParameters'])) {
@@ -216,14 +220,11 @@ class LambdaRequest
         /*
          * Watch out in the future if using $event['queryStringParameters'] directly!
          *
-         * (that is no longer the case here but it was in the past with the PSR-7 bridge, and it might be
-         * reintroduced in the future)
-         *
          * queryStringParameters does not handle correctly arrays in parameters
          * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' = > 'value']]
          * In that case we should recreate the original query string and use parse_str which handles correctly arrays
          */
-        return http_build_query($event['queryStringParameters']);
+        return urldecode(http_build_query($event['queryStringParameters']));
     }
 
     private function getCookies(array $event): array
