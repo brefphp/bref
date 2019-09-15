@@ -56,7 +56,7 @@ class LambdaRequest
         }
 
         $method = strtoupper($event['httpMethod']);
-        $request = Request::create($uri, $method, [], [], [], [], $requestBody);
+        $request = Request::create($uri, $method, [], $this->getCookies($event), [], [], $requestBody);
 
         // Normalize headers
         if (isset($event['multiValueHeaders'])) {
@@ -68,7 +68,6 @@ class LambdaRequest
                 return [$value];
             }, $headers);
         }
-        $headers = array_change_key_case($headers, CASE_LOWER);
 
         $request->headers->add($headers);
 
@@ -84,36 +83,22 @@ class LambdaRequest
             throw new \RuntimeException('You need to Symfony HTTP foundation to use this function. Please run "composer require riverline/multipart-parser".');
         }
 
+        $event = $this->event;
         $method = $event['httpMethod'] ?? 'GET';
         $query = [];
         $bodyString = $event['body'] ?? '';
         $parsedBody = null;
         $files = [];
-        $uri = $event['requestContext']['path'] ?? '/';
+        $uri = $event['requestContext']['resourcePath'] ?? '/';
         $headers = $event['headers'] ?? [];
-        $protocolVersion = $event['requestContext']['protocol'] ?? '1.1';
+        $protocolVersion = isset($event['requestContext']['protocol']) ? trim($event['requestContext']['protocol'], 'HTTP/') : '1.1';
         if ($event['isBase64Encoded'] ?? false) {
             $bodyString = base64_decode($bodyString);
         }
         $body = self::createBodyStream($bodyString);
-        /*
-         * queryStringParameters does not handle correctly arrays in parameters
-         * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' => 'value']]
-         * We recreate the original query string and we use parse_str which handles correctly arrays
-         *
-         * There's still an issue: AWS API Gateway does not support multiple query string parameters with the same name
-         * So you can't use something like ?array[]=val1&array[]=val2 because only the 'val2' value will survive
-         */
-        $queryString = http_build_query($event['queryStringParameters'] ?? []);
+
+        $queryString = $this->getQueryString($event);
         parse_str($queryString, $query);
-        $cookies = [];
-        if (isset($headers['Cookie'])) {
-            $cookieParts = explode('; ', $headers['Cookie']);
-            foreach ($cookieParts as $cookiePart) {
-                [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
-                $cookies[$cookieName] = urldecode($cookieValue);
-            }
-        }
         $contentType = $headers['content-type'] ?? $headers['Content-Type'] ?? null;
         if ($method === 'POST' && $contentType !== null) {
             /** @var string $contentType */
@@ -143,23 +128,23 @@ class LambdaRequest
             'SERVER_PROTOCOL' => $protocolVersion,
             'REQUEST_METHOD' => $method,
             'REQUEST_TIME' => $event['requestContext']['requestTimeEpoch'] ?? time(),
-            'REQUEST_TIME_FLOAT' => microtime(true),
             'QUERY_STRING' => $queryString,
             'DOCUMENT_ROOT' => getcwd(),
             'REQUEST_URI' => $uri,
         ];
+
         if (isset($headers['Host'])) {
             $server['HTTP_HOST'] = $headers['Host'];
         }
 
         return (new ServerRequest($method, $uri, $headers, $body, $protocolVersion, $server))
             ->withUploadedFiles($files)
-            ->withCookieParams($cookies)
+            ->withCookieParams($this->getCookies($event))
             ->withQueryParams($query)
             ->withParsedBody($parsedBody);
     }
 
-    private static function createBodyStream(string $body): StreamInterface
+    private function createBodyStream(string $body): StreamInterface
     {
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, $body);
@@ -239,5 +224,20 @@ class LambdaRequest
          * In that case we should recreate the original query string and use parse_str which handles correctly arrays
          */
         return http_build_query($event['queryStringParameters']);
+    }
+
+    private function getCookies(array $event): array
+    {
+        $headers = $event['headers'];
+        $cookies = [];
+        if (isset($headers['Cookie'])) {
+            $cookieParts = explode('; ', $headers['Cookie']);
+            foreach ($cookieParts as $cookiePart) {
+                [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
+                $cookies[$cookieName] = urldecode($cookieValue);
+            }
+        }
+
+        return $cookies;
     }
 }

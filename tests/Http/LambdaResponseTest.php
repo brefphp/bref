@@ -79,7 +79,7 @@ class LambdaResponseTest extends TestCase
                 'isBase64Encoded' => false,
                 'statusCode' => 404,
                 'headers' => [
-                    'content-type' => 'application/json'
+                    'content-type' => 'application/json',
                 ],
                 'body' => json_encode(['Foo' => 'bar']),
             ],
