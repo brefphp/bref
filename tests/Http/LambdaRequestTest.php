@@ -57,11 +57,23 @@ class LambdaRequestTest extends TestCase
 
     public function symfonyRequestProvider()
     {
+        $dir = dirname(__DIR__) . '/Fixture/Http/';
+
+        yield 'lambdaRequest0.json' => [
+            $dir.'lambdaRequest0.json',
+            SfRequest::create('/hello-world', 'GET')
+        ];
 
     }
+
     public function psr7RequestProvider()
     {
+        $dir = dirname(__DIR__) . '/Fixture/Http/';
 
+        yield 'lambdaRequest0.json' => [
+            $dir.'lambdaRequest0.json',
+            new Psr7Request('GET', '/hello-world')
+        ];
     }
 
     private function getRequestFromJsonFile(string $file): LambdaRequest
