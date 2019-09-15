@@ -11,6 +11,7 @@ echo json_encode([
         // Delete the file and remove the random name as we can't assert that in the tests
         unlink($file['tmp_name']);
         unset($file['tmp_name']);
+
         return $file;
     }, $_FILES),
     '$_COOKIE' => $_COOKIE,

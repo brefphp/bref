@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Http;
 
@@ -12,9 +10,6 @@ use Psr\Http\Message\StreamInterface;
 use Riverline\MultiPartParser\StreamedPart;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @author Tobias Nyholm <tobias.nyholm@gmail.com>
- */
 class LambdaRequest
 {
     private $event;
@@ -23,10 +18,9 @@ class LambdaRequest
     {
     }
 
-
     public static function create(array $event): self
     {
-        $model = new self();
+        $model = new self;
         $model->event = $event;
 
         return $model;
@@ -45,7 +39,7 @@ class LambdaRequest
      */
     public function getSymfonyRequest(): Request
     {
-        if (!class_exists(Request::class)) {
+        if (! class_exists(Request::class)) {
             throw new \RuntimeException('You need to Symfony HTTP foundation to use this function. Please run "composer require symfony/http-foundation".');
         }
 
@@ -83,10 +77,10 @@ class LambdaRequest
 
     public function getPsr7Request(): RequestInterface
     {
-        if (!class_exists(Request::class)) {
+        if (! class_exists(Request::class)) {
             throw new \RuntimeException('You need to Symfony HTTP foundation to use this function. Please run "composer require guzzlehttp/psr7".');
         }
-        if (!class_exists(StreamedPart::class)) {
+        if (! class_exists(StreamedPart::class)) {
             throw new \RuntimeException('You need to Symfony HTTP foundation to use this function. Please run "composer require riverline/multipart-parser".');
         }
 
@@ -162,8 +156,7 @@ class LambdaRequest
             ->withUploadedFiles($files)
             ->withCookieParams($cookies)
             ->withQueryParams($query)
-            ->withParsedBody($parsedBody)
-        ;
+            ->withParsedBody($parsedBody);
     }
 
     private static function createBodyStream(string $body): StreamInterface
@@ -174,6 +167,7 @@ class LambdaRequest
 
         return new Stream($stream);
     }
+
     /**
      * Parse a string key like "files[id_cards][jpg][]" and do $array['files']['id_cards']['jpg'][] = $value
      *
@@ -183,6 +177,7 @@ class LambdaRequest
     {
         if (strpos($key, '[') === false) {
             $array[$key] = $value;
+
             return;
         }
         $parts = explode('[', $key); // files[id_cards][jpg][] => [ 'files',  'id_cards]', 'jpg]', ']' ]
@@ -198,6 +193,7 @@ class LambdaRequest
             if ($part === '' || substr($part, -1) !== ']') {
                 // Malformed key, we use it "as is"
                 $array[$key] = $value;
+
                 return;
             }
             $part = substr($part, 0, -1); // The last char is a ] => remove it to have the real key
@@ -224,6 +220,7 @@ class LambdaRequest
             foreach ($event['multiValueQueryStringParameters'] as $key => $value) {
                 $queryParameters[$key] = $value[0];
             }
+
             return http_build_query($queryParameters);
         }
 

@@ -109,6 +109,7 @@ class Server
         }
         $response = self::getClient()->request('GET', 'guzzle-server/requests');
         $data = json_decode((string) $response->getBody(), true);
+
         return array_map(
             function ($message) {
                 $uri = $message['uri'];
@@ -122,6 +123,7 @@ class Server
                     $message['body'],
                     $message['version']
                 );
+
                 return $response->withUri(
                     $response->getUri()
                         ->withScheme('http')
@@ -174,6 +176,7 @@ class Server
                 'connect_timeout' => 5,
                 'timeout'         => 5,
             ]);
+
             return true;
         } catch (\Throwable $e) {
             return false;
@@ -188,6 +191,7 @@ class Server
                 'sync'     => true,
             ]);
         }
+
         return self::$client;
     }
 }

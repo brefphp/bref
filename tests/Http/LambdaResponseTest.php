@@ -4,10 +4,9 @@ namespace Bref\Test\Http;
 
 use Bref\Http\LambdaResponse;
 use GuzzleHttp\Psr7\Response as Psr7Response;
-use Symfony\Component\HttpFoundation\Response as SfResponse;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\HttpFoundation\Response as SfResponse;
 
 class LambdaResponseTest extends TestCase
 {
@@ -44,7 +43,7 @@ class LambdaResponseTest extends TestCase
                     'content-type' => 'application/json',
                 ],
                 'body' => json_encode(['foo' => 'bar']),
-            ]
+            ],
         ];
         yield 'Nested arrays in headers are flattened' => [
             new Psr7Response(204, ['Foo' => ['Bar', 'baz']]),
@@ -53,10 +52,9 @@ class LambdaResponseTest extends TestCase
                 'statusCode' => 204,
                 'headers' => ['foo' => 'Bar; baz'],
                 'body' => '',
-            ]
+            ],
         ];
     }
-
 
     /**
      * @dataProvider symfonyProvider
@@ -70,7 +68,7 @@ class LambdaResponseTest extends TestCase
     public function symfonyProvider()
     {
         yield 'It can convert PSR7 request' => [
-            SfResponse::create(json_encode(['Foo' => 'bar']), 404, ['Content-Type' => 'application/json',]),
+            SfResponse::create(json_encode(['Foo' => 'bar']), 404, ['Content-Type' => 'application/json']),
             [
                 'isBase64Encoded' => false,
                 'statusCode' => 404,
@@ -78,7 +76,7 @@ class LambdaResponseTest extends TestCase
                     'content-type' => 'application/json',
                 ],
                 'body' => json_encode(['foo' => 'bar']),
-            ]
+            ],
         ];
         yield 'Nested arrays in headers are flattened' => [
             SfResponse::create('', 204, ['Foo' => ['Bar', 'baz']]),
@@ -87,14 +85,13 @@ class LambdaResponseTest extends TestCase
                 'statusCode' => 204,
                 'headers' => ['foo' => 'Bar; baz'],
                 'body' => '',
-            ]
+            ],
         ];
     }
 
-
     public function test empty headers are considered objects()
     {
-        $response = LambdaResponse::fromPsr7Response(new Psr7Response());
+        $response = LambdaResponse::fromPsr7Response(new Psr7Response);
 
         // Make sure that the headers are `"headers":{}` (object) and not `"headers":[]` (array)
         self::assertEquals('{"isBase64Encoded":false,"statusCode":204,"headers":{},"body":""}', json_encode($response->toApiGatewayFormat()));

@@ -63,6 +63,7 @@ final class LambdaRuntime
             $this->handler = null;
         }
     }
+
     private function closeReturnHandler(): void
     {
         if ($this->returnHandler !== null) {

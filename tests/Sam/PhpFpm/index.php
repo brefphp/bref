@@ -3,12 +3,14 @@
 if ($_GET['extensions'] ?? false) {
     header('Content-Type: application/json');
     echo json_encode(get_loaded_extensions(), JSON_PRETTY_PRINT);
+
     return;
 }
 
 if ($_GET['php-config'] ?? false) {
     header('Content-Type: application/json');
     echo json_encode(ini_get_all(null, false), JSON_PRETTY_PRINT);
+
     return;
 }
 
@@ -19,6 +21,7 @@ if ($_GET['env'] ?? false) {
         '$_SERVER' => $_SERVER['FOO'] ?? null,
         'getenv' => getenv('FOO'),
     ], JSON_PRETTY_PRINT);
+
     return;
 }
 

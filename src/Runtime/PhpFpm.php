@@ -240,6 +240,7 @@ final class PhpFpm
         // Never seen this happen but just in case
         if (! file_exists(self::PID_FILE)) {
             unlink(self::SOCKET);
+
             return;
         }
 
@@ -250,6 +251,7 @@ final class PhpFpm
             echo "PHP-FPM's PID file contained an invalid PID, assuming PHP-FPM isn't running.\n";
             unlink(self::SOCKET);
             unlink(self::PID_FILE);
+
             return;
         }
 
@@ -258,6 +260,7 @@ final class PhpFpm
             // PHP-FPM is not running anymore, we can cleanup
             unlink(self::SOCKET);
             unlink(self::PID_FILE);
+
             return;
         }
 
@@ -269,6 +272,7 @@ final class PhpFpm
             echo "PHP-FPM's PID file contained a PID that doesn't exist, assuming PHP-FPM isn't running.\n";
             unlink(self::SOCKET);
             unlink(self::PID_FILE);
+
             return;
         }
 
@@ -308,6 +312,7 @@ final class PhpFpm
             foreach ($event['multiValueQueryStringParameters'] as $key => $value) {
                 $queryParameters[$key] = $value[0];
             }
+
             return http_build_query($queryParameters);
         }
 
