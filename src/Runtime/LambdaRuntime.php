@@ -243,6 +243,12 @@ final class LambdaRuntime
      */
     private function postJson(string $url, $data): void
     {
+        $contentType = $data['multiValueHeaders']['content-type'][0] ?? null;
+        if($contentType && substr($contentType, 0, 4) !== 'text') {
+            $data['body'] = base64_encode($data['body']);
+            $data['isBase64Encoded'] = true;
+        }
+
         $jsonData = json_encode($data);
         if ($jsonData === false) {
             throw new \Exception('Failed encoding Lambda JSON response: ' . json_last_error_msg());
