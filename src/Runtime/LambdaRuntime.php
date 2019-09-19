@@ -244,7 +244,7 @@ final class LambdaRuntime
     private function postJson(string $url, $data): void
     {
         $contentType = $data['multiValueHeaders']['content-type'][0] ?? null;
-        if ($contentType && ($contentType === 'application/json' || substr($contentType, 0, 4) !== 'text')) {
+        if ($contentType && ($contentType !== 'application/json' && substr($contentType, 0, 4) !== 'text')) {
             $data['body'] = base64_encode($data['body']);
             $data['isBase64Encoded'] = true;
         }
