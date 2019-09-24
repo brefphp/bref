@@ -13,16 +13,12 @@ class ServerlessPlugin {
         const filename = path.resolve(__dirname, 'layers.json');
         const layers = JSON.parse(fs.readFileSync(filename));
 
-        // Read the region from the `--region` option, or fallback on the `serverless.yml` config
-        const region = (typeof options.region !== 'undefined')
-            ? options.region
-            : serverless.service.provider.region;
-
         // Override the variable resolver to declare our own variables
         const delegate = serverless.variables
             .getValueFromSource.bind(serverless.variables);
         serverless.variables.getValueFromSource = (variableString) => {
             if (variableString.startsWith('bref:layer.')) {
+                const region = serverless.getProvider('aws').getRegion();
                 const layerName = variableString.substr('bref:layer.'.length);
                 if (! (layerName in layers)) {
                     throw `Unknown Bref layer named "${layerName}"`;
@@ -40,3 +36,4 @@ class ServerlessPlugin {
 }
 
 module.exports = ServerlessPlugin;
+
