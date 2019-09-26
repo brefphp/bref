@@ -104,7 +104,7 @@ The code will be mounted as read-only in `/var/task`, just like in Lambda. Howev
 If you want to serve assets locally, you can define a `DOCUMENT_ROOT` environment variable:
 
 ```yaml
-version: "2.1"
+version: "3.5"
 
 services:
     web:
@@ -137,7 +137,7 @@ For example with Symfony you can run `bin/console <your-command>` , or with Lara
 If you want to run your console in an environment close to production, you can use the Bref Docker images. Here is an example of a `docker-compose.yml` file:
 
 ```yaml
-version: "2.1"
+version: "3.5"
 
 services:
     console:
