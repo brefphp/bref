@@ -4,6 +4,9 @@ provider:
     name: aws
     runtime: provided
     region: us-east-2
+    apiGateway:
+        binaryMediaTypes:
+            - '*/*'
 
 plugins:
     - ./index.js
