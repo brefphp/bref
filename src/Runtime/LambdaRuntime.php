@@ -244,6 +244,13 @@ final class LambdaRuntime
     private function postJson(string $url, $data): void
     {
         $contentType = $data['multiValueHeaders']['content-type'][0] ?? null;
+        /**
+         * API Gateway does not support binary content in HTTP responses.
+         * What we do is:
+         * - if we are certain the response is not binary (either JSON or the content type starts with `text/*`) we don't encode
+         * - else we encode all other responses to base64
+         * API Gateway checks `isBase64Encoded` and decodes what we returned if necessary.
+         */
         if ($contentType && $contentType !== 'application/json' && substr($contentType, 0, 5) !== 'text/') {
             $data['body'] = base64_encode($data['body']);
             $data['isBase64Encoded'] = true;
