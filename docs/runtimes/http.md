@@ -128,7 +128,7 @@ provider:
 
 This will make API Gateway support binary responses for all responses. Your application can now return binary responses as usual.
 
-**However, you must define a `Content-Type` header on binary responses.** If you use [Symfony's helpers](https://symfony.com/doc/current/components/http_foundation.html#serving-files) or [Laravel's helpers](https://laravel.com/docs/5.8/responses#file-downloads) for file downloads, then you don't need to do anything. If you don't, here are some examples:
+**However, you must define a `Content-Type` header on binary responses.** If you don't, you may get the following error: *Failed encoding Lambda JSON response: Malformed UTF-8 characters, possibly incorrectly encoded*. [Symfony's helpers](https://symfony.com/doc/current/components/http_foundation.html#serving-files) or [Laravel's helpers](https://laravel.com/docs/5.8/responses#file-downloads) will take care of that for you. If you don't use them, here are some examples:
 
 ```php
 // Vanilla PHP example with a JPEG image response:
