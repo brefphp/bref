@@ -7,9 +7,8 @@ if (isset($_GET['sleep'])) {
 }
 
 if (isset($_GET['img'])) {
-    $fp = fopen(__DIR__ . '/../website/template/img/logo-small.png', 'rb');
+    $fp = fopen('https://bref.sh/img/logo-small.png', 'rb');
     header('Content-Type: image/png');
-    header('Content-Length: ' . filesize(__DIR__ . '/logo.png'));
     fpassthru($fp);
     exit(0);
 }
