@@ -420,7 +420,8 @@ RUN set -xe \
         # --enable-opcache-file \ replaced with opcache.file_cache INI directive
         --enable-soap \
         --enable-gd \
-        --with-jpeg=${INSTALL_DIR}
+        --with-jpeg=${INSTALL_DIR} \
+        --with-pear
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
 RUN set -xe; \
