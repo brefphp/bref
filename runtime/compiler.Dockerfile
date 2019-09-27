@@ -60,5 +60,5 @@ RUN  set -xe \
  && curl -Ls https://github.com/kkos/oniguruma/releases/download/v6.9.3/onig-6.9.3.tar.gz \
   | tar xzC /tmp/oniguruma --strip-components=1 \
  && ./configure --prefix=/usr/local \
- && make \
+ && make -j $(nproc) \
  && make install
