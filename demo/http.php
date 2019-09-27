@@ -25,4 +25,9 @@ if (isset($_GET['weird'])) {
     exit(0);
 }
 
+if (isset($_GET['phpinfo'])) {
+    phpinfo();
+    exit(0);
+}
+
 echo 'Hello world!';
