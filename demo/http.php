@@ -30,4 +30,10 @@ if (isset($_GET['phpinfo'])) {
     exit(0);
 }
 
+if (isset($_GET['tmp'])) {
+    file_put_contents('/tmp/test.txt', 'hello');
+    echo file_get_contents('/tmp/test.txt');
+    exit(0);
+}
+
 echo 'Hello world!';
