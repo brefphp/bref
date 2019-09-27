@@ -1,14 +1,14 @@
 ARG LAYER_IMAGE
 FROM $LAYER_IMAGE
 
-COPY ./php-fpm.conf /opt/bref/etc/php-fpm.conf
-
-# Build the final image from the lambci image that is close to the production environment
-FROM lambci/lambda:provided
-
-COPY --from=0  /opt /opt
+# Override the config so that PHP-FPM listens on port 9000
+COPY php-fpm.conf /opt/bref/etc/php-fpm.conf
 
 EXPOSE 9000
+
 # Clear the parent entrypoint
 ENTRYPOINT []
-CMD /opt/bin/php-fpm --nodaemonize --fpm-config /opt/bref/etc/php-fpm.conf
+
+# Run PHP-FPM
+# opcache.validate_timestamps=1 : cancels the flag in the base configuration so that files are reloaded
+CMD /opt/bin/php-fpm --nodaemonize --fpm-config /opt/bref/etc/php-fpm.conf -d opcache.validate_timestamps=1 --force-stderr
