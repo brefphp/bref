@@ -49,6 +49,8 @@ While you wait for your stack to be created you can check out [the CloudFormatio
 
 If an error occurs, the root cause will be displayed in the CLI output.
 
+Once your application is deployed, you can launch the Bref Dashboard via the `vendor/bin/bref dashboard` command. The dashboard will help you see the functions deployed, their metrics and their logs.
+
 ## Automating deployments
 
 Deploying from your machine is not perfect:

@@ -30,16 +30,16 @@ jobs:
         before_script: composer update --prefer-lowest --prefer-stable -n
         script: vendor/bin/phpunit --testsuite small
 
-    -   name: 'Runtime tests'
-        php: 7.3
-        before_script:
-          - composer install -n
-          - pip install --user awscli
-          - pip install --user aws-sam-cli
-        script: travis_retry vendor/bin/phpunit --testsuite runtimes
-        # This job is testing the runtimes that are published online, it doesn't make sense to run it on
-        # pull requests and branches, it's more a watchdog than a CI job
-        if: branch = master AND fork = false
+#    -   name: 'Runtime tests'
+#        php: 7.3
+#        before_script:
+#          - composer install -n
+#          - pip install --user awscli
+#          - pip install --user aws-sam-cli
+#        script: travis_retry vendor/bin/phpunit --testsuite runtimes
+#        # This job is testing the runtimes that are published online, it doesn't make sense to run it on
+#        # pull requests and branches, it's more a watchdog than a CI job
+#        if: branch = master AND fork = false
 
     -   name: 'PHPStan'
         php: 7.3

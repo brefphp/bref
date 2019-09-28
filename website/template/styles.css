@@ -1,75 +1,45 @@
-/**
- * This injects Tailwind's base styles, which is a combination of
- * Normalize.css and some additional base styles.
- *
- * You can see the styles here:
- * https://github.com/tailwindcss/tailwindcss/blob/master/css/preflight.css
- *
- * If using `postcss-import`, use this import instead:
- *
- * @import "tailwindcss/preflight";
- */
-@tailwind preflight;
+@tailwind base;
 
-/**
- * This injects any component classes registered by plugins.
- *
- * If using `postcss-import`, use this import instead:
- *
- * @import "tailwindcss/components";
- */
-@tailwind components;
+body {
+    -webkit-font-smoothing: antialiased;
+}
 
-/**
- * Here you would add any of your custom component classes; stuff that you'd
- * want loaded *before* the utilities so that the utilities could still
- * override them.
- *
- * Example:
- *
- * .btn { ... }
- * .form-input { ... }
- *
- * Or if using a preprocessor or `postcss-import`:
- *
- * @import "components/buttons";
- * @import "components/forms";
- */
-
-/**
- * This injects all of Tailwind's utility classes, generated based on your
- * config file.
- *
- * If using `postcss-import`, use this import instead:
- *
- * @import "tailwindcss/utilities";
- */
-@tailwind utilities;
-
-/**
- * Here you would add any custom utilities you need that don't come out of the
- * box with Tailwind.
- *
- * Example :
- *
- * .bg-pattern-graph-paper { ... }
- * .skew-45 { ... }
- *
- * Or if using a preprocessor or `postcss-import`:
- *
- * @import "utilities/background-patterns";
- * @import "utilities/skew-transforms";
- */
 h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-title);
+    @apply font-title;
 }
 
 a {
-    color: var(--color-primary-dark);
-    text-decoration: none;
+    color: theme('colors.blue.700');
 }
 a:hover {
-    color: var(--color-primary-darker);
+    color: theme('colors.blue.800');
+}
+
+ul {
+    list-style-type: disc;
+    padding-left: theme('padding.4');
+}
+ol {
+    list-style-type: decimal;
+    padding-left: theme('padding.4');
+}
+
+/* Home */
+.hero {
+    background: linear-gradient(123.19deg, #266488 3.98%, #258ECB 94.36%);
+}
+.home-logo {
+    width: 140px;
+}
+@media only screen and (min-width: 768px) {
+    .home-logo {
+        width: 230px;
+    }
+}
+@media only screen and (min-width: 1024px) {
+    .home-logo {
+        width: 280px;
+    }
 }
 
 /* Cancel highlight.js defaults */
@@ -116,9 +86,9 @@ article h3 {
     margin-bottom: 16px;
 }
 .title-anchor {
+    @apply text-blue-200;
     position: absolute;
     margin-left: -30px;
-    color: var(--color-blue-lighter);
     margin-top: 1px;
     right: 0;
     left: 0;
@@ -149,17 +119,16 @@ article ul li, article ol li {
     line-height: 24px;
 }
 article code {
+    @apply font-mono bg-gray-100;
     display: inline-block;
-    font-family: var(--font-mono);
-    background-color: var(--color-grey-lightest);
     font-size: .9rem;
     line-height: 1.5;
     padding: 0 .3rem;
 }
 article pre {
+    @apply bg-gray-100;
     padding: 1em;
     margin: 1em 0;
-    background-color: var(--color-grey-lightest);
     word-break: normal;
     overflow: auto;
 }
@@ -169,16 +138,13 @@ article pre code {
     font-size: .85rem;
 }
 article blockquote {
+    @apply text-blue-600 bg-blue-100 border-blue-500;
     border-left-width: 4px;
     padding: 1rem;
-    color: var(--color-blue-dark);
-    border-color: var(--color-blue);
-    background-color: var(--color-blue-lightest);
     margin-top: 16px;
 }
 article blockquote a {
-    text-decoration: underline;
-    text-decoration-color: var(--color-blue-light);
+    @apply underline;
 }
 article blockquote p:first-child {
     margin-top: 0;
@@ -206,3 +172,8 @@ article table td {
     border-radius: 9999px;
     vertical-align: text-top;
 }
+
+
+@tailwind components;
+
+@tailwind utilities;

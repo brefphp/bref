@@ -17,7 +17,7 @@ The simplest way to write a lambda is to write one in the form of a PHP function
 
 require __DIR__.'/vendor/autoload.php';
 
-lambda(function (array $event) {
+lambda(function ($event) {
     return 'Hello ' . ($event['name'] ?? 'world');
 });
 ```
@@ -39,7 +39,7 @@ A function can be defined by calling Bref's `lambda()` function and passing it a
 
 require __DIR__.'/vendor/autoload.php';
 
-lambda(function (array $event) {
+lambda(function ($event) {
     return /* response */;
 });
 ```
@@ -62,7 +62,7 @@ use Bref\Context\Context;
 
 require __DIR__.'/vendor/autoload.php';
 
-lambda(function (array $event, Context $context) {
+lambda(function ($event, Context $context) {
     return /* response */;
 });
 ```

@@ -112,6 +112,37 @@ Lambda and API Gateway are only used for executing code. Serving assets via PHP 
 
 Deploying a website and serving assets (e.g. CSS, JavaScript, images) is covered in [the "Websites" documentation](/docs/websites.md).
 
+In some cases however, you will need to serve images (or other assets) via PHP. One example would be if you served generated images via PHP. In those cases, you need to read the [Binary response](#binary-responses) section below.
+
+## Binary responses
+
+By default API Gateway **does not support binary HTTP responses** like images, PDF, binary files… To achieve this, you need to enable the option for binary responses in `serverless.yml`:
+
+```yaml
+provider:
+    # ...
+    apiGateway:
+        binaryMediaTypes:
+            - '*/*'
+```
+
+This will make API Gateway support binary responses for all responses. Your application can now return binary responses as usual.
+
+**However, you must define a `Content-Type` header on binary responses.** If you don't, you may get the following error: *Failed encoding Lambda JSON response: Malformed UTF-8 characters, possibly incorrectly encoded*. [Symfony's helpers](https://symfony.com/doc/current/components/http_foundation.html#serving-files) or [Laravel's helpers](https://laravel.com/docs/5.8/responses#file-downloads) will take care of that for you. If you don't use them, here are some examples:
+
+```php
+// Vanilla PHP example with a JPEG image response:
+header('Content-Type: image/jpeg');
+header('Content-Length: ' . filesize($filename));
+fpassthru(fopen($filename, 'rb'));
+
+// PSR-7 example:
+return $response
+    ->withHeader('Content-Type', 'image/jpeg')
+    ->withHeader('Content-Length', (string) filesize($filename))
+    ->withBody(new Stream($filename));
+```
+
 ## Cold starts
 
 AWS Lambda automatically destroys Lambda containers that have been unused for 10 to 60 minutes. Warming up a new container can take some time, especially if your package is large or if your Lambda is connected to a VPC. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).

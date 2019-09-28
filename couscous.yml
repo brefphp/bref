@@ -33,7 +33,7 @@ menu:
     -   section: Runtimes
         items:
             runtimes-introduction:
-                text: Introduction
+                text: Introduction to PHP runtimes
                 url: /docs/runtimes/
             php-functions:
                 text: PHP functions
