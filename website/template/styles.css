@@ -150,13 +150,13 @@ article blockquote p:first-child {
     margin-top: 0;
 }
 article table {
-    @apply w-full my-8 border-b border-grey-light;
+    @apply w-full my-8 border-b border-gray-200;
 }
 article table th {
-    @apply text-sm font-bold text-grey-darker p-2 bg-grey-lightest;
+    @apply text-sm font-bold text-gray-700 p-2 bg-gray-100;
 }
 article table td {
-    @apply p-2 border-t border-grey-light;
+    @apply p-2 border-t border-gray-200;
 }
 
 @media (min-width: 1360px) {
