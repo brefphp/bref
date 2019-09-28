@@ -42,9 +42,9 @@ The main factor that affects performances is a lambda's memory size. Indeed, [th
 
 In other words, **more memory means a more powerful CPU**. A 1024M lambda has a CPU 2 times more powerful than a 512M lambda.
 
-From 64M to 1,792M, applications run with one CPU (1,792M gives 1 full CPU). From 1,856M to 3,008M, applications run with 2 CPU. However, since PHP is single threaded and one lambda handles only 1 request at a time, using 2 CPU usually does not provide any benefit.
+From 64M to 1,792M, applications run with up to one CPU (1,792M gives 1 full CPU). From 1,856M to 3,008M, applications run with 2 CPU (3,008M gives 2 full CPU). However, since PHP is single threaded and one lambda handles only 1 request at a time, using 2 CPU usually does not provide any benefit.
 
-**It is recommended to use 1024M** for PHP applications, or at least to start with that. This is what Serverless configures by default.
+**It is recommended to use 1024M** for PHP applications, or at least to start with that. This is what Serverless configures by default so there is nothing to do.
 
 To customize the amount of memory, set the `memory` option in `serverless.yml`:
 
