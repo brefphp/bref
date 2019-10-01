@@ -29,11 +29,11 @@ compiler: compiler.Dockerfile
 # Compile PHP and its extensions
 build: compiler
 	docker build -f ${PWD}/php-intermediary.Dockerfile -t bref/php-72-intermediary:latest $(shell helpers/docker_args.sh versions.ini php72) .
-	cd layers/fpm ; docker build -t bref/php-72-fpm:$(TAG) --build-arg LAYER_IMAGE=bref/php-72-intermediary:latest . ; cd ../..
-	cd layers/fpm-dev ; docker build -t bref/php-72-fpm-dev:$(TAG) --build-arg LAYER_IMAGE=bref/php-72-fpm:$(TAG) . ; cd ../..
-	cd layers/function ; docker build -t bref/php-72:$(TAG) --build-arg LAYER_IMAGE=bref/php-72-intermediary:latest . ; cd ../..
+	cd layers/fpm ; docker build -t bref/php-72-fpm:$(TAG) --build-arg LAYER_IMAGE=bref/php-72-intermediary:latest --build-arg EXTENSION=no-debug-zts-20170718 . ; cd ../..
+	cd layers/fpm-dev ; docker build -t bref/php-72-fpm-dev:$(TAG) --build-arg LAYER_IMAGE=bref/php-72-intermediary:latest . ; cd ../..
+	cd layers/function ; docker build -t bref/php-72:$(TAG) --build-arg LAYER_IMAGE=bref/php-72-intermediary:latest --build-arg EXTENSION=no-debug-zts-20170718 . ; cd ../..
 	docker build -f ${PWD}/php-intermediary.Dockerfile -t bref/php-73-intermediary:latest $(shell helpers/docker_args.sh versions.ini php73) .
-	cd layers/fpm ; docker build -t bref/php-73-fpm:$(TAG) --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest . ; cd ../..
-	cd layers/fpm-dev ; docker build -t bref/php-73-fpm-dev:$(TAG) --build-arg LAYER_IMAGE=bref/php-73-fpm:$(TAG) . ; cd ../..
-	cd layers/function ; docker build -t bref/php-73:$(TAG) --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest . ; cd ../..
+	cd layers/fpm ; docker build -t bref/php-73-fpm:$(TAG) --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest --build-arg EXTENSION=no-debug-zts-20180731 . ; cd ../..
+	cd layers/fpm-dev ; docker build -t bref/php-73-fpm-dev:$(TAG) --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest . ; cd ../..
+	cd layers/function ; docker build -t bref/php-73:$(TAG) --build-arg LAYER_IMAGE=bref/php-73-intermediary:latest --build-arg EXTENSION=no-debug-zts-20180731 . ; cd ../..
 	cd layers/web; docker build -t bref/fpm-dev-gateway:$(TAG) . ; cd ../..

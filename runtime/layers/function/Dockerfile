@@ -8,6 +8,8 @@ COPY php.ini bref/etc/php/conf.d/bref.ini
 
 # Remove PHP-FPM
 RUN rm bref/sbin/php-fpm bin/php-fpm
+ARG EXTENSION
+RUN rm /opt/bref/lib/php/extensions/$EXTENSION/xdebug.so
 
 # Build the final image from the lambci image that is close to the production environment
 FROM lambci/lambda:provided

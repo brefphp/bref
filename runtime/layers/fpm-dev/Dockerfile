@@ -1,10 +1,16 @@
 ARG LAYER_IMAGE
 FROM $LAYER_IMAGE
 
-# Override the config so that PHP-FPM listens on port 9000
 COPY php-fpm.conf /opt/bref/etc/php-fpm.conf
+COPY php.ini /opt/bref/etc/php/conf.d/bref.ini
+
+# Build the final image from the lambci image that is close to the production environment
+FROM lambci/lambda:provided
+
+COPY --from=0  /opt /opt
 
 EXPOSE 9000
+EXPOSE 9001
 
 # Clear the parent entrypoint
 ENTRYPOINT []

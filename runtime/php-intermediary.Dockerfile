@@ -368,7 +368,7 @@ WORKDIR  ${PHP_BUILD_DIR}/
 # Install some dev files for using old libraries already on the system
 # readline-devel : needed for the --with-libedit flag
 # gettext-devel : needed for the --with-gettext flag
-# libicu-devel : needed for
+# libicu-devel : needed for intl
 # libpng-devel : needed for gd
 # libjpeg-devel : needed for gd
 RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel
@@ -437,6 +437,7 @@ RUN set -xe; \
 RUN pecl install mongodb
 RUN pecl install redis
 RUN pecl install APCu
+RUN pecl install xdebug
 
 ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
 
