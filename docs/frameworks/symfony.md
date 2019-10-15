@@ -116,3 +116,30 @@ Globals:
 The secrets (e.g. database passwords) must however not be committed in this file.
 
 To learn more about all this, read the [environment variables documentation](/docs/environment/variables.md).
+
+## The /dev/ prefix and Symfony routes
+
+If you didn't setup a custom domain for your lambda function will have the API gateways stage prefix.
+As symfony by default creates absolute URLs for your routes you have to configure your webserver set the script name correctly.
+
+As we don't have a server configuration you can set the environment variables also in your `public/index.php` by adding this snippet before instantiating the Kernel
+
+```php
+if (isset($_SERVER['ROUTE_BASE_URL'])) {
+    $baseUrl = $_SERVER['ROUTE_BASE_URL'];
+    $selfFile = basename(__FILE__);
+    $_SERVER['SCRIPT_NAME'] = "$baseUrl/$selfFile";
+    $_SERVER['REQUEST_URI'] = "$baseUrl{$_SERVER['REQUEST_URI']}";
+}
+```
+
+This assumes that your function has a environment variable named `ROUTE_BASE_URL` which will hold the stage prefix like `/dev`.
+To automatically set this variable add this snippet to your serverless.yaml
+
+```yaml
+provider:
+  environment:
+    ROUTE_BASE_URL: '/${self:custom.stage}'
+custom:
+  stage: ${opt:stage, self:provider.stage}
+```
