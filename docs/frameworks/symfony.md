@@ -119,8 +119,8 @@ To learn more about all this, read the [environment variables documentation](/do
 
 ## The /dev/ prefix and Symfony routes
 
-If you didn't setup a custom domain for your lambda function will have the API gateways stage prefix.
-As symfony by default creates absolute URLs for your routes you have to configure your webserver set the script name correctly.
+If you didn't setup a custom domain for your lambda function it will have the API gateways stage prefix.
+As symfony by default creates absolute URLs for your routes you have to configure your webserver to set the script name correctly.
 
 As we don't have a server configuration you can set the environment variables also in your `public/index.php` by adding this snippet before instantiating the Kernel
 
