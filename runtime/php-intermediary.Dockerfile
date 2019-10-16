@@ -437,7 +437,6 @@ RUN set -xe; \
 RUN pecl install mongodb
 RUN pecl install redis
 RUN pecl install APCu
-RUN pecl install xdebug
 
 ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
 
@@ -455,6 +454,9 @@ RUN set -xe; \
  && make \
  && make install
 
+ARG extensions
+ENV EXTENSIONS=${extensions}
+RUN for EXTENSION in ${EXTENSIONS}; do pecl install $EXTENSION; done
 
 # Strip all the unneeded symbols from shared libraries to reduce size.
 RUN find ${INSTALL_DIR} -type f -name "*.so*" -o -name "*.a"  -exec strip --strip-unneeded {} \;
