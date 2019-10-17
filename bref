@@ -400,7 +400,7 @@ $app->command('bref.dev [--profile=] [--stage=]', function (string $profile = 'd
     preg_match('# - https://([^.]+)\.execute-api\.#', $serverlessInfoOutput, $apiIdMatches);
     $apiId = $apiIdMatches[1];
 
-    $io->writeln("Creating short URL for <info>https://$apiId.execute-api.$region.amazonaws.com/$stage</info>");
+    $io->writeln("Creating a short URL for <info>https://$apiId.execute-api.$region.amazonaws.com/$stage</info>");
     $client = new GuzzleHttp\Client();
     $response = $client->request('POST', 'https://api.bref.dev/site', [
         'json' => [
