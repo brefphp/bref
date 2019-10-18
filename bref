@@ -356,4 +356,65 @@ $app->command('dashboard [--host=] [--port=] [--profile=] [--stage=]', function 
     return $process->getExitCode();
 })->descriptions('Start the dashboard');
 
+$app->command('bref.dev [--profile=] [--stage=]', function (string $profile = 'default', string $stage = null, SymfonyStyle $io) {
+    if (! file_exists('serverless.yml')) {
+        $io->error('No `serverless.yml` file found.');
+
+        return 1;
+    }
+    if (! (new ExecutableFinder)->find('serverless')) {
+        $io->error(
+            'The `serverless` command is not installed.' . PHP_EOL .
+            'Please follow the instructions at https://bref.sh/docs/installation.html'
+        );
+
+        return 1;
+    }
+
+    $serverlessInfo = new Process(['serverless', 'info', '--stage', $stage, '--aws-profile', $profile]);
+    $serverlessInfo->start();
+    $animation = new LoadingAnimation($io);
+    do {
+        $animation->tick('Retrieving the API Gateway URL');
+        usleep(100*1000);
+    } while ($serverlessInfo->isRunning());
+    $animation->clear();
+    if (!$serverlessInfo->isSuccessful()) {
+        $io->error('The command `serverless info` failed' . PHP_EOL . $serverlessInfo->getErrorOutput());
+
+        return 1;
+    }
+
+    $serverlessInfoOutput = $serverlessInfo->getOutput();
+
+    // Region
+    $regionMatches = [];
+    preg_match('/region: ([a-z0-9-]*)/', $serverlessInfoOutput, $regionMatches);
+    $region = $regionMatches[1];
+    // Stage
+    $stageMatches = [];
+    preg_match('/stage: ([a-z0-9-]*)/', $serverlessInfoOutput, $stageMatches);
+    $stage = $stageMatches[1];
+    // API ID
+    $apiIdMatches = [];
+    preg_match('# - https://([^.]+)\.execute-api\.#', $serverlessInfoOutput, $apiIdMatches);
+    $apiId = $apiIdMatches[1];
+
+    $io->writeln("Creating a short URL for <info>https://$apiId.execute-api.$region.amazonaws.com/$stage</info>");
+    $client = new GuzzleHttp\Client();
+    $response = $client->request('POST', 'https://api.bref.dev/site', [
+        'json' => [
+            'apiId' => $apiId,
+            'region' => $region,
+            'stage' => $stage,
+        ],
+    ]);
+    $response = json_decode((string) $response->getBody(), true);
+    $shortUrl = $response['url'];
+    $io->writeln("Short URL created and active for 7 days: <info>$shortUrl</info>");
+    $io->writeln('<comment>Please use this URL for development only and avoid load testing it with a lot of traffic. That helps us provide the service for free. The service is currently in beta and can change at any moment.</comment>');
+
+    return 0;
+})->descriptions('Create a short URL on bref.dev');
+
 $app->run();
