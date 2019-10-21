@@ -16,5 +16,9 @@ $silly->command('phpinfo', function (OutputInterface $output) {
     $phpinfo = ob_get_clean();
     $output->write($phpinfo);
 });
+$silly->command('error', function (OutputInterface $output) {
+    $output->writeln('There was an error!');
+    return 1;
+});
 
 $silly->run();
