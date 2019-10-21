@@ -759,6 +759,233 @@ Year,Make,Model
         ]);
     }
 
+    public function partialGatewayEvents()
+    {
+        return [
+            'hello' => [
+                [
+                    'httpMethod' => 'GET',
+                    'path' => '/hello',
+                    'requestContext' => [
+                        'protocol' => 'HTTP/1.1',
+                        'path' => '/dev/hello'
+                    ],
+                ], [
+                    '$_GET' => [],
+                    '$_POST' => [],
+                    '$_FILES' => [],
+                    '$_COOKIE' => [],
+                    '$_REQUEST' => [],
+                    '$_SERVER' => [
+                        'REQUEST_URI' => '/dev/hello',
+                        'SCRIPT_NAME' => '/dev/request.php',
+                        'PHP_SELF' => '/dev/request.php/hello',
+                        'PATH_INFO' => '/hello',
+                        'REQUEST_METHOD' => 'GET',
+                        'QUERY_STRING' => '',
+                        'CONTENT_LENGTH' => '0',
+                        'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                    ],
+                    'HTTP_RAW_BODY' => '',
+                ]
+            ],
+            'hello_dir' => [
+                [
+                    'httpMethod' => 'GET',
+                    'path' => '/hello/',
+                    'requestContext' => [
+                        'protocol' => 'HTTP/1.1',
+                        'path' => '/dev/hello/'
+                    ],
+                ], [
+                    '$_GET' => [],
+                    '$_POST' => [],
+                    '$_FILES' => [],
+                    '$_COOKIE' => [],
+                    '$_REQUEST' => [],
+                    '$_SERVER' => [
+                        'REQUEST_URI' => '/dev/hello/',
+                        'SCRIPT_NAME' => '/dev/request.php',
+                        'PHP_SELF' => '/dev/request.php/hello/',
+                        'PATH_INFO' => '/hello/',
+                        'REQUEST_METHOD' => 'GET',
+                        'QUERY_STRING' => '',
+                        'CONTENT_LENGTH' => '0',
+                        'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                    ],
+                    'HTTP_RAW_BODY' => '',
+                ]
+            ],
+            'root' => [
+                [
+                    'httpMethod' => 'GET',
+                    'path' => '/',
+                    'requestContext' => [
+                        'protocol' => 'HTTP/1.1',
+                        'path' => '/dev'
+                    ],
+                ], [
+                    '$_GET' => [],
+                    '$_POST' => [],
+                    '$_FILES' => [],
+                    '$_COOKIE' => [],
+                    '$_REQUEST' => [],
+                    '$_SERVER' => [
+                        'REQUEST_URI' => '/dev',
+                        'SCRIPT_NAME' => '/dev/request.php',
+                        'PHP_SELF' => '/dev/request.php/',
+                        'PATH_INFO' => '/',
+                        'REQUEST_METHOD' => 'GET',
+                        'QUERY_STRING' => '',
+                        'CONTENT_LENGTH' => '0',
+                        'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                    ],
+                    'HTTP_RAW_BODY' => '',
+                ]
+            ],
+            'root_dir' => [
+                [
+                    'httpMethod' => 'GET',
+                    'path' => '/',
+                    'requestContext' => [
+                        'protocol' => 'HTTP/1.1',
+                        'path' => '/dev/'
+                    ],
+                ], [
+                    '$_GET' => [],
+                    '$_POST' => [],
+                    '$_FILES' => [],
+                    '$_COOKIE' => [],
+                    '$_REQUEST' => [],
+                    '$_SERVER' => [
+                        'REQUEST_URI' => '/dev/',
+                        'SCRIPT_NAME' => '/dev/request.php',
+                        'PHP_SELF' => '/dev/request.php/',
+                        'PATH_INFO' => '/',
+                        'REQUEST_METHOD' => 'GET',
+                        'QUERY_STRING' => '',
+                        'CONTENT_LENGTH' => '0',
+                        'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                    ],
+                    'HTTP_RAW_BODY' => '',
+                ]
+            ],
+        ];
+    }
+
+    /**
+     * @param $event
+     * @param $globals
+     * @dataProvider partialGatewayEvents
+     */
+    public function test partial gateway request($event, $globals)
+    {
+        $this->assertGlobalVariables($event, $globals);
+    }
+
+    public function test full gateway root request()
+    {
+        $file_get_contents = file_get_contents(__DIR__ . '/PhpFpm/gateway_event_root.json');
+        $event = json_decode($file_get_contents, true);
+
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [
+                'PHPSESSID' => 'somerandomsessionid'
+            ],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'SERVER_NAME' => 'somelambdaid.execute-api.eu-west-1.amazonaws.com',
+                'SERVER_PORT' => '443',
+                'REMOTE_PORT' => '443',
+                'REQUEST_URI' => '/dev',
+                'SCRIPT_NAME' => '/dev/request.php',
+                'PHP_SELF' => '/dev/request.php/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'HTTP_X_FORWARDED_PROTO' => 'https',
+                'HTTP_X_FORWARDED_PORT' => '443',
+                'HTTP_X_FORWARDED_FOR' => '37.44.1.50, 70.132.1.91',
+                'HTTP_X_AMZN_TRACE_ID' => 'Root=1-5dad6df3-095ca844b74899945c8500b8',
+                'HTTP_X_AMZ_CF_ID' => 'F6CrxygBiGd1YxIZok_jTICo9VXuKLFpvuGr_PPBhK3zzJJKfrDDTA==',
+                'HTTP_VIA' => '2.0 80c1ad5f9352d00b95a9da73eb6b6be5.cloudfront.net (CloudFront)',
+                'HTTP_USER_AGENT' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:69.0) Gecko/20100101 Firefox/69.0',
+                'HTTP_UPGRADE_INSECURE_REQUESTS' => '1',
+                'HTTP_HOST' => 'somelambdaid.execute-api.eu-west-1.amazonaws.com',
+                'HTTP_DNT' => '1',
+                'HTTP_COOKIE' => 'PHPSESSID=somerandomsessionid',
+                'HTTP_CLOUDFRONT_VIEWER_COUNTRY' => 'DE',
+                'HTTP_CLOUDFRONT_IS_TABLET_VIEWER' => 'false',
+                'HTTP_CLOUDFRONT_IS_SMARTTV_VIEWER' => 'false',
+                'HTTP_CLOUDFRONT_IS_MOBILE_VIEWER' => 'false',
+                'HTTP_CLOUDFRONT_IS_DESKTOP_VIEWER' => 'true',
+                'HTTP_CLOUDFRONT_FORWARDED_PROTO' => 'https',
+                'HTTP_CACHE_CONTROL' => 'max-age=0',
+                'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.5',
+                'HTTP_ACCEPT_ENCODING' => 'gzip, deflate, br',
+                'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test full gateway resource request()
+    {
+        $file_get_contents = file_get_contents(__DIR__ . '/PhpFpm/gateway_event_resource.json');
+        $event = json_decode($file_get_contents, true);
+
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [
+                'PHPSESSID' => 'somerandomsessionid'
+            ],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'SERVER_NAME' => 'somelambdaid.execute-api.eu-west-1.amazonaws.com',
+                'SERVER_PORT' => '443',
+                'REMOTE_PORT' => '443',
+                'REQUEST_URI' => '/dev/product/some-product-sku',
+                'SCRIPT_NAME' => '/dev/request.php',
+                'PHP_SELF' => '/dev/request.php/product/some-product-sku',
+                'PATH_INFO' => '/product/some-product-sku',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'HTTP_REFERER' => 'https://somelambdaid.execute-api.eu-west-1.amazonaws.com/dev/products',
+                'HTTP_X_FORWARDED_PROTO' => 'https',
+                'HTTP_X_FORWARDED_PORT' => '443',
+                'HTTP_X_FORWARDED_FOR' => '37.44.1.50, 216.137.60.81',
+                'HTTP_X_AMZN_TRACE_ID' => 'Root=1-5dad6134-d1720e0d36c31b53431891ad',
+                'HTTP_X_AMZ_CF_ID' => '3lgjjl2A8V_r5Dv1K-wkJ3TmLrU1l1C4JBHWeMrbKOfz6SqYlSg-xg==',
+                'HTTP_VIA' => '2.0 e7c35757c4581d46396ae4c0a48815ef.cloudfront.net (CloudFront)',
+                'HTTP_USER_AGENT' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:69.0) Gecko/20100101 Firefox/69.0',
+                'HTTP_UPGRADE_INSECURE_REQUESTS' => '1',
+                'HTTP_HOST' => 'somelambdaid.execute-api.eu-west-1.amazonaws.com',
+                'HTTP_DNT' => '1',
+                'HTTP_COOKIE' => 'PHPSESSID=somerandomsessionid',
+                'HTTP_CLOUDFRONT_VIEWER_COUNTRY' => 'DE',
+                'HTTP_CLOUDFRONT_IS_TABLET_VIEWER' => 'false',
+                'HTTP_CLOUDFRONT_IS_SMARTTV_VIEWER' => 'false',
+                'HTTP_CLOUDFRONT_IS_MOBILE_VIEWER' => 'false',
+                'HTTP_CLOUDFRONT_IS_DESKTOP_VIEWER' => 'true',
+                'HTTP_CLOUDFRONT_FORWARDED_PROTO' => 'https',
+                'HTTP_CACHE_CONTROL' => 'max-age=0',
+                'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.5',
+                'HTTP_ACCEPT_ENCODING' => 'gzip, deflate, br',
+                'HTTP_ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
     /**
      * @dataProvider provideStatusCodes
      */

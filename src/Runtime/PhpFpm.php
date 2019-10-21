@@ -181,9 +181,15 @@ final class PhpFpm
         $request = new FastCgiRequest($method, $this->handler, $requestBody);
 
         $queryString = $this->getQueryString($event);
-        $uri = $event['path'] ?? '/';
+
+        $uri = $requestUri = $event['path'] ?? '/';
+
+        if (isset($event['requestContext']['path'])) {
+            $requestUri = $event['requestContext']['path'];
+            $request->setCustomVar('SCRIPT_NAME', rtrim(str_replace($uri, '/', $requestUri), '/') . '/' . basename($this->handler));
+        }
         if (! empty($queryString)) {
-            $uri .= '?' . $queryString;
+            $requestUri .= '?' . $queryString;
         }
 
         $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
@@ -200,7 +206,7 @@ final class PhpFpm
         }
         $headers = array_change_key_case($headers, CASE_LOWER);
 
-        $request->setRequestUri($uri);
+        $request->setRequestUri($requestUri);
         $request->setRemoteAddress('127.0.0.1');
         $request->setRemotePort((int) ($headers['x-forwarded-port'][0] ?? 80));
         $request->setServerAddress('127.0.0.1');

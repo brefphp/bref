@@ -1,0 +1,135 @@
+{
+  "resource": "/{proxy+}",
+  "path": "/product/some-product-sku",
+  "httpMethod": "GET",
+  "headers": {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Accept-Language": "en-US,en;q=0.5",
+    "cache-control": "max-age=0",
+    "CloudFront-Forwarded-Proto": "https",
+    "CloudFront-Is-Desktop-Viewer": "true",
+    "CloudFront-Is-Mobile-Viewer": "false",
+    "CloudFront-Is-SmartTV-Viewer": "false",
+    "CloudFront-Is-Tablet-Viewer": "false",
+    "CloudFront-Viewer-Country": "DE",
+    "Cookie": "PHPSESSID=somerandomsessionid",
+    "dnt": "1",
+    "Host": "somelambdaid.execute-api.eu-west-1.amazonaws.com",
+    "upgrade-insecure-requests": "1",
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:69.0) Gecko/20100101 Firefox/69.0",
+    "Via": "2.0 e7c35757c4581d46396ae4c0a48815ef.cloudfront.net (CloudFront)",
+    "X-Amz-Cf-Id": "3lgjjl2A8V_r5Dv1K-wkJ3TmLrU1l1C4JBHWeMrbKOfz6SqYlSg-xg==",
+    "X-Amzn-Trace-Id": "Root=1-5dad6134-d1720e0d36c31b53431891ad",
+    "X-Forwarded-For": "37.44.1.50, 216.137.60.81",
+    "X-Forwarded-Port": "443",
+    "X-Forwarded-Proto": "https",
+    "Referer": "https://somelambdaid.execute-api.eu-west-1.amazonaws.com/dev/products"
+  },
+  "multiValueHeaders": {
+    "Accept": [
+      "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+    ],
+    "Accept-Encoding": [
+      "gzip, deflate, br"
+    ],
+    "Accept-Language": [
+      "en-US,en;q=0.5"
+    ],
+    "cache-control": [
+      "max-age=0"
+    ],
+    "CloudFront-Forwarded-Proto": [
+      "https"
+    ],
+    "CloudFront-Is-Desktop-Viewer": [
+      "true"
+    ],
+    "CloudFront-Is-Mobile-Viewer": [
+      "false"
+    ],
+    "CloudFront-Is-SmartTV-Viewer": [
+      "false"
+    ],
+    "CloudFront-Is-Tablet-Viewer": [
+      "false"
+    ],
+    "CloudFront-Viewer-Country": [
+      "DE"
+    ],
+    "Cookie": [
+      "PHPSESSID=somerandomsessionid"
+    ],
+    "dnt": [
+      "1"
+    ],
+    "Host": [
+      "somelambdaid.execute-api.eu-west-1.amazonaws.com"
+    ],
+    "upgrade-insecure-requests": [
+      "1"
+    ],
+    "User-Agent": [
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:69.0) Gecko/20100101 Firefox/69.0"
+    ],
+    "Via": [
+      "2.0 e7c35757c4581d46396ae4c0a48815ef.cloudfront.net (CloudFront)"
+    ],
+    "X-Amz-Cf-Id": [
+      "3lgjjl2A8V_r5Dv1K-wkJ3TmLrU1l1C4JBHWeMrbKOfz6SqYlSg-xg=="
+    ],
+    "X-Amzn-Trace-Id": [
+      "Root=1-5dad6134-d1720e0d36c31b53431891ad"
+    ],
+    "X-Forwarded-For": [
+      "37.44.1.50, 216.137.60.81"
+    ],
+    "X-Forwarded-Port": [
+      "443"
+    ],
+    "X-Forwarded-Proto": [
+      "https"
+    ],
+    "Referer": [
+      "https://somelambdaid.execute-api.eu-west-1.amazonaws.com/dev/products"
+    ]
+  },
+  "queryStringParameters": null,
+  "multiValueQueryStringParameters": null,
+  "pathParameters": {
+    "proxy": "product/some-product-sku"
+  },
+  "stageVariables": null,
+  "requestContext": {
+    "resourceId": "3oj4v9",
+    "resourcePath": "/{proxy+}",
+    "httpMethod": "GET",
+    "extendedRequestId": "B5wgQH1yDoEF0Rw=",
+    "requestTime": "21/Oct/2019:07:41:40 +0000",
+    "path": "/dev/product/some-product-sku",
+    "accountId": "564387806506",
+    "protocol": "HTTP/1.1",
+    "stage": "dev",
+    "domainPrefix": "somelambdaid",
+    "requestTimeEpoch": 1571643700752,
+    "requestId": "ec75a99d-059f-4483-9a71-7383032ac78a",
+    "identity": {
+      "cognitoIdentityPoolId": null,
+      "accountId": null,
+      "cognitoIdentityId": null,
+      "caller": null,
+      "sourceIp": "37.44.1.50",
+      "principalOrgId": null,
+      "accessKey": null,
+      "cognitoAuthenticationType": null,
+      "cognitoAuthenticationProvider": null,
+      "userArn": null,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:69.0) Gecko/20100101 Firefox/69.0",
+      "user": null
+    },
+    "domainName": "somelambdaid.execute-api.eu-west-1.amazonaws.com",
+    "apiId": "somelambdaid"
+  },
+  "body": null,
+  "isBase64Encoded": false
+}
