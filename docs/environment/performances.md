@@ -74,3 +74,31 @@ The Bref [runtime for PHP functions](/docs/runtimes/function.md) (non-HTTP appli
 | Execution time   | 175ms | 35ms |  16ms |  13ms |
 
 Since this runtime is often used in asynchronous scenarios (for example, processing queue messages), it is often negligible.
+
+## Cold starts
+
+Code on AWS Lambda runs on-demand. When a new Lambda instance boots to handle a request, the initialization time is what we call a *cold start*. To learn more, [you can read this article](https://hackernoon.com/im-afraid-you-re-thinking-about-aws-lambda-cold-starts-all-wrong-7d907f278a4f).
+
+Bref's PHP runtimes have a cold start of **250ms** on average.
+
+This is on-par with [cold starts in other language](https://mikhail.io/serverless/coldstarts/aws/), like JavaScript, Python or Go. AWS is [regularly reducing the duration of cold starts](https://levelup.gitconnected.com/aws-lambda-cold-start-language-comparisons-2019-edition-%EF%B8%8F-1946d32a0244), and we are also optimizing Bref's runtimes as much as possible.
+
+### Optimizing cold starts
+
+On small websites, cold starts can be avoided by pinging the application regularly. This keeps the lambda instances warm. [Pingdom](https://www.pingdom.com/) or similar services can be used, but you can also [an automatic ping via `serverless.yml`](/docs/runtimes/http.md#cold-starts).
+
+While the memory size has no impact, the codebase size can increase the cold start duration. When deploying, remember to exclude assets, images, tests and any extra file in `serverless.yml`:
+
+```yaml
+package:
+    exclude:
+        - 'assets/**'
+        - 'node_modules/**'
+        - 'tests/**'
+```
+
+Read more about the `package` configuration [in the serverless.yml documentation](https://serverless.com/framework/docs/providers/aws/guide/packaging#exclude--include).
+
+> **A note on VPC cold starts**
+>
+> Running a function inside a VPC used to induce a cold start of several seconds. This is no longer the case since October 2019.
