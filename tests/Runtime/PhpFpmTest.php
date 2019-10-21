@@ -768,7 +768,7 @@ Year,Make,Model
                     'path' => '/hello',
                     'requestContext' => [
                         'protocol' => 'HTTP/1.1',
-                        'path' => '/dev/hello'
+                        'path' => '/dev/hello',
                     ],
                 ], [
                     '$_GET' => [],
@@ -787,7 +787,7 @@ Year,Make,Model
                         'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                     ],
                     'HTTP_RAW_BODY' => '',
-                ]
+                ],
             ],
             'hello_dir' => [
                 [
@@ -795,7 +795,7 @@ Year,Make,Model
                     'path' => '/hello/',
                     'requestContext' => [
                         'protocol' => 'HTTP/1.1',
-                        'path' => '/dev/hello/'
+                        'path' => '/dev/hello/',
                     ],
                 ], [
                     '$_GET' => [],
@@ -814,7 +814,7 @@ Year,Make,Model
                         'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                     ],
                     'HTTP_RAW_BODY' => '',
-                ]
+                ],
             ],
             'root' => [
                 [
@@ -822,7 +822,7 @@ Year,Make,Model
                     'path' => '/',
                     'requestContext' => [
                         'protocol' => 'HTTP/1.1',
-                        'path' => '/dev'
+                        'path' => '/dev',
                     ],
                 ], [
                     '$_GET' => [],
@@ -841,7 +841,7 @@ Year,Make,Model
                         'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                     ],
                     'HTTP_RAW_BODY' => '',
-                ]
+                ],
             ],
             'root_dir' => [
                 [
@@ -849,7 +849,7 @@ Year,Make,Model
                     'path' => '/',
                     'requestContext' => [
                         'protocol' => 'HTTP/1.1',
-                        'path' => '/dev/'
+                        'path' => '/dev/',
                     ],
                 ], [
                     '$_GET' => [],
@@ -868,7 +868,7 @@ Year,Make,Model
                         'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                     ],
                     'HTTP_RAW_BODY' => '',
-                ]
+                ],
             ],
         ];
     }
@@ -891,7 +891,7 @@ Year,Make,Model
             '$_POST' => [],
             '$_FILES' => [],
             '$_COOKIE' => [
-                'PHPSESSID' => 'somerandomsessionid'
+                'PHPSESSID' => 'somerandomsessionid',
             ],
             '$_REQUEST' => [],
             '$_SERVER' => [
@@ -942,7 +942,7 @@ Year,Make,Model
             '$_POST' => [],
             '$_FILES' => [],
             '$_COOKIE' => [
-                'PHPSESSID' => 'somerandomsessionid'
+                'PHPSESSID' => 'somerandomsessionid',
             ],
             '$_REQUEST' => [],
             '$_SERVER' => [
