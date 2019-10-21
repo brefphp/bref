@@ -4,47 +4,17 @@ current_menu: performances
 introduction: Performance tuning and optimizations for serverless PHP applications on AWS Lambda.
 ---
 
-This article sums up what to expect in terms of performances and how to optimize serverless PHP applications. The benchmarks included in this page [are on GitHub](https://github.com/brefphp/benchmarks).
-
-## Overhead
-
-### HTTP
-
-The Bref [runtime for HTTP applications](/docs/runtimes/http.md) **does not add overhead to response times**.
-
-Here are execution times for an empty PHP application:
-
-|                  | 128M  | 512M | 1024M | 2048M |
-|------------------|------:|-----:|------:|------:|
-| Execution time   |  10ms |  1ms |   1ms |   1ms |
-
-Unless we use a particularly slow lambda (see the next section, 128M is not recommended), 1ms is the same execution time when PHP runs with Apache or Nginx on a classic server.
-
-We can see the same result with a "Hello world" written in Symfony (4ms being the minimum execution time of the framework):
-
-|                  | 128M  | 512M | 1024M | 2048M |
-|------------------|------:|-----:|------:|------:|
-| Execution time   |  58ms |  4ms |   4ms |   4ms |
-
-### Functions
-
-The Bref [runtime for PHP functions](/docs/runtimes/function.md) (non-HTTP applications) adds a small overhead:
-
-|                  | 128M  | 512M | 1024M | 2048M |
-|------------------|------:|-----:|------:|------:|
-| Execution time   | 175ms | 35ms |  16ms |  13ms |
-
-Since this runtime is often used in asynchronous scenarios (for example, processing queue messages), it is often negligible.
+This article sums up what to expect in terms of performances and how to optimize serverless PHP applications. The benchmarks included in this page can be reproduced via [the code on GitHub](https://github.com/brefphp/benchmarks).
 
 ## CPU power and memory size
 
-The main factor that affects performances is memory size. Indeed, [the amount of memory is proportional to the CPU power available](https://docs.aws.amazon.com/lambda/latest/dg/resource-model.html).
+The main factor affecting performances is memory size. Indeed, [the amount of memory is proportional to the CPU power available](https://docs.aws.amazon.com/lambda/latest/dg/resource-model.html).
 
 In other words, **more memory means a more powerful CPU**. A 1024M lambda has a CPU two times more powerful than a 512M lambda.
 
-From 64M to 1,792M, applications run with up to one CPU (1,792M gives 1 full CPU). From 1,856M to 3,008M, applications run with 2 CPU (3,008M gives 2 full CPU). However, since PHP is single-threaded and one lambda handles only 1 request at a time, using 2 CPU usually does not provide any benefit.
+From 64M to 1,792M, applications run with up to one CPU (1,792M gives 1 full CPU). From 1,856M to 3,008M, applications run with 2 CPU (3,008M gives 2 full CPU). Since PHP is single-threaded and one lambda handles only 1 request at a time, using 2 CPU usually does not provide any benefit.
 
-**It is recommended to use 1024M** for PHP applications, or at least to start with that. This is what Serverless configures by default, so there is nothing to do.
+**It is recommended to use 1024M** for PHP applications, or at least to start with that. This is what Serverless deploys by default, so there is nothing to do.
 
 To customize the amount of memory, set the `memory` option in `serverless.yml`:
 
@@ -74,3 +44,33 @@ It might be tempting to lower the memory to save money. However, a function migh
 - the same function running in 200ms (because of the faster CPU) on a 1024M lambda
 
 In general, **use smaller and slower lambdas only when speed is not important at all.**
+
+## PHP runtime overhead
+
+### HTTP
+
+The Bref [runtime for HTTP applications](/docs/runtimes/http.md) **does not add overhead to response times**.
+
+Here are execution times for an empty PHP application:
+
+|                  | 128M  | 512M | 1024M | 2048M |
+|------------------|------:|-----:|------:|------:|
+| Execution time   |  10ms |  1ms |   1ms |   1ms |
+
+Unless we use a particularly slow lambda (see the next section, 128M is not recommended), 1ms is the same execution time when PHP runs with Apache or Nginx on a classic server.
+
+We can see the same result with a "Hello world" written in Symfony (4ms being the minimum execution time of the framework):
+
+|                  | 128M  | 512M | 1024M | 2048M |
+|------------------|------:|-----:|------:|------:|
+| Execution time   |  58ms |  4ms |   4ms |   4ms |
+
+### Functions
+
+The Bref [runtime for PHP functions](/docs/runtimes/function.md) (non-HTTP applications) adds a small overhead:
+
+|                  | 128M  | 512M | 1024M | 2048M |
+|------------------|------:|-----:|------:|------:|
+| Execution time   | 175ms | 35ms |  16ms |  13ms |
+
+Since this runtime is often used in asynchronous scenarios (for example, processing queue messages), it is often negligible.
