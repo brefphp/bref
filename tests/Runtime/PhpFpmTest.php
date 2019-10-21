@@ -874,11 +874,9 @@ Year,Make,Model
     }
 
     /**
-     * @param $event
-     * @param $globals
      * @dataProvider partialGatewayEvents
      */
-    public function test partial gateway request($event, $globals)
+    public function test partial gateway request(array $event, array $globals)
     {
         $this->assertGlobalVariables($event, $globals);
     }
