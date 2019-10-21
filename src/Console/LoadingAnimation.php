@@ -22,6 +22,9 @@ class LoadingAnimation
 
     /**
      * Update the animation to the next character.
+     *
+     * @param string $message
+     * @return void
      */
     public function tick(string $message): void
     {
@@ -38,6 +41,8 @@ class LoadingAnimation
 
     /**
      * Clear the line.
+     *
+     * @return void
      */
     public function clear(): void
     {

@@ -16,6 +16,7 @@ final class InvocationResult
     private $payload;
 
     /**
+     * @param Result $result
      * @param mixed $payload
      */
     public function __construct(Result $result, $payload)

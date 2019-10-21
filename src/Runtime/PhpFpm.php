@@ -48,6 +48,9 @@ final class PhpFpm
 
     /**
      * Start the PHP-FPM process.
+     *
+     * @return void
+     * @throws \Exception
      */
     public function start(): void
     {
@@ -94,6 +97,7 @@ final class PhpFpm
     }
 
     /**
+     * @return void
      * @throws \Exception If the PHP-FPM process is not running anymore.
      */
     public function ensureStillRunning(): void
@@ -107,6 +111,8 @@ final class PhpFpm
      * Proxy the API Gateway event to PHP-FPM and return its response.
      *
      * @param mixed $event
+     * @return LambdaResponse
+     * @throws FastCgiCommunicationFailed
      */
     public function proxy($event): LambdaResponse
     {
@@ -234,6 +240,9 @@ final class PhpFpm
 
     /**
      * This methods makes sure to kill any existing PHP-FPM process.
+     *
+     * @return void
+     * @throws \Exception
      */
     private function killExistingFpm(): void
     {

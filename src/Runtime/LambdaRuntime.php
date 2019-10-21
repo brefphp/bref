@@ -167,6 +167,7 @@ final class LambdaRuntime
     /**
      * @param mixed $responseData
      *
+     * @throws \Exception
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-response
      */
     private function sendResponse(string $invocationId, $responseData): void
@@ -239,7 +240,10 @@ final class LambdaRuntime
     }
 
     /**
+     * @param string $url
      * @param mixed $data
+     * @return void
+     * @throws \Exception
      */
     private function postJson(string $url, $data): void
     {

@@ -4,6 +4,7 @@
  * Define and run a simple lambda function.
  *
  * @param callable $handler This callable takes a $event parameter (array) and must return anything serializable to JSON.
+ * @throws Exception
  *
  * Example:
  *

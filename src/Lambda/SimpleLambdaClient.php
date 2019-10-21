@@ -24,7 +24,9 @@ final class SimpleLambdaClient
     /**
      * Synchronously invoke a function.
      *
+     * @param string $functionName
      * @param mixed $event Event data (can be null).
+     * @return InvocationResult
      * @throws InvocationFailed
      */
     public function invoke(string $functionName, $event = null): InvocationResult

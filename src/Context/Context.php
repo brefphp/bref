@@ -31,6 +31,8 @@ final class Context
 
     /**
      * Returns the identifier of the invocation request.
+     *
+     * @return string
      */
     public function getAwsRequestId(): string
     {
@@ -39,6 +41,8 @@ final class Context
 
     /**
      * Returns the number of milliseconds left before the execution times out.
+     *
+     * @return string
      */
     public function getRemainingTimeInMillis(): int
     {
@@ -48,6 +52,8 @@ final class Context
     /**
      * Returns the Amazon Resource Name (ARN) used to invoke the function.
      * Indicates if the invoker specified a version number or alias.
+     *
+     * @return string
      */
     public function getInvokedFunctionArn(): string
     {
@@ -58,6 +64,7 @@ final class Context
      * Returns content of the AWS X-Ray trace information header
      *
      * @see  https://docs.aws.amazon.com/xray/latest/devguide/xray-concepts.html#xray-concepts-tracingheader
+     * @return string
      */
     public function getTraceId(): string
     {
