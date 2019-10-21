@@ -83,6 +83,8 @@ Bref's PHP runtimes have a cold start of **250ms** on average.
 
 This is on-par with [cold starts in other language](https://mikhail.io/serverless/coldstarts/aws/), like JavaScript, Python or Go. AWS is [regularly reducing the duration of cold starts](https://levelup.gitconnected.com/aws-lambda-cold-start-language-comparisons-2019-edition-%EF%B8%8F-1946d32a0244), and we are also optimizing Bref's runtimes as much as possible.
 
+On a website with low to medium traffic, you can expect cold starts to happen for about 0.5% of the requests.
+
 ### Optimizing cold starts
 
 On small websites, cold starts can be avoided by pinging the application regularly. This keeps the lambda instances warm. [Pingdom](https://www.pingdom.com/) or similar services can be used, but you can also [an automatic ping via `serverless.yml`](/docs/runtimes/http.md#cold-starts).
