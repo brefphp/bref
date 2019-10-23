@@ -128,6 +128,28 @@ In the example above, a `public/assets/style.css` file will be accessible at `ht
 
 > Be aware that serving assets in production will not work like this out of the box. You will need [to use a S3 bucket](/docs/runtimes/http.md#assets).
 
+### Blackfire
+
+The development FPM container comes with the blackfire extension. When using docker compose you can add following service configuration:
+
+```yaml
+services:
+  blackfire:
+    image: blackfire/blackfire
+    environment:
+      BLACKFIRE_SERVER_ID: server-id
+      BLACKFIRE_SERVER_TOKEN: server-token
+```
+
+Now you can enable the blackfire extension in your php.ini
+
+```ini
+extension=blackfire
+blackfire.agent_socket=tcp://blackfire:8707
+```
+
+For more details about using blackfire in a docker environment see the [blackfire docs](https://blackfire.io/docs/integrations/docker)
+
 ## Console applications
 
 Console applications can be tested just like before: by running the command in your terminal.
