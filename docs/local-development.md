@@ -130,7 +130,7 @@ In the example above, a `public/assets/style.css` file will be accessible at `ht
 
 ### Blackfire
 
-The development FPM container comes with the blackfire extension. When using docker compose you can add following service configuration:
+The development FPM container comes with the blackfire extension. When using docker compose you can add following service configuration for the blackfire agent:
 
 ```yaml
 services:
@@ -141,7 +141,7 @@ services:
       BLACKFIRE_SERVER_TOKEN: server-token
 ```
 
-Now you can enable the blackfire extension in your php.ini
+Now you can enable the blackfire probe extension in your projects php.ini
 
 ```ini
 extension=blackfire
