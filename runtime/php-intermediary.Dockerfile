@@ -1,9 +1,54 @@
-# We use the compiler image we built in order to compile the libraries
-# and executables required for the base bref image.
+# The container we build here contains everything needed to compile PHP + PHP.
+#
+# It can be used as a base to compile extra extensions.
 
-FROM bref/runtime/compiler:latest as php_builder
+
+# Lambda instances use the amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2 AMI, as
+# documented under the AWS Lambda Runtimes.
+# https://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html
+# AWS provides it a Docker image that we use here:
+# https://github.com/aws/amazon-linux-docker-images/tree/2018.03
+FROM amazonlinux:2018.03
+
+
+# Move to /tmp to compile everything in there.
+WORKDIR /tmp
+
+
+# Lambda is based on 2018.03. Lock YUM to that release version.
+RUN sed -i 's/releasever=latest/releaserver=2018.03/' /etc/yum.conf
+
+
+RUN set -xe \
+    # Download yum repository data to cache
+ && yum makecache \
+    # Default Development Tools
+ && yum groupinstall -y "Development Tools" --setopt=group_package_types=mandatory,default \
+    # PHP will use gcc 7.2 (installed because of `kernel-devel`) to compile itself.
+    # But the intl extension is C++ code. Since gcc-c++ 7.2 is not installed by default, gcc-c++ 4 will be used.
+    # The mismatch breaks the build, see https://github.com/brefphp/bref/pull/373
+    # To fix this, we install gcc-c++ 7.2. We also install gcc 7.2 explicitly to make sure we keep the same
+    # version in the future.
+ && yum install -y gcc72 gcc72-c++
+
+
+# The version of cmake we can get from the yum repo is 2.8.12. We need cmake to build a few of
+# our libraries, and at least one library requires a version of cmake greater than the one
+# provided in the repo.
+#
+# Needed to build:
+# - libzip: minimum required CMAKE version 3.0.2
+RUN set -xe \
+ && mkdir -p /tmp/cmake \
+ && cd /tmp/cmake \
+ && curl -Ls  https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz \
+    | tar xzC /tmp/cmake --strip-components=1 \
+ && ./bootstrap --prefix=/usr/local \
+ && make \
+ && make install
 
 # Use the bash shell, instead of /bin/sh
+# Why? We need to document this.
 SHELL ["/bin/bash", "-c"]
 
 # We need a base path for all the sourcecode we will build from.
@@ -497,7 +542,7 @@ ENV PATH="/opt/bin:${PATH}" \
 
 RUN mkdir -p /opt
 # Copy everything we built above into the same dir on the base AmazonLinux container.
-COPY --from=php_builder /opt /opt
+COPY --from=0 /opt /opt
 
 # Install zip: we will need it later to create the layers as zip files
 RUN LD_LIBRARY_PATH= yum -y install zip

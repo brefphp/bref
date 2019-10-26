@@ -22,12 +22,8 @@ export/console.zip: layers/console/bootstrap
 	rm -f export/console.zip
 	cd layers/console && zip ../../export/console.zip bootstrap
 
-# Build the docker container that will be used to compile PHP and its extensions
-compiler: compiler.Dockerfile
-	docker build -f ${PWD}/compiler.Dockerfile -t bref/runtime/compiler:latest .
-
 # Compile PHP and its extensions
-build: compiler
+build:
 	docker build -f ${PWD}/php-intermediary.Dockerfile -t bref/php-72-intermediary:latest $(shell helpers/docker_args.sh versions.ini php72) .
 	cd layers/fpm ; docker build -t bref/php-72-fpm:$(TAG) --build-arg LAYER_IMAGE=bref/php-72-intermediary:latest . ; cd ../..
 	cd layers/fpm-dev ; docker build -t bref/php-72-fpm-dev:$(TAG) --build-arg LAYER_IMAGE=bref/php-72-fpm:$(TAG) . ; cd ../..
