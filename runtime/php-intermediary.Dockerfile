@@ -342,6 +342,17 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/backend && make generated-headers
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 
 ###############################################################################
+# XSL Build
+# https://www.php.net/manual/en/book.xsl.php
+# Needs:
+#   - libxslt
+# Needed by:
+#   - php
+
+# Install libxslt first
+RUN LD_LIBRARY_PATH= yum install -y libxslt-devel
+
+###############################################################################
 # PHP Build
 # https://github.com/php/php-src/releases
 # Needs:
@@ -425,7 +436,9 @@ RUN set -xe \
         --enable-soap \
         --with-gd \
         --with-png-dir=${INSTALL_DIR} \
-        --with-jpeg-dir=${INSTALL_DIR}
+        --with-jpeg-dir=${INSTALL_DIR} \
+        --with-xsl=${INSTALL_DIR}
+
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
 RUN set -xe; \
