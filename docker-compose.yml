@@ -6,7 +6,7 @@ services:
         volumes:
             - .:/var/task:ro # Read only, like a lambda function
         entrypoint: php
-        command: php demo/console.php
+        command: demo/console.php
 
     web:
         image: bref/fpm-dev-gateway
