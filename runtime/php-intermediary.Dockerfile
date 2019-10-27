@@ -26,6 +26,10 @@ ENV PKG_CONFIG_PATH="${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig
 
 ENV LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib"
 
+# Enable parallelism for cmake (like make -j)
+# See https://stackoverflow.com/a/50883540/245552
+RUN export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+
 # Ensure we have all the directories we require in the container.
 RUN mkdir -p ${BUILD_DIR}  \
     ${INSTALL_DIR}/bin \
@@ -332,8 +336,8 @@ RUN set -xe; \
     LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
     ./configure --prefix=${INSTALL_DIR} --with-openssl --without-readline
 
-RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/interfaces/libpq && make && make install
-RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/bin/pg_config && make && make install
+RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/interfaces/libpq && make -j $(nproc) && make install
+RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/bin/pg_config && make -j $(nproc) && make install
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/backend && make generated-headers
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 
@@ -347,6 +351,17 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 
 # Install ImageMagick first
 RUN LD_LIBRARY_PATH= yum install -y ImageMagick-devel
+
+###############################################################################
+# XSL Build
+# https://www.php.net/manual/en/book.xsl.php
+# Needs:
+#   - libxslt
+# Needed by:
+#   - php
+
+# Install libxslt first
+RUN LD_LIBRARY_PATH= yum install -y libxslt-devel
 
 ###############################################################################
 # PHP Build
@@ -432,7 +447,9 @@ RUN set -xe \
         --enable-soap \
         --with-gd \
         --with-png-dir=${INSTALL_DIR} \
-        --with-jpeg-dir=${INSTALL_DIR}
+        --with-jpeg-dir=${INSTALL_DIR} \
+        --with-xsl=${INSTALL_DIR}
+
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
 RUN set -xe; \

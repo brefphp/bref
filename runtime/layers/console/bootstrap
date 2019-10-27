@@ -22,19 +22,22 @@ while (true) {
     $lambdaRuntime->processNextEvent(function ($event) use ($handler): array {
         $cliOptions = $event['cli'] ?? '';
 
-        // We redirect stderr to stdout and use passthru so that everything
-        // written on the output ends up in Cloudwatch automatically
+        // We redirect stderr to stdout so that all the output is collected
         $command = "/opt/bin/php $handler " . $cliOptions . ' 2>&1';
 
         exec($command, $output, $exitCode);
 
         $output = implode("\n", $output);
 
-        // Echo $output so it is written to CLoudwatch logs as well as terminal connections.
+        // Echo the output so that it is written to CloudWatch logs
         echo $output;
 
+        if ($exitCode > 0) {
+            throw new Exception('The command exited with a non-zero status code: ' . $exitCode);
+        }
+
         return [
-            'exitCode' => $exitCode,
+            'exitCode' => $exitCode, // will always be 0
             'output' => $output,
         ];
     });
