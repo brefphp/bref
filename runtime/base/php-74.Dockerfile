@@ -35,6 +35,7 @@ WORKDIR  ${PHP_BUILD_DIR}/
 # --enable-mbstring: because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
 # --enable-maintainer-zts: build PHP as ZTS (Zend Thread Safe) to be able to use pthreads
 # --with-zlib and --with-zlib-dir: See https://stackoverflow.com/a/42978649/245552
+# --disable-mbregex: Since PHP 7.4 the oniguruma library is no longer bundled with PHP (see https://github.com/php/php-src/blob/43dc7da8e3719d3e89bd8ec15ebb13f997bbbaa9/UPGRADING#L578-L581). We disable the support for mbregex for now.
 # --with-pear: necessary for `pecl` to work (to install PHP extensions)
 #
 RUN set -xe \
@@ -75,6 +76,7 @@ RUN set -xe \
         --enable-soap \
         --enable-gd \
         --with-jpeg=${INSTALL_DIR} \
+        --disable-mbregex \
         --with-pear
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
