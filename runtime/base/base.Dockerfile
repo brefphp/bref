@@ -385,4 +385,5 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 # libpng-devel : needed for gd
 # libjpeg-devel : needed for gd
 # libxslt-devel : needed for the XSL extension
-RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel libxslt-devel
+# ImageMagick-devel : needed for the imagick extension
+RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel libxslt-devel ImageMagick-devel

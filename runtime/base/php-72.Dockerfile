@@ -97,6 +97,7 @@ RUN ln -s /opt/bref/sbin/* /opt/bin
 RUN pecl install mongodb
 RUN pecl install redis
 RUN pecl install APCu
+RUN pecl install imagick
 
 # pthreads
 ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
