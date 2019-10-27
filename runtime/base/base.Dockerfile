@@ -62,7 +62,7 @@ ENV INSTALL_DIR="/opt/bref"
 # # Adds GNU HASH segments to generated executables (this is used if present, and is much faster than sysv hash; in this configuration, sysv hash is also generated)
 
 # We need some default compiler variables setup
-ENV PKG_CONFIG_PATH="${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig" \
+ENV PKG_CONFIG_PATH="${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig" \
     PKG_CONFIG="/usr/bin/pkg-config" \
     PATH="${INSTALL_DIR}/bin:${PATH}"
 

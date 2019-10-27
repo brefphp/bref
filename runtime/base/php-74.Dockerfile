@@ -15,6 +15,29 @@ FROM bref/tmp/step-1/build-environment as build-environment
 
 ENV VERSION_PHP=7.4.0RC4
 
+
+###############################################################################
+# Oniguruma
+# This library is not packaged in PHP since PHP 7.4.
+# See https://github.com/php/php-src/blob/43dc7da8e3719d3e89bd8ec15ebb13f997bbbaa9/UPGRADING#L578-L581
+# We do not install the system version because I didn't manage to make it work...
+# Ideally we shouldn't compile it ourselves.
+# https://github.com/kkos/oniguruma/releases
+# Needed by:
+#   - php mbstring
+ENV VERSION_ONIG=6.9.3
+ENV ONIG_BUILD_DIR=${BUILD_DIR}/oniguruma
+RUN set -xe; \
+    mkdir -p ${ONIG_BUILD_DIR}; \
+    curl -Ls https://github.com/kkos/oniguruma/releases/download/v${VERSION_ONIG}/onig-${VERSION_ONIG}.tar.gz \
+    | tar xzC ${ONIG_BUILD_DIR} --strip-components=1
+WORKDIR  ${ONIG_BUILD_DIR}/
+RUN set -xe; \
+    ./configure --prefix=${INSTALL_DIR}; \
+    make -j $(nproc); \
+    make install
+
+
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 RUN set -xe; \
     mkdir -p ${PHP_BUILD_DIR}; \
@@ -35,7 +58,6 @@ WORKDIR  ${PHP_BUILD_DIR}/
 # --enable-mbstring: because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
 # --enable-maintainer-zts: build PHP as ZTS (Zend Thread Safe) to be able to use pthreads
 # --with-zlib and --with-zlib-dir: See https://stackoverflow.com/a/42978649/245552
-# --disable-mbregex: Since PHP 7.4 the oniguruma library is no longer bundled with PHP (see https://github.com/php/php-src/blob/43dc7da8e3719d3e89bd8ec15ebb13f997bbbaa9/UPGRADING#L578-L581). We disable the support for mbregex for now.
 # --with-pear: necessary for `pecl` to work (to install PHP extensions)
 #
 RUN set -xe \
@@ -76,7 +98,6 @@ RUN set -xe \
         --enable-soap \
         --enable-gd \
         --with-jpeg=${INSTALL_DIR} \
-        --disable-mbregex \
         --with-pear
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
