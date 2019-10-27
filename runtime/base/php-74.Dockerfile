@@ -96,6 +96,7 @@ RUN set -xe \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
         --enable-soap \
+        --with-xsl=${INSTALL_DIR} \
         --enable-gd \
         --with-jpeg=${INSTALL_DIR} \
         --with-pear

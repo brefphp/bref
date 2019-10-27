@@ -74,6 +74,7 @@ RUN set -xe \
         --enable-intl=shared \
         --enable-opcache-file \
         --enable-soap \
+        --with-xsl=${INSTALL_DIR} \
         --with-gd \
         --with-png-dir=${INSTALL_DIR} \
         --with-jpeg-dir=${INSTALL_DIR}
