@@ -128,6 +128,8 @@ extension=pthreads
 
 Due to space limitations in AWS Lambda, Bref cannot provide every possible extension. It is however possible to provide your own extensions via [custom AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 
+> This guide is really raw, feel free to contribute to improve it.
+
 To create your custom layer, you will need to:
 
 - compile the extension (and any required libraries) in the same environment as AWS Lambda and Bref
@@ -135,3 +137,16 @@ To create your custom layer, you will need to:
 - upload the layer to AWS Lambda
 - include it in your project **after the Bref layer**
 - enable the extension in a custom `php.ini`
+
+To compile the extension, Bref provides the `bref/build-php-*` Docker images. Here is an example with imagick:
+
+```dockerfile
+FROM bref/build-php-73
+
+# Install system dependencies you might need
+RUN LD_LIBRARY_PATH= yum install -y ImageMagick-devel
+
+RUN pecl install imagick
+```
+
+The `.so` extension file can then be retrieved in `/opt/bref/lib/php/extensions/...`. If you installed system libraries, you may also need to retrieve them.

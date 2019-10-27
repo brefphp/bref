@@ -118,6 +118,7 @@ RUN ln -s /opt/bref/sbin/* /opt/bin
 RUN pecl install mongodb
 RUN pecl install redis
 RUN pecl install APCu
+RUN pecl install imagick
 
 
 # Run the next step in the previous environment because the `clean.sh` script needs `find`,
