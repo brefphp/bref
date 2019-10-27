@@ -42,7 +42,7 @@ RUN set -xe \
  && curl -Ls  https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz \
     | tar xzC /tmp/cmake --strip-components=1 \
  && ./bootstrap --prefix=/usr/local \
- && make \
+ && make -j $(nproc) \
  && make install
 
 # Use the bash shell, instead of /bin/sh
