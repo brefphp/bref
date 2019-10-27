@@ -342,6 +342,17 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/backend && make generated-headers
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 
 ###############################################################################
+# Imagick Build
+# https://pecl.php.net/package/imagick
+# Needs:
+#   - ImageMagick
+# Needed by:
+#   - php
+
+# Install ImageMagick first
+RUN LD_LIBRARY_PATH= yum install -y ImageMagick-devel
+
+###############################################################################
 # XSL Build
 # https://www.php.net/manual/en/book.xsl.php
 # Needs:
@@ -450,6 +461,7 @@ RUN set -xe; \
 RUN pecl install mongodb
 RUN pecl install redis
 RUN pecl install APCu
+RUN pecl install imagick
 
 ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
 
