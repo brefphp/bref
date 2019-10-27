@@ -62,7 +62,7 @@ ENV INSTALL_DIR="/opt/bref"
 # # Adds GNU HASH segments to generated executables (this is used if present, and is much faster than sysv hash; in this configuration, sysv hash is also generated)
 
 # We need some default compiler variables setup
-ENV PKG_CONFIG_PATH="${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig" \
+ENV PKG_CONFIG_PATH="${INSTALL_DIR}/lib64/pkgconfig:${INSTALL_DIR}/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig" \
     PKG_CONFIG="/usr/bin/pkg-config" \
     PATH="${INSTALL_DIR}/bin:${PATH}"
 
@@ -384,4 +384,4 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 # libicu-devel : needed for
 # libpng-devel : needed for gd
 # libjpeg-devel : needed for gd
-RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel
+RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel sqlite-devel
