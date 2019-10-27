@@ -1,5 +1,5 @@
-ARG LAYER_IMAGE
-FROM $LAYER_IMAGE
+ARG PHP_VERSION
+FROM bref/php-$PHP_VERSION-fpm
 
 # Override the config so that PHP-FPM listens on port 9000
 COPY php-fpm.conf /opt/bref/etc/php-fpm.conf
