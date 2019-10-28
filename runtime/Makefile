@@ -26,6 +26,20 @@ export/console.zip: layers/console/bootstrap
 compiler: compiler.Dockerfile
 	docker build -f ${PWD}/compiler.Dockerfile -t bref/runtime/compiler:latest .
 
+smoke: build
+	docker build -f ${PWD}/helpers/smoke.Dockerfile -t bref/php-72-smoke:fpm --build-arg LAYER_IMAGE=bref/php-72-fpm:$(TAG) helpers
+	docker run --rm bref/php-72-smoke:fpm
+	docker build -f ${PWD}/helpers/smoke.Dockerfile -t bref/php-72-smoke:cli --build-arg LAYER_IMAGE=bref/php-72:$(TAG) helpers
+	docker run --rm bref/php-72-smoke:cli
+	docker build -f ${PWD}/helpers/smoke.Dockerfile -t bref/php-72-smoke:dev --build-arg ini=smoke.dev.php.ini --build-arg LAYER_IMAGE=bref/php-72-fpm-dev:$(TAG) helpers
+	docker run --rm bref/php-72-smoke:dev
+	docker build -f ${PWD}/helpers/smoke.Dockerfile -t bref/php-73-smoke:fpm --build-arg LAYER_IMAGE=bref/php-73-fpm:$(TAG) helpers
+	docker run --rm bref/php-73-smoke:fpm
+	docker build -f ${PWD}/helpers/smoke.Dockerfile -t bref/php-73-smoke:cli --build-arg LAYER_IMAGE=bref/php-73:$(TAG) helpers
+	docker run --rm bref/php-73-smoke:cli
+	docker build -f ${PWD}/helpers/smoke.Dockerfile -t bref/php-73-smoke:dev --build-arg ini=smoke.dev.php.ini --build-arg LAYER_IMAGE=bref/php-73-fpm-dev:$(TAG) helpers
+	docker run --rm bref/php-73-smoke:dev
+
 # Compile PHP and its extensions
 build: compiler
 	docker build -f ${PWD}/php-intermediary.Dockerfile -t bref/php-72-intermediary:latest $(shell helpers/docker_args.sh versions.ini php72) .
