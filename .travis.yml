@@ -26,7 +26,7 @@ jobs:
         script: vendor/bin/phpunit --testsuite small
 
     -   name: 'PHPUnit with PHP 7.4'
-        php: 7.4
+        php: 7.4snapshot
         before_script: composer install -n
         script: vendor/bin/phpunit --testsuite small
 
