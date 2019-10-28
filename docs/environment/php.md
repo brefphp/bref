@@ -60,11 +60,12 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.gettext.php">gettext</a></li>
         <li><a href="http://php.net/manual/en/book.hash.php">hash</a></li>
         <li><a href="http://php.net/manual/en/book.iconv.php">iconv</a></li>
-        <li><a href="http://php.net/manual/en/book.json.php">json</a></li>
+        <li><a href="http://php.net/manual/en/book.imagick.php">imagick</a></li>
         </ul>
       </td>
       <td  align="left" valign="top">
         <ul>
+        <li><a href="http://php.net/manual/en/book.json.php">json</a></li>
         <li><a href="http://php.net/manual/en/book.libxml.php">libxml</a></li>
         <li><a href="http://php.net/manual/en/book.mbstring.php">mbstring</a></li>
         <li><a href="http://php.net/manual/en/book.mysqli.php">mysqli</a></li>
@@ -78,11 +79,11 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.Phar.php">Phar</a></li>
         <li><a href="http://php.net/manual/en/book.posix.php">posix</a></li>
         <li><a href="http://php.net/manual/en/book.readline.php">readline</a></li>
-        <li><a href="http://php.net/manual/en/book.Reflection.php">Reflection</a></li>
         </ul>
       </td>
       <td align="left" valign="top">
-        <ul>
+        <ul>  
+        <li><a href="http://php.net/manual/en/book.Reflection.php">Reflection</a></li>
         <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
         <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
@@ -95,6 +96,11 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.xml.php">xml</a></li>
         <li><a href="http://php.net/manual/en/book.xmlreader.php">xmlreader</a></li>
         <li><a href="http://php.net/manual/en/book.xmlwriter.php">xmlwriter</a></li>
+        <li><a href="http://php.net/manual/en/book.xsl.php">xsl</a></li>
+        </ul>
+      </td>
+      <td align="left" valign="top">
+        <ul>
         <li><a href="http://php.net/manual/en/book.zlib.php">zlib</a></li>
         </ul>
       </td>
