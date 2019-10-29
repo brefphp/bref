@@ -5,7 +5,7 @@ runtimes:
 	cd runtime && make publish
 
 docker-images:
-	cd runtime && make build
+	cd runtime && make docker-images
 	docker push bref/php-72
 	docker push bref/php-72-fpm
 	docker push bref/php-72-fpm-dev
