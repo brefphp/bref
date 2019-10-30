@@ -139,6 +139,7 @@ class PhpFpmRuntimeTest extends TestCase
             'xml',
             'xmlreader',
             'xmlwriter',
+            'xsl',
             'zip',
             'zlib',
         ], $extensions, $this->logs);

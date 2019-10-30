@@ -183,6 +183,7 @@ LOGS;
             'xml',
             'xmlreader',
             'xmlwriter',
+            'xsl',
             'zip',
             'zlib',
         ], $result, $logs);
