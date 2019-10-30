@@ -12,6 +12,8 @@ docker-images:
 	docker push bref/php-73
 	docker push bref/php-73-fpm
 	docker push bref/php-73-fpm-dev
+	docker push bref/build-php-72
+	docker push bref/build-php-73
 	docker push bref/fpm-dev-gateway
 
 # Generate and deploy the production version of the website using http://couscous.io
