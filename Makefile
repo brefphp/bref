@@ -40,6 +40,6 @@ demo:
 	serverless deploy
 
 layers.json:
-	php runtime/layer-list.php
+	php runtime/layers/layer-list.php
 
 .PHONY: runtimes website website-preview website-assets demo layers.json
