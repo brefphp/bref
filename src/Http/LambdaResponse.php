@@ -60,6 +60,8 @@ final class LambdaResponse
 
     public function toApiGatewayFormat(bool $multiHeaders = false): array
     {
+        $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
+
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
         $headers = empty($this->headers) ? new \stdClass : $this->headers;
@@ -70,10 +72,10 @@ final class LambdaResponse
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
         return [
-            'isBase64Encoded' => false,
+            'isBase64Encoded' => $base64Encoding,
             'statusCode' => $this->statusCode,
             $headersKey => $headers,
-            'body' => $this->body,
+            'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
         ];
     }
 }
