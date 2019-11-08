@@ -24,6 +24,12 @@ foreach ($allLayers as $layer) {
     $phpVersion = trim(`docker run --rm --entrypoint php $layer -v`);
     assertContains('PHP 7.', $phpVersion);
     echo '.';
+
+    exec("docker run --rm -v \${PWD}/helpers:/var/task/ --entrypoint /var/task/extensions-test.sh $layer", $output, $exitCode);
+    if ($exitCode !== 0) {
+        throw new Exception(implode(PHP_EOL, $output), $exitCode);
+    }
+    echo '.';
 }
 
 // FPM layers
