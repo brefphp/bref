@@ -50,6 +50,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => '',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'REQUEST_CONTEXT_PROTOCOL' => 'HTTP/1.1',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -124,6 +125,56 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with requestContext array support()
+    {
+        $event = [
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
+            'multiValueQueryStringParameters' => [
+                'foo' => ['bar', 'baz'],
+            ],
+            'queryStringParameters' => [
+                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
+            ],
+            'requestContext' => [
+                'foo' => 'baz',
+                'baz' => 'far',
+                'data' => [
+                    'recurse1' => 1,
+                    'recurse2' => 2,
+                ],
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                // TODO The feature is not implemented yet
+                'foo' => 'bar',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'foo' => 'bar',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?foo=bar',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'foo=bar',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'REQUEST_CONTEXT_FOO' => 'baz',
+                'REQUEST_CONTEXT_BAZ' => 'far',
+                'REQUEST_CONTEXT_DATA_RECURSE1' => 1,
+                'REQUEST_CONTEXT_DATA_RECURSE2' => 2,
+            ],
+            'HTTP_RAW_BODY' => '',
+
         ]);
     }
 
