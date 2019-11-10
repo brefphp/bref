@@ -155,7 +155,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
             'HTTP_RAW_BODY' => '',
-            'REQUEST_CONTEXT' => '{ \"foo\": \"baz\" }',
+            'REQUEST_CONTEXT' => '{"foo":"baz"}',
         ]);
     }
 
