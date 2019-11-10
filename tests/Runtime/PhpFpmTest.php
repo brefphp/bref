@@ -118,7 +118,6 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
     
-    
     public function test request with requestContext array support()
     {
         $event = [

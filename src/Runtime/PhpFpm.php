@@ -174,7 +174,6 @@ final class PhpFpm
     {
         $requestBody = $event['body'] ?? '';
         $requestContext = json_encode($event['requestContext']) ?? '';
-        
         if ($event['isBase64Encoded'] ?? false) {
             $requestBody = base64_decode($requestBody);
         }
