@@ -173,6 +173,8 @@ final class PhpFpm
     private function eventToFastCgiRequest(array $event): ProvidesRequestData
     {
         $requestBody = $event['body'] ?? '';
+        $requestContext = json_encode($event['requestContext']) ?? '';
+        
         if ($event['isBase64Encoded'] ?? false) {
             $requestBody = base64_decode($requestBody);
         }
@@ -209,7 +211,7 @@ final class PhpFpm
         $request->setServerPort((int) ($headers['x-forwarded-port'][0] ?? 80));
         $request->setCustomVar('PATH_INFO', $event['path'] ?? '/');
         $request->setCustomVar('QUERY_STRING', $queryString);
-        $request->setCustomVar('REQUEST_CONTEXT', json_encode($event['requestContext']));
+        $request->setCustomVar('REQUEST_CONTEXT', $requestContext);
         // See https://stackoverflow.com/a/5519834/245552
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
             $headers['content-type'] = ['application/x-www-form-urlencoded'];
