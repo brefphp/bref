@@ -117,6 +117,48 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
             'HTTP_RAW_BODY' => '',
         ]);
     }
+    
+    
+    public function test request with requestContext array support()
+    {
+        $event = [
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
+            'multiValueQueryStringParameters' => [
+                'foo' => ['bar', 'baz'],
+            ],
+            'queryStringParameters' => [
+                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
+            ],
+            'requestContext' => [
+                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                // TODO The feature is not implemented yet
+                'foo' => 'bar',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'foo' => 'bar',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?foo=bar',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'foo=bar',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            ],
+            'HTTP_RAW_BODY' => '',
+            'REQUEST_CONTEXT' => '{ \"foo\": \"baz\" }'
+        ]);
+    }
 
     public function test request with arrays in query string()
     {
