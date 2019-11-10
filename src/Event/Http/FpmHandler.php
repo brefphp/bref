@@ -179,6 +179,9 @@ final class FpmHandler extends HttpHandler
         $request->setServerPort($event->getServerPort());
         $request->setCustomVar('PATH_INFO', $event->getPath());
         $request->setCustomVar('QUERY_STRING', $event->getQueryString());
+        if ($event['requestContext'] ?? false) {
+            $this->setArrayValue('REQUEST_CONTEXT', $event['requestContext'], $request);
+        }
         $contentType = $event->getContentType();
         if ($contentType) {
             $request->setContentType($contentType);
@@ -270,5 +273,25 @@ final class FpmHandler extends HttpHandler
         }
 
         return array_change_key_case($responseHeaders, CASE_LOWER);
+    }
+
+    /**
+     * Recursively loop through a data object and create env variables
+     */
+    private function setArrayValue(string $name, array $array, FastCgiRequest $request): void
+    {
+        if (! is_array($array)) {
+            $request->setCustomVar(strtoupper($name), $array);
+        }
+
+        foreach ($array as $key => $value) {
+            if (! is_array($value)) {
+                $request->setCustomVar(strtoupper($name . '_' . $key), $value);
+            }
+
+            if (is_array($value)) {
+                $this->setArrayValue(strtoupper($name . '_' . $key), $value, $request);
+            }
+        }
     }
 }
