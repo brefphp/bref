@@ -173,7 +173,7 @@ final class PhpFpm
     private function eventToFastCgiRequest(array $event): ProvidesRequestData
     {
         $requestBody = $event['body'] ?? '';
-        $requestContext = ($event['requestContext']) ? json_encode($event['requestContext']) : '';
+        $requestContext = $event['requestContext'] ? json_encode($event['requestContext']) : '';
         if ($event['isBase64Encoded'] ?? false) {
             $requestBody = base64_decode($requestBody);
         }
