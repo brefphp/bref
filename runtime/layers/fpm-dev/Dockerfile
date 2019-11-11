@@ -4,6 +4,14 @@ FROM bref/build-php-$PHP_VERSION as build_extensions
 RUN pecl install xdebug
 RUN cp $(php -r "echo ini_get('extension_dir');")/xdebug.so /tmp
 
+ENV current_os=linux
+RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")-zts \
+    && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/$current_os/amd64/$version \
+    && mkdir -p /tmp/blackfire \
+    && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
+    && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so \
+    && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
+
 FROM bref/php-${PHP_VERSION}-fpm as build_dev
 
 USER root

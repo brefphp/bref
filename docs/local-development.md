@@ -157,6 +157,28 @@ xdebug.remote_autostart = 0
 xdebug.remote_host = '10.254.254.254'
 ```
 
+### Blackfire
+
+The development FPM container comes with the blackfire extension. When using docker compose you can add following service configuration for the blackfire agent:
+
+```yaml
+services:
+  blackfire:
+    image: blackfire/blackfire
+    environment:
+      BLACKFIRE_SERVER_ID: server-id
+      BLACKFIRE_SERVER_TOKEN: server-token
+```
+
+In order to enable the probe you can create a folder `php/conf.dev.d` in your project and include an ini file enabling blackfire:
+
+```ini
+extension=blackfire
+blackfire.agent_socket=tcp://blackfire:8707
+```
+
+For more details about using blackfire in a docker environment see the [blackfire docs](https://blackfire.io/docs/integrations/docker)
+
 ## Console applications
 
 Console applications can be tested just like before: by running the command in your terminal.
