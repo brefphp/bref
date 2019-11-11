@@ -214,7 +214,7 @@ final class PhpFpm
 //            foreach ($event['requestContext'] as $key => $value) {
 //                $request->setCustomVar('REQUEST_CONTEXT_' . strtoupper($key), $value);
 //            }
-            $request->setCustomVar('REQUEST_CONTEXT', []);
+            $request->addCustomVars(['test' => 'test']);
         }
         // See https://stackoverflow.com/a/5519834/245552
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
