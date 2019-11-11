@@ -41,7 +41,10 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => '',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
-                'REQUEST_CONTEXT_PROTOCOL' => 'HTTP/1.1',
+                'REQUEST_CONTEXT' => [
+                    ['PROTOCOL' => 'HTTP/1.1'],
+                    ['test' => 'test2'],
+                ],
             ],
             'HTTP_RAW_BODY' => '',
         ]);
