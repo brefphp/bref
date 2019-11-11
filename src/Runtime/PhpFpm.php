@@ -211,14 +211,8 @@ final class PhpFpm
         $request->setCustomVar('PATH_INFO', $event['path'] ?? '/');
         $request->setCustomVar('QUERY_STRING', $queryString);
         if ($event['requestContext'] ?? false) {
-            $requestContext = [];
             foreach ($event['requestContext'] as $key => $value) {
-                $requestContext[$key] = $value[0];
-                $request->setCustomVar('REQUEST_CONTEXT_' . strtoupper($key), $requestContext);
-                $request->setCustomVar('TEST', [
-                    ['yes' => 'no'],
-                    ['yes' => true]
-                ]);
+                $request->setCustomVar('REQUEST_CONTEXT_' . strtoupper($key), $value);
             }
         }
         // See https://stackoverflow.com/a/5519834/245552
