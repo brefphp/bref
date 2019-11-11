@@ -251,7 +251,7 @@ final class LambdaRuntime
          * - else we encode all other responses to base64
          * API Gateway checks `isBase64Encoded` and decodes what we returned if necessary.
          */
-        if ($contentType && $contentType !== 'application/json' && strpos($contentType, 'text/') !== 0) {
+        if ($contentType && strpos($contentType, 'application/json') !== 0 && strpos($contentType, 'text/') !== 0) {
             $data['body'] = base64_encode($data['body']);
             $data['isBase64Encoded'] = true;
         }

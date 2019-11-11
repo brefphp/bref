@@ -101,6 +101,19 @@ monolog:
             path: "php://stderr"
 ```
 
+Be aware that Symfony also log deprecations:
+
+```yaml
+monolog:
+    handlers:
+        # ...
+        deprecation:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+```
+
+Either change the path to `php://stderr` or remove the logging of deprecations entirely.
+
 ## Environment variables
 
 Since Symfony 4, the production parameters are configured through environment variables. You can define some in `serverless.yml` in the [Globals section](https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst):

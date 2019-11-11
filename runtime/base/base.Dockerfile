@@ -1,9 +1,52 @@
-# We use the compiler image we built in order to compile the libraries
-# and executables required for the base bref image.
+# The container we build here contains everything needed to compile PHP.
 
-FROM bref/runtime/compiler:latest as php_builder
+
+# Lambda instances use the amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2 AMI, as
+# documented under the AWS Lambda Runtimes.
+# https://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html
+# AWS provides it a Docker image that we use here:
+# https://github.com/aws/amazon-linux-docker-images/tree/2018.03
+FROM amazonlinux:2018.03
+
+
+# Move to /tmp to compile everything in there.
+WORKDIR /tmp
+
+
+# Lambda is based on 2018.03. Lock YUM to that release version.
+RUN sed -i 's/releasever=latest/releaserver=2018.03/' /etc/yum.conf
+
+
+RUN set -xe \
+    # Download yum repository data to cache
+ && yum makecache \
+    # Default Development Tools
+ && yum groupinstall -y "Development Tools" --setopt=group_package_types=mandatory,default \
+    # PHP will use gcc 7.2 (installed because of `kernel-devel`) to compile itself.
+    # But the intl extension is C++ code. Since gcc-c++ 7.2 is not installed by default, gcc-c++ 4 will be used.
+    # The mismatch breaks the build, see https://github.com/brefphp/bref/pull/373
+    # To fix this, we install gcc-c++ 7.2. We also install gcc 7.2 explicitly to make sure we keep the same
+    # version in the future.
+ && yum install -y gcc72 gcc72-c++
+
+
+# The version of cmake we can get from the yum repo is 2.8.12. We need cmake to build a few of
+# our libraries, and at least one library requires a version of cmake greater than the one
+# provided in the repo.
+#
+# Needed to build:
+# - libzip: minimum required CMAKE version 3.0.2
+RUN set -xe \
+ && mkdir -p /tmp/cmake \
+ && cd /tmp/cmake \
+ && curl -Ls  https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz \
+    | tar xzC /tmp/cmake --strip-components=1 \
+ && ./bootstrap --prefix=/usr/local \
+ && make -j $(nproc) \
+ && make install
 
 # Use the bash shell, instead of /bin/sh
+# Why? We need to document this.
 SHELL ["/bin/bash", "-c"]
 
 # We need a base path for all the sourcecode we will build from.
@@ -49,11 +92,11 @@ RUN mkdir -p ${BUILD_DIR}  \
 # https://github.com/madler/zlib/releases
 # Needed for:
 #   - openssl
+#   - curl
 #   - php
 # Used By:
 #   - xml2
-ARG zlib
-ENV VERSION_ZLIB=${zlib}
+ENV VERSION_ZLIB=1.2.11
 ENV ZLIB_BUILD_DIR=${BUILD_DIR}/xml2
 
 RUN set -xe; \
@@ -85,9 +128,9 @@ RUN set -xe; \
 # Needs:
 #   - zlib
 # Needed by:
+#   - curl
 #   - php
-ARG openssl
-ENV VERSION_OPENSSL=${openssl}
+ENV VERSION_OPENSSL=1.1.1a
 ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/xml2
 ENV CA_BUNDLE_SOURCE="https://curl.haxx.se/ca/cacert.pem"
 ENV CA_BUNDLE="${INSTALL_DIR}/ssl/cert.pem"
@@ -128,8 +171,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - curl
-ARG libssh2
-ENV VERSION_LIBSSH2=${libssh2}
+ENV VERSION_LIBSSH2=1.8.0
 ENV LIBSSH2_BUILD_DIR=${BUILD_DIR}/libssh2
 
 RUN set -xe; \
@@ -162,11 +204,10 @@ RUN set -xe; \
 # # Needs:
 # #   - zlib
 # #   - OpenSSL
-# #   - curl
+# #   - libssh2
 # # Needed by:
 # #   - php
-ARG curl
-ENV VERSION_CURL=${curl}
+ENV VERSION_CURL=7.63.0
 ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
 
 RUN set -xe; \
@@ -216,8 +257,7 @@ RUN set -xe; \
 #   - zlib
 # Needed by:
 #   - php
-ARG libxml2
-ENV VERSION_XML2=${libxml2}
+ENV VERSION_XML2=2.9.8
 ENV XML2_BUILD_DIR=${BUILD_DIR}/xml2
 
 RUN set -xe; \
@@ -255,8 +295,7 @@ RUN set -xe; \
 # https://github.com/nih-at/libzip/releases
 # Needed by:
 #   - php
-ARG libzip
-ENV VERSION_ZIP=${libzip}
+ENV VERSION_ZIP=1.5.1
 ENV ZIP_BUILD_DIR=${BUILD_DIR}/zip
 
 RUN set -xe; \
@@ -283,12 +322,11 @@ RUN set -xe; \
 ###############################################################################
 # LIBSODIUM Build
 # https://github.com/jedisct1/libsodium/releases
-# Uses:
+# Needs:
 #
 # Needed by:
 #   - php
-ARG libsodium
-ENV VERSION_LIBSODIUM=${libsodium}
+ENV VERSION_LIBSODIUM=1.0.16
 ENV LIBSODIUM_BUILD_DIR=${BUILD_DIR}/libsodium
 
 RUN set -xe; \
@@ -318,8 +356,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - php
-ARG postgres
-ENV VERSION_POSTGRES=${postgres}
+ENV VERSION_POSTGRES=9.6.11
 ENV POSTGRES_BUILD_DIR=${BUILD_DIR}/postgres
 
 RUN set -xe; \
@@ -341,164 +378,12 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/bin/pg_config && make -j $(nproc) && m
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/backend && make generated-headers
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 
-###############################################################################
-# PHP Build
-# https://github.com/php/php-src/releases
-# Needs:
-#   - zlib
-#   - libxml2
-#   - openssl
-#   - readline
-#   - sodium
-
-ARG php
-# Setup Build Variables
-ENV VERSION_PHP=${php}
-ENV PHP_BUILD_DIR=${BUILD_DIR}/php
-
-RUN set -xe; \
-    mkdir -p ${PHP_BUILD_DIR}; \
-# Download and upack the source code
-    curl -Ls https://github.com/php/php-src/archive/php-${VERSION_PHP}.tar.gz \
-  | tar xzC ${PHP_BUILD_DIR} --strip-components=1
-
-# Move into the unpackaged code directory
-WORKDIR  ${PHP_BUILD_DIR}/
-
 # Install some dev files for using old libraries already on the system
 # readline-devel : needed for the --with-libedit flag
 # gettext-devel : needed for the --with-gettext flag
 # libicu-devel : needed for
 # libpng-devel : needed for gd
 # libjpeg-devel : needed for gd
-RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel
-
-# Configure the build
-# -fstack-protector-strong : Be paranoid about stack overflows
-# -fpic : Make PHP's main executable position-independent (improves ASLR security mechanism, and has no performance impact on x86_64)
-# -fpie : Support Address Space Layout Randomization (see -fpic)
-# -O3 : Optimize for fastest binaries possible.
-# -I : Add the path to the list of directories to be searched for header files during preprocessing.
-# --enable-option-checking=fatal: make sure invalid --configure-flags are fatal errors instead of just warnings
-# --enable-ftp: because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
-# --enable-mbstring: because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
-# --enable-maintainer-zts: build PHP as ZTS (Zend Thread Safe) to be able to use pthreads
-# --with-zlib and --with-zlib-dir: See https://stackoverflow.com/a/42978649/245552
-# --enable-opcache-file: allows to use the `opcache.file_cache` option
-#
-RUN set -xe \
- && ./buildconf --force \
- && CFLAGS="-fstack-protector-strong -fpic -fpie -O3 -I${INSTALL_DIR}/include -I/usr/include -ffunction-sections -fdata-sections" \
-    CPPFLAGS="-fstack-protector-strong -fpic -fpie -O3 -I${INSTALL_DIR}/include -I/usr/include -ffunction-sections -fdata-sections" \
-    LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib -Wl,-O1 -Wl,--strip-all -Wl,--hash-style=both -pie" \
-    ./configure \
-        --build=x86_64-pc-linux-gnu \
-        --prefix=${INSTALL_DIR} \
-        --enable-option-checking=fatal \
-        --enable-maintainer-zts \
-        --enable-sockets \
-        --with-config-file-path=${INSTALL_DIR}/etc/php \
-        --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/var/task/php/conf.d \
-        --enable-fpm \
-        --disable-cgi \
-        --enable-cli \
-        --disable-phpdbg \
-        --disable-phpdbg-webhelper \
-        --with-sodium \
-        --with-readline \
-        --with-openssl \
-        --with-zlib=${INSTALL_DIR} \
-        --with-zlib-dir=${INSTALL_DIR} \
-        --with-curl \
-        --enable-exif \
-        --enable-ftp \
-        --with-gettext \
-        --enable-mbstring \
-        --with-pdo-mysql=shared,mysqlnd \
-        --with-mysqli \
-        --enable-pcntl \
-        --enable-zip \
-        --enable-bcmath \
-        --with-pdo-pgsql=shared,${INSTALL_DIR} \
-        --enable-intl=shared \
-        --enable-opcache-file \
-        --enable-soap \
-        --with-gd \
-        --with-png-dir=${INSTALL_DIR} \
-        --with-jpeg-dir=${INSTALL_DIR}
-RUN make -j $(nproc)
-# Run `make install` and override PEAR's PHAR URL because pear.php.net is down
-RUN set -xe; \
- make install PEAR_INSTALLER_URL='https://github.com/pear/pearweb_phars/raw/master/install-pear-nozlib.phar'; \
- { find ${INSTALL_DIR}/bin ${INSTALL_DIR}/sbin -type f -perm +0111 -exec strip --strip-all '{}' + || true; }; \
- make clean; \
- cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
-
-RUN pecl install mongodb
-RUN pecl install redis
-RUN pecl install APCu
-
-ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
-
-# Build from master because there are no pthreads release compatible with PHP 7.3
-RUN set -xe; \
-    mkdir -p ${PTHREADS_BUILD_DIR}/bin; \
-    curl -Ls https://github.com/krakjoe/pthreads/archive/master.tar.gz \
-    | tar xzC ${PTHREADS_BUILD_DIR} --strip-components=1
-
-WORKDIR  ${PTHREADS_BUILD_DIR}/
-
-RUN set -xe; \
-    phpize \
- && ./configure \
- && make \
- && make install
-
-
-# Strip all the unneeded symbols from shared libraries to reduce size.
-RUN find ${INSTALL_DIR} -type f -name "*.so*" -o -name "*.a"  -exec strip --strip-unneeded {} \;
-RUN find ${INSTALL_DIR} -type f -executable -exec sh -c "file -i '{}' | grep -q 'x-executable; charset=binary'" \; -print|xargs strip --strip-all
-
-# Cleanup all the binaries we don't want.
-RUN find /opt/bref/bin -mindepth 1 -maxdepth 1 ! -name "php" ! -name "pecl" -exec rm {} \+
-
-# Cleanup all the files we don't want either
-# We do not support running pear functions in Lambda
-RUN rm -rf /opt/bref/lib/php/PEAR \
-  rm -rf /opt/bref/share/doc \
-  rm -rf /opt/bref/share/man \
-  rm -rf /opt/bref/share/gtk-doc \
-  rm -rf /opt/bref/include \
-  rm -rf /opt/bref/lib/php/test \
-  rm -rf /opt/bref/lib/php/doc \
-  rm -rf /opt/bref/lib/php/docs \
-  rm -rf /opt/bref/tests \
-  rm -rf /opt/bref/doc \
-  rm -rf /opt/bref/docs \
-  rm -rf /opt/bref/man \
-  rm -rf /opt/bref/www \
-  rm -rf /opt/bref/cfg \
-  rm -rf /opt/bref/libexec \
-  rm -rf /opt/bref/var \
-  rm -rf /opt/bref/data
-
-# Symlink all our binaries into /opt/bin so that Lambda sees them in the path.
-RUN mkdir -p /opt/bin
-RUN ln -s /opt/bref/bin/* /opt/bin
-RUN ln -s /opt/bref/sbin/* /opt/bin
-
-
-# Now we get rid of everything that is unnecessary. All the build tools, source code, and anything else
-# that might have created intermediate layers for docker. Back to base AmazonLinux we started with.
-FROM amazonlinux:2018.03
-ENV INSTALL_DIR="/opt/bref"
-ENV PATH="/opt/bin:${PATH}" \
-    LD_LIBRARY_PATH="${INSTALL_DIR}/lib64:${INSTALL_DIR}/lib"
-
-RUN mkdir -p /opt
-# Copy everything we built above into the same dir on the base AmazonLinux container.
-COPY --from=php_builder /opt /opt
-
-# Install zip: we will need it later to create the layers as zip files
-RUN LD_LIBRARY_PATH= yum -y install zip
-WORKDIR /var/task
+# libxslt-devel : needed for the XSL extension
+# ImageMagick-devel : needed for the imagick extension
+RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel libxslt-devel ImageMagick-devel
