@@ -216,7 +216,7 @@ final class PhpFpm
                 $requestContext[strtoupper($key)] = $value;
                 $request->setCustomVar('REQUEST_CONTEXT_' . strtoupper($key), $value);
             }
-            $request->addCustomVars($requestContext);
+            $request->addCustomVars(['REQUEST_CONTEXT' => $requestContext]);
 
         }
         // See https://stackoverflow.com/a/5519834/245552
