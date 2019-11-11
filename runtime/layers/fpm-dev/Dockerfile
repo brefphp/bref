@@ -24,7 +24,7 @@ COPY --from=build_dev  /opt /opt
 # Override the config so that PHP-FPM listens on port 9000
 COPY php-fpm.conf /opt/bref/etc/php-fpm.conf
 
-EXPOSE 9000
+EXPOSE 9001
 
 # Clear the parent entrypoint
 ENTRYPOINT []
