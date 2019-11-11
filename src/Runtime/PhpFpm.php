@@ -211,10 +211,12 @@ final class PhpFpm
         $request->setCustomVar('PATH_INFO', $event['path'] ?? '/');
         $request->setCustomVar('QUERY_STRING', $queryString);
         if ($event['requestContext'] ?? false) {
+
+            $changeToAssoc = json_decode($event['requestContext'], true);
+            echo $changeToAssoc;
             $requestContext = [];
             foreach (json_decode(json_encode($event['requestContext']),true) as $key => $value) {
                 $requestContext[strtoupper($key)] = $value;
-                $request->setCustomVar('REQUEST_CONTEXT_' . strtoupper($key), $value);
             }
             $request->addCustomVars(['REQUEST_CONTEXT' => $requestContext]);
 
