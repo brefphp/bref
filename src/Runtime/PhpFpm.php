@@ -213,7 +213,7 @@ final class PhpFpm
         if ($event['requestContext'] ?? false) {
 
             $changeToAssoc = $event['requestContext'];
-            echo $changeToAssoc;
+            print_r($changeToAssoc);
             $requestContext = [];
             foreach (json_decode(json_encode($event['requestContext']),true) as $key => $value) {
                 $requestContext[strtoupper($key)] = $value;
