@@ -211,7 +211,7 @@ final class PhpFpm
         $request->setCustomVar('PATH_INFO', $event['path'] ?? '/');
         $request->setCustomVar('QUERY_STRING', $queryString);
         if ($event['requestContext'] ?? false) {
-            $request->setCustomVar('REQUEST_CONTEXT', json_decode(json_encode($event['requestContext']), true));
+            $request->setCustomVar('REQUEST_CONTEXT', $event['requestContext']);
         }
         // See https://stackoverflow.com/a/5519834/245552
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
