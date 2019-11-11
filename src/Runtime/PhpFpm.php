@@ -212,7 +212,7 @@ final class PhpFpm
         $request->setCustomVar('QUERY_STRING', $queryString);
         if ($event['requestContext'] ?? false) {
 
-            $changeToAssoc = json_decode($event['requestContext'], true);
+            $changeToAssoc = $event['requestContext'];
             echo $changeToAssoc;
             $requestContext = [];
             foreach (json_decode(json_encode($event['requestContext']),true) as $key => $value) {
