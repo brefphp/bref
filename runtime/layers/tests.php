@@ -46,6 +46,25 @@ foreach ($fpmLayers as $layer) {
     echo '.';
 }
 
+// dev layers
+$devLayers = [
+    'bref/php-72-fpm-dev',
+    'bref/php-73-fpm-dev',
+];
+$devExtensions = [
+    'xdebug',
+    'blackfire',
+];
+foreach ($devLayers as $layer) {
+    exec("docker run --rm -v \${PWD}/helpers:/var/task/ --entrypoint php $layer -m", $output, $exitCode);
+    $notLoaded = array_diff($devExtensions, $output);
+    // all development extensions are loaded
+    if ($exitCode !== 0 || count($notLoaded) > 0) {
+        throw new Exception(implode(PHP_EOL, array_map(function ($extension) { return "Extension $extension is not loaded"; }, $notLoaded)), $exitCode);
+    }
+    echo '.';
+}
+
 echo "\nTests passed\n";
 
 function assertEquals($expected, $actual)
