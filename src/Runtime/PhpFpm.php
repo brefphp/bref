@@ -216,7 +216,7 @@ final class PhpFpm
 //            }
             $request->addCustomVars(['test' => [
                 ['yes' => 'test']
-            ]);
+            ]]);
         }
         // See https://stackoverflow.com/a/5519834/245552
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
