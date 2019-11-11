@@ -212,7 +212,7 @@ final class PhpFpm
         $request->setCustomVar('QUERY_STRING', $queryString);
         if ($event['requestContext'] ?? false) {
             $requestContext = [];
-            foreach ($event['requestContext'] as $key => $value) {
+            foreach (json_decode(json_encode($event['requestContext']),true) as $key => $value) {
                 $requestContext[strtoupper($key)] = $value;
                 $request->setCustomVar('REQUEST_CONTEXT_' . strtoupper($key), $value);
             }
