@@ -215,6 +215,8 @@ final class PhpFpm
             foreach ($event['requestContext'] as $key => $value) {
                 $requestContext[strtoupper($key)] = $value;
             }
+
+            var_dump($requestContext);
             $request->setCustomVar('REQUEST_CONTEXT', $requestContext);
         }
         // See https://stackoverflow.com/a/5519834/245552
