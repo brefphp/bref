@@ -210,11 +210,12 @@ final class PhpFpm
         $request->setServerPort((int) ($headers['x-forwarded-port'][0] ?? 80));
         $request->setCustomVar('PATH_INFO', $event['path'] ?? '/');
         $request->setCustomVar('QUERY_STRING', $queryString);
-//        if ($event['requestContext'] ?? false) {
+        if ($event['requestContext'] ?? false) {
 //            foreach ($event['requestContext'] as $key => $value) {
 //                $request->setCustomVar('REQUEST_CONTEXT_' . strtoupper($key), $value);
 //            }
-//        }
+            $request->setCustomVar('REQUEST_CONTEXT', 'test');
+        }
         // See https://stackoverflow.com/a/5519834/245552
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
             $headers['content-type'] = ['application/x-www-form-urlencoded'];
