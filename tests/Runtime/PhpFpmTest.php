@@ -136,7 +136,7 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'baz' => 'far',
                 'data' => [
                     'recurse1' => 1,
-                    'recurse2' => 2
+                    'recurse2' => 2,
                 ],
             ],
         ];
