@@ -132,7 +132,12 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'foo' => 'baz', // the 2nd value is preserved only by API Gateway
             ],
             'requestContext' => [
-                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
+                'foo' => 'baz',
+                'baz' => 'far',
+                'data' => [
+                    'recurse1' => 1,
+                    'recurse2' => 2
+                ],
             ],
         ];
         $this->assertGlobalVariables($event, [
@@ -155,6 +160,9 @@ class PhpFpmTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'REQUEST_CONTEXT_FOO' => 'baz',
+                'REQUEST_CONTEXT_BAZ' => 'far',
+                'REQUEST_CONTEXT_DATA_RECURSE1' => 1,
+                'REQUEST_CONTEXT_DATA_RECURSE2' => 2,
             ],
             'HTTP_RAW_BODY' => '',
 

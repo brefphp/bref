@@ -211,9 +211,7 @@ final class PhpFpm
         $request->setCustomVar('PATH_INFO', $event['path'] ?? '/');
         $request->setCustomVar('QUERY_STRING', $queryString);
         if ($event['requestContext'] ?? false) {
-            foreach ($event['requestContext'] as $key => $value) {
-                $request->setCustomVar('REQUEST_CONTEXT_' . strtoupper($key), $value);
-            }
+            $this->setArrayValue('REQUEST_CONTEXT', $event['requestContext'], $request);
         }
         // See https://stackoverflow.com/a/5519834/245552
         if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
@@ -359,5 +357,29 @@ final class PhpFpm
         }
 
         return array_change_key_case($responseHeaders, CASE_LOWER);
+    }
+
+    /**
+     * Recursively loop through a data object and create env variables
+     *
+     * @param string $name
+     * @param array $array
+     * @param $request
+     */
+    private function setArrayValue(string $name, array $array, $request): void {
+
+        if(!is_array($array)){
+            $request->setCustomVar(strtoupper($name), $array);
+        }
+
+        foreach ($array as $key => $value) {
+            if(!is_array($value)){
+                $request->setCustomVar(strtoupper($name . '_' . $key), $value);
+            }
+
+            if(is_array($value)){
+                $this->setArrayValue(strtoupper($name . '_' .$key), $value, $request);
+            }
+        }
     }
 }
