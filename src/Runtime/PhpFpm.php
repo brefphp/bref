@@ -362,18 +362,18 @@ final class PhpFpm
     /**
      * Recursively loop through a data object and create env variables
      */
-    private function setArrayValue(string $name,  array $array,  $request): void
+    private function setArrayValue(string $name, array $array, $request): void
     {
-        if(!is_array($array)){
+        if (!is_array($array)) {
             $request->setCustomVar(strtoupper($name), $array);
         }
 
         foreach ($array as $key => $value) {
-            if(!is_array($value)){
+            if (!is_array($value)) {
                 $request->setCustomVar(strtoupper($name . '_' . $key), $value);
             }
 
-            if(is_array($value)){
+            if (is_array($value)) {
                 $this->setArrayValue(strtoupper($name . '_' .$key), $value, $request);
             }
         }
