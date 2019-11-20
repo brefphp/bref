@@ -32,6 +32,11 @@ provider:
 plugins:
     - ./vendor/bref/bref
 
+package:
+    exclude:
+        - node_modules/**
+        - tests/**
+
 functions:
     website:
         handler: public/index.php
