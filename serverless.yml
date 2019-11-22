@@ -4,6 +4,9 @@ provider:
     name: aws
     runtime: provided
     region: us-east-2
+    apiGateway:
+        binaryMediaTypes:
+            - '*/*'
 
 plugins:
     - ./index.js
@@ -26,7 +29,7 @@ functions:
     http:
         handler: demo/http.php
         description: 'Bref HTTP demo'
-        timeout: 5 # in seconds (API Gateway has a timeout of 30 seconds)
+        timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
         memory: 1024
         layers:
             - ${bref:layer.php-73-fpm}

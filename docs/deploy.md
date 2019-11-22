@@ -32,7 +32,7 @@ The *Serverless* framework offers a simple configuration format. This is what yo
 Before deploying make sure your code is ready to be deployed. For example remove any development files from the project and install Composer dependencies optimized for production:
 
 ```bash
-composer install --optimize-autoloader --no-dev
+composer install --prefer-dist --optimize-autoloader --no-dev
 ```
 
 > If you run this command in your local installation this might break your development setup (it will remove dev dependencies). Ideally deployment should be done in a separate directory, from scratch.
@@ -65,7 +65,7 @@ If you are using Gitlab CI, Travis CI, CircleCI or any tool of the sort you will
 
 ```bash
 # Install Composer dependencies optimized for production
-composer install --optimize-autoloader --no-dev
+composer install --prefer-dist --optimize-autoloader --no-dev
 
 # Perform extra tasks for your framework of choice
 # (e.g. generate the framework cache)

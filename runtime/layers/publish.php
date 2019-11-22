@@ -6,7 +6,7 @@
 
 use Symfony\Component\Process\Process;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $layers = [
     'php-73' => 'PHP 7.3 for PHP functions',
@@ -16,7 +16,7 @@ $layers = [
     'console' => 'Console runtime for PHP applications',
 ];
 foreach ($layers as $layer => $layerDescription) {
-    $file = __DIR__ . "/export/$layer.zip";
+    $file = __DIR__ . "/../export/$layer.zip";
     if (! file_exists($file)) {
         echo "File $file does not exist: generate the archives first\n";
         exit(1);
@@ -55,7 +55,7 @@ echo "\nDone\n";
 
 function publishLayer(string $region, string $layer, string $layerDescription): Process
 {
-    $file = __DIR__ . "/export/$layer.zip";
+    $file = __DIR__ . "/../export/$layer.zip";
 
     $process = new Process([
         'aws',

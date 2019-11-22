@@ -1,6 +1,24 @@
-console:
-    image: bref/php-73
-    volumes:
-        - .:/var/task:ro # Read only, like a lambda function
-    entrypoint: php
-    command: php /var/task/demo/console.php
+version: "3.5"
+
+services:
+    console:
+        image: bref/php-73
+        volumes:
+            - .:/var/task:ro # Read only, like a lambda function
+        entrypoint: php
+        command: demo/console.php
+
+    web:
+        image: bref/fpm-dev-gateway
+        ports:
+            - '8000:80'
+        volumes:
+            - .:/var/task:ro # Read only, like a lambda function
+        depends_on:
+            - php
+        environment:
+            HANDLER: demo/http.php
+    php:
+        image: bref/php-73-fpm-dev
+        volumes:
+            - .:/var/task:ro # Read only, like a lambda function

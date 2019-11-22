@@ -73,6 +73,8 @@ This is why applications are deployed with URLs ending with the stage name, for 
 
 If you [setup a custom domain for your application](/docs/environment/custom-domains.md) this prefix will disappear. If you don't, you need to take this prefix into account in your application routes in your PHP framework.
 
+> If you haven't set up a custom domain yet and you want to get rid of the `/dev` prefix, you can try the [bref.dev](https://bref.dev) service. Run the `vendor/bin/bref bref.dev` command. Remember that this service is currently in beta and can change in the future.
+
 ## Routing
 
 On AWS Lambda there is no Apache or Nginx. API Gateway acts as the webserver.
@@ -111,6 +113,24 @@ Use `{foo}` as a placeholder for a parameter and `{foo+}` as a parameter that ma
 Lambda and API Gateway are only used for executing code. Serving assets via PHP does not make sense as this would be a waste of resources and money.
 
 Deploying a website and serving assets (e.g. CSS, JavaScript, images) is covered in [the "Websites" documentation](/docs/websites.md).
+
+In some cases however, you will need to serve images (or other assets) via PHP. One example would be if you served generated images via PHP. In those cases, you need to read the [Binary response](#binary-responses) section below.
+
+## Binary responses
+
+By default API Gateway **does not support binary HTTP responses** like images, PDF, binary files… To achieve this, you need to enable the option for binary responses in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment variable:
+
+```yaml
+provider:
+    # ...
+    apiGateway:
+        binaryMediaTypes:
+            - '*/*'
+    environment:
+        BREF_BINARY_RESPONSES: 1
+```
+
+This will make API Gateway support binary responses, and Bref will automatically encode responses to base64 (which is what API Gateway now expects).
 
 ## Cold starts
 

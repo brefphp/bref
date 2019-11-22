@@ -35,7 +35,7 @@ plugins:
 functions:
     website:
         handler: public/index.php
-        timeout: 30 # in seconds (API Gateway has a timeout of 30 seconds)
+        timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
         layers:
             - ${bref:layer.php-73-fpm}
         events:
@@ -95,4 +95,10 @@ Your application is now ready to be deployed. Follow [the deployment guide](/doc
 
 As you may have noticed, we define a function of type "console" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
 
-To use it follow [the "Console" guide](/docs/runtimes/console.md).
+For example, to execute an `artisan` command on Lambda for the above configuration, run the below command.
+
+```
+vendor/bin/bref cli bref-demo-laravel-artisan <bref options> -- <your command, your options>
+```
+
+For more details follow [the "Console" guide](/docs/runtimes/console.md).

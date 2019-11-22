@@ -114,6 +114,7 @@ class PhpFpmRuntimeTest extends TestCase
             'fileinfo',
             'filter',
             'ftp',
+            'gd',
             'gettext',
             'hash',
             'iconv',
@@ -138,6 +139,7 @@ class PhpFpmRuntimeTest extends TestCase
             'xml',
             'xmlreader',
             'xmlwriter',
+            'xsl',
             'zip',
             'zlib',
         ], $extensions, $this->logs);

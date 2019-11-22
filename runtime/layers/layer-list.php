@@ -9,7 +9,7 @@
 use Aws\Lambda\LambdaClient;
 use function GuzzleHttp\Promise\unwrap;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 const LAYER_NAMES = [
     'php-73',
@@ -29,7 +29,7 @@ foreach ($regions as $region) {
     }
     echo "$region\n";
 }
-file_put_contents(__DIR__ . '/../layers.json', json_encode($export, JSON_PRETTY_PRINT));
+file_put_contents(__DIR__ . '/../../layers.json', json_encode($export, JSON_PRETTY_PRINT));
 echo "Done\n";
 
 

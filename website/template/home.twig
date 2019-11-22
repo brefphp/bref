@@ -1,26 +1,125 @@
 {% extends 'layout.twig' %}
 
-{% set metaTitle = 'Bref - Serverless PHP applications made simple' %}
+{% set metaTitle = 'Bref - Serverless PHP made simple' %}
 {% set metaDescription = 'Bref is a framework to write and deploy serverless PHP applications on AWS Lambda.' %}
 
 {% block body %}
 
-    <section class="text-center">
-        <div class="container mx-auto py-10 lg:py-24 xl:py-32 px-4">
-            <img src="/logo.svg" alt="Bref" class="h-48">
-            <h1 class="text-center mb-12 lg:mb-24 text-3xl md:text-4xl lg:text-5xl text-grey-darkest font-bref font-thin">running PHP made simple</h1>
+    <div class="hero">
 
-            <h2 class="font-normal font-sans text-lg md:text-xl lg:text-xl">Bref provides the tools and documentation <br> to easily deploy and run serverless PHP applications.</h2>
+        <nav class="py-5 font-light">
+            <div class="container mx-auto px-4 flex items-center justify-between flex-wrap">
+                <div class="flex items-center flex-shrink-0">
+                    <a href="/docs/" title="Bref documentation for serverless PHP applications"
+                       class="inline-block text-blue-100 hover:text-white px-4 py-2 mr-4">
+                        Documentation
+                    </a>
+                    <a href="https://training.bref.sh" title="Join a serverless PHP workshop to get trained on using Bref and creating applications"
+                       class="inline-block text-blue-100 hover:text-white px-4 py-2 mr-4">
+                        Training
+                    </a>
+                </div>
+                <div>
+                    <a href="https://github.com/brefphp/bref" title="Bref on GitHub"
+                       class="inline-block text-blue-200 hover:text-white">
+                        <svg class="fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
+                    </a>
+                </div>
+            </div>
+        </nav>
 
-            <div class="mt-8 md:flex justify-center">
-                <a class="block text-center px-10 py-4 border-2 border-grey-darkest rounded-lg bg-grey-darkest text-white hover:text-white hover:border-black hover:bg-black mb-4 md:mr-8" href="/docs/" title="Bref documentation for serverless PHP applications">Learn more</a>
-                <a class="block text-center px-10 py-4 border-2 border-grey-darkest rounded-lg bg-white text-grey-darkest hover:text-white hover:border-black hover:bg-black mb-4" href="https://github.com/brefphp/bref" title="Bref on GitHub">GitHub</a>
+        <section class="container mx-auto py-12 lg:py-24 xl:pt-32 px-4">
+            <div class="md:flex">
+                <div class="flex-1 clearfix">
+                    <img src="/img/logo-white.svg" alt="bref logo" class="home-logo md:float-right md:mr-12">
+                </div>
+                <div class="flex-1">
+                    <h1 class="md:mt-6 lg:mt-8 md:mb-3 lg:mb-6 text-3xl md:text-4xl lg:text-4xl lg:text-40px text-blue-200 font-bref font-light">
+                        running PHP made simple
+                    </h1>
+                    <h2 class="text-lg md:text-xl lg:text-xl lg:text-22px font-bref text-white">
+                        Everything you need to easily
+                        <br class="hidden md:block">
+                        deploy and run serverless PHP applications.
+                    </h2>
+                </div>
+            </div>
+        </section>
+
+        <div class="w-full relative">
+            <div class="absolute inset-x-0 bg-white" style="bottom: -4px; height: 8px"></div>
+            <svg viewBox="0 0 1280 311" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0)">
+                    <path d="M1214 177L1110.5 215.5L943.295 108.5L807.5 168.5L666 66.5L581 116L517 49.5L288.5 184L163.5 148L-34.5 264.5V311H1317V258.5L1214 177Z" fill="white"/>
+                    <path d="M1214 177L1110.5 215.5L943.295 108.5L807.5 168.5L666 66.5L581 116L517 49.5L288.5 184L163.5 148L-34.5 264.5L163.5 161L275 194L230.5 281.5L311 189L517 61L628 215.5L600 132.5L666 77L943.295 295L833 184L943.295 116L1172 275L1121 227L1214 189L1298 248L1317 258.5L1214 177Z" fill="#DCEFFA"/>
+                </g>
+                <defs><clipPath id="clip0"><rect width="1280" height="311" fill="white"/></clipPath></defs>
+            </svg>
+        </div>
+
+    </div>
+
+    <section class="py-24 lg:pb-32">
+        <div class="container mx-auto px-4">
+            <div class="md:flex">
+                <div class="flex-1 md:mr-6">
+                    <h2 class="mb-12 text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bref text-gray-800">
+                        A higher level stack
+                    </h2>
+                    <p class="mb-3">
+                        Creating and running <strong>modern and scalable PHP applications</strong> can be simple. By using serverless technologies, like AWS Lambda, we can focus on development and worry less about servers.
+                    </p>
+                    <p>
+                        Bref is an open source project that brings full support for PHP and its frameworks on AWS Lambda.
+                    </p>
+                </div>
+                <div class="flex-1 text-center">
+                    <div class="flex justify-center mb-6 mt-16">
+                        <img src="/img/aws.svg" alt="AWS" class="w-16">
+                    </div>
+                    <h3 class="text-lg md:text-xl font-sans">Mature, production-ready <br> PHP runtimes for AWS Lambda</h3>
+                </div>
             </div>
 
-            <div class="mt-20 md:flex justify-center">
-                <p class="font-normal md:text-lg text-grey">Bref is a project supported by the <a href="https://null.tc/" title="null is a consulting and web development company.">null</a> company.</p>
+            <div class="md:flex mt-24 xl:mt-32">
+                <div class="flex-1 order-last md:ml-6">
+                    <h2 class="mb-12 text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bref text-gray-800">
+                        for a better view of the cloud.
+                    </h2>
+                    <p class="mb-3">
+                        Getting started with serverless can be overwhelming. Bref integrates with the Serverless framework for configuration and deployment.
+                        We get the best of both world: <strong>powerful, yet simple</strong>.
+                    </p>
+                    <p>
+                        On top of Serverless' documentation and ecosystem, Bref provides complete documentation and examples for PHP applications.
+                    </p>
+                </div>
+                <div class="flex-1 text-center">
+                    <div class="flex justify-center mb-6 mt-16">
+                        <svg class="w-12" width="54" height="43" viewBox="0 0 54 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 33.9789H9.558L6.59665 42.9153H0V33.9789ZM0 16.9892H15.1875L12.2268 25.9256H0V16.9894V16.9892ZM0 0H20.8178L17.8563 8.9362H0V0ZM30.2377 0H54V8.9362H27.2767L30.2377 0ZM24.608 16.9892H54V25.9258H21.6468L24.608 16.9894V16.9892ZM18.978 33.9789H54V42.9153H16.0171L18.978 33.9789Z" fill="#FD5650"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg md:text-xl font-sans">Simple cloud orchestration <br> via the Serverless framework</h3>
+                </div>
             </div>
 
+            <hr class="mt-16 lg:mt-32 mb-16">
+
+            <div class="text-center">
+                <a href="/docs/" class="bg-blue-800 hover:bg-blue-900 text-white hover:text-white py-4 px-8 rounded">Get started</a>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="py-24 bg-blue-900 text-gray-200">
+        <div class="container mx-auto px-4">
+            <p class="text-center font-light">
+                Bref is a project backed by the
+                <a href="https://null.tc/" title="null is a consulting and web development company." class="text-blue-400">null</a>
+                company.
+            </p>
         </div>
     </section>
 

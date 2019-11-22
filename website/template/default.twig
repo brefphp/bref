@@ -5,30 +5,30 @@
 
 {% block body %}
 
-    <div class="block lg:hidden flex bg-white border-b border-grey-light fixed pin-t pin-x h-12 items-center z-10">
+    <div class="block lg:hidden flex bg-white border-b border-gray-400 fixed top-0 inset-x-0 h-12 items-center z-10">
         <div class="w-full max-w-screen-xl relative mx-auto px-6">
-            <button class="flex items-center px-3 py-2 border rounded text-grey-dark border-grey-light" onclick="toggleMenu()">
+            <button class="flex items-center px-3 py-2 border rounded text-gray-700 border-gray-400" onclick="toggleMenu()">
                 <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
             </button>
         </div>
     </div>
 
     <div class="flex h-full mt-12 lg:mt-0">
-        <div id="menu" class="fixed flex-no-shrink lg:w-64 xl:w-96 lg:flex lg:flex-col z-30 h-screen w-full hidden text-grey-darkest bg-grey-lightest px-6 lg:px-8 py-8 lg:py-16 overflow-auto">
+        <div id="menu" class="fixed flex-shrink-0 lg:w-64 xl:w-96 lg:flex lg:flex-col z-30 h-screen w-full hidden text-gray-700 bg-gray-100 px-6 lg:px-8 py-8 lg:py-16 overflow-auto leading-tight">
             <nav class="mt-1">
                 <h2 class="mb-8">
-                    <a class="text-grey hover:text-grey-darker font-bref text-2xl"
+                    <a class="text-gray-600 hover:text-gray-800 font-bref text-2xl"
                        href="/" title="Bref home page">bref</a>
-                    <a class="float-right text-grey hover:text-grey-darker" title="Bref on GitHub" href="https://github.com/brefphp/bref">
+                    <a class="float-right text-gray-500 hover:text-gray-700" title="Bref on GitHub" href="https://github.com/brefphp/bref">
                         <svg class="fill-current w-5 h-5 mt-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
                     </a>
                 </h2>
                 {% for item in menu %}
-                    <h3 class="mb-4 text-grey uppercase font-semibold text-sm lg:text-xs tracking-wide">{{ item.section }}</h3>
-                    <ul class="list-reset mb-8 ml-6">
+                    <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">{{ item.section }}</h3>
+                    <ul class="list-none p-0 mb-8 ml-6">
                         {% for itemId, item in item.items %}
                             <li class="mb-4 mt-4">
-                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-primary' : 'text-grey-darkest' }}"
+                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : 'text-gray-800' }}"
                                    title="{{ item.title|default(item.text)|e('html_attr') }}">
                                     {{ item.text }}</a>
                             </li>
@@ -42,11 +42,11 @@
                 {% block content %}
                     <article>
                         <a href="https://github.com/brefphp/bref/blob/master/{{ currentFile }}" title="Improve the documentation by editing this file online"
-                           class="hidden md:inline-block float-right text-sm hover:bg-grey-lightest text-grey-darkest py-2 px-4 border border-grey-light rounded">
+                           class="hidden md:inline-block float-right text-sm hover:bg-gray-100 text-gray-900 py-2 px-4 border border-gray-400 rounded">
                             Edit <span class="hidden lg:inline">on GitHub</span>
                         </a>
 
-                        <h1>{{ title }}</h1>
+                        <h1 class="text-3xl font-bold">{{ title }}</h1>
 
                         {% block article %}
                             {{ content|raw }}
@@ -71,9 +71,9 @@
                     </article>
                 {% endblock %}
             </div>
-            <div id="in-page-menu" class="hidden fixed pin-t max-h-screen text-xs text-grey max-w-48 mr-2" style="margin-left: 780px;margin-top: 144px;">
-                <p class="mb-2 uppercase font-semibold tracking-wide">Summary</p>
-                <ul class="list-reset"></ul>
+            <div id="in-page-menu" class="hidden fixed top-0 max-h-screen text-xs text-gray-500 max-w-48 mr-2" style="margin-left: 780px;margin-top: 144px;">
+                <p class="mb-2 uppercase font-semibold tracking-wider">Summary</p>
+                <ul class="list-none p-0"></ul>
             </div>
         </div>
     </div>
@@ -97,7 +97,7 @@
             $('article h2').each(function () {
                 var url = '#' + $(this).attr('id');
                 var caption = $(this).text().substr(2);
-                $('#in-page-menu ul').append('<li class="py-2"><a class="text-grey" href="' + url + '">' + caption + '</a></li>');
+                $('#in-page-menu ul').append('<li class="py-2"><a class="text-gray-500" href="' + url + '">' + caption + '</a></li>');
             });
         });
     </script>

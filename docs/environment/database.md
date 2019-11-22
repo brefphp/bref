@@ -33,7 +33,7 @@ Running in a VPC has a big caveat: the lambda suffers from much longer **cold st
 
 On average cold starts due to VPC are around **5 seconds**. This can be a deal-breaker for scenarios like real-time APIs.
 
-> 🎉 AWS [will remove this caveat in 2019](https://twitter.com/jeremy_daly/status/1068272580556087296). We will keep this page updated when this happens.
+> 🎉 AWS [fixed this for Regions: US East (Ohio), US West (N. California), South America (San Paulo), EU (Ireland), EU (Paris), EU (Frankfurt), Asia Pacific (Mumbai), Asia Pacific (Seoul), Asia Pacific (Singapore), Asia Pacific (Sydney), and Asia Pacific (Tokyo)](https://aws.amazon.com/blogs/compute/announcing-improved-vpc-networking-for-aws-lambda-functions/). We will keep this page updated when it is resolved for all regions.
 
 A common workaround is to ["ping" the lambda function every 5 minutes](/docs/runtimes/http.html#cold-starts) to avoid cold starts. This [might not work](https://hackernoon.com/im-afraid-you-re-thinking-about-aws-lambda-cold-starts-all-wrong-7d907f278a4f) for applications with very variable loads.
 
@@ -101,6 +101,8 @@ mysql://user:password@dbname.e2sctvp0nqos.us-east-1.rds.amazonaws.com/dbname
 ```
 
 To learn how to properly store this connection string in your configuration head over to the ["Secrets" section of the Variables documentation](/docs/environment/variables.md#secrets).
+
+Also refer to the [Extensions](/docs/environment/php.md#extensions) section to see if you need to enable any database-specific extensions.
 
 ### Accessing the internet
 

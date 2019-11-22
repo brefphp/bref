@@ -158,6 +158,7 @@ LOGS;
             'fileinfo',
             'filter',
             'ftp',
+            'gd',
             'gettext',
             'hash',
             'iconv',
@@ -182,6 +183,7 @@ LOGS;
             'xml',
             'xmlreader',
             'xmlwriter',
+            'xsl',
             'zip',
             'zlib',
         ], $result, $logs);

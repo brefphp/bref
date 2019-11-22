@@ -6,7 +6,7 @@ introduction: A collection of links to places where to discuss and learn about B
 
 To report bugs you can head over to the [GitHub Bref repository](https://github.com/brefphp/bref).
 
-You can also join the [Slack community](https://join.slack.com/t/brefworkspace/shared_invite/enQtNTcwMjU2NTcxNjAxLWRiZGUzZGJiZDNmZmM4NWUwMThhNjhlYmNiZTY2ZDEwMTBlOWY1NjAyOWQzODQxY2JkMjFmOGZjOWE0Y2YzZTg) to discuss Bref and exchange with the community.
+You can also join the [Slack community](https://join.slack.com/t/brefworkspace/shared_invite/enQtNTcwMjU2NTcxNjAxLTIxYmM2MmRjMDkzYjdjYTNkMmE5NGI3YTcyZjc2ZGRjNTFmNjFmYzk5NWQ1YmVhMDkwNzExNzhjZThkZWM0ODE) to discuss Bref and exchange with the community.
 
 On Twitter use [#BrefPHP](https://twitter.com/search?q=%23BrefPHP) to follow and post news about Bref.
 
