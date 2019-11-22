@@ -33,6 +33,8 @@ final class PhpFpm
 
     /** @var Client|null */
     private $client;
+    /** @var UnixDomainSocket */
+    private $connection;
     /** @var string */
     private $handler;
     /** @var string */
@@ -73,6 +75,7 @@ final class PhpFpm
         });
 
         $this->client = new Client;
+        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
 
         $this->waitUntilReady();
     }
@@ -118,10 +121,9 @@ final class PhpFpm
         }
 
         $request = $this->eventToFastCgiRequest($event);
-        $connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
 
         try {
-            $response = $this->client->sendRequest($connection, $request);
+            $response = $this->client->sendRequest($this->connection, $request);
         } catch (\Throwable $e) {
             throw new FastCgiCommunicationFailed(sprintf(
                 'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
