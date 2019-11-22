@@ -13,7 +13,7 @@
 
 FROM bref/tmp/step-1/build-environment as build-environment
 
-ENV VERSION_PHP=7.4.0RC4
+ENV VERSION_PHP=7.4.0RC6
 
 
 ###############################################################################
