@@ -73,6 +73,8 @@ This is why applications are deployed with URLs ending with the stage name, for 
 
 If you [setup a custom domain for your application](/docs/environment/custom-domains.md) this prefix will disappear. If you don't, you need to take this prefix into account in your application routes in your PHP framework.
 
+> If you haven't set up a custom domain yet and you want to get rid of the `/dev` prefix, you can try the [bref.dev](https://bref.dev) service. Run the `vendor/bin/bref bref.dev` command. Remember that this service is currently in beta and can change in the future.
+
 ## Routing
 
 On AWS Lambda there is no Apache or Nginx. API Gateway acts as the webserver.
