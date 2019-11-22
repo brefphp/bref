@@ -82,7 +82,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         </ul>
       </td>
       <td align="left" valign="top">
-        <ul>
+        <ul>  
         <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
         <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
@@ -95,6 +95,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.xml.php">xml</a></li>
         <li><a href="http://php.net/manual/en/book.xmlreader.php">xmlreader</a></li>
         <li><a href="http://php.net/manual/en/book.xmlwriter.php">xmlwriter</a></li>
+        <li><a href="http://php.net/manual/en/book.xsl.php">xsl</a></li>
         <li><a href="http://php.net/manual/en/book.zlib.php">zlib</a></li>
         </ul>
       </td>
@@ -111,6 +112,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 - **[MySQL PDO Driver](http://php.net/manual/en/ref.pdo-mysql.php)** -  PDO_MYSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to MySQL databases.
 - **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
 - **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
+- **[imagick](http://php.net/manual/en/book.imagick.php)** - imagick is an image processing library.
 
 You can enable these extensions by loading them in `php/conf.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
@@ -122,6 +124,7 @@ extension=pdo_pgsql
 extension=pdo_mysql
 extension=mongodb
 extension=pthreads
+extension=imagick
 ```
 
 ### Custom extensions

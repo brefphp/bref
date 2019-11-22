@@ -10,7 +10,7 @@ Resources:
             Handler: tests/Sam/Php/function.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:12'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:13'
             Environment:
                 Variables:
                     FOO: bar
@@ -23,7 +23,7 @@ Resources:
             Handler: tests/Sam/PhpFpm/index.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:12'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:13'
             Events:
                 HttpRoot:
                     Type: Api
@@ -42,7 +42,7 @@ Resources:
             Handler: tests/Sam/PhpFpm/UNKNOWN.php
             Runtime: provided
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:12'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73-fpm:13'
             Events:
                 HttpRoot:
                     Type: Api

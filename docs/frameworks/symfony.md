@@ -32,6 +32,11 @@ provider:
 plugins:
     - ./vendor/bref/bref
 
+package:
+    exclude:
+        - node_modules/**
+        - tests/**
+
 functions:
     website:
         handler: public/index.php
@@ -100,6 +105,19 @@ monolog:
             type: stream
             path: "php://stderr"
 ```
+
+Be aware that Symfony also log deprecations:
+
+```yaml
+monolog:
+    handlers:
+        # ...
+        deprecation:
+            type: stream
+            path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
+```
+
+Either change the path to `php://stderr` or remove the logging of deprecations entirely.
 
 ## Environment variables
 

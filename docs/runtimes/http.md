@@ -73,6 +73,8 @@ This is why applications are deployed with URLs ending with the stage name, for 
 
 If you [setup a custom domain for your application](/docs/environment/custom-domains.md) this prefix will disappear. If you don't, you need to take this prefix into account in your application routes in your PHP framework.
 
+> If you haven't set up a custom domain yet and you want to get rid of the `/dev` prefix, you can try the [bref.dev](https://bref.dev) service. Run the `vendor/bin/bref bref.dev` command. Remember that this service is currently in beta and can change in the future.
+
 ## Routing
 
 On AWS Lambda there is no Apache or Nginx. API Gateway acts as the webserver.
@@ -116,7 +118,7 @@ In some cases however, you will need to serve images (or other assets) via PHP. 
 
 ## Binary responses
 
-By default API Gateway **does not support binary HTTP responses** like images, PDF, binary files… To achieve this, you need to enable the option for binary responses in `serverless.yml`:
+By default API Gateway **does not support binary HTTP responses** like images, PDF, binary files… To achieve this, you need to enable the option for binary responses in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment variable:
 
 ```yaml
 provider:
@@ -124,24 +126,11 @@ provider:
     apiGateway:
         binaryMediaTypes:
             - '*/*'
+    environment:
+        BREF_BINARY_RESPONSES: 1
 ```
 
-This will make API Gateway support binary responses for all responses. Your application can now return binary responses as usual.
-
-**However, you must define a `Content-Type` header on binary responses.** If you don't, you may get the following error: *Failed encoding Lambda JSON response: Malformed UTF-8 characters, possibly incorrectly encoded*. [Symfony's helpers](https://symfony.com/doc/current/components/http_foundation.html#serving-files) or [Laravel's helpers](https://laravel.com/docs/5.8/responses#file-downloads) will take care of that for you. If you don't use them, here are some examples:
-
-```php
-// Vanilla PHP example with a JPEG image response:
-header('Content-Type: image/jpeg');
-header('Content-Length: ' . filesize($filename));
-fpassthru(fopen($filename, 'rb'));
-
-// PSR-7 example:
-return $response
-    ->withHeader('Content-Type', 'image/jpeg')
-    ->withHeader('Content-Length', (string) filesize($filename))
-    ->withBody(new Stream($filename));
-```
+This will make API Gateway support binary responses, and Bref will automatically encode responses to base64 (which is what API Gateway now expects).
 
 ## Cold starts
 

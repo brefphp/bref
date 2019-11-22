@@ -128,6 +128,57 @@ In the example above, a `public/assets/style.css` file will be accessible at `ht
 
 > Be aware that serving assets in production will not work like this out of the box. You will need [to use a S3 bucket](/docs/runtimes/http.md#assets).
 
+### Xdebug
+
+The docker container `bref/php-<version>-fpm-dev` comes with xdebug pre-installed. In order to enable it you can create a
+folder `php/conf.dev.d` in your project and include an ini file enabling xdebug:
+
+```ini
+zend_extension=xdebug.so
+```
+
+Now start the debug session by issueing a request to your application in the [browser](https://xdebug.org/docs/remote#starting).
+
+#### OSX
+
+As Docker on Mac uses a virtual machine for running docker it can be tricky to listen to the xdebug port.
+By creating an alias for the loopback interface on the host with
+
+```bash
+sudo ifconfig lo0 alias 10.254.254.254
+```
+
+you can use this configuration start listening to xdebug connections in your preferred IDE:
+
+```ini
+[xdebug]
+xdebug.remote_enable = 1
+xdebug.remote_autostart = 0
+xdebug.remote_host = '10.254.254.254'
+```
+
+### Blackfire
+
+The development FPM container comes with the blackfire extension. When using docker compose you can add following service configuration for the blackfire agent:
+
+```yaml
+services:
+  blackfire:
+    image: blackfire/blackfire
+    environment:
+      BLACKFIRE_SERVER_ID: server-id
+      BLACKFIRE_SERVER_TOKEN: server-token
+```
+
+In order to enable the probe you can create a folder `php/conf.dev.d` in your project and include an ini file enabling blackfire:
+
+```ini
+extension=blackfire
+blackfire.agent_socket=tcp://blackfire:8707
+```
+
+For more details about using blackfire in a docker environment see the [blackfire docs](https://blackfire.io/docs/integrations/docker)
+
 ## Console applications
 
 Console applications can be tested just like before: by running the command in your terminal.

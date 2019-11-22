@@ -243,22 +243,12 @@ final class LambdaRuntime
      */
     private function postJson(string $url, $data): void
     {
-        $contentType = $data['multiValueHeaders']['content-type'][0] ?? null;
-        /**
-         * API Gateway does not support binary content in HTTP responses.
-         * What we do is:
-         * - if we are certain the response is not binary (either JSON or the content type starts with `text/*`) we don't encode
-         * - else we encode all other responses to base64
-         * API Gateway checks `isBase64Encoded` and decodes what we returned if necessary.
-         */
-        if ($contentType && $contentType !== 'application/json' && strpos($contentType, 'text/') !== 0) {
-            $data['body'] = base64_encode($data['body']);
-            $data['isBase64Encoded'] = true;
-        }
-
         $jsonData = json_encode($data);
         if ($jsonData === false) {
-            throw new \Exception('Failed encoding Lambda JSON response: ' . json_last_error_msg());
+            throw new \Exception(sprintf(
+                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing a HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses\nHere is the original JSON error: '%s'",
+                json_last_error_msg()
+            ));
         }
 
         if ($this->returnHandler === null) {
