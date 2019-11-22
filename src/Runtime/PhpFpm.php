@@ -335,24 +335,8 @@ final class PhpFpm
      */
     private function getResponseHeaders(ProvidesResponseData $response, bool $isMultiHeader): array
     {
-        // TODO this might need some changes when upgrading the hollodotme library
-        // See https://github.com/hollodotme/fast-cgi-client/blob/master/CHANGELOG.md#300-alpha---2019-04-30
-        if ($isMultiHeader) {
-            $responseHeaders = [];
-            $lines  = explode(PHP_EOL, $response->getOutput());
-            foreach ($lines as $i => $line) {
-                if (preg_match('#^([^\:]+):(.*)$#', $line, $matches)) {
-                    $key = trim($matches[1]);
-                    if (! array_key_exists($key, $responseHeaders)) {
-                        $responseHeaders[$key]= [];
-                    }
-                    $responseHeaders[$key][] = trim($matches[2]);
-                    continue;
-                }
-                break;
-            }
-        } else {
-            $responseHeaders = $response->getHeaders();
+        $responseHeaders = $response->getHeaders();
+        if (! $isMultiHeader) {
             // If we are not in "multi-header" mode, we must keep the last value only
             // and cast it to string
             foreach ($responseHeaders as $key => $value) {
