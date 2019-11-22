@@ -353,9 +353,10 @@ final class PhpFpm
             }
         } else {
             $responseHeaders = $response->getHeaders();
-
+            // If we are not in "multi-header" mode, we must keep the last value only
+            // and cast it to string
             foreach ($responseHeaders as $key => $value) {
-                $responseHeaders[$key] = array_values(array_slice($value, -1))[0];
+                $responseHeaders[$key] = end($value);
             }
         }
 
