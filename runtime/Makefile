@@ -10,11 +10,12 @@ layers: export/console.zip export/php-72.zip export/php-73.zip export/php-74.zip
 
 # The PHP runtimes
 export/php%.zip: docker-images
-	PHP_VERSION=$$(echo $@ | cut -d'/' -f 2 | cut -d'.' -f 1);\
-	rm -f $@;\
-	mkdir export/tmp ; cd export/tmp ;\
-	docker run --entrypoint "tar" bref/$$PHP_VERSION:latest -ch -C /opt .  |tar -x;zip --quiet --recurse-paths ../$$PHP_VERSION.zip . ;
-	rm -rf export/tmp
+	PHP_VERSION=$$(echo $@ | cut -d'/' -f 2 | cut -d'.' -f 1); \
+	rm -f $@; \
+	docker volume create bref-export; \
+	docker run --rm -v bref-export:/opt --entrypoint echo bref/$$PHP_VERSION ""; \
+	docker run --rm -v bref-export:/layer -v $$PWD/export:/export -it kramos/alpine-zip --quiet --recurse-paths --symlinks /export/$$PHP_VERSION.zip /layer
+	docker volume rm bref-export
 
 # The console runtime
 export/console.zip: layers/console/bootstrap
