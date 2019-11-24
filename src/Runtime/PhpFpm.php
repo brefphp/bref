@@ -33,6 +33,8 @@ final class PhpFpm
 
     /** @var Client|null */
     private $client;
+    /** @var UnixDomainSocket */
+    private $connection;
     /** @var string */
     private $handler;
     /** @var string */
@@ -72,8 +74,8 @@ final class PhpFpm
             echo $output;
         });
 
-        $connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
-        $this->client = new Client($connection);
+        $this->client = new Client;
+        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
 
         $this->waitUntilReady();
     }
@@ -121,7 +123,7 @@ final class PhpFpm
         $request = $this->eventToFastCgiRequest($event);
 
         try {
-            $response = $this->client->sendRequest($request);
+            $response = $this->client->sendRequest($this->connection, $request);
         } catch (\Throwable $e) {
             throw new FastCgiCommunicationFailed(sprintf(
                 'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
@@ -333,24 +335,13 @@ final class PhpFpm
      */
     private function getResponseHeaders(ProvidesResponseData $response, bool $isMultiHeader): array
     {
-        // TODO this might need some changes when upgrading the hollodotme library
-        // See https://github.com/hollodotme/fast-cgi-client/blob/master/CHANGELOG.md#300-alpha---2019-04-30
-        if ($isMultiHeader) {
-            $responseHeaders = [];
-            $lines  = explode(PHP_EOL, $response->getOutput());
-            foreach ($lines as $i => $line) {
-                if (preg_match('#^([^\:]+):(.*)$#', $line, $matches)) {
-                    $key = trim($matches[1]);
-                    if (! array_key_exists($key, $responseHeaders)) {
-                        $responseHeaders[$key]= [];
-                    }
-                    $responseHeaders[$key][] = trim($matches[2]);
-                    continue;
-                }
-                break;
+        $responseHeaders = $response->getHeaders();
+        if (! $isMultiHeader) {
+            // If we are not in "multi-header" mode, we must keep the last value only
+            // and cast it to string
+            foreach ($responseHeaders as $key => $value) {
+                $responseHeaders[$key] = end($value);
             }
-        } else {
-            $responseHeaders = $response->getHeaders();
         }
 
         return array_change_key_case($responseHeaders, CASE_LOWER);

@@ -101,8 +101,10 @@ More options can be set on the bucket, [read more here](https://docs.aws.amazon.
 It is not possible to use `serverless deploy` to upload files to S3, you need to upload them separately. To do this, you can use the [`aws s3 sync` command](https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html):
 
 ```bash
-aws s3 sync <directory> s3://<bucket-name> --delete
+aws s3 sync <your-assets-directory> s3://<bucket-name>/<your-assets-folder> --delete
 ```
+
+Please note that the assets would normally need to be inside a folder, and not in the root of your bucket. 
 
 Be aware that the content of the bucket is public!
 
@@ -178,6 +180,7 @@ resources:
                         # The website (AWS Lambda)
                         -   Id: Website
                             DomainName: '#{ApiGatewayRestApi}.execute-api.#{AWS::Region}.amazonaws.com'
+                            # This is the stage, if you are using another one (e.g. prod), you will need to change it here too
                             OriginPath: '/dev'
                             CustomOriginConfig:
                                 OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
@@ -229,13 +232,15 @@ resources:
 
 Feel free to customize the `/asset/` path. If your application is a JS application backed by a PHP API, you will want to invert API Gateway and S3 (set S3 as the `DefaultCacheBehavior` and serve API Gateway under a `/api/` path).
 
-> The first deployment takes a lot of time (20 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay.
+> The first deployment takes a lot of time (20 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay. You will know it is finished when the `Status` column changes from `In Progress` to `Deployed` in your [CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home).
 
-The URL of the deployed CloudFront distribution can be found in [the CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home?region=eu-west-1#) under `Domain Name`.
+The URL of the deployed CloudFront distribution can be found in [the CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home) under `Domain Name`.
 
 ### Setting up a domain name
 
 Just like in the "[Custom domains](/docs/environment/custom-domains.md)" guide, you need to register your domain in **ACM** (AWS Certificate Manager) to get a HTTPS certificate.
+
+> If you have already set up this domain as a custom domain in API Gateway (by following the [Custom domain](/docs/environment/custom-domains.md) guide), you will need to remove it before continuing.
 
 - open [this link](https://console.aws.amazon.com/acm/home?region=us-east-1#/wizard/) or manually go in the ACM Console and click "Request a new certificate" **in the `us-east-1` region** (CloudFront requires certificates from `us-east-1`)
 - add your domain name and click "Next"
@@ -264,7 +269,7 @@ resources:
                     ...
                     # Custom domain name
                     Aliases:
-                        - <custom-domain> # e.g. example.com
+                        - <custom-domain> # e.g. example.com. (This is your application's domain, not your assets' domain)
                     ViewerCertificate:
                         # ARN of the certificate created in ACM
                         AcmCertificateArn: <certificate-arn>
@@ -275,7 +280,7 @@ resources:
 
 The last step will be to point your domain name to the CloudFront URL:
 
-- open [the CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home?region=eu-west-1#) and look for the URL under `Domain Name`
+- open [the CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home) and look for the URL under `Domain Name`
 - create a CNAME to point your domain name to this URL
     - if you use Route53 you can read [the official guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)
     - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [CloudFlare allows this with a technique called CNAME flattening](https://support.cloudflare.com/hc/en-us/articles/200169056-Understand-and-configure-CNAME-Flattening))

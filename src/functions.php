@@ -22,6 +22,7 @@ function lambda(callable $handler): void
 /**
  * @param callable $handler This callable takes a $request parameter (ServerRequestInterface) and must return a
  *                          PSR-7 ResponseInterface
+ *
  * @see \Psr\Http\Message\ServerRequestInterface
  * @see \Psr\Http\Message\ResponseInterface
  */
