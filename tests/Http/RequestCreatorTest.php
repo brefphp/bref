@@ -287,6 +287,21 @@ class RequestCreatorTest extends TestCase
         $this->assertSame('www.example.com', $serverParams['HTTP_HOST']);
     }
 
+    public function test event and context are set()
+    {
+        $creator = new RequestCreator;
+        $request = $creator->createRequest(
+            $this->getSampleRequest('full_api_gateway_request.json'),
+            $context = $this->getContext()
+        );
+
+        $attributes = $request->getAttributes();
+
+        $this->assertArrayHasKey('event', $attributes);
+        $this->assertArrayHasKey('context', $attributes);
+        $this->assertSame($context, $attributes['context']);
+    }
+
     private function getSampleRequest(string $filename): array
     {
         $jsonData = file_get_contents(sprintf(
@@ -295,16 +310,6 @@ class RequestCreatorTest extends TestCase
             $filename
         ));
         return json_decode($jsonData, true);
-    }
-
-    public function storeSampleRequest(string $filename, array $request)
-    {
-        $filepath = sprintf(
-            '%s/Fixture/Psr7/sample/%s',
-            dirname(__FILE__, 2),
-            $filename
-        );
-        file_put_contents($filepath, json_encode($request, JSON_PRETTY_PRINT));
     }
 
     protected function getContext()
