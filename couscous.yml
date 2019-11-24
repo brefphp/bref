@@ -100,6 +100,10 @@ menu:
                 text: Symfony
                 url: /docs/frameworks/symfony.html
                 title: Learn how to deploy serverless Symfony applications
+            antidot:
+                text: Antidot
+                url: /docs/frameworks/antidot.html
+                title: Learn how to deploy serverless Antidot framework applications
     -   section: Learning
         items:
             case-studies:
