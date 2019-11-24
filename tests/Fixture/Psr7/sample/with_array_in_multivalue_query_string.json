@@ -1,0 +1,12 @@
+{
+    "httpMethod": "GET",
+    "multiValueQueryStringParameters": {
+        "vars[val1]": [
+            "foo"
+        ],
+        "vars[val2][]": [
+            "bar",
+            "baz"
+        ]
+    }
+}

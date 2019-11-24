@@ -1,0 +1,7 @@
+{
+    "httpMethod": "POST",
+    "headers": {
+        "Content-Type": "multipart\/form-data; boundary=testBoundary"
+    },
+    "body": "--testBoundary\r\nContent-Disposition: form-data; name=\"delete[categories][]\"\r\n\r\n123\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"delete[categories][]\"\r\n\r\n456\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"delete[categories][named]\"\r\n\r\nvalue3\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"delete[test]\"\r\n\r\nvalue4\r\n--testBoundary--\r\n"
+}

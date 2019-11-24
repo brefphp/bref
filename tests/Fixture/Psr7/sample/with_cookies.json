@@ -1,0 +1,6 @@
+{
+    "httpMethod": "GET",
+    "headers": {
+        "Cookie": "tz=Europe%2FParis; four=two+%2B+2; theme=light"
+    }
+}

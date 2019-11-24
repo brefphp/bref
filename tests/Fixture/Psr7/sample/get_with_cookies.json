@@ -1,0 +1,6 @@
+{
+    "httpMethod": "GET",
+    "headers": {
+        "Cookie": "name=value; name2=value2; name3=value3"
+    }
+}

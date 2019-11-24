@@ -1,0 +1,4 @@
+{
+    "httpMethod": "PUT",
+    "body": "{\n\t\"key1\": \"value1\"\n}"
+}

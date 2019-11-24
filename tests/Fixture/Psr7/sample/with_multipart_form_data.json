@@ -1,0 +1,7 @@
+{
+    "httpMethod": "POST",
+    "headers": {
+        "Content-Type": "multipart\/form-data; boundary=testBoundary"
+    },
+    "body": "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\n\r\nbar\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"bim\"\r\n\r\nbaz\r\n--testBoundary--\r\n"
+}

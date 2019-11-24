@@ -1,0 +1,13 @@
+{
+    "httpMethod": "GET",
+    "queryStringParameters": {
+        "foo": "bar",
+        "bim": "baz"
+    },
+    "requestContext": {
+        "protocol": "1.1",
+        "path": "\/test",
+        "requestTimeEpoch": 1574617740
+    },
+    "headers": []
+}

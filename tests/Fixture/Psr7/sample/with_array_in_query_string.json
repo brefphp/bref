@@ -1,0 +1,7 @@
+{
+    "httpMethod": "GET",
+    "queryStringParameters": {
+        "vars[val1]": "foo",
+        "vars[val2][]": "bar"
+    }
+}

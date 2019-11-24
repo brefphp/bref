@@ -1,0 +1,21 @@
+{
+    "httpMethod": "GET",
+    "multiValueQueryStringParameters": {
+        "key1": [
+            "value1"
+        ],
+        "key2": [
+            "value2"
+        ],
+        "key3[sub1]": [
+            "really!;strange!!!&string"
+        ],
+        "key3[sub2]": [
+            "value4"
+        ],
+        "var[]": [
+            "1",
+            "2"
+        ]
+    }
+}

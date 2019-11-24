@@ -1,0 +1,7 @@
+{
+    "httpMethod": "POST",
+    "headers": {
+        "Content-Type": "multipart\/form-data; boundary=testBoundary"
+    },
+    "body": "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"; filename=\"lorem.txt\"\r\nContent-Type: text\/plain\r\n\r\nLorem ipsum dolor sit amet,\nconsectetur adipiscing elit.\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"bar\"; filename=\"cars.csv\"\r\n\r\nYear,Make,Model\n1997,Ford,E350\n2000,Mercury,Cougar\n\r\n--testBoundary--\r\n"
+}
