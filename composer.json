@@ -38,5 +38,27 @@
         "doctrine/coding-standard": "^5.0",
         "phpstan/phpstan": "^0.11.5",
         "guzzlehttp/guzzle": "^6.3"
+    },
+    "scripts": {
+        "test": [
+            "@static-analysis",
+            "@unit-tests",
+            "@code-style"
+        ],
+        "code-style": [
+            "vendor/bin/phpcs"
+        ],
+        "static-analysis": [
+            "vendor/bin/phpstan analyse"
+        ],
+        "unit-tests": [
+            "vendor/bin/phpunit"
+        ]
+    },
+    "scripts-descriptions": {
+        "test": "Run the full test suite for bref",
+        "code-style": "Run code style checks using PHP_CodeSniffer",
+        "static-analysis": "Run static analysis using PHPStan",
+        "unit-tests": "Run unit tests with PHPUnit"
     }
 }
