@@ -27,7 +27,7 @@ final class Psr7Handler
     /**
      * @param array $event
      * @param mixed $context
-     * @return mixed
+     * @return array
      */
     public function __invoke(array $event, $context): array
     {
