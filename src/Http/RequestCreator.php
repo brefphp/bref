@@ -332,6 +332,8 @@ final class RequestCreator
             }
         }
 
+        fclose($contentStream);
+
         return $body;
     }
 
@@ -350,15 +352,17 @@ final class RequestCreator
      *
      * @param array                                       $data
      * @param int|float|string|UploadedFileInterface|null $value
-     * @return array<int|string, \Psr\Http\Message\UploadedFileInterface|string>
+     * @return array<int|string, UploadedFileInterface|string>
      */
     private function withExtractedMultipartData(array $data, string $key, $value): array
     {
         // Match against 'key[key]....' = something
-        if (preg_match('/(?<full>(?<base>[^\[\]]+)(?<wrapper>\[(?<key>[^\[\]]+)\]))(?<tail>.*)/', $key, $matches)) {
-            $subKey = $matches['key'] . $matches['tail'];
-            $data[$matches['base']] = $this->withExtractedMultipartData(
-                $data[$matches['base']] ?? [],
+        // 'key[subKey][]' = ['full' => 'key[subKey]', 'base' => 'key', 'wrapper' => '[subKey]', 'key' => 'subKey', 'tail' => '[]'
+        if (preg_match('/(?<full>(?<key>[^\[\]]+)(?<wrapper>\[(?<subKey>[^\[\]]+)\]))(?<tail>.*)/', $key, $matches)) {
+            // Reconstruct the sub item: 'subKey[]'
+            $subKey = $matches['subKey'] . $matches['tail'];
+            $data[$matches['key']] = $this->withExtractedMultipartData(
+                $data[$matches['key']] ?? [],
                 $subKey,
                 $value
             );
@@ -382,6 +386,9 @@ final class RequestCreator
         return $data;
     }
 
+    /**
+     * Convert a multipart item into a file
+     */
     private function getFileFromPart(StreamedPart $part): UploadedFileInterface
     {
         $stream = $this->streamFactory->createStream($part->getBody());
