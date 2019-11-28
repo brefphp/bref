@@ -27,15 +27,17 @@ This page documents how to create databases using VPC (the secure solution). If 
 
 ## Limitations
 
-Running a database inside a [VPC](https://aws.amazon.com/fr/vpc/) (virtual private network) will keep it isolated from the internet. That means lambda functions must be in the same VPC to access the database.
+> Running a function inside a VPC used to induce a [cold start](/docs/environment/performances.md#cold-starts) of several seconds. This is no longer the case since October 2019.
 
-Running in a VPC has a big caveat: the lambda suffers from much longer **cold starts**.
+### Accessing the internet
 
-On average cold starts due to VPC are around **5 seconds**. This can be a deal-breaker for scenarios like real-time APIs.
+A database inside a [VPC](https://aws.amazon.com/fr/vpc/) is isolated from the internet. Since a lambda function must run in the VPC to access the database, it cannot access the internet (for example external APIs) or most other AWS services.
 
-> 🎉 AWS [fixed this for Regions: US East (Ohio), US West (N. California), South America (San Paulo), EU (Ireland), EU (Paris), EU (Frankfurt), Asia Pacific (Mumbai), Asia Pacific (Seoul), Asia Pacific (Singapore), Asia Pacific (Sydney), and Asia Pacific (Tokyo)](https://aws.amazon.com/blogs/compute/announcing-improved-vpc-networking-for-aws-lambda-functions/). We will keep this page updated when it is resolved for all regions.
+To enable internet access for a lambda you will need to create a NAT Gateway in the VPC: you can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12).
 
-A common workaround is to ["ping" the lambda function every 5 minutes](/docs/runtimes/http.html#cold-starts) to avoid cold starts. This [might not work](https://hackernoon.com/im-afraid-you-re-thinking-about-aws-lambda-cold-starts-all-wrong-7d907f278a4f) for applications with very variable loads.
+Watch out, a NAT Gateway will increase costs (starts at $27 per month). Note that you can use one VPC and one NAT Gateway for multiple projects.
+
+When possible, an alternative to NAT Gateways is to split the work done by a lambda in 2 lambdas: one in the VPC that accesses the database and one outside that accesses the external API. It is also possible to access specific AWS services in a VPC by creating "private endpoints": this is possible for S3, API Gateway, [and more](https://docs.aws.amazon.com/en_pv/vpc/latest/userguide/vpc-endpoints-access.html).
 
 ## Creating a database
 
@@ -103,14 +105,6 @@ mysql://user:password@dbname.e2sctvp0nqos.us-east-1.rds.amazonaws.com/dbname
 To learn how to properly store this connection string in your configuration head over to the ["Secrets" section of the Variables documentation](/docs/environment/variables.md#secrets).
 
 Also refer to the [Extensions](/docs/environment/php.md#extensions) section to see if you need to enable any database-specific extensions.
-
-### Accessing the internet
-
-By default, a lambda in a VPC can only access resources inside the VPC. It cannot access the internet (for example external APIs) or other AWS services.
-
-To enable internet access for a lambda you will need to create a NAT Gateway in the VPC: you can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12).
-
-Watch out, a NAT Gateway will increase the costs as they start at $27 per month. When possible, an alternative to NAT Gateways is to split the work done by a lambda in 2 lambdas: one in the VPC that accesses the database and one outside that accesses the external API.
 
 ### Learn more
 
