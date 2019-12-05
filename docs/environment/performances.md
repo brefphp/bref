@@ -16,14 +16,14 @@ From 64M to 1,792M, applications run with up to one CPU (1,792M gives 1 full CPU
 
 **It is recommended to use 1024M** for PHP applications, or at least to start with that. This is what Serverless deploys by default, so there is nothing to do.
 
-To customize the amount of memory, set the `memory` option in `serverless.yml`:
+To customize the amount of memory, set the `memorySize` option in `serverless.yml`:
 
 ```yaml
 functions:
     foo:
         handler: index.php
         # ...
-        memory: 512 # set to 512M instead of 1024M (the default)
+        memorySize: 512 # set to 512M instead of 1024M (the default)
 ```
 
 In the benchmark below, we run [PHP's official `bench.php` script](https://github.com/php/php-src/blob/master/Zend/bench.php). This script is CPU-intensive.
