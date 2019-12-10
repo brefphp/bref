@@ -13,8 +13,6 @@
 
 FROM bref/tmp/step-1/build-environment as build-environment
 
-ENV VERSION_PHP=7.4.0
-
 
 ###############################################################################
 # Oniguruma
@@ -38,11 +36,14 @@ RUN set -xe; \
     make install
 
 
+ENV VERSION_PHP=7.4.0
+
+
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 RUN set -xe; \
     mkdir -p ${PHP_BUILD_DIR}; \
 # Download and upack the source code
-    curl -Ls https://downloads.php.net/~derick/php-${VERSION_PHP}.tar.gz \
+    curl -Ls https://github.com/php/php-src/archive/php-${VERSION_PHP}.tar.gz \
   | tar xzC ${PHP_BUILD_DIR} --strip-components=1
 # Move into the unpackaged code directory
 WORKDIR  ${PHP_BUILD_DIR}/
