@@ -43,7 +43,7 @@ ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 RUN set -xe; \
     mkdir -p ${PHP_BUILD_DIR}; \
 # Download and upack the source code
-    curl -Ls https://github.com/php/php-src/archive/php-${VERSION_PHP}.tar.gz \
+    curl -Ls https://www.php.net/distributions/php-${VERSION_PHP}.tar.gz \
   | tar xzC ${PHP_BUILD_DIR} --strip-components=1
 # Move into the unpackaged code directory
 WORKDIR  ${PHP_BUILD_DIR}/
