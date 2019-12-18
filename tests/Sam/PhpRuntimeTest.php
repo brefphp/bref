@@ -253,6 +253,9 @@ LOGS;
         $command = ['sam', 'local', 'invoke', 'PhpFunction', '--region', 'us-east-1'];
         if ($event === null) {
             $command[] = '--no-event';
+        } else {
+            $command[] = '--event';
+            $command[] = '-';
         }
         $process = new Process($command);
         $process->setWorkingDirectory(__DIR__);
