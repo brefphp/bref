@@ -9,10 +9,13 @@ declare(strict_types=1);
 $allLayers = [
     'bref/php-72',
     'bref/php-73',
+    'bref/php-74',
     'bref/php-72-fpm',
     'bref/php-73-fpm',
+    'bref/php-74-fpm',
     'bref/php-72-fpm-dev',
     'bref/php-73-fpm-dev',
+    'bref/php-74-fpm-dev',
 ];
 foreach ($allLayers as $layer) {
     // Working directory
@@ -36,8 +39,10 @@ foreach ($allLayers as $layer) {
 $fpmLayers = [
     'bref/php-72-fpm',
     'bref/php-73-fpm',
+    'bref/php-74-fpm',
     'bref/php-72-fpm-dev',
     'bref/php-73-fpm-dev',
+    'bref/php-74-fpm-dev',
 ];
 foreach ($fpmLayers as $layer) {
     // PHP-FPM is installed

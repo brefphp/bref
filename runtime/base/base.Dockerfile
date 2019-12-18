@@ -386,4 +386,5 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 # libjpeg-devel : needed for gd
 # libxslt-devel : needed for the XSL extension
 # ImageMagick-devel : needed for the imagick extension
-RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel libxslt-devel ImageMagick-devel
+# sqlite-devel : Since PHP 7.4 this must be installed (https://github.com/php/php-src/blob/99b8e67615159fc600a615e1e97f2d1cf18f14cb/UPGRADING#L616-L619)
+RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel libxslt-devel ImageMagick-devel sqlite-devel
