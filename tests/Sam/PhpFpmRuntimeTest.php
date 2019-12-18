@@ -159,7 +159,7 @@ class PhpFpmRuntimeTest extends TestCase
             'error_log' => null,
             // This is the default production value
             'error_reporting' => (string) (E_ALL & ~E_DEPRECATED & ~E_STRICT),
-            'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-zts-20180731',
+            'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-zts-20190902',
             // Same limit as API Gateway
             'max_execution_time' => '30',
             // Use the max amount of memory possibly available, lambda will limit us

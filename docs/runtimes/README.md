@@ -18,21 +18,21 @@ This page is an introduction to the runtimes. The next sections (e.g. PHP functi
 
 ## Bref runtimes
 
-### PHP functions: `php-73` and `php-72`
+### PHP functions: `php-74` and `php-73`
 
 The simplest way to write a lambda is to write one in the form of a PHP function.
 
 This runtime works great for **non-HTTP applications**.
 
-[Read more about the `php-73` runtime here](/docs/runtimes/function.md).
+[Read more about the `php-74` runtime here](/docs/runtimes/function.md).
 
-### HTTP applications: `php-73-fpm` and `php-72-fpm`
+### HTTP applications: `php-74-fpm` and `php-73-fpm`
 
 This runtime uses PHP-FPM to run **HTTP applications** on AWS Lambda.
 
 This runtime is **the easiest to start with**: it works like traditional PHP hosting and is compatible with Symfony and Laravel.
 
-[Read more about the `php-73-fpm` runtime here](/docs/runtimes/http.md).
+[Read more about the `php-74-fpm` runtime here](/docs/runtimes/http.md).
 
 ### Console: `console`
 
@@ -62,15 +62,17 @@ functions:
 
 The `${...}` notation is the [syntax to use variables](https://serverless.com/framework/docs/providers/aws/guide/variables/) in `serverless.yml`. Bref provides a serverless plugin ("`./vendor/bref/bref`") that provides those variables:
 
+- `${bref:layer.php-74}`
 - `${bref:layer.php-73}`
 - `${bref:layer.php-72}`
+- `${bref:layer.php-74-fpm}`
 - `${bref:layer.php-73-fpm}`
 - `${bref:layer.php-72-fpm}`
 - `${bref:layer.console}`
 
-Bref currently provides runtimes for PHP 7.2 and 7.3.
+Bref currently provides runtimes for PHP 7.2, 7.3 and 7.4.
 
-> `php-73` means PHP 7.3.\*. It is not possible to require a specific "patch" version.
+> `php-74` means PHP 7.4.\*. It is not possible to require a specific "patch" version.
 
 You can read more about this in the next sections.
 

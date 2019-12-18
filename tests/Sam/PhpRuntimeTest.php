@@ -206,7 +206,7 @@ LOGS;
             'error_log' => null,
             // This is the default production value
             'error_reporting' => (string) (E_ALL & ~E_DEPRECATED & ~E_STRICT),
-            'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-zts-20180731',
+            'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-zts-20190902',
             // No need for HTML formatting on the CLI
             'html_errors' => '0',
             // Let lambda deal with the max execution time

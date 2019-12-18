@@ -24,7 +24,7 @@ functions:
         handler: demo/function.php
         description: 'Bref CLI demo'
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 
     http:
         handler: demo/http.php
@@ -32,7 +32,7 @@ functions:
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
         memory: 1024
         layers:
-            - ${bref:layer.php-73-fpm}
+            - ${bref:layer.php-74-fpm}
         events:
             -   http: 'ANY /'
             -   http: 'ANY /{proxy+}'
@@ -41,5 +41,5 @@ functions:
         handler: demo/console.php
         description: 'Bref console command demo'
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
             - ${bref:layer.console}

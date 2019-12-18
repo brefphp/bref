@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
     console:
-        image: bref/php-73
+        image: bref/php-74
         volumes:
             - .:/var/task:ro # Read only, like a lambda function
         entrypoint: php
@@ -19,6 +19,6 @@ services:
         environment:
             HANDLER: demo/http.php
     php:
-        image: bref/php-73-fpm-dev
+        image: bref/php-74-fpm-dev
         volumes:
             - .:/var/task:ro # Read only, like a lambda function
