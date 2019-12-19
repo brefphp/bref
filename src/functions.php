@@ -15,4 +15,5 @@ function lambda(callable $handler): void
 {
     $lambdaRuntime = Bref\Runtime\LambdaRuntime::fromEnvironmentVariable();
     $lambdaRuntime->processNextEvent($handler);
+    exit(0);
 }

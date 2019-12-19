@@ -4,6 +4,9 @@ namespace Bref\Runtime;
 
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
+use Bref\Event\Sqs\SqsEvent;
+use Bref\Handler\Handler;
+use Bref\Handler\SqsHandler;
 
 /**
  * Client for the AWS Lambda runtime API.
@@ -74,7 +77,7 @@ final class LambdaRuntime
     /**
      * Process the next event.
      *
-     * @param callable $handler This callable takes two parameters, an $event parameter (array) and a $context parameter (Context) and must return anything serializable to JSON.
+     * @param mixed $handler This callable takes two parameters, an $event parameter (array) and a $context parameter (Context) and must return anything serializable to JSON.
      *
      * Example:
      *
@@ -83,13 +86,24 @@ final class LambdaRuntime
      *     });
      * @throws \Exception
      */
-    public function processNextEvent(callable $handler): void
+    public function processNextEvent($handler): void
     {
         /** @var Context $context */
         [$event, $context] = $this->waitNextInvocation();
 
+        $result = null;
+
         try {
-            $this->sendResponse($context->getAwsRequestId(), $handler($event, $context));
+            if ($handler instanceof SqsHandler) {
+                $handler->handleSqs(new SqsEvent($event), $context);
+            } elseif ($handler instanceof Handler) {
+                $result = $handler->handle($event, $context);
+            } else {
+                // The handler is a callable
+                $result = $handler($event, $context);
+            }
+
+            $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (\Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
         }

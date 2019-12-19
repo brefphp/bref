@@ -6,5 +6,8 @@ use Bref\Context\Context;
 
 interface Handler
 {
+    /**
+     * @param mixed $event The raw event data.
+     */
     public function handle($event, Context $context);
 }
