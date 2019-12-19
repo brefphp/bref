@@ -6,19 +6,18 @@ runtimes:
 
 docker-images:
 	cd runtime && make docker-images
-	docker push bref/php-72:latest
-	docker push bref/php-72-fpm:latest
-	docker push bref/php-72-fpm-dev:latest
-	docker push bref/php-73:latest
-	docker push bref/php-73-fpm:latest
-	docker push bref/php-73-fpm-dev:latest
-	docker push bref/php-74:latest
-	docker push bref/php-74-fpm:latest
-	docker push bref/php-74-fpm-dev:latest
-	docker push bref/build-php-72:latest
-	docker push bref/build-php-73:latest
-	docker push bref/build-php-74:latest
-	docker push bref/fpm-dev-gateway:latest
+	for image in \
+	  "bref/php-72" "bref/php-72-fpm" "bref/php-72-fpm-dev" \
+	  "bref/php-73" "bref/php-73-fpm" "bref/php-73-fpm-dev" \
+	  "bref/php-74" "bref/php-74-fpm" "bref/php-74-fpm-dev" \
+	  "bref/build-php-72" \
+	  "bref/build-php-73" \
+	  "bref/build-php-74" \
+	  "bref/fpm-dev-gateway"; \
+	  do \
+      docker tag $$image:latest $$image:${TRAVIS_TAG} ; \
+      docker push $$image ; \
+  done
 
 # Generate and deploy the production version of the website using http://couscous.io
 website:
