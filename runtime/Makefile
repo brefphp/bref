@@ -21,10 +21,12 @@ export/console.zip: layers/console/bootstrap
 	rm -f export/console.zip
 	cd layers/console && zip ../../export/console.zip bootstrap
 
-# Build Docker images
-docker-images:
+docker-base-image:
 	# Build the base environment (without PHP)
 	cd base ; docker build --file base.Dockerfile -t bref/tmp/step-1/build-environment .
+
+# Build Docker images
+docker-images: docker-base-image
 	# Build the `bref/build-php-XX` images
 	# (build only the first `FROM` section of the Dockerfile)
 	cd base ; docker build --file php-72.Dockerfile -t bref/build-php-72 --target build-environment .
