@@ -1,17 +1,26 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test\Runtime;
+namespace Bref\Test\Handler;
 
-use Bref\Http\LambdaResponse;
+use Bref\Context\Context;
 use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
-use Bref\Runtime\PhpFpm;
+use Bref\Handler\FpmHandler;
 use Bref\Test\HttpRequestProxyTest;
 use PHPUnit\Framework\TestCase;
 
-class PhpFpmTest extends TestCase implements HttpRequestProxyTest
+class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
 {
-    /** @var PhpFpm|null */
+    /** @var FpmHandler|null */
     private $fpm;
+    /** @var Context */
+    private $fakeContext;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->fakeContext = new Context('abc', time(), 'abc', 'abc');
+    }
 
     public function tearDown()
     {
@@ -769,7 +778,7 @@ Year,Make,Model
             'queryStringParameters' => [
                 'code' => $expectedStatusCode,
             ],
-        ])->toApiGatewayFormat()['statusCode'];
+        ])['statusCode'];
 
         self::assertEquals($expectedStatusCode, $statusCode);
     }
@@ -783,7 +792,7 @@ Year,Make,Model
     {
         $response = $this->get('response-headers.php', [
             'httpMethod' => 'GET',
-        ])->toApiGatewayFormat();
+        ]);
 
         self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
         unset($response['headers']['x-powered-by']);
@@ -798,19 +807,19 @@ Year,Make,Model
         $response = $this->get('response-headers.php', [
             'httpMethod' => 'GET',
             'multiValueHeaders' => [],
-        ])->toApiGatewayFormat();
+        ]);
 
-        self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'][0] ?? '');
-        unset($response['headers']['x-powered-by']);
+        self::assertStringStartsWith('PHP/', $response['multiValueHeaders']['x-powered-by'][0] ?? '');
+        unset($response['multiValueHeaders']['x-powered-by']);
         self::assertEquals([
             'content-type' => ['application/json'],
             'x-multivalue' => ['foo', 'bar'],
-        ], $response['headers']);
+        ], $response['multiValueHeaders']);
     }
 
     public function test response with cookies()
     {
-        $cookieHeader = $this->get('cookies.php')->toApiGatewayFormat()['headers']['set-cookie'];
+        $cookieHeader = $this->get('cookies.php')['headers']['set-cookie'];
 
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
     }
@@ -820,7 +829,7 @@ Year,Make,Model
         $cookieHeader = $this->get('cookies.php', [
             'httpMethod' => 'GET',
             'multiValueHeaders' => [],
-        ])->toApiGatewayFormat()['headers']['set-cookie'];
+        ])['multiValueHeaders']['set-cookie'];
 
         self::assertEquals('MyCookie=FirstValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
@@ -828,7 +837,7 @@ Year,Make,Model
 
     public function test response with error_log()
     {
-        $response = $this->get('error.php')->toApiGatewayFormat();
+        $response = $this->get('error.php');
 
         self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
         unset($response['headers']['x-powered-by']);
@@ -842,22 +851,22 @@ Year,Make,Model
      */
     public function test FPM timeouts are recovered from()
     {
-        $this->fpm = new PhpFpm(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
 
         try {
-            $this->fpm->proxy([
+            $this->fpm->handle([
                 'httpMethod' => 'GET',
-            ]);
+            ], $this->fakeContext);
             $this->fail('No exception was thrown');
         } catch (FastCgiCommunicationFailed $e) {
             // PHP-FPM should work after that
-            $statusCode = $this->fpm->proxy([
+            $statusCode = $this->fpm->handle([
                 'httpMethod' => 'GET',
                 'queryStringParameters' => [
                     'timeout' => 0,
                 ],
-            ])->toApiGatewayFormat()['statusCode'];
+            ], $this->fakeContext)['statusCode'];
             self::assertEquals(200, $statusCode);
         }
     }
@@ -869,7 +878,7 @@ Year,Make,Model
     {
         // Repeat the test 5 times because some errors are random
         for ($i = 0; $i < 5; $i++) {
-            $response = $this->get('large-response.php')->toApiGatewayFormat();
+            $response = $this->get('large-response.php');
 
             self::assertStringEqualsFile(__DIR__ . '/PhpFpm/big-json.json', $response['body']);
         }
@@ -879,22 +888,21 @@ Year,Make,Model
     {
         // Run `timeout.php` to make sure that the handler is not really executed.
         // If it was, then PHP-FPM would timeout (and error).
-        $this->fpm = new PhpFpm(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
 
-        $response = $this->fpm->proxy([
+        $result = $this->fpm->handle([
             'warmer' => true,
-        ]);
-        self::assertEquals(100, $response->toApiGatewayFormat()['statusCode']);
-        self::assertEquals('Lambda is warm', $response->toApiGatewayFormat()['body']);
+        ], $this->fakeContext);
+        self::assertEquals(['Lambda is warm'], $result);
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
         $this->startFpm(__DIR__ . '/PhpFpm/request.php');
-        $response = $this->fpm->proxy($event);
+        $response = $this->fpm->handle($event, $this->fakeContext);
 
-        $response = json_decode($response->toApiGatewayFormat()['body'], true);
+        $response = json_decode($response['body'], true);
 
         // Test global variables that cannot be hardcoded
         self::assertNotEmpty($response['$_SERVER']['HOME']);
@@ -939,13 +947,13 @@ Year,Make,Model
         return $response;
     }
 
-    private function get(string $file, ?array $event = null): LambdaResponse
+    private function get(string $file, ?array $event = null): array
     {
         $this->startFpm(__DIR__ . '/PhpFpm/' . $file);
 
-        return $this->fpm->proxy($event ?? [
+        return $this->fpm->handle($event ?? [
             'httpMethod' => 'GET',
-        ]);
+        ], $this->fakeContext);
     }
 
     private function startFpm(string $handler): void
@@ -953,7 +961,7 @@ Year,Make,Model
         if ($this->fpm) {
             $this->fpm->stop();
         }
-        $this->fpm = new PhpFpm($handler, __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler($handler, __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
     }
 }

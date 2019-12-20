@@ -9,10 +9,10 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @internal
  */
-final class LambdaResponse
+final class HttpResponse
 {
     /** @var int */
-    private $statusCode = 200;
+    private $statusCode;
 
     /** @var array */
     private $headers;

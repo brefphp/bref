@@ -1,8 +1,8 @@
 #!/opt/bin/php
 <?php declare(strict_types=1);
 
+use Bref\Handler\FpmHandler;
 use Bref\Runtime\LambdaRuntime;
-use Bref\Runtime\PhpFpm;
 
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
@@ -18,7 +18,7 @@ if (! is_file($handler)) {
     $lambdaRuntime->failInitialization("Handler `$handler` doesn't exist");
 }
 
-$phpFpm = new PhpFpm($handler);
+$phpFpm = new FpmHandler($handler);
 try {
     $phpFpm->start();
 } catch (\Throwable $e) {
@@ -26,12 +26,7 @@ try {
 }
 
 while (true) {
-    $lambdaRuntime->processNextEvent(function ($event) use ($phpFpm): array {
-        $response = $phpFpm->proxy($event);
-
-        $multiHeader = array_key_exists('multiValueHeaders', $event);
-        return $response->toApiGatewayFormat($multiHeader);
-    });
+    $lambdaRuntime->processNextEvent($phpFpm);
 
     try {
         $phpFpm->ensureStillRunning();
