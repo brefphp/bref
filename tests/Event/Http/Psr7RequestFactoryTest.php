@@ -7,7 +7,7 @@ use Bref\Event\Http\Psr7RequestFactory;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
-class Psr7RequestTest extends AbstractHttpTest
+class Psr7RequestFactoryTest extends AbstractHttpTest
 {
     /** @var ServerRequestInterface */
     private $request;
