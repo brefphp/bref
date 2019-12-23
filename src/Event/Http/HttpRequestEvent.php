@@ -8,6 +8,8 @@ class HttpRequestEvent
 {
     /** @var array */
     private $event;
+    /** @var string */
+    private $method;
     /** @var array */
     private $headers;
     /** @var string */
@@ -20,6 +22,7 @@ class HttpRequestEvent
         }
 
         $this->event = $event;
+        $this->method = strtoupper($this->event['httpMethod']);
         $this->queryString = $this->rebuildQueryString();
         $this->headers = $this->extractHeaders();
     }
@@ -35,7 +38,7 @@ class HttpRequestEvent
 
     public function getMethod(): string
     {
-        return strtoupper($this->event['httpMethod']);
+        return $this->method;
     }
 
     public function getHeaders(): array
@@ -51,6 +54,11 @@ class HttpRequestEvent
     public function getProtocol(): string
     {
         return $this->event['requestContext']['protocol'] ?? 'HTTP/1.1';
+    }
+
+    public function getProtocolVersion(): string
+    {
+        return ltrim($this->getProtocol(), 'HTTP/');
     }
 
     public function getContentType(): ?string
@@ -93,6 +101,31 @@ class HttpRequestEvent
         return $this->queryString;
     }
 
+    public function getQueryParameters(): array
+    {
+        parse_str($this->queryString, $query);
+        return $query;
+    }
+
+    public function getCookies(): array
+    {
+        if (! isset($this->headers['cookie'])) {
+            return [];
+        }
+
+        // Multiple "Cookie" headers are not authorized
+        // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
+        $cookieHeader = $this->headers['cookie'][0];
+
+        $cookies = [];
+        $cookieParts = explode('; ', $cookieHeader);
+        foreach ($cookieParts as $cookiePart) {
+            [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
+            $cookies[$cookieName] = urldecode($cookieValue);
+        }
+        return $cookies;
+    }
+
     private function rebuildQueryString(): string
     {
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
@@ -115,10 +148,9 @@ class HttpRequestEvent
         }
 
         /*
-         * Watch out in the future if using $event['queryStringParameters'] directly!
+         * Watch out: do not use $event['queryStringParameters'] directly!
          *
-         * (that is no longer the case here but it was in the past with the PSR-7 bridge, and it might be
-         * reintroduced in the future)
+         * (that is no longer the case here but it was in the past with Bref 0.2)
          *
          * queryStringParameters does not handle correctly arrays in parameters
          * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' = > 'value']]
