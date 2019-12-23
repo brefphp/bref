@@ -344,13 +344,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provideHttpMethodsWithRequestBodySupport
-     */
-    public function test request supports utf8 characters in body(string $method)
+    public function test request supports utf8 characters in body()
     {
         $event = [
-            'httpMethod' => $method,
+            'httpMethod' => 'POST',
             'headers' => [
                 'Content-Type' => 'text/plain; charset=UTF-8',
                 // The Content-Length header is purposefully omitted
@@ -370,7 +367,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_URI' => '/',
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
-                'REQUEST_METHOD' => $method,
+                'REQUEST_METHOD' => 'POST',
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'text/plain; charset=UTF-8',
                 'HTTP_CONTENT_LENGTH' => '10',
