@@ -4,9 +4,13 @@ namespace Bref\Runtime;
 
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
+use Bref\Event\Http\HttpRequestEvent;
+use Bref\Event\Http\Psr7RequestFactory;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Handler\Handler;
 use Bref\Handler\SqsHandler;
+use Bref\Http\HttpResponse;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Client for the AWS Lambda runtime API.
@@ -94,7 +98,11 @@ final class LambdaRuntime
         $result = null;
 
         try {
-            if ($handler instanceof SqsHandler) {
+            if ($handler instanceof RequestHandlerInterface) {
+                $request = Psr7RequestFactory::fromEvent(new HttpRequestEvent($event));
+                $response = $handler->handle($request);
+                $result = HttpResponse::fromPsr7Response($response);
+            } elseif ($handler instanceof SqsHandler) {
                 $handler->handleSqs(new SqsEvent($event), $context);
             } elseif ($handler instanceof Handler) {
                 $result = $handler->handle($event, $context);

@@ -3,10 +3,16 @@
 namespace Bref\Test\Runtime;
 
 use Bref\Context\Context;
+use Bref\Event\Sqs\SqsEvent;
+use Bref\Handler\Handler;
+use Bref\Handler\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Tests the communication between `LambdaRuntime` and the Lambda Runtime HTTP API.
@@ -196,5 +202,89 @@ class LambdaRuntimeTest extends TestCase
         $error = json_decode((string) $eventFailureLog->getBody());
         $this->expectOutputRegex('/^Fatal error: Uncaught Exception: The Lambda response cannot be encoded to JSON/');
         $this->assertSame("The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing a HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses\nHere is the original JSON error: 'Malformed UTF-8 characters, possibly incorrectly encoded'", $error->errorMessage);
+    }
+
+    public function test generic event handler()
+    {
+        $handler = new class() implements Handler {
+            public $event;
+            public function handle($event, Context $context): void
+            {
+                $this->event = $event;
+            }
+        };
+
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => 1,
+                ],
+                json_encode(['foo' => 'bar'])
+            ),
+            new Response(200), // lambda response accepted
+        ]);
+
+        $this->runtime->processNextEvent($handler);
+
+        $this->assertEquals(['foo' => 'bar'], $handler->event);
+    }
+
+    public function test SQS event handler()
+    {
+        $handler = new class() implements SqsHandler {
+            public $event;
+            public function handleSqs(SqsEvent $event, Context $context): void
+            {
+                $this->event = $event;
+            }
+        };
+
+        $eventJson = file_get_contents(__DIR__ . '/../Event/Sqs/sqs.json');
+        $event = new SqsEvent(json_decode($eventJson, true));
+
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => 1,
+                ],
+                $eventJson
+            ),
+            new Response(200), // lambda response accepted
+        ]);
+
+        $this->runtime->processNextEvent($handler);
+
+        $this->assertEquals($event, $handler->event);
+    }
+
+    public function test PSR7 event handler()
+    {
+        $handler = new class() implements RequestHandlerInterface {
+            /** @var ServerRequestInterface */
+            public $request;
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                $this->request = $request;
+                return new Response;
+            }
+        };
+
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => 1,
+                ],
+                file_get_contents(__DIR__ . '/../Event/Http/Fixture/apigateway-simple.json')
+            ),
+            new Response(200), // lambda response accepted
+        ]);
+
+        $this->runtime->processNextEvent($handler);
+
+        $this->assertEquals('GET', $handler->request->getMethod());
+        $this->assertEquals('/path', (string) $handler->request->getUri());
     }
 }
