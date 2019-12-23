@@ -31,7 +31,7 @@
         "aws/aws-sdk-php": "^3.44",
         "psr/http-message": "^1.0",
         "hollodotme/fast-cgi-client": "^3.0",
-        "riverline/multipart-parser": "^2.0",
+        "riverline/multipart-parser": "^2.0.6",
         "psr/http-server-handler": "^1.0"
     },
     "require-dev": {
