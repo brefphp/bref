@@ -5,6 +5,9 @@ namespace Bref\Handler;
 use Bref\Context\Context;
 use Bref\Event\Sqs\SqsEvent;
 
+/**
+ * Handles SQS events.
+ */
 interface SqsHandler
 {
     public function handleSqs(SqsEvent $event, Context $context): void;

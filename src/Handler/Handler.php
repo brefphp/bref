@@ -4,6 +4,9 @@ namespace Bref\Handler;
 
 use Bref\Context\Context;
 
+/**
+ * Handles any kind of Lambda events.
+ */
 interface Handler
 {
     /**

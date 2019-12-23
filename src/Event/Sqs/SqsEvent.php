@@ -6,6 +6,9 @@ use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
 use InvalidArgumentException;
 
+/**
+ * Represents a Lambda event when Lambda is invoked by SQS.
+ */
 final class SqsEvent implements LambdaEvent
 {
     /** @var array */

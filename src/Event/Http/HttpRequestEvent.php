@@ -5,6 +5,11 @@ namespace Bref\Event\Http;
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
 
+/**
+ * Represents a Lambda event that comes from a HTTP request.
+ *
+ * The event can come from API Gateway or ALB (Application Load Balancer).
+ */
 final class HttpRequestEvent implements LambdaEvent
 {
     /** @var array */

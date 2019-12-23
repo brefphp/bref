@@ -14,7 +14,7 @@ use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Symfony\Component\Process\Process;
 
 /**
- * Proxies HTTP events coming from API Gateway to PHP-FPM via FastCGI.
+ * Handles HTTP events coming from API Gateway/ALB by proxying them to PHP-FPM via FastCGI.
  *
  * Usage example:
  *

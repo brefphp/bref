@@ -2,6 +2,11 @@
 
 namespace Bref\Event;
 
+/**
+ * Represents a Lambda event.
+ *
+ * This interface contains the methods that are common to all events.
+ */
 interface LambdaEvent
 {
     /**
