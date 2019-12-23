@@ -5,7 +5,7 @@ namespace Bref\Event\Http;
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
 
-class HttpRequestEvent implements LambdaEvent
+final class HttpRequestEvent implements LambdaEvent
 {
     /** @var array */
     private $event;

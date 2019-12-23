@@ -10,8 +10,10 @@ use RuntimeException;
 
 /**
  * Creates PSR-7 requests from API Gateway or ALB events.
+ *
+ * @internal
  */
-class Psr7RequestFactory
+final class Psr7RequestFactory
 {
     /**
      * Create a PSR-7 server request from an AWS Lambda HTTP event.
