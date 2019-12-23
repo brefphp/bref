@@ -852,13 +852,13 @@ Year,Make,Model
         $this->fpm->start();
 
         try {
-            $this->fpm->handle([
+            $this->fpm->__invoke([
                 'httpMethod' => 'GET',
             ], $this->fakeContext);
             $this->fail('No exception was thrown');
         } catch (FastCgiCommunicationFailed $e) {
             // PHP-FPM should work after that
-            $statusCode = $this->fpm->handle([
+            $statusCode = $this->fpm->__invoke([
                 'httpMethod' => 'GET',
                 'queryStringParameters' => [
                     'timeout' => 0,
@@ -888,7 +888,7 @@ Year,Make,Model
         $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
 
-        $result = $this->fpm->handle([
+        $result = $this->fpm->__invoke([
             'warmer' => true,
         ], $this->fakeContext);
         self::assertEquals(['Lambda is warm'], $result);
@@ -897,7 +897,7 @@ Year,Make,Model
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
         $this->startFpm(__DIR__ . '/PhpFpm/request.php');
-        $response = $this->fpm->handle($event, $this->fakeContext);
+        $response = $this->fpm->__invoke($event, $this->fakeContext);
 
         $response = json_decode($response['body'], true);
 
@@ -948,7 +948,7 @@ Year,Make,Model
     {
         $this->startFpm(__DIR__ . '/PhpFpm/' . $file);
 
-        return $this->fpm->handle($event ?? [
+        return $this->fpm->__invoke($event ?? [
             'httpMethod' => 'GET',
         ], $this->fakeContext);
     }

@@ -27,7 +27,7 @@ use Symfony\Component\Process\Process;
  *
  * @internal
  */
-final class FpmHandler implements Handler
+final class FpmHandler implements BrefHandler
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const PID_FILE = '/tmp/.bref/php-fpm.pid';
@@ -112,7 +112,7 @@ final class FpmHandler implements Handler
      *
      * @param mixed $event
      */
-    public function handle($event, Context $context): array
+    public function __invoke($event, Context $context): array
     {
         if (isset($event['warmer']) && $event['warmer'] === true) {
             return ['Lambda is warm'];

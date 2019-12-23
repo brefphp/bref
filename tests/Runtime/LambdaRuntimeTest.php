@@ -4,8 +4,10 @@ namespace Bref\Test\Runtime;
 
 use Bref\Context\Context;
 use Bref\Event\Sqs\SqsEvent;
-use Bref\Handler\Handler;
+use Bref\Handler\BrefHandler;
+use Bref\Handler\Psr7Wrapper;
 use Bref\Handler\SqsHandler;
+use Bref\Handler\SqsWrapper;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
 use GuzzleHttp\Psr7\Response;
@@ -206,13 +208,13 @@ class LambdaRuntimeTest extends TestCase
 
     public function test generic event handler()
     {
-        $handler = new class() implements Handler {
+        $handler = new class() implements BrefHandler {
             /** @var mixed */
             public $event;
             /**
              * @param mixed $event
              */
-            public function handle($event, Context $context): void
+            public function __invoke($event, Context $context): void
             {
                 $this->event = $event;
             }
@@ -239,7 +241,7 @@ class LambdaRuntimeTest extends TestCase
         $handler = new class() implements SqsHandler {
             /** @var SqsEvent */
             public $event;
-            public function handleSqs(SqsEvent $event, Context $context): void
+            public function __invoke(SqsEvent $event, Context $context): void
             {
                 $this->event = $event;
             }
@@ -259,7 +261,7 @@ class LambdaRuntimeTest extends TestCase
             new Response(200), // lambda response accepted
         ]);
 
-        $this->runtime->processNextEvent($handler);
+        $this->runtime->processNextEvent(new SqsWrapper($handler));
 
         $this->assertEquals($event, $handler->event);
     }
@@ -287,7 +289,7 @@ class LambdaRuntimeTest extends TestCase
             new Response(200), // lambda response accepted
         ]);
 
-        $this->runtime->processNextEvent($handler);
+        $this->runtime->processNextEvent(new Psr7Wrapper($handler));
 
         $this->assertEquals('GET', $handler->request->getMethod());
         $this->assertEquals('/path', (string) $handler->request->getUri());
