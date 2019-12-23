@@ -3,8 +3,9 @@
 namespace Bref\Event\Http;
 
 use Bref\Event\InvalidLambdaEvent;
+use Bref\Event\LambdaEvent;
 
-class HttpRequestEvent
+class HttpRequestEvent implements LambdaEvent
 {
     /** @var array */
     private $event;
@@ -25,6 +26,11 @@ class HttpRequestEvent
         $this->method = strtoupper($this->event['httpMethod']);
         $this->queryString = $this->rebuildQueryString();
         $this->headers = $this->extractHeaders();
+    }
+
+    public function toArray(): array
+    {
+        return $this->event;
     }
 
     public function getBody(): string

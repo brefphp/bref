@@ -3,9 +3,10 @@
 namespace Bref\Event\Sqs;
 
 use Bref\Event\InvalidLambdaEvent;
+use Bref\Event\LambdaEvent;
 use InvalidArgumentException;
 
-final class SqsEvent
+final class SqsEvent implements LambdaEvent
 {
     /** @var array */
     private $event;
@@ -32,11 +33,6 @@ final class SqsEvent
         }, $this->event['Records']);
     }
 
-    /**
-     * Returns the event original data as an array.
-     *
-     * Use this method if you want to access data that is not returned by a method in this class.
-     */
     public function toArray(): array
     {
         return $this->event;
