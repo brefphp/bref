@@ -9,6 +9,9 @@ final class SqsRecord
     /** @var array */
     private $record;
 
+    /**
+     * @param mixed $record
+     */
     public function __construct($record)
     {
         if (! is_array($record) || ! isset($record['eventSource']) || $record['eventSource'] !== 'aws:sqs') {

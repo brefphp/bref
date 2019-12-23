@@ -4,7 +4,7 @@ namespace Bref\Test\Event\Http;
 
 use Bref\Event\Http\HttpRequestEvent;
 
-class HttpRequestEventTest extends AbstractHttpTest
+class HttpRequestEventTest extends CommonHttpTest
 {
     /** @var HttpRequestEvent */
     private $event;

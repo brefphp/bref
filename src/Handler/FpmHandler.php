@@ -109,7 +109,8 @@ final class FpmHandler implements Handler
 
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
-     * @param array $event
+     *
+     * @param mixed $event
      */
     public function handle($event, Context $context): array
     {

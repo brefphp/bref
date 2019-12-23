@@ -207,7 +207,11 @@ class LambdaRuntimeTest extends TestCase
     public function test generic event handler()
     {
         $handler = new class() implements Handler {
+            /** @var mixed */
             public $event;
+            /**
+             * @param mixed $event
+             */
             public function handle($event, Context $context): void
             {
                 $this->event = $event;
@@ -233,6 +237,7 @@ class LambdaRuntimeTest extends TestCase
     public function test SQS event handler()
     {
         $handler = new class() implements SqsHandler {
+            /** @var SqsEvent */
             public $event;
             public function handleSqs(SqsEvent $event, Context $context): void
             {

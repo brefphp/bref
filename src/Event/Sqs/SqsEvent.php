@@ -11,6 +11,9 @@ final class SqsEvent implements LambdaEvent
     /** @var array */
     private $event;
 
+    /**
+     * @param mixed $event
+     */
     public function __construct($event)
     {
         if (! is_array($event) || ! isset($event['Records'])) {

@@ -5,7 +5,7 @@ namespace Bref\Test\Event\Http;
 use Bref\Test\HttpRequestProxyTest;
 use PHPUnit\Framework\TestCase;
 
-abstract class AbstractHttpTest extends TestCase implements HttpRequestProxyTest
+abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
 {
     public function test simple request()
     {
@@ -232,10 +232,22 @@ Year,Make,Model
 ";
         $this->assertBody($body);
         $this->assertParsedBody([]);
-        $this->assertUploadedFile('foo', 'lorem.txt', 'text/plain', 0, 57,
-            "Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit.\n");
-        $this->assertUploadedFile('bar', 'cars.csv', 'application/octet-stream', 0, 51,
-            "Year,Make,Model\n1997,Ford,E350\n2000,Mercury,Cougar\n");
+        $this->assertUploadedFile(
+            'foo',
+            'lorem.txt',
+            'text/plain',
+            0,
+            57,
+            "Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit.\n"
+        );
+        $this->assertUploadedFile(
+            'bar',
+            'cars.csv',
+            'application/octet-stream',
+            0,
+            51,
+            "Year,Make,Model\n1997,Ford,E350\n2000,Mercury,Cougar\n"
+        );
     }
 
     public function test request with cookies()

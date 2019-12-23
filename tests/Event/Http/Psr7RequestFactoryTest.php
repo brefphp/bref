@@ -7,7 +7,7 @@ use Bref\Event\Http\Psr7RequestFactory;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
-class Psr7RequestFactoryTest extends AbstractHttpTest
+class Psr7RequestFactoryTest extends CommonHttpTest
 {
     /** @var ServerRequestInterface */
     private $request;
@@ -23,12 +23,12 @@ class Psr7RequestFactoryTest extends AbstractHttpTest
         $this->assertEquals($expected, $this->request->getBody()->getContents());
     }
 
-    protected function assertContentType($expected): void
+    protected function assertContentType(?string $expected): void
     {
         $this->assertEquals($expected, $this->request->getHeaderLine('Content-Type'));
     }
 
-    protected function assertCookies($expected): void
+    protected function assertCookies(array $expected): void
     {
         $this->assertEquals($expected, $this->request->getCookieParams());
     }
@@ -38,24 +38,24 @@ class Psr7RequestFactoryTest extends AbstractHttpTest
         $this->assertEquals($expected, $this->request->getHeaders());
     }
 
-    protected function assertMethod($expected): void
+    protected function assertMethod(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getMethod());
         $this->assertEquals($expected, $this->request->getServerParams()['REQUEST_METHOD']);
     }
 
-    protected function assertPath($expected): void
+    protected function assertPath(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getUri()->getPath());
     }
 
-    protected function assertQueryString($expected): void
+    protected function assertQueryString(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getUri()->getQuery());
         $this->assertEquals($expected, $this->request->getServerParams()['QUERY_STRING']);
     }
 
-    protected function assertQueryParameters($expected): void
+    protected function assertQueryParameters(array $expected): void
     {
         $this->assertEquals($expected, $this->request->getQueryParams());
     }
