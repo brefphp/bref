@@ -10,5 +10,5 @@ use Bref\Event\Sqs\SqsEvent;
  */
 interface SqsHandler
 {
-    public function handleSqs(SqsEvent $event, Context $context): void;
+    public function handle(SqsEvent $event, Context $context): void;
 }

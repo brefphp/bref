@@ -239,7 +239,7 @@ class LambdaRuntimeTest extends TestCase
         $handler = new class() implements SqsHandler {
             /** @var SqsEvent */
             public $event;
-            public function handleSqs(SqsEvent $event, Context $context): void
+            public function handle(SqsEvent $event, Context $context): void
             {
                 $this->event = $event;
             }

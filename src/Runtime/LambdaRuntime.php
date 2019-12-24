@@ -103,7 +103,7 @@ final class LambdaRuntime
                 $response = $handler->handle($request);
                 $result = HttpResponse::fromPsr7Response($response);
             } elseif ($handler instanceof SqsHandler) {
-                $handler->handleSqs(new SqsEvent($event), $context);
+                $handler->handle(new SqsEvent($event), $context);
             } elseif ($handler instanceof Handler) {
                 $result = $handler->handle($event, $context);
             } else {
