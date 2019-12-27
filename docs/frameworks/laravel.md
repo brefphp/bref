@@ -73,6 +73,15 @@ SESSION_DRIVER=array
 LOG_CHANNEL=stderr
 ```
 
+Next we need to use the new `VIEW_COMPILED_PATH` env var when it has been set. Update the `config/view.php` file:
+
+```php
+    'compiled' => env(
+        'VIEW_COMPILED_PATH',
+        realpath(storage_path('framework/views'))
+    ),
+```
+
 Finally we need to edit `app/Providers/AppServiceProvider.php` because Laravel will not create that directory automatically:
 
 ```php
