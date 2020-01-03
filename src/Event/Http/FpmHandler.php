@@ -97,16 +97,6 @@ final class FpmHandler implements Handler
     }
 
     /**
-     * @throws \Exception If the PHP-FPM process is not running anymore.
-     */
-    public function ensureStillRunning(): void
-    {
-        if (! $this->fpm || ! $this->fpm->isRunning()) {
-            throw new \Exception('PHP-FPM has stopped for an unknown reason');
-        }
-    }
-
-    /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
      *
      * @param mixed $event
@@ -140,7 +130,19 @@ final class FpmHandler implements Handler
 
         $response = new HttpResponse($status ?? 200, $responseHeaders, $response->getBody());
 
+        $this->ensureStillRunning();
+
         return $response->toApiGatewayFormat($httpEvent->hasMultiHeader());
+    }
+
+    /**
+     * @throws \Exception If the PHP-FPM process is not running anymore.
+     */
+    private function ensureStillRunning(): void
+    {
+        if (! $this->fpm || ! $this->fpm->isRunning()) {
+            throw new \Exception('PHP-FPM has stopped for an unknown reason');
+        }
     }
 
     private function waitUntilReady(): void
