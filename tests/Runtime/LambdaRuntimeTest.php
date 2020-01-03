@@ -8,6 +8,7 @@ use Bref\Event\Handler;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
+use Exception;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -291,5 +292,27 @@ class LambdaRuntimeTest extends TestCase
 
         $this->assertEquals('GET', $handler->request->getMethod());
         $this->assertEquals('/path', (string) $handler->request->getUri());
+    }
+
+    public function test invalid handlers are rejected properly()
+    {
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => 1,
+                ],
+                file_get_contents(__DIR__ . '/../Event/Http/Fixture/apigateway-simple.json')
+            ),
+            new Response(200), // lambda response accepted
+        ]);
+
+        $this->runtime->processNextEvent(null);
+
+        $requests = Server::received();
+        $this->assertCount(2, $requests);
+        $error = json_decode((string) $requests[1]->getBody(), true);
+        $this->expectOutputRegex('/^Fatal error: Uncaught Exception: The lambda handler must be a callable or implement handler interfaces/');
+        $this->assertSame('The lambda handler must be a callable or implement handler interfaces', $error['errorMessage']);
     }
 }

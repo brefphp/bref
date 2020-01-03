@@ -10,6 +10,7 @@ use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Handler;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Event\Http\HttpResponse;
+use Exception;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
@@ -88,7 +89,7 @@ final class LambdaRuntime
      *     $lambdaRuntime->processNextEvent(function (array $event, Context $context) {
      *         return 'Hello ' . $event['name'] . '. We have ' . $context->getRemainingTimeInMillis()/1000 . ' seconds left';
      *     });
-     * @throws \Exception
+     * @throws Exception
      */
     public function processNextEvent($handler): void
     {
@@ -106,9 +107,11 @@ final class LambdaRuntime
                 $handler->handle(new SqsEvent($event), $context);
             } elseif ($handler instanceof Handler) {
                 $result = $handler->handle($event, $context);
-            } else {
+            } elseif (is_callable($handler)) {
                 // The handler is a callable
                 $result = $handler($event, $context);
+            } else {
+                throw new Exception('The lambda handler must be a callable or implement handler interfaces');
             }
 
             $this->sendResponse($context->getAwsRequestId(), $result);
@@ -169,16 +172,16 @@ final class LambdaRuntime
         if (curl_errno($this->handler) > 0) {
             $message = curl_error($this->handler);
             $this->closeHandler();
-            throw new \Exception('Failed to fetch next Lambda invocation: ' . $message);
+            throw new Exception('Failed to fetch next Lambda invocation: ' . $message);
         }
         if ($body === '') {
-            throw new \Exception('Empty Lambda runtime API response');
+            throw new Exception('Empty Lambda runtime API response');
         }
 
         $context = $contextBuilder->buildContext();
 
         if ($context->getAwsRequestId() === '') {
-            throw new \Exception('Failed to determine the Lambda invocation ID');
+            throw new Exception('Failed to determine the Lambda invocation ID');
         }
 
         $event = json_decode($body, true);
@@ -202,7 +205,7 @@ final class LambdaRuntime
      */
     private function signalFailure(string $invocationId, \Throwable $error): void
     {
-        if ($error instanceof \Exception) {
+        if ($error instanceof Exception) {
             $errorMessage = 'Uncaught ' . get_class($error) . ': ' . $error->getMessage();
         } else {
             $errorMessage = $error->getMessage();
@@ -236,7 +239,7 @@ final class LambdaRuntime
         // Log the exception in CloudWatch
         echo "$message\n";
         if ($error) {
-            if ($error instanceof \Exception) {
+            if ($error instanceof Exception) {
                 $errorMessage = get_class($error) . ': ' . $error->getMessage();
             } else {
                 $errorMessage = $error->getMessage();
@@ -267,7 +270,7 @@ final class LambdaRuntime
     {
         $jsonData = json_encode($data);
         if ($jsonData === false) {
-            throw new \Exception(sprintf(
+            throw new Exception(sprintf(
                 "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing a HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses\nHere is the original JSON error: '%s'",
                 json_last_error_msg()
             ));
@@ -290,7 +293,7 @@ final class LambdaRuntime
         if (curl_errno($this->returnHandler) > 0) {
             $errorMessage = curl_error($this->returnHandler);
             $this->closeReturnHandler();
-            throw new \Exception('Error while calling the Lambda runtime API: ' . $errorMessage);
+            throw new Exception('Error while calling the Lambda runtime API: ' . $errorMessage);
         }
     }
 }
