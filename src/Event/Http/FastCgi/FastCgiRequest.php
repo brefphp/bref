@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Runtime\FastCgi;
+namespace Bref\Event\Http\FastCgi;
 
 use hollodotme\FastCGI\Requests\AbstractRequest;
 

@@ -7,9 +7,9 @@ use Bref\Context\ContextBuilder;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\Psr7RequestFactory;
 use Bref\Event\Sqs\SqsEvent;
-use Bref\Handler\Handler;
-use Bref\Handler\SqsHandler;
-use Bref\Http\HttpResponse;
+use Bref\Event\Handler;
+use Bref\Event\Sqs\SqsHandler;
+use Bref\Event\Http\HttpResponse;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**

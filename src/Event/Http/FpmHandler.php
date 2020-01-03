@@ -1,12 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Handler;
+namespace Bref\Event\Http;
 
 use Bref\Context\Context;
-use Bref\Event\Http\HttpRequestEvent;
-use Bref\Http\HttpResponse;
-use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
-use Bref\Runtime\FastCgi\FastCgiRequest;
+use Bref\Event\Handler;
+use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
+use Bref\Event\Http\FastCgi\FastCgiRequest;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;

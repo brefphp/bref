@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Http;
+namespace Bref\Event\Http;
 
 use Psr\Http\Message\ResponseInterface;
 

@@ -1,9 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Handler;
+namespace Bref\Event\Sqs;
 
 use Bref\Context\Context;
-use Bref\Event\Sqs\SqsEvent;
 
 /**
  * Handles SQS events.

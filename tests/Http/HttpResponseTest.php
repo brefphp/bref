@@ -2,7 +2,7 @@
 
 namespace Bref\Test\Http;
 
-use Bref\Http\HttpResponse;
+use Bref\Event\Http\HttpResponse;
 use PHPUnit\Framework\TestCase;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;

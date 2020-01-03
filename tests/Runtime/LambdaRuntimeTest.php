@@ -4,8 +4,8 @@ namespace Bref\Test\Runtime;
 
 use Bref\Context\Context;
 use Bref\Event\Sqs\SqsEvent;
-use Bref\Handler\Handler;
-use Bref\Handler\SqsHandler;
+use Bref\Event\Handler;
+use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
 use GuzzleHttp\Psr7\Response;
