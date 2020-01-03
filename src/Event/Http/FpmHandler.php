@@ -6,11 +6,13 @@ use Bref\Context\Context;
 use Bref\Event\Handler;
 use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
 use Bref\Event\Http\FastCgi\FastCgiRequest;
+use Exception;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Symfony\Component\Process\Process;
+use Throwable;
 
 /**
  * Handles HTTP events coming from API Gateway/ALB by proxying them to PHP-FPM via FastCGI.
@@ -86,7 +88,7 @@ final class FpmHandler implements Handler
         if ($this->fpm && $this->fpm->isRunning()) {
             $this->fpm->stop(2);
             if ($this->isReady()) {
-                throw new \Exception('PHP-FPM cannot be stopped');
+                throw new Exception('PHP-FPM cannot be stopped');
             }
         }
     }
@@ -112,7 +114,7 @@ final class FpmHandler implements Handler
 
         try {
             $response = $this->client->sendRequest($this->connection, $request);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new FastCgiCommunicationFailed(sprintf(
                 'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
                 get_class($e),
@@ -136,12 +138,12 @@ final class FpmHandler implements Handler
     }
 
     /**
-     * @throws \Exception If the PHP-FPM process is not running anymore.
+     * @throws Exception If the PHP-FPM process is not running anymore.
      */
     private function ensureStillRunning(): void
     {
         if (! $this->fpm || ! $this->fpm->isRunning()) {
-            throw new \Exception('PHP-FPM has stopped for an unknown reason');
+            throw new Exception('PHP-FPM has stopped for an unknown reason');
         }
     }
 
@@ -156,12 +158,12 @@ final class FpmHandler implements Handler
             $elapsed += $wait;
 
             if ($elapsed > $timeout) {
-                throw new \Exception('Timeout while waiting for PHP-FPM socket at ' . self::SOCKET);
+                throw new Exception('Timeout while waiting for PHP-FPM socket at ' . self::SOCKET);
             }
 
             // If the process has crashed we can stop immediately
             if (! $this->fpm->isRunning()) {
-                throw new \Exception('PHP-FPM failed to start');
+                throw new Exception('PHP-FPM failed to start');
             }
         }
     }
@@ -256,7 +258,7 @@ final class FpmHandler implements Handler
             usleep($wait);
             $elapsed += $wait;
             if ($elapsed > $timeout) {
-                throw new \Exception('Timeout while waiting for PHP-FPM to stop');
+                throw new Exception('Timeout while waiting for PHP-FPM to stop');
             }
         }
     }
