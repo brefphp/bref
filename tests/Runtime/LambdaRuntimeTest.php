@@ -3,12 +3,11 @@
 namespace Bref\Test\Runtime;
 
 use Bref\Context\Context;
-use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Handler;
+use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
-use Exception;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
