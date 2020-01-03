@@ -3,8 +3,8 @@
 namespace Bref\Test\Handler;
 
 use Bref\Context\Context;
-use Bref\Handler\FpmHandler;
-use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
+use Bref\Event\Http\FpmHandler;
+use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
 use Bref\Test\HttpRequestProxyTest;
 use PHPUnit\Framework\TestCase;
 
