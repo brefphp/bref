@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test\Http;
+namespace Bref\Test\Event\Http;
 
 use Bref\Event\Http\HttpResponse;
 use PHPUnit\Framework\TestCase;
