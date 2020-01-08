@@ -8,6 +8,8 @@ use Bref\Event\Handler;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\HttpResponse;
 use Bref\Event\Http\Psr7RequestFactory;
+use Bref\Event\S3\S3Event;
+use Bref\Event\S3\S3Handler;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Exception;
@@ -105,6 +107,8 @@ final class LambdaRuntime
                 $result = HttpResponse::fromPsr7Response($response);
             } elseif ($handler instanceof SqsHandler) {
                 $handler->handle(new SqsEvent($event), $context);
+            } elseif ($handler instanceof S3Handler) {
+                $handler->handle(new S3Event($event), $context);
             } elseif ($handler instanceof Handler) {
                 $result = $handler->handle($event, $context);
             } elseif (is_callable($handler)) {

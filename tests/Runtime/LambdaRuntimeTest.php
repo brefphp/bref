@@ -4,6 +4,8 @@ namespace Bref\Test\Runtime;
 
 use Bref\Context\Context;
 use Bref\Event\Handler;
+use Bref\Event\S3\S3Event;
+use Bref\Event\S3\S3Handler;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
@@ -247,6 +249,36 @@ class LambdaRuntimeTest extends TestCase
 
         $eventJson = file_get_contents(__DIR__ . '/../Event/Sqs/sqs.json');
         $event = new SqsEvent(json_decode($eventJson, true));
+
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => 1,
+                ],
+                $eventJson
+            ),
+            new Response(200), // lambda response accepted
+        ]);
+
+        $this->runtime->processNextEvent($handler);
+
+        $this->assertEquals($event, $handler->event);
+    }
+
+    public function test S3 event handler()
+    {
+        $handler = new class() implements S3Handler {
+            /** @var S3Event */
+            public $event;
+            public function handle(S3Event $event, Context $context): void
+            {
+                $this->event = $event;
+            }
+        };
+
+        $eventJson = file_get_contents(__DIR__ . '/../Event/S3/s3.json');
+        $event = new S3Event(json_decode($eventJson, true));
 
         Server::enqueue([
             new Response( // lambda event
