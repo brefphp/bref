@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test\Event\Sqs;
+namespace Bref\Test\Event\S3;
 
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\S3\S3Event;
