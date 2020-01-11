@@ -10,9 +10,9 @@ docker-images:
 
 # Publish doocker images
 publish-docker-images: docker-images
-	ifndef DOCKER_TAG
-	$(error DOCKER_TAG is not set)
-	endif
+    # Make sure we have defined the docker tag
+	(test $(DOCKER_TAG)) && echo "Tagging images with \"${DOCKER_TAG}\"" || echo "You have to define environemnt variable DOCKER_TAG"
+	test $(DOCKER_TAG)
 
 	for image in \
 	  "bref/php-72" "bref/php-72-fpm" "bref/php-72-fpm-dev" \
