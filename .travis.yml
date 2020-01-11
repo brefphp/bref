@@ -34,8 +34,6 @@ jobs:
         php: 7.2
         before_script: composer update --prefer-lowest --prefer-stable -n
         script: vendor/bin/phpunit --testsuite small
-        env:
-          DEPLOY_JOB: true
 
 #    -   name: 'Runtime tests'
 #        php: 7.3
@@ -52,18 +50,3 @@ jobs:
         php: 7.3
         before_script: composer install -n
         script: vendor/bin/phpstan analyse
-
-before_deploy:
-  - cd runtime
-  - DOCKER_BUILD_FLAGS="--quiet" travis_wait 90  make docker-images
-  - cd ..
-
-deploy:
-  provider: script
-  script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && DOCKER_BUILD_FLAGS="--quiet" make docker-images
-  skip_cleanup: true
-  on:
-    repo: brefphp/bref
-    tags: true
-    all_branches: true
-    condition: $DEPLOY_JOB = true

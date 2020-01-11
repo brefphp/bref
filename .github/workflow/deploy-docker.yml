@@ -1,0 +1,30 @@
+name: Deploy Docker images
+
+on: push
+#  push:
+#    tags:
+#      - '*' # On all tags
+
+jobs:
+  publish:
+    name: Building images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build images
+        run: |
+          cd runtime
+          DOCKER_BUILD_FLAGS="--quiet" make docker-images
+
+      - name: Publish
+        env:
+          DOCKER_USERNAME: ${{ secrets.dockerUsername }}
+          DOCKER_PASSWORD: ${{ secrets.dockerPassword }}
+        run: |
+          echo $GITHUB_REF
+          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+
+#DOCKER_BUILD_FLAGS="--quiet" make docker-images
+
