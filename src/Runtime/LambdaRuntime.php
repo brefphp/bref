@@ -38,7 +38,7 @@ final class LambdaRuntime
 
     public static function fromEnvironmentVariable(): self
     {
-        return new self(getenv('AWS_LAMBDA_RUNTIME_API'));
+        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'));
     }
 
     public function __construct(string $apiUrl)
