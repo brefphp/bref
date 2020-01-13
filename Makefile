@@ -2,23 +2,30 @@
 
 # Build the PHP runtimes
 runtimes:
-	cd runtime && make publish
+	cd runtime ; make publish
 
+# Build all docker images
 docker-images:
-	cd runtime && make docker-images
-	docker push bref/php-72:latest
-	docker push bref/php-72-fpm:latest
-	docker push bref/php-72-fpm-dev:latest
-	docker push bref/php-73:latest
-	docker push bref/php-73-fpm:latest
-	docker push bref/php-73-fpm-dev:latest
-	docker push bref/php-74:latest
-	docker push bref/php-74-fpm:latest
-	docker push bref/php-74-fpm-dev:latest
-	docker push bref/build-php-72:latest
-	docker push bref/build-php-73:latest
-	docker push bref/build-php-74:latest
-	docker push bref/fpm-dev-gateway:latest
+	cd runtime ; make docker-images
+
+# Publish doocker images
+publish-docker-images: docker-images
+    # Make sure we have defined the docker tag
+	(test $(DOCKER_TAG)) && echo "Tagging images with \"${DOCKER_TAG}\"" || echo "You have to define environemnt variable DOCKER_TAG"
+	test $(DOCKER_TAG)
+
+	for image in \
+	  "bref/php-72" "bref/php-72-fpm" "bref/php-72-fpm-dev" \
+	  "bref/php-73" "bref/php-73-fpm" "bref/php-73-fpm-dev" \
+	  "bref/php-74" "bref/php-74-fpm" "bref/php-74-fpm-dev" \
+	  "bref/build-php-72" \
+	  "bref/build-php-73" \
+	  "bref/build-php-74" \
+	  "bref/fpm-dev-gateway"; \
+	  do \
+      docker tag $$image:latest $$image:${DOCKER_TAG} ; \
+      docker push $$image ; \
+  done
 
 # Generate and deploy the production version of the website using http://couscous.io
 website:
