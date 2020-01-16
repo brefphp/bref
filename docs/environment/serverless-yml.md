@@ -115,7 +115,7 @@ plugins:
 
 [Serverless plugins](https://serverless.com/framework/docs/providers/aws/guide/plugins/) are JavaScript plugins that extend the behavior of the Serverless framework.
 
-Bref provides a plugin via the Composer package, which explains why the path is a relative path into the `vendor` directory. This plugin provides [variables to easily use Bref layers](http://localhost:8000/docs/runtimes/#usage), it is necessary to include it for the `${bref:layer.xxx}` variables to work.
+Bref provides a plugin via the Composer package, which explains why the path is a relative path into the `vendor` directory. This plugin provides [variables to easily use Bref layers](../runtimes/#usage), it is necessary to include it for the `${bref:layer.xxx}` variables to work.
 
 Most other Serverless plugins [are installed via `npm`](https://serverless.com/framework/docs/providers/aws/guide/plugins/).
 
