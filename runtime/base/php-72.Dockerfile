@@ -77,7 +77,8 @@ RUN set -xe \
         --with-xsl=${INSTALL_DIR} \
         --with-gd \
         --with-png-dir=${INSTALL_DIR} \
-        --with-jpeg-dir=${INSTALL_DIR}
+        --with-jpeg-dir=${INSTALL_DIR} \
+        --with-webp-dir=${INSTALL_DIR}
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
 RUN set -xe; \
