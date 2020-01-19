@@ -116,9 +116,12 @@ Deploying a website and serving assets (e.g. CSS, JavaScript, images) is covered
 
 In some cases however, you will need to serve images (or other assets) via PHP. One example would be if you served generated images via PHP. In those cases, you need to read the [Binary response](#binary-responses) section below.
 
-## Binary responses
+## Binary requests and responses
 
-By default API Gateway **does not support binary HTTP responses** like images, PDF, binary files… To achieve this, you need to enable the option for binary responses in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment variable:
+By default API Gateway **does not support binary HTTP requests or responses** like 
+images, PDF, binary files… To achieve this, you need to enable the option for binary
+media types in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment 
+variable:
 
 ```yaml
 provider:
@@ -130,7 +133,8 @@ provider:
         BREF_BINARY_RESPONSES: 1
 ```
 
-This will make API Gateway support binary responses, and Bref will automatically encode responses to base64 (which is what API Gateway now expects).
+This will make API Gateway support binary file uploads and downloads, and Bref will 
+automatically encode responses to base64 (which is what API Gateway now expects).
 
 ## Cold starts
 
