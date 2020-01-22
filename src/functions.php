@@ -5,11 +5,13 @@
  *
  * @param callable $handler This callable takes a $event parameter (array) and must return anything serializable to JSON.
  *
- * Example:
+ * @deprecated This function is now deprecated. Instead, return the function from your file like in the example below:
  *
- *     lambda(function (array $event) {
+ *     <?php
+ *
+ *     return function (array $event) {
  *         return 'Hello ' . $event['name'];
- *     });
+ *     };
  */
 function lambda(callable $handler): void
 {
