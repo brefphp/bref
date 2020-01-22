@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php /** @noinspection ALL */
+declare(strict_types=1);
 
 require __DIR__ . '/../../../vendor/autoload.php';
 
-lambda(function (array $event) {
+return function (array $event) {
     if ($event['extensions'] ?? false) {
         return get_loaded_extensions();
     }
@@ -48,4 +49,4 @@ lambda(function (array $event) {
     }
 
     return 'Hello ' . ($event['name'] ?? 'world');
-});
+};

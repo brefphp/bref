@@ -41,19 +41,19 @@ The following files have been created in your project:
 
 ## Editing the code
 
-You are free to edit the code in `index.php`, you must however keep the call to the `lambda()` function:
+You are free to edit the code in `index.php`, the file must however always return a function:
 
 ```php
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-lambda(function (array $event) {
+return function ($event) {
     // Do anything you want here
     // For example:
     return 'Hello ' . ($event['name'] ?? 'world');
-});
+};
 ```
 
-The `lambda()` function is the internal Bref function that makes sure your code is executed whenever the lambda is invoked.
+On every execution of your lambda, Bref will invoke this function.
 
 You can use classes and functions as well: Composer and its autoloader will work just like any PHP application.
 
