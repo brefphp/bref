@@ -102,9 +102,12 @@ final class LambdaRuntime
 
         try {
             if ($handler instanceof RequestHandlerInterface) {
-                $request = Psr7RequestFactory::fromEvent(new HttpRequestEvent($event));
+                $httpEvent = new HttpRequestEvent($event);
+                $request = Psr7RequestFactory::fromEvent($httpEvent);
                 $response = $handler->handle($request);
-                $result = HttpResponse::fromPsr7Response($response);
+                $eventHttpResponse = HttpResponse::fromPsr7Response($response);
+                $result = $eventHttpResponse->toApiGatewayFormat($httpEvent->hasMultiHeader());
+                echo 'Returning ' . json_encode($result);
             } elseif ($handler instanceof SqsHandler) {
                 $handler->handle(new SqsEvent($event), $context);
             } elseif ($handler instanceof S3Handler) {
