@@ -58,4 +58,23 @@ class HttpResponseTest extends TestCase
         // Make sure that the headers are `"headers":{}` (object) and not `"headers":[]` (array)
         self::assertEquals('{"isBase64Encoded":false,"statusCode":204,"headers":{},"body":""}', json_encode($response->toApiGatewayFormat()));
     }
+
+    /**
+     * @see https://github.com/brefphp/bref/issues/534
+     */
+    public function test header values are forced as arrays for multiheaders()
+    {
+        $psr7Response = new EmptyResponse;
+        $psr7Response = $psr7Response->withHeader('foo', 'bar');
+
+        $response = HttpResponse::fromPsr7Response($psr7Response);
+        self::assertEquals([
+            'isBase64Encoded' => false,
+            'statusCode' => 204,
+            'multiValueHeaders' => [
+                'Foo' => ['bar'],
+            ],
+            'body' => '',
+        ], $response->toApiGatewayFormat(true));
+    }
 }
