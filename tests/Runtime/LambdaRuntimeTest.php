@@ -39,59 +39,27 @@ class LambdaRuntimeTest extends TestCase
 
     public function test basic behavior()
     {
-        Server::enqueue([
-            new Response( // lambda event
-                200,
-                [
-                    'lambda-runtime-aws-request-id' => 1,
-                ],
-                '{ "Hello": "world!"}'
-            ),
-            new Response(200), // lambda response accepted
-        ]);
+        $this->givenAnEvent(['Hello' => 'world!']);
 
         $this->runtime->processNextEvent(function () {
             return ['hello' => 'world'];
         });
 
-        $requests = Server::received();
-        $this->assertCount(2, $requests);
-
-        [$eventRequest, $eventResponse] = $requests;
-        $this->assertSame('GET', $eventRequest->getMethod());
-        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
-        $this->assertSame('POST', $eventResponse->getMethod());
-        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventResponse->getUri()->__toString());
-        $this->assertJsonStringEqualsJsonString('{"hello": "world"}', $eventResponse->getBody()->__toString());
+        $this->assertInvocationResult(['hello' => 'world']);
     }
 
     public function test handler receives context()
     {
-        Server::enqueue([
-            new Response( // lambda event
-                200,
-                [
-                    'lambda-runtime-aws-request-id' => 1,
-                    'lambda-runtime-invoked-function-arn' => 'test-function-name',
-                ],
-                '{ "Hello": "world!"}'
-            ),
-            new Response(200), // lambda response accepted
-        ]);
+        $this->givenAnEvent(['Hello' => 'world!']);
 
         $this->runtime->processNextEvent(function (array $event, Context $context) {
             return ['hello' => 'world', 'received-function-arn' => $context->getInvokedFunctionArn()];
         });
 
-        $requests = Server::received();
-        $this->assertCount(2, $requests);
-
-        [$eventRequest, $eventResponse] = $requests;
-        $this->assertSame('GET', $eventRequest->getMethod());
-        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
-        $this->assertSame('POST', $eventResponse->getMethod());
-        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventResponse->getUri()->__toString());
-        $this->assertJsonStringEqualsJsonString('{"hello": "world", "received-function-arn": "test-function-name"}', $eventResponse->getBody()->__toString());
+        $this->assertInvocationResult([
+            'hello' => 'world',
+            'received-function-arn' => 'test-function-name',
+        ]);
     }
 
     public function test an error is thrown if the runtime API returns a wrong response()
@@ -177,16 +145,7 @@ class LambdaRuntimeTest extends TestCase
 
     public function test function results that cannot be encoded are reported as invocation errors()
     {
-        Server::enqueue([
-            new Response( // lambda event
-                200,
-                [
-                    'lambda-runtime-aws-request-id' => 1,
-                ],
-                '{ "Hello": "world!"}'
-            ),
-            new Response(200), // lambda response accepted
-        ]);
+        $this->givenAnEvent(['hello' => 'world!']);
 
         $this->runtime->processNextEvent(function () {
             return "\xB1\x31";
@@ -209,31 +168,17 @@ class LambdaRuntimeTest extends TestCase
     public function test generic event handler()
     {
         $handler = new class() implements Handler {
-            /** @var mixed */
-            public $event;
-            /**
-             * @param mixed $event
-             */
-            public function handle($event, Context $context): void
+            public function handle($event, Context $context)
             {
-                $this->event = $event;
+                return $event;
             }
         };
 
-        Server::enqueue([
-            new Response( // lambda event
-                200,
-                [
-                    'lambda-runtime-aws-request-id' => 1,
-                ],
-                json_encode(['foo' => 'bar'])
-            ),
-            new Response(200), // lambda response accepted
-        ]);
+        $this->givenAnEvent(['foo' => 'bar']);
 
         $this->runtime->processNextEvent($handler);
 
-        $this->assertEquals(['foo' => 'bar'], $handler->event);
+        $this->assertInvocationResult(['foo' => 'bar']);
     }
 
     public function test SQS event handler()
@@ -247,23 +192,12 @@ class LambdaRuntimeTest extends TestCase
             }
         };
 
-        $eventJson = file_get_contents(__DIR__ . '/../Event/Sqs/sqs.json');
-        $event = new SqsEvent(json_decode($eventJson, true));
-
-        Server::enqueue([
-            new Response( // lambda event
-                200,
-                [
-                    'lambda-runtime-aws-request-id' => 1,
-                ],
-                $eventJson
-            ),
-            new Response(200), // lambda response accepted
-        ]);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Sqs/sqs.json'), true);
+        $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);
 
-        $this->assertEquals($event, $handler->event);
+        $this->assertEquals(new SqsEvent($eventData), $handler->event);
     }
 
     public function test S3 event handler()
@@ -277,23 +211,12 @@ class LambdaRuntimeTest extends TestCase
             }
         };
 
-        $eventJson = file_get_contents(__DIR__ . '/../Event/S3/s3.json');
-        $event = new S3Event(json_decode($eventJson, true));
-
-        Server::enqueue([
-            new Response( // lambda event
-                200,
-                [
-                    'lambda-runtime-aws-request-id' => 1,
-                ],
-                $eventJson
-            ),
-            new Response(200), // lambda response accepted
-        ]);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/S3/s3.json'), true);
+        $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);
 
-        $this->assertEquals($event, $handler->event);
+        $this->assertEquals(new S3Event($eventData), $handler->event);
     }
 
     public function test PSR7 event handler()
@@ -304,39 +227,33 @@ class LambdaRuntimeTest extends TestCase
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 $this->request = $request;
-                return new Response;
+                return new Response(200, [
+                    'Content-Type' => 'text/html',
+                ], 'Hello world!');
             }
         };
 
-        Server::enqueue([
-            new Response( // lambda event
-                200,
-                [
-                    'lambda-runtime-aws-request-id' => 1,
-                ],
-                file_get_contents(__DIR__ . '/../Event/Http/Fixture/apigateway-simple.json')
-            ),
-            new Response(200), // lambda response accepted
-        ]);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/apigateway-simple.json'), true);
+        $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);
 
         $this->assertEquals('GET', $handler->request->getMethod());
         $this->assertEquals('/path', (string) $handler->request->getUri());
+        $this->assertInvocationResult([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => [
+                'Content-Type' => 'text/html',
+            ],
+            'body' => 'Hello world!',
+        ]);
     }
 
     public function test invalid handlers are rejected properly()
     {
-        Server::enqueue([
-            new Response( // lambda event
-                200,
-                [
-                    'lambda-runtime-aws-request-id' => 1,
-                ],
-                file_get_contents(__DIR__ . '/../Event/Http/Fixture/apigateway-simple.json')
-            ),
-            new Response(200), // lambda response accepted
-        ]);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/apigateway-simple.json'), true);
+        $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent(null);
 
@@ -345,5 +262,33 @@ class LambdaRuntimeTest extends TestCase
         $error = json_decode((string) $requests[1]->getBody(), true);
         $this->expectOutputRegex('/^Fatal error: Uncaught Exception: The lambda handler must be a callable or implement handler interfaces/');
         $this->assertSame('The lambda handler must be a callable or implement handler interfaces', $error['errorMessage']);
+    }
+
+    private function givenAnEvent($event): void
+    {
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => 1,
+                    'lambda-runtime-invoked-function-arn' => 'test-function-name',
+                ],
+                json_encode($event)
+            ),
+            new Response(200), // lambda response accepted
+        ]);
+    }
+
+    private function assertInvocationResult($result)
+    {
+        $requests = Server::received();
+        $this->assertCount(2, $requests);
+
+        [$eventRequest, $eventResponse] = $requests;
+        $this->assertSame('GET', $eventRequest->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
+        $this->assertSame('POST', $eventResponse->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventResponse->getUri()->__toString());
+        $this->assertEquals($result, json_decode($eventResponse->getBody()->__toString(), true));
     }
 }
