@@ -168,6 +168,7 @@ class LambdaRuntimeTest extends TestCase
     public function test generic event handler()
     {
         $handler = new class() implements Handler {
+            /** @param mixed $event */
             public function handle($event, Context $context)
             {
                 return $event;
@@ -264,6 +265,9 @@ class LambdaRuntimeTest extends TestCase
         $this->assertSame('The lambda handler must be a callable or implement handler interfaces', $error['errorMessage']);
     }
 
+    /**
+     * @param mixed $event
+     */
     private function givenAnEvent($event): void
     {
         Server::enqueue([
@@ -279,6 +283,9 @@ class LambdaRuntimeTest extends TestCase
         ]);
     }
 
+    /**
+     * @param mixed $result
+     */
     private function assertInvocationResult($result)
     {
         $requests = Server::received();
