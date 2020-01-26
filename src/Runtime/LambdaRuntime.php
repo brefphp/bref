@@ -5,13 +5,7 @@ namespace Bref\Runtime;
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
-use Bref\Event\Http\HttpRequestEvent;
-use Bref\Event\Http\HttpResponse;
-use Bref\Event\Http\Psr7RequestFactory;
-use Bref\Event\S3\S3Event;
-use Bref\Event\S3\S3Handler;
-use Bref\Event\Sqs\SqsEvent;
-use Bref\Event\Sqs\SqsHandler;
+use Bref\Event\Http\Psr15Handler;
 use Exception;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -84,11 +78,11 @@ final class LambdaRuntime
     /**
      * Process the next event.
      *
-     * @param mixed $handler Function or object handler. If it is a function, it takes two parameters, an $event parameter (array) and a $context parameter (Context) and must return anything serializable to JSON.
+     * @param Handler|callable $handler If it is a callable, it takes two parameters, an $event parameter (mixed) and a $context parameter (Context) and must return anything serializable to JSON.
      *
      * Example:
      *
-     *     $lambdaRuntime->processNextEvent(function (array $event, Context $context) {
+     *     $lambdaRuntime->processNextEvent(function ($event, Context $context) {
      *         return 'Hello ' . $event['name'] . '. We have ' . $context->getRemainingTimeInMillis()/1000 . ' seconds left';
      *     });
      * @throws Exception
@@ -101,17 +95,12 @@ final class LambdaRuntime
         $result = null;
 
         try {
+            // PSR-15 adapter
             if ($handler instanceof RequestHandlerInterface) {
-                $httpEvent = new HttpRequestEvent($event);
-                $request = Psr7RequestFactory::fromEvent($httpEvent);
-                $response = $handler->handle($request);
-                $eventHttpResponse = HttpResponse::fromPsr7Response($response);
-                $result = $eventHttpResponse->toApiGatewayFormat($httpEvent->hasMultiHeader());
-            } elseif ($handler instanceof SqsHandler) {
-                $handler->handle(new SqsEvent($event), $context);
-            } elseif ($handler instanceof S3Handler) {
-                $handler->handle(new S3Event($event), $context);
-            } elseif ($handler instanceof Handler) {
+                $handler = new Psr15Handler($handler);
+            }
+
+            if ($handler instanceof Handler) {
                 $result = $handler->handle($event, $context);
             } elseif (is_callable($handler)) {
                 // The handler is a callable
