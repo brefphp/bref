@@ -9,6 +9,7 @@ abstract class HttpHandler implements Handler
 {
     abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse;
 
+    /** {@inheritDoc} */
     public function handle($event, Context $context): array
     {
         // See https://bref.sh/docs/runtimes/http.html#cold-starts

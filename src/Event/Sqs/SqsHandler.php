@@ -12,6 +12,7 @@ abstract class SqsHandler implements Handler
 {
     abstract public function handleSqs(SqsEvent $event, Context $context): void;
 
+    /** {@inheritDoc} */
     public function handle($event, Context $context): void
     {
         $this->handleSqs(new SqsEvent($event), $context);
