@@ -118,6 +118,11 @@ final class HttpRequestEvent implements LambdaEvent
         return $query;
     }
 
+    public function getRequestContext(): array
+    {
+        return $this->event['requestContext'] ?? [];
+    }
+
     public function getCookies(): array
     {
         if (! isset($this->headers['cookie'])) {
