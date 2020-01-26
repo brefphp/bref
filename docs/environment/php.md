@@ -113,6 +113,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 - **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
 - **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
 - **[imagick](http://php.net/manual/en/book.imagick.php)** - imagick is an image processing library.
+- **[GD](http://php.net/manual/en/book.image.php)** - GD is an image processing library.
 
 You can enable these extensions by loading them in `php/conf.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
@@ -125,11 +126,23 @@ extension=pdo_mysql
 extension=mongodb
 extension=pthreads
 extension=imagick
+extension=gd
 ```
+
+### Extra extensions
+
+Due to space limitations in AWS Lambda, Bref cannot provide every possible extension. 
+There are a list of additional PHP extensions that can be installed as a separate 
+layer. They are less common extensions or extensions that for some reasons should 
+not be in the normal Bref layer.
+
+All extra PHP extensions are found in [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions).
+
+Contributions to add more PHP extensions are welcomed. 
 
 ### Custom extensions
 
-Due to space limitations in AWS Lambda, Bref cannot provide every possible extension. It is however possible to provide your own extensions via [custom AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
+It is also possible to provide your own extensions via [custom AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 
 > This guide is really raw, feel free to contribute to improve it.
 
@@ -141,15 +154,26 @@ To create your custom layer, you will need to:
 - include it in your project **after the Bref layer**
 - enable the extension in a custom `php.ini`
 
-To compile the extension, Bref provides the `bref/build-php-*` Docker images. Here is an example with imagick:
+To compile the extension, Bref provides the `bref/build-php-*` Docker images. Here is an example with Blackfire:
 
 ```dockerfile
 FROM bref/build-php-73
 
-# Install system dependencies you might need
-RUN LD_LIBRARY_PATH= yum install -y ImageMagick-devel
+RUN curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/7.3 \
+    && mkdir -p /tmp/blackfire \
+    && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
+    && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so
 
-RUN pecl install imagick
+# Build the final image from the lambci image that is close to the production environment
+FROM lambci/lambda:provided
+
+# Copy things we installed to the final image
+COPY --from=0 /tmp/blackfire.so /opt/bref-extra/blackfire.so
 ```
 
-The `.so` extension file can then be retrieved in `/opt/bref/lib/php/extensions/...`. If you installed system libraries, you may also need to retrieve them.
+The `.so` extension file can then be retrieved in `/opt/bref-extra/blackfire.so`. 
+If you installed system libraries, you may also need to copy them to the `lambci/lambda`
+image.  
+
+See [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions)
+for more examples. 

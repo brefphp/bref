@@ -121,14 +121,12 @@ Either change the path to `php://stderr` or remove the logging of deprecations e
 
 ## Environment variables
 
-Since Symfony 4, the production parameters are configured through environment variables. You can define some in `serverless.yml` in the [Globals section](https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst):
+Since Symfony 4, the production parameters are configured through environment variables. You can define some in `serverless.yml`.
 
 ```yaml
-Globals:
-    Function:
-        Environment:
-            Variables:
-                APP_ENV: prod
+provider:
+    environment:
+         APP_ENV: prod
 ```
 
 The secrets (e.g. database passwords) must however not be committed in this file.
