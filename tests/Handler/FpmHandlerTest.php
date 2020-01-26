@@ -515,7 +515,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
         $event = [
             'httpMethod' => 'GET',
             'headers' => [
-                'Cookie' => 'tz=Europe%2FParis; four=two+%2B+2; theme=light',
+                'Cookie' => 'tz=Europe%2FParis; four=two; theme=light',
             ],
         ];
         $this->assertGlobalVariables($event, [
@@ -524,7 +524,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
             '$_FILES' => [],
             '$_COOKIE' => [
                 'tz' => 'Europe/Paris',
-                'four' => 'two + 2',
+                'four' => 'two',
                 'theme' => 'light',
             ],
             '$_REQUEST' => [],
@@ -534,7 +534,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
-                'HTTP_COOKIE' => 'tz=Europe%2FParis; four=two+%2B+2; theme=light',
+                'HTTP_COOKIE' => 'tz=Europe%2FParis; four=two; theme=light',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             ],
