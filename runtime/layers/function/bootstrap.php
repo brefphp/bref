@@ -21,7 +21,7 @@ if (! is_file($handlerFile)) {
 $handler = require $handlerFile;
 
 if (! $handler) {
-    $lambdaRuntime->failInitialization("Handler `$handlerFile` must return a function or Handler object");
+    $lambdaRuntime->failInitialization("Handler `$handlerFile` must return a function or object handler. See https://bref.sh/docs/runtimes/function.html");
 }
 
 $loopMax = getenv('BREF_LOOP_MAX') ?: 1;
