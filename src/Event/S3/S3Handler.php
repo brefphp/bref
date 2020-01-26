@@ -3,11 +3,18 @@
 namespace Bref\Event\S3;
 
 use Bref\Context\Context;
+use Bref\Event\Handler;
 
 /**
  * Handles S3 events.
  */
-interface S3Handler
+abstract class S3Handler implements Handler
 {
-    public function handle(S3Event $event, Context $context): void;
+    abstract public function handleS3(S3Event $event, Context $context): void;
+
+    /** {@inheritDoc} */
+    public function handle($event, Context $context): void
+    {
+        $this->handleS3(new S3Event($event), $context);
+    }
 }

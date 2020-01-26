@@ -184,10 +184,10 @@ class LambdaRuntimeTest extends TestCase
 
     public function test SQS event handler()
     {
-        $handler = new class() implements SqsHandler {
+        $handler = new class() extends SqsHandler {
             /** @var SqsEvent */
             public $event;
-            public function handle(SqsEvent $event, Context $context): void
+            public function handleSqs(SqsEvent $event, Context $context): void
             {
                 $this->event = $event;
             }
@@ -203,10 +203,10 @@ class LambdaRuntimeTest extends TestCase
 
     public function test S3 event handler()
     {
-        $handler = new class() implements S3Handler {
+        $handler = new class() extends S3Handler {
             /** @var S3Event */
             public $event;
-            public function handle(S3Event $event, Context $context): void
+            public function handleS3(S3Event $event, Context $context): void
             {
                 $this->event = $event;
             }
@@ -220,7 +220,7 @@ class LambdaRuntimeTest extends TestCase
         $this->assertEquals(new S3Event($eventData), $handler->event);
     }
 
-    public function test PSR7 event handler()
+    public function test PSR15 event handler()
     {
         $handler = new class() implements RequestHandlerInterface {
             /** @var ServerRequestInterface */
