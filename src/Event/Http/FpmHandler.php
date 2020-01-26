@@ -3,7 +3,6 @@
 namespace Bref\Event\Http;
 
 use Bref\Context\Context;
-use Bref\Event\Handler;
 use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
 use Bref\Event\Http\FastCgi\FastCgiRequest;
 use Exception;
@@ -28,7 +27,7 @@ use Throwable;
  *
  * @internal
  */
-final class FpmHandler implements Handler
+final class FpmHandler extends HttpHandler
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const PID_FILE = '/tmp/.bref/php-fpm.pid';
@@ -100,17 +99,10 @@ final class FpmHandler implements Handler
 
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
-     *
-     * @param mixed $event
      */
-    public function handle($event, Context $context): array
+    public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
-        if (isset($event['warmer']) && $event['warmer'] === true) {
-            return ['Lambda is warm'];
-        }
-
-        $httpEvent = new HttpRequestEvent($event);
-        $request = $this->eventToFastCgiRequest($httpEvent);
+        $request = $this->eventToFastCgiRequest($event);
 
         try {
             $response = $this->client->sendRequest($this->connection, $request);
@@ -122,7 +114,7 @@ final class FpmHandler implements Handler
             ), 0, $e);
         }
 
-        $responseHeaders = $this->getResponseHeaders($response, $httpEvent->hasMultiHeader());
+        $responseHeaders = $this->getResponseHeaders($response, $event->hasMultiHeader());
 
         // Extract the status code
         if (isset($responseHeaders['status'])) {
@@ -134,7 +126,7 @@ final class FpmHandler implements Handler
 
         $this->ensureStillRunning();
 
-        return $response->toApiGatewayFormat($httpEvent->hasMultiHeader());
+        return $response;
     }
 
     /**
