@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test\Http;
+namespace Bref\Test\Event\Http;
 
-use Bref\Http\LambdaResponse;
+use Bref\Event\Http\HttpResponse;
 use PHPUnit\Framework\TestCase;
 use Zend\Diactoros\Response\EmptyResponse;
 use Zend\Diactoros\Response\JsonResponse;
 
-class LambdaResponseTest extends TestCase
+class HttpResponseTest extends TestCase
 {
     public function test I can create a response from HTML content()
     {
-        $response = LambdaResponse::fromHtml('<p>Hello world!</p>');
+        $response = HttpResponse::fromHtml('<p>Hello world!</p>');
         self::assertSame([
             'isBase64Encoded' => false,
             'statusCode' => 200,
@@ -26,7 +26,7 @@ class LambdaResponseTest extends TestCase
     {
         $psr7Response = new JsonResponse(['foo' => 'bar'], 404);
 
-        $response = LambdaResponse::fromPsr7Response($psr7Response);
+        $response = HttpResponse::fromPsr7Response($psr7Response);
         self::assertSame([
             'isBase64Encoded' => false,
             'statusCode' => 404,
@@ -42,7 +42,7 @@ class LambdaResponseTest extends TestCase
         $psr7Response = new EmptyResponse;
         $psr7Response = $psr7Response->withHeader('foo', ['bar', 'baz']);
 
-        $response = LambdaResponse::fromPsr7Response($psr7Response);
+        $response = HttpResponse::fromPsr7Response($psr7Response);
         self::assertSame([
             'isBase64Encoded' => false,
             'statusCode' => 204,
@@ -53,9 +53,28 @@ class LambdaResponseTest extends TestCase
 
     public function test empty headers are considered objects()
     {
-        $response = LambdaResponse::fromPsr7Response(new EmptyResponse);
+        $response = HttpResponse::fromPsr7Response(new EmptyResponse);
 
         // Make sure that the headers are `"headers":{}` (object) and not `"headers":[]` (array)
         self::assertEquals('{"isBase64Encoded":false,"statusCode":204,"headers":{},"body":""}', json_encode($response->toApiGatewayFormat()));
+    }
+
+    /**
+     * @see https://github.com/brefphp/bref/issues/534
+     */
+    public function test header values are forced as arrays for multiheaders()
+    {
+        $psr7Response = new EmptyResponse;
+        $psr7Response = $psr7Response->withHeader('foo', 'bar');
+
+        $response = HttpResponse::fromPsr7Response($psr7Response);
+        self::assertEquals([
+            'isBase64Encoded' => false,
+            'statusCode' => 204,
+            'multiValueHeaders' => [
+                'Foo' => ['bar'],
+            ],
+            'body' => '',
+        ], $response->toApiGatewayFormat(true));
     }
 }

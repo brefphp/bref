@@ -10,16 +10,16 @@ next:
     title: HTTP applications
 ---
 
-The simplest way to write a lambda is to write one in the form of a PHP function:
+The simplest way to write a lambda is to write one in the form of a PHP anonymous function:
 
 ```php
 <?php
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-lambda(function ($event) {
+return function ($event) {
     return 'Hello ' . ($event['name'] ?? 'world');
-});
+};
 ```
 
 This form is very similar to lambdas written in other languages, [for example JavaScript](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html):
@@ -32,16 +32,16 @@ exports.myHandler = async function (event, context) {
 
 ## The function
 
-A function can be defined by calling Bref's `lambda()` function and passing it a *callable*. The callable can be an anonymous function or [any kind of callable supported by PHP](http://php.net/manual/en/language.types.callable.php).
+The PHP file defined as the "handler" in `serverless.yml` must return a function. This function can be an anonymous function or [any kind of callable supported by PHP](http://php.net/manual/en/language.types.callable.php).
 
 ```php
 <?php
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-lambda(function ($event) {
+return function ($event) {
     return /* response */;
-});
+};
 ```
 
 The function:
@@ -49,29 +49,29 @@ The function:
 - takes an `$event` parameter which contains data from the event that triggered the function ([list of examples here](https://docs.aws.amazon.com/lambda/latest/dg/eventsources.html))
 - can optionally return a response: the response must be serializable to JSON
 
-There must be only one function defined per PHP file.
+There can only be one function returned per PHP file.
 
 ### Context
 
-The function is invoked with the `$event` parameter as well a `$context` parameter that can be optionally declared if you want to use it:
+The function is invoked with the `$event` parameter as well a `$context` parameter. This parameter can be optionally declared if you want to use it:
 
 ```php
 <?php
 
 use Bref\Context\Context;
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
-lambda(function ($event, Context $context) {
+return function ($event, Context $context) {
     return /* response */;
-});
+};
 ```
 
 The `Context` object is inspired from the [`context` parameter in other languages](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html) and provides information about the current lambda invocation (the request ID, the X-Ray trace ID, etc.).
 
 ## `serverless.yml` configuration
 
-Below is a minimal `serverless.yml` to deploy a function. To create it automatically run `vendor/bin/bref init`.
+Below is a minimal `serverless.yml` to deploy a function. To create it automatically, run `vendor/bin/bref init`.
 
 ```yaml
 service: app
@@ -87,11 +87,13 @@ functions:
             - ${bref:layer.php-73}
 ```
 
-The runtime to use is `php`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
+The runtime (aka layer) to use is `php-XX`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
 
 ## Invocation
 
-A PHP function must be invoked via the AWS Lambda API. If you instead want to write a classic HTTP application read the [HTTP guide](http.md).
+A PHP function must be invoked via the AWS Lambda API, either manually or by integrating with other AWS services.
+
+If you instead want to write a classic **HTTP application** read the [HTTP guide](http.md).
 
 ### CLI
 
@@ -117,7 +119,7 @@ A PHP function can be triggered from another PHP application using the AWS PHP S
 ```php
 $lambda = new \Aws\Lambda\LambdaClient([
     'version' => 'latest',
-    'region' => <region>,
+    'region' => '<region>',
 ]);
 
 $result = $lambda->invoke([
@@ -129,3 +131,11 @@ $result = $lambda->invoke([
 
 $result = json_decode($result->get('Payload')->getContents(), true);
 ```
+
+### From other AWS services
+
+Functions are perfect to react to events emitted by other AWS services.
+
+For example, you can write code that processes new SQS events, SNS messages, new uploaded files on S3, etc.
+
+This can be achieve by configuring which events will trigger your function via `serverless.yml`. Learn more about this [in the Serverless documentation](https://serverless.com/framework/docs/providers/aws/events/).

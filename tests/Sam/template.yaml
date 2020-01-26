@@ -49,3 +49,20 @@ Resources:
                     Properties:
                         Path: /missing-handler
                         Method: ANY
+
+    Psr7Function:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: 'bref-tests-psr7'
+            CodeUri: ../..
+            Handler: tests/Sam/Php/psr7.php
+            Runtime: provided
+            Layers:
+                # TODO update
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-74:1'
+            Events:
+                HttpRoot:
+                    Type: Api
+                    Properties:
+                        Path: /psr7
+                        Method: ANY

@@ -12,3 +12,8 @@ parameters:
     - %rootDir%/../../../tests/Bridge/Symfony/logs/*
     - %rootDir%/../../../tests/Sam/Php/*
     - %rootDir%/../../../tests/Sam/PhpFpm/*
+
+  ignoreErrors:
+    -
+      message: '#Parameter \#1 \$handler of method Bref\\Runtime\\LambdaRuntime::processNextEvent\(\).*#'
+      path: tests/Runtime/LambdaRuntimeTest.php

@@ -1,31 +1,33 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Runtime;
+namespace Bref\Event\Http;
 
-use Bref\Http\LambdaResponse;
-use Bref\Runtime\FastCgi\FastCgiCommunicationFailed;
-use Bref\Runtime\FastCgi\FastCgiRequest;
+use Bref\Context\Context;
+use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
+use Bref\Event\Http\FastCgi\FastCgiRequest;
+use Exception;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Symfony\Component\Process\Process;
+use Throwable;
 
 /**
- * Proxies HTTP events coming from API Gateway to PHP-FPM via FastCGI.
+ * Handles HTTP events coming from API Gateway/ALB by proxying them to PHP-FPM via FastCGI.
  *
  * Usage example:
  *
  *     $event = [get the Lambda event];
  *     $phpFpm = new PhpFpm('index.php');
  *     $phpFpm->start();
- *     $lambdaResponse = $phpFpm->proxy($event);
+ *     $lambdaResponse = $phpFpm->handle($event);
  *     $phpFpm->stop();
  *     [send the $lambdaResponse];
  *
  * @internal
  */
-final class PhpFpm
+final class FpmHandler extends HttpHandler
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const PID_FILE = '/tmp/.bref/php-fpm.pid';
@@ -85,7 +87,7 @@ final class PhpFpm
         if ($this->fpm && $this->fpm->isRunning()) {
             $this->fpm->stop(2);
             if ($this->isReady()) {
-                throw new \Exception('PHP-FPM cannot be stopped');
+                throw new Exception('PHP-FPM cannot be stopped');
             }
         }
     }
@@ -96,35 +98,15 @@ final class PhpFpm
     }
 
     /**
-     * @throws \Exception If the PHP-FPM process is not running anymore.
-     */
-    public function ensureStillRunning(): void
-    {
-        if (! $this->fpm || ! $this->fpm->isRunning()) {
-            throw new \Exception('PHP-FPM has stopped for an unknown reason');
-        }
-    }
-
-    /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
-     *
-     * @param mixed $event
      */
-    public function proxy($event): LambdaResponse
+    public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
-        if (isset($event['warmer']) && $event['warmer'] === true) {
-            return new LambdaResponse(100, [], 'Lambda is warm');
-        }
-
-        if (! isset($event['httpMethod'])) {
-            throw new \Exception('The lambda was not invoked via HTTP through API Gateway: this is not supported by this runtime');
-        }
-
         $request = $this->eventToFastCgiRequest($event);
 
         try {
             $response = $this->client->sendRequest($this->connection, $request);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new FastCgiCommunicationFailed(sprintf(
                 'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
                 get_class($e),
@@ -132,8 +114,7 @@ final class PhpFpm
             ), 0, $e);
         }
 
-        $isMultiHeader = isset($event['multiValueHeaders']);
-        $responseHeaders = $this->getResponseHeaders($response, $isMultiHeader);
+        $responseHeaders = $this->getResponseHeaders($response, $event->hasMultiHeader());
 
         // Extract the status code
         if (isset($responseHeaders['status'])) {
@@ -141,7 +122,21 @@ final class PhpFpm
             unset($responseHeaders['status']);
         }
 
-        return new LambdaResponse($status ?? 200, $responseHeaders, $response->getBody());
+        $response = new HttpResponse($status ?? 200, $responseHeaders, $response->getBody());
+
+        $this->ensureStillRunning();
+
+        return $response;
+    }
+
+    /**
+     * @throws Exception If the PHP-FPM process is not running anymore.
+     */
+    private function ensureStillRunning(): void
+    {
+        if (! $this->fpm || ! $this->fpm->isRunning()) {
+            throw new Exception('PHP-FPM has stopped for an unknown reason');
+        }
     }
 
     private function waitUntilReady(): void
@@ -155,12 +150,12 @@ final class PhpFpm
             $elapsed += $wait;
 
             if ($elapsed > $timeout) {
-                throw new \Exception('Timeout while waiting for PHP-FPM socket at ' . self::SOCKET);
+                throw new Exception('Timeout while waiting for PHP-FPM socket at ' . self::SOCKET);
             }
 
             // If the process has crashed we can stop immediately
             if (! $this->fpm->isRunning()) {
-                throw new \Exception('PHP-FPM failed to start');
+                throw new Exception('PHP-FPM failed to start');
             }
         }
     }
@@ -172,59 +167,23 @@ final class PhpFpm
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(array $event): ProvidesRequestData
+    private function eventToFastCgiRequest(HttpRequestEvent $event): ProvidesRequestData
     {
-        $requestBody = $event['body'] ?? '';
-        if ($event['isBase64Encoded'] ?? false) {
-            $requestBody = base64_decode($requestBody);
-        }
-
-        $method = strtoupper($event['httpMethod']);
-        $request = new FastCgiRequest($method, $this->handler, $requestBody);
-
-        $queryString = $this->getQueryString($event);
-        $uri = $event['path'] ?? '/';
-        if (! empty($queryString)) {
-            $uri .= '?' . $queryString;
-        }
-
-        $protocol = $event['requestContext']['protocol'] ?? 'HTTP/1.1';
-
-        // Normalize headers
-        if (isset($event['multiValueHeaders'])) {
-            $headers = $event['multiValueHeaders'];
-        } else {
-            $headers = $event['headers'] ?? [];
-            // Turn the headers array into a multi-value array to simplify the code below
-            $headers = array_map(function ($value): array {
-                return [$value];
-            }, $headers);
-        }
-        $headers = array_change_key_case($headers, CASE_LOWER);
-
-        $request->setRequestUri($uri);
+        $request = new FastCgiRequest($event->getMethod(), $this->handler, $event->getBody());
+        $request->setRequestUri($event->getUri());
         $request->setRemoteAddress('127.0.0.1');
-        $request->setRemotePort((int) ($headers['x-forwarded-port'][0] ?? 80));
+        $request->setRemotePort($event->getRemotePort());
         $request->setServerAddress('127.0.0.1');
-        $request->setServerName($headers['host'][0] ?? 'localhost');
-        $request->setServerProtocol($protocol);
-        $request->setServerPort((int) ($headers['x-forwarded-port'][0] ?? 80));
-        $request->setCustomVar('PATH_INFO', $event['path'] ?? '/');
-        $request->setCustomVar('QUERY_STRING', $queryString);
-
-        // See https://stackoverflow.com/a/5519834/245552
-        if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-type'])) {
-            $headers['content-type'] = ['application/x-www-form-urlencoded'];
+        $request->setServerName($event->getServerName());
+        $request->setServerProtocol($event->getProtocol());
+        $request->setServerPort($event->getServerPort());
+        $request->setCustomVar('PATH_INFO', $event->getPath());
+        $request->setCustomVar('QUERY_STRING', $event->getQueryString());
+        $contentType = $event->getContentType();
+        if ($contentType) {
+            $request->setContentType($contentType);
         }
-        if (isset($headers['content-type'][0])) {
-            $request->setContentType($headers['content-type'][0]);
-        }
-        // Auto-add the Content-Length header if it wasn't provided
-        // See https://github.com/brefphp/bref/issues/162
-        if (! empty($requestBody) && $method !== 'TRACE' && ! isset($headers['content-length'])) {
-            $headers['content-length'] = [strlen($requestBody)];
-        }
-        foreach ($headers as $header => $values) {
+        foreach ($event->getHeaders() as $header => $values) {
             foreach ($values as $value) {
                 $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
                 $request->setCustomVar($key, $value);
@@ -291,43 +250,9 @@ final class PhpFpm
             usleep($wait);
             $elapsed += $wait;
             if ($elapsed > $timeout) {
-                throw new \Exception('Timeout while waiting for PHP-FPM to stop');
+                throw new Exception('Timeout while waiting for PHP-FPM to stop');
             }
         }
-    }
-
-    private function getQueryString(array $event): string
-    {
-        if (isset($event['multiValueQueryStringParameters']) && $event['multiValueQueryStringParameters']) {
-            $queryParameters = [];
-            /*
-             * Watch out: to support multiple query string parameters with the same name like:
-             *     ?array[]=val1&array[]=val2
-             * we need to support "multi-value query string", else only the 'val2' value will survive.
-             * At the moment we only take the first value (which means we DON'T support multiple values),
-             * this needs to be implemented below in the future.
-             */
-            foreach ($event['multiValueQueryStringParameters'] as $key => $value) {
-                $queryParameters[$key] = $value[0];
-            }
-            return http_build_query($queryParameters);
-        }
-
-        if (empty($event['queryStringParameters'])) {
-            return '';
-        }
-
-        /*
-         * Watch out in the future if using $event['queryStringParameters'] directly!
-         *
-         * (that is no longer the case here but it was in the past with the PSR-7 bridge, and it might be
-         * reintroduced in the future)
-         *
-         * queryStringParameters does not handle correctly arrays in parameters
-         * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' = > 'value']]
-         * In that case we should recreate the original query string and use parse_str which handles correctly arrays
-         */
-        return http_build_query($event['queryStringParameters']);
     }
 
     /**

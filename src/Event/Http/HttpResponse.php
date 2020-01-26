@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Http;
+namespace Bref\Event\Http;
 
 use Psr\Http\Message\ResponseInterface;
 
@@ -9,10 +9,10 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @internal
  */
-final class LambdaResponse
+final class HttpResponse
 {
     /** @var int */
-    private $statusCode = 200;
+    private $statusCode;
 
     /** @var array */
     private $headers;
@@ -68,6 +68,11 @@ final class LambdaResponse
 
         // Support for multi-value headers
         $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
+        if ($multiHeaders) {
+            $headers = array_map(function ($value): array {
+                return is_array($value) ? $value : [$value];
+            }, $headers);
+        }
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response

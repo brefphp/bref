@@ -4,6 +4,8 @@ provider:
     name: aws
     runtime: provided
     region: us-east-2
+    logs:
+        restApi: true
     apiGateway:
         binaryMediaTypes:
             - '*/*'
@@ -24,7 +26,9 @@ functions:
         handler: demo/function.php
         description: 'Bref CLI demo'
         layers:
-            - ${bref:layer.php-74}
+            - 'arn:aws:lambda:us-east-2:416566615250:layer:php-74:13'
+        environment:
+            BREF_LOOP_MAX: 100
 
     http:
         handler: demo/http.php
@@ -32,14 +36,25 @@ functions:
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
         memory: 1024
         layers:
-            - ${bref:layer.php-74-fpm}
+            - 'arn:aws:lambda:us-east-2:416566615250:layer:php-74-fpm:13'
         events:
             -   http: 'ANY /'
-            -   http: 'ANY /{proxy+}'
+
+    psr7:
+        handler: demo/psr7.php
+        description: 'Bref HTTP demo with a PSR-7 handler'
+        timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
+        memory: 1024
+        layers:
+            - 'arn:aws:lambda:us-east-2:416566615250:layer:php-74:13'
+        events:
+            -   http: 'ANY /psr7'
+        environment:
+            BREF_LOOP_MAX: 100
 
     console:
         handler: demo/console.php
         description: 'Bref console command demo'
         layers:
-            - ${bref:layer.php-74}
-            - ${bref:layer.console}
+            - 'arn:aws:lambda:us-east-2:416566615250:layer:php-74:13'
+            - 'arn:aws:lambda:us-east-2:416566615250:layer:console:36'

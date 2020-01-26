@@ -12,9 +12,9 @@ The `serverless invoke local` command invokes your [PHP functions](/docs/runtime
 For example, given this function:
 
 ```php
-lambda(function (array $event) {
+return function (array $event) {
     return 'Hello ' . ($event['name'] ?? 'world');
-});
+};
 ```
 
 ```yaml
