@@ -13,13 +13,24 @@ interface HttpRequestProxyTest
 
     public function test request with query string();
 
+    public function test request with multivalues query string have basic support();
+
     public function test request with arrays in query string();
 
     public function test request with custom header();
 
+    public function test request with custom multi header();
+
     public function test POST request with raw body();
 
     public function test POST request with form data();
+
+    /**
+     * @see https://github.com/brefphp/bref/issues/162
+     */
+    public function test request with body and no content length(string $method);
+
+    public function test request supports utf8 characters in body();
 
     public function test the content type header is not case sensitive();
 
@@ -27,13 +38,11 @@ interface HttpRequestProxyTest
 
     public function test POST request with multipart form data containing arrays();
 
-    public function test request with cookies();
-
     public function test POST request with multipart file uploads();
 
-    public function test POST request with base64 encoded body();
+    public function test request with cookies();
 
-    public function test HTTP_HOST header();
+    public function test POST request with base64 encoded body();
 
     public function test PUT request();
 
