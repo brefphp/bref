@@ -84,7 +84,7 @@ final class LambdaRuntime
     /**
      * Process the next event.
      *
-     * @param mixed $handler This callable takes two parameters, an $event parameter (array) and a $context parameter (Context) and must return anything serializable to JSON.
+     * @param mixed $handler Function or object handler. If it is a function, it takes two parameters, an $event parameter (array) and a $context parameter (Context) and must return anything serializable to JSON.
      *
      * Example:
      *
