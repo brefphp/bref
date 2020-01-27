@@ -7,6 +7,8 @@ use Bref\Event\Handler;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\S3\S3Event;
 use Bref\Event\S3\S3Handler;
+use Bref\Event\Sns\SnsEvent;
+use Bref\Event\Sns\SnsHandler;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
@@ -200,6 +202,25 @@ class LambdaRuntimeTest extends TestCase
         $this->runtime->processNextEvent($handler);
 
         $this->assertEquals(new SqsEvent($eventData), $handler->event);
+    }
+
+    public function test SNS event handler()
+    {
+        $handler = new class() extends SnsHandler {
+            /** @var SnsEvent */
+            public $event;
+            public function handleSns(SnsEvent $event, Context $context): void
+            {
+                $this->event = $event;
+            }
+        };
+
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Sns/sns.json'), true);
+        $this->givenAnEvent($eventData);
+
+        $this->runtime->processNextEvent($handler);
+
+        $this->assertEquals(new SnsEvent($eventData), $handler->event);
     }
 
     public function test S3 event handler()
