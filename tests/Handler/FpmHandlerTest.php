@@ -50,6 +50,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => '',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '{"protocol":"HTTP\/1.1"}',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -85,6 +86,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => 'foo=bar&bim=baz',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -122,8 +124,56 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => 'foo=bar',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with requestContext array support()
+    {
+        $event = [
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
+            'multiValueQueryStringParameters' => [
+                'foo' => ['bar', 'baz'],
+            ],
+            'queryStringParameters' => [
+                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
+            ],
+            'requestContext' => [
+                'foo' => 'baz',
+                'baz' => 'far',
+                'data' => [
+                    'recurse1' => 1,
+                    'recurse2' => 2,
+                ],
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                // TODO The feature is not implemented yet
+                'foo' => 'bar',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'foo' => 'bar',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?foo=bar',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'foo=bar',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '{"foo":"baz","baz":"far","data":{"recurse1":1,"recurse2":2}}',
+            ],
+            'HTTP_RAW_BODY' => '',
+
         ]);
     }
 
@@ -160,6 +210,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => 'vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -189,6 +240,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'HTTP_X_MY_HEADER' => 'Hello world',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -221,6 +273,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'HTTP_X_MY_HEADER' => 'Hello world',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -252,6 +305,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/json',
                 'HTTP_CONTENT_LENGTH' => '14',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '"Hello world!"',
         ]);
@@ -288,6 +342,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'HTTP_CONTENT_LENGTH' => '15',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => 'foo=bar&bim=baz',
         ]);
@@ -339,6 +394,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/json',
                 'HTTP_CONTENT_LENGTH' => '14',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '"Hello world!"',
         ]);
@@ -371,6 +427,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'text/plain; charset=UTF-8',
                 'HTTP_CONTENT_LENGTH' => '10',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => 'Hello 🌍',
         ]);
@@ -403,6 +460,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/json',
                 'HTTP_CONTENT_LENGTH' => '2',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '{}',
         ]);
@@ -450,6 +508,7 @@ baz\r
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
                 'HTTP_CONTENT_LENGTH' => '152',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -505,6 +564,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
                 'HTTP_CONTENT_LENGTH' => '186',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -537,6 +597,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
                 'HTTP_COOKIE' => 'tz=Europe%2FParis; four=two; theme=light',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -599,6 +660,7 @@ Year,Make,Model
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
                 'HTTP_CONTENT_LENGTH' => '323',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -635,6 +697,7 @@ Year,Make,Model
                 'QUERY_STRING' => '',
                 'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'HTTP_CONTENT_LENGTH' => '7',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => 'foo=bar',
         ]);
@@ -664,6 +727,7 @@ Year,Make,Model
                 'HTTP_HOST' => 'www.example.com',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -688,6 +752,7 @@ Year,Make,Model
                 'QUERY_STRING' => '',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -712,6 +777,7 @@ Year,Make,Model
                 'QUERY_STRING' => '',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -736,6 +802,7 @@ Year,Make,Model
                 'QUERY_STRING' => '',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -760,6 +827,7 @@ Year,Make,Model
                 'QUERY_STRING' => '',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
