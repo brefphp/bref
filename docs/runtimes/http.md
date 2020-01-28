@@ -136,6 +136,20 @@ provider:
 This will make API Gateway support binary file uploads and downloads, and Bref will 
 automatically encode responses to base64 (which is what API Gateway now expects).
 
+## Request context
+
+Some AWS integrations with API Gateway will add information to the HTTP request via the *request context*.
+
+This is the case, for example, when adding AWS Cognito authentication on API Gateway.
+
+The request context is usually available under the `'requestContext'` key in the Lambda event array. However, with the HTTP runtime running PHP-FPM, we cannot access the Lambda event. To work around that, Bref puts the request context in the `$_SERVER['LAMBDA_CONTEXT']` variable as a JSON-encoded string.
+
+Here is an example to retrieve it:
+
+```php
+$requestContext = json_decode($_SERVER['LAMBDA_CONTEXT'], true);
+```
+
 ## Cold starts
 
 AWS Lambda automatically destroys Lambda containers that have been unused for 10 to 60 minutes. Warming up a new container can take some time, especially if your package is large or if your Lambda is connected to a VPC. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).
