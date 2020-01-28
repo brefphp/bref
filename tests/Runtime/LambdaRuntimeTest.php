@@ -4,6 +4,7 @@ namespace Bref\Test\Runtime;
 
 use Bref\Context\Context;
 use Bref\Event\Handler;
+use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\S3\S3Event;
 use Bref\Event\S3\S3Handler;
 use Bref\Event\Sqs\SqsEvent;
@@ -241,6 +242,8 @@ class LambdaRuntimeTest extends TestCase
 
         $this->assertEquals('GET', $handler->request->getMethod());
         $this->assertEquals('/path', (string) $handler->request->getUri());
+        $this->assertInstanceOf(HttpRequestEvent::class, $handler->request->getAttribute('lambda-event'));
+        $this->assertInstanceOf(Context::class, $handler->request->getAttribute('lambda-context'));
         $this->assertInvocationResult([
             'isBase64Encoded' => false,
             'statusCode' => 200,

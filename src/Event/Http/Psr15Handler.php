@@ -18,6 +18,8 @@ class Psr15Handler extends HttpHandler
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
         $request = Psr7RequestFactory::fromEvent($event);
+        $request = $request->withAttribute('lambda-event', $event);
+        $request = $request->withAttribute('lambda-context', $context);
 
         $response = $this->psr15Handler->handle($request);
 
