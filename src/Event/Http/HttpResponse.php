@@ -20,11 +20,11 @@ final class HttpResponse
     /** @var string */
     private $body;
 
-    public function __construct(int $statusCode, array $headers, string $body)
+    public function __construct(string $body, array $headers, int $statusCode = 200)
     {
-        $this->statusCode = $statusCode;
-        $this->headers = $headers;
         $this->body = $body;
+        $this->headers = $headers;
+        $this->statusCode = $statusCode;
     }
 
     public static function fromPsr7Response(ResponseInterface $response): self
@@ -44,7 +44,7 @@ final class HttpResponse
         $response->getBody()->rewind();
         $body = $response->getBody()->getContents();
 
-        return new self($response->getStatusCode(), $headers, $body);
+        return new self($body, $headers, $response->getStatusCode());
     }
 
     public function toApiGatewayFormat(bool $multiHeaders = false): array

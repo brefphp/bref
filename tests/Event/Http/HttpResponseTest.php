@@ -12,11 +12,10 @@ class HttpResponseTest extends TestCase
     public function test conversion to API Gateway format()
     {
         $response = new HttpResponse(
-            200,
+            '<p>Hello world!</p>',
             [
                 'Content-Type' => 'text/html; charset=utf-8',
-            ],
-            '<p>Hello world!</p>'
+            ]
         );
         self::assertSame([
             'isBase64Encoded' => false,
