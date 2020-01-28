@@ -8,6 +8,13 @@ use PHPUnit\Framework\TestCase;
 
 class SnsEventTest extends TestCase
 {
+    /**
+     * The date format was broken before PHP 7.3, see https://3v4l.org/77nYs
+     * I don't want to add hacks that I don't understand to support PHP 7.2, I'd rather
+     * encourage people to upgrade to a maintained version :)
+     *
+     * @requires PHP 7.3
+     */
     public function test canonical case()
     {
         $event = json_decode(file_get_contents(__DIR__ . '/sns.json'), true);
