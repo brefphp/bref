@@ -26,7 +26,7 @@ functions:
         handler: demo/function.php
         description: 'Bref CLI demo'
         layers:
-            - 'arn:aws:lambda:us-east-2:416566615250:layer:php-74:13'
+            - ${bref:layer.php-74}
         environment:
             BREF_LOOP_MAX: 100
 
@@ -36,7 +36,7 @@ functions:
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
         memory: 1024
         layers:
-            - 'arn:aws:lambda:us-east-2:416566615250:layer:php-74-fpm:13'
+            - ${bref:layer.php-74-fpm}
         events:
             -   http: 'ANY /'
 
@@ -46,7 +46,7 @@ functions:
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
         memory: 1024
         layers:
-            - 'arn:aws:lambda:us-east-2:416566615250:layer:php-74:13'
+            - ${bref:layer.php-74}
         events:
             -   http: 'ANY /psr7'
         environment:
@@ -56,5 +56,5 @@ functions:
         handler: demo/console.php
         description: 'Bref console command demo'
         layers:
-            - 'arn:aws:lambda:us-east-2:416566615250:layer:php-74:13'
-            - 'arn:aws:lambda:us-east-2:416566615250:layer:console:36'
+            - ${bref:layer.php-74}
+            - ${bref:layer.console}
