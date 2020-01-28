@@ -47,17 +47,6 @@ final class HttpResponse
         return new self($response->getStatusCode(), $headers, $body);
     }
 
-    public static function fromHtml(string $html): self
-    {
-        return new self(
-            200,
-            [
-                'Content-Type' => 'text/html; charset=utf-8',
-            ],
-            $html
-        );
-    }
-
     public function toApiGatewayFormat(bool $multiHeaders = false): array
     {
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');

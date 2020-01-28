@@ -9,9 +9,15 @@ use Zend\Diactoros\Response\JsonResponse;
 
 class HttpResponseTest extends TestCase
 {
-    public function test I can create a response from HTML content()
+    public function test conversion to API Gateway format()
     {
-        $response = HttpResponse::fromHtml('<p>Hello world!</p>');
+        $response = new HttpResponse(
+            200,
+            [
+                'Content-Type' => 'text/html; charset=utf-8',
+            ],
+            '<p>Hello world!</p>'
+        );
         self::assertSame([
             'isBase64Encoded' => false,
             'statusCode' => 200,
