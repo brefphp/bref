@@ -203,11 +203,11 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 ],
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar',
+                'REQUEST_URI' => '/?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar',
                 'PHP_SELF' => '/',
                 'PATH_INFO' => '/',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar',
+                'QUERY_STRING' => 'vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_CONTEXT' => '[]',
