@@ -2,12 +2,8 @@
 
 namespace Bref\Event\Http;
 
-use Psr\Http\Message\ResponseInterface;
-
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
- *
- * @internal
  */
 final class HttpResponse
 {
@@ -20,48 +16,40 @@ final class HttpResponse
     /** @var string */
     private $body;
 
-    public function __construct(string $body, array $headers, int $statusCode = 200)
+    public function __construct(string $body, array $headers = [], int $statusCode = 200)
     {
         $this->body = $body;
         $this->headers = $headers;
         $this->statusCode = $statusCode;
     }
 
-    public static function fromPsr7Response(ResponseInterface $response): self
-    {
-        // The lambda proxy integration does not support arrays in headers
-        $headers = [];
-        foreach ($response->getHeaders() as $name => $values) {
-            // See https://github.com/zendframework/zend-diactoros/blob/754a2ceb7ab753aafe6e3a70a1fb0370bde8995c/src/Response/SapiEmitterTrait.php#L96
-            $name = str_replace('-', ' ', $name);
-            $name = ucwords($name);
-            $name = str_replace(' ', '-', $name);
-            foreach ($values as $value) {
-                $headers[$name] = $value;
-            }
-        }
-
-        $response->getBody()->rewind();
-        $body = $response->getBody()->getContents();
-
-        return new self($body, $headers, $response->getStatusCode());
-    }
-
     public function toApiGatewayFormat(bool $multiHeaders = false): array
     {
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
+        $headers = [];
+        foreach ($this->headers as $name => $values) {
+            // Capitalize header keys
+            // See https://github.com/zendframework/zend-diactoros/blob/754a2ceb7ab753aafe6e3a70a1fb0370bde8995c/src/Response/SapiEmitterTrait.php#L96
+            $name = str_replace('-', ' ', $name);
+            $name = ucwords($name);
+            $name = str_replace(' ', '-', $name);
+
+            if ($multiHeaders) {
+                // Make sure the values are always arrays
+                $headers[$name] = is_array($values) ? $values : [$values];
+            } else {
+                // Make sure the values are never arrays
+                $headers[$name] = is_array($values) ? end($values) : $values;
+            }
+        }
+
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
-        $headers = empty($this->headers) ? new \stdClass : $this->headers;
+        $headers = empty($headers) ? new \stdClass : $headers;
 
         // Support for multi-value headers
         $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
-        if ($multiHeaders) {
-            $headers = array_map(function ($value): array {
-                return is_array($value) ? $value : [$value];
-            }, $headers);
-        }
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response

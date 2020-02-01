@@ -2,23 +2,25 @@
 
 namespace Bref\Event\Http;
 
+use Bref\Context\Context;
 use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\UploadedFile;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Riverline\MultiPartParser\Part;
 use RuntimeException;
 
 /**
- * Creates PSR-7 requests from API Gateway or ALB events.
+ * Bridges PSR-7 requests and responses with API Gateway or ALB event/response formats.
  *
  * @internal
  */
-final class Psr7RequestFactory
+final class Psr7Bridge
 {
     /**
      * Create a PSR-7 server request from an AWS Lambda HTTP event.
      */
-    public static function fromEvent(HttpRequestEvent $event): ServerRequestInterface
+    public static function convertRequest(HttpRequestEvent $event, Context $context): ServerRequestInterface
     {
         [$files, $parsedBody] = self::parseBodyAndUploadedFiles($event);
 
@@ -49,7 +51,20 @@ final class Psr7RequestFactory
         return $request->withUploadedFiles($files)
             ->withCookieParams($event->getCookies())
             ->withQueryParams($event->getQueryParameters())
-            ->withParsedBody($parsedBody);
+            ->withParsedBody($parsedBody)
+            ->withAttribute('lambda-event', $event)
+            ->withAttribute('lambda-context', $context);
+    }
+
+    /**
+     * Create a ALB/API Gateway response from a PSR-7 response.
+     */
+    public static function convertResponse(ResponseInterface $response): HttpResponse
+    {
+        $response->getBody()->rewind();
+        $body = $response->getBody()->getContents();
+
+        return new HttpResponse($body, $response->getHeaders(), $response->getStatusCode());
     }
 
     private static function parseBodyAndUploadedFiles(HttpRequestEvent $event): array

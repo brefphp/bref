@@ -2,20 +2,38 @@
 
 namespace Bref\Test\Event\Http;
 
+use Bref\Context\Context;
 use Bref\Event\Http\HttpRequestEvent;
-use Bref\Event\Http\Psr7RequestFactory;
+use Bref\Event\Http\Psr7Bridge;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use Zend\Diactoros\Response\JsonResponse;
 
-class Psr7RequestFactoryTest extends CommonHttpTest
+class Psr7BridgeTest extends CommonHttpTest
 {
     /** @var ServerRequestInterface */
     private $request;
 
+    public function test I can create a response from a PSR7 response()
+    {
+        $psr7Response = new JsonResponse(['foo' => 'bar'], 404);
+
+        $response = Psr7Bridge::convertResponse($psr7Response);
+        self::assertSame([
+            'isBase64Encoded' => false,
+            'statusCode' => 404,
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'body' => json_encode(['foo' => 'bar']),
+        ], $response->toApiGatewayFormat());
+    }
+
     protected function fromFixture(string $file): void
     {
         $event = new HttpRequestEvent(json_decode(file_get_contents($file), true));
-        $this->request = Psr7RequestFactory::fromEvent($event);
+        $context = new Context('', 0, '', '');
+        $this->request = Psr7Bridge::convertRequest($event, $context);
     }
 
     protected function assertBody(string $expected): void
