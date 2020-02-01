@@ -11,10 +11,13 @@ final class BucketObject
     private $key;
     /** @var int */
     private $size;
-    /** @var string */
+    /** @var string|null */
     private $versionId;
 
-    public function __construct(string $key, int $size, string $versionId)
+    /**
+     * @internal
+     */
+    public function __construct(string $key, int $size, ?string $versionId = null)
     {
         $this->key = $key;
         $this->size = $size;
@@ -37,7 +40,7 @@ final class BucketObject
         return $this->size;
     }
 
-    public function getVersionId(): string
+    public function getVersionId(): ?string
     {
         return $this->versionId;
     }

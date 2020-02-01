@@ -5,6 +5,9 @@ namespace Bref\Event\S3;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
+/**
+ * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
+ */
 final class S3Record
 {
     /** @var array */
@@ -12,6 +15,8 @@ final class S3Record
 
     /**
      * @param mixed $record
+     *
+     * @internal
      */
     public function __construct($record)
     {
@@ -36,7 +41,7 @@ final class S3Record
     public function getObject(): BucketObject
     {
         $bucket = $this->record['s3']['object'];
-        return new BucketObject($bucket['key'], $bucket['size'], $bucket['versionId']);
+        return new BucketObject($bucket['key'], $bucket['size'], $bucket['versionId'] ?? null);
     }
 
     public function getEventTime(): DateTimeImmutable
