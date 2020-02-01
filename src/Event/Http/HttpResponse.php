@@ -4,8 +4,6 @@ namespace Bref\Event\Http;
 
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
- *
- * @internal
  */
 final class HttpResponse
 {
