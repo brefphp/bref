@@ -3,39 +3,39 @@ title: Deployment
 current_menu: deploy
 ---
 
-Bref recommends to use [the Serverless framework](https://serverless.com/) to deploy your serverless application.
+Bref recommends using [the Serverless framework](https://serverless.com/) to deploy your serverless application. This page will show you how.
 
-While you can read [the official deployment documentation](https://serverless.com/framework/docs/providers/aws/guide/deploying/) the following guide is optimized for PHP projects.
+## First deployment
 
-## How it works
+Deploy your application on your AWS account by running:
 
-### Stacks
+```bash
+serverless deploy
+```
 
-Everything is deployed through a **[CloudFormation](https://aws.amazon.com/cloudformation/) stack**. A stack is nothing more than a bunch of things that compose an application:
+🎉 congrats on creating your first serverless application!
 
-- lambda functions
-- S3 buckets
-- databases
+> A `.serverless/` directory will be created. You can add it to `.gitignore`.
+>
+> Want to get an overview of your deployed application? Launch the Bref Dashboard via the `vendor/bin/bref dashboard` command.
 
-Stacks make it easy to group those resources together: the whole stack is updated at once on deployments, and if you delete the stack all the resources inside are deleted together too. Clean and simple.
+## Deploying for production
 
-All of this is great except CloudFormation configuration is complex. This is where *Serverless* helps.
+In the previous step, we deployed the project installed on your machine. This is probably a *development version*.
 
-### `serverless.yml`
+For production, we usually don't want to deploy:
 
-The *Serverless* framework offers a simple configuration format. This is what you are using if you use Bref. That configuration is written in your project in a `serverless.yml` file.
+- dev dependencies
+- dev configuration
+- etc.
 
-## Deploying with Serverless
-
-### Deployment
-
-Before deploying make sure your code is ready to be deployed. For example remove any development files from the project and install Composer dependencies optimized for production:
+Instead, let's remove development dependencies and optimize Composer's autoloader for production:
 
 ```bash
 composer install --prefer-dist --optimize-autoloader --no-dev
 ```
 
-> If you run this command in your local installation this might break your development setup (it will remove dev dependencies). Ideally deployment should be done in a separate directory, from scratch.
+Now is also the best time to configure your project for production, as well as build any file cache if necessary.
 
 Once your project is ready, you can deploy via the following command:
 
@@ -43,23 +43,7 @@ Once your project is ready, you can deploy via the following command:
 serverless deploy
 ```
 
-A `.serverless/` directory will be created. You can add it to `.gitignore`.
-
-While you wait for your stack to be created you can check out [the CloudFormation dashboard](https://console.aws.amazon.com/cloudformation/home). Your stack will appear there.
-
-If an error occurs, the root cause will be displayed in the CLI output.
-
-Once your application is deployed, you can launch the Bref Dashboard via the `vendor/bin/bref dashboard` command. The dashboard will help you see the functions deployed, their metrics and their logs.
-
 ## Automating deployments
-
-Deploying from your machine is not perfect:
-
-- it will deploy development dependencies from Composer
-- it will deploy development configuration
-- it will deploy all the files in the project directory, even those in `.gitignore`
-
-This works fine when testing, but for a production setup it is better to automate deployments.
 
 If you are using Gitlab CI, Travis CI, CircleCI or any tool of the sort you will want to automate the deployment to something like this:
 
@@ -77,6 +61,8 @@ serverless deploy
 
 That will also mean creating AWS access keys so that the continuous integration is allowed to deploy.
 
+You can find configuration examples for CI/CD tools in the [Bref examples repository](https://github.com/brefphp/examples).
+
 ## Regions
 
 AWS runs applications in different [regions](https://aws.amazon.com/about-aws/global-infrastructure/). The default region is `us-east-1` (North Virginia, USA).
@@ -89,7 +75,7 @@ provider:
     ...
 ```
 
-> If you are a first time user, using the `us-east-1` region (the default region) is *highly recommended* for the first projects. It simplifies commands and avoids a lot of mistakes when discovering AWS.
+> If you are a first time user, using the `us-east-1` region (the default region) is recommended for the first projects. It simplifies commands and avoids a lot of mistakes when discovering AWS.
 
 ## Deletion
 
@@ -98,6 +84,26 @@ To delete the whole application you can run:
 ```bash
 serverless remove
 ```
+
+## How it works
+
+### CloudFormation stacks
+
+The `serverless deploy` command will deploy everything via a **[CloudFormation](https://aws.amazon.com/cloudformation/) stack**. A stack is nothing more than a bunch of things that compose an application:
+
+- lambda functions
+- S3 buckets
+- databases
+
+Stacks make it easy to group those resources together: the whole stack is updated at once on deployments, and if you delete the stack all the resources inside are deleted together too. Clean and simple.
+
+All of this is great except CloudFormation configuration is complex. This is where *Serverless* helps.
+
+### `serverless.yml`
+
+The *Serverless* framework offers a simple configuration format. This is what you are using if you use Bref. That configuration is written in your project in a `serverless.yml` file.
+
+You can [learn more about that configuration format here](environment/serverless-yml.md).
 
 ## Learn more
 
