@@ -859,11 +859,11 @@ Year,Make,Model
             'httpMethod' => 'GET',
         ]);
 
-        self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
-        unset($response['headers']['x-powered-by']);
+        self::assertStringStartsWith('PHP/', $response['headers']['X-Powered-By'] ?? '');
+        unset($response['headers']['X-Powered-By']);
         self::assertEquals([
-            'content-type' => 'application/json',
-            'x-multivalue' => 'bar',
+            'Content-Type' => 'application/json',
+            'X-Multivalue' => 'bar',
         ], $response['headers']);
     }
 
@@ -874,17 +874,17 @@ Year,Make,Model
             'multiValueHeaders' => [],
         ]);
 
-        self::assertStringStartsWith('PHP/', $response['multiValueHeaders']['x-powered-by'][0] ?? '');
-        unset($response['multiValueHeaders']['x-powered-by']);
+        self::assertStringStartsWith('PHP/', $response['multiValueHeaders']['X-Powered-By'][0] ?? '');
+        unset($response['multiValueHeaders']['X-Powered-By']);
         self::assertEquals([
-            'content-type' => ['application/json'],
-            'x-multivalue' => ['foo', 'bar'],
+            'Content-Type' => ['application/json'],
+            'X-Multivalue' => ['foo', 'bar'],
         ], $response['multiValueHeaders']);
     }
 
     public function test response with cookies()
     {
-        $cookieHeader = $this->get('cookies.php')['headers']['set-cookie'];
+        $cookieHeader = $this->get('cookies.php')['headers']['Set-Cookie'];
 
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
     }
@@ -894,7 +894,7 @@ Year,Make,Model
         $cookieHeader = $this->get('cookies.php', [
             'httpMethod' => 'GET',
             'multiValueHeaders' => [],
-        ])['multiValueHeaders']['set-cookie'];
+        ])['multiValueHeaders']['Set-Cookie'];
 
         self::assertEquals('MyCookie=FirstValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
@@ -904,10 +904,10 @@ Year,Make,Model
     {
         $response = $this->get('error.php');
 
-        self::assertStringStartsWith('PHP/', $response['headers']['x-powered-by'] ?? '');
-        unset($response['headers']['x-powered-by']);
+        self::assertStringStartsWith('PHP/', $response['headers']['X-Powered-By'] ?? '');
+        unset($response['headers']['X-Powered-By']);
         self::assertEquals([
-            'content-type' => 'text/html; charset=UTF-8',
+            'Content-Type' => 'text/html; charset=UTF-8',
         ], $response['headers']);
     }
 
