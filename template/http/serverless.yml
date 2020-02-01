@@ -18,3 +18,9 @@ functions:
         events:
             -   http: 'ANY /'
             -   http: 'ANY /{proxy+}'
+
+# Exclude files from deployment
+package:
+    exclude:
+        - 'node_modules/**'
+        - 'tests/**'
