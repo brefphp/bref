@@ -6,6 +6,11 @@ use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
 use InvalidArgumentException;
 
+/**
+ * Represents an event when Lambda is invoked by S3.
+ *
+ * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
+ */
 final class S3Event implements LambdaEvent
 {
     /** @var array */
@@ -13,6 +18,8 @@ final class S3Event implements LambdaEvent
 
     /**
      * @param mixed $event
+     *
+     * @internal
      */
     public function __construct($event)
     {

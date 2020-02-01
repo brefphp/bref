@@ -12,9 +12,8 @@ class S3EventTest extends TestCase
     public function test canonical case()
     {
         $event = json_decode(file_get_contents(__DIR__ . '/s3.json'), true);
-        $event = new S3Event($event);
 
-        $record = $event->getRecords()[0];
+        $record = (new S3Event($event))->getRecords()[0];
         $this->assertSame('us-east-1', $record->getAwsRegion());
         $this->assertSame('ObjectCreated:Put', $record->getEventName());
         $this->assertEquals(new DateTimeImmutable('2019-08-05T15:30+0000'), $record->getEventTime());
@@ -22,6 +21,13 @@ class S3EventTest extends TestCase
         $this->assertSame('arn:aws:s3:::mybucket', $record->getBucket()->getArn());
         $this->assertSame('folder/hello.jpg', $record->getObject()->getKey());
         $this->assertSame(1024, $record->getObject()->getSize());
+    }
+
+    public function test with versionId()
+    {
+        $event = json_decode(file_get_contents(__DIR__ . '/s3-versionId.json'), true);
+
+        $record = (new S3Event($event))->getRecords()[0];
         $this->assertSame('096fKKXTRTtl3on89fVO.nfljtsv6qko', $record->getObject()->getVersionId());
     }
 

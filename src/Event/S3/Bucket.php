@@ -12,6 +12,9 @@ final class Bucket
     /** @var string */
     private $arn;
 
+    /**
+     * @internal
+     */
     public function __construct(string $name, string $arn)
     {
         $this->name = $name;
