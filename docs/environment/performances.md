@@ -99,7 +99,7 @@ package:
         - 'tests/**'
 ```
 
-Read more about the `package` configuration [in the serverless.yml documentation](https://serverless.com/framework/docs/providers/aws/guide/packaging#exclude--include).
+Read more about this [in the serverless.yml documentation](serverless-yml.md#exclusions).
 
 > **A note on VPC cold starts**
 >

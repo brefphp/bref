@@ -121,6 +121,25 @@ Most other Serverless plugins [are installed via `npm`](https://serverless.com/f
 
 You can find the list of [all Serverless plugins here](https://serverless.com/plugins/).
 
+## Exclusions
+
+It is possible to exclude directories from being deployed via the `package.exclude` section:
+
+```yaml
+package:
+    exclude:
+        - 'node_modules/**'
+        - 'tests/**'
+```
+
+This has the following benefits:
+
+- faster deployments
+- less risk of hitting [Lambda's size limit](https://docs.aws.amazon.com/lambda/latest/dg/limits.html)
+- [faster cold starts](performances.md)
+
+Read more about the `package` configuration [in the serverless.yml documentation](https://serverless.com/framework/docs/providers/aws/guide/packaging#exclude--include).
+
 ## Functions
 
 ```yaml

@@ -16,3 +16,8 @@ functions:
         layers:
             - ${bref:layer.php-73} # PHP
             - ${bref:layer.console} # The "console" layer
+
+# Exclude files from deployment
+package:
+    exclude:
+        - 'tests/**'

@@ -14,3 +14,8 @@ functions:
         description: ''
         layers:
             - ${bref:layer.php-73}
+
+# Exclude files from deployment
+package:
+    exclude:
+        - 'tests/**'
