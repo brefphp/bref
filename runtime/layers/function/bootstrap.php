@@ -7,8 +7,13 @@ error_reporting(E_ALL);
 
 $appRoot = getenv('LAMBDA_TASK_ROOT');
 
-/** @noinspection PhpIncludeInspection */
-require $appRoot . '/vendor/autoload.php';
+if (getenv('BREF_AUTOLOAD_PATH')) {
+    /** @noinspection PhpIncludeInspection */
+    require getenv('BREF_AUTOLOAD_PATH');
+} else {
+    /** @noinspection PhpIncludeInspection */
+    require $appRoot . '/vendor/autoload.php';
+}
 
 $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
 
