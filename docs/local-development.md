@@ -130,49 +130,35 @@ In the example above, a `public/assets/style.css` file will be accessible at `ht
 
 ### Xdebug
 
-The docker container `bref/php-<version>-fpm-dev` comes with xdebug pre-installed. In order to enable it you can create a
-folder `php/conf.dev.d` in your project and include an ini file enabling xdebug:
+The docker container `bref/php-<version>-fpm-dev` comes with Xdebug pre-installed.
+
+To enable it, create a `php/conf.dev.d/php.ini` file in your project containing:
 
 ```ini
 zend_extension=xdebug.so
 ```
 
-Now start the debug session by issueing a request to your application in the [browser](https://xdebug.org/docs/remote#starting).
+Now start the debug session by issuing a request to your application [in the browser](https://xdebug.org/docs/remote#starting).
 
-#### OSX
+#### Xdebug and MacOS
 
-As Docker on Mac uses a virtual machine for running docker therefore you need to use a special host name that is mapped to the host machine's IP address.
+Docker for Mac uses a virtual machine for running docker. That means you need to use a special host name that is mapped to the host machine's IP address.
 
-The host name to use depends on your version of Docker for Mac…
+The host name to use depends on your version of Docker for Mac:
 
-* v18.03.0-ce-mac59+ use host.docker.internal
-* v17.12.0-ce-mac46+ use docker.for.mac.host.internal
-* v17.06.0+ use docker.for.mac.localhost
+- v18.03.0-ce-mac59+ uses `host.docker.internal`
+- v17.12.0-ce-mac46+ uses `docker.for.mac.host.internal`
+- v17.06.0+ uses `docker.for.mac.localhost`
 
-You can then use this configuration start listening to xdebug connections in your preferred IDE (replacing `host.docker.internal` with the appropriate value for your Docker for Mac version:
+Edit the `php/conf.dev.d/php.ini` file:
 
 ```ini
+zend_extension=xdebug.so
+
 [xdebug]
 xdebug.remote_enable = 1
 xdebug.remote_autostart = 0
 xdebug.remote_host = 'host.docker.internal'
-```
-
-##### Older versions of Docker for Mac
-
-On older versions you can create an alias for the loopback interface on the host with
-
-```bash
-sudo ifconfig lo0 alias 10.254.254.254
-```
-
-Then use this configuration start listening to xdebug connections in your preferred IDE:
-
-```ini
-[xdebug]
-xdebug.remote_enable = 1
-xdebug.remote_autostart = 0
-xdebug.remote_host = '10.254.254.254'
 ```
 
 ### Blackfire

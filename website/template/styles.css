@@ -85,6 +85,13 @@ article h3 {
     margin-top: 40px;
     margin-bottom: 16px;
 }
+article h4 {
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 600;
+    margin-top: 30px;
+    margin-bottom: 14px;
+}
 .title-anchor {
     @apply text-blue-200;
     position: absolute;
