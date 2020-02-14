@@ -141,14 +141,32 @@ Now start the debug session by issueing a request to your application in the [br
 
 #### OSX
 
-As Docker on Mac uses a virtual machine for running docker it can be tricky to listen to the xdebug port.
-By creating an alias for the loopback interface on the host with
+As Docker on Mac uses a virtual machine for running docker therefore you need to use a special host name that is mapped to the host machine's IP address.
+
+The host name to use depends on your version of Docker for Mac…
+
+* v18.03.0-ce-mac59+ use host.docker.internal
+* v17.12.0-ce-mac46+ use docker.for.mac.host.internal
+* v17.06.0+ use docker.for.mac.localhost
+
+You can then use this configuration start listening to xdebug connections in your preferred IDE (replacing `host.docker.internal` with the appropriate value for your Docker for Mac version:
+
+```ini
+[xdebug]
+xdebug.remote_enable = 1
+xdebug.remote_autostart = 0
+xdebug.remote_host = 'host.docker.internal'
+```
+
+##### Older versions of Docker for Mac
+
+On older versions you can create an alias for the loopback interface on the host with
 
 ```bash
 sudo ifconfig lo0 alias 10.254.254.254
 ```
 
-you can use this configuration start listening to xdebug connections in your preferred IDE:
+Then use this configuration start listening to xdebug connections in your preferred IDE:
 
 ```ini
 [xdebug]
