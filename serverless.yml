@@ -52,6 +52,16 @@ functions:
         environment:
             BREF_LOOP_MAX: 100
 
+    http-api:
+        handler: demo/http.php
+        description: 'Bref HTTP demo'
+        timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
+        memory: 1024
+        layers:
+            - ${bref:layer.php-74-fpm}
+        events:
+            -   httpApi: '*'
+
     console:
         handler: demo/console.php
         description: 'Bref console command demo'
