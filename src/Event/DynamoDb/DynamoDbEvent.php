@@ -14,13 +14,12 @@ final class DynamoDbEvent implements LambdaEvent
     private $event;
 
     /**
-     * DynamoDbEvent constructor.
-     * @param $event
+     * @param mixed $event
      * @throws InvalidLambdaEvent
      */
     public function __construct($event)
     {
-        if (!is_array($event) || !isset($event['Records'])) {
+        if (! is_array($event) || ! isset($event['Records'])) {
             throw new InvalidLambdaEvent('DynamoDB', $event);
         }
 

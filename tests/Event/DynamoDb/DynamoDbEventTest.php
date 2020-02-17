@@ -19,15 +19,14 @@ class DynamoDbEventTest extends TestCase
 
         // Act
         $event = new DynamoDbEvent($event);
-        $newRecord = $event->getRecords()[0];
-        $updatedRecord = $event->getRecords()[1];
+        $record = $event->getRecords()[0];
 
         // Assert
-        $this->assertSame($keys, $newRecord->getKeys());
-        $this->assertSame($newImage, $newRecord->getNewImage());
-        $this->assertNull($newRecord->getOldImage());
-        $this->assertSame('111', $newRecord->getSequenceNumber());
-        $this->assertSame(26, $newRecord->getSizeBytes());
-        $this->assertSame('NEW_AND_OLD_IMAGES', $newRecord->getStreamViewType());
+        $this->assertSame($keys, $record->getKeys());
+        $this->assertSame($newImage, $record->getNewImage());
+        $this->assertNull($record->getOldImage());
+        $this->assertSame('111', $record->getSequenceNumber());
+        $this->assertSame(26, $record->getSizeBytes());
+        $this->assertSame('NEW_AND_OLD_IMAGES', $record->getStreamViewType());
     }
 }
