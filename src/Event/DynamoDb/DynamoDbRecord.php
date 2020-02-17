@@ -19,31 +19,49 @@ final class DynamoDbRecord
         $this->record = $record;
     }
 
+    /**
+     * @return mixed
+     */
     public function getKeys()
     {
         return $this->record['dynamodb']['Keys'];
     }
 
+    /**
+     * @return mixed
+     */
     public function getNewImage()
     {
         return $this->record['dynamodb']['NewImage'];
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getOldImage()
     {
         return $this->record['dynamodb']['OldImage'] ?? null;
     }
 
+    /**
+     * @return mixed
+     */
     public function getSequenceNumber()
     {
         return $this->record['dynamodb']['SequenceNumber'];
     }
 
+    /**
+     * @return mixed
+     */
     public function getSizeBytes()
     {
         return $this->record['dynamodb']['SizeBytes'];
     }
 
+    /**
+     * @return mixed
+     */
     public function getStreamViewType()
     {
         return $this->record['dynamodb']['StreamViewType'];
