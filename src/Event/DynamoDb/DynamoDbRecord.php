@@ -8,12 +8,11 @@ final class DynamoDbRecord
     private $record;
 
     /**
-     * DynamoDbRecord constructor.
-     * @param $record
+     * @param mixed $record
      */
     public function __construct($record)
     {
-        if (!is_array($record) || !isset($record['eventSource']) || $record['eventSource'] !== 'aws:dynamodb') {
+        if (! is_array($record) || ! isset($record['eventSource']) || $record['eventSource'] !== 'aws:dynamodb') {
             throw new \InvalidArgumentException('Event source must come from DynamoDB');
         }
 
