@@ -136,6 +136,6 @@ $result = json_decode($result->get('Payload')->getContents(), true);
 
 Functions are perfect to react to events emitted by other AWS services.
 
-For example, you can write code that processes new SQS events, SNS messages, new uploaded files on S3, etc.
+For example, you can write code that processes new SQS events, SNS messages, new uploaded files on S3, DynamoDb insert and update events, etc.
 
 This can be achieve by configuring which events will trigger your function via `serverless.yml`. Learn more about this [in the Serverless documentation](https://serverless.com/framework/docs/providers/aws/events/).
