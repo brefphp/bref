@@ -52,7 +52,7 @@ final class DynamoDbRecord
     {
         return $this->record['dynamodb']['SizeBytes'];
     }
-    
+
     public function getStreamViewType(): string
     {
         return $this->record['dynamodb']['StreamViewType'];
