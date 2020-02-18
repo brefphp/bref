@@ -44,25 +44,25 @@ final class DynamoDbRecord
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getSequenceNumber()
+    public function getSequenceNumber(): string
     {
         return $this->record['dynamodb']['SequenceNumber'];
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getSizeBytes()
+    public function getSizeBytes(): int
     {
         return $this->record['dynamodb']['SizeBytes'];
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getStreamViewType()
+    public function getStreamViewType(): string
     {
         return $this->record['dynamodb']['StreamViewType'];
     }
