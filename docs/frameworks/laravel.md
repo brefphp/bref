@@ -27,10 +27,20 @@ provider:
     runtime: provided
     environment:
         # Laravel environment variables
-        APP_STORAGE: '/tmp'
+        APP_STORAGE: /tmp
+        LOG_CHANNEL: stderr
+        SESSION_DRIVER: array
+        VIEW_COMPILED_PATH: /tmp/storage/framework/views
 
 plugins:
     - ./vendor/bref/bref
+
+package:
+  exclude:
+    - node_modules/**
+    - public/storage
+    - storage/**
+    - tests/**
 
 functions:
     website:
