@@ -61,13 +61,13 @@ functions:
 
 Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache files are stored. Add this line in `bootstrap/app.php` after `$app = new Illuminate\Foundation\Application`:
+Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache files are stored. Change the line in `bootstrap/app.php` at `$app = new Illuminate\Foundation\Application(`:
 
-```php
-/*
- * Allow overriding the storage path in production using an environment variable.
- */
-$app->useStoragePath($_ENV['APP_STORAGE'] ?? $app->storagePath());
+```diff
+$app = new Illuminate\Foundation\Application(
+-    realpath(__DIR__.'/../')
++    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
+);
 ```
 
 We will also need to customize the location for compiled views, as well as customize a few variables in the `.env` file:
