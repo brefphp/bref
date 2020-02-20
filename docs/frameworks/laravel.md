@@ -6,7 +6,7 @@ introduction: Learn how to deploy serverless Laravel applications on AWS Lambda 
 
 This guide helps you run Laravel applications on AWS Lambda using Bref. These instructions are kept up to date to target the latest Laravel version.
 
-A demo application is available on GitHub at [github.com/mnapoli/bref-laravel-demo](https://github.com/mnapoli/bref-laravel-demo).
+A demo application is available on GitHub at [github.com/brefphp/examples](https://github.com/brefphp/examples).
 
 ## Setup
 
