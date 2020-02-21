@@ -13,11 +13,12 @@ final class SimpleLambdaClient
     /** @var LambdaClient */
     private $lambda;
 
-    public function __construct(string $region)
+    public function __construct(string $region, string $profile)
     {
         $this->lambda = new LambdaClient([
             'version' => 'latest',
             'region' => $region,
+            'profile' => $profile,
         ]);
     }
 
