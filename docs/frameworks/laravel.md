@@ -25,12 +25,6 @@ provider:
     name: aws
     region: us-east-1
     runtime: provided
-    environment:
-        # Laravel environment variables
-        APP_STORAGE: /tmp
-        LOG_CHANNEL: stderr
-        SESSION_DRIVER: array
-        VIEW_COMPILED_PATH: /tmp/storage/framework/views
 
 plugins:
     - ./vendor/bref/bref
@@ -59,20 +53,11 @@ functions:
             - ${bref:layer.console} # The "console" layer
 ```
 
-Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
-
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache files are stored. Change the line in `bootstrap/app.php` at `$app = new Illuminate\Foundation\Application(`:
-
-```diff
-$app = new Illuminate\Foundation\Application(
--    realpath(__DIR__.'/../')
-+    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
-);
-```
-
 We will also need to customize the location for compiled views, as well as customize a few variables in the `.env` file:
 
 ```dotenv
+APP_STORAGE=/tmp
+
 VIEW_COMPILED_PATH=/tmp/storage/framework/views
 
 # We cannot store sessions to disk: if you don't need sessions (e.g. API)
