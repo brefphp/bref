@@ -131,7 +131,7 @@ RUN set -xe; \
 #   - curl
 #   - php
 ENV VERSION_OPENSSL=1.1.1a
-ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/xml2
+ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
 ENV CA_BUNDLE_SOURCE="https://curl.haxx.se/ca/cacert.pem"
 ENV CA_BUNDLE="${INSTALL_DIR}/ssl/cert.pem"
 
