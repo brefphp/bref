@@ -90,8 +90,11 @@ $app->command('init', function (SymfonyStyle $io) {
 /**
  * Run a CLI command in the remote environment.
  */
-$app->command('cli function [--region=] [arguments]*', function (string $function, ?string $region, array $arguments, SymfonyStyle $io) {
-    $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
+$app->command('cli function [--region=] [--profile=] [arguments]*', function (string $function, ?string $region, ?string $profile, array $arguments, SymfonyStyle $io) {
+    $lambda = new SimpleLambdaClient(
+        $region ?: getenv('AWS_DEFAULT_REGION') ?: 'us-east-1',
+        $profile ?: getenv('AWS_PROFILE') ?: 'default'
+    );
 
     // Because arguments may contain spaces, and are going to be executed remotely
     // as a separate process, we need to escape all arguments.
@@ -124,13 +127,16 @@ $app->command('cli function [--region=] [arguments]*', function (string $functio
     return (int) ($payload['exitCode'] ?? 1);
 });
 
-$app->command('invoke function [--region=] [-e|--event=]', function (string $function, ?string $region, ?string $event, SymfonyStyle $io) {
+$app->command('invoke function [--region=] [--profile=] [-e|--event=]', function (string $function, ?string $region, ?string $profile, ?string $event, SymfonyStyle $io) {
     $io->warning([
         'The `bref invoke` command is deprecated in favor of the `serverless invoke` command.',
         'Run `serverless invoke --help` to learn how to use it, or read the documentation here: https://bref.sh/docs/runtimes/function.html#cli',
     ]);
 
-    $lambda = new SimpleLambdaClient(($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1');
+    $lambda = new SimpleLambdaClient(
+        $region ?: getenv('AWS_DEFAULT_REGION') ?: 'us-east-1',
+        $profile ?: getenv('AWS_PROFILE') ?: 'default'
+    );
 
     try {
         $result = $lambda->invoke($function, $event);
@@ -149,11 +155,13 @@ $app->command('invoke function [--region=] [-e|--event=]', function (string $fun
     '--event' => 'Event data as JSON, e.g. `--event \'{"name":"matt"}\'`',
 ]);
 
-$app->command('deployment stack-name [--region=]', function (string $stackName, ?string $region, SymfonyStyle $io) {
-    $region = ($region ?: getenv('AWS_DEFAULT_REGION')) ?: 'us-east-1';
+$app->command('deployment stack-name [--region=] [--profile=]', function (string $stackName, ?string $region, ?string $profile, SymfonyStyle $io) {
+    $region = $region ?: getenv('AWS_DEFAULT_REGION') ?: 'us-east-1';
+    $profile = $profile ?: getenv('AWS_PROFILE') ?: 'default';
     $cloudFormation = new CloudFormationClient([
         'version' => 'latest',
         'region' => $region,
+        'profile' => $profile,
     ]);
 
     try {
@@ -359,7 +367,8 @@ $app->command('dashboard [--host=] [--port=] [--profile=] [--stage=]', function 
     return $process->getExitCode();
 })->descriptions('Start the dashboard');
 
-$app->command('bref.dev [--profile=] [--stage=]', function (string $profile = 'default', string $stage = null, SymfonyStyle $io) {
+$app->command('bref.dev [--profile=] [--stage=]', function (?string $profile, string $stage = null, SymfonyStyle $io) {
+    $profile = $profile ?: getenv('AWS_PROFILE') ?: 'default';
     if (! file_exists('serverless.yml')) {
         $io->error('No `serverless.yml` file found.');
 
