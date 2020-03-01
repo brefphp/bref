@@ -2,8 +2,10 @@
 <?php
 declare(strict_types=1);
 
-use Aws\CloudFormation\CloudFormationClient;
-use Aws\CloudFormation\Exception\CloudFormationException;
+use AsyncAws\CloudFormation\CloudFormationClient;
+use AsyncAws\CloudFormation\Result\Output;
+use AsyncAws\CloudFormation\Result\StackEvent;
+use AsyncAws\Core\Exception\Http\HttpException;
 use Bref\Console\LoadingAnimation;
 use Bref\Console\OpenUrl;
 use Bref\Lambda\InvocationFailed;
@@ -159,7 +161,6 @@ $app->command('deployment stack-name [--region=] [--profile=]', function (string
     $region = $region ?: getenv('AWS_DEFAULT_REGION') ?: 'us-east-1';
     $profile = $profile ?: getenv('AWS_PROFILE') ?: 'default';
     $cloudFormation = new CloudFormationClient([
-        'version' => 'latest',
         'region' => $region,
         'profile' => $profile,
     ]);
@@ -168,16 +169,21 @@ $app->command('deployment stack-name [--region=] [--profile=]', function (string
         $result = $cloudFormation->describeStacks([
             'StackName' => $stackName,
         ]);
-        $stacks = $result->get('Stacks');
-        if (!isset($stacks[0])) {
+        $stack = null;
+        foreach ($result->getStacks() as $currentStack) {
+            $stack = $currentStack;
+            break;
+        }
+
+        if ($stack === null) {
             $io->error(sprintf('The stack %s cannot be found in region %s', $stackName, $region));
             return 1;
         }
-        $stack = $stacks[0];
-    } catch (CloudFormationException $e) {
+
+    } catch (HttpException $e) {
         $io->error([
             "Error while fetching information about the stack `$stackName` in region `$region`:",
-            sprintf('"%s"', $e->getAwsErrorMessage()),
+            sprintf('"%s"', $e->getAwsMessage()),
             "In case the stack was not found make sure that `$region` is the correct region.",
         ]);
         return 1;
@@ -188,14 +194,14 @@ $app->command('deployment stack-name [--region=] [--profile=]', function (string
     $result = $cloudFormation->describeStackEvents([
         'StackName' => $stackName,
     ]);
-    $events = $result->get('StackEvents');
+    $events = iterator_to_array($result->getStackEvents(true));
 
     // Last events last
     $events = array_reverse($events);
     // Keep only events from the last 24 hours
     $oneDayAgo = new DateTimeImmutable('-1 day');
-    $events = array_filter($events, function (array $event) use ($oneDayAgo) {
-        return $event['Timestamp'] >= $oneDayAgo;
+    $events = array_filter($events, function (StackEvent $event) use ($oneDayAgo) {
+        return $event->getTimestamp() >= $oneDayAgo;
     });
 
     if (empty($events)) {
@@ -204,9 +210,9 @@ $app->command('deployment stack-name [--region=] [--profile=]', function (string
         $errors = [];
         foreach ($events as $event) {
             /** @var DateTimeInterface $time */
-            $time = $event['Timestamp'];
+            $time = $event->getTimestamp();
 
-            $status = $event['ResourceStatus'];
+            $status = $event->getResourceStatus();
             $error = false;
             if (strpos($status, 'FAILED') !== false) {
                 $error = true;
@@ -217,11 +223,11 @@ $app->command('deployment stack-name [--region=] [--profile=]', function (string
                 '<comment>%s</comment> %s %s',
                 $time->format('M j G:H'),
                 $error ? "<error>$status</error>" : $status,
-                $event['ResourceType']
+                $event->getResourceType()
             ));
 
-            if (isset($event['ResourceStatusReason'])) {
-                $io->write(" <info>{$event['ResourceStatusReason']}</info>");
+            if (null !== $event->getResourceStatusReason()) {
+                $io->write(" <info>{$event->getResourceStatusReason()}</info>");
             }
             $io->writeln('');
         }
@@ -233,26 +239,27 @@ $app->command('deployment stack-name [--region=] [--profile=]', function (string
             $io->writeln('<error>Summary of the errors found:</error>');
             foreach ($errors as $event) {
                 /** @var DateTimeInterface $time */
-                $time = $event['Timestamp'];
+                $time = $event->getTimestamp();
                 $io->writeln(sprintf(
                     '<comment>%s</comment> <info>%s</info> %s',
                     $time->format('M j G:H'),
-                    $event['ResourceType'],
-                    $event['ResourceStatusReason'] ?? ''
+                    $event->getResourceType() ?? '',
+                    $event->getResourceStatusReason() ?? ''
                 ));
             }
         }
     }
 
-    if (isset($stack['Outputs']) && !empty($stack['Outputs'])) {
+    $outputs = $stack->getOutputs();
+    if (!empty($outputs)) {
         $io->section('Outputs');
-        $io->listing(array_map(function (array $output): string {
+        $io->listing(array_map(function (Output $output): string {
             return sprintf(
                 '%s: <info>%s</info>',
-                $output['Description'] ?? $output['OutputKey'],
-                $output['OutputValue']
+                $output->getDescription() ?? $output->getOutputKey(),
+                $output->getOutputValue() ?? ''
             );
-        }, $stack['Outputs']));
+        }, $outputs));
     }
 
     return 0;

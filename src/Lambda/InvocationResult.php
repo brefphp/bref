@@ -2,14 +2,14 @@
 
 namespace Bref\Lambda;
 
-use Aws\Result;
+use AsyncAws\Lambda\Result\InvocationResponse;
 
 /**
  * The result of a successful lambda invocation.
  */
 final class InvocationResult
 {
-    /** @var Result */
+    /** @var InvocationResponse */
     private $result;
 
     /** @var mixed */
@@ -18,7 +18,7 @@ final class InvocationResult
     /**
      * @param mixed $payload
      */
-    public function __construct(Result $result, $payload)
+    public function __construct(InvocationResponse $result, $payload)
     {
         $this->result = $result;
         $this->payload = $payload;
@@ -26,7 +26,7 @@ final class InvocationResult
 
     public function getLogs(): string
     {
-        return base64_decode($this->result->get('LogResult'));
+        return base64_decode($this->result->getLogResult());
     }
 
     /**

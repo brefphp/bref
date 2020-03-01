@@ -6,8 +6,8 @@
  * `layers.json` contains the layer versions that Bref should use.
  */
 
-use Aws\Lambda\LambdaClient;
-use function GuzzleHttp\Promise\unwrap;
+use AsyncAws\Lambda\LambdaClient;
+use AsyncAws\Lambda\Result\LayerVersionsListItem;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -37,28 +37,29 @@ echo "Done\n";
 
 function listLayers(string $selectedRegion): array
 {
+
     $lambda = new LambdaClient([
-        'version' => 'latest',
         'region' => $selectedRegion,
     ]);
 
     // Run the API calls in parallel (thanks to async)
-    $promises = array_combine(LAYER_NAMES, array_map(function (string $layerName) use ($lambda, $selectedRegion) {
-        return $lambda->listLayerVersionsAsync([
-            'LayerName' => "arn:aws:lambda:$selectedRegion:209497400698:layer:$layerName",
+    $results = [];
+    foreach (LAYER_NAMES as $layerName) {
+        $results[$layerName] = $lambda->listLayerVersions([
+            'LayerName' => sprintf('arn:aws:lambda:%s:209497400698:layer:%s', $selectedRegion, $layerName),
             'MaxItems' => 1,
         ]);
-    }, LAYER_NAMES));
-
-    // Wait on all of the requests to complete. Throws a ConnectException
-    // if any of the requests fail
-    $results = unwrap($promises);
+    }
 
     $layers = [];
     foreach ($results as $layerName => $result) {
-        $versions = $result['LayerVersions'];
-        $latestVersion = end($versions);
-        $layers[$layerName] = $latestVersion['Version'];
+        $versions = $result->getLayerVersions(true);
+        $versionsArray = iterator_to_array($versions);
+        if (! empty($versionsArray)) {
+            /** @var LayerVersionsListItem $latestVersion */
+            $latestVersion = end($versionsArray);
+            $layers[$layerName] = $latestVersion->getVersion();
+        }
     }
 
     return $layers;

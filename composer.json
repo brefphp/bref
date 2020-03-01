@@ -28,11 +28,12 @@
         "mnapoli/silly": "^1.7",
         "symfony/filesystem": "^3.1|^4.0|^5.0",
         "symfony/process": "^3.3|^4.0|^5.0",
-        "aws/aws-sdk-php": "^3.44",
         "psr/http-message": "^1.0",
         "hollodotme/fast-cgi-client": "^3.0",
         "riverline/multipart-parser": "^2.0.6",
-        "psr/http-server-handler": "^1.0"
+        "psr/http-server-handler": "^1.0",
+        "async-aws/cloud-formation": "^0.2",
+        "async-aws/lambda": "^0.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5",
