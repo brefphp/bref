@@ -56,8 +56,6 @@ functions:
 We will also need to customize the location for compiled views, as well as customize a few variables in the `.env` file:
 
 ```dotenv
-APP_STORAGE=/tmp
-
 VIEW_COMPILED_PATH=/tmp/storage/framework/views
 
 # We cannot store sessions to disk: if you don't need sessions (e.g. API)
