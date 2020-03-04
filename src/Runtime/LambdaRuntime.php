@@ -206,13 +206,19 @@ final class LambdaRuntime
             $errorMessage = $error->getMessage();
         }
 
-        // Log the exception in CloudWatch
-        printf(
-            "Fatal error: %s in %s:%d\nStack trace:\n%s",
+        $errorMessage = sprintf(
+            'Fatal error: %s in %s:%d',
             $errorMessage,
             $error->getFile(),
-            $error->getLine(),
-            $error->getTraceAsString()
+            $error->getLine()
+        );
+
+        // Log the exception in CloudWatch
+        printf(
+            '{"errorType": "%s", "errorMessage": "%s", "stack": %s}',
+            get_class($error),
+            $errorMessage,
+            json_encode(explode(PHP_EOL, $error->getTraceAsString()))
         );
 
         // Send an "error" Lambda response
