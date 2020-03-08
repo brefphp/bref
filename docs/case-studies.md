@@ -31,6 +31,11 @@ These help learn for real use cases about costs, performances and migration effo
 - [MyBuilder](https://mybuilder.com)
 
   MyBuilder is an online marketplace matching tradespeople with home owners. They used Lambda with Bref to create a highly scalable on-demand microservice to generate PDF reports. The solution involved [creating their own layer](https://tech.mybuilder.com/compiling-wkhtmltopdf-aws-lambda-with-bref-easier-than-you-think/) to include a self-compiled binary file to use alongside Bref's base PHP layer.
+  
+- [PDF reporting generation](https://devops-life.com/blog/2020/03/06/how-serverless-saved-us-for-$2-with-bref-sh/)
+
+Feedback to understand the benefits of going serverless with a real use case (PDF generation);
+They generated 2,000 PDFs in <2 min for 2$ using Symfony applications shipped inside lambdas using Bref.sh
 
 ## Others
 
