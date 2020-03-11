@@ -80,6 +80,22 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
     }
 ```
 
+An optional last step is to set "Trusted proxy" and "Trusted hosts". Failing to add
+these will cause issues like: 
+ - your application don't generate links using https.
+ - impossible to capture user IP address
+ - failure to recognize host names 
+ 
+That could be done with [environment variables](#Environment variables) or by running 
+these lines in `public/index.php`.
+
+```php
+use Symfony\Component\HttpFoundation\Request;
+
+Request::setTrustedProxies(['127.0.0.1'], Request::HEADER_X_FORWARDED_ALL);
+Request::setTrustedHosts(['api\.example\.com']);
+``` 
+
 ## Deploy
 
 Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
@@ -127,8 +143,26 @@ Since Symfony 4, the production parameters are configured through environment va
 provider:
     environment:
          APP_ENV: prod
+         TRUSTED_PROXIES: '127.0.0.1'
+         TRUSTED_HOSTS: '^api\.example\.com$'
 ```
 
 The secrets (e.g. database passwords) must however not be committed in this file.
 
 To learn more about all this, read the [environment variables documentation](/docs/environment/variables.md).
+
+## Getting the user's IP
+
+If your application needs the user's IP you must fetch it from the `LAMBDA_CONTEXT` variable.
+Modify `public/index.php` accordingly.
+
+```diff
++// Get user IP:
++$context = json_decode($_SERVER['LAMBDA_CONTEXT'], true);
++$_SERVER['HTTP_X_FORWARDED_FOR'] = $context['identity']['sourceIp'] ?? '';
+
+$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+$request = Request::createFromGlobals();
+```
+
+This will only work if you configured "Trusted proxies" properly.
