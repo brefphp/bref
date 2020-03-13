@@ -114,7 +114,7 @@ Lambda and API Gateway are only used for executing code. Serving assets via PHP 
 
 Deploying a website and serving assets (e.g. CSS, JavaScript, images) is covered in [the "Websites" documentation](/docs/websites.md).
 
-In some cases however, you will need to serve images (or other assets) via PHP. One example would be if you served generated images via PHP. In those cases, you need to read the [binary-requests-and-responses](#binary-requests-and-responses) section below.
+In some cases however, you will need to serve images (or other assets) via PHP. One example would be if you served generated images via PHP. In those cases, you need to read the [Binary requests and responses](#binary-requests-and-responses) section below.
 
 ## Binary requests and responses
 
