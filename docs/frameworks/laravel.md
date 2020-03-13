@@ -6,7 +6,7 @@ introduction: Learn how to deploy serverless Laravel applications on AWS Lambda 
 
 This guide helps you run Laravel applications on AWS Lambda using Bref. These instructions are kept up to date to target the latest Laravel version.
 
-A demo application is available on GitHub at [github.com/mnapoli/bref-laravel-demo](https://github.com/mnapoli/bref-laravel-demo).
+A demo application is available on GitHub at [github.com/brefphp/examples](https://github.com/brefphp/examples).
 
 ## Setup
 
@@ -25,12 +25,16 @@ provider:
     name: aws
     region: us-east-1
     runtime: provided
-    environment:
-        # Laravel environment variables
-        APP_STORAGE: '/tmp'
 
 plugins:
     - ./vendor/bref/bref
+
+package:
+  exclude:
+    - node_modules/**
+    - public/storage
+    - storage/**
+    - tests/**
 
 functions:
     website:
@@ -47,17 +51,6 @@ functions:
         layers:
             - ${bref:layer.php-73} # PHP
             - ${bref:layer.console} # The "console" layer
-```
-
-Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
-
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache files are stored. Add this line in `bootstrap/app.php` after `$app = new Illuminate\Foundation\Application`:
-
-```php
-/*
- * Allow overriding the storage path in production using an environment variable.
- */
-$app->useStoragePath($_ENV['APP_STORAGE'] ?? $app->storagePath());
 ```
 
 We will also need to customize the location for compiled views, as well as customize a few variables in the `.env` file:
