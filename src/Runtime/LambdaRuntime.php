@@ -200,20 +200,19 @@ final class LambdaRuntime
      */
     private function signalFailure(string $invocationId, \Throwable $error): void
     {
-        if ($error instanceof Exception) {
-            $errorMessage = 'Uncaught ' . get_class($error) . ': ' . $error->getMessage();
-        } else {
-            $errorMessage = $error->getMessage();
+        $errorMessage = $error->getMessage();
+        if (! $error instanceof Exception) {
+            $errorMessage = sprintf(
+                'Fatal error: %s in %s:%d',
+                $error->getMessage(),
+                $error->getFile(),
+                $error->getLine()
+            );
         }
 
-        $errorMessage = sprintf(
-            'Fatal error: %s in %s:%d',
-            $errorMessage,
-            $error->getFile(),
-            $error->getLine()
-        );
-
         // Log the exception in CloudWatch
+        // We use the same log format as what we can see when throwing an exception in the NodeJS runtime
+        // See https://github.com/brefphp/bref/pull/579
         echo json_encode([
             'errorType' => get_class($error),
             'errorMessage' => $errorMessage,
