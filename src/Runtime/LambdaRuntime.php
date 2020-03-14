@@ -214,18 +214,17 @@ final class LambdaRuntime
         );
 
         // Log the exception in CloudWatch
-        printf(
-            '{"errorType": "%s", "errorMessage": "%s", "stack": %s}',
-            get_class($error),
-            $errorMessage,
-            json_encode(explode(PHP_EOL, $error->getTraceAsString()))
-        );
+        echo json_encode([
+            'errorType' => get_class($error),
+            'errorMessage' => $errorMessage,
+            'stack' => explode(PHP_EOL, $error->getTraceAsString()),
+        ]);
 
         // Send an "error" Lambda response
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
         $this->postJson($url, [
-            'errorMessage' => $error->getMessage(),
             'errorType' => get_class($error),
+            'errorMessage' => $error->getMessage(),
             'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
         ]);
     }
