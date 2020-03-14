@@ -31,6 +31,7 @@ class LambdaRuntimeTest extends TestCase
 
     protected function setUp()
     {
+        ob_start();
         Server::start();
         $this->runtime = new LambdaRuntime('localhost:8126');
     }
@@ -38,6 +39,7 @@ class LambdaRuntimeTest extends TestCase
     protected function tearDown()
     {
         Server::stop();
+        ob_end_clean();
     }
 
     public function test basic behavior()
@@ -63,6 +65,18 @@ class LambdaRuntimeTest extends TestCase
             'hello' => 'world',
             'received-function-arn' => 'test-function-name',
         ]);
+    }
+
+    public function test exceptions in the handler result in an invocation error()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $this->runtime->processNextEvent(function () {
+            throw new \RuntimeException('This is an exception');
+        });
+
+        $this->assertInvocationErrorResult('RuntimeException', 'This is an exception');
+        $this->assertErrorInLogs('RuntimeException', 'This is an exception');
     }
 
     public function test an error is thrown if the runtime API returns a wrong response()
@@ -141,9 +155,11 @@ class LambdaRuntimeTest extends TestCase
         $this->assertSame('POST', $eventFailureLog->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/error', $eventFailureLog->getUri()->__toString());
 
-        $error = json_decode((string) $eventFailureLog->getBody());
-        $this->expectOutputRegex('/^Fatal error: Uncaught Exception: Error while calling the Lambda runtime API: The requested URL returned error: 400 Bad Request/');
-        $this->assertSame('Error while calling the Lambda runtime API: The requested URL returned error: 400 Bad Request', $error->errorMessage);
+        // Check the lambda result contains the error message
+        $error = json_decode((string) $eventFailureLog->getBody(), true);
+        $this->assertSame('Error while calling the Lambda runtime API: The requested URL returned error: 400 Bad Request', $error['errorMessage']);
+
+        $this->assertErrorInLogs('Exception', 'Error while calling the Lambda runtime API: The requested URL returned error: 400 Bad Request');
     }
 
     public function test function results that cannot be encoded are reported as invocation errors()
@@ -154,18 +170,13 @@ class LambdaRuntimeTest extends TestCase
             return "\xB1\x31";
         });
 
-        $requests = Server::received();
-        $this->assertCount(2, $requests);
-
-        [$eventRequest, $eventFailureLog] = $requests;
-        $this->assertSame('GET', $eventRequest->getMethod());
-        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
-        $this->assertSame('POST', $eventFailureLog->getMethod());
-        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/error', $eventFailureLog->getUri()->__toString());
-
-        $error = json_decode((string) $eventFailureLog->getBody());
-        $this->expectOutputRegex('/^Fatal error: Uncaught Exception: The Lambda response cannot be encoded to JSON/');
-        $this->assertSame("The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing a HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses\nHere is the original JSON error: 'Malformed UTF-8 characters, possibly incorrectly encoded'", $error->errorMessage);
+        $message = <<<ERROR
+The Lambda response cannot be encoded to JSON.
+This error usually happens when you try to return binary content. If you are writing a HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses
+Here is the original JSON error: 'Malformed UTF-8 characters, possibly incorrectly encoded'
+ERROR;
+        $this->assertInvocationErrorResult('Exception', $message);
+        $this->assertErrorInLogs('Exception', $message);
     }
 
     public function test generic event handler()
@@ -282,11 +293,8 @@ class LambdaRuntimeTest extends TestCase
 
         $this->runtime->processNextEvent(null);
 
-        $requests = Server::received();
-        $this->assertCount(2, $requests);
-        $error = json_decode((string) $requests[1]->getBody(), true);
-        $this->expectOutputRegex('/^Fatal error: Uncaught Exception: The lambda handler must be a callable or implement handler interfaces/');
-        $this->assertSame('The lambda handler must be a callable or implement handler interfaces', $error['errorMessage']);
+        $this->assertInvocationErrorResult('Exception', 'The lambda handler must be a callable or implement handler interfaces');
+        $this->assertErrorInLogs('Exception', 'The lambda handler must be a callable or implement handler interfaces');
     }
 
     /**
@@ -298,7 +306,7 @@ class LambdaRuntimeTest extends TestCase
             new Response( // lambda event
                 200,
                 [
-                    'lambda-runtime-aws-request-id' => 1,
+                    'lambda-runtime-aws-request-id' => '1',
                     'lambda-runtime-invoked-function-arn' => 'test-function-name',
                 ],
                 json_encode($event)
@@ -321,5 +329,51 @@ class LambdaRuntimeTest extends TestCase
         $this->assertSame('POST', $eventResponse->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventResponse->getUri()->__toString());
         $this->assertEquals($result, json_decode($eventResponse->getBody()->__toString(), true));
+    }
+
+    private function assertInvocationErrorResult(string $errorClass, string $errorMessage)
+    {
+        $requests = Server::received();
+        $this->assertCount(2, $requests);
+
+        [$eventRequest, $eventResponse] = $requests;
+        $this->assertSame('GET', $eventRequest->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
+        $this->assertSame('POST', $eventResponse->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/error', $eventResponse->getUri()->__toString());
+
+        // Check the content of the result of the lambda
+        $invocationResult = json_decode($eventResponse->getBody()->__toString(), true);
+        $this->assertSame([
+            'errorType',
+            'errorMessage',
+            'stackTrace',
+        ], array_keys($invocationResult));
+        $this->assertEquals($errorClass, $invocationResult['errorType']);
+        $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
+        $this->assertInternalType('array', $invocationResult['stackTrace']);
+    }
+
+    private function assertErrorInLogs(string $errorClass, string $errorMessage): void
+    {
+        // Decode the logs from stdout
+        $stdout = $this->getActualOutput();
+
+        [$requestId, $message, $json] = explode("\t", $stdout);
+
+        $this->assertSame('Invoke Error', $message);
+
+        // Check the request ID matches a UUID
+        $this->assertNotEmpty($requestId);
+
+        $invocationResult = json_decode($json, true);
+        $this->assertSame([
+            'errorType',
+            'errorMessage',
+            'stack',
+        ], array_keys($invocationResult));
+        $this->assertEquals($errorClass, $invocationResult['errorType']);
+        $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
+        $this->assertInternalType('array', $invocationResult['stack']);
     }
 }

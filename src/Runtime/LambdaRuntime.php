@@ -78,7 +78,7 @@ final class LambdaRuntime
     /**
      * Process the next event.
      *
-     * @param Handler|callable $handler If it is a callable, it takes two parameters, an $event parameter (mixed) and a $context parameter (Context) and must return anything serializable to JSON.
+     * @param Handler|RequestHandlerInterface|callable $handler If it is a callable, it takes two parameters, an $event parameter (mixed) and a $context parameter (Context) and must return anything serializable to JSON.
      *
      * Example:
      *
@@ -200,27 +200,23 @@ final class LambdaRuntime
      */
     private function signalFailure(string $invocationId, \Throwable $error): void
     {
-        if ($error instanceof Exception) {
-            $errorMessage = 'Uncaught ' . get_class($error) . ': ' . $error->getMessage();
-        } else {
-            $errorMessage = $error->getMessage();
-        }
+        $stackTraceAsArray = explode(PHP_EOL, $error->getTraceAsString());
 
         // Log the exception in CloudWatch
-        printf(
-            "Fatal error: %s in %s:%d\nStack trace:\n%s",
-            $errorMessage,
-            $error->getFile(),
-            $error->getLine(),
-            $error->getTraceAsString()
-        );
+        // We aim to use the same log format as what we can see when throwing an exception in the NodeJS runtime
+        // See https://github.com/brefphp/bref/pull/579
+        echo $invocationId . "\tInvoke Error\t" . json_encode([
+            'errorType' => get_class($error),
+            'errorMessage' => $error->getMessage(),
+            'stack' => $stackTraceAsArray,
+        ]) . PHP_EOL;
 
         // Send an "error" Lambda response
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
         $this->postJson($url, [
-            'errorMessage' => $error->getMessage(),
             'errorType' => get_class($error),
-            'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
+            'errorMessage' => $error->getMessage(),
+            'stackTrace' => $stackTraceAsArray,
         ]);
     }
 

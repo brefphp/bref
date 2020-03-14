@@ -59,23 +59,13 @@ class PhpRuntimeTest extends TestCase
             'exception' => true,
         ]);
 
-        // We don't assert on complete exception traces because they will change over time
-        $expectedLogs = <<<LOGS
-Fatal error: Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam/Php/function.php:35
-Stack trace:
-#0 /var/task/
-LOGS;
-        self::assertContains($expectedLogs, $logs);
-
-        // Check the exception is returned as the lambda result
-        self::assertSame([
-            'errorType',
-            'errorMessage',
-            'stackTrace',
-        ], array_keys($result));
-        self::assertSame('Exception', $result['errorType']);
-        self::assertSame('This is an uncaught exception', $result['errorMessage']);
-        self::assertStringStartsWith('#0 /var/task/', $result['stackTrace'][0]);
+        $this->assertInvocationError(
+            $result,
+            $logs,
+            'Exception',
+            'This is an uncaught exception',
+            '#0 /var/task/src/Runtime/LambdaRuntime.php('
+        );
     }
 
     public function test error appears in logs and is reported as an invocation error()
@@ -84,23 +74,13 @@ LOGS;
             'error' => true,
         ]);
 
-        // We don't assert on complete exception traces because they will change over time
-        $expectedLogs = <<<LOGS
-Fatal error: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam/Php/function.php:39
-Stack trace:
-#0 /var/task/
-LOGS;
-        self::assertContains($expectedLogs, $logs);
-
-        // Check the exception is returned as the lambda result
-        self::assertSame([
-            'errorType',
-            'errorMessage',
-            'stackTrace',
-        ], array_keys($result));
-        self::assertSame('ArgumentCountError', $result['errorType']);
-        self::assertSame('strlen() expects exactly 1 parameter, 0 given', $result['errorMessage']);
-        self::assertStringStartsWith('#0 /var/task/', $result['stackTrace'][0]);
+        $this->assertInvocationError(
+            $result,
+            $logs,
+            'ArgumentCountError',
+            'strlen() expects exactly 1 parameter, 0 given',
+            '#0 /var/task/tests/Sam/Php/function.php(39)'
+        );
     }
 
     public function test fatal error appears in logs and is reported as an invocation error()
@@ -131,8 +111,10 @@ LOGS;
             'warning' => true,
         ]);
 
-        self::assertNotContains('Warning: This is a test warning', $result);
-        self::assertContains('Warning: This is a test warning in /var/task/tests/Sam/Php/function.php', $logs);
+        // The warning does not turn the execution into an error
+        $this->assertEquals('Hello world', $result);
+        // But it appears in the logs
+        $this->assertContains('Warning: This is a test warning in /var/task/tests/Sam/Php/function.php', $logs);
     }
 
     public function test php extensions()
@@ -291,5 +273,63 @@ LOGS;
         $logs = $return ? $matches[0] : $stderr;
 
         return [$result, $logs];
+    }
+
+    private function assertInvocationError(
+        array $invocationResult,
+        string $logs,
+        string $errorClass,
+        string $errorMessage,
+        string $stackTraceStartsWith = '#0 /var/task/'
+    ): void {
+        $this->assertSame([
+            'errorType',
+            'errorMessage',
+            'stackTrace',
+        ], array_keys($invocationResult));
+        $this->assertEquals($errorClass, $invocationResult['errorType']);
+        $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
+        $this->assertInternalType('array', $invocationResult['stackTrace']);
+        $this->assertStringStartsWith($stackTraceStartsWith, $invocationResult['stackTrace'][0]);
+
+        $this->assertErrorInLogs($logs, $errorClass, $errorMessage, $stackTraceStartsWith);
+    }
+
+    private function assertErrorInLogs(
+        string $logs,
+        string $errorClass,
+        string $errorMessage,
+        string $stackTraceStartsWith = '#0 /var/task/'
+    ): void {
+        // Extract the only interesting log line
+        $logLines = explode("\n", $logs);
+        $logLines = array_filter($logLines, function (string $line): bool {
+            $line = trim($line);
+            return $line !== ''
+                && (strpos($line, 'START') !== 0)
+                && (strpos($line, 'END') !== 0)
+                && (strpos($line, 'REPORT') !== 0);
+        });
+        $this->assertCount(1, $logLines);
+        $logLine = reset($logLines);
+
+        // Decode the logs from stdout
+        [$requestId, $message, $json] = explode("\t", $logLine);
+
+        // Check the request ID matches a UUID
+        $this->assertRegExp('/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/', $requestId);
+
+        $this->assertSame('Invoke Error', $message);
+
+        $invocationResult = json_decode($json, true);
+        $this->assertSame([
+            'errorType',
+            'errorMessage',
+            'stack',
+        ], array_keys($invocationResult));
+        $this->assertEquals($errorClass, $invocationResult['errorType']);
+        $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
+        $this->assertInternalType('array', $invocationResult['stack']);
+        $this->assertStringStartsWith($stackTraceStartsWith, $invocationResult['stack'][0]);
     }
 }
