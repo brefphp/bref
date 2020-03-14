@@ -78,7 +78,7 @@ final class LambdaRuntime
     /**
      * Process the next event.
      *
-     * @param Handler|callable $handler If it is a callable, it takes two parameters, an $event parameter (mixed) and a $context parameter (Context) and must return anything serializable to JSON.
+     * @param Handler|RequestHandlerInterface|callable $handler If it is a callable, it takes two parameters, an $event parameter (mixed) and a $context parameter (Context) and must return anything serializable to JSON.
      *
      * Example:
      *
@@ -200,31 +200,23 @@ final class LambdaRuntime
      */
     private function signalFailure(string $invocationId, \Throwable $error): void
     {
-        $errorMessage = $error->getMessage();
-        if (! $error instanceof Exception) {
-            $errorMessage = sprintf(
-                'Fatal error: %s in %s:%d',
-                $error->getMessage(),
-                $error->getFile(),
-                $error->getLine()
-            );
-        }
+        $stackTraceAsArray = explode(PHP_EOL, $error->getTraceAsString());
 
         // Log the exception in CloudWatch
-        // We use the same log format as what we can see when throwing an exception in the NodeJS runtime
+        // We aim to use the same log format as what we can see when throwing an exception in the NodeJS runtime
         // See https://github.com/brefphp/bref/pull/579
-        echo json_encode([
+        echo $invocationId . "\tInvoke Error\t" . json_encode([
             'errorType' => get_class($error),
-            'errorMessage' => $errorMessage,
-            'stack' => explode(PHP_EOL, $error->getTraceAsString()),
-        ]);
+            'errorMessage' => $error->getMessage(),
+            'stack' => $stackTraceAsArray,
+        ]) . PHP_EOL;
 
         // Send an "error" Lambda response
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
         $this->postJson($url, [
             'errorType' => get_class($error),
             'errorMessage' => $error->getMessage(),
-            'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
+            'stackTrace' => $stackTraceAsArray,
         ]);
     }
 

@@ -306,7 +306,7 @@ ERROR;
             new Response( // lambda event
                 200,
                 [
-                    'lambda-runtime-aws-request-id' => 1,
+                    'lambda-runtime-aws-request-id' => '1',
                     'lambda-runtime-invoked-function-arn' => 'test-function-name',
                 ],
                 json_encode($event)
@@ -331,9 +331,6 @@ ERROR;
         $this->assertEquals($result, json_decode($eventResponse->getBody()->__toString(), true));
     }
 
-    /**
-     * @param mixed $result
-     */
     private function assertInvocationErrorResult(string $errorClass, string $errorMessage)
     {
         $requests = Server::received();
@@ -360,7 +357,16 @@ ERROR;
     private function assertErrorInLogs(string $errorClass, string $errorMessage): void
     {
         // Decode the logs from stdout
-        $invocationResult = json_decode($this->getActualOutput(), true);
+        $stdout = $this->getActualOutput();
+
+        [$requestId, $message, $json] = explode("\t", $stdout);
+
+        $this->assertSame('Invoke Error', $message);
+
+        // Check the request ID matches a UUID
+        $this->assertNotEmpty($requestId);
+
+        $invocationResult = json_decode($json, true);
         $this->assertSame([
             'errorType',
             'errorMessage',
