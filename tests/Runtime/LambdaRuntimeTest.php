@@ -3,6 +3,8 @@
 namespace Bref\Test\Runtime;
 
 use Bref\Context\Context;
+use Bref\Event\EventBridge\EventBridgeEvent;
+use Bref\Event\EventBridge\EventBridgeHandler;
 use Bref\Event\Handler;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\S3\S3Event;
@@ -284,6 +286,25 @@ ERROR;
             ],
             'body' => 'Hello world!',
         ]);
+    }
+
+    public function test EventBridge event handler()
+    {
+        $handler = new class() extends EventBridgeHandler {
+            /** @var EventBridgeEvent */
+            public $event;
+            public function handleEventBridge(EventBridgeEvent $event, Context $context): void
+            {
+                $this->event = $event;
+            }
+        };
+
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/EventBridge/eventbridge.json'), true);
+        $this->givenAnEvent($eventData);
+
+        $this->runtime->processNextEvent($handler);
+
+        $this->assertEquals(new EventBridgeEvent($eventData), $handler->event);
     }
 
     public function test invalid handlers are rejected properly()
