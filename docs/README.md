@@ -43,7 +43,7 @@ Bref's approach is to:
 
 ### What is Bref
 
-Bref (which means "brief" in french) comes as a Composer package and helps you deploy PHP applications to [AWS](https://aws.amazon.com) and run them on [AWS Lambda](https://aws.amazon.com/lambda/).
+Bref (which means "brief" in french) comes as an open source Composer package and helps you deploy PHP applications to [AWS](https://aws.amazon.com) and run them on [AWS Lambda](https://aws.amazon.com/lambda/).
 
 Bref provides:
 
