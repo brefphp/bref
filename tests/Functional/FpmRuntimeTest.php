@@ -175,8 +175,8 @@ class FpmRuntimeTest extends TestCase
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
             // Check POST configuration
-            'post_max_size' => '8M',
-            'upload_max_filesize' => '2M',
+            'post_max_size' => '6M',
+            'upload_max_filesize' => '6M',
         ], $this->getJsonBody($response), false);
     }
 
