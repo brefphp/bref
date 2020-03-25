@@ -53,4 +53,7 @@ demo:
 layers.json:
 	php runtime/layers/layer-list.php
 
-.PHONY: runtimes website website-preview website-assets demo layers.json
+test-stack:
+	serverless deploy -c tests/serverless.tests.yml
+
+.PHONY: runtimes website website-preview website-assets demo layers.json test-stack

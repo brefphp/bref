@@ -5,9 +5,11 @@
     <testsuites>
         <testsuite name="small">
             <directory>./tests/</directory>
+            <exclude>./tests/Functional</exclude>
             <exclude>./tests/Sam</exclude>
         </testsuite>
         <testsuite name="runtimes">
+            <directory>./tests/Functional</directory>
             <directory>./tests/Sam</directory>
         </testsuite>
     </testsuites>

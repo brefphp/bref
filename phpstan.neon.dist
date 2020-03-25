@@ -12,6 +12,7 @@ parameters:
     - %rootDir%/../../../tests/Bridge/Symfony/logs/*
     - %rootDir%/../../../tests/Sam/Php/*
     - %rootDir%/../../../tests/Sam/PhpFpm/*
+    - %rootDir%/../../../tests/Functional/fpm/*
 
   ignoreErrors:
     -
