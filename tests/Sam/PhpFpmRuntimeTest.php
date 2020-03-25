@@ -7,6 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Process\Process;
 
+/**
+ * This test duplicates a little bit the FPM functional test.
+ *
+ * However, it is still useful to test logs (faster that downloading logs from live lambdas).
+ */
 class PhpFpmRuntimeTest extends TestCase
 {
     /** @var string */
@@ -16,22 +21,6 @@ class PhpFpmRuntimeTest extends TestCase
     {
         parent::setUp();
         $this->logs = '';
-    }
-
-    public function test invocation without event()
-    {
-        $response = $this->invoke('/');
-
-        $this->assertResponseSuccessful($response);
-        self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
-    }
-
-    public function test invocation with event()
-    {
-        $response = $this->invoke('/?name=Abby');
-
-        $this->assertResponseSuccessful($response);
-        self::assertEquals('Hello Abby', $this->getBody($response), $this->logs);
     }
 
     public function test stderr ends up in logs()
@@ -88,107 +77,6 @@ class PhpFpmRuntimeTest extends TestCase
         self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
         self::assertNotContains('This is a test warning', $this->responseAsString($response));
         self::assertContains('Warning:  This is a test warning in /var/task/tests/Sam', $this->logs);
-    }
-
-    public function test php extensions()
-    {
-        $response = $this->invoke('/?extensions=1');
-        $extensions = $this->getJsonBody($response);
-        sort($extensions);
-
-        self::assertEquals([
-            'Core',
-            'PDO',
-            'Phar',
-            'Reflection',
-            'SPL',
-            'SimpleXML',
-            'Zend OPcache',
-            'bcmath',
-            'cgi-fcgi',
-            'ctype',
-            'curl',
-            'date',
-            'dom',
-            'exif',
-            'fileinfo',
-            'filter',
-            'ftp',
-            'gd',
-            'gettext',
-            'hash',
-            'iconv',
-            'json',
-            'libxml',
-            'mbstring',
-            'mysqli',
-            'mysqlnd',
-            'openssl',
-            'pcntl',
-            'pcre',
-            'pdo_sqlite',
-            'posix',
-            'readline',
-            'session',
-            'soap',
-            'sockets',
-            'sodium',
-            'sqlite3',
-            'standard',
-            'tokenizer',
-            'xml',
-            'xmlreader',
-            'xmlwriter',
-            'xsl',
-            'zip',
-            'zlib',
-        ], $extensions, $this->logs);
-    }
-
-    /**
-     * Check some PHP config values
-     */
-    public function test php config()
-    {
-        $response = $this->invoke('/?php-config=1');
-
-        self::assertArraySubset([
-            // On PHP-FPM we don't want errors to be sent to stdout because that sends them to the HTTP response
-            'display_errors' => '0',
-            // This is sent to PHP-FPM, which sends them back to CloudWatch
-            'error_log' => null,
-            // This is the default production value
-            'error_reporting' => (string) (E_ALL & ~E_DEPRECATED & ~E_STRICT),
-            'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-zts-20190902',
-            // Same limit as API Gateway
-            'max_execution_time' => '30',
-            // Use the max amount of memory possibly available, lambda will limit us
-            'memory_limit' => '3008M',
-            'opcache.enable' => '1',
-            'opcache.enable_cli' => '0',
-            // Since we have PHP-FPM we don't need the file cache here
-            'opcache.file_cache' => null,
-            'opcache.max_accelerated_files' => '10000',
-            'opcache.memory_consumption' => '128',
-            // This is to make sure that we don't strip comments from source code since it would break annotations
-            'opcache.save_comments' => '1',
-            // The code is readonly on lambdas so it never changes
-            'opcache.validate_timestamps' => '0',
-            'short_open_tag' => '',
-            'zend.assertions' => '-1',
-            'zend.enable_gc' => '1',
-        ], $this->getJsonBody($response), false, $this->logs);
-    }
-
-    public function test environment variables()
-    {
-        $response = $this->invoke('/?env=1');
-
-        self::assertEquals([
-            '$_ENV' => 'bar',
-            '$_SERVER' => 'bar',
-            'getenv' => 'bar',
-        ], $this->getJsonBody($response), $this->logs);
     }
 
     /**

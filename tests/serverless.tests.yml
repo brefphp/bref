@@ -1,0 +1,35 @@
+service: bref-tests
+
+provider:
+    name: aws
+    runtime: provided
+    region: eu-west-1
+    profile: bref-tests
+    apiGateway:
+        binaryMediaTypes:
+            - '*/*'
+
+plugins:
+    - ./index.js
+
+package:
+    exclude:
+        - '**'
+    include:
+        - 'src/**'
+        - 'tests/**'
+        - 'vendor/**'
+
+functions:
+
+    fpm:
+        handler: tests/Functional/fpm/index.php
+        description: 'Bref FPM test'
+        timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
+        reservedConcurrency: 2
+        layers:
+            - ${bref:layer.php-74-fpm}
+        events:
+            -   http: 'ANY /'
+        environment:
+            FOO: bar
