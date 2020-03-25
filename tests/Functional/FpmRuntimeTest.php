@@ -201,6 +201,7 @@ class FpmRuntimeTest extends TestCase
 
     /**
      * The API Gateway limit is 10Mb, but Lambda is 6Mb.
+     *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html
      * We check with 4Mb because this works. 5Mb fails, maybe because the whole size of the event
      * is larger (because of the whole JSON formatting plus headers?).
