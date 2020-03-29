@@ -113,7 +113,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getPath(): string
     {
-        if(isset($this->event['rawPath'])) {
+        if (isset($this->event['rawPath'])) {
             return $this->event['rawPath'];
         }
 
@@ -149,10 +149,10 @@ final class HttpRequestEvent implements LambdaEvent
     public function getCookies(): array
     {
         $cookies = [];
-        if($this->getPayloadVersion() >= 2 && isset($this->event['cookies'])) {
+        if ($this->getPayloadVersion() >= 2 && isset($this->event['cookies'])) {
             $cookieParts = $this->event['cookies'];
         } else {
-            if (!isset($this->headers['cookie'])) {
+            if (! isset($this->headers['cookie'])) {
                 return [];
             }
 
@@ -171,13 +171,14 @@ final class HttpRequestEvent implements LambdaEvent
         return $cookies;
     }
 
-    public function getPayloadVersion(): ?float {
+    public function getPayloadVersion(): ?float
+    {
         return $this->payloadVersion;
     }
 
     private function rebuildQueryString(): string
     {
-        if(isset($this->event['rawQueryString'])) {
+        if (isset($this->event['rawQueryString'])) {
             return $this->event['rawQueryString'];
         }
 
