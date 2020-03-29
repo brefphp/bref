@@ -31,14 +31,14 @@ class LambdaRuntimeTest extends TestCase
     /** @var LambdaRuntime */
     private $runtime;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         ob_start();
         Server::start();
         $this->runtime = new LambdaRuntime('localhost:8126');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         Server::stop();
         ob_end_clean();

@@ -23,7 +23,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         $this->fakeContext = new Context('abc', time(), 'abc', 'abc');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->fpm->stop();
         ob_end_clean();

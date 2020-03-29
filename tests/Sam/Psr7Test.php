@@ -12,7 +12,7 @@ class Psr7Test extends TestCase
     /** @var string */
     private $logs;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->logs = '';
