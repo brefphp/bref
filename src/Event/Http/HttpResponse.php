@@ -16,11 +16,14 @@ final class HttpResponse
     /** @var string */
     private $body;
 
-    public function __construct(string $body, array $headers = [], int $statusCode = 200)
+    private $payloadVersion;
+
+    public function __construct(string $body, array $headers = [], int $statusCode = 200, ?float $payloadVersion = 1.0)
     {
         $this->body = $body;
         $this->headers = $headers;
         $this->statusCode = $statusCode;
+        $this->payloadVersion = $payloadVersion;
     }
 
     public function toApiGatewayFormat(bool $multiHeaders = false): array
@@ -48,8 +51,8 @@ final class HttpResponse
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
         $headers = empty($headers) ? new \stdClass : $headers;
 
-        // Support for multi-value headers
-        $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
+        // Support for multi-value headers (only in version 1.0 of the http payload)
+        $headersKey = $multiHeaders && ($this->payloadVersion === null || $this->payloadVersion < 2) ? 'multiValueHeaders' : 'headers';
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response

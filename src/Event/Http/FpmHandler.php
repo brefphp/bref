@@ -122,7 +122,7 @@ final class FpmHandler extends HttpHandler
             unset($responseHeaders['status']);
         }
 
-        $response = new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
+        $response = new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200, $event->getPayloadVersion());
 
         $this->ensureStillRunning();
 
@@ -189,6 +189,18 @@ final class FpmHandler extends HttpHandler
             foreach ($values as $value) {
                 $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
                 $request->setCustomVar($key, $value);
+            }
+        }
+
+        // cookies are packaged separately in payload version 2
+        if($event->getPayloadVersion() >= 2 && !isset($event->getHeaders()['cookie'])) {
+            $cookieValues = null;
+            foreach ($event->getCookies() as $cookieName => $cookieValue) {
+                $cookieValues .= ($cookieValues !== '' ? '; ' : '');
+                $cookieValues .= $cookieName.'='.urlencode($cookieValue);
+            }
+            if ($cookieValues != '') {
+                $request->setCustomVar('HTTP_COOKIE', $cookieValues);
             }
         }
 

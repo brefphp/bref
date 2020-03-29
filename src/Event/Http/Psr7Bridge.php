@@ -59,12 +59,12 @@ final class Psr7Bridge
     /**
      * Create a ALB/API Gateway response from a PSR-7 response.
      */
-    public static function convertResponse(ResponseInterface $response): HttpResponse
+    public static function convertResponse(ResponseInterface $response, ?float $payloadVersion = 1.0): HttpResponse
     {
         $response->getBody()->rewind();
         $body = $response->getBody()->getContents();
 
-        return new HttpResponse($body, $response->getHeaders(), $response->getStatusCode());
+        return new HttpResponse($body, $response->getHeaders(), $response->getStatusCode(), $payloadVersion);
     }
 
     private static function parseBodyAndUploadedFiles(HttpRequestEvent $event): array

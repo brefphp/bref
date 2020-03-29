@@ -20,15 +20,28 @@ final class HttpRequestEvent implements LambdaEvent
     private $headers;
     /** @var string */
     private $queryString;
+    /** @var float */
+    private $payloadVersion;
 
     public function __construct(array $event)
     {
-        if (! is_array($event) || ! isset($event['httpMethod'])) {
+        if (! is_array($event)) {
+            throw new InvalidLambdaEvent('API Gateway or ALB', $event);
+        }
+
+        $this->payloadVersion = isset($event['version']) ? (float)$event['version'] : null;
+
+        // version 1.0 of the HTTP payload
+        if(isset($event['httpMethod'])) {
+            $this->method = strtoupper($event['httpMethod']);
+        } else if(isset($event['requestContext']['http']) && isset($event['requestContext']['http']['method'])) {
+            // version 2.0 - https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.proxy-format
+            $this->method = strtoupper($event['requestContext']['http']['method']);
+        } else {
             throw new InvalidLambdaEvent('API Gateway or ALB', $event);
         }
 
         $this->event = $event;
-        $this->method = strtoupper($this->event['httpMethod']);
         $this->queryString = $this->rebuildQueryString();
         $this->headers = $this->extractHeaders();
     }
@@ -94,13 +107,17 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getPath(): string
     {
+        if(isset($this->event['rawPath'])) {
+            return $this->event['rawPath'];
+        }
+
         return $this->event['path'] ?? '/';
     }
 
     public function getUri(): string
     {
         $queryString = $this->queryString;
-        $uri = $this->event['path'] ?? '/';
+        $uri = $this->getPath();
         if (! empty($queryString)) {
             $uri .= '?' . $queryString;
         }
@@ -125,25 +142,39 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getCookies(): array
     {
-        if (! isset($this->headers['cookie'])) {
-            return [];
+        $cookies = [];
+        if($this->getPayloadVersion() >= 2 && isset($this->event['cookies'])) {
+            $cookieParts = $this->event['cookies'];
+        } else {
+            if (!isset($this->headers['cookie'])) {
+                return [];
+            }
+
+            // Multiple "Cookie" headers are not authorized
+            // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
+            $cookieHeader = $this->headers['cookie'][0];
+
+            $cookieParts = explode('; ', $cookieHeader);
         }
 
-        // Multiple "Cookie" headers are not authorized
-        // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
-        $cookieHeader = $this->headers['cookie'][0];
-
-        $cookies = [];
-        $cookieParts = explode('; ', $cookieHeader);
         foreach ($cookieParts as $cookiePart) {
             [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
             $cookies[$cookieName] = urldecode($cookieValue);
         }
+
         return $cookies;
+    }
+
+    public function getPayloadVersion(): ?float {
+        return $this->payloadVersion;
     }
 
     private function rebuildQueryString(): string
     {
+        if(isset($this->event['rawQueryString'])) {
+            return $this->event['rawQueryString'];
+        }
+
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
             $queryParameters = [];
             /*

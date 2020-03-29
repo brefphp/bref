@@ -21,6 +21,6 @@ class Psr15Handler extends HttpHandler
 
         $response = $this->psr15Handler->handle($request);
 
-        return Psr7Bridge::convertResponse($response);
+        return Psr7Bridge::convertResponse($response, $event->getPayloadVersion());
     }
 }
