@@ -23,12 +23,6 @@ final class HttpRequestEvent implements LambdaEvent
     /** @var float */
     private $payloadVersion;
 
-    /**
-     * HttpRequestEvent constructor.
-     *
-     * @param array $event
-     * @throws InvalidLambdaEvent
-     */
     public function __construct(array $event)
     {
         if (! is_array($event)) {
