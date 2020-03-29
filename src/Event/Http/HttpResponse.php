@@ -16,6 +16,7 @@ final class HttpResponse
     /** @var string */
     private $body;
 
+    /** @var float|null */
     private $payloadVersion;
 
     public function __construct(string $body, array $headers = [], int $statusCode = 200, ?float $payloadVersion = 1.0)

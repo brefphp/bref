@@ -23,18 +23,24 @@ final class HttpRequestEvent implements LambdaEvent
     /** @var float */
     private $payloadVersion;
 
+    /**
+     * HttpRequestEvent constructor.
+     *
+     * @param array $event
+     * @throws InvalidLambdaEvent
+     */
     public function __construct(array $event)
     {
         if (! is_array($event)) {
             throw new InvalidLambdaEvent('API Gateway or ALB', $event);
         }
 
-        $this->payloadVersion = isset($event['version']) ? (float)$event['version'] : null;
+        $this->payloadVersion = isset($event['version']) ? (float) $event['version'] : null;
 
         // version 1.0 of the HTTP payload
-        if(isset($event['httpMethod'])) {
+        if (isset($event['httpMethod'])) {
             $this->method = strtoupper($event['httpMethod']);
-        } else if(isset($event['requestContext']['http']) && isset($event['requestContext']['http']['method'])) {
+        } elseif (isset($event['requestContext']['http']) && isset($event['requestContext']['http']['method'])) {
             // version 2.0 - https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.proxy-format
             $this->method = strtoupper($event['requestContext']['http']['method']);
         } else {
