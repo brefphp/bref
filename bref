@@ -313,14 +313,14 @@ $app->command('dashboard [--host=] [--port=] [--profile=] [--stage=]', function 
         return 1;
     }
 
-    $servelessInfoOutput = $serverlessInfo->getOutput();
+    $serverlessInfoOutput = $serverlessInfo->getOutput();
 
     $region = [];
-    preg_match('/region: ([a-z0-9-]*)/', $servelessInfoOutput, $region);
+    preg_match('/region: ([a-z0-9-]*)/', $serverlessInfoOutput, $region);
     $region = $region[1];
 
     $stack = [];
-    preg_match('/stack: ([a-zA-Z0-9-]*)/', $servelessInfoOutput, $stack);
+    preg_match('/stack: ([a-zA-Z0-9-]*)/', $serverlessInfoOutput, $stack);
     $stack = $stack[1];
 
     $io->writeln("Stack: <fg=yellow>$stack ($region)</>");
