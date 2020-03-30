@@ -25,10 +25,6 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function __construct(array $event)
     {
-        if (! is_array($event)) {
-            throw new InvalidLambdaEvent('API Gateway or ALB', $event);
-        }
-
         $this->payloadVersion = isset($event['version']) ? (float) $event['version'] : null;
 
         // version 1.0 of the HTTP payload
