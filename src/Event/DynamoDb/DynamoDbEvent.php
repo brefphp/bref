@@ -27,7 +27,7 @@ final class DynamoDbEvent implements LambdaEvent
     }
 
     /**
-     * @return array
+     * @return DynamoDbRecord[]
      */
     public function getRecords(): array
     {
