@@ -23,9 +23,6 @@ final class DynamoDbRecord
         $this->record = $record;
     }
 
-    /**
-     * @return string
-     */
     public function getEventName(): string
     {
         return $this->record['eventName'];
@@ -55,25 +52,16 @@ final class DynamoDbRecord
         return $this->record['dynamodb']['OldImage'] ?? null;
     }
 
-    /**
-     * @return string
-     */
     public function getSequenceNumber(): string
     {
         return $this->record['dynamodb']['SequenceNumber'];
     }
 
-    /**
-     * @return int
-     */
     public function getSizeBytes(): int
     {
         return $this->record['dynamodb']['SizeBytes'];
     }
 
-    /**
-     * @return string
-     */
     public function getStreamViewType(): string
     {
         return $this->record['dynamodb']['StreamViewType'];

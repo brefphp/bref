@@ -48,4 +48,3 @@ final class DynamoDbEvent implements LambdaEvent
         return $this->event;
     }
 }
-
