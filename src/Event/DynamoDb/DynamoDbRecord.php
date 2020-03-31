@@ -20,7 +20,7 @@ final class DynamoDbRecord
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getKeys()
     {
