@@ -28,7 +28,7 @@ final class DynamoDbRecord
     }
 
     /**
-     * @return mixed
+     * @return array|null
      */
     public function getNewImage()
     {
@@ -36,7 +36,7 @@ final class DynamoDbRecord
     }
 
     /**
-     * @return mixed|null
+     * @return array|null
      */
     public function getOldImage()
     {
