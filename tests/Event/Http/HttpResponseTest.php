@@ -65,7 +65,7 @@ class HttpResponseTest extends TestCase
     /**
      * @see https://github.com/brefphp/bref/issues/534
      */
-    public function test header values are forced as arrays for multiheaders()
+    public function test header values are forced as arrays for multiheadersV1()
     {
         $response = new HttpResponse('', [
             'foo' => 'bar',
@@ -78,5 +78,23 @@ class HttpResponseTest extends TestCase
             ],
             'body' => '',
         ], $response->toApiGatewayFormat(true));
+    }
+
+    /**
+     * @see https://github.com/brefphp/bref/issues/534
+     */
+    public function test header values are forced as arrays for multiheadersV2()
+    {
+        $response = new HttpResponse('', [
+            'foo' => 'bar',
+        ]);
+        self::assertEquals([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => [
+                'Foo' => ['bar'],
+            ],
+            'body' => '',
+        ], $response->toApiGatewayFormat(true, 2.0));
     }
 }
