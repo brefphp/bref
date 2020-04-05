@@ -67,7 +67,8 @@ resources:
                         -   Effect: Allow
                             Principal: '*' # everyone
                             Action: 's3:GetObject' # to read
-                            Resource: 'arn:aws:s3:::<bucket-name>/*' # things in the bucket
+                            Resource: !Join ['/', [!GetAtt Assets.Arn, '*']] # things in the bucket
+                            # alternatively you can write out Resource: 'arn:aws:s3:::<bucket-name>/*'
 ```
 
 Don't forget to replace `<bucket-name>` with the bucket name of your choice.
@@ -130,14 +131,6 @@ The `serverless.yml` example below:
 - forwards URLs that start with `/assets/` to S3 (static files)
 - forwards all the other requests to Lambda
 
-CloudFront is configured via CloudFormation template, which explains why a lot of YAML is involved. To keep it simpler and to circumvent a `serverless.yml` limitation, we will use the [serverless-pseudo-parameters](https://github.com/svdgraaf/serverless-pseudo-parameters) plugin. To install it, run:
-
-```bash
-npm install serverless-pseudo-parameters
-```
-
-That will let us for example replace `!Sub '${Assets.Arn}/*'` (not supported in `serverless.yml`) with `'#{Assets.Arn}/*'`.
-
 ```yaml
 service: app
 provider:
@@ -155,8 +148,6 @@ functions:
 
 plugins:
     - ./vendor/bref/bref
-    # This lets us use `#{Assets.Arn}` variables
-    - serverless-pseudo-parameters
 
 resources:
     Resources:
@@ -179,17 +170,22 @@ resources:
                     Origins:
                         # The website (AWS Lambda)
                         -   Id: Website
-                            DomainName: '#{ApiGatewayRestApi}.execute-api.#{AWS::Region}.amazonaws.com'
-                            # This is the stage, if you are using another one (e.g. prod), you will need to change it here too
-                            OriginPath: '/dev'
+                            DomainName: !Join ['.', [!Ref ApiGatewayRestApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com']]
+                            # This is the stage
+                            OriginPath: "/${opt:stage, 'dev'}"
                             CustomOriginConfig:
                                 OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
                         # The assets (S3)
                         -   Id: Assets
-                            # Use s3-website URLs instead if you host a static website (https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757)
-                            DomainName: '#{Assets}.s3.amazonaws.com'
-                            CustomOriginConfig:
-                                OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
+                            DomainName: !GetAtt Assets.RegionalDomainName
+                            S3OriginConfig: {} # this key is required to tell CloudFront that this is an S3 origin, even though nothing is configured
+                            # If you host a static website, like a SPA, use s3-website URLs instead of the config above
+                            # See https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757
+                            # DomainName: !Join ['', [!Ref Assets, '.s3-website-', !Ref AWS::Region, '.amazonaws.com']]
+                            # CustomOriginConfig:
+                            #     OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
+                            # You'll also need to enable website hosting on your s3 bucket by configuring the WebsiteConfiguration property
+                            # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html#cfn-s3-bucket-websiteconfiguration
                     # The default behavior is to send everything to AWS Lambda
                     DefaultCacheBehavior:
                         AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
