@@ -25,8 +25,6 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function __construct(array $event)
     {
-        $this->payloadVersion = isset($event['version']) ? (float) $event['version'] : null;
-
         // version 1.0 of the HTTP payload
         if (isset($event['httpMethod'])) {
             $this->method = strtoupper($event['httpMethod']);
@@ -37,6 +35,7 @@ final class HttpRequestEvent implements LambdaEvent
             throw new InvalidLambdaEvent('API Gateway or ALB', $event);
         }
 
+        $this->payloadVersion = (float) $event['version'];
         $this->event = $event;
         $this->queryString = $this->rebuildQueryString();
         $this->headers = $this->extractHeaders();
@@ -103,8 +102,8 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getPath(): string
     {
-        if (isset($this->event['rawPath'])) {
-            return $this->event['rawPath'];
+        if ($this->payloadVersion >= 2) {
+            return $this->event['rawPath'] ?? '/';
         }
 
         return $this->event['path'] ?? '/';
@@ -139,7 +138,11 @@ final class HttpRequestEvent implements LambdaEvent
     public function getCookies(): array
     {
         $cookies = [];
-        if ($this->getPayloadVersion() >= 2 && isset($this->event['cookies'])) {
+        if ($this->payloadVersion >= 2) {
+            if (! isset($this->event['cookies'])) {
+                return [];
+            }
+
             $cookieParts = $this->event['cookies'];
         } else {
             if (! isset($this->headers['cookie'])) {
@@ -168,8 +171,8 @@ final class HttpRequestEvent implements LambdaEvent
 
     private function rebuildQueryString(): string
     {
-        if (isset($this->event['rawQueryString'])) {
-            return $this->event['rawQueryString'];
+        if ($this->payloadVersion >= 2) {
+            return $this->event['rawQueryString'] ?? '';
         }
 
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
