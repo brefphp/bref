@@ -179,6 +179,13 @@ resources:
                         -   Id: Assets
                             DomainName: !GetAtt Assets.RegionalDomainName
                             S3OriginConfig: {} # this key is required to tell CloudFront that this is an S3 origin, even though nothing is configured
+                            # If you host a static website, like a SPA, use s3-website URLs instead of the config above
+                            # See https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757
+                            # DomainName: !Join ['', [!Ref Assets, '.s3-website-', !Ref AWS::Region, '.amazonaws.com']]
+                            # CustomOriginConfig:
+                            #     OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
+                            # You'll also need to enable website hosting on your s3 bucket by configuring the WebsiteConfiguration property
+                            # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html#cfn-s3-bucket-websiteconfiguration
                     # The default behavior is to send everything to AWS Lambda
                     DefaultCacheBehavior:
                         AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
