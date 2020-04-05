@@ -269,7 +269,7 @@ ERROR;
             }
         };
 
-        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/apigateway-simple.json'), true);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/ag-v1-simple.json'), true);
         $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);
@@ -309,7 +309,7 @@ ERROR;
 
     public function test invalid handlers are rejected properly()
     {
-        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/apigateway-simple.json'), true);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/ag-v1-simple.json'), true);
         $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent(null);

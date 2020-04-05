@@ -1,0 +1,39 @@
+{
+    "version": "2.0",
+    "routeKey": "ANY /path",
+    "rawPath": "/path",
+    "rawQueryString": "",
+    "cookies": [],
+    "headers": {
+        "accept": "*/*",
+        "accept-encoding": "gzip, deflate",
+        "cache-control": "no-cache",
+        "host": "example.org",
+        "user-agent": "PostmanRuntime/7.20.1",
+        "x-amzn-trace-id": "Root=1-ffffffff-ffffffffffffffffffffffff",
+        "x-forwarded-for": "1.1.1.1",
+        "x-forwarded-port": "443",
+        "x-forwarded-proto": "https"
+    },
+    "queryStringParameters": null,
+    "requestContext": {
+        "accountId": "123400000000",
+        "apiId": "xxxxxxxxxx",
+        "domainName": "example.org",
+        "domainPrefix": "0000000000",
+        "http": {
+            "method": "GET",
+            "path": "/path",
+            "protocol": "HTTP/1.1",
+            "sourceIp": "1.1.1.1",
+            "userAgent": "PostmanRuntime/7.20.1"
+        },
+        "requestId": "JTHoQgr2oAMEPMg=",
+        "routeId": "47matwk",
+        "routeKey": "ANY /path",
+        "stage": "$default",
+        "time": "24/Nov/2019:18:55:08 +0000",
+        "timeEpoch": 1574621708700
+    },
+    "isBase64Encoded": false
+}
