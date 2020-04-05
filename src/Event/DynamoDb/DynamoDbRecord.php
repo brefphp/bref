@@ -20,25 +20,35 @@ final class DynamoDbRecord
     }
 
     /**
-     * @return array
+     * Returns the key attributes of the modified item.
      */
-    public function getKeys()
+    public function getKeys(): array
     {
         return $this->record['dynamodb']['Keys'];
     }
 
     /**
-     * @return array|null
+     * Returns the new version of the DynamoDB item.
+     *
+     * Warning: this can be null depending on the `StreamViewType`.
+     *
+     * @see getStreamViewType()
+     * @see https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html
      */
-    public function getNewImage()
+    public function getNewImage(): ?array
     {
         return $this->record['dynamodb']['NewImage'];
     }
 
     /**
-     * @return array|null
+     * Returns the old version of the DynamoDB item.
+     *
+     * Warning: this can be null depending on the `StreamViewType`.
+     *
+     * @see getStreamViewType()
+     * @see https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html
      */
-    public function getOldImage()
+    public function getOldImage(): ?array
     {
         return $this->record['dynamodb']['OldImage'] ?? null;
     }
@@ -53,6 +63,9 @@ final class DynamoDbRecord
         return $this->record['dynamodb']['SizeBytes'];
     }
 
+    /**
+     * @see https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_StreamSpecification.html
+     */
     public function getStreamViewType(): string
     {
         return $this->record['dynamodb']['StreamViewType'];

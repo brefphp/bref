@@ -6,7 +6,7 @@ use Bref\Context\Context;
 use Bref\Event\Handler;
 
 /**
- * Handles DynamoDb events.
+ * Handles DynamoDB events.
  */
 abstract class DynamoDbHandler implements Handler
 {
