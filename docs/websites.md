@@ -153,10 +153,7 @@ resources:
     Resources:
         # The S3 bucket that stores the assets
         Assets:
-            Type: AWS::S3::Bucket
-            Properties:
-                BucketName: <bucket-name>
-                AccessControl: PublicRead # needed for the cdn to read the directory structure
+            # [...] see the previous section for details 
         AssetsBucketPolicy:
             # [...] see the previous section for details 
     
