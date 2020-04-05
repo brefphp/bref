@@ -22,9 +22,9 @@ All RDS databases can be setup with Lambda in two ways:
 
 While the first solution is simpler, the second is more secure. Using a VPC also comes with a few limitations that are detailed below.
 
-If you use Aurora Serverless, you can also use the [rds-data](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/data-api.html) api which allows you to use a http api to execute sql statements which is generally considered secure. You probably don't want to use it directly but rather though a library like the [dbal-rds-data](https://github.com/Nemo64/dbal-rds-data) driver which documentents the usage quiet well. Please note that the library and the api itself is quiet new, if you aren't prepared for experimentation you should probably avoid this api altogether.
+This page documents how to create databases using VPC (the reliable and secure solution). If you want to skip using a VPC you can read the instructions in the "Accessing the database from your machine" section.
 
-This page documents how to create databases using VPC (the generally available, reliable and secure solution). If you want to skip using a VPC you can read the instructions in the "Accessing the database from your machine" section.
+> If you use Aurora Serverless, you can also use the [RDS Data API](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/data-api.html). SQL queries are executed through an HTTP API instead of the traditional MySQL/PostgreSQL connection. To help you, the [dbal-rds-data](https://github.com/Nemo64/dbal-rds-data) library is a Doctrine DBAL driver. Please note that the library and the API itself are new and experimental.
 
 ## Limitations
 
