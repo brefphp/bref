@@ -109,7 +109,7 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-header-custom-multivalue.json");
         $this->assertHeader('x-my-header', ['Hello world', 'Hello john']);
-        $this->assertHasMultiHeader(true);
+        $this->assertHasMultiHeader($version === 1);
     }
 
     /**
