@@ -29,7 +29,18 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ob_end_clean();
     }
 
-    public function test simple request()
+    public function provide API Gateway versions(): array
+    {
+        return [
+            'v1' => [1],
+            'v2' => [2],
+        ];
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test simple request(int $version)
     {
         $event = [
             'httpMethod' => 'GET',
@@ -58,7 +69,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with query string()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with query string(int $version)
     {
         $event = [
             'httpMethod' => 'GET',
@@ -94,7 +108,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with multivalues query string have basic support()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with multivalues query string have basic support(int $version)
     {
         $event = [
             'httpMethod' => 'GET',
@@ -179,7 +196,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with arrays in query string()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with arrays in query string(int $version)
     {
         $event = [
             'httpMethod' => 'GET',
@@ -218,7 +238,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with custom header()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with custom header(int $version)
     {
         $event = [
             'httpMethod' => 'GET',
@@ -248,7 +271,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with custom multi header()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with custom multi header(int $version)
     {
         $event = [
             'httpMethod' => 'GET',
@@ -281,7 +307,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test POST request with raw body()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with raw body(int $version)
     {
         $event = [
             'httpMethod' => 'POST',
@@ -313,7 +342,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test POST request with form data()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with form data(int $version)
     {
         $event = [
             'httpMethod' => 'POST',
@@ -353,13 +385,28 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
     public function provideHttpMethodsWithRequestBodySupport(): array
     {
         return [
-            'POST' => [
+            'POST v1' => [
+                'version' => 1,
                 'method' => 'POST',
             ],
-            'PUT' => [
+            'POST v2' => [
+                'version' => 2,
+                'method' => 'POST',
+            ],
+            'PUT v1' => [
+                'version' => 1,
                 'method' => 'PUT',
             ],
-            'PATCH' => [
+            'PUT v2' => [
+                'version' => 2,
+                'method' => 'PUT',
+            ],
+            'PATCH v1' => [
+                'version' => 1,
+                'method' => 'PATCH',
+            ],
+            'PATCH v2' => [
+                'version' => 2,
                 'method' => 'PATCH',
             ],
         ];
@@ -370,7 +417,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
      *
      * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
-    public function test request with body and no content length(string $method)
+    public function test request with body and no content length(int $version, string $method)
     {
         $event = [
             'httpMethod' => $method,
@@ -402,7 +449,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request supports utf8 characters in body()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request supports utf8 characters in body(int $version)
     {
         $event = [
             'httpMethod' => 'POST',
@@ -435,7 +485,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test the content type header is not case sensitive()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test the content type header is not case sensitive(int $version)
     {
         $event = [
             'httpMethod' => 'POST',
@@ -468,7 +521,10 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test POST request with multipart form data()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with multipart form data(int $version)
     {
         $body = "--testBoundary\r
 Content-Disposition: form-data; name=\"foo\"\r
@@ -516,7 +572,10 @@ baz\r
         ]);
     }
 
-    public function test POST request with multipart form data containing arrays()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with multipart form data containing arrays(int $version)
     {
         $body = "--testBoundary\r
 Content-Disposition: form-data; name=\"delete[categories][]\"\r
@@ -572,7 +631,10 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
         ]);
     }
 
-    public function test request with cookies()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with cookies(int $version)
     {
         $event = [
             'httpMethod' => 'GET',
@@ -605,7 +667,10 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
         ]);
     }
 
-    public function test POST request with multipart file uploads()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with multipart file uploads(int $version)
     {
         $body = "--testBoundary\r
 Content-Disposition: form-data; name=\"foo\"; filename=\"lorem.txt\"\r
@@ -668,7 +733,10 @@ Year,Make,Model
         ]);
     }
 
-    public function test POST request with base64 encoded body()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with base64 encoded body(int $version)
     {
         $event = [
             'httpMethod' => 'POST',
@@ -735,7 +803,10 @@ Year,Make,Model
         ]);
     }
 
-    public function test PUT request()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test PUT request(int $version)
     {
         $event = [
             'httpMethod' => 'PUT',
@@ -760,7 +831,10 @@ Year,Make,Model
         ]);
     }
 
-    public function test PATCH request()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test PATCH request(int $version)
     {
         $event = [
             'httpMethod' => 'PATCH',
@@ -785,7 +859,10 @@ Year,Make,Model
         ]);
     }
 
-    public function test DELETE request()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test DELETE request(int $version)
     {
         $event = [
             'httpMethod' => 'DELETE',
@@ -810,7 +887,10 @@ Year,Make,Model
         ]);
     }
 
-    public function test OPTIONS request()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test OPTIONS request(int $version)
     {
         $event = [
             'httpMethod' => 'OPTIONS',
