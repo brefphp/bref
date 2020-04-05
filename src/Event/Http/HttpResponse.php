@@ -23,7 +23,7 @@ final class HttpResponse
         $this->statusCode = $statusCode;
     }
 
-    public function toApiGatewayFormat(bool $multiHeaders = false, float $payloadVersion = 1.0): array
+    public function toApiGatewayFormat(bool $multiHeaders = false): array
     {
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
@@ -49,7 +49,7 @@ final class HttpResponse
         $headers = empty($headers) ? new \stdClass : $headers;
 
         // Support for multi-value headers (only in version 1.0 of the http payload)
-        $headersKey = $multiHeaders && $payloadVersion < 2 ? 'multiValueHeaders' : 'headers';
+        $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
