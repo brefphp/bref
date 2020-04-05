@@ -70,7 +70,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function hasMultiHeader(): bool
     {
-        if($this->getPayloadVersion() >= 2) {
+        if ($this->getPayloadVersion() >= 2) {
             return false;
         }
 
