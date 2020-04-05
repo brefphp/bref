@@ -180,7 +180,7 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
     public function test request with body and no content length(int $version, string $method)
     {
         // These requests do not have a Content-Length header on purpose
-        $this->fromFixture(__DIR__ ."/Fixture/ag-v$version-missing-content-length-$method.json");
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-missing-content-length-$method.json");
 
         $this->assertMethod($method);
         // We check the header is added automatically
