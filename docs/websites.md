@@ -182,8 +182,6 @@ resources:
                         -   Id: Assets
                             DomainName: !GetAtt Assets.RegionalDomainName
                             S3OriginConfig: {} # this key is required to tell CloudFront that this is an S3 origin, even though nothing is configured
-                            # you can also use a CustomOrigin but the S3Origin creates correct 404 error and has other optimizations as well
-                            # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/DownloadDistS3AndCustomOrigins.html#concept_S3Origin
                     # The default behavior is to send everything to AWS Lambda
                     DefaultCacheBehavior:
                         AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
