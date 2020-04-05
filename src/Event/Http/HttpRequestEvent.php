@@ -9,6 +9,9 @@ use Bref\Event\LambdaEvent;
  * Represents a Lambda event that comes from a HTTP request.
  *
  * The event can come from API Gateway or ALB (Application Load Balancer).
+ *
+ * See the following for details on the JSON payloads for HTTP APIs;
+ * https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.proxy-format
  */
 final class HttpRequestEvent implements LambdaEvent
 {
@@ -164,7 +167,7 @@ final class HttpRequestEvent implements LambdaEvent
         return $cookies;
     }
 
-    public function getPayloadVersion(): ?float
+    public function getPayloadVersion(): float
     {
         return $this->payloadVersion;
     }
