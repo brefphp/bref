@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use AsyncAws\CloudFormation\CloudFormationClient;
-use AsyncAws\CloudFormation\Result\Output;
-use AsyncAws\CloudFormation\Result\StackEvent;
+use AsyncAws\CloudFormation\ValueObject\Output;
+use AsyncAws\CloudFormation\ValueObject\StackEvent;
 use AsyncAws\Core\Exception\Http\HttpException;
 use Bref\Console\LoadingAnimation;
 use Bref\Console\OpenUrl;
