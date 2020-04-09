@@ -105,9 +105,7 @@ $app->command('cli function [--region=] [--profile=] [arguments]*', function (st
     }, $arguments);
 
     try {
-        $result = $lambda->invoke($function, json_encode([
-            'cli' => implode(' ', $arguments),
-        ]));
+        $result = $lambda->invoke($function, json_encode(implode(' ', $arguments)));
     } catch (InvocationFailed $e) {
         $io->getErrorStyle()->writeln('<info>' . $e->getInvocationLogs() . '</info>');
         $io->error($e->getMessage());

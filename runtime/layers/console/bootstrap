@@ -26,7 +26,14 @@ if (! is_file($handlerFile)) {
 
 while (true) {
     $lambdaRuntime->processNextEvent(function ($event, Context $context) use ($handlerFile): array {
-        $cliOptions = $event['cli'] ?? '';
+        if (is_array($event)) {
+            // Backward compatibility with the former CLI invocation format
+            $cliOptions = $event['cli'] ?? '';
+        } elseif (is_string($event)) {
+            $cliOptions = $event;
+        } else {
+            $cliOptions = '';
+        }
 
         // We redirect stderr to stdout so that all the output is collected
         $command = sprintf(
