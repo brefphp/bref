@@ -172,7 +172,7 @@ resources:
                         -   Id: Website
                             DomainName: !Join ['.', [!Ref ApiGatewayRestApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com']]
                             # This is the stage
-                            OriginPath: "/${opt:stage, 'dev'}"
+                            OriginPath: "/${self:provider.stage, 'dev'}"
                             CustomOriginConfig:
                                 OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
                         # The assets (S3)
