@@ -42,7 +42,7 @@ final class DynamoDbRecord
      */
     public function getNewImage(): ?array
     {
-        return $this->record['dynamodb']['NewImage'];
+        return $this->record['dynamodb']['NewImage'] ?? null;
     }
 
     /**

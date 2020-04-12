@@ -27,7 +27,7 @@ class DynamoDbEventTest extends TestCase
         $this->assertNull($record->getOldImage());
         $this->assertSame('111', $record->getSequenceNumber());
         $this->assertSame(26, $record->getSizeBytes());
-        $this->assertSame('NEW_AND_OLD_IMAGES', $record->getStreamViewType());
+        $this->assertSame('NEW_IMAGE', $record->getStreamViewType());
     }
 
     public function test_old_image()
