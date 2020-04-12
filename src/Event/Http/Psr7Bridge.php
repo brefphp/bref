@@ -4,6 +4,7 @@ namespace Bref\Event\Http;
 
 use Bref\Context\Context;
 use Nyholm\Psr7\ServerRequest;
+use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\UploadedFile;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -39,11 +40,18 @@ final class Psr7Bridge
             $server['HTTP_HOST'] = $headers['Host'];
         }
 
+        /**
+         * Nyholm/psr7 does not rewind body streams, we do it manually
+         * so that users can fetch the content of the body directly.
+         */
+        $bodyStream = Stream::create($event->getBody());
+        $bodyStream->rewind();
+
         $request = new ServerRequest(
             $event->getMethod(),
             $event->getUri(),
             $event->getHeaders(),
-            $event->getBody(),
+            $bodyStream,
             $event->getProtocolVersion(),
             $server
         );
