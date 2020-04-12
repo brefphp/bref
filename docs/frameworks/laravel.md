@@ -33,6 +33,7 @@ package:
   exclude:
     - node_modules/**
     - public/storage
+    - resources/assets/**
     - storage/**
     - tests/**
 
@@ -58,9 +59,9 @@ We will also need to customize the location for compiled views, as well as custo
 ```dotenv
 VIEW_COMPILED_PATH=/tmp/storage/framework/views
 
-# We cannot store sessions to disk: if you don't need sessions (e.g. API)
-# then use `array`, else store sessions in database or cookies
-SESSION_DRIVER=array
+# We cannot store sessions to disk: if you don't need sessions (e.g. API) then use `array`
+# If you write a website, use `cookie` or store sessions in database.
+SESSION_DRIVER=cookie
 
 # Logging to stderr allows the logs to end up in Cloudwatch
 LOG_CHANNEL=stderr
@@ -84,6 +85,23 @@ At the moment deploying Laravel with its caches will break in AWS Lambda (becaus
 
 Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
 
+## Troubleshooting
+
+In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
+
+If you get the following error:
+
+> production.ERROR: mkdir(): Invalid path {"exception":"[object] (ErrorException(code: 0): mkdir(): Invalid path at /var/task/app/Providers/AppServiceProvider.php:20)"
+
+then check the file `config/view.php` and make sure the `'compiled'` entry looks like this:
+
+```php
+    'compiled' => env(
+        'VIEW_COMPILED_PATH',
+        realpath(storage_path('framework/views'))
+    ),
+```
+
 ## Laravel Artisan
 
 As you may have noticed, we define a function of type "console" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
@@ -95,3 +113,48 @@ vendor/bin/bref cli bref-demo-laravel-artisan <bref options> -- <your command, y
 ```
 
 For more details follow [the "Console" guide](/docs/runtimes/console.md).
+
+## Laravel Passport
+
+Laravel Passport has a `passport:install` command. However, this command cannot be run in Lambda because it needs to write files to the `storage` directory.
+
+Instead, here is what you need to do:
+
+- Run `php artisan passport:keys` locally to generate key files.
+
+    This command will generate the `storage/oauth-private.key` and `storage/oauth-public.key` files.
+
+- Instead of deploying those 2 files, we will put the content of these files as environment variables in the `.env` that will be deployed.
+
+    Why? Deploying those files can get complex: you don't want to commit them in git (because they are sensible), so deploying them from CI will be hard. Using environment variables is a bit simpler.
+
+    To convert line returns to `\n`, run the following commands:
+    
+    ```bash
+    cat storage/oauth-private.key | tr -d '\r' | perl -p -e 's/\n/\\n/g'
+    cat storage/oauth-public.key | tr -d '\r' | perl -p -e 's/\n/\\n/g'
+    ```
+  
+    Copy the result of those commands into `.env` (and make sure each variable begins and ends with the pattern below):
+    
+    ```env
+    PASSPORT_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIJJwIBAAKCAgEAw3KPag...\n-----END RSA PRIVATE KEY-----"
+    PASSPORT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOC...\n-----END PUBLIC KEY-----"
+    ```
+  
+    The `PASSPORT_PRIVATE_KEY` and `PASSPORT_PUBLIC_KEY` variables are automatically used by Laravel Passport when they exist. That means we don't need to deploy the `storage/oauth-private.key` and `storage/oauth-public.key` files anymore.
+
+- You can now deploy the application with that new `.env` file:
+
+    ```yaml
+    serverless deploy
+    ```
+
+- Finally, we can create the tokens (which is the second part of the `passport:install` command):
+
+   ```bash
+   vendor/bin/bref cli <artisan-function-name> -- passport:client --personal --name 'Laravel Personal Access Client'
+   vendor/bin/bref cli <artisan-function-name> -- passport:client --password --name 'Laravel Personal Access Client'
+   ```
+
+All these steps were replacements of running the `passport:install` command [from the Passport documentation](https://laravel.com/docs/7.x/passport#installation).
