@@ -33,7 +33,8 @@
         "riverline/multipart-parser": "^2.0.6",
         "psr/http-server-handler": "^1.0",
         "async-aws/cloud-formation": "^0.4",
-        "async-aws/lambda": "^0.4"
+        "async-aws/lambda": "^0.4",
+        "nyholm/psr7": "^1.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5",

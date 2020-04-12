@@ -3,8 +3,8 @@
 namespace Bref\Event\Http;
 
 use Bref\Context\Context;
-use GuzzleHttp\Psr7\ServerRequest;
-use GuzzleHttp\Psr7\UploadedFile;
+use Nyholm\Psr7\ServerRequest;
+use Nyholm\Psr7\UploadedFile;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Riverline\MultiPartParser\Part;
