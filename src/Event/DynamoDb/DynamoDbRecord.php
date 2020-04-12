@@ -19,6 +19,11 @@ final class DynamoDbRecord
         $this->record = $record;
     }
 
+    public function getEventName(): string
+    {
+        return $this->record['eventName'];
+    }
+
     /**
      * Returns the key attributes of the modified item.
      */
