@@ -24,7 +24,8 @@ RUN set -xe && \
     if [ -n "$PHP_VERSION_SHA256" ]; then \
 		echo "${PHP_VERSION_SHA256}  php-${PHP_VERSION}.tar.xz" | sha256sum -c - \
 	; fi && \
-    tar -JxfC ${PHP_BUILD_DIR} php-${PHP_VERSION}.tar.xz  --strip-components=1
+    tar -JxfC ${PHP_BUILD_DIR} php-${PHP_VERSION}.tar.xz  --strip-components=1 && \
+    rm -f php-${PHP_VERSION}.tar.xz
 WORKDIR  ${PHP_BUILD_DIR}/
 
 # Configure the build
