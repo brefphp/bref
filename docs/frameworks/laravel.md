@@ -116,41 +116,32 @@ For more details follow [the "Console" guide](/docs/runtimes/console.md).
 
 ## Laravel Passport
 
-Laravel Passport has a `passport:install` command. However, this command cannot be run in Lambda because it needs to write files to the `storage` directory.
+Laravel Passport has a `passport:install` command. However, this command cannot be run in Lambda because it needs to write files to the `storage/` directory.
 
 Instead, here is what you need to do:
 
 - Run `php artisan passport:keys` locally to generate key files.
 
-    This command will generate the `storage/oauth-private.key` and `storage/oauth-public.key` files.
+    This command will generate the `storage/oauth-private.key` and `storage/oauth-public.key` files, which need to be deployed.
 
-- Instead of deploying those 2 files, we will put the content of these files as environment variables in the `.env` that will be deployed.
-
-    Why? Deploying those files can get complex: you don't want to commit them in git (because they are sensible), so deploying them from CI will be hard. Using environment variables is a bit simpler.
-
-    To convert line returns to `\n`, run the following commands:
+    Depending on how you deploy your application (from your machine, or from CI), you may want to whitelist them in `serverless.yml`:
     
-    ```bash
-    cat storage/oauth-private.key | tr -d '\r' | perl -p -e 's/\n/\\n/g'
-    cat storage/oauth-public.key | tr -d '\r' | perl -p -e 's/\n/\\n/g'
-    ```
-  
-    Copy the result of those commands into `.env` (and make sure each variable begins and ends with the pattern below):
-    
-    ```env
-    PASSPORT_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIJJwIBAAKCAgEAw3KPag...\n-----END RSA PRIVATE KEY-----"
-    PASSPORT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOC...\n-----END PUBLIC KEY-----"
-    ```
-  
-    The `PASSPORT_PRIVATE_KEY` and `PASSPORT_PUBLIC_KEY` variables are automatically used by Laravel Passport when they exist. That means we don't need to deploy the `storage/oauth-private.key` and `storage/oauth-public.key` files anymore.
+    ```yaml
+      package:
+          exclude:
+              ...
+          include:
+              - storage/oauth-private.key
+              - storage/oauth-public.key  
+      ```
 
-- You can now deploy the application with that new `.env` file:
+- You can now deploy the application:
 
     ```yaml
     serverless deploy
     ```
 
-- Finally, we can create the tokens (which is the second part of the `passport:install` command):
+- Finally, you can create the tokens (which is the second part of the `passport:install` command):
 
    ```bash
    vendor/bin/bref cli <artisan-function-name> -- passport:client --personal --name 'Laravel Personal Access Client'
