@@ -35,17 +35,19 @@ RUN set -xe; \
     make -j $(nproc); \
     make install
 
+RUN yum install -y xz
+
 ARG PHP_BUILD_DIR=${BUILD_DIR}/php
 ARG PHP_VERSION=7.4.4
 ARG PHP_SOURCE_URL=https://secure.php.net/get
-ARG PHP_VERSION_SHA256=3af0c42296fd98a27d32f4eb501d0e715bb0c387de64d47a28e3764b65b8012b
+ARG PHP_VERSION_SHA256=1873c4cefdd3df9a78dcffb2198bba5c2f0464f55c9c960720c84df483fca74c
 RUN set -xe && \
     mkdir -p ${PHP_BUILD_DIR} && \
     curl -L -o php-${PHP_VERSION}.tar.xz ${PHP_SOURCE_URL}/php-${PHP_VERSION}.tar.xz/from/this/mirror && \
     if [ -n "$PHP_VERSION_SHA256" ]; then \
 		echo "${PHP_VERSION_SHA256}  php-${PHP_VERSION}.tar.xz" | sha256sum -c - \
 	; fi && \
-    tar -JxfC ${PHP_BUILD_DIR} php-${PHP_VERSION}.tar.xz  --strip-components=1 && \
+    tar xvf php-${PHP_VERSION}.tar.xz -C ${PHP_BUILD_DIR} --strip-components=1 && \
     rm -f php-${PHP_VERSION}.tar.xz
 WORKDIR  ${PHP_BUILD_DIR}/
 

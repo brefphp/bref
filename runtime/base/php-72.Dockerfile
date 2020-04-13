@@ -13,18 +13,19 @@
 
 FROM bref/tmp/step-1/build-environment as build-environment
 
+RUN yum install -y xz
 
 ARG PHP_BUILD_DIR=${BUILD_DIR}/php
 ARG PHP_VERSION=7.2.20
 ARG PHP_SOURCE_URL=https://secure.php.net/get
-ARG PHP_VERSION_SHA256=241702e647733eada7bd1e125bf1301d735d2d89f634062d2c42cb2945ebe98d
+ARG PHP_VERSION_SHA256=eff09da83e235c2ba25c85deea1d4f663bd71d50fd51ad11e1acebe26d733494
 RUN set -xe && \
     mkdir -p ${PHP_BUILD_DIR} && \
     curl -L -o php-${PHP_VERSION}.tar.xz ${PHP_SOURCE_URL}/php-${PHP_VERSION}.tar.xz/from/this/mirror && \
     if [ -n "$PHP_VERSION_SHA256" ]; then \
 		echo "${PHP_VERSION_SHA256}  php-${PHP_VERSION}.tar.xz" | sha256sum -c - \
 	; fi && \
-    tar -JxfC ${PHP_BUILD_DIR} php-${PHP_VERSION}.tar.xz  --strip-components=1 && \
+    tar xvf php-${PHP_VERSION}.tar.xz -C ${PHP_BUILD_DIR} --strip-components=1 && \
     rm -f php-${PHP_VERSION}.tar.xz
 WORKDIR  ${PHP_BUILD_DIR}/
 
