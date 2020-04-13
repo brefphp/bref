@@ -13,18 +13,17 @@
 
 FROM bref/tmp/step-1/build-environment as build-environment
 
-ENV VERSION_PHP=7.3.7
-
-ENV PHP_BUILD_DIR=${BUILD_DIR}/php
-RUN set -xe; \
-    mkdir -p ${PHP_BUILD_DIR}; \
-    # Download and upack the source code
-    # --location will follow redirects
-    # --silent will hide the progress, but also the errors: we restore error messages with --show-error
-    # --fail makes sure that curl returns an error instead of fetching the 404 page
-    curl --location --silent --show-error --fail https://github.com/php/php-src/archive/php-${VERSION_PHP}.tar.gz \
-  | tar xzC ${PHP_BUILD_DIR} --strip-components=1
-# Move into the unpackaged code directory
+ARG PHP_BUILD_DIR=${BUILD_DIR}/php
+ARG PHP_VERSION=7.3.7
+ARG PHP_SOURCE_URL=https://secure.php.net/get
+ARG PHP_VERSION_SHA256=d28d00744f35d982528c49d24567e6c63d4cbba91a049bc13fe84f0d542a1371
+RUN set -xe && \
+    mkdir -p ${PHP_BUILD_DIR} && \
+    curl -L -o php-${PHP_VERSION}.tar.xz ${PHP_SOURCE_URL}/php-${PHP_VERSION}.tar.xz/from/this/mirror && \
+    if [ -n "$PHP_VERSION_SHA256" ]; then \
+		echo "${PHP_VERSION_SHA256}  php-${PHP_VERSION}.tar.xz" | sha256sum -c - \
+	; fi && \
+    tar -JxfC ${PHP_BUILD_DIR} php-${PHP_VERSION}.tar.xz  --strip-components=1
 WORKDIR  ${PHP_BUILD_DIR}/
 
 # Configure the build

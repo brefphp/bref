@@ -35,20 +35,17 @@ RUN set -xe; \
     make -j $(nproc); \
     make install
 
-
-ENV VERSION_PHP=7.4.4
-
-
-ENV PHP_BUILD_DIR=${BUILD_DIR}/php
-RUN set -xe; \
-    mkdir -p ${PHP_BUILD_DIR}; \
-    # Download and upack the source code
-    # --location will follow redirects
-    # --silent will hide the progress, but also the errors: we restore error messages with --show-error
-    # --fail makes sure that curl returns an error instead of fetching the 404 page
-    curl --location --silent --show-error --fail https://www.php.net/get/php-${VERSION_PHP}.tar.gz/from/this/mirror \
-  | tar xzC ${PHP_BUILD_DIR} --strip-components=1
-# Move into the unpackaged code directory
+ARG PHP_BUILD_DIR=${BUILD_DIR}/php
+ARG PHP_VERSION=7.4.4
+ARG PHP_SOURCE_URL=https://secure.php.net/get
+ARG PHP_VERSION_SHA256=3af0c42296fd98a27d32f4eb501d0e715bb0c387de64d47a28e3764b65b8012b
+RUN set -xe && \
+    mkdir -p ${PHP_BUILD_DIR} && \
+    curl -L -o php-${PHP_VERSION}.tar.xz ${PHP_SOURCE_URL}/php-${PHP_VERSION}.tar.xz/from/this/mirror && \
+    if [ -n "$PHP_VERSION_SHA256" ]; then \
+		echo "${PHP_VERSION_SHA256}  php-${PHP_VERSION}.tar.xz" | sha256sum -c - \
+	; fi && \
+    tar -JxfC ${PHP_BUILD_DIR} php-${PHP_VERSION}.tar.xz  --strip-components=1
 WORKDIR  ${PHP_BUILD_DIR}/
 
 # Configure the build
