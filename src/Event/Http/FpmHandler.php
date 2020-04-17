@@ -102,7 +102,7 @@ final class FpmHandler extends HttpHandler
      */
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
-        $request = $this->eventToFastCgiRequest($event);
+        $request = $this->eventToFastCgiRequest($event, $context);
 
         try {
             $response = $this->client->sendRequest($this->connection, $request);
@@ -167,7 +167,7 @@ final class FpmHandler extends HttpHandler
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(HttpRequestEvent $event): ProvidesRequestData
+    private function eventToFastCgiRequest(HttpRequestEvent $event, Context $context): ProvidesRequestData
     {
         $request = new FastCgiRequest($event->getMethod(), $this->handler, $event->getBody());
         $request->setRequestUri($event->getUri());
@@ -179,6 +179,8 @@ final class FpmHandler extends HttpHandler
         $request->setServerPort($event->getServerPort());
         $request->setCustomVar('PATH_INFO', $event->getPath());
         $request->setCustomVar('QUERY_STRING', $event->getQueryString());
+        $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context));
+        $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext()));
         $request->setCustomVar('LAMBDA_CONTEXT', json_encode($event->getRequestContext()));
 
         $contentType = $event->getContentType();
