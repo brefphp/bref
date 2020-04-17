@@ -348,7 +348,7 @@ $app->command('dashboard [--host=] [--port=] [--profile=] [--stage=]', function 
     do {
         $animation->tick('Starting the dashboard');
         usleep(100*1000);
-        $serverOutput = $process->getOutput();
+        $serverOutput = $process->getOutput() . $process->getErrorOutput();
         $hasStarted = (strpos($serverOutput, 'Development Server') !== false);
     } while ($process->isRunning() && !$hasStarted);
     $animation->clear();
