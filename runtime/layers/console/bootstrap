@@ -1,6 +1,7 @@
 #!/opt/bin/php
 <?php declare(strict_types=1);
 
+use Bref\Context\Context;
 use Bref\Runtime\LambdaRuntime;
 
 ini_set('display_errors', '1');
@@ -24,11 +25,16 @@ if (! is_file($handlerFile)) {
 }
 
 while (true) {
-    $lambdaRuntime->processNextEvent(function ($event) use ($handlerFile): array {
+    $lambdaRuntime->processNextEvent(function ($event, Context $context) use ($handlerFile): array {
         $cliOptions = $event['cli'] ?? '';
 
         // We redirect stderr to stdout so that all the output is collected
-        $command = "/opt/bin/php $handlerFile " . $cliOptions . ' 2>&1';
+        $command = sprintf(
+            'LAMBDA_INVOCATION_CONTEXT=%s /opt/bin/php %s %s 2>&1',
+            escapeshellarg(json_encode($context)),
+            $handlerFile,
+            $cliOptions
+        );
 
         exec($command, $output, $exitCode);
 

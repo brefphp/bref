@@ -69,3 +69,15 @@ Your database has been migrated.
 $ AWS_DEFAULT_REGION=eu-central-1 AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar vendor/bin/bref cli my-function
 # ...
 ```
+
+## Lambda context
+
+Lambda provides information about the invocation, function, and execution environment via the *lambda context*.
+
+This context is usually available as a parameter (alongside the event), within the defined handler.
+However, within the console runtime we do not have direct access to this parameter.
+To work around that, Bref puts the Lambda context in the `$_SERVER['LAMBDA_INVOCATION_CONTEXT']` variable as a JSON-encoded string.
+
+```php
+$lambdaContext = json_decode($_SERVER['LAMBDA_INVOCATION_CONTEXT'], true);
+```
