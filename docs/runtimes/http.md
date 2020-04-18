@@ -136,18 +136,38 @@ provider:
 This will make API Gateway support binary file uploads and downloads, and Bref will 
 automatically encode responses to base64 (which is what API Gateway now expects).
 
-## Request context
+## Context access
+
+### Request context
 
 Some AWS integrations with API Gateway will add information to the HTTP request via the *request context*.
 
 This is the case, for example, when adding AWS Cognito authentication on API Gateway.
 
-The request context is usually available under the `'requestContext'` key in the Lambda event array. However, with the HTTP runtime running PHP-FPM, we cannot access the Lambda event. To work around that, Bref puts the request context in the `$_SERVER['LAMBDA_CONTEXT']` variable as a JSON-encoded string.
+The request context is usually available under the `'requestContext'` key in the Lambda event array. However, with the HTTP runtime running PHP-FPM, we cannot access the Lambda event. To work around that, Bref puts the request context in the `$_SERVER['LAMBDA_REQUEST_CONTEXT']` variable as a JSON-encoded string.
 
 Here is an example to retrieve it:
 
 ```php
-$requestContext = json_decode($_SERVER['LAMBDA_CONTEXT'], true);
+$requestContext = json_decode($_SERVER['LAMBDA_REQUEST_CONTEXT'], true);
+```
+
+**Note:** In previous releases this context was made available via `LAMBDA_CONTEXT`.
+However, for clarity this environment variable has been **deprecated** in favour of `LAMBDA_REQUEST_CONTEXT`.
+It is advised to update existing usage to the new naming convention.
+
+### Lambda context
+
+Lambda provides information about the invocation, function, and execution environment via the *lambda context*.
+
+This context is usually available as a parameter (alongside the event), within the defined handler.
+However, with the HTTP runtime running PHP-FPM, we do not have direct access to this parameter.
+To work around that, Bref puts the Lambda context in the `$_SERVER['LAMBDA_INVOCATION_CONTEXT']` variable as a JSON-encoded string.
+
+Here is an example to retrieve it:
+
+```php
+$lambdaContext = json_decode($_SERVER['LAMBDA_INVOCATION_CONTEXT'], true);
 ```
 
 ## Cold starts
