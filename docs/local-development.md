@@ -7,7 +7,7 @@ To run your applications locally with an architecture close to production you ca
 
 ## PHP functions
 
-The `serverless invoke local` command invokes your [PHP functions](/docs/runtimes/function.md) locally. It is necessary to use the `--docker` option so that Bref layers are correctly downloaded. You can provide an event if your function expects one.
+The `serverless invoke local` command invokes your [PHP functions](/docs/runtimes/function.md) locally. You can provide an event if your function expects one.
 
 For example, given this function:
 
@@ -30,10 +30,10 @@ functions:
 You can invoke it with or without event data:
 
 ```sh
-$ serverless invoke local --docker -f myFunction
+$ serverless invoke local -f myFunction
 Hello world
 
-$ serverless invoke local --docker -f myFunction --data '{"name": "Jane"}'
+$ serverless invoke local -f myFunction --data '{"name": "Jane"}'
 Hello Jane
 ```
 
