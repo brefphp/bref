@@ -81,7 +81,7 @@ Finally we need to edit `app/Providers/AppServiceProvider.php` because Laravel w
 
 ## Deployment
 
-At the moment deploying Laravel with its caches will break in AWS Lambda (because most file paths are different). This is why it is currently necessary to deploy without the config cache file. Simply run `php artisan config:clear` to make sure that file doesn't exist.
+At the moment deploying Laravel with its caches will break in AWS Lambda (because most file paths are different). This is why it is currently necessary to deploy without the config cache file. However, deploying Laravel without it's packages and services cache will also break in Lambda. The solution is to run `php artisan config:cache` to build all caches (not only config) and then `php artisan config:clear` to make sure that config cache file doesn't exist.
 
 Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
 
