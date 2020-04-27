@@ -102,6 +102,15 @@ then check the file `config/view.php` and make sure the `'compiled'` entry looks
     ),
 ```
 
+### HTTPS
+
+If your application creates links and redirections to HTTP URLs (which are invalid), you should configure the `app/Http/Middleware/TrustProxies.php` file to accept the AWS API Gateway headers:
+
+```diff
+-    protected $proxies;
++    protected $proxies = '*';
+```
+
 ## Laravel Artisan
 
 As you may have noticed, we define a function of type "console" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
@@ -113,6 +122,166 @@ vendor/bin/bref cli bref-demo-laravel-artisan <bref options> -- <your command, y
 ```
 
 For more details follow [the "Console" guide](/docs/runtimes/console.md).
+
+## Assets
+
+To deploy Laravel websites, we need assets to be served by AWS S3. Setting up the S3 bucket is already explained in the [websites documentation](../websites.md#hosting-static-files-with-s3). This section provides additional instructions specific to Laravel Mix.
+
+First, you can compile assets for production in the `public` directory, then synchronize that directory to a S3 bucket:
+
+```bash
+npm run prod
+aws s3 sync public/ s3://<bucket-name>/ --delete --exclude index.php
+```
+
+Then, the assets need to be included from S3. Update `config/app.php` to add this variable:
+
+```php
+    'mix_url' => env('MIX_ASSET_URL', null),
+```
+
+In the production `.env` file you can now set that variable:
+
+```dotenv
+MIX_ASSET_URL=https://<bucket-name>.s3.amazonaws.com
+```
+
+### Assets in templates
+
+Assets referenced in templates should be via the `asset()` helper:
+
+```html
+<script src="{{ asset('js/app.js') }}"></script>
+```
+
+If your templates reference some assets via direct path, you should edit them to use the `asset()` helper:
+
+```html
+- <img src="/images/logo.png">
++ <img src="{{ asset('images/logo.png') }}">
+```
+
+## File storage on S3
+
+Laravel has a [filesystem abstraction](https://laravel.com/docs/7.x/filesystem) that lets us easily change where files are stored. When running on Lambda, you will need to use the `s3` adapter to store files on AWS S3. To do this, configure you production `.env` file:
+
+```dotenv
+# .env
+FILESYSTEM_DRIVER=s3
+```
+
+Next, we need to create our bucket via `serverless.yml`:
+
+```yaml
+...
+
+provider:
+    ...
+    environment:
+        AWS_BUCKET: # environment variable for Laravel
+            Ref: Storage
+    iamRoleStatements:
+        # Allow Lambda to read and write files in the S3 buckets
+        -   Effect: Allow
+            Action: s3:*
+            Resource:
+                - Fn::GetAtt: Storage.Arn # the storage bucket
+                - Fn::Join: ['', [Fn::GetAtt: Storage.Arn, '/*']] # everything in the storage bucket
+
+resources:
+    Resources:
+        Storage:
+            Type: AWS::S3::Bucket
+```
+
+Because [of a misconfiguration shipped in Laravel](https://github.com/laravel/laravel/pull/5138), the S3 authentication will not work out of the box. You will need to add this line in `config/filesystems.php`:
+
+```diff
+        's3' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
++           'token' => env('AWS_SESSION_TOKEN'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'url' => env('AWS_URL'),
+        ],
+```
+
+That's it! The `AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY' and 'AWS_SESSION_TOKEN` variables are defined automatically on AWS Lambda, you don't have to define them.
+
+### Public files
+
+Laravel has a [special disk called `public`](https://laravel.com/docs/7.x/filesystem#the-public-disk): this disk stores files that we want to make public, like uploaded photos, generated PDF files, etc.
+
+Again, those files cannot be stored on Lambda, i.e. they cannot be stored in the default `storage/app/public` directory. You need to store those files on S3.
+
+> Do not run `php artisan storage:link` on AWS Lambda: it is now useless, and it will fail because the filesystem is read-only on Lambda.
+
+To store public files on S3, you could simply replace the disk in the code:
+
+```diff
+- Storage::disk('public')->put('avatars/1', $fileContents);
++ Storage::disk('s3')->put('avatars/1', $fileContents);
+```
+
+but doing this will not let your application work locally. A better solution, but more complex, involves making the `public` disk configurable. Let's change the configuration in `config/filesystems.php`:
+
+```diff
+    /*
+    |--------------------------------------------------------------------------
+    | Default Public Filesystem Disk
+    |--------------------------------------------------------------------------
+    */
+
++   'public' => env('FILESYSTEM_DRIVER_PUBLIC', 'public_local'),
+
+    ...
+
+    'disks' => [
+
+        'local' => [
+            'driver' => 'local',
+            'root' => storage_path('app'),
+        ],
+
+-        'public' => [
++        'public_local' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
+
+        's3' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'token' => env('AWS_SESSION_TOKEN'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'url' => env('AWS_URL'),
+        ],
+
++        's3_public' => [
++            'driver' => 's3',
++            'key' => env('AWS_ACCESS_KEY_ID'),
++            'secret' => env('AWS_SECRET_ACCESS_KEY'),
++            'token' => env('AWS_SESSION_TOKEN'),
++            'region' => env('AWS_DEFAULT_REGION'),
++            'bucket' => env('AWS_PUBLIC_BUCKET'),
++            'url' => env('AWS_URL'),
++        ],
+
+    ],
+```
+
+You can now configure the `public` disk to use S3 by changing your production `.env`:
+
+```dotenv
+FILESYSTEM_DRIVER=s3
+FILESYSTEM_DRIVER_PUBLIC=s3
+```
 
 ## Laravel Passport
 
