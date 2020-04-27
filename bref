@@ -95,7 +95,8 @@ $app->command('init', function (SymfonyStyle $io) {
 $app->command('cli function [--region=] [--profile=] [arguments]*', function (string $function, ?string $region, ?string $profile, array $arguments, SymfonyStyle $io) {
     $lambda = new SimpleLambdaClient(
         $region ?: getenv('AWS_DEFAULT_REGION') ?: 'us-east-1',
-        $profile ?: getenv('AWS_PROFILE') ?: 'default'
+        $profile ?: getenv('AWS_PROFILE') ?: 'default',
+        15 * 60 // maximum duration on Lambda
     );
 
     // Because arguments may contain spaces, and are going to be executed remotely

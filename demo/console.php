@@ -20,5 +20,8 @@ $silly->command('error', function (OutputInterface $output) {
     $output->writeln('There was an error!');
     return 1;
 });
+$silly->command('sleep', function () {
+    sleep(120);
+});
 
 $silly->run();

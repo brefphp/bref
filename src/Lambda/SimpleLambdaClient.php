@@ -3,6 +3,7 @@
 namespace Bref\Lambda;
 
 use AsyncAws\Lambda\LambdaClient;
+use Symfony\Component\HttpClient\HttpClient;
 
 /**
  * A simpler alternative to the official LambdaClient from the AWS SDK.
@@ -12,12 +13,18 @@ final class SimpleLambdaClient
     /** @var LambdaClient */
     private $lambda;
 
-    public function __construct(string $region, string $profile)
+    public function __construct(string $region, string $profile, int $timeout = 60)
     {
-        $this->lambda = new LambdaClient([
-            'region' => $region,
-            'profile' => $profile,
-        ]);
+        $this->lambda = new LambdaClient(
+            [
+                'region' => $region,
+                'profile' => $profile,
+            ],
+            null,
+            HttpClient::create([
+                'timeout' => $timeout,
+            ])
+        );
     }
 
     /**
