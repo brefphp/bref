@@ -20,6 +20,8 @@ final class HttpRequestEvent implements LambdaEvent
     private $headers;
     /** @var string */
     private $queryString;
+    /** @var bool */
+    private $isAlb;
 
     public function __construct(array $event)
     {
@@ -27,6 +29,7 @@ final class HttpRequestEvent implements LambdaEvent
             throw new InvalidLambdaEvent('API Gateway or ALB', $event);
         }
 
+        $this->isAlb = isset($event['requestContext']['elb']);
         $this->event = $event;
         $this->method = strtoupper($this->event['httpMethod']);
         $this->queryString = $this->rebuildQueryString();
@@ -163,16 +166,34 @@ final class HttpRequestEvent implements LambdaEvent
             return '';
         }
 
-        /*
-         * Watch out: do not use $event['queryStringParameters'] directly!
-         *
-         * (that is no longer the case here but it was in the past with Bref 0.2)
-         *
-         * queryStringParameters does not handle correctly arrays in parameters
-         * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' = > 'value']]
-         * In that case we should recreate the original query string and use parse_str which handles correctly arrays
+        /**
+         * Non ALB Requests handled here
          */
-        return http_build_query($this->event['queryStringParameters']);
+        if (! $this->isAlb) {
+            /*
+             * Watch out: do not use $event['queryStringParameters'] directly!
+             *
+             * (that is no longer the case here but it was in the past with Bref 0.2)
+             *
+             * queryStringParameters does not handle correctly arrays in parameters
+             * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' = > 'value']]
+             * In that case we should recreate the original query string and use parse_str which handles correctly arrays
+             */
+            return http_build_query($this->event['queryStringParameters']);
+        }
+
+        $queryStringParameters = [];
+
+        foreach ($this->event['queryStringParameters'] as $key => $value) {
+            \parse_str("{$key}={$value}", $params);
+
+            $queryStringParameters = \array_merge_recursive(
+                $queryStringParameters,
+                $params
+            );
+        }
+
+        return http_build_query($queryStringParameters);
     }
 
     private function extractHeaders(): array

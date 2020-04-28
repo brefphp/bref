@@ -73,6 +73,25 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
     }
 
+    public function test_request_from_alb()
+    {
+        $this->fromFixture(__DIR__ . '/Fixture/alb-query-string-encoded.json');
+
+        $this->assertQueryParameters(
+            [
+                'vars' => [
+                    'val1' => 'foo bar',
+                    'val2' => [
+                        0 => 'b a z',
+                    ],
+                ],
+            ]
+        );
+
+        $this->assertQueryString('vars%5Bval1%5D=foo+bar&vars%5Bval2%5D%5B0%5D=b+a+z');
+        $this->assertUri('/lambda?vars%5Bval1%5D=foo+bar&vars%5Bval2%5D%5B0%5D=b+a+z');
+    }
+
     public function test request with custom header()
     {
         $this->fromFixture(__DIR__ . '/Fixture/apigateway-header-custom.json');
