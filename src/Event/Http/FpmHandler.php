@@ -231,17 +231,24 @@ final class FpmHandler extends HttpHandler
         echo "PHP-FPM seems to be running already, this might be because Lambda stopped the bootstrap process but didn't leave us an opportunity to stop PHP-FPM. Stopping PHP-FPM now to restart from a blank slate.\n";
 
         // PHP-FPM is running, let's try to kill it properly
-        $result = posix_kill($pid, SIGTERM);
-        if ($result === false) {
-            echo "PHP-FPM's PID file contained a PID that doesn't exist, assuming PHP-FPM isn't running.\n";
+        if ($pid != posix_getpid()) {
+            echo "Trying to kill old PID: {$pid}.\n";
+            $result = posix_kill($pid, SIGTERM);
+            echo "Result of trying to kill old PID: {$pid}:" .  ($result ? "Sucess" : "Error") . "\n";
+            if ($result === false) {
+                echo "PHP-FPM's PID file contained a PID that doesn't exist, assuming PHP-FPM isn't running.\n";
+                unlink(self::SOCKET);
+                unlink(self::PID_FILE);
+                return;
+            }
+            $this->waitUntilStopped($pid);
             unlink(self::SOCKET);
             unlink(self::PID_FILE);
-            return;
+        } else {
+            echo "PID: {$pid} is being reused. Clearing SOCKET AND PID Files only\n";
+            unlink(self::SOCKET);
+            unlink(self::PID_FILE);
         }
-
-        $this->waitUntilStopped($pid);
-        unlink(self::SOCKET);
-        unlink(self::PID_FILE);
     }
 
     /**
@@ -253,6 +260,7 @@ final class FpmHandler extends HttpHandler
         $timeout = 1000000; // 1 sec
         $elapsed = 0;
         while (posix_getpgid($pid) !== false) {
+            echo "Sleeping while waiting for PID: {$pid} to stop.\n";
             usleep($wait);
             $elapsed += $wait;
             if ($elapsed > $timeout) {
