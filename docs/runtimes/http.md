@@ -187,3 +187,16 @@ You can generate automatically such events using AWS CloudWatch ([read this arti
                 input:
                     warmer: true
 ```
+
+## Custom vendor path
+
+Bref automatically loads your vendor path in the default path `vendor/autoload.php` but if you have a custom vendor path (like using a custom `src/` or another subfolder to vendor you can use `BREF_AUTOLOAD_PATH` env.
+ example :
+
+```yaml
+    environment:
+        # Custom vendor on src/ folder
+        BREF_AUTOLOAD_PATH: '/var/task/src/vendor/autoload.php'
+
+```
+
