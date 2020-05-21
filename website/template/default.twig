@@ -14,8 +14,8 @@
     </div>
 
     <div class="flex h-full mt-12 lg:mt-0">
-        <div id="menu" class="fixed flex-shrink-0 lg:w-64 xl:w-96 lg:flex lg:flex-col z-30 h-screen w-full hidden text-gray-700 bg-gray-100 px-6 lg:px-8 py-8 lg:py-16 overflow-auto leading-tight">
-            <nav class="mt-1">
+        <div id="menu" class="fixed flex-shrink-0 lg:w-64 xl:w-80 lg:flex lg:flex-col z-30 h-screen w-full hidden text-gray-700 bg-gray-100 px-6 lg:px-8 py-8 lg:py-16 overflow-auto leading-tight">
+            <nav class="mt-1" style="font-size: 0.95rem">
                 <h2 class="mb-8">
                     <a class="text-gray-600 hover:text-gray-800 font-bref text-2xl"
                        href="/" title="Bref home page">bref</a>
@@ -23,18 +23,71 @@
                         <svg class="fill-current w-5 h-5 mt-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
                     </a>
                 </h2>
-                {% for item in menu %}
-                    <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">{{ item.section }}</h3>
-                    <ul class="list-none p-0 mb-8 ml-6">
-                        {% for itemId, item in item.items %}
-                            <li class="mb-4 mt-4">
-                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : 'text-gray-800' }}"
-                                   title="{{ item.title|default(item.text)|e('html_attr') }}">
-                                    {{ item.text }}</a>
-                            </li>
-                        {% endfor %}
+
+                <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">Introduction</h3>
+                <ul class="list-none p-0 mb-6 ml-4">
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">What is Bref and serverless?</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Installation</a></li>
+                </ul>
+
+                <div class="bg-gray-400 pt-6 pb-2 -mx-8 px-8">
+                    <h3 class="mb-4 text-gray-600 uppercase font-semibold text-sm lg:text-xs tracking-wider">Bref for <strong class="text-gray-700">web hosting</strong></h3>
+                    <ul class="list-none p-0 mb-6 ml-4">
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Web hosting on AWS Lambda</a></li>
+                        <li class="hidden mb-3 mt-3"><a href="#" class="text-gray-800">Deployment</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Website assets</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Console commands</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Local development</a></li>
                     </ul>
-                {% endfor %}
+                    <h3 class="mb-4 text-gray-600 uppercase font-semibold text-sm lg:text-xs tracking-wider">Frameworks</h3>
+                    <ul class="list-none p-0 ml-4">
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Laravel</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Symfony</a></li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-300 pt-6 pb-2 mb-6 -mx-8 px-8">
+                    <h3 class="mb-4 text-gray-600 uppercase font-semibold text-sm lg:text-xs tracking-wider">Bref for <strong class="text-gray-700">functions</strong></h3>
+                    <ul class="list-none p-0 mb-6 ml-4">
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">PHP functions on AWS Lambda</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Typed handlers</a></li>
+                        <li class="hidden mb-3 mt-3"><a href="#" class="text-gray-800">Deployment</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Local development</a></li>
+                    </ul>
+                    <h3 class="hidden mb-4 text-gray-600 uppercase font-semibold text-sm lg:text-xs tracking-wider">Typed handlers</h3>
+                    <ul class="hidden list-none p-0 ml-4">
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">SQS</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">EventBridge</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">S3</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">HTTP</a></li>
+                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">DynamoDB</a></li>
+                    </ul>
+                </div>
+
+                <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">Workflow</h3>
+                <ul class="list-none p-0 mb-6 ml-4">
+                    <li class="hidden mb-3 mt-3"><a href="#" class="text-gray-800">Local development</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Deployment</a></li>
+                </ul>
+
+                <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">Environment</h3>
+                <ul class="list-none p-0 mb-6 ml-4">
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">serverless.yml</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Variables & secrets</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">PHP.ini and extensions</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Storage</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Logs</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Databases</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Custom domains</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Performances</a></li>
+                </ul>
+
+                <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">More</h3>
+                <ul class="list-none p-0 mb-6 ml-4">
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Community</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Bref Dashboard</a></li>
+                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Case studies</a></li>
+                </ul>
             </nav>
         </div>
         <div class="w-full lg:ml-64 xl:ml-96 overflow-x-hidden px-4 md:px-6 lg:px-16 py-8 lg:py-16">
