@@ -21,7 +21,7 @@ class SqsEventTest extends TestCase
                 'stringValue' => 'my value',
                 'stringListValues' => [],
                 'binaryListValues' => [],
-                'dateType' => 'String',
+                'dataType' => 'String',
             ],
         ], $record->getMessageAttributes());
         $this->assertSame(1, $record->getApproximateReceiveCount());
