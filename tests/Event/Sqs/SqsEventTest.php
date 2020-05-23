@@ -16,7 +16,14 @@ class SqsEventTest extends TestCase
         $record = $event->getRecords()[0];
         $this->assertSame('059f36b4-87a3-44ab-83d2-661975830a7d', $record->getMessageId());
         $this->assertSame('Test message.', $record->getBody());
-        $this->assertSame(['foo' => 'bar'], $record->getMessageAttributes());
+        $this->assertSame([
+            'Foobar' => [
+                'stringValue' => 'my value',
+                'stringListValues' => [],
+                'binaryListValues' => [],
+                'dateType' => 'String',
+            ],
+        ], $record->getMessageAttributes());
         $this->assertSame(1, $record->getApproximateReceiveCount());
 
         $record = $event->getRecords()[1];
