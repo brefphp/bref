@@ -182,6 +182,11 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context));
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext()));
 
+        if (isset($event->toArray()['identity']['sourceIp'])) {
+            // Add user's IP as an easy to access variable
+            $request->setCustomVar('LAMBDA_IDENTITY_SOURCE_IP', $event->toArray()['identity']['sourceIp']);
+        }
+
         /** @deprecated The LAMBDA_CONTEXT has been renamed to LAMBDA_REQUEST_CONTEXT for clarity */
         $request->setCustomVar('LAMBDA_CONTEXT', json_encode($event->getRequestContext()));
 
