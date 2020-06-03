@@ -62,7 +62,7 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
     public function getLogDir()
     {
         // When on the lambda only /tmp is writeable
-        if (getenv('LAMBDA_TASK_ROOT') !== false) {
+        if (isset($_SERVER['LAMBDA_TASK_ROOT'])) {
             return '/tmp/log/';
         }
 
@@ -72,7 +72,7 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
     public function getCacheDir()
     {
         // When on the lambda only /tmp is writeable
-        if (getenv('LAMBDA_TASK_ROOT') !== false) {
+        if (isset($_SERVER['LAMBDA_TASK_ROOT'])) {
             return '/tmp/cache/'.$this->environment;
         }
 
