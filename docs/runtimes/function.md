@@ -88,7 +88,7 @@ functions:
 ```
 
 The runtime (aka layer) to use is `php-XX`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
-
+Note: In above minimal `yml` file, `hello` is the function name.
 ## Invocation
 
 A PHP function must be invoked via the AWS Lambda API, either manually or by integrating with other AWS services.
@@ -101,6 +101,13 @@ A PHP function can be triggered manually from the CLI using the [`serverless inv
 
 ```bash
 $ serverless invoke -f <function-name>
+"Hello world"
+```
+
+To invoke function locally
+
+```bash
+$ serverless invoke local -f <function-name>
 "Hello world"
 ```
 
