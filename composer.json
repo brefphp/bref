@@ -34,7 +34,8 @@
         "psr/http-server-handler": "^1.0",
         "async-aws/cloud-formation": "^0.5",
         "async-aws/lambda": "^0.5",
-        "nyholm/psr7": "^1.2"
+        "nyholm/psr7": "^1.2",
+        "symfony/yaml": "^5.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5",

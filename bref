@@ -14,6 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Yaml\Yaml;
 
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
@@ -434,5 +435,59 @@ $app->command('bref.dev [--profile=] [--stage=]', function (?string $profile, st
 
     return 0;
 })->descriptions('Create a short URL on bref.dev');
+
+$app->command('layer-checker [--region=]', function($region, SymfonyStyle $io) {
+    if (! file_exists('template.yaml')) {
+        $io->error('No `template.yml` file found.');
+
+        return 1;
+    }
+
+    $lock = json_decode(file_get_contents('composer.lock'), true);
+    $brefVersion = $lock['packages'][array_search('bref/bref', array_column($lock['packages'], 'name'), true)]['version'];
+
+    $runtimesBrefPage = file_get_contents('https://runtimes.bref.sh/?region='.$region.'&version='.$brefVersion);
+    $lastRuntimes = [];
+    preg_match_all('/(arn:aws:lambda:'.$region.':209497400698:layer:.*:\d+)/', $runtimesBrefPage, $lastRuntimes);
+
+    $template = Yaml::parseFile('template.yaml', Yaml::PARSE_CUSTOM_TAGS);
+    $layers = [];
+    $return = 0;
+    foreach ($template['Resources'] as $resource => $resourceConfig) {
+        if (false === array_key_exists('Layers', $resourceConfig['Properties'])) {
+            continue;
+        }
+        foreach ($resourceConfig['Properties']['Layers'] as $layer) {
+            if (in_array($layer, $lastRuntimes, true)) {
+                $layers[] = ['Resources' => $resource, 'current' => $layer, 'isLast' => 'true'];
+                continue;
+            }
+            $layerParts = explode(':', $layer);
+            $layerAccount = $layerParts[4];
+            $layerPhp = $layerParts[6];
+            if ('209497400698' !== $layerAccount) {
+                $layers[] = ['Resources' => $resource, 'current' => $layer, 'isLast' => 'N/A'];
+                continue;
+            }
+            foreach ($lastRuntimes[0] as $runtime) {
+                $runtimeParts = explode(':', $runtime);
+                $runtimePhp = $runtimeParts[6];
+                if ($layerPhp === $runtimePhp) {
+                    $return = 1;
+                    $layers[] = ['Resources' => $resource, 'current' => $layer, 'isLast' => 'false', 'last' => $runtime];
+                    continue;
+                }
+            }
+
+        }
+    }
+    $io->table(['Resources', 'current', 'isLast', 'last'], $layers);
+
+    if ($return) {
+        $io->error('At least one of your layer is not up to date');
+    }
+
+    return $return;
+})->descriptions('Check if your layer version match your bref version');
 
 $app->run();
