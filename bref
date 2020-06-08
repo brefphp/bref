@@ -452,7 +452,7 @@ $app->command('layer-checker [--region=]', function($region, SymfonyStyle $io) {
 
     $template = Yaml::parseFile('template.yaml', Yaml::PARSE_CUSTOM_TAGS);
     $layers = [];
-    $return = 0;
+    $notUpToDate = false;
     foreach ($template['Resources'] as $resource => $resourceConfig) {
         if (false === array_key_exists('Layers', $resourceConfig['Properties'])) {
             continue;
@@ -473,7 +473,7 @@ $app->command('layer-checker [--region=]', function($region, SymfonyStyle $io) {
                 $runtimeParts = explode(':', $runtime);
                 $runtimePhp = $runtimeParts[6];
                 if ($layerPhp === $runtimePhp) {
-                    $return = 1;
+                    $notUpToDate = true;
                     $layers[] = ['Resources' => $resource, 'current' => $layer, 'isLast' => 'false', 'last' => $runtime];
                     continue;
                 }
@@ -483,11 +483,16 @@ $app->command('layer-checker [--region=]', function($region, SymfonyStyle $io) {
     }
     $io->table(['Resources', 'current', 'isLast', 'last'], $layers);
 
-    if ($return) {
+    if (!$notUpToDate) {
         $io->error('At least one of your layer is not up to date');
+
+        return 1;
     }
 
-    return $return;
+    $io->success('Your layers are up to date');
+
+    return 0;
+
 })->descriptions('Check if your layer version match your bref version');
 
 $app->run();
