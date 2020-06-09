@@ -132,3 +132,9 @@ provider:
 The secrets (e.g. database passwords) must however not be committed in this file.
 
 To learn more about all this, read the [environment variables documentation](/docs/environment/variables.md).
+
+## Symfony Messenger
+
+It is possible to run Symfony Messenger workers on AWS Lambda.
+
+A dedicated Bref package is available for this: [bref/symfony-messenger](https://github.com/brefphp/symfony-messenger).

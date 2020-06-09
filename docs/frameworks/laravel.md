@@ -283,6 +283,12 @@ FILESYSTEM_DRIVER=s3
 FILESYSTEM_DRIVER_PUBLIC=s3
 ```
 
+## Laravel Queues
+
+It is possible to run Laravel Queues on AWS Lambda using [Amazon SQS](https://aws.amazon.com/sqs/).
+
+A dedicated Bref package is available for this: [bref/laravel-bridge](https://github.com/brefphp/laravel-bridge).
+
 ## Laravel Passport
 
 Laravel Passport has a `passport:install` command. However, this command cannot be run in Lambda because it needs to write files to the `storage/` directory.
