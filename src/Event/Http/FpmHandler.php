@@ -196,18 +196,6 @@ final class FpmHandler extends HttpHandler
             }
         }
 
-        // cookies are packaged separately in payload version 2
-        if ($event->getPayloadVersion() >= 2 && ! isset($event->getHeaders()['cookie'])) {
-            $cookieValues = null;
-            foreach ($event->getCookies() as $cookieName => $cookieValue) {
-                $cookieValues .= ($cookieValues !== '' ? '; ' : '');
-                $cookieValues .= $cookieName . '=' . urlencode($cookieValue);
-            }
-            if ($cookieValues !== '') {
-                $request->setCustomVar('HTTP_COOKIE', $cookieValues);
-            }
-        }
-
         return $request;
     }
 
