@@ -9,6 +9,9 @@ use Bref\Event\LambdaEvent;
  * Represents a Lambda event that comes from a HTTP request.
  *
  * The event can come from API Gateway or ALB (Application Load Balancer).
+ *
+ * See the following for details on the JSON payloads for HTTP APIs;
+ * https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.proxy-format
  */
 final class HttpRequestEvent implements LambdaEvent
 {
@@ -20,15 +23,23 @@ final class HttpRequestEvent implements LambdaEvent
     private $headers;
     /** @var string */
     private $queryString;
+    /** @var float */
+    private $payloadVersion;
 
     public function __construct(array $event)
     {
-        if (! is_array($event) || ! isset($event['httpMethod'])) {
+        // version 1.0 of the HTTP payload
+        if (isset($event['httpMethod'])) {
+            $this->method = strtoupper($event['httpMethod']);
+        } elseif (isset($event['requestContext']['http']['method'])) {
+            // version 2.0 - https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.proxy-format
+            $this->method = strtoupper($event['requestContext']['http']['method']);
+        } else {
             throw new InvalidLambdaEvent('API Gateway or ALB', $event);
         }
 
+        $this->payloadVersion = (float) $event['version'];
         $this->event = $event;
-        $this->method = strtoupper($this->event['httpMethod']);
         $this->queryString = $this->rebuildQueryString();
         $this->headers = $this->extractHeaders();
     }
@@ -59,6 +70,10 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function hasMultiHeader(): bool
     {
+        if ($this->payloadVersion === 2.0) {
+            return false;
+        }
+
         return isset($this->event['multiValueHeaders']);
     }
 
@@ -94,13 +109,17 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getPath(): string
     {
+        if ($this->payloadVersion >= 2) {
+            return $this->event['rawPath'] ?? '/';
+        }
+
         return $this->event['path'] ?? '/';
     }
 
     public function getUri(): string
     {
         $queryString = $this->queryString;
-        $uri = $this->event['path'] ?? '/';
+        $uri = $this->getPath();
         if (! empty($queryString)) {
             $uri .= '?' . $queryString;
         }
@@ -125,16 +144,22 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getCookies(): array
     {
-        if (! isset($this->headers['cookie'])) {
-            return [];
+        if ($this->payloadVersion === 2.0) {
+            if (! isset($this->event['cookies'])) {
+                return [];
+            }
+            $cookieParts = $this->event['cookies'];
+        } else {
+            if (! isset($this->headers['cookie'])) {
+                return [];
+            }
+            // Multiple "Cookie" headers are not authorized
+            // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
+            $cookieHeader = $this->headers['cookie'][0];
+            $cookieParts = explode('; ', $cookieHeader);
         }
 
-        // Multiple "Cookie" headers are not authorized
-        // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
-        $cookieHeader = $this->headers['cookie'][0];
-
         $cookies = [];
-        $cookieParts = explode('; ', $cookieHeader);
         foreach ($cookieParts as $cookiePart) {
             [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
             $cookies[$cookieName] = urldecode($cookieValue);
@@ -144,6 +169,14 @@ final class HttpRequestEvent implements LambdaEvent
 
     private function rebuildQueryString(): string
     {
+        if ($this->payloadVersion === 2.0) {
+            $queryString = $this->event['rawQueryString'] ?? '';
+            // We re-parse the query string to make sur it is URL-encoded
+            // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
+            parse_str($queryString, $queryParameters);
+            return http_build_query($queryParameters);
+        }
+
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
             $queryParameters = [];
             /*
@@ -199,6 +232,13 @@ final class HttpRequestEvent implements LambdaEvent
         // See https://github.com/brefphp/bref/issues/162
         if ($hasBody && ! isset($headers['content-length'])) {
             $headers['content-length'] = [strlen($this->getBody())];
+        }
+
+        // Cookies are separated from headers in payload v2, we re-add them in there
+        // so that we have the full original HTTP request
+        if ($this->payloadVersion === 2.0 && ! empty($this->event['cookies'])) {
+            $cookieHeader = implode('; ', $this->event['cookies']);
+            $headers['cookie'] = [$cookieHeader];
         }
 
         return $headers;

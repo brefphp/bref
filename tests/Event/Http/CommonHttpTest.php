@@ -7,9 +7,20 @@ use PHPUnit\Framework\TestCase;
 
 abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
 {
-    public function test simple request()
+    public function provide API Gateway versions(): array
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-simple.json');
+        return [
+            'v1' => [1],
+            'v2' => [2],
+        ];
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test simple request(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-simple.json");
 
         $this->assertBody('');
         $this->assertContentType(null);
@@ -39,9 +50,12 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         $this->assertHasMultiHeader(false);
     }
 
-    public function test request with query string()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with query string(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-query-string.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-query-string.json");
 
         $this->assertPath('/path');
         $this->assertQueryParameters(['foo' => 'bar']);
@@ -49,9 +63,12 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         $this->assertUri('/path?foo=bar');
     }
 
-    public function test request with multivalues query string have basic support()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with multivalues query string have basic support(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-query-string-multivalue.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-query-string-multivalue.json");
 
         // TODO The feature is not implemented yet
         $this->assertQueryParameters(['foo' => 'bar']);
@@ -59,9 +76,12 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         $this->assertUri('/path?foo=bar');
     }
 
-    public function test request with arrays in query string()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with arrays in query string(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-query-string-arrays.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-query-string-arrays.json");
 
         $this->assertQueryParameters([
             'vars' => [
@@ -69,26 +89,48 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
                 'val2' => ['bar'],
             ],
         ]);
-        $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
-        $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
+        if ($version === 2) {
+            // Numeric keys are added as an artifact of us parsing the query string
+            // Both format are valid and semantically identical
+            $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar');
+            $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar');
+        } else {
+            $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
+            $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
+        }
     }
 
-    public function test request with custom header()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with custom header(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-header-custom.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-header-custom.json");
         $this->assertHeader('x-my-header', ['Hello world']);
     }
 
-    public function test request with custom multi header()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with custom multi header(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-header-custom-multivalue.json');
-        $this->assertHeader('x-my-header', ['Hello world', 'Hello john']);
-        $this->assertHasMultiHeader(true);
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-header-custom-multivalue.json");
+        if ($version === 2) {
+            // In v2, multi-value headers are joined by a comma
+            // See https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
+            $this->assertHeader('x-my-header', ['Hello world,Hello john']);
+        } else {
+            $this->assertHeader('x-my-header', ['Hello world', 'Hello john']);
+            $this->assertHasMultiHeader(true);
+        }
     }
 
-    public function test POST request with raw body()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with raw body(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-body-json.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-json.json");
 
         $this->assertMethod('PUT');
         $this->assertContentType('application/json');
@@ -96,9 +138,12 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         $this->assertBody('{"foo":"bar"}');
     }
 
-    public function test POST request with form data()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with form data(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-body-form.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form.json");
 
         $this->assertMethod('POST');
         $this->assertContentType('application/x-www-form-urlencoded');
@@ -113,13 +158,28 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
     public function provideHttpMethodsWithRequestBodySupport(): array
     {
         return [
-            'POST' => [
+            'POST v1' => [
+                'version' => 1,
                 'method' => 'POST',
             ],
-            'PUT' => [
+            'POST v2' => [
+                'version' => 2,
+                'method' => 'POST',
+            ],
+            'PUT v1' => [
+                'version' => 1,
                 'method' => 'PUT',
             ],
-            'PATCH' => [
+            'PUT v2' => [
+                'version' => 2,
+                'method' => 'PUT',
+            ],
+            'PATCH v1' => [
+                'version' => 1,
+                'method' => 'PATCH',
+            ],
+            'PATCH v2' => [
+                'version' => 2,
                 'method' => 'PATCH',
             ],
         ];
@@ -130,37 +190,46 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
      *
      * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
-    public function test request with body and no content length(string $method)
+    public function test request with body and no content length(int $version, string $method)
     {
         // These requests do not have a Content-Length header on purpose
-        $this->fromFixture(__DIR__ . "/Fixture/apigateway-missing-content-length-$method.json");
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-missing-content-length-$method.json");
 
         $this->assertMethod($method);
         // We check the header is added automatically
         $this->assertHeader('content-length', [13]);
     }
 
-    public function test request supports utf8 characters in body()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request supports utf8 characters in body(int $version)
     {
         // These requests have a multibyte body: 'Hello 🌍'
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-body-utf8.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-utf8.json");
 
         $this->assertBody('Hello 🌍');
         // We check the header is added automatically and takes multibyte into account
         $this->assertHeader('content-length', [10]);
     }
 
-    public function test the content type header is not case sensitive()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test the content type header is not case sensitive(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-content-type-lower-case.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-content-type-lower-case.json");
 
         $this->assertContentType('application/json');
         $this->assertHeader('content-length', [13]);
     }
 
-    public function test POST request with multipart form data()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with multipart form data(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-body-form-multipart.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart.json");
 
         $this->assertContentType('multipart/form-data; boundary=testBoundary');
         $this->assertHeader('content-length', [152]);
@@ -181,9 +250,12 @@ baz\r
         ]);
     }
 
-    public function test POST request with multipart form data containing arrays()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with multipart form data containing arrays(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-body-form-multipart-arrays.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart-arrays.json");
 
         $this->assertContentType('multipart/form-data; boundary=testBoundary');
         $this->assertHeader('content-length', [186]);
@@ -208,9 +280,12 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
         ]);
     }
 
-    public function test POST request with multipart file uploads()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with multipart file uploads(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-body-form-multipart-files.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart-files.json");
 
         $this->assertContentType('multipart/form-data; boundary=testBoundary');
         $this->assertHeader('content-length', [323]);
@@ -250,9 +325,12 @@ Year,Make,Model
         );
     }
 
-    public function test request with cookies()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with cookies(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-cookies.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-cookies.json");
 
         $this->assertCookies([
             'tz' => 'Europe/Paris',
@@ -261,9 +339,12 @@ Year,Make,Model
         ]);
     }
 
-    public function test POST request with base64 encoded body()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with base64 encoded body(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-body-base64.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-base64.json");
 
         $this->assertMethod('POST');
         $this->assertContentType('application/x-www-form-urlencoded');
@@ -274,27 +355,39 @@ Year,Make,Model
         ]);
     }
 
-    public function test PUT request()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test PUT request(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-method-PUT.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-method-PUT.json");
         $this->assertMethod('PUT');
     }
 
-    public function test PATCH request()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test PATCH request(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-method-PATCH.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-method-PATCH.json");
         $this->assertMethod('PATCH');
     }
 
-    public function test DELETE request()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test DELETE request(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-method-DELETE.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-method-DELETE.json");
         $this->assertMethod('DELETE');
     }
 
-    public function test OPTIONS request()
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test OPTIONS request(int $version)
     {
-        $this->fromFixture(__DIR__ . '/Fixture/apigateway-method-OPTIONS.json');
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-method-OPTIONS.json");
         $this->assertMethod('OPTIONS');
     }
 

@@ -1,0 +1,53 @@
+{
+    "version": "1.0",
+    "resource": "/path",
+    "path": "/path",
+    "httpMethod": "POST",
+    "headers": {
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate",
+        "Cache-Control": "no-cache",
+        "Content-Type": "multipart/form-data; boundary=testBoundary",
+        "Host": "example.org",
+        "User-Agent": "PostmanRuntime/7.20.1",
+        "X-Amzn-Trace-Id": "Root=1-ffffffff-ffffffffffffffffffffffff",
+        "X-Forwarded-For": "1.1.1.1",
+        "X-Forwarded-Port": "443",
+        "X-Forwarded-Proto": "https"
+    },
+    "queryStringParameters": null,
+    "pathParameters": null,
+    "stageVariables": null,
+    "requestContext": {
+        "resourceId": "xxxxxx",
+        "resourcePath": "/path",
+        "httpMethod": "PUT",
+        "extendedRequestId": "XXXXXX-xxxxxxxx=",
+        "requestTime": "24/Nov/2019:18:55:08 +0000",
+        "path": "/path",
+        "accountId": "123400000000",
+        "protocol": "HTTP/1.1",
+        "stage": "dev",
+        "domainPrefix": "dev",
+        "requestTimeEpoch": 1574621708700,
+        "requestId": "ffffffff-ffff-4fff-ffff-ffffffffffff",
+        "identity": {
+            "cognitoIdentityPoolId": null,
+            "accountId": null,
+            "cognitoIdentityId": null,
+            "caller": null,
+            "sourceIp": "1.1.1.1",
+            "principalOrgId": null,
+            "accessKey": null,
+            "cognitoAuthenticationType": null,
+            "cognitoAuthenticationProvider": null,
+            "userArn": null,
+            "userAgent": "PostmanRuntime/7.20.1",
+            "user": null
+        },
+        "domainName": "example.org",
+        "apiId": "xxxxxxxxxx"
+    },
+    "body": "--testBoundary\r\nContent-Disposition: form-data; name=\"delete[categories][]\"\r\n\r\n123\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"delete[categories][]\"\r\n\r\n456\r\n--testBoundary--\r\n",
+    "isBase64Encoded": false
+}

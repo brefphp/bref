@@ -48,7 +48,7 @@ final class HttpResponse
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
         $headers = empty($headers) ? new \stdClass : $headers;
 
-        // Support for multi-value headers
+        // Support for multi-value headers (only in version 1.0 of the http payload)
         $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
 
         // This is the format required by the AWS_PROXY lambda integration
