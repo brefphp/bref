@@ -144,36 +144,27 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getCookies(): array
     {
-        $cookies = [];
         if ($this->payloadVersion === 2.0) {
             if (! isset($this->event['cookies'])) {
                 return [];
             }
-
             $cookieParts = $this->event['cookies'];
         } else {
             if (! isset($this->headers['cookie'])) {
                 return [];
             }
-
             // Multiple "Cookie" headers are not authorized
             // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
             $cookieHeader = $this->headers['cookie'][0];
-
             $cookieParts = explode('; ', $cookieHeader);
         }
 
+        $cookies = [];
         foreach ($cookieParts as $cookiePart) {
             [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
             $cookies[$cookieName] = urldecode($cookieValue);
         }
-
         return $cookies;
-    }
-
-    public function getPayloadVersion(): float
-    {
-        return $this->payloadVersion;
     }
 
     private function rebuildQueryString(): string
@@ -241,6 +232,13 @@ final class HttpRequestEvent implements LambdaEvent
         // See https://github.com/brefphp/bref/issues/162
         if ($hasBody && ! isset($headers['content-length'])) {
             $headers['content-length'] = [strlen($this->getBody())];
+        }
+
+        // Cookies are separated from headers in payload v2, we re-add them in there
+        // so that we have the full original HTTP request
+        if ($this->payloadVersion === 2.0 && !empty($this->event['cookies'])) {
+            $cookieHeader = implode('; ', $this->event['cookies']);
+            $headers['cookie'] = [$cookieHeader];
         }
 
         return $headers;
