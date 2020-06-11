@@ -236,7 +236,7 @@ final class HttpRequestEvent implements LambdaEvent
 
         // Cookies are separated from headers in payload v2, we re-add them in there
         // so that we have the full original HTTP request
-        if ($this->payloadVersion === 2.0 && !empty($this->event['cookies'])) {
+        if ($this->payloadVersion === 2.0 && ! empty($this->event['cookies'])) {
             $cookieHeader = implode('; ', $this->event['cookies']);
             $headers['cookie'] = [$cookieHeader];
         }
