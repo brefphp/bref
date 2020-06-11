@@ -122,7 +122,7 @@ final class FpmHandler extends HttpHandler
             unset($responseHeaders['status']);
         }
 
-        $response = new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200, $event->getPayloadVersion());
+        $response = new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
 
         $this->ensureStillRunning();
 
