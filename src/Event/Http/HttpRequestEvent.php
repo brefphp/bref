@@ -31,7 +31,7 @@ final class HttpRequestEvent implements LambdaEvent
         // version 1.0 of the HTTP payload
         if (isset($event['httpMethod'])) {
             $this->method = strtoupper($event['httpMethod']);
-        } elseif (isset($event['requestContext']['http']) && isset($event['requestContext']['http']['method'])) {
+        } elseif (isset($event['requestContext']['http']['method'])) {
             // version 2.0 - https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.proxy-format
             $this->method = strtoupper($event['requestContext']['http']['method']);
         } else {
