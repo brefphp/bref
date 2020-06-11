@@ -13,7 +13,7 @@
         "X-Forwarded-For": "1.1.1.1",
         "X-Forwarded-Port": "443",
         "X-Forwarded-Proto": "https",
-        "X-My-Header": "Hello world"
+        "X-My-Header": "Hello world,Hello john"
     },
     "queryStringParameters": null,
     "stageVariables": null,

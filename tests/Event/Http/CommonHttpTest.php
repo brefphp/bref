@@ -89,8 +89,15 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
                 'val2' => ['bar'],
             ],
         ]);
-        $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
-        $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
+        if ($version === 2) {
+            // Numeric keys are added as an artifact of us parsing the query string
+            // Both format are valid and semantically identical
+            $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar');
+            $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar');
+        } else {
+            $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
+            $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
+        }
     }
 
     /**
@@ -108,8 +115,14 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
     public function test request with custom multi header(int $version)
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-header-custom-multivalue.json");
-        $this->assertHeader('x-my-header', ['Hello world', 'Hello john']);
-        $this->assertHasMultiHeader($version === 1);
+        if ($version === 2) {
+            // In v2, multi-value headers are joined by a comma
+            // See https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
+            $this->assertHeader('x-my-header', ['Hello world,Hello john']);
+        } else {
+            $this->assertHeader('x-my-header', ['Hello world', 'Hello john']);
+            $this->assertHasMultiHeader(true);
+        }
     }
 
     /**

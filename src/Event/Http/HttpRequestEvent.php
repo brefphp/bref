@@ -179,7 +179,11 @@ final class HttpRequestEvent implements LambdaEvent
     private function rebuildQueryString(): string
     {
         if ($this->payloadVersion >= 2) {
-            return $this->event['rawQueryString'] ?? '';
+            $queryString = $this->event['rawQueryString'] ?? '';
+            // We re-parse the query string to make sur it is URL-encoded
+            // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
+            parse_str($queryString, $queryParameters);
+            return http_build_query($queryParameters);
         }
 
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
