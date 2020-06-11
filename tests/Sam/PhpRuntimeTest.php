@@ -210,7 +210,7 @@ LOGS;
             'short_open_tag' => '',
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
-        ], $result, $logs);
+        ], $result, false, $logs);
     }
 
     public function test environment variables()

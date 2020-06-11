@@ -7,7 +7,7 @@ namespace Bref\Context;
  *
  * @see https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
  */
-final class Context
+final class Context implements \JsonSerializable
 {
     /** @var string */
     private $awsRequestId;
@@ -62,5 +62,15 @@ final class Context
     public function getTraceId(): string
     {
         return $this->traceId;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'awsRequestId' => $this->awsRequestId,
+            'deadlineMs' => $this->deadlineMs,
+            'invokedFunctionArn' => $this->invokedFunctionArn,
+            'traceId' => $this->traceId,
+        ];
     }
 }

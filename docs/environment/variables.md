@@ -43,6 +43,11 @@ To create a parameter you can either do it manually in the [SSM parameter store 
 aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
 ```
 
+For Windows users, the first part of the parth needs to be double slashes and all subsequent forward slashes changed to backslashes:
+```bash
+aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type String --value 'mysecretvalue'
+```
+
 It is recommended to prefix the parameter name with your application name, for example: `/my-app/my-parameter`.
 
 To import the SSM parameter into an environment variable you can use the [`${ssm:<parameter>}` syntax](https://serverless.com/blog/serverless-secrets-api-keys/):
@@ -68,7 +73,7 @@ However Secrets Manager is not free: [pricing details](https://aws.amazon.com/se
 When [developing locally using `serverless invoke local`](/docs/local-development.md) you can override environment variables via the `--env` option:
 
 ```bash
-serverless invoke local --docker -f <Function> --env VAR1=val1 --env VAR2=val2
+serverless invoke local -f <Function> --env VAR1=val1 --env VAR2=val2
 ```
 
 ## Learn more

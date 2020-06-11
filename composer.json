@@ -32,11 +32,12 @@
         "hollodotme/fast-cgi-client": "^3.0",
         "riverline/multipart-parser": "^2.0.6",
         "psr/http-server-handler": "^1.0",
-        "async-aws/cloud-formation": "^0.3",
-        "async-aws/lambda": "^0.3"
+        "async-aws/cloud-formation": "^0.5",
+        "async-aws/lambda": "^0.5",
+        "nyholm/psr7": "^1.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.5",
+        "phpunit/phpunit": "^7.5",
         "zendframework/zend-diactoros": "^1.6|^2.0",
         "doctrine/coding-standard": "^5.0",
         "phpstan/phpstan": "^0.11.5",

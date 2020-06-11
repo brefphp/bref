@@ -102,7 +102,7 @@ final class FpmHandler extends HttpHandler
      */
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
-        $request = $this->eventToFastCgiRequest($event);
+        $request = $this->eventToFastCgiRequest($event, $context);
 
         try {
             $response = $this->client->sendRequest($this->connection, $request);
@@ -167,7 +167,7 @@ final class FpmHandler extends HttpHandler
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(HttpRequestEvent $event): ProvidesRequestData
+    private function eventToFastCgiRequest(HttpRequestEvent $event, Context $context): ProvidesRequestData
     {
         $request = new FastCgiRequest($event->getMethod(), $this->handler, $event->getBody());
         $request->setRequestUri($event->getUri());
@@ -179,6 +179,10 @@ final class FpmHandler extends HttpHandler
         $request->setServerPort($event->getServerPort());
         $request->setCustomVar('PATH_INFO', $event->getPath());
         $request->setCustomVar('QUERY_STRING', $event->getQueryString());
+        $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context));
+        $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext()));
+
+        /** @deprecated The LAMBDA_CONTEXT has been renamed to LAMBDA_REQUEST_CONTEXT for clarity */
         $request->setCustomVar('LAMBDA_CONTEXT', json_encode($event->getRequestContext()));
 
         $contentType = $event->getContentType();
@@ -236,9 +240,17 @@ final class FpmHandler extends HttpHandler
             return;
         }
 
-        echo "PHP-FPM seems to be running already, this might be because Lambda stopped the bootstrap process but didn't leave us an opportunity to stop PHP-FPM. Stopping PHP-FPM now to restart from a blank slate.\n";
+        // The PID could be reused by our new process: let's not kill ourselves
+        // See https://github.com/brefphp/bref/pull/645
+        if ($pid === posix_getpid()) {
+            unlink(self::SOCKET);
+            unlink(self::PID_FILE);
+            return;
+        }
 
-        // PHP-FPM is running, let's try to kill it properly
+        echo "PHP-FPM seems to be running already. This might be because Lambda stopped the bootstrap process but didn't leave us an opportunity to stop PHP-FPM (did Lambda timeout?). Stopping PHP-FPM now to restart from a blank slate.\n";
+
+        // The previous PHP-FPM process is running, let's try to kill it properly
         $result = posix_kill($pid, SIGTERM);
         if ($result === false) {
             echo "PHP-FPM's PID file contained a PID that doesn't exist, assuming PHP-FPM isn't running.\n";
@@ -246,7 +258,6 @@ final class FpmHandler extends HttpHandler
             unlink(self::PID_FILE);
             return;
         }
-
         $this->waitUntilStopped($pid);
         unlink(self::SOCKET);
         unlink(self::PID_FILE);

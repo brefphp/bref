@@ -34,7 +34,7 @@ These help learn for real use cases about costs, performances and migration effo
   
 - [PDF reporting generation](https://devops-life.com/blog/2020/03/06/how-serverless-saved-us-for-$2-with-bref-sh/)
 
-Feedback to understand the benefits of going serverless with a real use case (PDF generation);
+  Feedback to understand the benefits of going serverless with a real use case (PDF generation);
 They generated 2,000 PDFs in <2 min for 2$ using Symfony applications shipped inside lambdas using Bref.sh
 
 ## Others

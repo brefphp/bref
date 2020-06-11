@@ -6,13 +6,12 @@ introduction: Configure Bref to use a database in your PHP application on AWS La
 
 AWS offers the [RDS](https://aws.amazon.com/rds/) service to run MySQL and PostgreSQL databases.
 
-Here are the database services offered by RDS:
+Here are some of the database services offered by RDS:
 
 - MySQL
 - PostgreSQL
-- [Aurora MySQL](https://aws.amazon.com/rds/aurora/): optimized closed-source fork
-- [Aurora PostgreSQL](https://aws.amazon.com/rds/aurora/): optimized closed-source fork
-- [Aurora Serverless MySQL](https://aws.amazon.com/rds/aurora/serverless/): scales automatically on-demand
+- [Aurora MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/): closed-source database with MySQL/PostgreSQL compatibility
+- [Aurora Serverless MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/serverless/): similar to Aurora but scales automatically on-demand
 
 > Aurora Serverless can be configured to scale down to 0 instances when unused (which costs $0), however be careful with this option: the database can take up to 30 seconds to un-pause.
 
@@ -23,7 +22,9 @@ All RDS databases can be setup with Lambda in two ways:
 
 While the first solution is simpler, the second is more secure. Using a VPC also comes with a few limitations that are detailed below.
 
-This page documents how to create databases using VPC (the secure solution). If you want to skip using a VPC you can read the instructions in the "Accessing the database from your machine" section.
+This page documents how to create databases using VPC (the reliable and secure solution). If you want to skip using a VPC you can read the instructions in the "Accessing the database from your machine" section.
+
+> If you use Aurora Serverless, you can also use the [RDS Data API](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/data-api.html). SQL queries are executed through an HTTP API instead of the traditional MySQL/PostgreSQL connection. To help you, the [dbal-rds-data](https://github.com/Nemo64/dbal-rds-data) library is a Doctrine DBAL driver. Please note that the library and the API itself are new and experimental.
 
 ## Limitations
 

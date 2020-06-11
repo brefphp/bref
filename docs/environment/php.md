@@ -61,11 +61,11 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.hash.php">hash</a></li>
         <li><a href="http://php.net/manual/en/book.iconv.php">iconv</a></li>
         <li><a href="http://php.net/manual/en/book.json.php">json</a></li>
+        <li><a href="http://php.net/manual/en/book.libxml.php">libxml</a></li>
         </ul>
       </td>
       <td  align="left" valign="top">
         <ul>
-        <li><a href="http://php.net/manual/en/book.libxml.php">libxml</a></li>
         <li><a href="http://php.net/manual/en/book.mbstring.php">mbstring</a></li>
         <li><a href="http://php.net/manual/en/book.mysqli.php">mysqli</a></li>
         <li><a href="http://php.net/manual/en/book.mysqlnd.php">mysqlnd</a></li>
@@ -75,15 +75,16 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.pcre.php">pcre</a></li>
         <li><a href="http://php.net/manual/en/book.PDO.php">PDO</a></li>
         <li><a href="http://php.net/manual/en/book.pdo_sqlite.php">pdo_sqlite</a></li>
+        <li><a href="http://php.net/manual/en/ref.pdo-mysql.php">pdo_mysql</a></li>
         <li><a href="http://php.net/manual/en/book.Phar.php">Phar</a></li>
         <li><a href="http://php.net/manual/en/book.posix.php">posix</a></li>
         <li><a href="http://php.net/manual/en/book.readline.php">readline</a></li>
         <li><a href="http://php.net/manual/en/book.Reflection.php">Reflection</a></li>
+        <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
         </ul>
       </td>
       <td align="left" valign="top">
         <ul>  
-        <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
         <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
         <li><a href="http://php.net/manual/en/book.soap.php">SOAP</a></li>
@@ -109,7 +110,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 - **[APCu](http://php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
 - **[phpredis](https://github.com/phpredis/phpredis)** -  The phpredis extension provides an API for communicating with the Redis key-value store. 
 - **[PostgreSQL PDO Driver](http://php.net/manual/en/ref.pdo-pgsql.php)** -  PDO_PGSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to PostgreSQL databases.
-- **[MySQL PDO Driver](http://php.net/manual/en/ref.pdo-mysql.php)** -  PDO_MYSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to MySQL databases.
 - **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
 - **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
 - **[imagick](http://php.net/manual/en/book.imagick.php)** - imagick is an image processing library.
@@ -122,7 +122,6 @@ extension=intl
 extension=apcu
 extension=redis
 extension=pdo_pgsql
-extension=pdo_mysql
 extension=mongodb
 extension=pthreads
 extension=imagick

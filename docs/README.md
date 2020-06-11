@@ -89,7 +89,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
             Jobs, Cron
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-400"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-400"></span>
@@ -100,18 +100,6 @@ This matrix will be updated as Bref and AWS services evolve over time.
     </tr>
     <tr class="border-b border-gray-200">
         <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">API</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-    </tr>
-    <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">API with MySQL / PostgreSQL</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-400"></span>
         </td>
@@ -135,18 +123,6 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Website with MySQL / PostgreSQL</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-    </tr>
-    <tr class="border-b border-gray-200">
         <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Legacy application</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-red-400"></span>
@@ -155,7 +131,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
             <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-400"></span>
+            <span class="maturity-icon shadow bg-orange-400"></span>
         </td>
     </tr>
     <tr class="text-xs text-center leading-normal text-gray-600">
@@ -183,27 +159,19 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
     Jobs, cron tasks and batch processes are very good candidates for FaaS. The scaling model of AWS Lambda can lead to very high throughput in queue processing, and the pay-per-use billing model can sometimes result in drastic costs reduction.
 
-    The main challenge at the moment is the lack of documentation on this topic, as well as the lack of native integration with existing queue libraries like Laravel Queues, Symfony Messenger, Enqueue…
+    Using Bref, it is possible to implement cron jobs and queue workers using PHP. Bref also provides integration with popular queue libraries, like Laravel Queues and Symfony Messenger.
 
 - **API**
 
     APIs run on AWS Lambda without problems. Performances are now similar to what you could expect on traditional VPS.
 
-- **API with MySQL/PostgreSQL**
-
-    MySQL, PostgreSQL or Aurora imply using [AWS RDS](https://aws.amazon.com/rds/), which means using a VPC. Read the [full "Databases" documentation](/docs/environment/database.md) to learn more.
-
 - **Website**
 
     Websites can run on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md). Performances are as good as any server.
 
-- **Website with MySQL/PostgreSQL**
-
-    Performances are as good as any server.
-
 - **Legacy application**
 
-    Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite a good amount of code to make the application fit for Lambda. For example file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and possibly SQS. Finally there are no case studies or online examples of such a thing being done before (to the extent of our knowledge).
+    Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite some parts of the code to make the application fit for Lambda. For example, file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and possibly SQS. Finally there are no case studies or online examples to help you along the way.
 
     Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net).
 

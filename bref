@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use AsyncAws\CloudFormation\CloudFormationClient;
-use AsyncAws\CloudFormation\Result\Output;
-use AsyncAws\CloudFormation\Result\StackEvent;
+use AsyncAws\CloudFormation\ValueObject\Output;
+use AsyncAws\CloudFormation\ValueObject\StackEvent;
 use AsyncAws\Core\Exception\Http\HttpException;
 use Bref\Console\LoadingAnimation;
 use Bref\Console\OpenUrl;
@@ -95,7 +95,8 @@ $app->command('init', function (SymfonyStyle $io) {
 $app->command('cli function [--region=] [--profile=] [arguments]*', function (string $function, ?string $region, ?string $profile, array $arguments, SymfonyStyle $io) {
     $lambda = new SimpleLambdaClient(
         $region ?: getenv('AWS_DEFAULT_REGION') ?: 'us-east-1',
-        $profile ?: getenv('AWS_PROFILE') ?: 'default'
+        $profile ?: getenv('AWS_PROFILE') ?: 'default',
+        15 * 60 // maximum duration on Lambda
     );
 
     // Because arguments may contain spaces, and are going to be executed remotely
@@ -105,9 +106,7 @@ $app->command('cli function [--region=] [--profile=] [arguments]*', function (st
     }, $arguments);
 
     try {
-        $result = $lambda->invoke($function, json_encode([
-            'cli' => implode(' ', $arguments),
-        ]));
+        $result = $lambda->invoke($function, json_encode(implode(' ', $arguments)));
     } catch (InvocationFailed $e) {
         $io->getErrorStyle()->writeln('<info>' . $e->getInvocationLogs() . '</info>');
         $io->error($e->getMessage());
@@ -348,7 +347,7 @@ $app->command('dashboard [--host=] [--port=] [--profile=] [--stage=]', function 
     do {
         $animation->tick('Starting the dashboard');
         usleep(100*1000);
-        $serverOutput = $process->getOutput();
+        $serverOutput = $process->getOutput() . $process->getErrorOutput();
         $hasStarted = (strpos($serverOutput, 'Development Server') !== false);
     } while ($process->isRunning() && !$hasStarted);
     $animation->clear();

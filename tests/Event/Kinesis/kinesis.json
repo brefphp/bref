@@ -1,0 +1,36 @@
+{
+  "Records": [
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "bref-1",
+        "sequenceNumber": "1",
+        "data": "eyJicmVmIjoxLCJkYXRhIjoxfQ==",
+        "approximateArrivalTimestamp": 1588051220.453
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "1",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::000000000000:role/bref-role",
+      "awsRegion": "ap-southeast-1",
+      "eventSourceARN": "arn:aws:kinesis:ap-southeast-1:000000000000:stream/bref"
+    },
+    {
+      "kinesis": {
+        "kinesisSchemaVersion": "1.0",
+        "partitionKey": "bref-1",
+        "sequenceNumber": "2",
+        "data": "eyJicmVmIjoxLCJkYXRhIjoyfQ==",
+        "approximateArrivalTimestamp": 1588051437.603
+      },
+      "eventSource": "aws:kinesis",
+      "eventVersion": "1.0",
+      "eventID": "2",
+      "eventName": "aws:kinesis:record",
+      "invokeIdentityArn": "arn:aws:iam::000000000000:role/bref-role",
+      "awsRegion": "ap-southeast-1",
+      "eventSourceARN": "arn:aws:kinesis:ap-southeast-1:000000000000:stream/bref"
+    }
+  ]
+}

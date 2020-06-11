@@ -11,7 +11,12 @@
                 "ApproximateFirstReceiveTimestamp": "1545082649185"
             },
             "messageAttributes": {
-                "foo": "bar"
+                "Foobar": {
+                    "stringValue": "my value",
+                    "stringListValues": [],
+                    "binaryListValues": [],
+                    "dataType": "String"
+                }
             },
             "md5OfBody": "e4e68fb7bd0e697a0ae8f1bb342846b3",
             "eventSource": "aws:sqs",
