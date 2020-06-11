@@ -70,7 +70,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function hasMultiHeader(): bool
     {
-        if ($this->getPayloadVersion() >= 2) {
+        if ($this->payloadVersion === 2.0) {
             return false;
         }
 
@@ -145,7 +145,7 @@ final class HttpRequestEvent implements LambdaEvent
     public function getCookies(): array
     {
         $cookies = [];
-        if ($this->payloadVersion >= 2) {
+        if ($this->payloadVersion === 2.0) {
             if (! isset($this->event['cookies'])) {
                 return [];
             }
@@ -178,7 +178,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     private function rebuildQueryString(): string
     {
-        if ($this->payloadVersion >= 2) {
+        if ($this->payloadVersion === 2.0) {
             $queryString = $this->event['rawQueryString'] ?? '';
             // We re-parse the query string to make sur it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
