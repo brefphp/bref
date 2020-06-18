@@ -38,7 +38,7 @@ final class HttpRequestEvent implements LambdaEvent
             throw new InvalidLambdaEvent('API Gateway or ALB', $event);
         }
 
-        $this->payloadVersion = (float) $event['version'];
+        $this->payloadVersion = (float) ($event['version'] ?? '1.0');
         $this->event = $event;
         $this->queryString = $this->rebuildQueryString();
         $this->headers = $this->extractHeaders();
