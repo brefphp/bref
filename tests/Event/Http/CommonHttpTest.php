@@ -15,6 +15,27 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         ];
     }
 
+    public function test request with no version fallbacks to v1()
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-no-version.json");
+
+        $this->assertBody('');
+        $this->assertContentType(null);
+        $this->assertHeaders([
+            'accept' => ['*/*'],
+            'accept-encoding' => ['gzip, deflate'],
+            'cache-control' => ['no-cache'],
+            'host' => ['example.org'],
+            'user-agent' => ['PostmanRuntime/7.20.1'],
+            'x-amzn-trace-id' => ['Root=1-ffffffff-ffffffffffffffffffffffff'],
+            'x-forwarded-for' => ['1.1.1.1'],
+            'x-forwarded-port' => ['443'],
+            'x-forwarded-proto' => ['https'],
+        ]);
+        $this->assertMethod('GET');
+        $this->assertUri('/path');
+    }
+
     /**
      * @dataProvider provide API Gateway versions
      */
@@ -24,7 +45,6 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
 
         $this->assertBody('');
         $this->assertContentType(null);
-        $this->assertCookies([]);
         $this->assertCookies([]);
         $this->assertHeaders([
             'accept' => ['*/*'],
