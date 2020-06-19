@@ -17,7 +17,7 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
 
     public function test request with no version fallbacks to v1()
     {
-        $this->fromFixture(__DIR__ . "/Fixture/ag-no-version.json");
+        $this->fromFixture(__DIR__ . '/Fixture/ag-no-version.json');
 
         $this->assertBody('');
         $this->assertContentType(null);
