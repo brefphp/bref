@@ -40,7 +40,19 @@ Instead you can use the [SSM parameter store](https://docs.aws.amazon.com/system
 To create a parameter you can either do it manually in the [SSM parameter store console](https://console.aws.amazon.com/systems-manager/parameters) or use the following command:
 
 ```bash
-aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
+aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'myvalue'
+```
+
+```bash
+aws ssm put-parameter --region us-east-1 --name '/my-app/my-secret' --type SecureString --value 'mysecretvalue'
+```
+
+Use SecureString for sensitive data, e.g. Database passwords or API keys, and decrypt as below:
+```yaml
+provider:
+    # ...
+    environment:
+        MY_PARAMETER: ${ssm:/my-app/my-secret~true}
 ```
 
 For Windows users, the first part of the parth needs to be double slashes and all subsequent forward slashes changed to backslashes:
