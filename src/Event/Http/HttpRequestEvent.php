@@ -171,24 +171,24 @@ final class HttpRequestEvent implements LambdaEvent
     {
         if ($this->payloadVersion === 2.0) {
             $queryString = $this->event['rawQueryString'] ?? '';
-            // We re-parse the query string to make sur it is URL-encoded
+            // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
             parse_str($queryString, $queryParameters);
             return http_build_query($queryParameters);
         }
 
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
-            $queryParameters = [];
-            /*
-             * Watch out: to support multiple query string parameters with the same name like:
-             *     ?array[]=val1&array[]=val2
-             * we need to support "multi-value query string", else only the 'val2' value will survive.
-             * At the moment we only take the first value (which means we DON'T support multiple values),
-             * this needs to be implemented below in the future.
-             */
+            $queryParameterStr = [];
+            // go through the params and url-encode the values, to build up a complete query-string
             foreach ($this->event['multiValueQueryStringParameters'] as $key => $value) {
-                $queryParameters[$key] = $value[0];
+                foreach ($value as $v) {
+                    $queryParameterStr[] = $key . '=' . urlencode($v);
+                }
             }
+
+            // re-parse the query-string so it matches the format used when using PHP outside of Lambda
+            // this is particularly important when using multi-value params - eg. myvar[]=2&myvar=3 ... = [2, 3]
+            parse_str(join('&', $queryParameterStr), $queryParameters);
             return http_build_query($queryParameters);
         }
 

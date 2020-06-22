@@ -15,10 +15,11 @@
         "X-Forwarded-Proto": "https"
     },
     "queryStringParameters": {
-        "foo": "baz"
+        "foo": "bar"
     },
     "multiValueQueryStringParameters": {
-        "foo": ["bar", "baz"]
+        "foo": ["bar"],
+        "shapes[]": ["circle", "square"]
     },
     "pathParameters": null,
     "stageVariables": null,

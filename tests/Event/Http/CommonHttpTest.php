@@ -90,10 +90,9 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-query-string-multivalue.json");
 
-        // TODO The feature is not implemented yet
-        $this->assertQueryParameters(['foo' => 'bar']);
-        $this->assertQueryString('foo=bar');
-        $this->assertUri('/path?foo=bar');
+        $this->assertQueryParameters(['foo' => 'bar', 'shapes' => ['circle', 'square']]);
+        $this->assertQueryString('foo=bar&shapes%5B0%5D=circle&shapes%5B1%5D=square');
+        $this->assertUri('/path?foo=bar&shapes%5B0%5D=circle&shapes%5B1%5D=square');
     }
 
     /**
