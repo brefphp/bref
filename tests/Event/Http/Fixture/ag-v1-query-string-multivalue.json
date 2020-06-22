@@ -18,8 +18,11 @@
         "foo": "bar"
     },
     "multiValueQueryStringParameters": {
-        "foo": ["bar"],
-        "shapes[]": ["circle", "square"]
+        "foo[]": ["bar", "baz"],
+        "cards[]": ["birthday"],
+        "colors[][]": ["red", "blue"],
+        "shapes[a][]": ["square", "triangle"],
+        "myvar": ["abc"]
     },
     "pathParameters": null,
     "stageVariables": null,

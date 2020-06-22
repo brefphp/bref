@@ -188,7 +188,7 @@ final class HttpRequestEvent implements LambdaEvent
 
             // re-parse the query-string so it matches the format used when using PHP outside of Lambda
             // this is particularly important when using multi-value params - eg. myvar[]=2&myvar=3 ... = [2, 3]
-            parse_str(join('&', $queryParameterStr), $queryParameters);
+            parse_str(implode('&', $queryParameterStr), $queryParameters);
             return http_build_query($queryParameters);
         }
 
