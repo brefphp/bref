@@ -92,6 +92,8 @@ final class LambdaRuntime
         /** @var Context $context */
         [$event, $context] = $this->waitNextInvocation();
 
+        $this->ping();
+
         $result = null;
 
         try {
@@ -286,5 +288,75 @@ final class LambdaRuntime
             $this->closeReturnHandler();
             throw new Exception('Error while calling the Lambda runtime API: ' . $errorMessage);
         }
+    }
+
+
+    /**
+     * Ping a Bref server with a statsd request.
+     *
+     * WHY?
+     * This ping is used to estimate the number of Bref invocations running in production.
+     * Such statistic can be useful in many ways:
+     * - so that potential Bref users know how much it is used in production
+     * - to communicate to AWS how much Bref is used, and help them consider PHP as a native runtime
+     *
+     * WHAT?
+     * The data sent in the ping is anonymous.
+     * It does not contain any identifiable data about anything (the project, users, etc.).
+     * The only data it contains is: "A Bref invocation happened".
+     * You can verify that by checking the content of the message in the function.
+     *
+     * HOW?
+     * The data is sent via the statsd protocol, over UDP.
+     * Unlike TCP, UDP does not check that the message correctly arrived to the server.
+     * It doesn't even establishes a connection. That means that UDP is extremely fast:
+     * the data is sent over the network and the code moves on to the next line.
+     * When actually sending data, the overhead of that ping takes about 150 micro-seconds.
+     * However, this function actually sends data every 100 invocation, because we don't
+     * need to measure *all* invocations. We only need an approximation.
+     * That means that 99% of the time, no data is sent, and the function takes 30 micro-seconds.
+     * If we average all executions, the overhead of that ping is about 31 micro-seconds.
+     * Given that it is much much less than even 1 milli-second, we consider that overhead
+     * negligible.
+     *
+     * CAN I DISABLE IT?
+     * Yes, set the `BREF_PING_DISABLE` environment variable to `1`.
+     *
+     * About the statsd server and protocol: https://github.com/statsd/statsd
+     * About UDP: https://en.wikipedia.org/wiki/User_Datagram_Protocol
+     */
+    private function ping(): void
+    {
+        if ($_SERVER['BREF_PING_DISABLE'] ?? false) {
+            return;
+        }
+
+        // Only run the code in 1% of requests
+        // We don't need to collect all invocations, only to get an approximation
+        if (rand(0, 99) > 0) {
+            return;
+        }
+
+        /**
+         * Here is the content sent to the Bref analytics server.
+         * It signals an invocation happened.
+         * Nothing else is sent.
+         *
+         * `Invocations_100` is used to signal that this is 1 ping equals 100 invocations.
+         * We could use statsd sample rate system this this:
+         * `Invocations:1|c|@0.01`
+         * but this doesn't seem to be compatible with the bridge that forwards
+         * the metric into CloudWatch.
+         *
+         * See https://github.com/statsd/statsd/blob/master/docs/metric_types.md for more information.
+         */
+        $message = 'Invocations_100:1|c';
+
+        $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+        // This IP address is the Bref server.
+        // If this server is down or unreachable, there should be no difference in overhead
+        // or execution time.
+        socket_sendto($sock, $message, strlen($message), 0, '3.219.198.164', 8125);
+        socket_close($sock);
     }
 }
