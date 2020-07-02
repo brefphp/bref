@@ -56,6 +56,10 @@ menu:
                 text: Websites
                 url: /docs/websites.html
                 title: Building complete websites with Bref
+            cron:
+                text: Cron
+                url: /docs/cron.html
+                title: Cron tasks
     -   section: Environment
         items:
             serverless-yml:
