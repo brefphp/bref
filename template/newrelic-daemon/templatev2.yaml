@@ -568,7 +568,7 @@ Resources:
               - rm -rf /var/www/html
               - cd /var/www
               - mkdir html
-              - echo "Portal NR Daemon" > index.php
+              - echo "Portal NR Daemon" > html/index.php
               - /root/clariondoor/tools/newrelic/ignore-elb-login.sh
               - chown -R nginx:nginx /var/www/html
               - cp /root/clariondoor/nginx/flows.conf /etc/nginx/conf.d/
@@ -579,18 +579,18 @@ Resources:
               - service nginx restart
               - sed -i 's/\$ENVIRONMENT\$/portal-newrelic/' /etc/rsyslog.d/*.conf
               - service rsyslog restart
-              - sed -i -e 's/PHP Application/NR-daemon/g' /etc/php.d/newrelic.ini
+              - sed -i -e 's/PHP Application/Quoting Portal/g' /etc/php.d/newrelic.ini
               - service php-fpm restart
-              - systemctl start newrelic-infra
-              - service nginx-nr-agent start
-              - rm -f /var/run/newrelic/newrelic-plugin-agent.pid
-              - /usr/bin/newrelic-plugin-agent -c /etc/newrelic/newrelic-plugin-agent.cfg
-              - /root/NewrelicDeployment.sh XXXXX | tee /root/NewrelicDeployment.out
+              - curl -L https://download.newrelic.com/php_agent/release/newrelic-php5-9.11.0.267-linux.tar.gz
+              - tar -C /tmp -zx
+              - NR_INSTALL_SILENT=1
+              - /tmp/newrelic-php5-*/newrelic-install install_daemon
+              - rm -rf /tmp/newrelic-php5-* /tmp/nrinstall*
+              - /usr/bin/newrelic-daemon --address=$(hostname):31339 --watchdog-foreground
   WebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allow access from load balancer and bastion as well as outbound
-        HTTP and HTTPS traffic
+      GroupDescription: Allow access from load balancer and bastion as well as outbound HTTP and HTTPS traffic
       VpcId:
         Ref: VPC
       SecurityGroupIngress:
