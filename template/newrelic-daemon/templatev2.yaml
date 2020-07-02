@@ -560,15 +560,15 @@ Resources:
             - - "#!/bin/bash -ex"
               - exec > >(tee /tmp/init.log|logger -t user-data -s 2>/dev/console) 2>&1
               - export HOME=/root
-              - rm -rf /var/www/html
               - cd /root
               - git clone git@github.com:cdins/clariondoor.git
               - /root/clariondoor/error_pages/nginx-install.sh
               - mkdir -p /var/run/newrelic
               - chmod o+w /var/run/newrelic
+              - rm -rf /var/www/html
               - cd /var/www
-              - git clone git@github.com:cdins/bref-cd.git html
-              - cd /var/www/html
+              - mkdir html
+              - echo "Portal NR Daemon" > index.php
               - /root/clariondoor/tools/newrelic/ignore-elb-login.sh
               - chown -R nginx:nginx /var/www/html
               - cp /root/clariondoor/nginx/flows.conf /etc/nginx/conf.d/
@@ -622,7 +622,7 @@ Resources:
   Route53RecordSet:
     Type: AWS::Route53::RecordSet
     Properties:
-      Name: portal-newrelic.clariondoor.com.clariondoor.com
+      Name: portal-newrelic.clariondoor.com
       HostedZoneName: clariondoor.com.
       Type: A
       AliasTarget:
