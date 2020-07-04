@@ -106,13 +106,6 @@ $ serverless invoke -f hello
 "Hello world"
 ```
 
-To invoke function locally
-
-```bash
-$ serverless invoke local -f <function-name>
-"Hello world"
-```
-
 To pass event data to the lambda use the `--data` option. For example:
 
 ```bash
