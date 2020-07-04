@@ -101,6 +101,8 @@ A PHP function can be triggered manually from the CLI using the [`serverless inv
 
 ```bash
 $ serverless invoke -f <function-name>
+# The function name is the one in serverless.yml, in our example that would be `hello`:
+$ serverless invoke -f hello
 "Hello world"
 ```
 
