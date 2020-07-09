@@ -574,15 +574,15 @@ Resources:
               - cp /root/clariondoor/nginx/flows.conf /etc/nginx/conf.d/
               - rm -rf /root/clariondoor
               - sed -i 's/\$SERVER_NAME\$/portal-newrelic.clariondoor.com/' /etc/nginx/conf.d/flows.conf
-              - sed -i 's/var\/www\/html\/web/var\/www\/html/' /etc/nginx/conf.d/flows.conf
-              - sed -i 's/app.php/index.php/' /etc/nginx/conf.d/flows.conf
               - service nginx restart
               - sed -i 's/\$ENVIRONMENT\$/portal-newrelic/' /etc/rsyslog.d/*.conf
               - service rsyslog restart
               - sed -i -e 's/PHP Application/NR-daemon/g' /etc/php.d/newrelic.ini
               - service php-fpm restart
               - systemctl start newrelic-infra
+              - sed -i -e 's/name=flows/name=NR-daemon/g' /etc/nginx-nr-agent/nginx-nr-agent.ini
               - service nginx-nr-agent start
+              - 'sed -i -e "s/name: flows/name: NR-daemon/g" /etc/newrelic/newrelic-plugin-agent.cfg'
               - rm -f /var/run/newrelic/newrelic-plugin-agent.pid
               - /usr/bin/newrelic-plugin-agent -c /etc/newrelic/newrelic-plugin-agent.cfg
               - /root/NewrelicDeployment.sh XXXXX | tee /root/NewrelicDeployment.out
