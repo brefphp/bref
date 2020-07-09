@@ -10,3 +10,9 @@ layout: home
 [![Monthly Downloads](https://img.shields.io/packagist/dm/bref/bref.svg)](https://packagist.org/packages/bref/bref/stats)
 
 Read more on [the website](https://bref.sh/).
+
+#ClarionDoor
+
+1. Run `composer install`
+2. Do what you gotta do.
+3. Run `make runtimes`
