@@ -3,6 +3,9 @@
 # Start NewRelic daemon
 /opt/bref/sbin/newrelic-daemon -c /opt/bref/etc/newrelic/newrelic.cfg
 
+# Start PHP-FPM
+/opt/bootstrap-php
+
 # Fail on error
 set -e
 

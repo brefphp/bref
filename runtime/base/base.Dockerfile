@@ -389,8 +389,8 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 # sqlite-devel : Since PHP 7.4 this must be installed (https://github.com/php/php-src/blob/99b8e67615159fc600a615e1e97f2d1cf18f14cb/UPGRADING#L616-L619)
 RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel libxslt-devel ImageMagick-devel sqlite-devel
 
-###############################################################################
-# NewRelic agent
+## Install NewRelic
+
 RUN \
   curl -L https://download.newrelic.com/php_agent/release/newrelic-php5-9.11.0.267-linux.tar.gz | tar -C /tmp -zx && \
   export NR_INSTALL_USE_CP_NOT_LN=1 && \
@@ -406,7 +406,7 @@ RUN \
 
 RUN echo $' \n\
 extension = "newrelic.so" \n\
-newrelic.appname = "Quoting Portal" \n\
+newrelic.appname = "QuotingPortal" \n\
 newrelic.license = "485399637409f4456a3f66db12c8377c50fa3549" \n\
 newrelic.daemon.address="portal-newrelic.clariondoor.com" \n\
 newrelic.logfile = "/dev/null" \n\

@@ -1,8 +1,4 @@
 #!/opt/bin/php
-
-# Start NewRelic daemon
-/opt/bref/sbin/newrelic-daemon -c /opt/bref/etc/newrelic/newrelic.cfg
-
 <?php declare(strict_types=1);
 
 use Bref\Event\Http\FpmHandler;
@@ -38,6 +34,3 @@ try {
 while (true) {
     $lambdaRuntime->processNextEvent($phpFpm);
 }
-
-// Tell NewRelic that this is not a background job
-newrelic_background_job(false);
