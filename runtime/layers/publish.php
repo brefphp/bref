@@ -13,6 +13,8 @@ $layers = [
     'php-74-fpm' => 'PHP-FPM 7.4 for HTTP applications',
     'php-73' => 'PHP 7.3 for PHP functions',
     'php-73-fpm' => 'PHP-FPM 7.3 for HTTP applications',
+    'php-72' => 'PHP 7.2 for PHP functions',
+    'php-72-fpm' => 'PHP-FPM 7.2 for HTTP applications',
     'console' => 'Console runtime for PHP applications',
 ];
 foreach ($layers as $layer => $layerDescription) {

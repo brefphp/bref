@@ -5,9 +5,6 @@ use Bref\Runtime\LambdaRuntime;
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
-// Tell NewRelic that this is not a background job
-newrelic_background_job(false);
-
 $appRoot = getenv('LAMBDA_TASK_ROOT');
 
 if (getenv('BREF_AUTOLOAD_PATH')) {
