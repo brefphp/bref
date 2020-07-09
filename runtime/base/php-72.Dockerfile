@@ -13,7 +13,7 @@
 
 FROM bref/tmp/step-1/build-environment as build-environment
 
-ENV VERSION_PHP=7.2.20
+ENV VERSION_PHP=7.2.31
 
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 RUN set -xe; \
