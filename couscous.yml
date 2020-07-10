@@ -19,94 +19,111 @@ scripts:
         - make website-assets
 
 menu:
-    -   section: Getting Started
-        items:
-            what-is-bref:
-                text: What is Bref and serverless?
-                url: /docs/
-            installation:
-                text: Installation
-                url: /docs/installation.html
-            first-steps:
-                text: First steps
-                url: /docs/first-steps.html
-    -   section: Runtimes
-        items:
-            runtimes-introduction:
-                text: Introduction to PHP runtimes
-                url: /docs/runtimes/
-            php-functions:
-                text: PHP functions
-                url: /docs/runtimes/function.html
-            http-applications:
-                text: HTTP
-                url: /docs/runtimes/http.html
-            console-applications:
-                text: Console
-                url: /docs/runtimes/console.html
-    -   section: Usage
-        items:
-            deploy:
-                text: Deployment
-                url: /docs/deploy.html
-            local-development:
-                text: Local development
-                url: /docs/local-development.html
-            websites:
-                text: Websites
-                url: /docs/websites.html
-                title: Building complete websites with Bref
-    -   section: Environment
-        items:
-            serverless-yml:
-                text: serverless.yml
-                url: /docs/environment/serverless-yml.html
-                title: Configure your application with the serverless.yml file
-            variables:
-                text: Variables
-                url: /docs/environment/variables.html
-                title: Configuring environment variables with Bref
-            php:
-                text: PHP
-                url: /docs/environment/php.html
-                title: Configuring PHP versions and options with Bref
-            storage:
-                text: Storage
-                url: /docs/environment/storage.html
-                title: Storing files and data with Bref on AWS Lambda
-            logs:
-                text: Logs
-                url: /docs/environment/logs.html
-                title: Managing logs with Bref on AWS Lambda
-            database:
-                text: Databases
-                url: /docs/environment/database.html
-                title: Using a database from AWS Lambda
-            custom-domains:
-                text: Custom domains
-                url: /docs/environment/custom-domains.html
-                title: Configuring custom domain names for HTTP applications
-            performances:
-                text: Performances
-                url: /docs/environment/performances.html
-                title: Performance tuning and optimizations
-    -   section: Frameworks
-        items:
-            laravel:
-                text: Laravel
-                url: /docs/frameworks/laravel.html
-                title: Learn how to deploy serverless Laravel applications
-            symfony:
-                text: Symfony
-                url: /docs/frameworks/symfony.html
-                title: Learn how to deploy serverless Symfony applications
-    -   section: Learning
-        items:
-            case-studies:
-                text: Case studies
-                url: /docs/case-studies.html
-                title: A collection of case studies of serverless PHP applications built using Bref.
-            community:
-                text: Community
-                url: /docs/community.html
-                title: Places where to learne and exchange about Bref.
+    intro:
+        -   section: Introduction
+            items:
+                what-is-bref:
+                    text: What is Bref and serverless?
+                    url: /docs/
+                installation:
+                    text: Installation
+                    url: /docs/installation.html
+#                first-steps:
+#                    text: First steps
+#                    url: /docs/first-steps.html
+
+    webHosting:
+        -   section: 'Bref for <strong>web hosting</strong>'
+            items:
+                web-hosting:
+                    text: Web hosting on AWS Lambda
+                    url: /docs/runtimes/http.html
+                websites:
+                    text: Website assets
+                    url: /docs/websites.html
+                    title: Building complete websites with Bref
+                console-applications:
+                    text: Console commands
+                    url: /docs/runtimes/console.html
+                local-development:
+                    text: Local development
+                    url: /docs/local-development.html
+        -   section: Frameworks
+            items:
+                laravel:
+                    text: Laravel
+                    url: /docs/frameworks/laravel.html
+                    title: Learn how to deploy serverless Laravel applications
+                symfony:
+                    text: Symfony
+                    url: /docs/frameworks/symfony.html
+                    title: Learn how to deploy serverless Symfony applications
+
+    functions:
+        -   section: 'Bref for <strong class="text-gray-700">functions</strong>'
+            items:
+                php-functions:
+                    text: PHP functions on AWS Lambda
+                    url: /docs/runtimes/function.html
+                typed-handlers:
+                    text: Typed handlers
+                    url: /docs/function/typed-handlers.html
+                local-development:
+                    text: Local development
+                    url: /docs/local-development.html
+
+    other:
+#        -   section: Runtimes
+#            items:
+#                runtimes-introduction:
+#                    text: Introduction to PHP runtimes
+#                    url: /docs/runtimes/
+        -   section: Workflow
+            items:
+                deploy:
+                    text: Deployment
+                    url: /docs/deploy.html
+        -   section: Environment
+            items:
+                serverless-yml:
+                    text: serverless.yml
+                    url: /docs/environment/serverless-yml.html
+                    title: Configure your application with the serverless.yml file
+                variables:
+                    text: Variables
+                    url: /docs/environment/variables.html
+                    title: Configuring environment variables with Bref
+                php:
+                    text: PHP
+                    url: /docs/environment/php.html
+                    title: Configuring PHP versions and options with Bref
+                storage:
+                    text: Storage
+                    url: /docs/environment/storage.html
+                    title: Storing files and data with Bref on AWS Lambda
+                logs:
+                    text: Logs
+                    url: /docs/environment/logs.html
+                    title: Managing logs with Bref on AWS Lambda
+                database:
+                    text: Databases
+                    url: /docs/environment/database.html
+                    title: Using a database from AWS Lambda
+                custom-domains:
+                    text: Custom domains
+                    url: /docs/environment/custom-domains.html
+                    title: Configuring custom domain names for HTTP applications
+                performances:
+                    text: Performances
+                    url: /docs/environment/performances.html
+                    title: Performance tuning and optimizations
+        -   section: Learning
+            items:
+                case-studies:
+                    text: Case studies
+                    url: /docs/case-studies.html
+                    title: A collection of case studies of serverless PHP applications built using Bref.
+                community:
+                    text: Community
+                    url: /docs/community.html
+                    title: Places where to learne and exchange about Bref.

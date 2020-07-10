@@ -180,6 +180,33 @@ article table td {
     vertical-align: text-top;
 }
 
+/* Menu */
+#menu h3 {
+    @apply mb-4 text-gray-500 uppercase font-semibold text-sm tracking-wider;
+}
+@screen lg {
+    #menu h3 {
+        @apply text-xs;
+    }
+}
+#menu h3 strong {
+    @apply text-gray-700;
+}
+#menu ul {
+    @apply list-none p-0 mb-6 ml-4;
+}
+#menu ul:last-child {
+    @apply mb-0;
+}
+#menu ul > li {
+    @apply my-3;
+}
+#menu ul > li:last-child {
+    @apply mb-0;
+}
+#menu ul > li > a {
+    @apply text-gray-800;
+}
 
 @tailwind components;
 

@@ -7,15 +7,23 @@ next:
     title: Installation
 ---
 
+Serverless means using cloud services that manage the servers for us.
+
 ## Why serverless?
 
-Serverless replaces the traditional approaches to running applications. With serverless:
+When running PHP on a server, we must:
 
-- We don't manage, update, configure, provision servers or containers,
-- We don't reserve or scale servers or containers, instead they are scaled automatically and transparently for us,
-- We don't pay for fixed resources, instead we pay for what we actually use (e.g. execution time).
+- setup, configure and maintain that server,
+- pay a fixed price for the server,
+- scale the server(s) if we get more traffic.
 
-**Serverless can provide more scalable, affordable and reliable architectures for less effort.**
+When running PHP serverless:
+
+- We do not need to set up servers, the cloud provider takes care of that.
+- We pay only for what we use.
+- Our application scales automatically.
+
+**Serverless provides more scalable, affordable and reliable architectures for less effort.**
 
 Serverless includes services like storage as a service, database as a service, message queue as a service, etc. One service in particular is interesting for us developers: *Function as a Service* (FaaS).
 
@@ -159,7 +167,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
     Jobs, cron tasks and batch processes are very good candidates for FaaS. The scaling model of AWS Lambda can lead to very high throughput in queue processing, and the pay-per-use billing model can sometimes result in drastic costs reduction.
 
-    The main challenge at the moment is the lack of documentation on this topic, as well as the lack of native integration with existing queue libraries like Laravel Queues, Symfony Messenger, Enqueue…
+    The main limitation at the moment is the lack of documentation on this topic. There is however a documented [Laravel Queues bridge](https://github.com/brefphp/laravel-bridge) and a [Symfony Messenger bridge](https://github.com/brefphp/symfony-messenger).
 
 - **API**
 

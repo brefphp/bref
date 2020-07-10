@@ -14,8 +14,9 @@
     </div>
 
     <div class="flex h-full mt-12 lg:mt-0">
-        <div id="menu" class="fixed flex-shrink-0 lg:w-64 xl:w-80 lg:flex lg:flex-col z-30 h-screen w-full hidden text-gray-700 bg-gray-100 px-6 lg:px-8 py-8 lg:py-16 overflow-auto leading-tight">
-            <nav class="mt-1" style="font-size: 0.95rem">
+
+        <div id="menu" class="fixed flex-shrink-0 lg:w-64 xl:w-80 lg:flex lg:flex-col z-30 h-screen w-full hidden text-gray-700 bg-gray-100 px-6 lg:px-8 py-4 lg:py-8 overflow-auto leading-tight">
+            <nav class="mt-1 pb-16" style="font-size: 0.95rem">
                 <h2 class="mb-8">
                     <a class="text-gray-600 hover:text-gray-800 font-bref text-2xl"
                        href="/" title="Bref home page">bref</a>
@@ -24,72 +25,65 @@
                     </a>
                 </h2>
 
-                <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">Introduction</h3>
-                <ul class="list-none p-0 mb-6 ml-4">
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">What is Bref and serverless?</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Installation</a></li>
-                </ul>
+                {% for item in menu.intro %}
+                    <h3>{{ item.section }}</h3>
+                    <ul>
+                        {% for itemId, item in item.items %}
+                            <li>
+                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : '' }}"
+                                   title="{{ item.title|default(item.text)|e('html_attr') }}">
+                                    {{ item.text }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
 
-                <div class="bg-gray-400 pt-6 pb-2 -mx-8 px-8">
-                    <h3 class="mb-4 text-gray-600 uppercase font-semibold text-sm lg:text-xs tracking-wider">Bref for <strong class="text-gray-700">web hosting</strong></h3>
-                    <ul class="list-none p-0 mb-6 ml-4">
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Web hosting on AWS Lambda</a></li>
-                        <li class="hidden mb-3 mt-3"><a href="#" class="text-gray-800">Deployment</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Website assets</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Console commands</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Local development</a></li>
-                    </ul>
-                    <h3 class="mb-4 text-gray-600 uppercase font-semibold text-sm lg:text-xs tracking-wider">Frameworks</h3>
-                    <ul class="list-none p-0 ml-4">
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Laravel</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Symfony</a></li>
-                    </ul>
+                <div class="bg-gray-400 py-6 -mx-8 px-8">
+                    {% for item in menu.webHosting %}
+                        <h3 class="text-gray-600">{{ item.section|raw }}</h3>
+                        <ul>
+                            {% for itemId, item in item.items %}
+                                <li>
+                                    <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : '' }}"
+                                       title="{{ item.title|default(item.text)|e('html_attr') }}">
+                                        {{ item.text }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
                 </div>
 
-                <div class="bg-gray-300 pt-6 pb-2 mb-6 -mx-8 px-8">
-                    <h3 class="mb-4 text-gray-600 uppercase font-semibold text-sm lg:text-xs tracking-wider">Bref for <strong class="text-gray-700">functions</strong></h3>
-                    <ul class="list-none p-0 mb-6 ml-4">
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">PHP functions on AWS Lambda</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Typed handlers</a></li>
-                        <li class="hidden mb-3 mt-3"><a href="#" class="text-gray-800">Deployment</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Local development</a></li>
-                    </ul>
-                    <h3 class="hidden mb-4 text-gray-600 uppercase font-semibold text-sm lg:text-xs tracking-wider">Typed handlers</h3>
-                    <ul class="hidden list-none p-0 ml-4">
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">SQS</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">EventBridge</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">S3</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">HTTP</a></li>
-                        <li class="mb-3 mt-3"><a href="#" class="text-gray-800">DynamoDB</a></li>
-                    </ul>
+                <div class="bg-gray-300 py-6 -mx-8 px-8 mb-6">
+                    {% for item in menu.functions %}
+                        <h3 class="text-gray-600">{{ item.section|raw }}</h3>
+                        <ul>
+                            {% for itemId, item in item.items %}
+                                <li>
+                                    <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : '' }}"
+                                       title="{{ item.title|default(item.text)|e('html_attr') }}">
+                                        {{ item.text }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
                 </div>
 
-                <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">Workflow</h3>
-                <ul class="list-none p-0 mb-6 ml-4">
-                    <li class="hidden mb-3 mt-3"><a href="#" class="text-gray-800">Local development</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Deployment</a></li>
-                </ul>
+                {% for item in menu.other %}
+                    <h3>{{ item.section }}</h3>
+                    <ul>
+                        {% for itemId, item in item.items %}
+                            <li>
+                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : '' }}"
+                                   title="{{ item.title|default(item.text)|e('html_attr') }}">
+                                    {{ item.text }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
 
-                <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">Environment</h3>
-                <ul class="list-none p-0 mb-6 ml-4">
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">serverless.yml</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Variables & secrets</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">PHP.ini and extensions</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Storage</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Logs</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Databases</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Custom domains</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Performances</a></li>
-                </ul>
-
-                <h3 class="mb-4 text-gray-500 uppercase font-semibold text-sm lg:text-xs tracking-wider">More</h3>
-                <ul class="list-none p-0 mb-6 ml-4">
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Community</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Bref Dashboard</a></li>
-                    <li class="mb-3 mt-3"><a href="#" class="text-gray-800">Case studies</a></li>
-                </ul>
             </nav>
         </div>
+
         <div class="w-full lg:ml-64 xl:ml-96 overflow-x-hidden px-4 md:px-6 lg:px-16 py-8 lg:py-16">
             <div class="lg:max-w-700px">
                 {% block content %}
