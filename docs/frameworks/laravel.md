@@ -111,6 +111,42 @@ If your application creates links and redirections to HTTP URLs (which are inval
 +    protected $proxies = '*';
 ```
 
+### Forwarding correct Host header
+
+When not enabling host forwarding, Laravel will use the hostname/domain from Cloudfront while building internal links (routes).
+To fix this, you can use one of the following methods. Please also have a look at the HTTPS section above for allowing the AWS proxies.
+
+#### Method 1: Extending serverless.yml
+
+You can add the following `OriginCustomHeaders` part to your `Origins` setting in your `serverless.yml` file:
+
+```diff
+Origins:
+  # The website (AWS Lambda)
+  - Id: Website
+    DomainName: '#{ApiGatewayRestApi}.execute-api.#{AWS::Region}.amazonaws.com'
+    OriginPath: '/dev'
+    CustomOriginConfig:
+      OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
++    OriginCustomHeaders:
++      - HeaderName: 'X-Forwarded-Host'
++        HeaderValue: 'your-domain-here.com'
+```
+
+#### Method 2: Customizing the Cloudfront Distribution (whitelisting `Host` header forwarding)
+
+You can whitelist the `Host` header in your Cloudfront Distribution like this (to forward the `Host` header from the request):
+
+- Open the Amazon CloudFront console, and then choose your distribution.
+- Choose the Behaviors view, and then choose the path you are using.
+- Choose Edit.
+- For Cache Based on Selected Request Headers, choose Whitelist.
+- Under Whitelist Headers, choose Host from the column on the left, and then choose Add.
+- Choose Yes, Edit.
+
+*Origin: https://aws.amazon.com/de/premiumsupport/knowledge-center/configure-cloudfront-to-forward-headers/*
+
+
 ## Laravel Artisan
 
 As you may have noticed, we define a function of type "console" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
