@@ -140,7 +140,7 @@ $result = $lambda->invoke([
 $result = json_decode($result->get('Payload')->getContents(), true);
 ```
 
-Alternativly, you can achieve the same result with the lighter [AsyncAws Lambda](https://github.com/async-aws/lambda) package.
+Alternatively, you can achieve the same result with the lighter [AsyncAws Lambda](https://github.com/async-aws/lambda) package.
 
 ### From other AWS services
 
