@@ -10,7 +10,7 @@ A demo application is available on GitHub at [github.com/brefphp/examples](https
 
 ## Setup
 
-Assuming your are in existing Laravel project, let's install Bref via Composer:
+Assuming you are in an existing Laravel project, let's install Bref via Composer:
 
 ```
 composer require bref/bref
