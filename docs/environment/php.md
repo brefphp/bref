@@ -18,7 +18,7 @@ These files *cannot be customized*.
 You can create your own `php.ini` to customize PHP's configuration:
 
 1. create a `php/conf.d/` subdirectory in your project
-1. create a `php.ini` file inside that directory _(the name of the file does not matter, it must have an `.ini` extensions)_
+1. create a `php.ini` file inside that directory _(the name of the file does not matter, it must have an `.ini` extension)_
 
 PHP will automatically include any `*.ini` file found in `php/conf.d/` in your project.
 
@@ -34,7 +34,7 @@ Learn how to declare environment variables by reading the [Environment Variables
 
 If you are using Lambda layers, for example to use custom PHP extensions, you can override the default `php.ini` by placing your own configuration file in `/opt/bref/etc/php/conf.d/`.
 
-Make sur to give a unique name to your `.ini` file to avoid any collision with other layers.
+Make sure to give a unique name to your `.ini` file to avoid any collision with other layers.
 
 ## Extensions
 
