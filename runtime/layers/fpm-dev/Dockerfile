@@ -1,16 +1,33 @@
 ARG PHP_VERSION
 FROM bref/build-php-$PHP_VERSION as build_extensions
+# We need that variable so we re-import it again (args are cleared after each FROM)
+ARG PHP_VERSION
 
-RUN pecl install xdebug
+RUN if [ "$PHP_VERSION" = "80" ] ; \
+    then \
+        echo "Installing xdebug from master to support PHP 8.0" \
+        && git clone git://github.com/xdebug/xdebug.git \
+        && cd xdebug \
+        && phpize \
+        && ./configure --enable-xdebug \
+        && make \
+        && make install \
+        && cd .. \
+        && rm -rf xdebug ; \
+    else \
+        pecl install xdebug ; \
+    fi
 RUN cp $(php -r "echo ini_get('extension_dir');")/xdebug.so /tmp
 
-ENV current_os=linux
-RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")-zts \
-    && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/$current_os/amd64/$version \
-    && mkdir -p /tmp/blackfire \
-    && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
-    && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so \
-    && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
+RUN if [ "$PHP_VERSION" != "80" ] ; \
+    then \
+        version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")-zts \
+        && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/$version \
+        && mkdir -p /tmp/blackfire \
+        && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
+        && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so \
+        && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz ; \
+    fi
 
 FROM bref/php-${PHP_VERSION}-fpm as build_dev
 
