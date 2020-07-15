@@ -9,7 +9,7 @@ plugins:
     - ./vendor/bref/bref
 
 functions:
-    function:
+    hello:
         handler: index.php
         description: ''
         layers:
