@@ -42,7 +42,7 @@ functions:
         handler: public/index.php
         timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
         layers:
-            - ${bref:layer.php-73-fpm}
+            - ${bref:layer.php-74-fpm}
         events:
             -   http: 'ANY /'
             -   http: 'ANY /{proxy+}'
@@ -50,7 +50,7 @@ functions:
         handler: artisan
         timeout: 120 # in seconds
         layers:
-            - ${bref:layer.php-73} # PHP
+            - ${bref:layer.php-74} # PHP
             - ${bref:layer.console} # The "console" layer
 ```
 
@@ -300,14 +300,14 @@ Instead, here is what you need to do:
     This command will generate the `storage/oauth-private.key` and `storage/oauth-public.key` files, which need to be deployed.
 
     Depending on how you deploy your application (from your machine, or from CI), you may want to whitelist them in `serverless.yml`:
-    
+
     ```yaml
       package:
           exclude:
               ...
           include:
               - storage/oauth-private.key
-              - storage/oauth-public.key  
+              - storage/oauth-public.key
       ```
 
 - You can now deploy the application:

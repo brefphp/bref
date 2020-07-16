@@ -57,7 +57,7 @@ functions:
     hello:
         ...
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 ```
 
 The `${...}` notation is the [syntax to use variables](https://serverless.com/framework/docs/providers/aws/guide/variables/) in `serverless.yml`. Bref provides a serverless plugin ("`./vendor/bref/bref`") that provides those variables:

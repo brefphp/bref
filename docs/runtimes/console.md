@@ -31,7 +31,7 @@ functions:
     hello:
         handler: bin/console # or `artisan` if you are using Laravel
         layers:
-            - ${bref:layer.php-73} # PHP runtime
+            - ${bref:layer.php-74} # PHP runtime
             - ${bref:layer.console} # Console layer
 ```
 

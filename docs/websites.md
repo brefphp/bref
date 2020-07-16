@@ -105,7 +105,7 @@ It is not possible to use `serverless deploy` to upload files to S3, you need to
 aws s3 sync <your-assets-directory> s3://<bucket-name>/<your-assets-folder> --delete
 ```
 
-Please note that the assets would normally need to be inside a folder, and not in the root of your bucket. 
+Please note that the assets would normally need to be inside a folder, and not in the root of your bucket.
 
 Be aware that the content of the bucket is public!
 
@@ -141,7 +141,7 @@ functions:
     website:
         handler: public/index.php
         layers:
-            - ${bref:layer.php-73-fpm}
+            - ${bref:layer.php-74-fpm}
         events:
             -   http: 'ANY /'
             -   http: 'ANY {proxy+}'
@@ -153,10 +153,10 @@ resources:
     Resources:
         # The S3 bucket that stores the assets
         Assets:
-            # [...] see the previous section for details 
+            # [...] see the previous section for details
         AssetsBucketPolicy:
-            # [...] see the previous section for details 
-    
+            # [...] see the previous section for details
+
         WebsiteCDN:
             Type: AWS::CloudFront::Distribution
             Properties:
