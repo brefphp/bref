@@ -1,0 +1,37 @@
+{
+  "requestContext": {
+    "elb": {
+      "targetGroupArn": "arn:aws:elasticloadbalancing:eu-west-1:000000000000:targetgroup/my-target-0000000000000/7aae1aad13b5638f"
+    }
+  },
+  "httpMethod": "GET",
+  "path": "/widgets/my-report/my-endpoint",
+  "queryStringParameters": {
+    "date%5Bfrom%5D": "2019-07-18",
+    "date%5Bto%5D": "2020-07-16",
+    "date%5Btype%5D": "date_email_sent",
+    "date_increment": "month",
+    "filter%5Bdestination%5D%5B%5D": "101",
+    "kpi_followup": "1",
+    "q": "1"
+  },
+  "headers": {
+    "accept": "application/json, text/plain, */*",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en,en-US;q=0.9",
+    "cookie": "PHPSESSID=00000000000000000000000000",
+    "host": "contributions.customergauge.com",
+    "origin": "https://contributions.customergauge.com",
+    "referer": "https://contributions.customergauge.com/Report?id=000",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-site",
+    "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36",
+    "x-amzn-trace-id": "Root=1-00000000-000000000000000000000000",
+    "x-forwarded-for": "19.19.199.199",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "body": "",
+  "isBase64Encoded": true
+}
