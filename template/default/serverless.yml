@@ -13,7 +13,7 @@ functions:
         handler: index.php
         description: ''
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 
 # Exclude files from deployment
 package:
