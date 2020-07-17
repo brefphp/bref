@@ -141,9 +141,9 @@ final class FpmHandlerLoadBalancerTest extends TestCase
         $this->startFpm(__DIR__ . '/PhpFpm/' . $file);
 
         return $this->fpm->handle($event ?? [
-                'version' => '1.0',
-                'httpMethod' => 'GET',
-            ], $this->fakeContext);
+            'version' => '1.0',
+            'httpMethod' => 'GET',
+        ], $this->fakeContext);
     }
 
     private function startFpm(string $handler): void
