@@ -1,0 +1,91 @@
+{
+  "requestContext": {
+    "elb": {
+      "targetGroupArn": "arn:aws:elasticloadbalancing:eu-west-1:179453031647:targetgroup/analy-Targe-1CC48RAFKB4FD/7aae1aad13b5638f"
+    }
+  },
+  "httpMethod": "GET",
+  "path": "/widgets/v2/close-loop/rate",
+  "multiValueQueryStringParameters": {
+    "conditions[survey][0][field]": [
+      "segment_a"
+    ],
+    "conditions[survey][0][operator]": [
+      "="
+    ],
+    "conditions[survey][0][values][]": [
+      "64",
+      "40",
+      "23"
+    ],
+    "conditions[survey][1][field]": [
+      "segment_c"
+    ],
+    "conditions[survey][1][operator]": [
+      "="
+    ],
+    "conditions[survey][1][values][]": [
+      "10",
+      "9",
+      "6"
+    ],
+    "period[survey][end]": [
+      "2020-07-17"
+    ],
+    "period[survey][field]": [
+      "date_email_sent"
+    ],
+    "period[survey][start]": [
+      "2020-06-18"
+    ]
+  },
+  "multiValueHeaders": {
+    "accept": [
+      "application/json, text/plain, */*"
+    ],
+    "accept-encoding": [
+      "gzip, deflate, br"
+    ],
+    "accept-language": [
+      "en-US,en;q=0.9"
+    ],
+    "cookie": [
+      "PHPSESSID=00000000000000000000000000"
+    ],
+    "host": [
+      "contributions.customergauge.com"
+    ],
+    "origin": [
+      "https://contributions.customergauge.com"
+    ],
+    "referer": [
+      "https://contributions.customergauge.com/Report?id=288"
+    ],
+    "sec-fetch-dest": [
+      "empty"
+    ],
+    "sec-fetch-mode": [
+      "cors"
+    ],
+    "sec-fetch-site": [
+      "same-site"
+    ],
+    "user-agent": [
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"
+    ],
+    "x-amzn-trace-id": [
+      "Root=1-5f1166ec-35cbab54102d0e98410489d0"
+    ],
+    "x-forwarded-for": [
+      "19.19.190.19"
+    ],
+    "x-forwarded-port": [
+      "443"
+    ],
+    "x-forwarded-proto": [
+      "https"
+    ]
+  },
+  "body": "",
+  "isBase64Encoded": true
+}

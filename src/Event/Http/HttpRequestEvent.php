@@ -178,19 +178,23 @@ final class HttpRequestEvent implements LambdaEvent
         }
 
         if (isset($this->event['requestContext']) && isset($this->event['requestContext']['elb'])) {
-            $decodedQueryParameters = [];
-
             if (isset($this->event['multiValueQueryStringParameters'])) {
                 $queryParameters = $this->event['multiValueQueryStringParameters'];
             } else {
                 $queryParameters = $this->event['queryStringParameters'] ?? [];
             }
 
-            foreach ($queryParameters as $key => $value) {
-                $key = urldecode($key);
+            $queryString = '';
 
-                $decodedQueryParameters[$key] = urldecode($value);
+            foreach ($queryParameters as $key => $values) {
+                $values = (array) $values;
+
+                foreach ($values as $value) {
+                    $queryString .= $key . '=' . $value . '&';
+                }
             }
+
+            parse_str($queryString, $decodedQueryParameters);
 
             return http_build_query($decodedQueryParameters);
         }
