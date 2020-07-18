@@ -24,7 +24,7 @@ functions:
     console:
         handler: bin/console # or `artisan` if you are using Laravel
         layers:
-            - ${bref:layer.php-73} # PHP runtime
+            - ${bref:layer.php-74} # PHP runtime
             - ${bref:layer.console} # Console layer
         events:
             - schedule:
@@ -48,7 +48,7 @@ functions:
     console:
         handler: function.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
         events:
             - schedule: rate(1 hour)
 ```

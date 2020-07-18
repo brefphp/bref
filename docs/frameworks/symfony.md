@@ -42,7 +42,7 @@ functions:
         handler: public/index.php
         timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
         layers:
-            - ${bref:layer.php-73-fpm}
+            - ${bref:layer.php-74-fpm}
         events:
             -   http: 'ANY /'
             -   http: 'ANY /{proxy+}'
@@ -50,7 +50,7 @@ functions:
         handler: bin/console
         timeout: 120 # in seconds
         layers:
-            - ${bref:layer.php-73} # PHP
+            - ${bref:layer.php-74} # PHP
             - ${bref:layer.console} # The "console" layer
 ```
 
