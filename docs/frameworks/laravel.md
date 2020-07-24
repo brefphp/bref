@@ -10,110 +10,65 @@ A demo application is available on GitHub at [github.com/brefphp/examples](https
 
 ## Setup
 
-Assuming you are in an existing Laravel project, let's install Bref via Composer:
+First, make sure you have followed the [Installation guide](../installation.md) to create an AWS account and install the necessary tools.
+
+Next, in an existing Laravel project, install Bref and the [Laravel-Bref package](https://github.com/brefphp/laravel-bridge).
 
 ```
-composer require bref/bref
+composer require bref/bref bref/laravel-bridge
 ```
 
-Then let's create a `serverless.yml` configuration file (at the root of the project) optimized for Laravel:
+Then let's create a `serverless.yml` configuration file:
 
-```yaml
-service: bref-demo-laravel
-
-provider:
-    name: aws
-    region: us-east-1
-    runtime: provided
-
-plugins:
-    - ./vendor/bref/bref
-
-package:
-  exclude:
-    - node_modules/**
-    - public/storage
-    - resources/assets/**
-    - storage/**
-    - tests/**
-
-functions:
-    website:
-        handler: public/index.php
-        timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
-        layers:
-            - ${bref:layer.php-74-fpm}
-        events:
-            -   http: 'ANY /'
-            -   http: 'ANY /{proxy+}'
-    artisan:
-        handler: artisan
-        timeout: 120 # in seconds
-        layers:
-            - ${bref:layer.php-74} # PHP
-            - ${bref:layer.console} # The "console" layer
+```
+php artisan vendor:publish --tag=serverless-config
 ```
 
-We will also need to customize the location for compiled views, as well as customize a few variables in the `.env` file:
+### How it works
 
-```dotenv
-VIEW_COMPILED_PATH=/tmp/storage/framework/views
+By default, the Laravel-Bref package will automatically configure Laravel to work on AWS Lambda
 
-# We cannot store sessions to disk: if you don't need sessions (e.g. API) then use `array`
-# If you write a website, use `cookie` or store sessions in database.
-SESSION_DRIVER=cookie
+If you are curious, the package will:
 
-# Logging to stderr allows the logs to end up in Cloudwatch
-LOG_CHANNEL=stderr
-```
-
-Finally we need to edit `app/Providers/AppServiceProvider.php` because Laravel will not create that directory automatically:
-
-```php
-    public function boot()
-    {
-        // Make sure the directory for compiled views exist
-        if (! is_dir(config('view.compiled'))) {
-            mkdir(config('view.compiled'), 0755, true);
-        }
-    }
-```
+- enable the `stderr` log driver, to send logs to CloudWatch ([read more about logs](../environment/logs.md))
+- enable the [`cookie` session driver](https://laravel.com/docs/7.x/session#configuration)
+    - if you don't need sessions (e.g. for an API), you can manually set `SESSION_DRIVER=array` in `.env`
+    - if you prefer, you can configure sessions to be store in database or Redis
+- adjust a few more settings ([have a look at the `BrefServiceProvider` for details](https://github.com/brefphp/laravel-bridge/blob/master/src/BrefServiceProvider.php))
 
 ## Deployment
 
-At the moment deploying Laravel with its caches will break in AWS Lambda (because most file paths are different). This is why it is currently necessary to deploy without the config cache file. However, deploying Laravel without it's packages and services cache will also break in Lambda. The solution is to run `php artisan config:cache` to build all caches (not only config) and then `php artisan config:clear` to make sure that config cache file doesn't exist.
+We do not want to deploy caches that were generated on our machine (because paths will be different on AWS Lambda). Let's clear them before deploying:
 
-Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
+```bash
+php artisan config:clear
+```
+
+Let's deploy now:
+
+```bash
+serverless deploy
+```
+
+When finished, the `deploy` command will show the URL of the application.
+
+### Deploying for production
+
+At the moment, we deployed our local installation to Lambda. When deploying for production, we probably don't want to deploy:
+
+- development dependencies,
+- our local `.env` file,
+- or any other dev artifact.
+
+Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details.
 
 ## Troubleshooting
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
 
-If you get the following error:
-
-> production.ERROR: mkdir(): Invalid path {"exception":"[object] (ErrorException(code: 0): mkdir(): Invalid path at /var/task/app/Providers/AppServiceProvider.php:20)"
-
-then check the file `config/view.php` and make sure the `'compiled'` entry looks like this:
-
-```php
-    'compiled' => env(
-        'VIEW_COMPILED_PATH',
-        realpath(storage_path('framework/views'))
-    ),
-```
-
-### HTTPS
-
-If your application creates links and redirections to HTTP URLs (which are invalid), you should configure the `app/Http/Middleware/TrustProxies.php` file to accept the AWS API Gateway headers:
-
-```diff
--    protected $proxies;
-+    protected $proxies = '*';
-```
-
 ## Laravel Artisan
 
-As you may have noticed, we define a function of type "console" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
+As you may have noticed, we define a function named "artisan" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
 
 For example, to execute an `artisan` command on Lambda for the above configuration, run the below command.
 
@@ -134,13 +89,7 @@ npm run prod
 aws s3 sync public/ s3://<bucket-name>/ --delete --exclude index.php
 ```
 
-Then, the assets need to be included from S3. Update `config/app.php` to add this variable:
-
-```php
-    'mix_url' => env('MIX_ASSET_URL', null),
-```
-
-In the production `.env` file you can now set that variable:
+Then, the assets need to be included from S3. In the production `.env` file you can now set that variable:
 
 ```dotenv
 MIX_ASSET_URL=https://<bucket-name>.s3.amazonaws.com
