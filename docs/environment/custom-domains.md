@@ -40,7 +40,7 @@ After validating the domain and the certificate we can now link the custom domai
 After waiting for the DNS change to propagate (sometimes up to 24 hours) your website is now accessible via your custom domain.
 
 > You can also take a look at the plugin [serverless-domain-manager](https://www.serverless.com/plugins/serverless-domain-manager).  
-> It handle the custom domain creation and optionnally add the route53 record if asked (You'll still have to manage the certificate creation).  
+> It handles the custom domain creation and optionally adds the Route53 record if asked. It is still necessary to create the ACM certificate manually.
 > 
 > A basic implementation is proposed here : https://www.serverless.com/blog/serverless-api-gateway-domain#create-a-custom-domain-in-api-gateway  
 
