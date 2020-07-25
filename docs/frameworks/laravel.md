@@ -157,7 +157,7 @@ Because [of a misconfiguration shipped in Laravel](https://github.com/laravel/la
         ],
 ```
 
-That's it! The `AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY' and 'AWS_SESSION_TOKEN` variables are defined automatically on AWS Lambda, you don't have to define them.
+That's it! The `'AWS_ACCESS_KEY_ID'`, `'AWS_SECRET_ACCESS_KEY'` and `'AWS_SESSION_TOKEN'` variables are defined automatically on AWS Lambda, you don't have to define them.
 
 ### Public files
 
