@@ -26,9 +26,9 @@ The first thing to do is register the domain in **ACM** (AWS Certificate Manager
 
 After validating the domain and the certificate we can now link the custom domain to our application via API Gateway.
 
-- open [API Gateway's "Custom Domain" configuration](https://eu-west-3.console.aws.amazon.com/apigateway/home#/custom-domain-names)
+- open [API Gateway's "Custom Domain" configuration](https://console.aws.amazon.com/apigateway/main/publish/domain-names)
 - **switch to the region of your application**
-- click "Create Custom Domain Name"
+- click "Create"
 - enter your domain name, select the certificate you created above and save
 - edit the domain that was created
 - add a "Path mapping" to map the `/` URL (or any URL you want) to your HTTP application in the `Prod` stage, for example:
