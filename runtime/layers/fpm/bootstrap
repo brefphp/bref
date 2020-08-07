@@ -24,7 +24,8 @@ if (! is_file($handlerFile)) {
     $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist");
 }
 
-$phpFpm = new FpmHandler($handlerFile);
+$phpFpmConfig = getenv('BREF_PHP_FPM_CONFIG_PATH');
+$phpFpm = new FpmHandler($handlerFile, $phpFpmConfig === false ? null : $phpFpmConfig);
 try {
     $phpFpm->start();
 } catch (\Throwable $e) {

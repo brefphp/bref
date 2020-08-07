@@ -44,10 +44,10 @@ final class FpmHandler extends HttpHandler
     /** @var Process|null */
     private $fpm;
 
-    public function __construct(string $handler, string $configFile = self::CONFIG)
+    public function __construct(string $handler, ?string $configFile = null)
     {
         $this->handler = $handler;
-        $this->configFile = $configFile;
+        $this->configFile = $configFile ?? self::CONFIG;
     }
 
     /**
