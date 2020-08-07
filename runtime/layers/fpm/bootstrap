@@ -23,6 +23,8 @@ $handlerFile = $appRoot . '/' . getenv('_HANDLER');
 if (! is_file($handlerFile)) {
     $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist");
 }
+$phpFpmExceptionClass = getenv('BREF_PHP_FPM_EXCEPTION_HANDLER');
+$phpFpm = new FpmHandler($handlerFile, null, $phpFpmExceptionClass === false ? null : new $phpFpmExceptionClass());
 
 $phpFpm = new FpmHandler($handlerFile);
 try {

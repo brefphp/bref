@@ -43,11 +43,14 @@ final class FpmHandler extends HttpHandler
     private $configFile;
     /** @var Process|null */
     private $fpm;
+    /** @var FpmExceptionHandler|null  */
+    private $exceptionHandler;
 
-    public function __construct(string $handler, string $configFile = self::CONFIG)
+    public function __construct(string $handler, string $configFile = self::CONFIG, ?FpmExceptionHandler $exceptionHandler = null)
     {
         $this->handler = $handler;
         $this->configFile = $configFile;
+        $this->exceptionHandler = $exceptionHandler;
     }
 
     /**
@@ -107,6 +110,12 @@ final class FpmHandler extends HttpHandler
         try {
             $response = $this->client->sendRequest($this->connection, $request);
         } catch (Throwable $e) {
+            if ($this->exceptionHandler !== null) {
+                $response = $this->exceptionHandler->getResponse($event, $context, $e);
+                $this->ensureStillRunning();
+
+                return $response;
+            }
             throw new FastCgiCommunicationFailed(sprintf(
                 'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
                 get_class($e),
