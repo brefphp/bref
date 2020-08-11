@@ -1,0 +1,40 @@
+{
+  "requestContext": {
+    "elb": {
+      "targetGroupArn": "arn:aws:elasticloadbalancing:eu-west-1:000000000000:targetgroup/my-target-0000000000000/7aae1aad13b5638f"
+    }
+  },
+  "httpMethod": "GET",
+  "path": "/widgets/report/another-report",
+  "queryStringParameters": {
+    "date%5Bfrom%5D": "2020-06-18",
+    "date%5Bto%5D": "2020-07-17",
+    "date%5Btype%5D": "custom_date",
+    "date_increment": "month",
+    "encoded_value[]": "abc123!%40%23%25",
+    "filter%5Bdestination%5D%5B%5D": "106",
+    "kpi_closed": "168",
+    "kpi_followup": "48",
+    "q": "1"
+  },
+  "headers": {
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "accept-encoding": "gzip, deflate, br",
+    "accept-language": "en-US,en;q=0.9",
+    "cache-control": "max-age=0",
+    "cookie": "PHPSESSID=00000000000000000000000000",
+    "host": "contributions.customergauge.com",
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+    "x-amzn-trace-id": "Root=1-5f116e3c-f6d933b4981835f0ae57d370",
+    "x-forwarded-for": "31.20.207.32",
+    "x-forwarded-port": "443",
+    "x-forwarded-proto": "https"
+  },
+  "body": "",
+  "isBase64Encoded": true
+}
