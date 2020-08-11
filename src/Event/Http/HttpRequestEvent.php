@@ -195,7 +195,6 @@ final class HttpRequestEvent implements LambdaEvent
             // AWS always deliver the list of query parameters as an array. Let's loop through all of the
             // query parameters available and parse them to get their original URL decoded values.
             foreach ($queryParameters as $key => $values) {
-
                 // If multi-value is disabled, $values is a string containing the last parameter sent.
                 // If multi-value is enabled, $values is *always* an array containing a list of parameters per key.
                 // Even if we only send 1 parameter (e.g. my_param=1), AWS will still send an array [1] for my_param
