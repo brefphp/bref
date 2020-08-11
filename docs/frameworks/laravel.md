@@ -34,6 +34,7 @@ If you are curious, the package will:
 - enable the [`cookie` session driver](https://laravel.com/docs/7.x/session#configuration)
     - if you don't need sessions (e.g. for an API), you can manually set `SESSION_DRIVER=array` in `.env`
     - if you prefer, you can configure sessions to be store in database or Redis
+- move the cache directory to `/tmp` (because the default storage directory is read-only on Lambda)
 - adjust a few more settings ([have a look at the `BrefServiceProvider` for details](https://github.com/brefphp/laravel-bridge/blob/master/src/BrefServiceProvider.php))
 
 ## Deployment
@@ -65,6 +66,13 @@ Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more
 ## Troubleshooting
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
+
+## Caching
+
+By default, the Bref bridge will move Laravel's cache directory to `/tmp` to avoid issues with the default cache directory that is read-only.
+
+The `/tmp` directory isn't shared across Lambda instances: while this works, this isn't the ideal solution for production workloads.
+If you plan on actively using the cache, or anything that uses it (like API rate limiting), you should instead use Redis or DynamoDB.
 
 ## Laravel Artisan
 
