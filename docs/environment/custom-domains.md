@@ -26,9 +26,9 @@ The first thing to do is register the domain in **ACM** (AWS Certificate Manager
 
 After validating the domain and the certificate we can now link the custom domain to our application via API Gateway.
 
-- open [API Gateway's "Custom Domain" configuration](https://eu-west-3.console.aws.amazon.com/apigateway/home#/custom-domain-names)
+- open [API Gateway's "Custom Domain" configuration](https://console.aws.amazon.com/apigateway/main/publish/domain-names)
 - **switch to the region of your application**
-- click "Create Custom Domain Name"
+- click "Create"
 - enter your domain name, select the certificate you created above and save
 - edit the domain that was created
 - add a "Path mapping" to map the `/` URL (or any URL you want) to your HTTP application in the `Prod` stage, for example:
@@ -38,6 +38,12 @@ After validating the domain and the certificate we can now link the custom domai
 - create a CNAME entry in your DNS to point your domain name to this `<random>.cloudfront.net` domain
 
 After waiting for the DNS change to propagate (sometimes up to 24 hours) your website is now accessible via your custom domain.
+
+> You can also take a look at the plugin [serverless-domain-manager](https://www.serverless.com/plugins/serverless-domain-manager).  
+> It handles the custom domain creation and optionally adds the Route53 record if asked. It is still necessary to create the ACM certificate manually.
+> 
+> A basic implementation is proposed here : https://www.serverless.com/blog/serverless-api-gateway-domain#create-a-custom-domain-in-api-gateway  
+
 
 ## Custom domains for static files on S3
 

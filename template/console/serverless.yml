@@ -14,7 +14,7 @@ functions:
         description: ''
         timeout: 30 # in seconds
         layers:
-            - ${bref:layer.php-73} # PHP
+            - ${bref:layer.php-74} # PHP
             - ${bref:layer.console} # The "console" layer
 
 # Exclude files from deployment

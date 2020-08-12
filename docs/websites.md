@@ -105,7 +105,7 @@ It is not possible to use `serverless deploy` to upload files to S3, you need to
 aws s3 sync <your-assets-directory> s3://<bucket-name>/<your-assets-folder> --delete
 ```
 
-Please note that the assets would normally need to be inside a folder, and not in the root of your bucket. 
+Please note that the assets would normally need to be inside a folder, and not in the root of your bucket.
 
 Be aware that the content of the bucket is public!
 
@@ -141,7 +141,7 @@ functions:
     website:
         handler: public/index.php
         layers:
-            - ${bref:layer.php-73-fpm}
+            - ${bref:layer.php-74-fpm}
         events:
             -   http: 'ANY /'
             -   http: 'ANY {proxy+}'
@@ -153,10 +153,10 @@ resources:
     Resources:
         # The S3 bucket that stores the assets
         Assets:
-            # [...] see the previous section for details 
+            # [...] see the previous section for details
         AssetsBucketPolicy:
-            # [...] see the previous section for details 
-    
+            # [...] see the previous section for details
+
         WebsiteCDN:
             Type: AWS::CloudFront::Distribution
             Properties:
@@ -181,7 +181,7 @@ resources:
                             S3OriginConfig: {} # this key is required to tell CloudFront that this is an S3 origin, even though nothing is configured
                             # If you host a static website, like a SPA, use s3-website URLs instead of the config above
                             # See https://stackoverflow.com/questions/15309113/amazon-cloudfront-doesnt-respect-my-s3-website-buckets-index-html-rules#15528757
-                            # DomainName: !Join ['', [!Ref Assets, '.s3-website-', !Ref AWS::Region, '.amazonaws.com']]
+                            # DomainName: !Select [2, !Split ["/", !GetAtt Assets.WebsiteURL]]
                             # CustomOriginConfig:
                             #     OriginProtocolPolicy: 'http-only' # S3 websites only support HTTP
                             # You'll also need to enable website hosting on your s3 bucket by configuring the WebsiteConfiguration property
@@ -228,7 +228,7 @@ resources:
 
 Feel free to customize the `/asset/` path. If your application is a JS application backed by a PHP API, you will want to invert API Gateway and S3 (set S3 as the `DefaultCacheBehavior` and serve API Gateway under a `/api/` path).
 
-> The first deployment takes a lot of time (20 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay. You will know it is finished when the `Status` column changes from `In Progress` to `Deployed` in your [CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home).
+> The first deployment takes a lot of time (5 to 10 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay. You will know it is finished when the `Status` column changes from `In Progress` to `Deployed` in your [CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home).
 
 The URL of the deployed CloudFront distribution can be found in [the CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home) under `Domain Name`.
 

@@ -71,6 +71,10 @@ menu:
                 local-development:
                     text: Local development
                     url: /docs/local-development.html
+                cron:
+                    text: Cron
+                    url: /docs/cron.html
+                    title: Cron tasks
 
     other:
 #        -   section: Runtimes

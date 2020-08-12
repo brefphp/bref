@@ -97,7 +97,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
             Jobs, Cron
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-400"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-400"></span>
@@ -167,7 +167,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
     Jobs, cron tasks and batch processes are very good candidates for FaaS. The scaling model of AWS Lambda can lead to very high throughput in queue processing, and the pay-per-use billing model can sometimes result in drastic costs reduction.
 
-    The main limitation at the moment is the lack of documentation on this topic. There is however a documented [Laravel Queues bridge](https://github.com/brefphp/laravel-bridge) and a [Symfony Messenger bridge](https://github.com/brefphp/symfony-messenger).
+    Using Bref, it is possible to implement cron jobs and queue workers using PHP. Bref also provides integration with popular queue libraries, like Laravel Queues and Symfony Messenger.
 
 - **API**
 

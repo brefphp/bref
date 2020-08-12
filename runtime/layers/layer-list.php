@@ -7,11 +7,13 @@
  */
 
 use AsyncAws\Lambda\LambdaClient;
-use AsyncAws\Lambda\Result\LayerVersionsListItem;
+use AsyncAws\Lambda\ValueObject\LayerVersionsListItem;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 const LAYER_NAMES = [
+    'php-80',
+    'php-80-fpm',
     'php-74',
     'php-74-fpm',
     'php-73',
@@ -64,4 +66,3 @@ function listLayers(string $selectedRegion): array
 
     return $layers;
 }
-

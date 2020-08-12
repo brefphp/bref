@@ -70,6 +70,7 @@ final class FpmHandler extends HttpHandler
          * --force-stderr: force logs to be sent to stderr, which will allow us to send them to CloudWatch
          */
         $this->fpm = new Process(['php-fpm', '--nodaemonize', '--force-stderr', '--fpm-config', $this->configFile]);
+
         $this->fpm->setTimeout(null);
         $this->fpm->start(function ($type, $output): void {
             // Send any PHP-FPM log to CloudWatch
@@ -228,9 +229,17 @@ final class FpmHandler extends HttpHandler
             return;
         }
 
-        echo "PHP-FPM seems to be running already, this might be because Lambda stopped the bootstrap process but didn't leave us an opportunity to stop PHP-FPM. Stopping PHP-FPM now to restart from a blank slate.\n";
+        // The PID could be reused by our new process: let's not kill ourselves
+        // See https://github.com/brefphp/bref/pull/645
+        if ($pid === posix_getpid()) {
+            unlink(self::SOCKET);
+            unlink(self::PID_FILE);
+            return;
+        }
 
-        // PHP-FPM is running, let's try to kill it properly
+        echo "PHP-FPM seems to be running already. This might be because Lambda stopped the bootstrap process but didn't leave us an opportunity to stop PHP-FPM (did Lambda timeout?). Stopping PHP-FPM now to restart from a blank slate.\n";
+
+        // The previous PHP-FPM process is running, let's try to kill it properly
         $result = posix_kill($pid, SIGTERM);
         if ($result === false) {
             echo "PHP-FPM's PID file contained a PID that doesn't exist, assuming PHP-FPM isn't running.\n";
@@ -238,7 +247,6 @@ final class FpmHandler extends HttpHandler
             unlink(self::PID_FILE);
             return;
         }
-
         $this->waitUntilStopped($pid);
         unlink(self::SOCKET);
         unlink(self::PID_FILE);

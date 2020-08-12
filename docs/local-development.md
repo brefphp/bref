@@ -24,7 +24,7 @@ functions:
     myFunction:
         handler: index.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 ```
 
 You can invoke it with or without event data:
@@ -70,7 +70,7 @@ services:
         environment:
             HANDLER: index.php
     php:
-        image: bref/php-73-fpm-dev
+        image: bref/php-74-fpm-dev
         volumes:
             - .:/var/task:ro
 ```
@@ -119,7 +119,7 @@ services:
             HANDLER: public/index.php
             DOCUMENT_ROOT: public
     php:
-        image: bref/php-73-fpm-dev
+        image: bref/php-74-fpm-dev
         volumes:
             - .:/var/task:ro
 ```
@@ -196,7 +196,7 @@ version: "3.5"
 
 services:
     console:
-        image: bref/php-73
+        image: bref/php-74
         volumes:
             - .:/var/task:ro
         entrypoint: php

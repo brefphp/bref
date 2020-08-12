@@ -33,7 +33,7 @@ functions:
     website:
         handler: index.php
         layers:
-            - ${bref:layer.php-73-fpm}
+            - ${bref:layer.php-74-fpm}
         # This section contains the URL routing configuration of API Gateway
         events:
             -   http: 'ANY /'
@@ -54,13 +54,13 @@ functions:
 
 ## Runtime
 
-The runtime (aka layer) is different than with [PHP functions](function.md). Instead of `php-73` it should be `php-73-fpm` because we are using PHP-FPM.
+The runtime (aka layer) is different than with [PHP functions](function.md). Instead of `php-74` it should be `php-74-fpm` because we are using PHP-FPM.
 
 ```yaml
 functions:
     website:
         layers:
-            - ${bref:layer.php-73-fpm}
+            - ${bref:layer.php-74-fpm}
 ```
 
 To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
@@ -118,9 +118,9 @@ In some cases however, you will need to serve images (or other assets) via PHP. 
 
 ## Binary requests and responses
 
-By default API Gateway **does not support binary HTTP requests or responses** like 
+By default API Gateway **does not support binary HTTP requests or responses** like
 images, PDF, binary files… To achieve this, you need to enable the option for binary
-media types in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment 
+media types in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment
 variable:
 
 ```yaml
@@ -133,7 +133,7 @@ provider:
         BREF_BINARY_RESPONSES: 1
 ```
 
-This will make API Gateway support binary file uploads and downloads, and Bref will 
+This will make API Gateway support binary file uploads and downloads, and Bref will
 automatically encode responses to base64 (which is what API Gateway now expects).
 
 ## Context access

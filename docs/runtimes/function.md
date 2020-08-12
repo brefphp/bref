@@ -84,7 +84,7 @@ functions:
     hello:
         handler: index.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 ```
 
 The runtime (aka layer) to use is `php-XX`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
@@ -101,6 +101,8 @@ A PHP function can be triggered manually from the CLI using the [`serverless inv
 
 ```bash
 $ serverless invoke -f <function-name>
+# The function name is the one in serverless.yml, in our example that would be `hello`:
+$ serverless invoke -f hello
 "Hello world"
 ```
 
@@ -138,7 +140,7 @@ $result = $lambda->invoke([
 $result = json_decode($result->get('Payload')->getContents(), true);
 ```
 
-Alternativly, you can achieve the same result with the lighter [AsyncAws Lambda](https://github.com/async-aws/lambda) package.
+Alternatively, you can achieve the same result with the lighter [AsyncAws Lambda](https://github.com/async-aws/lambda) package.
 
 ### From other AWS services
 

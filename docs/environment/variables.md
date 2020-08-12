@@ -43,7 +43,7 @@ To create a parameter you can either do it manually in the [SSM parameter store 
 aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
 ```
 
-For Windows users, the first part of the parth needs to be double slashes and all subsequent forward slashes changed to backslashes:
+For Windows users, the first part of the path needs to be double slashes and all subsequent forward slashes changed to backslashes:
 ```bash
 aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type String --value 'mysecretvalue'
 ```
