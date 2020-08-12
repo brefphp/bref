@@ -4,3 +4,4 @@ https://bref-website.netlify.com/* https://bref.sh/:splat 301!
 
 # Deleted pages
 /docs/newsletters.html      /docs/community.html
+/docs/cron.html             /docs/web-hosting/cron.html

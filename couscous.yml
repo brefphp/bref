@@ -45,6 +45,10 @@ menu:
                 console-applications:
                     text: Console commands
                     url: /docs/runtimes/console.html
+                web-hosting-cron:
+                    text: Cron commands
+                    url: /docs/web-hosting/cron.html
+                    title: CLI cron tasks
                 local-development:
                     text: Local development
                     url: /docs/local-development.html
@@ -71,10 +75,9 @@ menu:
                 local-development:
                     text: Local development
                     url: /docs/local-development.html
-                cron:
-                    text: Cron
-                    url: /docs/cron.html
-                    title: Cron tasks
+                cron-function:
+                    text: Cron functions
+                    url: /docs/function/cron.html
 
     other:
 #        -   section: Runtimes
