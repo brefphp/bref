@@ -1,33 +1,27 @@
 # The container we build here contains everything needed to compile PHP.
 
 
-# Lambda instances use the amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2 AMI, as
+# Lambda instances use a custom AMI named Amazon Linux 2, as
 # documented under the AWS Lambda Runtimes.
 # https://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html
 # AWS provides it a Docker image that we use here:
-# https://github.com/aws/amazon-linux-docker-images/tree/2018.03
-FROM amazonlinux:2018.03
+# https://github.com/amazonlinux/container-images/tree/amzn2
+FROM amazonlinux:2
 
 
 # Move to /tmp to compile everything in there.
 WORKDIR /tmp
 
 
-# Lambda is based on 2018.03. Lock YUM to that release version.
-RUN sed -i 's/releasever=latest/releaserver=2018.03/' /etc/yum.conf
+# Lambda is based on Amazon Linux 2. Lock YUM to that release version.
+RUN sed -i 's/releasever=latest/releaserver=amzn2/' /etc/yum.conf
 
 
 RUN set -xe \
     # Download yum repository data to cache
- && yum makecache \
+    && yum makecache \
     # Default Development Tools
- && yum groupinstall -y "Development Tools" --setopt=group_package_types=mandatory,default \
-    # PHP will use gcc 7.2 (installed because of `kernel-devel`) to compile itself.
-    # But the intl extension is C++ code. Since gcc-c++ 7.2 is not installed by default, gcc-c++ 4 will be used.
-    # The mismatch breaks the build, see https://github.com/brefphp/bref/pull/373
-    # To fix this, we install gcc-c++ 7.2. We also install gcc 7.2 explicitly to make sure we keep the same
-    # version in the future.
- && yum install -y gcc72 gcc72-c++
+    && yum groupinstall -y "Development Tools" --setopt=group_package_types=mandatory,default
 
 
 # The version of cmake we can get from the yum repo is 2.8.12. We need cmake to build a few of
@@ -37,13 +31,13 @@ RUN set -xe \
 # Needed to build:
 # - libzip: minimum required CMAKE version 3.0.2
 RUN set -xe \
- && mkdir -p /tmp/cmake \
- && cd /tmp/cmake \
- && curl -Ls  https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz \
+    && mkdir -p /tmp/cmake \
+    && cd /tmp/cmake \
+    && curl -Ls  https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz \
     | tar xzC /tmp/cmake --strip-components=1 \
- && ./bootstrap --prefix=/usr/local \
- && make -j $(nproc) \
- && make install
+    && ./bootstrap --prefix=/usr/local \
+    && make -j $(nproc) \
+    && make install
 
 # Use the bash shell, instead of /bin/sh
 # Why? We need to document this.
@@ -101,9 +95,9 @@ ENV ZLIB_BUILD_DIR=${BUILD_DIR}/xml2
 
 RUN set -xe; \
     mkdir -p ${ZLIB_BUILD_DIR}; \
-# Download and upack the source code
+    # Download and upack the source code
     curl -Ls  http://zlib.net/zlib-${VERSION_ZLIB}.tar.xz \
-  | tar xJC ${ZLIB_BUILD_DIR} --strip-components=1
+    | tar xJC ${ZLIB_BUILD_DIR} --strip-components=1
 
 # Move into the unpackaged code directory
 WORKDIR  ${ZLIB_BUILD_DIR}/
@@ -111,7 +105,7 @@ WORKDIR  ${ZLIB_BUILD_DIR}/
 # Configure the build
 RUN set -xe; \
     make distclean \
- && CFLAGS="" \
+    && CFLAGS="" \
     CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
     LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
     ./configure \
@@ -120,7 +114,7 @@ RUN set -xe; \
 
 RUN set -xe; \
     make install \
- && rm ${INSTALL_DIR}/lib/libz.a
+    && rm ${INSTALL_DIR}/lib/libz.a
 
 ###############################################################################
 # OPENSSL Build
@@ -130,7 +124,7 @@ RUN set -xe; \
 # Needed by:
 #   - curl
 #   - php
-ENV VERSION_OPENSSL=1.1.1a
+ENV VERSION_OPENSSL=1.1.1g
 ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
 ENV CA_BUNDLE_SOURCE="https://curl.haxx.se/ca/cacert.pem"
 ENV CA_BUNDLE="${INSTALL_DIR}/ssl/cert.pem"
@@ -138,9 +132,9 @@ ENV CA_BUNDLE="${INSTALL_DIR}/ssl/cert.pem"
 
 RUN set -xe; \
     mkdir -p ${OPENSSL_BUILD_DIR}; \
-# Download and upack the source code
+    # Download and upack the source code
     curl -Ls  https://github.com/openssl/openssl/archive/OpenSSL_${VERSION_OPENSSL//./_}.tar.gz \
-  | tar xzC ${OPENSSL_BUILD_DIR} --strip-components=1
+    | tar xzC ${OPENSSL_BUILD_DIR} --strip-components=1
 
 # Move into the unpackaged code directory
 WORKDIR  ${OPENSSL_BUILD_DIR}/
@@ -152,16 +146,16 @@ RUN set -xe; \
     CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
     LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
     ./config \
-        --prefix=${INSTALL_DIR} \
-        --openssldir=${INSTALL_DIR}/ssl \
-        --release \
-        no-tests \
-        shared \
-        zlib
+    --prefix=${INSTALL_DIR} \
+    --openssldir=${INSTALL_DIR}/ssl \
+    --release \
+    no-tests \
+    shared \
+    zlib
 
 RUN set -xe; \
     make install \
- && curl -k -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
+    && curl -k -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 
 ###############################################################################
 # LIBSSH2 Build
@@ -178,7 +172,7 @@ RUN set -xe; \
     mkdir -p ${LIBSSH2_BUILD_DIR}/bin; \
     # Download and upack the source code
     curl -Ls https://github.com/libssh2/libssh2/releases/download/libssh2-${VERSION_LIBSSH2}/libssh2-${VERSION_LIBSSH2}.tar.gz \
-  | tar xzC ${LIBSSH2_BUILD_DIR} --strip-components=1
+    | tar xzC ${LIBSSH2_BUILD_DIR} --strip-components=1
 
 # Move into the unpackaged code directory
 WORKDIR  ${LIBSSH2_BUILD_DIR}/bin/
@@ -207,20 +201,20 @@ RUN set -xe; \
 # #   - libssh2
 # # Needed by:
 # #   - php
-ENV VERSION_CURL=7.63.0
+ENV VERSION_CURL=7.72.0
 ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
 
 RUN set -xe; \
-            mkdir -p ${CURL_BUILD_DIR}/bin; \
-curl -Ls https://github.com/curl/curl/archive/curl-${VERSION_CURL//./_}.tar.gz \
-| tar xzC ${CURL_BUILD_DIR} --strip-components=1
+    mkdir -p ${CURL_BUILD_DIR}/bin; \
+    curl -Ls https://github.com/curl/curl/archive/curl-${VERSION_CURL//./_}.tar.gz \
+    | tar xzC ${CURL_BUILD_DIR} --strip-components=1
 
 
 WORKDIR  ${CURL_BUILD_DIR}/
 
 RUN set -xe; \
     ./buildconf \
- && CFLAGS="" \
+    && CFLAGS="" \
     CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
     LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
     ./configure \
@@ -257,14 +251,14 @@ RUN set -xe; \
 #   - zlib
 # Needed by:
 #   - php
-ENV VERSION_XML2=2.9.8
+ENV VERSION_XML2=2.9.10
 ENV XML2_BUILD_DIR=${BUILD_DIR}/xml2
 
 RUN set -xe; \
     mkdir -p ${XML2_BUILD_DIR}; \
-# Download and upack the source code
+    # Download and upack the source code
     curl -Ls http://xmlsoft.org/sources/libxml2-${VERSION_XML2}.tar.gz \
-  | tar xzC ${XML2_BUILD_DIR} --strip-components=1
+    | tar xzC ${XML2_BUILD_DIR} --strip-components=1
 
 # Move into the unpackaged code directory
 WORKDIR  ${XML2_BUILD_DIR}/
@@ -288,21 +282,21 @@ RUN set -xe; \
 
 RUN set -xe; \
     make install \
- && cp xml2-config ${INSTALL_DIR}/bin/xml2-config
+    && cp xml2-config ${INSTALL_DIR}/bin/xml2-config
 
 ###############################################################################
 # LIBZIP Build
 # https://github.com/nih-at/libzip/releases
 # Needed by:
 #   - php
-ENV VERSION_ZIP=1.5.1
+ENV VERSION_ZIP=1.7.3
 ENV ZIP_BUILD_DIR=${BUILD_DIR}/zip
 
 RUN set -xe; \
     mkdir -p ${ZIP_BUILD_DIR}/bin/; \
-# Download and upack the source code
-    curl -Ls https://github.com/nih-at/libzip/archive/rel-${VERSION_ZIP//./-}.tar.gz \
-  | tar xzC ${ZIP_BUILD_DIR} --strip-components=1
+    # Download and upack the source code
+    curl -Ls https://github.com/nih-at/libzip/releases/download/v${VERSION_ZIP}/libzip-${VERSION_ZIP}.tar.gz \
+    | tar xzC ${ZIP_BUILD_DIR} --strip-components=1
 
 # Move into the unpackaged code directory
 WORKDIR  ${ZIP_BUILD_DIR}/bin/
@@ -326,14 +320,14 @@ RUN set -xe; \
 #
 # Needed by:
 #   - php
-ENV VERSION_LIBSODIUM=1.0.16
+ENV VERSION_LIBSODIUM=1.0.18
 ENV LIBSODIUM_BUILD_DIR=${BUILD_DIR}/libsodium
 
 RUN set -xe; \
     mkdir -p ${LIBSODIUM_BUILD_DIR}; \
-# Download and upack the source code
+    # Download and upack the source code
     curl -Ls https://github.com/jedisct1/libsodium/archive/${VERSION_LIBSODIUM}.tar.gz \
-  | tar xzC ${LIBSODIUM_BUILD_DIR} --strip-components=1
+    | tar xzC ${LIBSODIUM_BUILD_DIR} --strip-components=1
 
 # Move into the unpackaged code directory
 WORKDIR  ${LIBSODIUM_BUILD_DIR}/
@@ -344,7 +338,7 @@ RUN set -xe; \
     CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
     LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
     ./autogen.sh \
-&& ./configure --prefix=${INSTALL_DIR}
+    && ./configure --prefix=${INSTALL_DIR}
 
 RUN set -xe; \
     make install
@@ -356,7 +350,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - php
-ENV VERSION_POSTGRES=9.6.11
+ENV VERSION_POSTGRES=9.6.19
 ENV POSTGRES_BUILD_DIR=${BUILD_DIR}/postgres
 
 RUN set -xe; \
@@ -379,12 +373,8 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/backend && make generated-headers
 RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 
 # Install some dev files for using old libraries already on the system
-# readline-devel : needed for the --with-libedit flag
+# readline-devel : needed for the --with-readline flag
 # gettext-devel : needed for the --with-gettext flag
 # libicu-devel : needed for
-# libpng-devel : needed for gd
-# libjpeg-devel : needed for gd
-# libxslt-devel : needed for the XSL extension
-# ImageMagick-devel : needed for the imagick extension
 # sqlite-devel : Since PHP 7.4 this must be installed (https://github.com/php/php-src/blob/99b8e67615159fc600a615e1e97f2d1cf18f14cb/UPGRADING#L616-L619)
-RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libpng-devel libjpeg-devel libxslt-devel ImageMagick-devel sqlite-devel
+RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel sqlite-devel

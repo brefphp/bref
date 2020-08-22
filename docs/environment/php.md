@@ -75,7 +75,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.pcre.php">pcre</a></li>
         <li><a href="http://php.net/manual/en/book.PDO.php">PDO</a></li>
         <li><a href="http://php.net/manual/en/book.pdo_sqlite.php">pdo_sqlite</a></li>
-        <li><a href="http://php.net/manual/en/ref.pdo-mysql.php">pdo_mysql</a></li>
         <li><a href="http://php.net/manual/en/book.Phar.php">Phar</a></li>
         <li><a href="http://php.net/manual/en/book.posix.php">posix</a></li>
         <li><a href="http://php.net/manual/en/book.readline.php">readline</a></li>
@@ -87,7 +86,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <ul>
         <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
-        <li><a href="http://php.net/manual/en/book.soap.php">SOAP</a></li>
         <li><a href="http://php.net/manual/en/book.sockets.php">sockets</a></li>
         <li><a href="http://php.net/manual/en/book.SPL.php">SPL</a></li>
         <li><a href="http://php.net/manual/en/book.sqlite3.php">sqlite3</a></li>
@@ -96,7 +94,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.xml.php">xml</a></li>
         <li><a href="http://php.net/manual/en/book.xmlreader.php">xmlreader</a></li>
         <li><a href="http://php.net/manual/en/book.xmlwriter.php">xmlwriter</a></li>
-        <li><a href="http://php.net/manual/en/book.xsl.php">xsl</a></li>
         <li><a href="http://php.net/manual/en/book.zlib.php">zlib</a></li>
         </ul>
       </td>
@@ -108,24 +105,16 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 
 - **[intl](http://php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
 - **[APCu](http://php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
-- **[phpredis](https://github.com/phpredis/phpredis)** -  The phpredis extension provides an API for communicating with the Redis key-value store.
+- **[MySQL PDO Driver](http://php.net/manual/en/ref.pdo-mysql.php)** -  PDO_MYSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to MySQL databases.
 - **[PostgreSQL PDO Driver](http://php.net/manual/en/ref.pdo-pgsql.php)** -  PDO_PGSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to PostgreSQL databases.
-- **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
-- **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
-- **[imagick](http://php.net/manual/en/book.imagick.php)** - imagick is an image processing library.
-- **[GD](http://php.net/manual/en/book.image.php)** - GD is an image processing library.
 
 You can enable these extensions by loading them in `php/conf.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
 ```ini
 extension=intl
 extension=apcu
-extension=redis
+extension=pdo_mysql
 extension=pdo_pgsql
-extension=mongodb
-extension=pthreads
-extension=imagick
-extension=gd
 ```
 
 ### Extra extensions
@@ -164,7 +153,7 @@ RUN curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire
     && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so
 
 # Build the final image from the lambci image that is close to the production environment
-FROM lambci/lambda:provided
+FROM lambci/lambda:provided.al2
 
 # Copy things we installed to the final image
 COPY --from=0 /tmp/blackfire.so /opt/bref-extra/blackfire.so

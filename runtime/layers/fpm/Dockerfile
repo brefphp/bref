@@ -10,5 +10,5 @@ RUN if [ "$PHP_VERSION" = "72" ]; then cd /opt/bref/etc/ && sed -i '/decorate_wo
 RUN if [ "$PHP_VERSION" = "72" ]; then cd /opt/bref/etc/ && sed -i '/log_limit/d' php-fpm.conf; fi;
 
 # Build the final image from the lambci image that is close to the production environment
-FROM lambci/lambda:provided
+FROM lambci/lambda:build-provided.al2
 COPY --from=0  /opt /opt
