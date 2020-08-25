@@ -18,12 +18,14 @@ class SqsEventTest extends TestCase
         $this->assertSame('Test message.', $record->getBody());
         $this->assertSame(['foo' => 'bar'], $record->getMessageAttributes());
         $this->assertSame(1, $record->getApproximateReceiveCount());
+        $this->assertSame('AQEBwJnKyrHigUMZj6rYigCgxlaS3SLy0a...', $record->getReceiptHandle());
 
         $record = $event->getRecords()[1];
         $this->assertSame('2e1424d4-f796-459a-8184-9c92662be6da', $record->getMessageId());
         $this->assertSame('Test message.', $record->getBody());
         $this->assertSame([], $record->getMessageAttributes());
         $this->assertSame(4, $record->getApproximateReceiveCount());
+        $this->assertSame('AQEBzWwaftRI0KuVm4tP+/7q1rGgNqicHq...', $record->getReceiptHandle());
     }
 
     public function test invalid event()
