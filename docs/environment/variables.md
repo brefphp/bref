@@ -40,23 +40,23 @@ Instead you can use the [SSM parameter store](https://docs.aws.amazon.com/system
 To create a parameter you can either do it manually in the [SSM parameter store console](https://console.aws.amazon.com/systems-manager/parameters) or use the following command:
 
 ```bash
-aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
+aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type SecureString --value 'mysecretvalue'
 ```
 
 For Windows users, the first part of the path needs to be double slashes and all subsequent forward slashes changed to backslashes:
 ```bash
-aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type String --value 'mysecretvalue'
+aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type SecureString --value 'mysecretvalue'
 ```
 
 It is recommended to prefix the parameter name with your application name, for example: `/my-app/my-parameter`.
 
-To import the SSM parameter into an environment variable you can use the [`${ssm:<parameter>}` syntax](https://serverless.com/blog/serverless-secrets-api-keys/):
+To import the SSM parameter into an environment variable you can use the [`${ssm:<parameter>~true}` syntax](https://www.serverless.com/framework/docs/providers/aws/guide/variables/#reference-variables-using-the-ssm-parameter-store):
 
 ```yaml
 provider:
     # ...
     environment:
-        MY_PARAMETER: ${ssm:/my-app/my-parameter}
+        MY_PARAMETER: ${ssm:/my-app/my-parameter~true}
 ```
 
 ### An alternative: AWS Secrets Manager
