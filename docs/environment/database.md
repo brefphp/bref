@@ -28,7 +28,7 @@ This page documents how to create databases using VPC (the reliable and secure s
 
 ## Limitations
 
-> Running a function inside a VPC used to induce a [cold start](/docs/environment/performance.md#cold-starts) of several seconds. This is no longer the case since October 2019.
+> Running a function inside a VPC used to induce a [cold start](/docs/environment/performances.md#cold-starts) of several seconds. This is no longer the case since October 2019.
 
 ### Accessing the internet
 

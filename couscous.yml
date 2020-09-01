@@ -90,9 +90,9 @@ menu:
                 text: Custom domains
                 url: /docs/environment/custom-domains.html
                 title: Configuring custom domain names for HTTP applications
-            performance:
+            performances:
                 text: Performance
-                url: /docs/environment/performance.html
+                url: /docs/environment/performances.html
                 title: Performance tuning and optimizations
     -   section: Frameworks
         items:

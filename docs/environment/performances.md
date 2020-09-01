@@ -1,6 +1,6 @@
 ---
 title: Performance
-current_menu: performance
+current_menu: performances
 introduction: Performance tuning and optimizations for serverless PHP applications on AWS Lambda.
 ---
 
