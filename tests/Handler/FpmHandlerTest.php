@@ -125,29 +125,44 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
             'path' => '/hello',
             // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
             'multiValueQueryStringParameters' => [
-                'foo' => ['bar', 'baz'],
+                'foo[]' => ['bar', 'baz'],
+                'cards[]' => ['birthday'],
+                'colors[][]' => ['red', 'blue'],
+                'shapes[a][]' => ['square', 'triangle'],
+                'myvar' => ['abc'],
             ],
             'queryStringParameters' => [
-                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
+                'foo[]' => 'baz', // the 2nd value is preserved only by API Gateway
+                'cards[]' => 'birthday',
+                'colors[][]' => 'red',
+                'shapes[a][]' => 'square',
+                'myvar' => 'abc',
             ],
         ];
         $this->assertGlobalVariables($event, [
             '$_GET' => [
-                // TODO The feature is not implemented yet
-                'foo' => 'bar',
+                'foo' => ['bar', 'baz'],
+                'cards' => ['birthday'],
+                'colors' => [['red'], ['blue']],
+                'shapes' => ['a' => ['square', 'triangle']],
+                'myvar' => 'abc',
             ],
             '$_POST' => [],
             '$_FILES' => [],
             '$_COOKIE' => [],
             '$_REQUEST' => [
-                'foo' => 'bar',
+                'foo' => ['bar', 'baz'],
+                'cards' => ['birthday'],
+                'colors' => [['red'], ['blue']],
+                'shapes' => ['a' => ['square', 'triangle']],
+                'myvar' => 'abc',
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?foo=bar',
+                'REQUEST_URI' => '/hello?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'foo=bar',
+                'QUERY_STRING' => 'foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
@@ -166,7 +181,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
             'path' => '/hello',
             // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
             'multiValueQueryStringParameters' => [
-                'foo' => ['bar', 'baz'],
+                'foo[]' => ['bar', 'baz'],
             ],
             'queryStringParameters' => [
                 'foo' => 'baz', // the 2nd value is preserved only by API Gateway
@@ -182,21 +197,20 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ];
         $this->assertGlobalVariables($event, [
             '$_GET' => [
-                // TODO The feature is not implemented yet
-                'foo' => 'bar',
+                'foo' => ['bar', 'baz'],
             ],
             '$_POST' => [],
             '$_FILES' => [],
             '$_COOKIE' => [],
             '$_REQUEST' => [
-                'foo' => 'bar',
+                'foo' => ['bar', 'baz'],
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?foo=bar',
+                'REQUEST_URI' => '/hello?foo%5B0%5D=bar&foo%5B1%5D=baz',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'foo=bar',
+                'QUERY_STRING' => 'foo%5B0%5D=bar&foo%5B1%5D=baz',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
