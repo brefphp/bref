@@ -435,4 +435,26 @@ $app->command('bref.dev [--profile=] [--stage=]', function (?string $profile, st
     return 0;
 })->descriptions('Create a short URL on bref.dev');
 
+$app->command('layers region', function (string $region, SymfonyStyle $io) {
+    $layers = json_decode(file_get_contents(__DIR__ . '/layers.json'), true);
+    $io->title("Layers for the $region region");
+
+    $array = [];
+    foreach ($layers as $layer => $versions) {
+        $version = $versions[$region];
+        $array[] = [
+            $layer,
+            $version,
+            "arn:aws:lambda:$region:416566615250:layer:$layer:$version",
+        ];
+    }
+    $io->table([
+        'Layer',
+        'Version',
+        'ARN',
+    ], $array);
+
+    return 0;
+})->descriptions('Displays the versions of the Bref layers');
+
 $app->run();
