@@ -33,7 +33,7 @@ menu:
 #                    url: /docs/first-steps.html
 
     webHosting:
-        -   section: 'Bref for <strong>web hosting</strong>'
+        -   section: 'Bref for <strong class="text-gray-700">web hosting</strong>'
             items:
                 web-hosting:
                     text: Web hosting on AWS Lambda

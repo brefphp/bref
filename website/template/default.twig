@@ -15,7 +15,7 @@
 
     <div class="flex h-full mt-12 lg:mt-0">
 
-        <div id="menu" class="fixed flex-shrink-0 lg:w-64 xl:w-80 lg:flex lg:flex-col z-30 h-screen w-full hidden text-gray-700 bg-gray-100 px-6 lg:px-8 py-4 lg:py-8 overflow-auto leading-tight">
+        <div id="menu" class="fixed flex-shrink-0 lg:w-64 xl:w-80 lg:flex lg:flex-col z-30 h-screen w-full hidden bg-gray-100 px-6 lg:px-8 py-4 lg:py-8 overflow-auto leading-tight">
             <nav class="mt-1 pb-16" style="font-size: 0.95rem">
                 <h2 class="mb-8">
                     <a class="text-gray-600 hover:text-gray-800 font-bref text-2xl"
@@ -38,7 +38,7 @@
                     </ul>
                 {% endfor %}
 
-                <div class="bg-gray-400 py-6 -mx-8 px-8">
+                <div class="bg-gray-200 py-6 -mx-8 px-8">
                     {% for item in menu.webHosting %}
                         <h3 class="text-gray-600">{{ item.section|raw }}</h3>
                         <ul>

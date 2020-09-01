@@ -145,7 +145,7 @@ article pre code {
     font-size: .85rem;
 }
 article blockquote {
-    @apply text-blue-600 bg-blue-100 border-blue-500;
+    @apply text-blue-700 bg-blue-100 border-blue-500;
     border-left-width: 4px;
     padding: 1rem;
     margin-top: 16px;
@@ -188,9 +188,6 @@ article table td {
     #menu h3 {
         @apply text-xs;
     }
-}
-#menu h3 strong {
-    @apply text-gray-700;
 }
 #menu ul {
     @apply list-none p-0 mb-6 ml-4;
