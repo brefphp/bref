@@ -455,6 +455,6 @@ $app->command('layers region', function (string $region, SymfonyStyle $io) {
     ], $array);
 
     return 0;
-})->descriptions('Create a short URL on bref.dev');
+})->descriptions('Displays the versions of the Bref layers');
 
 $app->run();
