@@ -176,3 +176,18 @@ image.
 
 See [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions)
 for more examples.
+
+## Custom vendor path
+
+Bref automatically requires vendor dependencies from the default `vendor/autoload.php` path.
+
+If your Composer dependencies are installed elsewhere, you can customize that path via the `BREF_AUTOLOAD_PATH` environment variable.
+
+```yaml
+provider:
+    # ...
+    environment:
+        BREF_AUTOLOAD_PATH: '/var/task/foo-bar/vendor/autoload.php'
+```
+
+The path must start with `/var/task`, which is the directory where projects are installed on AWS Lambda.
