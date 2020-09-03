@@ -14,6 +14,8 @@ abstract class HttpHandler implements Handler
     {
         // See https://bref.sh/docs/runtimes/http.html#cold-starts
         if (isset($event['warmer']) && $event['warmer'] === true) {
+            // Delay the response to ensure concurrent invocation
+            usleep(25000);
             return ['Lambda is warm'];
         }
 
