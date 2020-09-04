@@ -73,23 +73,23 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.openssl.php">openssl</a></li>
         <li><a href="http://php.net/manual/en/book.pcntl.php">pcntl</a></li>
         <li><a href="http://php.net/manual/en/book.pcre.php">pcre</a></li>
-        <li><a href="http://php.net/manual/en/book.PDO.php">PDO</a></li>
-        <li><a href="http://php.net/manual/en/book.pdo_sqlite.php">pdo_sqlite</a></li>
+        <li><a href="http://php.net/manual/en/book.pdo.php">PDO</a></li>
+        <li><a href="http://php.net/manual/en/book.pdo-sqlite.php">pdo_sqlite</a></li>
         <li><a href="http://php.net/manual/en/ref.pdo-mysql.php">pdo_mysql</a></li>
-        <li><a href="http://php.net/manual/en/book.Phar.php">Phar</a></li>
+        <li><a href="http://php.net/manual/en/book.phar.php">Phar</a></li>
         <li><a href="http://php.net/manual/en/book.posix.php">posix</a></li>
         <li><a href="http://php.net/manual/en/book.readline.php">readline</a></li>
-        <li><a href="http://php.net/manual/en/book.Reflection.php">Reflection</a></li>
+        <li><a href="http://php.net/manual/en/book.reflection.php">Reflection</a></li>
         <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
         </ul>
       </td>
       <td align="left" valign="top">
         <ul>
-        <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
+        <li><a href="https://php.net/manual/en/book.simplexml.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
         <li><a href="http://php.net/manual/en/book.soap.php">SOAP</a></li>
         <li><a href="http://php.net/manual/en/book.sockets.php">sockets</a></li>
-        <li><a href="http://php.net/manual/en/book.SPL.php">SPL</a></li>
+        <li><a href="http://php.net/manual/en/book.spl.php">SPL</a></li>
         <li><a href="http://php.net/manual/en/book.sqlite3.php">sqlite3</a></li>
         <li><a href="http://php.net/manual/en/book.standard.php">standard</a></li>
         <li><a href="http://php.net/manual/en/book.tokenizer.php">tokenizer</a></li>
