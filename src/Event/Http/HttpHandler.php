@@ -17,7 +17,7 @@ abstract class HttpHandler implements Handler
             $delay = getenv('WARMUP_DELAY');
             if (is_numeric($delay)) {
                 // Delay the response to ensure concurrent invocation
-                usleep($delay * 1000);
+                usleep((int) $delay * 1000);
             }
             return ['Lambda is warm'];
         }
