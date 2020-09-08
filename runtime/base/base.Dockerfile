@@ -199,6 +199,37 @@ RUN set -xe; \
     cmake  --build . --target install
 
 ###############################################################################
+# LIBNGHTTP2 Build
+# # https://github.com/nghttp2/nghttp2/releases
+# # Needs:
+# #   - zlib
+# #   - OpenSSL
+# # Needed by:
+# #   - curl
+ENV VERSION_NGHTTP2=1.41.0
+ENV NGHTTP2_BUILD_DIR=${BUILD_DIR}/nghttp2
+
+RUN set -xe; \
+    mkdir -p ${NGHTTP2_BUILD_DIR}; \
+    curl -Ls https://github.com/nghttp2/nghttp2/releases/download/v${VERSION_NGHTTP2}/nghttp2-${VERSION_NGHTTP2}.tar.gz \
+    | tar xzC ${NGHTTP2_BUILD_DIR} --strip-components=1
+
+WORKDIR  ${NGHTTP2_BUILD_DIR}/
+
+RUN set -xe; \
+    && CFLAGS="" \
+    CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
+    LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
+    ./configure \
+    --enable-lib-only \
+    --prefix=${INSTALL_DIR}
+
+
+RUN set -xe; \
+    make install
+
+
+###############################################################################
 # CURL Build
 # # https://github.com/curl/curl/releases/
 # # Needs:
