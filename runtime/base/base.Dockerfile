@@ -200,6 +200,8 @@ RUN set -xe; \
 
 ###############################################################################
 # LIBNGHTTP2 Build
+# This adds support for HTTP 2 requests in curl.
+# See https://github.com/brefphp/bref/issues/727 and https://github.com/brefphp/bref/pull/740
 # # https://github.com/nghttp2/nghttp2/releases
 # # Needs:
 # #   - zlib
