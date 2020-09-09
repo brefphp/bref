@@ -36,7 +36,6 @@ WORKDIR  ${PHP_BUILD_DIR}/
 # --enable-option-checking=fatal: make sure invalid --configure-flags are fatal errors instead of just warnings
 # --enable-ftp: because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
 # --enable-mbstring: because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
-# --enable-maintainer-zts: build PHP as ZTS (Zend Thread Safe) to be able to use pthreads
 # --with-zlib and --with-zlib-dir: See https://stackoverflow.com/a/42978649/245552
 # --enable-opcache-file: allows to use the `opcache.file_cache` option
 #
@@ -49,7 +48,6 @@ RUN set -xe \
         --build=x86_64-pc-linux-gnu \
         --prefix=${INSTALL_DIR} \
         --enable-option-checking=fatal \
-        --enable-maintainer-zts \
         --enable-sockets \
         --with-config-file-path=${INSTALL_DIR}/etc/php \
         --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/var/task/php/conf.d \
@@ -101,21 +99,6 @@ RUN pecl install mongodb
 RUN pecl install redis
 RUN pecl install APCu
 RUN pecl install imagick
-
-# pthreads
-ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
-# Build from master because there are no pthreads release compatible with PHP 7.3
-RUN set -xe; \
-    mkdir -p ${PTHREADS_BUILD_DIR}/bin; \
-    curl -Ls https://github.com/krakjoe/pthreads/archive/master.tar.gz \
-    | tar xzC ${PTHREADS_BUILD_DIR} --strip-components=1
-WORKDIR  ${PTHREADS_BUILD_DIR}/
-RUN set -xe; \
-    phpize \
- && ./configure \
- && make \
- && make install
-
 
 # Run the next step in the previous environment because the `clean.sh` script needs `find`,
 # which isn't installed by default
