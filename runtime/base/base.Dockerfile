@@ -277,7 +277,8 @@ RUN set -xe; \
     --enable-cookies \
     --with-gnu-ld \
     --with-ssl \
-    --with-libssh2
+    --with-libssh2 \
+    --with-nghttp2
 
 
 RUN set -xe; \
