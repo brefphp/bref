@@ -48,7 +48,7 @@ composer require bref/bref
 
 > Make sure that you have installed a version greater than or equal to 0.5.* of Bref.
 
-> To run the latest version of Bref you must have PHP 7.2 or greater! If you are using PHP 7.1 or less an older (outdated) version of Bref will be installed instead.
+> To run the latest version of Bref you must have PHP 7.3 or greater! If you are using PHP 7.2 or less, an outdated version of Bref will be installed instead.
 
 The `bref` command line tool can now be used by running `vendor/bin/bref` in your project.
 

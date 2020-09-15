@@ -7,15 +7,12 @@ declare(strict_types=1);
 
 // All layers
 $allLayers = [
-    'bref/php-72',
     'bref/php-73',
     'bref/php-74',
     'bref/php-80',
-    'bref/php-72-fpm',
     'bref/php-73-fpm',
     'bref/php-74-fpm',
     'bref/php-80-fpm',
-    'bref/php-72-fpm-dev',
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
     'bref/php-80-fpm-dev',
@@ -44,11 +41,9 @@ foreach ($allLayers as $layer) {
 
 // FPM layers
 $fpmLayers = [
-    'bref/php-72-fpm',
     'bref/php-73-fpm',
     'bref/php-74-fpm',
     'bref/php-80-fpm',
-    'bref/php-72-fpm-dev',
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
     'bref/php-80-fpm-dev',
@@ -62,7 +57,6 @@ foreach ($fpmLayers as $layer) {
 
 // dev layers
 $devLayers = [
-    'bref/php-72-fpm-dev',
     'bref/php-73-fpm-dev',
     'bref/php-80-fpm-dev',
 ];

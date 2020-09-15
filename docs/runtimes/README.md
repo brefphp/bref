@@ -64,15 +64,13 @@ The `${...}` notation is the [syntax to use variables](https://serverless.com/fr
 
 - `${bref:layer.php-74}`
 - `${bref:layer.php-73}`
-- `${bref:layer.php-72}`
 - `${bref:layer.php-74-fpm}`
 - `${bref:layer.php-73-fpm}`
-- `${bref:layer.php-72-fpm}`
 - `${bref:layer.console}`
 - `${bref:layer.php-80}`
 - `${bref:layer.php-80-fpm}`
 
-Bref currently provides runtimes for PHP 7.2, 7.3 and 7.4. It also provides **experimental** runtimes for PHP 8.0.
+Bref currently provides runtimes for PHP 7.3 and 7.4. It also provides **experimental** runtimes for PHP 8.0.
 
 > `php-74` means PHP 7.4.\*. It is not possible to require a specific "patch" version.
 
