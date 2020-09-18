@@ -6,10 +6,13 @@ use Bref\Context\Context;
 use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
 use Bref\Event\Http\FpmHandler;
 use Bref\Test\HttpRequestProxyTest;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 
 class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
 {
+    use ArraySubsetAsserts;
+
     /** @var FpmHandler|null */
     private $fpm;
     /** @var Context */
@@ -1140,9 +1143,9 @@ Year,Make,Model
         // Test global variables that cannot be hardcoded
         self::assertNotEmpty($response['$_SERVER']['HOME']);
         unset($response['$_SERVER']['HOME']);
-        self::assertEquals(microtime(true), $response['$_SERVER']['REQUEST_TIME_FLOAT'], '', 5);
+        self::assertEqualsWithDelta(microtime(true), $response['$_SERVER']['REQUEST_TIME_FLOAT'], 5, '');
         unset($response['$_SERVER']['REQUEST_TIME_FLOAT']);
-        self::assertEquals(time(), $response['$_SERVER']['REQUEST_TIME'], '', 5);
+        self::assertEqualsWithDelta(time(), $response['$_SERVER']['REQUEST_TIME'], 5, '');
         unset($response['$_SERVER']['REQUEST_TIME']);
 
         // Test global variables that never change (simplifies all the tests)
