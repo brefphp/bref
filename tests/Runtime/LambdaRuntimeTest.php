@@ -184,7 +184,10 @@ ERROR;
     public function test generic event handler()
     {
         $handler = new class() implements Handler {
-            /** @param mixed $event */
+            /**
+             * @param mixed $event
+             * @return mixed
+             */
             public function handle($event, Context $context)
             {
                 return $event;

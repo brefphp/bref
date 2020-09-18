@@ -67,6 +67,7 @@ final class LambdaRuntime
             $this->handler = null;
         }
     }
+
     private function closeReturnHandler(): void
     {
         if ($this->returnHandler !== null) {
@@ -89,8 +90,8 @@ final class LambdaRuntime
      */
     public function processNextEvent($handler): void
     {
-        /** @var Context $context */
         [$event, $context] = $this->waitNextInvocation();
+        \assert($context instanceof Context);
 
         $this->ping();
 
@@ -289,7 +290,6 @@ final class LambdaRuntime
             throw new Exception('Error while calling the Lambda runtime API: ' . $errorMessage);
         }
     }
-
 
     /**
      * Ping a Bref server with a statsd request.

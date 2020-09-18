@@ -135,8 +135,8 @@ class Psr7BridgeTest extends CommonHttpTest
         string $content
     ): void {
         $uploadedFiles = $this->request->getUploadedFiles();
-        /** @var UploadedFileInterface $uploadedFile */
         $uploadedFile = $uploadedFiles[$key];
+        \assert($uploadedFile instanceof UploadedFileInterface);
         $this->assertEquals($filename, $uploadedFile->getClientFilename());
         $this->assertEquals($mimeType, $uploadedFile->getClientMediaType());
         $this->assertEquals($error, $uploadedFile->getError());
