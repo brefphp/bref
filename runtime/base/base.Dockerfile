@@ -1,33 +1,27 @@
 # The container we build here contains everything needed to compile PHP.
 
 
-# Lambda instances use the amzn-ami-hvm-2018.03.0.20181129-x86_64-gp2 AMI, as
+# Lambda instances use a custom AMI named Amazon Linux 2, as
 # documented under the AWS Lambda Runtimes.
 # https://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html
 # AWS provides it a Docker image that we use here:
-# https://github.com/aws/amazon-linux-docker-images/tree/2018.03
-FROM amazonlinux:2018.03
+# https://github.com/amazonlinux/container-images/tree/amzn2
+FROM amazonlinux:2
 
 
 # Move to /tmp to compile everything in there.
 WORKDIR /tmp
 
 
-# Lambda is based on 2018.03. Lock YUM to that release version.
-RUN sed -i 's/releasever=latest/releaserver=2018.03/' /etc/yum.conf
+# Lambda is based on Amazon Linux 2. Lock YUM to that release version.
+RUN sed -i 's/releasever=latest/releaserver=amzn2/' /etc/yum.conf
 
 
 RUN set -xe \
     # Download yum repository data to cache
  && yum makecache \
     # Default Development Tools
- && yum groupinstall -y "Development Tools" --setopt=group_package_types=mandatory,default \
-    # PHP will use gcc 7.2 (installed because of `kernel-devel`) to compile itself.
-    # But the intl extension is C++ code. Since gcc-c++ 7.2 is not installed by default, gcc-c++ 4 will be used.
-    # The mismatch breaks the build, see https://github.com/brefphp/bref/pull/373
-    # To fix this, we install gcc-c++ 7.2. We also install gcc 7.2 explicitly to make sure we keep the same
-    # version in the future.
- && yum install -y gcc72 gcc72-c++
+ && yum groupinstall -y "Development Tools" --setopt=group_package_types=mandatory,default
 
 
 # The version of cmake we can get from the yum repo is 2.8.12. We need cmake to build a few of
@@ -419,3 +413,19 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 # libxslt-devel : needed for the XSL extension
 # sqlite-devel : Since PHP 7.4 this must be installed (https://github.com/php/php-src/blob/99b8e67615159fc600a615e1e97f2d1cf18f14cb/UPGRADING#L616-L619)
 RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libxslt-devel sqlite-devel
+
+RUN cp -a /usr/lib64/libgcrypt.so* ${INSTALL_DIR}/lib64/
+
+# Copy readline shared libs that are not present in amazonlinux2
+RUN cp -a /usr/lib64/libreadline.so?* ${INSTALL_DIR}/lib64/
+
+# Copy gettext shared libs that are not present in amazonlinux2
+RUN cp -a /usr/lib64/libasprintf.so* ${INSTALL_DIR}/lib64/
+RUN cp -a /usr/lib64/libgettextpo.so* ${INSTALL_DIR}/lib64/
+RUN cp -a /usr/lib64/preloadable_libintl.so* ${INSTALL_DIR}/lib64/
+
+# Copy xslt shared libs that are not present in amazonlinux2
+RUN cp -a /usr/lib64/lib*xslt*.so* ${INSTALL_DIR}/lib64/
+
+# Copy sqlite3 shared libs that are not present in amazonlinux2
+RUN cp -a /usr/lib64/libsqlite3*.so* ${INSTALL_DIR}/lib64/

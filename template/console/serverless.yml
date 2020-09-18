@@ -3,7 +3,7 @@ service: app
 provider:
     name: aws
     region: us-east-1
-    runtime: provided
+    runtime: provided.al2
 
 plugins:
     - ./vendor/bref/bref

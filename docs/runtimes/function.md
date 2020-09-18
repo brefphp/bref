@@ -77,7 +77,7 @@ Below is a minimal `serverless.yml` to deploy a function. To create it automatic
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 plugins:
     - ./vendor/bref/bref
 functions:

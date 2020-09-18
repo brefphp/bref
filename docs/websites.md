@@ -135,7 +135,7 @@ The `serverless.yml` example below:
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 
 functions:
     website:

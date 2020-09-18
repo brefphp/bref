@@ -50,7 +50,7 @@ To use a runtime, import the corresponding layer in `serverless.yml`:
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 plugins:
     - ./vendor/bref/bref
 functions:
@@ -96,7 +96,7 @@ To use them manually you need to use that full name. For example in `serverless.
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 functions:
     hello:
         ...
@@ -114,7 +114,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             ...
-            Runtime: provided
+            Runtime: provided.al2
             Layers:
                 - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7'
 ```

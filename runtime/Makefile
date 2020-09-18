@@ -12,9 +12,8 @@ layers: export/console.zip export/php-73.zip export/php-74.zip export/php-80.zip
 export/php%.zip: docker-images
 	PHP_VERSION=$$(echo $@ | cut -d'/' -f 2 | cut -d'.' -f 1);\
 	rm -f $@;\
-	mkdir export/tmp ; cd export/tmp ;\
-	docker run --entrypoint "tar" bref/$$PHP_VERSION:latest -ch -C /opt .  |tar -x;zip --quiet --recurse-paths ../$$PHP_VERSION.zip . ;
-	rm -rf export/tmp
+	cd export ; \
+	docker run --rm --entrypoint= bref/$$PHP_VERSION:latest sh -c "cd /opt && zip -qq -y -r - {*,.[!.]*} > /tmp/file.zip && cat /tmp/file.zip -" > $$PHP_VERSION.zip ;
 
 # The console runtime
 export/console.zip: layers/console/bootstrap

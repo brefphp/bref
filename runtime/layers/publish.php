@@ -74,7 +74,7 @@ function publishLayer(string $region, string $layer, string $layerDescription): 
         '--zip-file',
         'fileb://' . $file,
         '--compatible-runtimes',
-        'provided',
+        'provided.al2',
         // Output the version so that we can fetch it and use it
         '--output',
         'text',

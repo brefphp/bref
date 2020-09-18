@@ -147,13 +147,10 @@ To compile the extension, Bref provides the `bref/build-php-*` Docker images. He
 ```dockerfile
 FROM bref/build-php-74
 
-RUN curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/7.3 \
-    && mkdir -p /tmp/blackfire \
-    && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
-    && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so
+RUN curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-74.so"
 
 # Build the final image from the lambci image that is close to the production environment
-FROM lambci/lambda:provided
+FROM lambci/lambda:provided.al2
 
 # Copy things we installed to the final image
 COPY --from=0 /tmp/blackfire.so /opt/bref-extra/blackfire.so

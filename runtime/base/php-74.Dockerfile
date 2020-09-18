@@ -109,9 +109,10 @@ RUN set -xe; \
  cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 # Symlink all our binaries into /opt/bin so that Lambda sees them in the path.
-RUN mkdir -p /opt/bin
-RUN ln -s /opt/bref/bin/* /opt/bin
-RUN ln -s /opt/bref/sbin/* /opt/bin
+RUN mkdir -p /opt/bin \
+    && cd /opt/bin \
+    && ln -s ../bref/bin/* . \
+    && ln -s ../bref/sbin/* .
 
 # Install extensions
 # We can install extensions manually or using `pecl`
@@ -128,7 +129,7 @@ RUN /tmp/clean.sh && rm /tmp/clean.sh
 # Now we start back from a clean image.
 # We get rid of everything that is unnecessary (build tools, source code, and anything else
 # that might have created intermediate layers for docker) by copying online the /opt directory.
-FROM amazonlinux:2018.03
+FROM amazonlinux:2
 ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/bref/lib64:/opt/bref/lib"
 
