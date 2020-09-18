@@ -226,6 +226,9 @@ class FpmRuntimeTest extends TestCase
         return $response->getBody()->__toString();
     }
 
+    /**
+     * @return mixed
+     */
     private function getJsonBody(ResponseInterface $response)
     {
         return json_decode($response->getBody()->getContents(), true);
