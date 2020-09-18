@@ -108,7 +108,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 - **[intl](http://php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
 - **[APCu](http://php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
 - **[PostgreSQL PDO Driver](http://php.net/manual/en/ref.pdo-pgsql.php)** -  PDO_PGSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to PostgreSQL databases.
-- **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
 - **[imagick](http://php.net/manual/en/book.imagick.php)** - imagick is an image processing library.
 - **[GD](http://php.net/manual/en/book.image.php)** - GD is an image processing library.
 
@@ -118,7 +117,6 @@ You can enable these extensions by loading them in `php/conf.d/php.ini` (as ment
 extension=intl
 extension=apcu
 extension=pdo_pgsql
-extension=pthreads
 extension=imagick
 extension=gd
 ```
