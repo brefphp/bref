@@ -375,7 +375,7 @@ ERROR;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
-        $this->assertInternalType('array', $invocationResult['stackTrace']);
+        $this->assertIsArray($invocationResult['stackTrace']);
     }
 
     private function assertErrorInLogs(string $errorClass, string $errorMessage): void
@@ -398,6 +398,6 @@ ERROR;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
-        $this->assertInternalType('array', $invocationResult['stack']);
+        $this->assertIsArray($invocationResult['stack']);
     }
 }
