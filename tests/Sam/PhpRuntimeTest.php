@@ -289,7 +289,7 @@ LOGS;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
-        $this->assertInternalType('array', $invocationResult['stackTrace']);
+        $this->assertIsArray($invocationResult['stackTrace']);
         $this->assertStringStartsWith($stackTraceStartsWith, $invocationResult['stackTrace'][0]);
 
         $this->assertErrorInLogs($logs, $errorClass, $errorMessage, $stackTraceStartsWith);
@@ -329,7 +329,7 @@ LOGS;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
-        $this->assertInternalType('array', $invocationResult['stack']);
+        $this->assertIsArray($invocationResult['stack']);
         $this->assertStringStartsWith($stackTraceStartsWith, $invocationResult['stack'][0]);
     }
 }

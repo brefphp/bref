@@ -28,8 +28,8 @@ class PhpFpmRuntimeTest extends TestCase
         $response = $this->invoke('/?stderr=1');
 
         $this->assertResponseSuccessful($response);
-        self::assertNotContains('This is a test log into stderr', $this->responseAsString($response));
-        self::assertContains('This is a test log into stderr', $this->logs);
+        self::assertStringNotContainsString('This is a test log into stderr', $this->responseAsString($response));
+        self::assertStringContainsString('This is a test log into stderr', $this->logs);
     }
 
     public function test error_log function()
@@ -37,8 +37,8 @@ class PhpFpmRuntimeTest extends TestCase
         $response = $this->invoke('/?error_log=1');
 
         $this->assertResponseSuccessful($response);
-        self::assertNotContains('This is a test log from error_log', $this->responseAsString($response));
-        self::assertContains('This is a test log from error_log', $this->logs);
+        self::assertStringNotContainsString('This is a test log from error_log', $this->responseAsString($response));
+        self::assertStringContainsString('This is a test log from error_log', $this->logs);
     }
 
     public function test uncaught exception appears in logs and returns a 500()
@@ -46,8 +46,8 @@ class PhpFpmRuntimeTest extends TestCase
         $response = $this->invoke('/?exception=1');
 
         self::assertSame(500, $response->getStatusCode(), $this->logs);
-        self::assertNotContains('This is an uncaught exception', $this->responseAsString($response));
-        self::assertContains('Fatal error:  Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam', $this->logs);
+        self::assertStringNotContainsString('This is an uncaught exception', $this->responseAsString($response));
+        self::assertStringContainsString('Fatal error:  Uncaught Exception: This is an uncaught exception in /var/task/tests/Sam', $this->logs);
     }
 
     public function test error appears in logs and returns a 500()
@@ -55,8 +55,8 @@ class PhpFpmRuntimeTest extends TestCase
         $response = $this->invoke('/?error=1');
 
         self::assertSame(500, $response->getStatusCode(), $this->logs);
-        self::assertNotContains('strlen() expects exactly 1 parameter, 0 given', $this->responseAsString($response));
-        self::assertContains('PHP Fatal error:  Uncaught ArgumentCountError: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam', $this->logs);
+        self::assertStringNotContainsString('strlen() expects exactly 1 parameter, 0 given', $this->responseAsString($response));
+        self::assertStringContainsString('PHP Fatal error:  Uncaught ArgumentCountError: strlen() expects exactly 1 parameter, 0 given in /var/task/tests/Sam', $this->logs);
     }
 
     public function test fatal error appears in logs()
@@ -64,9 +64,9 @@ class PhpFpmRuntimeTest extends TestCase
         $response = $this->invoke('/?fatal_error=1');
 
         self::assertSame(500, $response->getStatusCode(), $this->logs);
-        self::assertNotContains("require(): Failed opening required 'foo'", $this->responseAsString($response));
+        self::assertStringNotContainsString("require(): Failed opening required 'foo'", $this->responseAsString($response));
         $expectedLogs = "PHP Fatal error:  require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam";
-        self::assertContains($expectedLogs, $this->logs);
+        self::assertStringContainsString($expectedLogs, $this->logs);
     }
 
     public function test warnings are logged()
@@ -75,8 +75,8 @@ class PhpFpmRuntimeTest extends TestCase
 
         $this->assertResponseSuccessful($response);
         self::assertEquals('Hello world!', $this->getBody($response), $this->logs);
-        self::assertNotContains('This is a test warning', $this->responseAsString($response));
-        self::assertContains('Warning:  This is a test warning in /var/task/tests/Sam', $this->logs);
+        self::assertStringNotContainsString('This is a test warning', $this->responseAsString($response));
+        self::assertStringContainsString('Warning:  This is a test warning in /var/task/tests/Sam', $this->logs);
     }
 
     /**
@@ -86,7 +86,7 @@ class PhpFpmRuntimeTest extends TestCase
     {
         $response = $this->invoke('/missing-handler');
 
-        self::assertContains('Handler `/var/task/tests/Sam/PhpFpm/UNKNOWN.php` doesn\'t exist', $this->logs);
+        self::assertStringContainsString('Handler `/var/task/tests/Sam/PhpFpm/UNKNOWN.php` doesn\'t exist', $this->logs);
         self::assertEquals(['message' => 'Internal server error'], $this->getJsonBody($response), $this->logs);
     }
 
@@ -124,6 +124,9 @@ class PhpFpmRuntimeTest extends TestCase
         return $response->getBody()->getContents();
     }
 
+    /**
+     * @return mixed
+     */
     private function getJsonBody(ResponseInterface $response)
     {
         return json_decode($response->getBody()->getContents(), true);

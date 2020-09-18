@@ -119,7 +119,7 @@ final class FpmHandler extends HttpHandler
 
         // Extract the status code
         if (isset($responseHeaders['status'])) {
-            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status']);
+            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
             unset($responseHeaders['status']);
         }
 
