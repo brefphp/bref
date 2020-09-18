@@ -42,7 +42,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?stderr=1');
 
         $this->assertResponseSuccessful($response);
-        self::assertNotContains('This is a test log into stderr', $this->responseAsString($response));
+        self::assertStringNotContainsString('This is a test log into stderr', $this->responseAsString($response));
     }
 
     public function test error_log function()
@@ -50,7 +50,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?error_log=1');
 
         $this->assertResponseSuccessful($response);
-        self::assertNotContains('This is a test log from error_log', $this->responseAsString($response));
+        self::assertStringNotContainsString('This is a test log from error_log', $this->responseAsString($response));
     }
 
     public function test uncaught exception returns a 500 without the details()
@@ -58,7 +58,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?exception=1');
 
         self::assertSame(500, $response->getStatusCode());
-        self::assertNotContains('This is an uncaught exception', $this->responseAsString($response));
+        self::assertStringNotContainsString('This is an uncaught exception', $this->responseAsString($response));
     }
 
     public function test error returns a 500 without the details()
@@ -66,7 +66,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?error=1');
 
         self::assertSame(500, $response->getStatusCode());
-        self::assertNotContains('strlen() expects exactly 1 parameter, 0 given', $this->responseAsString($response));
+        self::assertStringNotContainsString('strlen() expects exactly 1 parameter, 0 given', $this->responseAsString($response));
     }
 
     public function test fatal error returns a 500 without the details()
@@ -74,7 +74,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?fatal_error=1');
 
         self::assertSame(500, $response->getStatusCode());
-        self::assertNotContains("require(): Failed opening required 'foo'", $this->responseAsString($response));
+        self::assertStringNotContainsString("require(): Failed opening required 'foo'", $this->responseAsString($response));
     }
 
     public function test warnings do not fail the request and do not appear in the response()
@@ -83,7 +83,7 @@ class FpmRuntimeTest extends TestCase
 
         $this->assertResponseSuccessful($response);
         self::assertEquals('Hello world!', $this->getBody($response));
-        self::assertNotContains('This is a test warning', $this->responseAsString($response));
+        self::assertStringNotContainsString('This is a test warning', $this->responseAsString($response));
     }
 
     public function test php extensions()
