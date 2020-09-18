@@ -2,11 +2,14 @@
 
 namespace Bref\Test\Sam;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
 class PhpRuntimeTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     public function test invocation without event()
     {
         [$result, $logs] = $this->invokeLambda();
