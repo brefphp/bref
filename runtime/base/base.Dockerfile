@@ -219,7 +219,7 @@ RUN set -xe; \
 WORKDIR  ${NGHTTP2_BUILD_DIR}/
 
 RUN set -xe; \
-    && CFLAGS="" \
+    CFLAGS="" \
     CPPFLAGS="-I${INSTALL_DIR}/include  -I/usr/include" \
     LDFLAGS="-L${INSTALL_DIR}/lib64 -L${INSTALL_DIR}/lib" \
     ./configure \
