@@ -2,12 +2,15 @@
 
 namespace Bref\Test\Functional;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
 class FpmRuntimeTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var Client */
     private $http;
 
