@@ -65,7 +65,18 @@
     <rule ref="SlevomatCodingStandard.ControlStructures.NewWithParentheses">
         <severity>0</severity>
     </rule>
+    <rule ref="PSR12.Classes.ClassInstantiation.MissingParentheses">
+        <severity>0</severity>
+    </rule>
     <rule ref="SlevomatCodingStandard.ControlStructures.NewWithoutParentheses"/>
+
+    <!-- Do not require an empty line after if/for/etc. -->
+    <rule ref="SlevomatCodingStandard.ControlStructures.BlockControlStructureSpacing.IncorrectLinesCountAfterControlStructure">
+        <severity>0</severity>
+    </rule>
+    <rule ref="SlevomatCodingStandard.ControlStructures.JumpStatementsSpacing.IncorrectLinesCountBeforeControlStructure">
+        <severity>0</severity>
+    </rule>
 
     <!-- Do not require closures not referencing $this be static -->
     <rule ref="SlevomatCodingStandard.Functions.StaticClosure">
@@ -96,6 +107,10 @@
             <property name="newlinesCountAfterDeclare" value="2"/>
         </properties>
     </rule>
+    <!-- Declare strict type on the same line as opening tag -->
+    <rule ref="PSR12.Files.OpenTag.NotAlone">
+        <severity>0</severity>
+    </rule>
 
     <!-- Require no space before colon in return types -->
     <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHintSpacing">
@@ -119,14 +134,19 @@
         <severity>0</severity>
     </rule>
 
-    <!-- More lax rules about `array` type-hints (no need to always detail what's in the array) -->
-    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversablePropertyTypeHintSpecification">
+    <!-- Do not force to document arrays -->
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingTraversableTypeHintSpecification">
         <severity>0</severity>
     </rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversableParameterTypeHintSpecification">
+    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification">
         <severity>0</severity>
     </rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingTraversableReturnTypeHintSpecification">
+    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingTraversableTypeHintSpecification">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Anonymous classes -->
+    <rule ref="PSR12.Classes.AnonClassDeclaration.SpaceAfterKeyword">
         <severity>0</severity>
     </rule>
 
@@ -139,9 +159,22 @@
         <exclude-pattern type="relative">tests/*</exclude-pattern>
     </rule>
 
-    <!-- Do not enforce return types in tests else it crowds the test methods with `: void` -->
-    <rule ref="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint">
+    <!-- For short anonymous classes in tests -->
+    <rule ref="Squiz.WhiteSpace.FunctionSpacing.Before">
         <exclude-pattern type="relative">tests/*</exclude-pattern>
+    </rule>
+
+    <!-- Do not enforce return types in tests else it crowds the test methods with `: void` -->
+    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint">
+        <exclude-pattern type="relative">tests/*</exclude-pattern>
+    </rule>
+
+
+    <!-- ########################-->
+    <!-- For PHP 7.4+ only       -->
+    <!-- ########################-->
+    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint">
+        <severity>0</severity>
     </rule>
 
 </ruleset>

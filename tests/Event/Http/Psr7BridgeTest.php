@@ -5,9 +5,9 @@ namespace Bref\Test\Event\Http;
 use Bref\Context\Context;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\Psr7Bridge;
+use Nyholm\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
-use Zend\Diactoros\Response\JsonResponse;
 
 class Psr7BridgeTest extends CommonHttpTest
 {
@@ -16,7 +16,9 @@ class Psr7BridgeTest extends CommonHttpTest
 
     public function test I can create a response from a PSR7 response()
     {
-        $psr7Response = new JsonResponse(['foo' => 'bar'], 404);
+        $psr7Response = new Response(404, [
+            'Content-Type' => 'application/json',
+        ], json_encode(['foo' => 'bar']));
 
         $response = Psr7Bridge::convertResponse($psr7Response);
         self::assertSame([
@@ -135,8 +137,8 @@ class Psr7BridgeTest extends CommonHttpTest
         string $content
     ): void {
         $uploadedFiles = $this->request->getUploadedFiles();
-        /** @var UploadedFileInterface $uploadedFile */
         $uploadedFile = $uploadedFiles[$key];
+        \assert($uploadedFile instanceof UploadedFileInterface);
         $this->assertEquals($filename, $uploadedFile->getClientFilename());
         $this->assertEquals($mimeType, $uploadedFile->getClientMediaType());
         $this->assertEquals($error, $uploadedFile->getError());
