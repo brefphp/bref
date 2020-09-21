@@ -20,7 +20,7 @@ All RDS databases can be setup with Lambda in two ways:
 1. the database can be made publicly accessible and protected by a username and password
 2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/fr/vpc/))
 
-> You can't give an Aurora Serverless DB cluster a public IP address. You can access an Aurora Serverless DB cluster only from within a virtual private cloud (VPC) based on the Amazon VPC service. You can examine the details about limitations of Aurora Serverless from [documentation](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html).
+> Note that Aurora Serverless [cannot be made publicly accessible](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html), only the second option is possible.
 
 While the first solution is simpler, the second is more secure. Using a VPC also comes with a few limitations that are detailed below.
 
