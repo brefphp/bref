@@ -97,6 +97,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.xmlwriter.php">xmlwriter</a></li>
         <li><a href="http://php.net/manual/en/book.xsl.php">xsl</a></li>
         <li><a href="http://php.net/manual/en/book.zlib.php">zlib</a></li>
+        <li><a href="https://www.php.net/manual/en/book.image">gd</a></li>
         </ul>
       </td>
     </tr>
@@ -112,7 +113,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 - **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
 - **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
 - **[imagick](http://php.net/manual/en/book.imagick.php)** - imagick is an image processing library.
-- **[GD](http://php.net/manual/en/book.image.php)** - GD is an image processing library.
 
 You can enable these extensions by loading them in `php/conf.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
@@ -124,7 +124,6 @@ extension=pdo_pgsql
 extension=mongodb
 extension=pthreads
 extension=imagick
-extension=gd
 ```
 
 ### Extra extensions
