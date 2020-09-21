@@ -99,8 +99,6 @@ RUN set -xe \
         --enable-intl=shared \
         --enable-soap \
         --with-xsl=${INSTALL_DIR} \
-        --enable-gd \
-        --with-jpeg=${INSTALL_DIR} \
         --with-pear
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
