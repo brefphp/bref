@@ -95,7 +95,6 @@ RUN ln -s /opt/bref/sbin/* /opt/bin
 # Install extensions
 # We can install extensions manually or using `pecl`
 RUN pecl install APCu
-RUN pecl install imagick
 
 # Run the next step in the previous environment because the `clean.sh` script needs `find`,
 # which isn't installed by default
