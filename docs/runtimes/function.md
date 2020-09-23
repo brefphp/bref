@@ -53,7 +53,7 @@ There can only be one function returned per PHP file.
 
 ### Context
 
-The function is invoked with the `$event` parameter as well a `$context` parameter. This parameter can be optionally declared if you want to use it:
+The function is invoked with the `$event` parameter as well as a `$context` parameter. This parameter can be optionally declared if you want to use it:
 
 ```php
 <?php
