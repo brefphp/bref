@@ -393,7 +393,7 @@ RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel li
 # NewRelic agent
 ARG NEW_RELIC_AGENT_VERSION=9.11.0.267
 ARG NEW_RELIC_LICENSE_KEY=485399637409f4456a3f66db12c8377c50fa3549
-ARG NEW_RELIC_APPNAME='TEST'
+ARG NEW_RELIC_APPNAME='Quoting Portal'
 ARG NEW_RELIC_DAEMON_ADDRESS=portal-newrelic.clariondoor.com:31339
 
 RUN curl -L "https://download.newrelic.com/php_agent/archive/${NEW_RELIC_AGENT_VERSION}/newrelic-php5-${NEW_RELIC_AGENT_VERSION}-linux.tar.gz" | tar -C /tmp -zx \
@@ -414,3 +414,4 @@ newrelic.loglevel = "error" \n\
 RUN mkdir -p ${INSTALL_DIR}/etc/newrelic && \
   echo "loglevel=error" > ${INSTALL_DIR}/etc/newrelic/newrelic.cfg && \
   echo "logfile=/dev/null" >> ${INSTALL_DIR}/etc/newrelic/newrelic.cfg
+
