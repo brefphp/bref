@@ -5,6 +5,7 @@ namespace Bref;
 use Bref\Runtime\FileHandlerLocator;
 use Closure;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 
 /**
  * @experimental This class is not covered by backward compatibility yet.
@@ -34,10 +35,10 @@ class Bref
     public static function getContainer(): ContainerInterface
     {
         if (! self::$container) {
-            if (! self::$containerProvider) {
+            if (self::$containerProvider) {
                 self::$container = (self::$containerProvider)();
                 if (! self::$container instanceof ContainerInterface) {
-                    throw new \RuntimeException('The closure provided to Bref\Bref::setContainer() did not return an instance of ' . ContainerInterface::class);
+                    throw new RuntimeException('The closure provided to Bref\Bref::setContainer() did not return an instance of ' . ContainerInterface::class);
                 }
             } else {
                 self::$container = new FileHandlerLocator;
@@ -45,5 +46,14 @@ class Bref
         }
 
         return self::$container;
+    }
+
+    /**
+     * @internal For tests.
+     */
+    public static function reset(): void
+    {
+        self::$containerProvider = null;
+        self::$container = null;
     }
 }
