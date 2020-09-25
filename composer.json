@@ -22,7 +22,7 @@
         "bref"
     ],
     "require": {
-        "php": "^7.3.0",
+        "php": ">=7.3.0",
         "ext-curl": "*",
         "ext-json": "*",
         "mnapoli/silly": "^1.7",
@@ -34,7 +34,8 @@
         "psr/http-server-handler": "^1.0",
         "async-aws/cloud-formation": "^1.0",
         "async-aws/lambda": "^1.0",
-        "nyholm/psr7": "^1.2"
+        "nyholm/psr7": "^1.2",
+        "psr/container": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0",
@@ -55,14 +56,14 @@
         "static-analysis": [
             "vendor/bin/phpstan analyse"
         ],
-        "unit-tests": [
-            "vendor/bin/phpunit"
+        "tests": [
+            "vendor/bin/phpunit --testsuite small"
         ]
     },
     "scripts-descriptions": {
-        "test": "Run the full test suite for bref",
+        "test": "Run the test suite",
         "code-style": "Run code style checks using PHP_CodeSniffer",
         "static-analysis": "Run static analysis using PHPStan",
-        "unit-tests": "Run unit tests with PHPUnit"
+        "tests": "Run unit tests with PHPUnit"
     }
 }
