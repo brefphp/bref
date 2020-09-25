@@ -19,8 +19,9 @@ class Bref
     /**
      * Configure the container that provides Lambda handlers.
      *
-     * @psalm-param Closure():\Psr\Container\ContainerInterface $containerProvider
      * @param Closure $containerProvider Function that must return a `ContainerInterface`.
+     *
+     * @psalm-param Closure(): ContainerInterface $containerProvider
      */
     public static function setContainer(Closure $containerProvider): void
     {

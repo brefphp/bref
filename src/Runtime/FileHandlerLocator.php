@@ -11,20 +11,22 @@ use Psr\Container\ContainerInterface;
  * Whenever a Lambda function executes, this class will `require` that PHP file
  * and return what the file returns.
  *
- * @see \Bref\Bref::setContainer()
- *
  * @internal
+ * @see \Bref\Bref::setContainer()
  */
 class FileHandlerLocator implements ContainerInterface
 {
     /** @var string */
     private $directory;
 
-    public function __construct(string $directory = null)
+    public function __construct(?string $directory = null)
     {
         $this->directory = $directory ?: $_SERVER['LAMBDA_TASK_ROOT'];
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function get($id)
     {
         $handlerFile = $this->directory . '/' . $id;
@@ -42,6 +44,9 @@ class FileHandlerLocator implements ContainerInterface
         return $handler;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function has($id): bool
     {
         return is_file($this->directory . '/' . $id);
