@@ -3,6 +3,7 @@
 namespace Bref;
 
 use Bref\Runtime\FileHandlerLocator;
+use Closure;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -10,15 +11,20 @@ use Psr\Container\ContainerInterface;
  */
 class Bref
 {
+    /** @var Closure|null */
+    private static $containerProvider;
     /** @var ContainerInterface|null */
     private static $container;
 
     /**
-     * Set the container that provides Lambda handlers.
+     * Configure the container that provides Lambda handlers.
+     *
+     * @psalm-param Closure():\Psr\Container\ContainerInterface $containerProvider
+     * @param Closure $containerProvider Function that must return a `ContainerInterface`.
      */
-    public static function setContainer(ContainerInterface $container): void
+    public static function setContainer(Closure $containerProvider): void
     {
-        self::$container = $container;
+        self::$containerProvider = $containerProvider;
     }
 
     /**
@@ -26,6 +32,17 @@ class Bref
      */
     public static function getContainer(): ContainerInterface
     {
-        return self::$container ?: new FileHandlerLocator;
+        if (! self::$container) {
+            if (! self::$containerProvider) {
+                self::$container = (self::$containerProvider)();
+                if (! self::$container instanceof ContainerInterface) {
+                    throw new \RuntimeException('The closure provided to Bref\Bref::setContainer() did not return an instance of ' . ContainerInterface::class);
+                }
+            } else {
+                self::$container = new FileHandlerLocator;
+            }
+        }
+
+        return self::$container;
     }
 }
