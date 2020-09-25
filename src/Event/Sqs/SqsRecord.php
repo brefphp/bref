@@ -51,6 +51,14 @@ final class SqsRecord
     }
 
     /**
+     * Returns the receipt handle, the unique identifier for a specific instance of receiving a message.
+     */
+    public function getReceiptHandle(): string
+    {
+        return $this->record['receiptHandle'];
+    }
+
+    /**
      * Returns the record original data as an array.
      *
      * Use this method if you want to access data that is not returned by a method in this class.

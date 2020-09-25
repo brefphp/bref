@@ -73,25 +73,24 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.openssl.php">openssl</a></li>
         <li><a href="http://php.net/manual/en/book.pcntl.php">pcntl</a></li>
         <li><a href="http://php.net/manual/en/book.pcre.php">pcre</a></li>
-        <li><a href="http://php.net/manual/en/book.PDO.php">PDO</a></li>
-        <li><a href="http://php.net/manual/en/book.pdo_sqlite.php">pdo_sqlite</a></li>
+        <li><a href="http://php.net/manual/en/book.pdo.php">PDO</a></li>
+        <li><a href="http://php.net/manual/en/book.pdo-sqlite.php">pdo_sqlite</a></li>
         <li><a href="http://php.net/manual/en/ref.pdo-mysql.php">pdo_mysql</a></li>
-        <li><a href="http://php.net/manual/en/book.Phar.php">Phar</a></li>
+        <li><a href="http://php.net/manual/en/book.phar.php">Phar</a></li>
         <li><a href="http://php.net/manual/en/book.posix.php">posix</a></li>
         <li><a href="http://php.net/manual/en/book.readline.php">readline</a></li>
-        <li><a href="http://php.net/manual/en/book.Reflection.php">Reflection</a></li>
+        <li><a href="http://php.net/manual/en/book.reflection.php">Reflection</a></li>
         <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
         </ul>
       </td>
       <td align="left" valign="top">
-        <ul>  
-        <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
+        <ul>
+        <li><a href="https://php.net/manual/en/book.simplexml.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
         <li><a href="http://php.net/manual/en/book.soap.php">SOAP</a></li>
         <li><a href="http://php.net/manual/en/book.sockets.php">sockets</a></li>
-        <li><a href="http://php.net/manual/en/book.SPL.php">SPL</a></li>
+        <li><a href="http://php.net/manual/en/book.spl.php">SPL</a></li>
         <li><a href="http://php.net/manual/en/book.sqlite3.php">sqlite3</a></li>
-        <li><a href="http://php.net/manual/en/book.standard.php">standard</a></li>
         <li><a href="http://php.net/manual/en/book.tokenizer.php">tokenizer</a></li>
         <li><a href="http://php.net/manual/en/book.xml.php">xml</a></li>
         <li><a href="http://php.net/manual/en/book.xmlreader.php">xmlreader</a></li>
@@ -108,7 +107,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 
 - **[intl](http://php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
 - **[APCu](http://php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
-- **[phpredis](https://github.com/phpredis/phpredis)** -  The phpredis extension provides an API for communicating with the Redis key-value store. 
+- **[phpredis](https://github.com/phpredis/phpredis)** -  The phpredis extension provides an API for communicating with the Redis key-value store.
 - **[PostgreSQL PDO Driver](http://php.net/manual/en/ref.pdo-pgsql.php)** -  PDO_PGSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to PostgreSQL databases.
 - **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
 - **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
@@ -130,14 +129,14 @@ extension=gd
 
 ### Extra extensions
 
-Due to space limitations in AWS Lambda, Bref cannot provide every possible extension. 
-There are a list of additional PHP extensions that can be installed as a separate 
-layer. They are less common extensions or extensions that for some reasons should 
+Due to space limitations in AWS Lambda, Bref cannot provide every possible extension.
+There are a list of additional PHP extensions that can be installed as a separate
+layer. They are less common extensions or extensions that for some reasons should
 not be in the normal Bref layer.
 
 All extra PHP extensions are found in [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions).
 
-Contributions to add more PHP extensions are welcomed. 
+Contributions to add more PHP extensions are welcomed.
 
 ### Custom extensions
 
@@ -156,7 +155,7 @@ To create your custom layer, you will need to:
 To compile the extension, Bref provides the `bref/build-php-*` Docker images. Here is an example with Blackfire:
 
 ```dockerfile
-FROM bref/build-php-73
+FROM bref/build-php-74
 
 RUN curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/7.3 \
     && mkdir -p /tmp/blackfire \
@@ -170,9 +169,24 @@ FROM lambci/lambda:provided
 COPY --from=0 /tmp/blackfire.so /opt/bref-extra/blackfire.so
 ```
 
-The `.so` extension file can then be retrieved in `/opt/bref-extra/blackfire.so`. 
+The `.so` extension file can then be retrieved in `/opt/bref-extra/blackfire.so`.
 If you installed system libraries, you may also need to copy them to the `lambci/lambda`
-image.  
+image.
 
 See [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions)
-for more examples. 
+for more examples.
+
+## Custom vendor path
+
+Bref automatically requires vendor dependencies from the default `vendor/autoload.php` path.
+
+If your Composer dependencies are installed elsewhere, you can customize that path via the `BREF_AUTOLOAD_PATH` environment variable.
+
+```yaml
+provider:
+    # ...
+    environment:
+        BREF_AUTOLOAD_PATH: '/var/task/foo-bar/vendor/autoload.php'
+```
+
+The path must start with `/var/task`, which is the directory where projects are installed on AWS Lambda.

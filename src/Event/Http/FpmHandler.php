@@ -70,6 +70,7 @@ final class FpmHandler extends HttpHandler
          * --force-stderr: force logs to be sent to stderr, which will allow us to send them to CloudWatch
          */
         $this->fpm = new Process(['php-fpm', '--nodaemonize', '--force-stderr', '--fpm-config', $this->configFile]);
+
         $this->fpm->setTimeout(null);
         $this->fpm->start(function ($type, $output): void {
             // Send any PHP-FPM log to CloudWatch
@@ -118,7 +119,7 @@ final class FpmHandler extends HttpHandler
 
         // Extract the status code
         if (isset($responseHeaders['status'])) {
-            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status']);
+            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
             unset($responseHeaders['status']);
         }
 

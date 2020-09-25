@@ -171,24 +171,67 @@ final class HttpRequestEvent implements LambdaEvent
     {
         if ($this->payloadVersion === 2.0) {
             $queryString = $this->event['rawQueryString'] ?? '';
-            // We re-parse the query string to make sur it is URL-encoded
+            // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
             parse_str($queryString, $queryParameters);
             return http_build_query($queryParameters);
         }
 
-        if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
-            $queryParameters = [];
-            /*
-             * Watch out: to support multiple query string parameters with the same name like:
-             *     ?array[]=val1&array[]=val2
-             * we need to support "multi-value query string", else only the 'val2' value will survive.
-             * At the moment we only take the first value (which means we DON'T support multiple values),
-             * this needs to be implemented below in the future.
-             */
-            foreach ($this->event['multiValueQueryStringParameters'] as $key => $value) {
-                $queryParameters[$key] = $value[0];
+        // It is likely that we do not need to differentiate between API Gateway (Version 1) and ALB. However,
+        // it would lead to a breaking change since the current implementation for API Gateway does not
+        // support MultiValue query string. This way, the code is fully backward-compatible while
+        // offering complete support for multi value query parameters on ALB. Later on there can
+        // be a feature flag that allows API Gateway users to opt-in to complete support as well.
+        if (isset($this->event['requestContext']) && isset($this->event['requestContext']['elb'])) {
+            // AWS differs between ALB with multiValue enabled or not (docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/lambda-functions.html#multi-value-headers)
+            if (isset($this->event['multiValueQueryStringParameters'])) {
+                $queryParameters = $this->event['multiValueQueryStringParameters'];
+            } else {
+                $queryParameters = $this->event['queryStringParameters'] ?? [];
             }
+
+            $queryString = '';
+
+            // AWS always deliver the list of query parameters as an array. Let's loop through all of the
+            // query parameters available and parse them to get their original URL decoded values.
+            foreach ($queryParameters as $key => $values) {
+                // If multi-value is disabled, $values is a string containing the last parameter sent.
+                // If multi-value is enabled, $values is *always* an array containing a list of parameters per key.
+                // Even if we only send 1 parameter (e.g. my_param=1), AWS will still send an array [1] for my_param
+                // when multi-value is enabled.
+                // By forcing $values to be an array, we can be consistent with both scenarios by always parsing
+                // all values available on a given key.
+                $values = (array) $values;
+
+                // Let's go ahead and undo AWS's work and rebuild the original string that formed the
+                // Query Parameters so that php's native function `parse_str` can automatically
+                // decode all keys and all values. The result is a PHP array with decoded
+                // keys and values. See https://github.com/brefphp/bref/pull/693
+                foreach ($values as $value) {
+                    $queryString .= $key . '=' . $value . '&';
+                }
+            }
+
+            // parse_str will automatically `urldecode` any value that needs decoding. This will allow parameters
+            // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work. `$decodedQueryParameters`
+            // will be an array with parameter names as keys.
+            parse_str($queryString, $decodedQueryParameters);
+
+            return http_build_query($decodedQueryParameters);
+        }
+
+        if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
+            $queryParameterStr = [];
+            // go through the params and url-encode the values, to build up a complete query-string
+            foreach ($this->event['multiValueQueryStringParameters'] as $key => $value) {
+                foreach ($value as $v) {
+                    $queryParameterStr[] = $key . '=' . urlencode($v);
+                }
+            }
+
+            // re-parse the query-string so it matches the format used when using PHP outside of Lambda
+            // this is particularly important when using multi-value params - eg. myvar[]=2&myvar=3 ... = [2, 3]
+            parse_str(implode('&', $queryParameterStr), $queryParameters);
             return http_build_query($queryParameters);
         }
 

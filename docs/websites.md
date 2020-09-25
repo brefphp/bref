@@ -105,7 +105,7 @@ It is not possible to use `serverless deploy` to upload files to S3, you need to
 aws s3 sync <your-assets-directory> s3://<bucket-name>/<your-assets-folder> --delete
 ```
 
-Please note that the assets would normally need to be inside a folder, and not in the root of your bucket. 
+Please note that the assets would normally need to be inside a folder, and not in the root of your bucket.
 
 Be aware that the content of the bucket is public!
 
@@ -141,7 +141,7 @@ functions:
     website:
         handler: public/index.php
         layers:
-            - ${bref:layer.php-73-fpm}
+            - ${bref:layer.php-74-fpm}
         events:
             -   http: 'ANY /'
             -   http: 'ANY {proxy+}'
@@ -153,10 +153,10 @@ resources:
     Resources:
         # The S3 bucket that stores the assets
         Assets:
-            # [...] see the previous section for details 
+            # [...] see the previous section for details
         AssetsBucketPolicy:
-            # [...] see the previous section for details 
-    
+            # [...] see the previous section for details
+
         WebsiteCDN:
             Type: AWS::CloudFront::Distribution
             Properties:
@@ -164,7 +164,7 @@ resources:
                     Enabled: true
                     # Cheapest option by default (https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_DistributionConfig.html)
                     PriceClass: PriceClass_100
-                    # Enable http2 transfer for better performances
+                    # Enable http2 transfer for better performance
                     HttpVersion: http2
                     # Origins are where CloudFront fetches content
                     Origins:
@@ -228,7 +228,7 @@ resources:
 
 Feel free to customize the `/asset/` path. If your application is a JS application backed by a PHP API, you will want to invert API Gateway and S3 (set S3 as the `DefaultCacheBehavior` and serve API Gateway under a `/api/` path).
 
-> The first deployment takes a lot of time (20 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay. You will know it is finished when the `Status` column changes from `In Progress` to `Deployed` in your [CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home).
+> The first deployment takes a lot of time (5 to 10 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay. You will know it is finished when the `Status` column changes from `In Progress` to `Deployed` in your [CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home).
 
 The URL of the deployed CloudFront distribution can be found in [the CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home) under `Domain Name`.
 

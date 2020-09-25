@@ -24,7 +24,7 @@ functions:
     foo:
         handler: index.php
         layers:
-            - ${bref:layer.php-73} # PHP
+            - ${bref:layer.php-74} # PHP
 
 resources:
     Resources:
@@ -74,11 +74,11 @@ functions:
     foo:
         handler: foo.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
     bar:
         handler: bar.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 
 # ...
 ```
@@ -95,13 +95,13 @@ functions:
         timeout: 10
         runtime: provided
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
     bar:
         handler: bar.php
         timeout: 10
         runtime: provided
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 
 # ...
 ```
@@ -147,11 +147,11 @@ functions:
     foo:
         handler: foo.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
     bar:
         handler: bar.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 ```
 
 Functions are AWS Lambda functions. You can find all options available [in this Serverless documentation page](https://serverless.com/framework/docs/providers/aws/guide/functions/).

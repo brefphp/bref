@@ -15,10 +15,14 @@
         "X-Forwarded-Proto": "https"
     },
     "queryStringParameters": {
-        "foo": "baz"
+        "foo": "bar"
     },
     "multiValueQueryStringParameters": {
-        "foo": ["bar", "baz"]
+        "foo[]": ["bar", "baz"],
+        "cards[]": ["birthday"],
+        "colors[][]": ["red", "blue"],
+        "shapes[a][]": ["square", "triangle"],
+        "myvar": ["abc"]
     },
     "pathParameters": null,
     "stageVariables": null,

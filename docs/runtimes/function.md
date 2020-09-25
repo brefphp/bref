@@ -84,7 +84,7 @@ functions:
     hello:
         handler: index.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 ```
 
 The runtime (aka layer) to use is `php-XX`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).

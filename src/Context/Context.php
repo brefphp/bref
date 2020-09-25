@@ -42,7 +42,7 @@ final class Context implements \JsonSerializable
      */
     public function getRemainingTimeInMillis(): int
     {
-        return $this->deadlineMs - intval(microtime(true)*1000);
+        return $this->deadlineMs - intval(microtime(true) * 1000);
     }
 
     /**

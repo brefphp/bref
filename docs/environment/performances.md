@@ -1,14 +1,14 @@
 ---
-title: Performances
+title: Performance
 current_menu: performances
 introduction: Performance tuning and optimizations for serverless PHP applications on AWS Lambda.
 ---
 
-This article sums up what to expect in terms of performances and how to optimize serverless PHP applications. The benchmarks included in this page can be reproduced via [the code on GitHub](https://github.com/brefphp/benchmarks).
+This article sums up what to expect in terms of performance and how to optimize serverless PHP applications. The benchmarks included in this page can be reproduced via [the code on GitHub](https://github.com/brefphp/benchmarks).
 
 ## CPU power and memory size
 
-The main factor affecting performances is memory size. Indeed, [the amount of memory is proportional to the CPU power available](https://docs.aws.amazon.com/lambda/latest/dg/resource-model.html).
+The main factor affecting performance is memory size. Indeed, [the amount of memory is proportional to the CPU power available](https://docs.aws.amazon.com/lambda/latest/dg/resource-model.html).
 
 In other words, **more memory means a more powerful CPU**. A 1024M lambda has a CPU two times more powerful than a 512M lambda.
 

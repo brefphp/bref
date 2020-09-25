@@ -58,4 +58,7 @@ layers.json:
 test-stack:
 	serverless deploy -c tests/serverless.tests.yml
 
-.PHONY: runtimes website website-preview website-assets demo layers.json test-stack
+changelog:
+	docker run -it --rm -v "$(pwd)":/usr/local/src/your-app ferrarimarco/github-changelog-generator --user brefphp --project bref --output= --unreleased-only --token=$$GITHUB_TOKEN_READ --no-issues --usernames-as-github-logins --no-verbose
+
+.PHONY: runtimes website website-preview website-assets demo layers.json test-stack changelog
