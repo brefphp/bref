@@ -80,6 +80,67 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
     }
 ```
 
+## Using cache
+
+As mentioned above, the filesystem is readonly so if you need persistent cache you need to store it somewhere else.
+
+One great option is using AWS DynamoDB - a fast NoSQL storage. You can install [this bundle](https://github.com/RikudouSage/DynamoDbCachePsr6Bundle)
+which integrates into Symfony via composer:
+
+`composer require rikudou/psr6-dynamo-db-bundle`
+
+Then configure the DynamoDB table, create the file `config/packages/dynamo_db_cache.yaml`:
+
+```yaml
+rikudou_dynamo_db_cache:
+    table: myCacheTableName
+```
+
+> Note: This is just a minimal example, see the bundle description for full list of options
+
+And finally one more configuration to replace the cache implementations in production. Create the file
+`config/packages/prod/dynamo_db_cache.yaml` (notice the prod in the path name, if you use different environment,
+replace `prod` with your environment):
+
+```yaml
+rikudou_dynamo_db_cache:
+    replace_default_adapter: true
+```
+
+This will replace all references to `Symfony\Component\Cache\Adapter\AdapterInterface` and `Symfony\Contracts\Cache\CacheInterface`
+with the DynamoDB implementation.
+
+You can then use your cache as usual (for more information see Symfony documentation [here](https://symfony.com/doc/current/cache.html)
+and [here](https://symfony.com/doc/current/components/cache.html#basic-usage-psr-6)):
+
+```php
+<?php
+
+use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+
+class MyService
+{
+    public function __construct(AdapterInterface $cache)
+    {
+        $item = $cache->getItem('test');
+        // do stuff with cache item
+        $cache->save($item);
+    }
+}
+
+class MyService2
+{
+    public function __construct(CacheInterface $cache)
+    {
+        $cache->get('test', function (ItemInterface $item) {
+            return 'new-value';
+        });
+    }
+}
+```
+
 ## Deploy
 
 Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
