@@ -56,14 +56,14 @@
         "static-analysis": [
             "vendor/bin/phpstan analyse"
         ],
-        "unit-tests": [
-            "vendor/bin/phpunit"
+        "tests": [
+            "vendor/bin/phpunit --testsuite small"
         ]
     },
     "scripts-descriptions": {
-        "test": "Run the full test suite for bref",
+        "test": "Run the test suite",
         "code-style": "Run code style checks using PHP_CodeSniffer",
         "static-analysis": "Run static analysis using PHPStan",
-        "unit-tests": "Run unit tests with PHPUnit"
+        "tests": "Run unit tests with PHPUnit"
     }
 }
