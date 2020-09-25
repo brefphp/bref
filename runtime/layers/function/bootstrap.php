@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Bref\Bref;
 use Bref\Runtime\LambdaRuntime;
 
 ini_set('display_errors', '1');
@@ -17,16 +18,12 @@ if (getenv('BREF_AUTOLOAD_PATH')) {
 
 $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
 
-$handlerFile = $appRoot . '/' . getenv('_HANDLER');
-if (! is_file($handlerFile)) {
-    $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist");
-}
+$container = Bref::getContainer();
 
-/** @noinspection PhpIncludeInspection */
-$handler = require $handlerFile;
-
-if (! $handler) {
-    $lambdaRuntime->failInitialization("Handler `$handlerFile` must return a function or object handler. See https://bref.sh/docs/runtimes/function.html");
+try {
+    $handler = $container->get(getenv('_HANDLER'));
+} catch (Throwable $e) {
+    $lambdaRuntime->failInitialization($e->getMessage());
 }
 
 $loopMax = getenv('BREF_LOOP_MAX') ?: 1;
