@@ -38,8 +38,8 @@
         "psr/container": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0",
-        "dms/phpunit-arraysubset-asserts": "^0.1.0",
+        "phpunit/phpunit": "^8.0|^9.0",
+        "dms/phpunit-arraysubset-asserts": "^0.1|^0.2",
         "doctrine/coding-standard": "^8.0",
         "phpstan/phpstan": "^0.12",
         "guzzlehttp/guzzle": "^6.3"
