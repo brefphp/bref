@@ -156,7 +156,7 @@ final class FpmHandler extends HttpHandler
 
             // If the process has crashed we can stop immediately
             if (! $this->fpm->isRunning()) {
-                throw new Exception('PHP-FPM failed to start');
+                throw new Exception('PHP-FPM failed to start: ' . PHP_EOL . $this->fpm->getOutput() . PHP_EOL . $this->fpm->getErrorOutput());
             }
         }
     }
