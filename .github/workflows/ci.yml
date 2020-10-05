@@ -38,7 +38,7 @@ jobs:
             -   name: Install php-fpm
                 env:
                     version: ${{ matrix.php }}
-                run: 'if [ "$version" -ne "8.0" ]; then sudo apt-get install -y php$version-fpm; fi'
+                run: 'if [ "$version" != "8.0" ]; then sudo apt-get install -y php$version-fpm; fi'
             -   name: Install dependencies
                 run: 'composer update --${{ matrix.dependency-version }} --prefer-dist --no-progress'
             -   name: Execute Unit Tests
