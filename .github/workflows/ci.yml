@@ -34,11 +34,6 @@ jobs:
                     php-version: ${{ matrix.php }}
                     coverage: none
                     tools: composer
-            # See https://github.com/shivammathur/setup-php/issues/280
-            -   name: Install php-fpm
-                env:
-                    version: ${{ matrix.php }}
-                run: 'sudo apt-get install -y php$version-fpm'
             -   name: Install dependencies
                 run: 'composer update --${{ matrix.dependency-version }} --prefer-dist --no-progress'
             -   name: Execute Unit Tests
