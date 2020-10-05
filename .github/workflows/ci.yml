@@ -3,7 +3,7 @@ name: Tests
 on:
     push:
         branches:
-            - '*'
+            - 'master'
     pull_request:
         branches:
             - '*'
@@ -57,7 +57,7 @@ jobs:
                     coverage: none
                     tools: composer
             -   name: Install dependencies
-                run: 'composer install --prefer-dist --no-progress'
+                run: 'composer install -n --prefer-dist --no-progress'
             -   name: PHPStan
                 run: 'vendor/bin/phpstan analyse'
 
@@ -74,6 +74,6 @@ jobs:
                     coverage: none
                     tools: composer
             -   name: Install dependencies
-                run: 'composer install --prefer-dist --no-progress'
+                run: 'composer install -n --prefer-dist --no-progress'
             -   name: PHPStan
                 run: 'vendor/bin/phpcs'
