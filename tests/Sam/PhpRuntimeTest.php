@@ -328,7 +328,7 @@ LOGS;
         [$requestId, $message, $json] = explode("\t", $logLine);
 
         // Check the request ID matches a UUID
-        $this->assertMatchesRegularExpression('/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/', $requestId);
+        $this->assertRegExp('/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/', $requestId);
 
         $this->assertSame('Invoke Error', $message);
 
