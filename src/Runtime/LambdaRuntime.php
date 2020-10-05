@@ -343,7 +343,7 @@ final class LambdaRuntime
          * Nothing else is sent.
          *
          * `Invocations_100` is used to signal that this is 1 ping equals 100 invocations.
-         * We could use statsd sample rate system this this:
+         * We could use statsd sample rate system like this:
          * `Invocations:1|c|@0.01`
          * but this doesn't seem to be compatible with the bridge that forwards
          * the metric into CloudWatch.
