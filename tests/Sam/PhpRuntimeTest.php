@@ -2,11 +2,15 @@
 
 namespace Bref\Test\Sam;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+use Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 
 class PhpRuntimeTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     public function test invocation without event()
     {
         [$result, $logs] = $this->invokeLambda();
@@ -29,8 +33,8 @@ class PhpRuntimeTest extends TestCase
             'stdout' => true,
         ]);
 
-        self::assertNotContains('This is a test log by writing to stdout', $result);
-        self::assertContains('This is a test log by writing to stdout', $logs);
+        self::assertStringNotContainsString('This is a test log by writing to stdout', $result);
+        self::assertStringContainsString('This is a test log by writing to stdout', $logs);
     }
 
     public function test stderr ends up in logs()
@@ -39,8 +43,8 @@ class PhpRuntimeTest extends TestCase
             'stderr' => true,
         ]);
 
-        self::assertNotContains('This is a test log by writing to stderr', $result);
-        self::assertContains('This is a test log by writing to stderr', $logs);
+        self::assertStringNotContainsString('This is a test log by writing to stderr', $result);
+        self::assertStringContainsString('This is a test log by writing to stderr', $logs);
     }
 
     public function test error_log function()
@@ -49,8 +53,8 @@ class PhpRuntimeTest extends TestCase
             'error_log' => true,
         ]);
 
-        self::assertNotContains('This is a test log from error_log', $result);
-        self::assertContains('This is a test log from error_log', $logs);
+        self::assertStringNotContainsString('This is a test log from error_log', $result);
+        self::assertStringContainsString('This is a test log from error_log', $logs);
     }
 
     public function test uncaught exception appears in logs and is reported as an invocation error()
@@ -93,7 +97,7 @@ class PhpRuntimeTest extends TestCase
         $expectedLogs = <<<LOGS
 Fatal error: require(): Failed opening required 'foo' (include_path='.:/opt/bref/lib/php') in /var/task/tests/Sam/Php/function.php on line
 LOGS;
-        self::assertContains($expectedLogs, $logs);
+        self::assertStringContainsString($expectedLogs, $logs);
 
         // Check the exception is returned as the lambda result
         // TODO SAM local has a bug at the moment and truncates the output on fatal errors
@@ -114,7 +118,7 @@ LOGS;
         // The warning does not turn the execution into an error
         $this->assertEquals('Hello world', $result);
         // But it appears in the logs
-        $this->assertContains('Warning: This is a test warning in /var/task/tests/Sam/Php/function.php', $logs);
+        $this->assertStringContainsString('Warning: This is a test warning in /var/task/tests/Sam/Php/function.php', $logs);
     }
 
     public function test php extensions()
@@ -153,6 +157,7 @@ LOGS;
             'openssl',
             'pcntl',
             'pcre',
+            'pdo_mysql',
             'pdo_sqlite',
             'posix',
             'readline',
@@ -258,6 +263,9 @@ LOGS;
         $lastLine = end($output);
         if (! empty($lastLine)) {
             $result = json_decode($lastLine, true);
+            if (json_last_error()) {
+                throw new Exception(json_last_error_msg());
+            }
         } else {
             $result = null;
             // Was there an error?
@@ -265,6 +273,9 @@ LOGS;
             $error = trim($matches[1] ?? '');
             if ($error !== '') {
                 $result = json_decode($error, true);
+                if (json_last_error()) {
+                    throw new Exception(json_last_error_msg());
+                }
             }
         }
 
@@ -317,7 +328,7 @@ LOGS;
         [$requestId, $message, $json] = explode("\t", $logLine);
 
         // Check the request ID matches a UUID
-        $this->assertRegExp('/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/', $requestId);
+        $this->assertMatchesRegularExpression('/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/', $requestId);
 
         $this->assertSame('Invoke Error', $message);
 
