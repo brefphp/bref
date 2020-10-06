@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Start NewRelic daemon
+/opt/bref/bin/newrelic-daemon -c /opt/bref/etc/newrelic/newrelic.cfg
+
 # Fail on error
 set -e
 
