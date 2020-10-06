@@ -4,7 +4,6 @@ namespace Bref\Event\Http;
 
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
-use League\Uri\Parser\QueryString;
 
 use function str_starts_with;
 
