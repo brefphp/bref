@@ -15,7 +15,8 @@
         "X-Forwarded-Proto": "https"
     },
     "queryStringParameters": {
-        "foo": "bar"
+        "foo": "bar",
+        "baz.bar": "foo"
     },
     "pathParameters": null,
     "stageVariables": null,

@@ -22,7 +22,8 @@
         "cards[]": ["birthday"],
         "colors[][]": ["red", "blue"],
         "shapes[a][]": ["square", "triangle"],
-        "myvar": ["abc"]
+        "myvar": ["abc"],
+        "foo.bar[]": ["baz"]
     },
     "pathParameters": null,
     "stageVariables": null,

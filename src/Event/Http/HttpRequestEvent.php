@@ -171,8 +171,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getQueryParameters(): array
     {
-        parse_str($this->queryString, $query);
-        return $query;
+        return $this->queryStringToArray($this->queryString);
     }
 
     public function getRequestContext(): array
@@ -225,7 +224,7 @@ final class HttpRequestEvent implements LambdaEvent
             $queryString = $this->event['rawQueryString'] ?? '';
             // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
-            parse_str($queryString, $queryParameters);
+            $queryParameters = $this->queryStringToArray($queryString);
             return http_build_query($queryParameters);
         }
 
@@ -264,11 +263,9 @@ final class HttpRequestEvent implements LambdaEvent
                 }
             }
 
-            // parse_str will automatically `urldecode` any value that needs decoding. This will allow parameters
-            // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work. `$decodedQueryParameters`
-            // will be an array with parameter names as keys.
-            parse_str($queryString, $decodedQueryParameters);
-
+            // This will allow parameters like `?my_param[bref][]=first&my_param[bref][]=second` to properly work.
+            // `$decodedQueryParameters` will be an array with parameter names as keys.
+            $decodedQueryParameters = $this->queryStringToArray($queryString);
             return http_build_query($decodedQueryParameters);
         }
 
@@ -283,7 +280,7 @@ final class HttpRequestEvent implements LambdaEvent
 
             // re-parse the query-string so it matches the format used when using PHP outside of Lambda
             // this is particularly important when using multi-value params - eg. myvar[]=2&myvar=3 ... = [2, 3]
-            parse_str(implode('&', $queryParameterStr), $queryParameters);
+            $queryParameters = $this->queryStringToArray(implode('&', $queryParameterStr));
             return http_build_query($queryParameters);
         }
 
