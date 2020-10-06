@@ -114,7 +114,7 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
                 'val1' => 'foo',
                 'val2' => ['bar'],
             ],
-            'foo.bar' => ['baz']
+            'foo.bar' => ['baz'],
         ]);
         if ($version === 2) {
             // Numeric keys are added as an artifact of us parsing the query string
