@@ -78,9 +78,9 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-query-string.json");
 
         $this->assertPath('/path');
-        $this->assertQueryParameters(['foo' => 'bar']);
-        $this->assertQueryString('foo=bar');
-        $this->assertUri('/path?foo=bar');
+        $this->assertQueryParameters(['foo' => 'bar', 'baz.bar' => 'foo']);
+        $this->assertQueryString('foo=bar&baz.bar=foo');
+        $this->assertUri('/path?foo=bar&baz.bar=foo');
     }
 
     /**
@@ -96,9 +96,10 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
             'colors' => [['red'], ['blue']],
             'shapes' => ['a' => ['square', 'triangle']],
             'myvar' => 'abc',
+            'foo.bar' => ['baz'],
         ]);
-        $this->assertQueryString('foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc');
-        $this->assertUri('/path?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc');
+        $this->assertQueryString('foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz');
+        $this->assertUri('/path?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz');
     }
 
     /**
@@ -113,15 +114,16 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
                 'val1' => 'foo',
                 'val2' => ['bar'],
             ],
+            'foo.bar' => ['baz'],
         ]);
         if ($version === 2) {
             // Numeric keys are added as an artifact of us parsing the query string
             // Both format are valid and semantically identical
-            $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar');
-            $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar');
+            $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar&foo.bar%5B0%5D=baz');
+            $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar&foo.bar%5B0%5D=baz');
         } else {
-            $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
-            $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar');
+            $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar&foo.bar%5B%5D=baz');
+            $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar&foo.bar%5B%5D=baz');
         }
     }
 

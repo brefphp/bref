@@ -2,7 +2,7 @@
     "version": "2.0",
     "routeKey": "ANY /path",
     "rawPath": "/path",
-    "rawQueryString": "vars[val1]=foo&vars[val2][]=bar",
+    "rawQueryString": "vars[val1]=foo&vars[val2][]=bar&foo.bar[]=baz",
     "headers": {
         "Accept": "*/*",
         "Accept-Encoding": "gzip, deflate",
@@ -16,7 +16,8 @@
     },
     "queryStringParameters": {
         "vars[val1]": "foo",
-        "vars[val2][]": "bar"
+        "vars[val2][]": "bar",
+        "foo.bar[]": "baz"
     },
     "stageVariables": null,
     "requestContext": {
