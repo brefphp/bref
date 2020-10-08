@@ -80,7 +80,7 @@ final class FpmHandler extends HttpHandler
         });
 
         $this->client = new Client;
-        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
+        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, $this->socketReadWriteTimeout);
 
         $this->waitUntilReady();
     }
