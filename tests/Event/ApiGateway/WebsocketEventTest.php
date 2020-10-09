@@ -65,7 +65,7 @@ class WebsocketEventTest extends TestCase
     public function test_response_default()
     {
         // Arrange
-        $response = new WebsocketResponse();
+        $response = new WebsocketResponse;
 
         // Act
         $apiGatewayResponse = $response->toApiGatewayFormat();
