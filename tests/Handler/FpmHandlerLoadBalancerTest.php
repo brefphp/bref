@@ -151,7 +151,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
         if ($this->fpm) {
             $this->fpm->stop();
         }
-        $this->fpm = new FpmHandler($handler, 5000, __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler($handler, __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
     }
 }

@@ -43,13 +43,10 @@ final class FpmHandler extends HttpHandler
     private $configFile;
     /** @var Process|null */
     private $fpm;
-    /** @var int */
-    private $socketReadWriteTimeout;
 
-    public function __construct(string $handler, int $socketReadWriteTimeout, string $configFile = self::CONFIG)
+    public function __construct(string $handler, string $configFile = self::CONFIG)
     {
         $this->handler = $handler;
-        $this->socketReadWriteTimeout = $socketReadWriteTimeout;
         $this->configFile = $configFile;
     }
 
@@ -81,7 +78,7 @@ final class FpmHandler extends HttpHandler
         });
 
         $this->client = new Client;
-        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, $this->socketReadWriteTimeout);
+        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 900000);
 
         $this->waitUntilReady();
     }
