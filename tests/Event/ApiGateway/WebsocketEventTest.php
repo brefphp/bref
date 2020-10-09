@@ -3,6 +3,7 @@
 namespace Bref\Test\Event\DynamoDb;
 
 use Bref\Event\ApiGateway\WebsocketEvent;
+use Bref\Event\ApiGateway\WebsocketResponse;
 use PHPUnit\Framework\TestCase;
 
 class WebsocketEventTest extends TestCase
@@ -59,5 +60,33 @@ class WebsocketEventTest extends TestCase
         $this->assertSame('$default', $event->getRouteKey());
         $this->assertSame('dev', $event->getStage());
         $this->assertSame('Hello Server!', $event->getBody());
+    }
+
+    public function test_response_default()
+    {
+        // Arrange
+        $response = new WebsocketResponse();
+
+        // Act
+        $apiGatewayResponse = $response->toApiGatewayFormat();
+
+        // Assert
+        $this->assertIsArray($apiGatewayResponse);
+        $this->assertArrayHasKey('statusCode', $apiGatewayResponse);
+        $this->assertSame(200, $apiGatewayResponse['statusCode']);
+    }
+
+    public function test_response_internal_server_error()
+    {
+        // Arrange
+        $response = new WebsocketResponse(500);
+
+        // Act
+        $apiGatewayResponse = $response->toApiGatewayFormat();
+
+        // Assert
+        $this->assertIsArray($apiGatewayResponse);
+        $this->assertArrayHasKey('statusCode', $apiGatewayResponse);
+        $this->assertSame(500, $apiGatewayResponse['statusCode']);
     }
 }
