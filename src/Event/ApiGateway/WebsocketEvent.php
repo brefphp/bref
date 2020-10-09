@@ -25,6 +25,15 @@ final class WebsocketEvent implements LambdaEvent
     /** @var string */
     private $connectionId;
 
+    /** @var string */
+    private $domainName;
+
+    /** @var string */
+    private $apiId;
+
+    /** @var string */
+    private $stage;
+
     /** Event types */
     public const EVENT_TYPE_CONNECT = 0;
     public const EVENT_TYPE_DISCONNECT = 1;
@@ -41,6 +50,9 @@ final class WebsocketEvent implements LambdaEvent
             !isset($event['requestContext']['routeKey']) ||
             !isset($event['requestContext']['eventType']) ||
             !isset($event['requestContext']['connectionId']) ||
+            !isset($event['requestContext']['domainName']) ||
+            !isset($event['requestContext']['apiId']) ||
+            !isset($event['requestContext']['stage']) ||
             !in_array(
                 $event['requestContext']['eventType'],
                 [
@@ -54,8 +66,11 @@ final class WebsocketEvent implements LambdaEvent
             throw new InvalidLambdaEvent('Websocket', $event);
         }
 
+        $this->domainName = $event['requestContext']['domainName'];
         $this->connectionId = $event['requestContext']['connectionId'];
         $this->routeKey = $event['requestContext']['routeKey'];
+        $this->apiId = $event['requestContext']['apiId'];
+        $this->stage = $event['requestContext']['stage'];
         $this->event = $event;
 
         switch ($event['requestContext']['eventType']) {
@@ -104,5 +119,20 @@ final class WebsocketEvent implements LambdaEvent
     public function getConnectionId()
     {
         return $this->connectionId;
+    }
+
+    public function getDomainName()
+    {
+        return $this->domainName;
+    }
+
+    public function getApiId()
+    {
+        return $this->apiId;
+    }
+
+    public function getStage()
+    {
+        return $this->stage;
     }
 }
