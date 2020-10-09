@@ -1085,7 +1085,7 @@ Year,Make,Model
      */
     public function test FPM timeouts are recovered from()
     {
-        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', 5000, __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
 
         try {
@@ -1124,7 +1124,7 @@ Year,Make,Model
     {
         // Run `timeout.php` to make sure that the handler is not really executed.
         // If it was, then PHP-FPM would timeout (and error).
-        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', 5000, __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
 
         $result = $this->fpm->handle([
@@ -1198,7 +1198,7 @@ Year,Make,Model
         if ($this->fpm) {
             $this->fpm->stop();
         }
-        $this->fpm = new FpmHandler($handler, 5000, __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler($handler, __DIR__ . '/PhpFpm/php-fpm.conf');
         $this->fpm->start();
     }
 }
