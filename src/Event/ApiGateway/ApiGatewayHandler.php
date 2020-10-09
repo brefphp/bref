@@ -3,7 +3,6 @@
 namespace Bref\Event\ApiGateway;
 
 use Bref\Context\Context;
-use Bref\Event\ApiGateway\WebsocketEvent;
 use Bref\Event\Handler;
 
 /**

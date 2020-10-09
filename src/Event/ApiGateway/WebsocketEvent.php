@@ -46,14 +46,14 @@ final class WebsocketEvent implements LambdaEvent
     public function __construct($event)
     {
         if (
-            !is_array($event) ||
-            !isset($event['requestContext']['routeKey']) ||
-            !isset($event['requestContext']['eventType']) ||
-            !isset($event['requestContext']['connectionId']) ||
-            !isset($event['requestContext']['domainName']) ||
-            !isset($event['requestContext']['apiId']) ||
-            !isset($event['requestContext']['stage']) ||
-            !in_array(
+            ! is_array($event) ||
+            ! isset($event['requestContext']['routeKey']) ||
+            ! isset($event['requestContext']['eventType']) ||
+            ! isset($event['requestContext']['connectionId']) ||
+            ! isset($event['requestContext']['domainName']) ||
+            ! isset($event['requestContext']['apiId']) ||
+            ! isset($event['requestContext']['stage']) ||
+            ! in_array(
                 $event['requestContext']['eventType'],
                 [
                     'CONNECT',
@@ -107,6 +107,9 @@ final class WebsocketEvent implements LambdaEvent
         return $this->eventType;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getBody()
     {
         if (isset($this->body)) {
@@ -116,22 +119,22 @@ final class WebsocketEvent implements LambdaEvent
         return null;
     }
 
-    public function getConnectionId()
+    public function getConnectionId(): string
     {
         return $this->connectionId;
     }
 
-    public function getDomainName()
+    public function getDomainName(): string
     {
         return $this->domainName;
     }
 
-    public function getApiId()
+    public function getApiId(): string
     {
         return $this->apiId;
     }
 
-    public function getStage()
+    public function getStage(): string
     {
         return $this->stage;
     }
