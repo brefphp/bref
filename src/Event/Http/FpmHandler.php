@@ -44,11 +44,12 @@ final class FpmHandler extends HttpHandler
     /** @var Process|null */
     private $fpm;
     /** @var int */
-    private $socketReadWriteTimeout = 30000;
+    private $socketReadWriteTimeout;
 
-    public function __construct(string $handler, string $configFile = self::CONFIG)
+    public function __construct(string $handler, int $socketReadWriteTimeout, string $configFile = self::CONFIG)
     {
         $this->handler = $handler;
+        $this->socketReadWriteTimeout = $socketReadWriteTimeout;
         $this->configFile = $configFile;
     }
 
@@ -98,17 +99,6 @@ final class FpmHandler extends HttpHandler
     public function __destruct()
     {
         $this->stop();
-    }
-
-    /**
-     * Allow the developer to change the Socket Read Write Timeout to support APIs that take
-     * longer than 30 seconds to run behing ALB.
-     */
-    public function setSocketReadWriteTimeout(int $timeout): self
-    {
-        $this->socketReadWriteTimeout = $timeout;
-
-        return $this;
     }
 
     /**
