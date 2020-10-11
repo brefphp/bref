@@ -20,7 +20,8 @@ final class WebsocketEvent implements LambdaEvent
     private $eventType;
 
     /** @var mixed */
-    private $body;
+    /** @var mixed|null */
+    private $body = null;
 
     /** @var string */
     private $connectionId;
