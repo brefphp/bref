@@ -19,7 +19,6 @@ final class WebsocketEvent implements LambdaEvent
     /** @var int */
     private $eventType;
 
-    /** @var mixed */
     /** @var mixed|null */
     private $body = null;
 
@@ -113,11 +112,7 @@ final class WebsocketEvent implements LambdaEvent
      */
     public function getBody()
     {
-        if (isset($this->body)) {
-            return $this->body;
-        }
-
-        return null;
+        return $this->body;
     }
 
     public function getConnectionId(): string
