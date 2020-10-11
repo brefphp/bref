@@ -8,7 +8,7 @@ use Bref\Event\Handler;
 /**
  * Handles ApiGateway events.
  */
-abstract class ApiGatewayHandler implements Handler
+abstract class WebsocketHandler implements Handler
 {
     abstract public function handleWebsocket(WebsocketEvent $event, Context $context): WebsocketResponse;
 
