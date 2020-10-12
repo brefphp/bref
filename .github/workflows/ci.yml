@@ -34,13 +34,15 @@ jobs:
                     php-version: ${{ matrix.php }}
                     coverage: none
                     tools: composer
+                    ini-values: expose_php=1
             # See https://github.com/shivammathur/setup-php/issues/280
-            -   name: Install php-fpm
+            -   name: Setup php-fpm
+                if: matrix.php != '8.0'
                 env:
                     version: ${{ matrix.php }}
                 run: |
-                    if [ "$version" != "8.0" ]; then sudo apt-get install -y php$version-fpm; fi
-                    if [ "$version" != "8.0" ]; then sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm; fi
+                    sudo apt-get install -y php$version-fpm
+                    sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
             -   name: Install dependencies
                 run: 'composer update --${{ matrix.dependency-version }} --prefer-dist --no-progress'
             -   name: Execute Unit Tests
