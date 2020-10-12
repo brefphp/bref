@@ -35,7 +35,8 @@ jobs:
                     coverage: none
                     tools: composer
                     ini-values: expose_php=1
-            -   run: cat /etc/php.ini
+            -   run: php -i | grep expose
+            -   run: php-fpm -i | grep expose
             # See https://github.com/shivammathur/setup-php/issues/280
             -   name: Setup php-fpm
                 if: matrix.php != '8.0'
@@ -44,7 +45,8 @@ jobs:
                 run: |
                     sudo apt-get install -y php$version-fpm
                     sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
-            -   run: cat /etc/php.ini
+            -   run: php -i | grep expose
+            -   run: php-fpm -i | grep expose
             -   name: Install dependencies
                 run: 'composer update --${{ matrix.dependency-version }} --prefer-dist --no-progress'
             -   name: Execute Unit Tests
