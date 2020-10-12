@@ -122,7 +122,11 @@ When creating a new project, the database can be set up through several means:
 - via a lambda that loads a SQL dump into the database (for example a [console lambda](/docs/runtimes/console.md))
 - by temporarily exposing the database on the internet
 
-Exposing your database to the internet is risky and should only be done for a few minutes or hours (for example to load a SQL dump).
+**Exposing your database to the internet is risky** and should only be done for a few minutes or hours (for example to load a SQL dump).
+
+> The Bref team is building a simpler and more secure alternative: [7777](https://port7777.com/), a CLI tool that makes RDS databases securely reachable from your computer in seconds.
+>
+> This is coming soon, check out [port7777.com](https://port7777.com/) to learn more.
 
 To do so, open your RDS instance in the [RDS console](https://console.aws.amazon.com/rds/home#databases:):
 
