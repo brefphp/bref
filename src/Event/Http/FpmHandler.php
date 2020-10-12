@@ -78,7 +78,7 @@ final class FpmHandler extends HttpHandler
         });
 
         $this->client = new Client;
-        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
+        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 900000);
 
         $this->waitUntilReady();
     }
@@ -156,7 +156,7 @@ final class FpmHandler extends HttpHandler
 
             // If the process has crashed we can stop immediately
             if (! $this->fpm->isRunning()) {
-                throw new Exception('PHP-FPM failed to start');
+                throw new Exception('PHP-FPM failed to start: ' . PHP_EOL . $this->fpm->getOutput() . PHP_EOL . $this->fpm->getErrorOutput());
             }
         }
     }

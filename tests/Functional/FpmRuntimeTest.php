@@ -125,6 +125,7 @@ class FpmRuntimeTest extends TestCase
             'openssl',
             'pcntl',
             'pcre',
+            'pdo_mysql',
             'pdo_sqlite',
             'posix',
             'readline',
