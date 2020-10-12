@@ -47,6 +47,7 @@ jobs:
                 run: |
                     sudo apt-get install -y php$version-fpm
                     sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
+                    echo 'expose_php=1' | sudo tee -a /etc/php/$version/fpm/php.ini
             -   run: php-fpm -i | grep ini
             -   run: php-fpm -i | grep expose
             -   name: Install dependencies
