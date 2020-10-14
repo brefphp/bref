@@ -16,8 +16,8 @@ final class WebsocketEvent implements LambdaEvent
     /** @var string */
     private $routeKey;
 
-    /** @var int */
-    private $eventType;
+    /** @var string|null */
+    private $eventType = null;
 
     /** @var mixed|null */
     private $body = null;
@@ -33,11 +33,6 @@ final class WebsocketEvent implements LambdaEvent
 
     /** @var string */
     private $stage;
-
-    /** Event types */
-    public const EVENT_TYPE_CONNECT = 0;
-    public const EVENT_TYPE_DISCONNECT = 1;
-    public const EVENT_TYPE_MESSAGE = 2;
 
     /**
      * @param mixed $event
@@ -73,18 +68,8 @@ final class WebsocketEvent implements LambdaEvent
         $this->stage = $event['requestContext']['stage'];
         $this->event = $event;
 
-        switch ($event['requestContext']['eventType']) {
-            case 'CONNECT':
-                $this->eventType = self::EVENT_TYPE_CONNECT;
-                break;
-
-            case 'DISCONNECT':
-                $this->eventType = self::EVENT_TYPE_DISCONNECT;
-                break;
-
-            case 'MESSAGE':
-                $this->eventType = self::EVENT_TYPE_MESSAGE;
-                break;
+        if (isset($event['requestContext']['eventType'])) {
+            $this->eventType = $event['requestContext']['eventType'];
         }
 
         if (isset($event['body'])) {
@@ -102,7 +87,10 @@ final class WebsocketEvent implements LambdaEvent
         return $this->routeKey;
     }
 
-    public function getEventType(): int
+    /**
+     * @return string|null
+     */
+    public function getEventType()
     {
         return $this->eventType;
     }

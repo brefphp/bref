@@ -12,7 +12,7 @@ class WebsocketEventTest extends TestCase
         $event = json_decode(file_get_contents(__DIR__ . '/websocket-connect.json'), true);
         $event = new WebsocketEvent($event);
 
-        $this->assertSame(WebsocketEvent::EVENT_TYPE_CONNECT, $event->getEventType());
+        $this->assertSame('CONNECT', $event->getEventType());
         $this->assertSame('xyz-apiId', $event->getApiId());
         $this->assertSame('xyz-connectionId', $event->getConnectionId());
         $this->assertSame('xyz-apiId.execute-api.eu-west-1.amazonaws.com', $event->getDomainName());
@@ -26,7 +26,7 @@ class WebsocketEventTest extends TestCase
         $event = json_decode(file_get_contents(__DIR__ . '/websocket-disconnect.json'), true);
         $event = new WebsocketEvent($event);
 
-        $this->assertSame(WebsocketEvent::EVENT_TYPE_DISCONNECT, $event->getEventType());
+        $this->assertSame('DISCONNECT', $event->getEventType());
         $this->assertSame('xyz-apiId', $event->getApiId());
         $this->assertSame('xyz-connectionId', $event->getConnectionId());
         $this->assertSame('xyz-apiId.execute-api.eu-west-1.amazonaws.com', $event->getDomainName());
@@ -40,7 +40,7 @@ class WebsocketEventTest extends TestCase
         $event = json_decode(file_get_contents(__DIR__ . '/websocket-message.json'), true);
         $event = new WebsocketEvent($event);
 
-        $this->assertSame(WebsocketEvent::EVENT_TYPE_MESSAGE, $event->getEventType());
+        $this->assertSame('MESSAGE', $event->getEventType());
         $this->assertSame('xyz-apiId', $event->getApiId());
         $this->assertSame('xyz-connectionId', $event->getConnectionId());
         $this->assertSame('xyz-apiId.execute-api.eu-west-1.amazonaws.com', $event->getDomainName());
