@@ -87,10 +87,7 @@ final class WebsocketEvent implements LambdaEvent
         return $this->routeKey;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getEventType()
+    public function getEventType(): ?string
     {
         return $this->eventType;
     }
