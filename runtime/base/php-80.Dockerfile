@@ -36,7 +36,7 @@ RUN set -xe; \
     make install
 
 
-ENV VERSION_PHP=8.0.0beta4
+ENV VERSION_PHP=8.0.0rc1
 
 
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
@@ -46,7 +46,7 @@ RUN set -xe; \
     # --location will follow redirects
     # --silent will hide the progress, but also the errors: we restore error messages with --show-error
     # --fail makes sure that curl returns an error instead of fetching the 404 page
-    curl --location --silent --show-error --fail https://downloads.php.net/~pollita/php-${VERSION_PHP}.tar.gz \
+    curl --location --silent --show-error --fail https://downloads.php.net/~carusogabriel/php-${VERSION_PHP}.tar.gz \
   | tar xzC ${PHP_BUILD_DIR} --strip-components=1
 # Move into the unpackaged code directory
 WORKDIR  ${PHP_BUILD_DIR}/
@@ -109,9 +109,10 @@ RUN set -xe; \
  cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 # Symlink all our binaries into /opt/bin so that Lambda sees them in the path.
-RUN mkdir -p /opt/bin
-RUN ln -s /opt/bref/bin/* /opt/bin
-RUN ln -s /opt/bref/sbin/* /opt/bin
+RUN mkdir -p /opt/bin \
+    && cd /opt/bin \
+    && ln -s ../bref/bin/* . \
+    && ln -s ../bref/sbin/* .
 
 # Install extensions
 # We can install extensions manually or using `pecl`
@@ -128,7 +129,7 @@ RUN /tmp/clean.sh && rm /tmp/clean.sh
 # Now we start back from a clean image.
 # We get rid of everything that is unnecessary (build tools, source code, and anything else
 # that might have created intermediate layers for docker) by copying online the /opt directory.
-FROM amazonlinux:2018.03
+FROM lambci/lambda:build-provided.al2
 ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/bref/lib64:/opt/bref/lib"
 

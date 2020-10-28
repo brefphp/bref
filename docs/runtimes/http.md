@@ -26,7 +26,7 @@ Below is a minimal `serverless.yml` to deploy HTTP applications. To create it au
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 plugins:
     - ./vendor/bref/bref
 functions:

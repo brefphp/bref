@@ -24,7 +24,7 @@ service: bref-demo-symfony
 provider:
     name: aws
     region: us-east-1
-    runtime: provided
+    runtime: provided.al2
     environment:
         # Symfony environment variables
         APP_ENV: prod

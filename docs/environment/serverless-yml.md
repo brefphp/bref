@@ -15,7 +15,7 @@ service: app
 
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 
 plugins:
     - ./vendor/bref/bref
@@ -68,7 +68,7 @@ The `provider` section also lets us configure global options on all functions:
 provider:
     name: aws
     timeout: 10
-    runtime: provided
+    runtime: provided.al2
 
 functions:
     foo:
@@ -93,13 +93,13 @@ functions:
     foo:
         handler: foo.php
         timeout: 10
-        runtime: provided
+        runtime: provided.al2
         layers:
             - ${bref:layer.php-74}
     bar:
         handler: bar.php
         timeout: 10
-        runtime: provided
+        runtime: provided.al2
         layers:
             - ${bref:layer.php-74}
 
@@ -166,7 +166,7 @@ If your lambda needs to access other AWS services (S3, SQS, SNS…), you will ne
 provider:
     name: aws
     timeout: 10
-    runtime: provided
+    runtime: provided.al2
     iamRoleStatements:
         # Allow to put a file in the `my-bucket` S3 bucket
         -   Effect: Allow
