@@ -24,20 +24,13 @@ RUN set -xe \
  && yum groupinstall -y "Development Tools" --setopt=group_package_types=mandatory,default
 
 
-# The version of cmake we can get from the yum repo is 2.8.12. We need cmake to build a few of
-# our libraries, and at least one library requires a version of cmake greater than the one
-# provided in the repo.
+# The default version of cmake we can get from the yum repo is 2.8.12. We need cmake to build a few of
+# our libraries, and at least one library requires a version of cmake greater than that.
 #
 # Needed to build:
 # - libzip: minimum required CMAKE version 3.0.2
-RUN set -xe \
- && mkdir -p /tmp/cmake \
- && cd /tmp/cmake \
- && curl -Ls  https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2.tar.gz \
-    | tar xzC /tmp/cmake --strip-components=1 \
- && ./bootstrap --prefix=/usr/local \
- && make -j $(nproc) \
- && make install
+RUN LD_LIBRARY_PATH= yum install -y cmake3
+RUN ln -s /usr/bin/cmake3 /usr/bin/cmake
 
 # Use the bash shell, instead of /bin/sh
 # Why? We need to document this.
@@ -196,12 +189,12 @@ RUN set -xe; \
 # LIBNGHTTP2 Build
 # This adds support for HTTP 2 requests in curl.
 # See https://github.com/brefphp/bref/issues/727 and https://github.com/brefphp/bref/pull/740
-# # https://github.com/nghttp2/nghttp2/releases
-# # Needs:
-# #   - zlib
-# #   - OpenSSL
-# # Needed by:
-# #   - curl
+# https://github.com/nghttp2/nghttp2/releases
+# Needs:
+#   - zlib
+#   - OpenSSL
+# Needed by:
+#   - curl
 ENV VERSION_NGHTTP2=1.41.0
 ENV NGHTTP2_BUILD_DIR=${BUILD_DIR}/nghttp2
 
@@ -219,7 +212,6 @@ RUN set -xe; \
     ./configure \
     --enable-lib-only \
     --prefix=${INSTALL_DIR}
-
 
 RUN set -xe; \
     make install
@@ -359,7 +351,7 @@ ENV LIBSODIUM_BUILD_DIR=${BUILD_DIR}/libsodium
 
 RUN set -xe; \
     mkdir -p ${LIBSODIUM_BUILD_DIR}; \
-# Download and upack the source code
+   # Download and unpack the source code
     curl -Ls https://github.com/jedisct1/libsodium/archive/${VERSION_LIBSODIUM}.tar.gz \
   | tar xzC ${LIBSODIUM_BUILD_DIR} --strip-components=1
 
