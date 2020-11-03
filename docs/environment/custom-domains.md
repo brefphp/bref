@@ -21,7 +21,7 @@ The first thing to do is register the domain in **ACM** (AWS Certificate Manager
 - open [this link](https://console.aws.amazon.com/acm/home?region=us-east-1#/wizard/) or manually go in the ACM Console and click "Request a new certificate" in the `us-east-1` region (the region used for global "edge" certificates)
 - add your domain name and click "Next"
 - choose the domain validation of your choice
-    - domain validation will require you to add entries to your DNS configuration
+    - domain validation will require you to add CNAME entries to your DNS configuration
     - email validation will require you to click a link you will receive in an email sent to `admin@your-domain.com`
 
 After validating the domain and the certificate we can now link the custom domain to our application via API Gateway.
@@ -31,9 +31,10 @@ After validating the domain and the certificate we can now link the custom domai
 - click "Create"
 - enter your domain name, select the certificate you created above and save
 - edit the domain that was created
-- add a "Path mapping" to map the `/` URL (or any URL you want) to your HTTP application in the `Prod` stage, for example:
+- click "Configure API mappings" to add an "API mapping" which maps the `/` URL (or any URL you want) to your HTTP application in the `Dev` stage, for example:
 
   ![](custom-domains-path-mapping.png)
+If you are using Cloudfront:
 - after clicking "Save", note the URL in the `Target Domain Name` section (`<random>.cloudfront.net`)
 - create a CNAME entry in your DNS to point your domain name to this `<random>.cloudfront.net` domain
 
