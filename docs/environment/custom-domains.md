@@ -34,8 +34,7 @@ After validating the domain and the certificate we can now link the custom domai
 - click "Configure API mappings" to add an "API mapping" which maps the `/` URL (or any URL you want) to your HTTP application in the `Dev` stage, for example:
 
   ![](custom-domains-path-mapping.png)
-If you are using Cloudfront:
-- after clicking "Save", note the URL in the `Target Domain Name` section (`<random>.cloudfront.net`)
+- saving the "API mappings", find the `API Gateway domain name` in the "Configurations" tab
 - create a CNAME entry in your DNS to point your domain name to this `<random>.cloudfront.net` domain
 
 After waiting for the DNS change to propagate (sometimes up to 24 hours) your website is now accessible via your custom domain.
