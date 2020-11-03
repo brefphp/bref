@@ -35,7 +35,7 @@ After validating the domain and the certificate we can now link the custom domai
 
   ![](custom-domains-path-mapping.png)
 - after saving the "API mappings", find the `API Gateway domain name` in the "Configurations" tab
-- create a CNAME entry in your DNS to point your domain name to this `<random>.cloudfront.net` domain
+- create a CNAME entry in your DNS to point your domain name to this domain
 
 After waiting for the DNS change to propagate (sometimes up to 24 hours) your website is now accessible via your custom domain.
 
