@@ -26,7 +26,7 @@ functions:
         handler: tests/Functional/fpm/index.php
         description: 'Bref FPM test'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
-        reservedConcurrency: 2
+        reservedConcurrency: 5
         layers:
             - ${bref:layer.php-74-fpm}
         events:
