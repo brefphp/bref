@@ -71,7 +71,7 @@ resources:
                             # alternatively you can write out Resource: 'arn:aws:s3:::<bucket-name>/*'
 ```
 
-Don't forget to replace `<bucket-name>` with the bucket name of your choice.
+Don't forget to replace `<bucket-name>` with the bucket name of your choice. Note that the name must be universally unique within Amazon (so you can't use `assets`) otherwise you'll get this error when you deploy: `Assets - assets already exists.`
 
 After [deploying with `serverless deploy`](/docs/deploy.md), the static files will be served from `https://<bucket>.s3.amazonaws.com/`. Read the next section to upload your files.
 
