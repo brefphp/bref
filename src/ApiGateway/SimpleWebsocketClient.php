@@ -3,7 +3,6 @@
 namespace Bref\ApiGateway;
 
 use AsyncAws\Core\Request;
-use AsyncAws\Core\Response;
 use AsyncAws\Core\Stream\StreamFactory;
 use Symfony\Component\HttpClient\HttpClient;
 
@@ -13,12 +12,6 @@ use Symfony\Component\HttpClient\HttpClient;
 final class SimpleWebsocketClient
 {
     /** @var string */
-    private $apiId;
-
-    /** @var string */
-    private $region;
-
-    /** @var string */
     private $stage;
 
     /** @var WebsocketClient */
@@ -26,8 +19,6 @@ final class SimpleWebsocketClient
 
     public function __construct(string $apiId, string $region, string $stage, int $timeout = 60)
     {
-        $this->apiId = $apiId;
-        $this->region = $region;
         $this->stage = $stage;
         $this->client = new WebsocketClient(
             [
@@ -64,7 +55,7 @@ final class SimpleWebsocketClient
         );
     }
 
-    private function request(string $method, string $url, string $body = null): Request
+    private function request(string $method, string $url, ?string $body = null): Request
     {
         return new Request($method, $url, [], [], StreamFactory::create($body));
     }

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Bref\ApiGateway;
 
@@ -15,15 +15,9 @@ class WebsocketClient extends AbstractApi
 
     protected function getEndpointMetadata(?string $region): array
     {
-        /** @var string $endpoint */
-        $endpoint = $this->getConfiguration()->get('endpoint');
-
-        /** @var string $region */
-        $region = $region ?? $this->getConfiguration()->get('region');
-
         return [
-            'endpoint' => $endpoint,
-            'signRegion' => $region,
+            'endpoint' => $this->getConfiguration()->get('endpoint'),
+            'signRegion' => $region ?? $this->getConfiguration()->get('region'),
             'signService' => 'execute-api',
             'signVersions' => ['v4'],
         ];
