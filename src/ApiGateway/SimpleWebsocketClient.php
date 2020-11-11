@@ -41,24 +41,26 @@ final class SimpleWebsocketClient
         );
     }
 
-    public function disconnect(string $connectionId): Response
+    public function disconnect(string $connectionId): bool
     {
         return $this->client->process(
             $this->request('DELETE', sprintf('/%s/@connections/%s', $this->stage, $connectionId))
-        );
+        )->getStatusCode() === 200;
     }
 
-    public function message(string $connectionId, string $body): Response
+    public function message(string $connectionId, string $body): bool
     {
         return $this->client->process(
             $this->request('POST', sprintf('/%s/@connections/%s', $this->stage, $connectionId), $body)
-        );
+        )->getStatusCode() === 200;
     }
 
-    public function status(string $connectionId): Response
+    public function status(string $connectionId): WebsocketClientStatus
     {
-        return $this->client->process(
-            $this->request('GET', sprintf('/%s/@connections/%s', $this->stage, $connectionId))
+        return new WebsocketClientStatus(
+            $this->client->process(
+                $this->request('GET', sprintf('/%s/@connections/%s', $this->stage, $connectionId))
+            )->toArray()
         );
     }
 
