@@ -108,11 +108,17 @@ final class FpmHandler extends HttpHandler
         try {
             $response = $this->client->sendRequest($this->connection, $request);
         } catch (Throwable $e) {
-            throw new FastCgiCommunicationFailed(sprintf(
-                'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
+            printf(
+                "Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will restart PHP-FPM now. Original exception message: %s %s\n",
                 get_class($e),
                 $e->getMessage()
-            ), 0, $e);
+            );
+
+            // Restart PHP-FPM: in some cases PHP-FPM is borked, that's the only way we can recover
+            $this->stop();
+            $this->start();
+
+            throw new FastCgiCommunicationFailed;
         }
 
         $responseHeaders = $this->getResponseHeaders($response, $event->hasMultiHeader());
