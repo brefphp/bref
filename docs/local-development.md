@@ -3,11 +3,9 @@ title: Local development
 current_menu: local-development
 ---
 
-To run your applications locally with an architecture close to production you can use the `sam` command line tool from AWS.
-
 ## PHP functions
 
-The `serverless invoke local` command invokes your [PHP functions](/docs/runtimes/function.md) locally. You can provide an event if your function expects one.
+The `vendor/bin/bref local` command invokes your [PHP functions](/docs/runtimes/function.md) locally. You can provide an event if your function expects one.
 
 For example, given this function:
 
@@ -21,23 +19,34 @@ return function (array $event) {
 # ...
 
 functions:
-    myFunction:
-        handler: index.php
+    hello:
+        handler: my-function.php
         layers:
             - ${bref:layer.php-74}
 ```
 
 You can invoke it with or without event data:
 
-```sh
-$ serverless invoke local -f myFunction
+```bash
+$ vendor/bin/bref local hello
 Hello world
 
-$ serverless invoke local -f myFunction --data '{"name": "Jane"}'
+# With JSON event data
+$ vendor/bin/bref local hello '{"name": "Jane"}'
+Hello Jane
+
+# With JSON in a file
+$ vendor/bin/bref local hello --file=event.json
 Hello Jane
 ```
 
-> Learn more in the [`serverless invoke local` documentation](https://serverless.com/framework/docs/providers/aws/cli-reference/invoke-local/) or run `serverless invoke local --help`.
+The `bref local` command runs using the local PHP installation. If you prefer to run commands using the same environment as Lambda, you can use Docker.
+
+Here is an example, feel free to adjust it to fit your needs:
+
+```bash
+docker run --rm -it -v $(PWD):/var/task:ro,delegated bref/php-74 vendor/bin/bref local hello
+```
 
 ## HTTP applications
 
