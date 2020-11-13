@@ -136,7 +136,7 @@ $app->command('cli function [--region=] [--profile=] [arguments]*', function (st
 /**
  * Invoke a function locally
  */
-$app->command('local function [data] [--file=]', new Local);
+$app->command(Local::SIGNATURE, new Local);
 
 $app->command('deployment stack-name [--region=] [--profile=]', function (string $stackName, ?string $region, ?string $profile, SymfonyStyle $io) {
     $region = $region ?: getenv('AWS_DEFAULT_REGION') ?: 'us-east-1';

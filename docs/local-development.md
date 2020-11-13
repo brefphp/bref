@@ -48,6 +48,21 @@ Here is an example, feel free to adjust it to fit your needs:
 docker run --rm -it -v $(PWD):/var/task:ro,delegated bref/php-74 vendor/bin/bref local hello
 ```
 
+If you do not use `serverless.yml` but something else like SAM/CDK/CloudFormation/Terraform, use the `--handler` parameter instead:
+
+```bash
+$ vendor/bin/bref local --handler=my-function.php
+Hello world
+
+# With JSON event data
+$ vendor/bin/bref local '{"name": "Jane"}' --handler=my-function.php
+Hello Jane
+
+# With JSON in a file
+$ vendor/bin/bref local --handler=my-function.php --file=event.json
+Hello Jane
+```
+
 ## HTTP applications
 
 If you want to keep things simple, you can run your PHP application like you did without Bref. For example with your favorite framework:

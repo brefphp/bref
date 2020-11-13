@@ -17,17 +17,30 @@ use Throwable;
  */
 class Local
 {
-    public function __invoke(string $function, ?string $data, ?string $file, SymfonyStyle $io): int
+    public const SIGNATURE = 'local [function] [data] [--file=] [--handler=]';
+
+    public function __invoke(?string $function, ?string $data, ?string $file, ?string $handler, SymfonyStyle $io): int
     {
+        if ($function && $data && $handler) {
+            throw new Exception('You cannot provide both a funtion name and the --handler= option.');
+        }
+
+        if ($handler) {
+            // Shift the arguments since there is no function passed
+            $data = $function;
+        } else {
+            $handler = $this->handlerFromServerlessYml($function);
+        }
+
         if ($data && $file) {
             throw new Exception('You cannot provide both event data and the --file= option.');
         }
 
-        if (! file_exists('serverless.yml')) {
-            throw new Exception('No `serverless.yml` file found.');
+        try {
+            $handler = Bref::getContainer()->get($handler);
+        } catch (NotFoundExceptionInterface $e) {
+            throw new Exception($e->getMessage() . PHP_EOL . 'Reminder: `bref local` can invoke functions that use the FUNCTION runtime, not the HTTP (or "FPM") runtime. If you are unsure, check out https://bref.sh/docs/local-development.html#http-applications to run HTTP applications locally.');
         }
-
-        $handler = $this->resolveHandler($function);
 
         if ($file) {
             if (! file_exists($file)) {
@@ -64,11 +77,12 @@ class Local
         return 0;
     }
 
-    /**
-     * @return mixed
-     */
-    private function resolveHandler(string $function)
+    private function handlerFromServerlessYml(string $function): string
     {
+        if (! file_exists('serverless.yml')) {
+            throw new Exception("No `serverless.yml` file was found to resolve function $function.\nIf you do not use serverless.yml, pass the handler via the `--handler` option: vendor/bin/bref local --handler=file.php");
+        }
+
         $serverlessConfig = Yaml::parseFile('serverless.yml');
 
         if (! isset($serverlessConfig['functions'][$function])) {
@@ -78,13 +92,7 @@ class Local
             throw new Exception("There is no handler defined on function '$function' in serverless.yml");
         }
 
-        $handlerName = $serverlessConfig['functions'][$function]['handler'];
-
-        try {
-            return Bref::getContainer()->get($handlerName);
-        } catch (NotFoundExceptionInterface $e) {
-            throw new Exception($e->getMessage() . PHP_EOL . 'Reminder: `bref local` can invoke functions that use the FUNCTION runtime, not the HTTP (or "FPM") runtime. If you are unsure, check out https://bref.sh/docs/local-development.html#http-applications to run HTTP applications locally.');
-        }
+        return $serverlessConfig['functions'][$function]['handler'];
     }
 
     private function logStart(SymfonyStyle $io, string $requestId): float
