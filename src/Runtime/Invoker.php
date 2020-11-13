@@ -2,6 +2,7 @@
 
 namespace Bref\Runtime;
 
+use Bref\Context\Context;
 use Bref\Event\Handler;
 use Bref\Event\Http\Psr15Handler;
 use Exception;
@@ -13,9 +14,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 final class Invoker
 {
     /**
+     * @param mixed $handler
+     * @param mixed $event
      * @return mixed
      */
-    public function invoke($handler, $event, $context)
+    public function invoke($handler, $event, Context $context)
     {
         // PSR-15 adapter
         if ($handler instanceof RequestHandlerInterface) {

@@ -17,7 +17,7 @@ use Throwable;
  */
 class Local
 {
-    public function __invoke(string $function, ?string $data, ?string $file, SymfonyStyle $io)
+    public function __invoke(string $function, ?string $data, ?string $file, SymfonyStyle $io): int
     {
         if ($data && $file) {
             throw new Exception('You cannot provide both event data and the --file= option.');
