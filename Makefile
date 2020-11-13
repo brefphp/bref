@@ -59,4 +59,10 @@ test-stack:
 changelog:
 	docker run -it --rm -v "$(pwd)":/usr/local/src/your-app ferrarimarco/github-changelog-generator --user brefphp --project bref --output= --unreleased-only --token=$$GITHUB_TOKEN_READ --no-issues --usernames-as-github-logins --no-verbose
 
+# http://amazon-linux-2-packages.bref.sh/
+amazonlinux-package-list:
+	docker run --rm -it amazonlinux:2 yum list --quiet --color=never > index.html
+	aws s3 cp index.html s3://amazon-linux-2-packages.bref.sh/ --content-type=text/plain
+	rm index.html
+
 .PHONY: runtimes website website-preview website-assets demo layers.json test-stack changelog
