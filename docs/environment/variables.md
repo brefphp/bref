@@ -76,10 +76,15 @@ However Secrets Manager is not free: [pricing details](https://aws.amazon.com/se
 
 ## Local development
 
-When [developing locally using `serverless invoke local`](/docs/local-development.md) you can override environment variables via the `--env` option:
+When [developing locally using `vendor/bin/bref local`](/docs/local-development.md), you can set environment variables using bash:
 
 ```bash
-serverless invoke local -f <Function> --env VAR1=val1 --env VAR2=val2
+VAR1=val1 VAR2=val2 vendor/bin/bref local <funtion>
+
+# Or using `export`:
+export VAR1=val1
+export VAR2=val2
+vendor/bin/bref local <funtion>
 ```
 
 ## Learn more
