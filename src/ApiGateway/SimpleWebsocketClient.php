@@ -17,7 +17,7 @@ final class SimpleWebsocketClient
     /** @var WebsocketClient */
     private $client;
 
-    public function __construct(string $apiId, string $region, string $stage, int $timeout = 60)
+    public function __construct(string $apiId, string $region, string $stage, int $timeout = 10)
     {
         $this->stage = $stage;
         $this->client = new WebsocketClient(
