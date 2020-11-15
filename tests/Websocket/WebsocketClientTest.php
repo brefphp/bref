@@ -78,13 +78,13 @@ class WebsocketClientTest extends TestCase
             'eu-west-1',
             'dev',
             new MockHttpClient(
-                static function ($method, $url, $options) use ($request) {
-                    return new MockResponse($request['body'], [
+                [
+                    new MockResponse($request['body'], [
                         'http_code' => $request['status_code'],
-                    ] + $request['headers']);
-                }
+                    ]),
+                ]
             ),
-            new NullProvider()
+            new NullProvider
         );
     }
 }
