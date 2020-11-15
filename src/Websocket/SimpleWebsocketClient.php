@@ -47,18 +47,18 @@ final class SimpleWebsocketClient
 
     public function disconnect(string $connectionId): void
     {
-        $this->client->process('DELETE', sprintf('/%s/@connections/%s', $this->stage, $connectionId));
+        $this->client->request('DELETE', sprintf('/%s/@connections/%s', $this->stage, $connectionId));
     }
 
     public function message(string $connectionId, string $body): void
     {
-        $this->client->process('POST', sprintf('/%s/@connections/%s', $this->stage, $connectionId), $body);
+        $this->client->request('POST', sprintf('/%s/@connections/%s', $this->stage, $connectionId), $body);
     }
 
     public function status(string $connectionId): WebsocketClientStatus
     {
         return new WebsocketClientStatus(
-            $this->client->process('GET', sprintf('/%s/@connections/%s', $this->stage, $connectionId))
+            $this->client->request('GET', sprintf('/%s/@connections/%s', $this->stage, $connectionId))
                 ->toArray()
         );
     }

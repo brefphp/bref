@@ -20,7 +20,7 @@ use AsyncAws\Core\Stream\StreamFactory;
  */
 final class WebsocketClient extends AbstractApi
 {
-    public function process(string $method, string $url, ?string $body = null): Response
+    public function request(string $method, string $url, ?string $body = null): Response
     {
         return $this->getResponse(new Request($method, $url, [], [], StreamFactory::create($body)));
     }
