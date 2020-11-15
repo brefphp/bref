@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Bref\ApiGateway;
+namespace Bref\Websocket;
+
+use DateTimeImmutable;
 
 class WebsocketClientStatus
 {
@@ -10,18 +12,18 @@ class WebsocketClientStatus
     /** @var string */
     private $userAgent;
 
-    /** @var string */
+    /** @var DateTimeImmutable */
     private $connectedAt;
 
-    /** @var string */
+    /** @var DateTimeImmutable */
     private $lastActiveAt;
 
     public function __construct(array $input)
     {
         $this->sourceIp = $input['identity']['sourceIp'];
         $this->userAgent = $input['identity']['userAgent'];
-        $this->connectedAt = $input['connectedAt'];
-        $this->lastActiveAt = $input['lastActiveAt'];
+        $this->connectedAt = new DateTimeImmutable($input['connectedAt']);
+        $this->lastActiveAt = new DateTimeImmutable($input['lastActiveAt']);
     }
 
     public function getSourceIp(): string
@@ -34,12 +36,12 @@ class WebsocketClientStatus
         return $this->userAgent;
     }
 
-    public function getConnectedAt(): string
+    public function getConnectedAt(): DateTimeImmutable
     {
         return $this->connectedAt;
     }
 
-    public function getLastActiveAt(): string
+    public function getLastActiveAt(): DateTimeImmutable
     {
         return $this->lastActiveAt;
     }

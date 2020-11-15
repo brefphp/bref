@@ -1,15 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test\Event\DynamoDb;
+namespace Bref\Test\Event\ApiGateway;
 
 use Bref\Event\ApiGateway\WebsocketEvent;
 use PHPUnit\Framework\TestCase;
 
 class WebsocketEventTest extends TestCase
 {
-    public function test_connect()
+    public function test_connect(): void
     {
-        $event = json_decode(file_get_contents(__DIR__ . '/websocket-connect.json'), true);
+        $event = json_decode(file_get_contents(__DIR__ . '/samples/websocket-connect.json'), true);
         $event = new WebsocketEvent($event);
 
         $this->assertSame('CONNECT', $event->getEventType());
@@ -22,9 +22,9 @@ class WebsocketEventTest extends TestCase
         $this->assertNull($event->getBody());
     }
 
-    public function test_disconnect()
+    public function test_disconnect(): void
     {
-        $event = json_decode(file_get_contents(__DIR__ . '/websocket-disconnect.json'), true);
+        $event = json_decode(file_get_contents(__DIR__ . '/samples/websocket-disconnect.json'), true);
         $event = new WebsocketEvent($event);
 
         $this->assertSame('DISCONNECT', $event->getEventType());
@@ -37,9 +37,9 @@ class WebsocketEventTest extends TestCase
         $this->assertNull($event->getBody());
     }
 
-    public function test_message()
+    public function test_message(): void
     {
-        $event = json_decode(file_get_contents(__DIR__ . '/websocket-message.json'), true);
+        $event = json_decode(file_get_contents(__DIR__ . '/samples/websocket-message.json'), true);
         $event = new WebsocketEvent($event);
 
         $this->assertSame('MESSAGE', $event->getEventType());
