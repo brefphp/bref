@@ -2,6 +2,7 @@
 
 namespace Bref\Websocket;
 
+use AsyncAws\Core\Credentials\CredentialProvider;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -20,7 +21,8 @@ final class SimpleWebsocketClient
         string $apiId,
         string $region,
         string $stage,
-        HttpClientInterface $httpClient
+        HttpClientInterface $httpClient,
+        ?CredentialProvider $credentialProvider = null
     ) {
         $this->stage = $stage;
         $this->client = new WebsocketClient(
@@ -28,7 +30,7 @@ final class SimpleWebsocketClient
                 'region' => $region,
                 'endpoint' => sprintf('https://%s.execute-api.%s.amazonaws.com', $apiId, $region),
             ],
-            null,
+            $credentialProvider,
             $httpClient
         );
     }

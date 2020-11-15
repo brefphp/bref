@@ -2,6 +2,7 @@
 
 namespace Bref\Test\Websocket;
 
+use AsyncAws\Core\Credentials\NullProvider;
 use AsyncAws\Core\Exception\Http\ClientException;
 use Bref\Websocket\SimpleWebsocketClient;
 use PHPUnit\Framework\TestCase;
@@ -82,7 +83,8 @@ class WebsocketClientTest extends TestCase
                         'http_code' => $request['status_code'],
                     ] + $request['headers']);
                 }
-            )
+            ),
+            new NullProvider()
         );
     }
 }
