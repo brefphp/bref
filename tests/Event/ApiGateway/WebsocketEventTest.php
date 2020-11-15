@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class WebsocketEventTest extends TestCase
 {
-    public function test_connect(): void
+    public function test_connect()
     {
         $event = json_decode(file_get_contents(__DIR__ . '/Samples/websocket-connect.json'), true);
         $event = new WebsocketEvent($event);
@@ -22,7 +22,7 @@ class WebsocketEventTest extends TestCase
         $this->assertNull($event->getBody());
     }
 
-    public function test_disconnect(): void
+    public function test_disconnect()
     {
         $event = json_decode(file_get_contents(__DIR__ . '/Samples/websocket-disconnect.json'), true);
         $event = new WebsocketEvent($event);
@@ -37,7 +37,7 @@ class WebsocketEventTest extends TestCase
         $this->assertNull($event->getBody());
     }
 
-    public function test_message(): void
+    public function test_message()
     {
         $event = json_decode(file_get_contents(__DIR__ . '/Samples/websocket-message.json'), true);
         $event = new WebsocketEvent($event);
