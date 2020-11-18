@@ -117,7 +117,7 @@ RUN set -xe; \
 # Needed by:
 #   - curl
 #   - php
-ENV VERSION_OPENSSL=1.1.1a
+ENV VERSION_OPENSSL=1.1.1g
 ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
 ENV CA_BUNDLE_SOURCE="https://curl.haxx.se/ca/cacert.pem"
 ENV CA_BUNDLE="${INSTALL_DIR}/ssl/cert.pem"
@@ -158,7 +158,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - curl
-ENV VERSION_LIBSSH2=1.8.0
+ENV VERSION_LIBSSH2=1.8.2
 ENV LIBSSH2_BUILD_DIR=${BUILD_DIR}/libssh2
 
 RUN set -xe; \
@@ -226,7 +226,7 @@ RUN set -xe; \
 # #   - libssh2
 # # Needed by:
 # #   - php
-ENV VERSION_CURL=7.63.0
+ENV VERSION_CURL=7.73.0
 ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
 
 RUN set -xe; \
@@ -277,7 +277,7 @@ RUN set -xe; \
 #   - zlib
 # Needed by:
 #   - php
-ENV VERSION_XML2=2.9.8
+ENV VERSION_XML2=2.9.10
 ENV XML2_BUILD_DIR=${BUILD_DIR}/xml2
 
 RUN set -xe; \
@@ -315,13 +315,13 @@ RUN set -xe; \
 # https://github.com/nih-at/libzip/releases
 # Needed by:
 #   - php
-ENV VERSION_ZIP=1.5.1
+ENV VERSION_ZIP=1.7.3
 ENV ZIP_BUILD_DIR=${BUILD_DIR}/zip
 
 RUN set -xe; \
     mkdir -p ${ZIP_BUILD_DIR}/bin/; \
 # Download and upack the source code
-    curl -Ls https://github.com/nih-at/libzip/archive/rel-${VERSION_ZIP//./-}.tar.gz \
+    curl -Ls https://github.com/nih-at/libzip/releases/download/v${VERSION_ZIP}/libzip-${VERSION_ZIP}.tar.gz \
   | tar xzC ${ZIP_BUILD_DIR} --strip-components=1
 
 # Move into the unpackaged code directory
@@ -346,7 +346,7 @@ RUN set -xe; \
 #
 # Needed by:
 #   - php
-ENV VERSION_LIBSODIUM=1.0.16
+ENV VERSION_LIBSODIUM=1.0.18
 ENV LIBSODIUM_BUILD_DIR=${BUILD_DIR}/libsodium
 
 RUN set -xe; \
@@ -376,7 +376,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - php
-ENV VERSION_POSTGRES=9.6.11
+ENV VERSION_POSTGRES=9.6.17
 ENV POSTGRES_BUILD_DIR=${BUILD_DIR}/postgres
 
 RUN set -xe; \
