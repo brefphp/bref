@@ -411,6 +411,9 @@ RUN cp -a /usr/lib64/libgcrypt.so* ${INSTALL_DIR}/lib64/
 # Copy readline shared libs that are not present in amazonlinux2
 RUN cp -a /usr/lib64/libreadline.so?* ${INSTALL_DIR}/lib64/
 
+# Copy gpg-error shared libds that are not present in amazonlinux2
+RUN cp -a /usr/lib64/libgpg-error.so* ${INSTALL_DIR}/lib64/
+
 # Copy gettext shared libs that are not present in amazonlinux2
 RUN cp -a /usr/lib64/libasprintf.so* ${INSTALL_DIR}/lib64/
 RUN cp -a /usr/lib64/libgettextpo.so* ${INSTALL_DIR}/lib64/
