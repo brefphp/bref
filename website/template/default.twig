@@ -30,7 +30,7 @@
                     <ul>
                         {% for itemId, item in item.items %}
                             <li>
-                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : '' }}"
+                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'active' : '' }}"
                                    title="{{ item.title|default(item.text)|e('html_attr') }}">
                                     {{ item.text }}</a>
                             </li>
@@ -44,7 +44,7 @@
                         <ul>
                             {% for itemId, item in item.items %}
                                 <li>
-                                    <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : '' }}"
+                                    <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'active' : '' }}"
                                        title="{{ item.title|default(item.text)|e('html_attr') }}">
                                         {{ item.text }}</a>
                                 </li>
@@ -59,7 +59,7 @@
                         <ul>
                             {% for itemId, item in item.items %}
                                 <li>
-                                    <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : '' }}"
+                                    <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'active' : '' }}"
                                        title="{{ item.title|default(item.text)|e('html_attr') }}">
                                         {{ item.text }}</a>
                                 </li>
@@ -73,7 +73,7 @@
                     <ul>
                         {% for itemId, item in item.items %}
                             <li>
-                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'text-blue-600' : '' }}"
+                                <a href="{{ item.url }}" class="{{ itemId == current_menu ? 'active' : '' }}"
                                    title="{{ item.title|default(item.text)|e('html_attr') }}">
                                     {{ item.text }}</a>
                             </li>

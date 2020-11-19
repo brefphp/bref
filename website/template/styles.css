@@ -204,6 +204,9 @@ article table td {
 #menu ul > li > a {
     @apply text-gray-800;
 }
+#menu ul > li > a.active {
+    @apply text-blue-600 underline;
+}
 
 @tailwind components;
 
