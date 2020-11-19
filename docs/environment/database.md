@@ -20,6 +20,8 @@ All RDS databases can be setup with Lambda in two ways:
 1. the database can be made publicly accessible and protected by a username and password
 2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/fr/vpc/))
 
+> Note that Aurora Serverless [cannot be made publicly accessible](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html), only the second option is possible.
+
 While the first solution is simpler, the second is more secure. Using a VPC also comes with a few limitations that are detailed below.
 
 This page documents how to create databases using VPC (the reliable and secure solution). If you want to skip using a VPC you can read the instructions in the "Accessing the database from your machine" section.
@@ -120,7 +122,11 @@ When creating a new project, the database can be set up through several means:
 - via a lambda that loads a SQL dump into the database (for example a [console lambda](/docs/runtimes/console.md))
 - by temporarily exposing the database on the internet
 
-Exposing your database to the internet is risky and should only be done for a few minutes or hours (for example to load a SQL dump).
+**Exposing your database to the internet is risky** and should only be done for a few minutes or hours (for example to load a SQL dump).
+
+> The Bref team is building a simpler and more secure alternative: [7777](https://port7777.com/), a CLI tool that makes RDS databases securely reachable from your computer in seconds.
+>
+> This is coming soon, check out [port7777.com](https://port7777.com/) to learn more.
 
 To do so, open your RDS instance in the [RDS console](https://console.aws.amazon.com/rds/home#databases:):
 

@@ -2,7 +2,7 @@ service: bref-demo
 
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
     region: us-east-2
     logs:
         restApi: true

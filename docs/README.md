@@ -60,7 +60,7 @@ Bref provides:
 - deployment tooling
 - PHP frameworks integration
 
-The choice of AWS as serverless provider is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performances and reliability.
+The choice of AWS as serverless provider is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performance and reliability.
 
 Bref uses [the Serverless framework](https://serverless.com/) to configure and deploy serverless applications. Being the most popular tool, Serverless comes with a huge community, a lot of examples online and a simple configuration format.
 
@@ -89,7 +89,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
     <tr class="bg-gray-100">
         <th class="p-4"></th>
         <th class="font-normal p-4 border-b border-gray-400">Simplicity</th>
-        <th class="font-normal p-4 border-b border-gray-400">Performances</th>
+        <th class="font-normal p-4 border-b border-gray-400">Performance</th>
         <th class="font-normal p-4 border-b border-gray-400">Reliability</th>
     </tr>
     <tr class="border-b border-gray-200">
@@ -148,7 +148,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
             Is this documented and simple to achieve?
         </td>
         <td class="p-3">
-            Are performances acceptable?
+            Is performance acceptable?
         </td>
         <td class="p-3">
             Is this scenario production-ready?
@@ -171,11 +171,11 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **API**
 
-    APIs run on AWS Lambda without problems. Performances are now similar to what you could expect on traditional VPS.
+    APIs run on AWS Lambda without problems. Performance is now similar to what you could expect on traditional VPS.
 
 - **Website**
 
-    Websites can run on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md). Performances are as good as any server.
+    Websites can run on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md). Performance is as good as any server.
 
 - **Legacy application**
 

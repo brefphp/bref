@@ -5,7 +5,6 @@ namespace Bref\Runtime;
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
-use Bref\Event\Http\Psr15Handler;
 use Exception;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -40,6 +39,9 @@ final class LambdaRuntime
     /** @var string */
     private $apiUrl;
 
+    /** @var Invoker */
+    private $invoker;
+
     public static function fromEnvironmentVariable(): self
     {
         return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'));
@@ -52,6 +54,7 @@ final class LambdaRuntime
         }
 
         $this->apiUrl = $apiUrl;
+        $this->invoker = new Invoker;
     }
 
     public function __destruct()
@@ -67,6 +70,7 @@ final class LambdaRuntime
             $this->handler = null;
         }
     }
+
     private function closeReturnHandler(): void
     {
         if ($this->returnHandler !== null) {
@@ -89,27 +93,13 @@ final class LambdaRuntime
      */
     public function processNextEvent($handler): void
     {
-        /** @var Context $context */
         [$event, $context] = $this->waitNextInvocation();
+        \assert($context instanceof Context);
 
         $this->ping();
 
-        $result = null;
-
         try {
-            // PSR-15 adapter
-            if ($handler instanceof RequestHandlerInterface) {
-                $handler = new Psr15Handler($handler);
-            }
-
-            if ($handler instanceof Handler) {
-                $result = $handler->handle($event, $context);
-            } elseif (is_callable($handler)) {
-                // The handler is a callable
-                $result = $handler($event, $context);
-            } else {
-                throw new Exception('The lambda handler must be a callable or implement handler interfaces');
-            }
+            $result = $this->invoker->invoke($handler, $event, $context);
 
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (\Throwable $e) {
@@ -290,7 +280,6 @@ final class LambdaRuntime
         }
     }
 
-
     /**
      * Ping a Bref server with a statsd request.
      *
@@ -343,7 +332,7 @@ final class LambdaRuntime
          * Nothing else is sent.
          *
          * `Invocations_100` is used to signal that this is 1 ping equals 100 invocations.
-         * We could use statsd sample rate system this this:
+         * We could use statsd sample rate system like this:
          * `Invocations:1|c|@0.01`
          * but this doesn't seem to be compatible with the bridge that forwards
          * the metric into CloudWatch.

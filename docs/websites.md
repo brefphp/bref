@@ -71,7 +71,7 @@ resources:
                             # alternatively you can write out Resource: 'arn:aws:s3:::<bucket-name>/*'
 ```
 
-Don't forget to replace `<bucket-name>` with the bucket name of your choice.
+Don't forget to replace `<bucket-name>` with the bucket name of your choice. Note that the name must be universally unique within Amazon (so you can't use `assets`) otherwise you'll get this error when you deploy: `Assets - assets already exists.`
 
 After [deploying with `serverless deploy`](/docs/deploy.md), the static files will be served from `https://<bucket>.s3.amazonaws.com/`. Read the next section to upload your files.
 
@@ -135,7 +135,7 @@ The `serverless.yml` example below:
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 
 functions:
     website:
@@ -164,7 +164,7 @@ resources:
                     Enabled: true
                     # Cheapest option by default (https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_DistributionConfig.html)
                     PriceClass: PriceClass_100
-                    # Enable http2 transfer for better performances
+                    # Enable http2 transfer for better performance
                     HttpVersion: http2
                     # Origins are where CloudFront fetches content
                     Origins:

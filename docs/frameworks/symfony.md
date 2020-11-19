@@ -24,7 +24,7 @@ service: bref-demo-symfony
 provider:
     name: aws
     region: us-east-1
-    runtime: provided
+    runtime: provided.al2
     environment:
         # Symfony environment variables
         APP_ENV: prod
@@ -138,3 +138,9 @@ To learn more about all this, read the [environment variables documentation](/do
 It is possible to run Symfony Messenger workers on AWS Lambda.
 
 A dedicated Bref package is available for this: [bref/symfony-messenger](https://github.com/brefphp/symfony-messenger).
+
+## Using cache
+
+As mentioned above, the filesystem is readonly so if you need persistent cache you need to store it somewhere else.
+
+A Symfony bundle is available for using AWS DynamoDB as cache backend system: [rikudou/psr6-dynamo-db-bundle](https://github.com/RikudouSage/DynamoDbCachePsr6Bundle)

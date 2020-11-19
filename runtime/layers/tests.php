@@ -7,15 +7,12 @@ declare(strict_types=1);
 
 // All layers
 $allLayers = [
-    'bref/php-72',
     'bref/php-73',
     'bref/php-74',
     'bref/php-80',
-    'bref/php-72-fpm',
     'bref/php-73-fpm',
     'bref/php-74-fpm',
     'bref/php-80-fpm',
-    'bref/php-72-fpm-dev',
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
     'bref/php-80-fpm-dev',
@@ -44,11 +41,9 @@ foreach ($allLayers as $layer) {
 
 // FPM layers
 $fpmLayers = [
-    'bref/php-72-fpm',
     'bref/php-73-fpm',
     'bref/php-74-fpm',
     'bref/php-80-fpm',
-    'bref/php-72-fpm-dev',
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
     'bref/php-80-fpm-dev',
@@ -62,9 +57,9 @@ foreach ($fpmLayers as $layer) {
 
 // dev layers
 $devLayers = [
-    'bref/php-72-fpm-dev',
     'bref/php-73-fpm-dev',
-    'bref/php-80-fpm-dev',
+    'bref/php-74-fpm-dev',
+    // 'bref/php-80-fpm-dev', // skip until blackfire gets supported for PHP 8.0
 ];
 $devExtensions = [
     'xdebug',
@@ -75,7 +70,9 @@ foreach ($devLayers as $layer) {
     $notLoaded = array_diff($devExtensions, $output);
     // all development extensions are loaded
     if ($exitCode !== 0 || count($notLoaded) > 0) {
-        throw new Exception(implode(PHP_EOL, array_map(function ($extension) { return "Extension $extension is not loaded"; }, $notLoaded)), $exitCode);
+        throw new Exception(implode(PHP_EOL, array_map(function ($extension) {
+            return "Extension $extension is not loaded";
+        }, $notLoaded)), $exitCode);
     }
     echo '.';
 }

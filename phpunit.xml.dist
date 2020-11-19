@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <phpunit colors="true"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.3/phpunit.xsd"
          bootstrap="./vendor/autoload.php">
 
     <testsuites>
         <testsuite name="small">
             <directory>./tests/</directory>
-            <exclude>./tests/Functional</exclude>
             <exclude>./tests/Sam</exclude>
         </testsuite>
         <testsuite name="runtimes">
-            <directory>./tests/Functional</directory>
             <directory>./tests/Sam</directory>
         </testsuite>
     </testsuites>

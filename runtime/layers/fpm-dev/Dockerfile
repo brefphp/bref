@@ -21,12 +21,8 @@ RUN cp $(php -r "echo ini_get('extension_dir');")/xdebug.so /tmp
 
 RUN if [ "$PHP_VERSION" != "80" ] ; \
     then \
-        version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")-zts \
-        && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/$version \
-        && mkdir -p /tmp/blackfire \
-        && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
-        && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so \
-        && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz ; \
+        version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
+    && curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-"$version".so" ; \
     fi
 
 FROM bref/php-${PHP_VERSION}-fpm as build_dev

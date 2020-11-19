@@ -24,7 +24,7 @@ Below is a minimal `serverless.yml`. To create it automatically run `vendor/bin/
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 plugins:
     - ./vendor/bref/bref
 functions:

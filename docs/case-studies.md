@@ -1,12 +1,12 @@
 ---
 title: Case studies
 current_menu: case-studies
-introduction: A collection of case studies of serverless PHP applications built using Bref. Learn about performances, costs and migrations from existing projects.
+introduction: A collection of case studies of serverless PHP applications built using Bref. Learn about performance, costs and migrations from existing projects.
 ---
 
 This page collects case studies of serverless PHP applications built with or migrated to Bref.
 
-These help learn for real use cases about costs, performances and migration efforts.
+These help learn for real use cases about costs, performance and migration efforts.
 
 ## Websites
 
@@ -22,7 +22,7 @@ These help learn for real use cases about costs, performances and migration effo
 
 - 🇫🇷 [Enoptea](https://www.enoptea.fr/serverless-et-php/)
 
-  Enoptea is a french startup that migrated their infrastructure of PHP workers from EC2 to Lambda. They halved their AWS costs and increased their performances while spending less time managing their servers.
+  Enoptea is a french startup that migrated their infrastructure of PHP workers from EC2 to Lambda. They halved their AWS costs and increased their performance while spending less time managing their servers.
 
 - [PrettyCI.com](https://mnapoli.fr/serverless-case-study-prettyci/)
 

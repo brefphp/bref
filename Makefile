@@ -15,11 +15,9 @@ publish-docker-images: docker-images
 	test $(DOCKER_TAG)
 
 	for image in \
-	  "bref/php-72" "bref/php-72-fpm" "bref/php-72-fpm-dev" \
 	  "bref/php-73" "bref/php-73-fpm" "bref/php-73-fpm-dev" \
 	  "bref/php-74" "bref/php-74-fpm" "bref/php-74-fpm-dev" \
 	  "bref/php-80" "bref/php-80-fpm" "bref/php-80-fpm-dev" \
-	  "bref/build-php-72" \
 	  "bref/build-php-73" \
 	  "bref/build-php-74" \
 	  "bref/build-php-80" \
@@ -58,4 +56,13 @@ layers.json:
 test-stack:
 	serverless deploy -c tests/serverless.tests.yml
 
-.PHONY: runtimes website website-preview website-assets demo layers.json test-stack
+changelog:
+	docker run -it --rm -v "$(pwd)":/usr/local/src/your-app ferrarimarco/github-changelog-generator --user brefphp --project bref --output= --unreleased-only --token=$$GITHUB_TOKEN_READ --no-issues --usernames-as-github-logins --no-verbose
+
+# http://amazon-linux-2-packages.bref.sh/
+amazonlinux-package-list:
+	docker run --rm -it amazonlinux:2 yum list --quiet --color=never > index.html
+	aws s3 cp index.html s3://amazon-linux-2-packages.bref.sh/ --content-type=text/plain
+	rm index.html
+
+.PHONY: runtimes website website-preview website-assets demo layers.json test-stack changelog

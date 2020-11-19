@@ -1,0 +1,92 @@
+{
+    "headers": {
+      "Accept-Encoding": "gzip, deflate, br",
+      "Accept-Language": "da-DK,da;q=0.9,en-US;q=0.8,en;q=0.7,nl;q=0.6",
+      "Cache-Control": "no-cache",
+      "Host": "xyz.execute-api.eu-west-1.amazonaws.com",
+      "Origin": "https:\/\/developer.mozilla.org",
+      "Pragma": "no-cache",
+      "Sec-WebSocket-Extensions": "permessage-deflate; client_max_window_bits",
+      "Sec-WebSocket-Key": "xyz",
+      "Sec-WebSocket-Version": "13",
+      "User-Agent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/85.0.4183.121 Safari\/537.36",
+      "X-Amzn-Trace-Id": "Root=xyz",
+      "X-Forwarded-For": "0.0.0.0",
+      "X-Forwarded-Port": "443",
+      "X-Forwarded-Proto": "https"
+    },
+    "multiValueHeaders": {
+      "Accept-Encoding": [
+        "gzip, deflate, br"
+      ],
+      "Accept-Language": [
+        "da-DK,da;q=0.9,en-US;q=0.8,en;q=0.7,nl;q=0.6"
+      ],
+      "Cache-Control": [
+        "no-cache"
+      ],
+      "Host": [
+        "xyz.execute-api.eu-west-1.amazonaws.com"
+      ],
+      "Origin": [
+        "https:\/\/developer.mozilla.org"
+      ],
+      "Pragma": [
+        "no-cache"
+      ],
+      "Sec-WebSocket-Extensions": [
+        "permessage-deflate; client_max_window_bits"
+      ],
+      "Sec-WebSocket-Key": [
+        "xyz"
+      ],
+      "Sec-WebSocket-Version": [
+        "13"
+      ],
+      "User-Agent": [
+        "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/85.0.4183.121 Safari\/537.36"
+      ],
+      "X-Amzn-Trace-Id": [
+        "Root=xyz"
+      ],
+      "X-Forwarded-For": [
+        "0.0.0.0"
+      ],
+      "X-Forwarded-Port": [
+        "443"
+      ],
+      "X-Forwarded-Proto": [
+        "https"
+      ]
+    },
+    "requestContext": {
+      "routeKey": "$disconnect",
+      "messageId": null,
+      "eventType": "DISCONNECT",
+      "extendedRequestId": "xyz",
+      "requestTime": "09\/Oct\/2020:21:44:56 +0000",
+      "messageDirection": "IN",
+      "stage": "dev",
+      "connectedAt": 1602279896599,
+      "requestTimeEpoch": 1602279896600,
+      "identity": {
+        "cognitoIdentityPoolId": null,
+        "cognitoIdentityId": null,
+        "principalOrgId": null,
+        "cognitoAuthenticationType": null,
+        "userArn": null,
+        "userAgent": "Mozilla\/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit\/537.36 (KHTML, like Gecko) Chrome\/85.0.4183.121 Safari\/537.36",
+        "accountId": null,
+        "caller": null,
+        "sourceIp": "0.0.0.0",
+        "accessKey": null,
+        "cognitoAuthenticationProvider": null,
+        "user": null
+      },
+      "requestId": "xyz",
+      "domainName": "xyz-apiId.execute-api.eu-west-1.amazonaws.com",
+      "connectionId": "xyz-connectionId",
+      "apiId": "xyz-apiId"
+    },
+    "isBase64Encoded": false
+  }

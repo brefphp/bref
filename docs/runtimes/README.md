@@ -50,7 +50,7 @@ To use a runtime, import the corresponding layer in `serverless.yml`:
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 plugins:
     - ./vendor/bref/bref
 functions:
@@ -64,15 +64,13 @@ The `${...}` notation is the [syntax to use variables](https://serverless.com/fr
 
 - `${bref:layer.php-74}`
 - `${bref:layer.php-73}`
-- `${bref:layer.php-72}`
 - `${bref:layer.php-74-fpm}`
 - `${bref:layer.php-73-fpm}`
-- `${bref:layer.php-72-fpm}`
 - `${bref:layer.console}`
 - `${bref:layer.php-80}`
 - `${bref:layer.php-80-fpm}`
 
-Bref currently provides runtimes for PHP 7.2, 7.3 and 7.4. It also provides **experimental** runtimes for PHP 8.0.
+Bref currently provides runtimes for PHP 7.3 and 7.4. It also provides **experimental** runtimes for PHP 8.0.
 
 > `php-74` means PHP 7.4.\*. It is not possible to require a specific "patch" version.
 
@@ -98,7 +96,7 @@ To use them manually you need to use that full name. For example in `serverless.
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 functions:
     hello:
         ...
@@ -116,7 +114,7 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             ...
-            Runtime: provided
+            Runtime: provided.al2
             Layers:
                 - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7'
 ```
@@ -128,3 +126,39 @@ Resources:
 The latest of runtime versions can be found at [runtimes.bref.sh](https://runtimes.bref.sh/) and is shown below:
 
 <iframe src="https://runtimes.bref.sh/embedded" class="w-full h-96"></iframe>
+
+### Bref ping
+
+Bref layers send a ping to estimate the total number of Lambda invocations powered by Bref. That statistic is useful in two ways:
+
+- to provide new users an idea on how much Bref is used in production
+- to communicate to AWS how much Bref is used and push for better PHP integration with AWS Lambda tooling
+
+We consider this to be beneficial both to the Bref project (by getting more users and more consideration from AWS) and for Bref users (more users means a larger community, a stronger and more active project, as well as more features from AWS).
+
+#### What is sent
+
+The data sent in the ping is completely anonymous. It does not contain any identifiable data about anything (the project, users, etc.).
+
+The only data it contains is: "A Bref invocation happened".
+
+Anyone can inspect the code and the data sent by checking the [`Bref\Runtime\LambdaRuntime::ping()` function](https://github.com/brefphp/bref/blob/master/src/Runtime/LambdaRuntime.php#L328).
+
+#### How is it sent
+
+The data is sent via the [statsd](https://github.com/statsd/statsd) protocol, over [UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol).
+
+Unlike TCP, UDP does not check that the message correctly arrived to the server.
+It doesn't even establish a connection. That means that UDP is extremely fast:
+the data is sent over the network and the code moves on to the next line.
+When actually sending data, the overhead of that ping takes about 150 micro-seconds.
+
+However, this function actually sends data every 100 invocation, because we don't
+need to measure *all* invocations. We only need an approximation.
+That means that 99% of the time, no data is sent, and the function takes 30 micro-seconds.
+If we average all executions, the overhead of that ping is about 31 micro-seconds.
+Given that it is much much less than even 1 milli-second, we consider that overhead negligible.
+
+#### Disabling
+
+The ping can be disabled by setting a `BREF_PING_DISABLE` environment variable to `1`.
