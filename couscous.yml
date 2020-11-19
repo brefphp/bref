@@ -49,9 +49,9 @@ menu:
                     text: Cron commands
                     url: /docs/web-hosting/cron.html
                     title: CLI cron tasks
-                local-development:
+                web-local-development:
                     text: Local development
-                    url: /docs/local-development.html
+                    url: /docs/web-hosting/local-development.html
         -   section: Frameworks
             items:
                 laravel:
@@ -72,9 +72,9 @@ menu:
                 typed-handlers:
                     text: Typed handlers
                     url: /docs/function/typed-handlers.html
-                local-development:
+                function-local-development:
                     text: Local development
-                    url: /docs/local-development.html
+                    url: /docs/function/local-development.html
                 cron-function:
                     text: Cron functions
                     url: /docs/function/cron.html

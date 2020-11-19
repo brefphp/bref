@@ -1,81 +1,27 @@
 ---
-title: Local development
-current_menu: local-development
+title: Local development for web hosting
+current_menu: web-local-development
 ---
 
-## PHP functions
+It is possible to run **web applications** locally.
 
-The `vendor/bin/bref local` command invokes your [PHP functions](/docs/runtimes/function.md) locally. You can provide an event if your function expects one.
+> To run **PHP functions** locally, see [Local development for PHP Functions](/docs/function/local-development.md) instead.
 
-For example, given this function:
+## The simple way
 
-```php
-return function (array $event) {
-    return 'Hello ' . ($event['name'] ?? 'world');
-};
-```
+To keep things simple, you can run your PHP application like you did without Bref. For example with your favorite framework:
 
-```yaml
-# ...
-
-functions:
-    hello:
-        handler: my-function.php
-        layers:
-            - ${bref:layer.php-74}
-```
-
-You can invoke it with or without event data:
-
-```bash
-$ vendor/bin/bref local hello
-Hello world
-
-# With JSON event data
-$ vendor/bin/bref local hello '{"name": "Jane"}'
-Hello Jane
-
-# With JSON in a file
-$ vendor/bin/bref local hello --file=event.json
-Hello Jane
-```
-
-The `bref local` command runs using the local PHP installation. If you prefer to run commands using the same environment as Lambda, you can use Docker.
-
-Here is an example, feel free to adjust it to fit your needs:
-
-```bash
-docker run --rm -it -v $(PWD):/var/task:ro,delegated bref/php-74 vendor/bin/bref local hello
-```
-
-If you do not use `serverless.yml` but something else like SAM/CDK/CloudFormation/Terraform, use the `--handler` parameter instead:
-
-```bash
-$ vendor/bin/bref local --handler=my-function.php
-Hello world
-
-# With JSON event data
-$ vendor/bin/bref local '{"name": "Jane"}' --handler=my-function.php
-Hello Jane
-
-# With JSON in a file
-$ vendor/bin/bref local --handler=my-function.php --file=event.json
-Hello Jane
-```
-
-## HTTP applications
-
-If you want to keep things simple, you can run your PHP application like you did without Bref. For example with your favorite framework:
-
-- Laravel via `php artisan serve` or [Homestead](https://laravel.com/docs/5.7/homestead) or [Laravel Valet](https://laravel.com/docs/5.7/valet)
-- Symfony via `php bin/console server:start` ([documentation](https://symfony.com/doc/current/setup/built_in_web_server.html))
+- Laravel via `php artisan serve` or [Homestead](https://laravel.com/docs/8.x/homestead) or [Laravel Valet](https://laravel.com/docs/8.x/valet)
+- Symfony via `symfony server:start` ([documentation](https://symfony.com/doc/current/setup/symfony_server.html))
 
 If you are not using any framework, you can use PHP's built-in server:
 
 ```bash
-php -S localhost:8000 index.php
+php -S localhost:8000
 # The application is now available at http://localhost:8000/
 ```
+
+## Docker
 
 In order to run the application locally in an environment closer to production, you can use the [Bref Docker images](https://hub.docker.com/u/bref). For example for an HTTP application, create the following `docker-compose.yml`:
 
