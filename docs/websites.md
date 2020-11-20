@@ -44,7 +44,7 @@ functions:
 
 Finally, when [setting up a custom domain](/docs/environment/custom-domains.md) make sure to select **Edge deployment**:
 
-![](/docs/web-hosting/edge-deployment.png)
+![](/docs/web-apps/edge-deployment.png)
 
 ### Same domain
 

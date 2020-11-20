@@ -2,8 +2,7 @@
 http://bref-website.netlify.com/* http://bref.sh/:splat 301!
 https://bref-website.netlify.com/* https://bref.sh/:splat 301!
 
-/docs/local-development.html    /docs/web-hosting/local-development.html
-
 # Deleted pages
-/docs/newsletters.html      /docs/community.html
-/docs/cron.html             /docs/web-hosting/cron.html
+/docs/newsletters.html          /docs/community.html
+/docs/cron.html                 /docs/web-apps/cron.html
+/docs/local-development.html    /docs/web-apps/local-development.html

@@ -11,7 +11,7 @@ next:
 
 It is possible to run **PHP functions** locally.
 
-> To run **web apps** locally, see [Local development for HTTP applications](/docs/web-hosting/local-development.md) instead.
+> To run **web apps** locally, see [Local development for HTTP applications](/docs/web-apps/local-development.md) instead.
 
 The `vendor/bin/bref local` command invokes your [PHP functions](/docs/runtimes/function.md) locally. You can provide an event if your function expects one.
 

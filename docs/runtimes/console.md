@@ -6,7 +6,7 @@ previous:
     link: /docs/websites.html
     title: Website assets
 next:
-    link: /docs/web-hosting/cron.html
+    link: /docs/web-apps/cron.html
     title: Cron commands
 ---
 

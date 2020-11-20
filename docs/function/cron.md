@@ -45,4 +45,4 @@ It is possible to provide data inside the `$event` variable via the `input` opti
 
 Read more about the `schedule` feature in the [Serverless documentation](https://www.serverless.com/framework/docs/providers/aws/events/schedule/).
 
-> If you are interested in **cron CLI commands** instead, read the [Cron commands](/docs/web-hosting/cron.html) documentation.
+> If you are interested in **cron CLI commands** instead, read the [Cron commands](/docs/web-apps/cron.html) documentation.

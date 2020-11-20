@@ -48,13 +48,13 @@ menu:
                 console-applications:
                     text: Console commands
                     url: /docs/runtimes/console.html
-                web-hosting-cron:
+                web-cron:
                     text: Cron commands
-                    url: /docs/web-hosting/cron.html
+                    url: /docs/web-apps/cron.html
                     title: CLI cron tasks
                 web-local-development:
                     text: Local development
-                    url: /docs/web-hosting/local-development.html
+                    url: /docs/web-apps/local-development.html
         -   section: Frameworks
             items:
                 laravel:
