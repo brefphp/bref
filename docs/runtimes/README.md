@@ -6,39 +6,46 @@ previous:
     link: /docs/first-steps.html
     title: First steps
 next:
-    link: /docs/runtimes/function.html
-    title: PHP functions
+    link: /docs/runtimes/http.html
+    title: Web apps on AWS Lambda
 ---
 
-There is no built-in support for PHP on AWS Lambda. Instead we need to use 3rd party runtimes via the system of Lambda *layers*.
+There is no built-in support for PHP on AWS Lambda. Instead, we can use 3rd party runtimes via [AWS Lambda *layers*](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 
-Bref provides the runtimes (aka layers) needed to run PHP applications, whether they run via functions, HTTP or CLI.
-
-This page is an introduction to the runtimes. The next sections (e.g. PHP functions, HTTP applications) will show how to use them in your project.
+Bref provides the runtimes (or "layers") to run PHP on Lambda.
 
 ## Bref runtimes
 
-### PHP functions: `php-74` and `php-73`
+Bref provides 2 main runtimes:
 
-The simplest way to write a lambda is to write one in the form of a PHP function.
+- The "FPM" runtime, to create **web applications**.
+- The "function" runtime, to create **event-driven functions**.
 
-This runtime works great for **non-HTTP applications**.
+You can see in the documentation menu how these two runtimes are used to for two different kinds of applications.
 
-[Read more about the `php-74` runtime here](/docs/runtimes/function.md).
-
-### HTTP applications: `php-74-fpm` and `php-73-fpm`
+### Web apps: `php-74-fpm` and `php-73-fpm`
 
 This runtime uses PHP-FPM to run **HTTP applications** on AWS Lambda.
 
-This runtime is **the easiest to start with**: it works like traditional PHP hosting and is compatible with Symfony and Laravel.
+It's **the easiest to start with**: it works like traditional PHP hosting and is compatible with Symfony and Laravel.
 
-[Read more about the `php-74-fpm` runtime here](/docs/runtimes/http.md).
+[Get started with the FPM runtime in "Bref for web apps"](/docs/runtimes/http.md).
+
+### Event-driven functions: `php-74` and `php-73`
+
+AWS Lambda was initially created to run _functions_ (yes, functions of code) in the cloud.
+
+The Bref function runtime lets you create Lambda functions in PHP like with any other language.
+
+This runtime works great to create **event-driven micro-services**.
+
+[Get started with the Function runtime in "Bref for event-driven functions"](/docs/runtimes/function.md).
 
 ### Console: `console`
 
 This runtime lets use run console commands on Lambda.
 
-For example we can run the [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Laravel Artisan](https://laravel.com/docs/5.8/artisan).
+For example, we can run the [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Laravel Artisan](https://laravel.com/docs/5.8/artisan).
 
 [Read more about the `console` runtime here](/docs/runtimes/console.md).
 
@@ -58,6 +65,8 @@ functions:
         ...
         layers:
             - ${bref:layer.php-74}
+            # or:
+            - ${bref:layer.php-74-fpm}
 ```
 
 The `${...}` notation is the [syntax to use variables](https://serverless.com/framework/docs/providers/aws/guide/variables/) in `serverless.yml`. Bref provides a serverless plugin ("`./vendor/bref/bref`") that provides those variables:
@@ -74,17 +83,17 @@ Bref currently provides runtimes for PHP 7.3 and 7.4. It also provides **experim
 
 > `php-74` means PHP 7.4.\*. It is not possible to require a specific "patch" version.
 
-You can read more about this in the next sections.
-
 ## Lambda layers in details
 
 > **Notice**: this section is only useful if you want to learn more.
 >
 > You can skip it for now if you just want to get started with Bref.
+>
+> ▶ [**Get started with web apps**](/docs/runtimes/http.md).
 
 Bref runtimes are [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html). While Bref provides a Serverless plugin to simplify how to use them, you can use the layers directly.
 
-The name of the layers follow this pattern:
+The layers names follow this pattern:
 
 ```
 arn:aws:lambda:<region>:209497400698:layer:<layer-name>:<layer-version>
@@ -118,6 +127,8 @@ Resources:
             Layers:
                 - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7'
 ```
+
+Bref layers work with AWS Lambda regardless of the tool you use to deploy your application: Serverless, SAM, CloudFormation, Terraform, AWS CDK, etc.
 
 > Remember: the layer ARN contains a region. **You need to use the same region as the rest of your application** else Lambda will not find the layer.
 

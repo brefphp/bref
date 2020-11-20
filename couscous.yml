@@ -31,14 +31,14 @@ menu:
                 first-steps:
                     text: First steps
                     url: /docs/first-steps.html
-#                runtimes-introduction:
-#                    text: Introduction to PHP runtimes
-#                    url: /docs/runtimes/
+                runtimes-introduction:
+                    text: Introduction to PHP runtimes
+                    url: /docs/runtimes/
 
     webHosting:
         -   section: 'Bref for <strong class="text-gray-700">web apps</strong>'
             items:
-                web-hosting:
+                web-apps:
                     text: Web apps on AWS Lambda
                     url: /docs/runtimes/http.html
                 websites:

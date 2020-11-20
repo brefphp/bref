@@ -1,6 +1,6 @@
 ---
 title: HTTP applications
-current_menu: http-applications
+current_menu: web-apps
 introduction: Learn how to run serverless HTTP applications with PHP on AWS Lambda using Bref.
 previous:
     link: /docs/runtimes/function.html
