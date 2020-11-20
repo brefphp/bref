@@ -133,13 +133,13 @@ This matrix will be updated as Bref and AWS services evolve over time.
     <tr class="border-b border-gray-200">
         <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Legacy application</td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-400"></span>
+            <span class="maturity-icon shadow bg-orange-400"></span>
         </td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-400"></span>
         </td>
         <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-400"></span>
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
     <tr class="text-xs text-center leading-normal text-gray-600">
@@ -179,7 +179,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Legacy application**
 
-    Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite some parts of the code to make the application fit for Lambda. For example, file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and possibly SQS. Finally there are no case studies or online examples to help you along the way.
+    Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite some parts of the code to make the application fit for Lambda (or running in containers in general). For example, file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and SQS.
 
     Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net).
 
