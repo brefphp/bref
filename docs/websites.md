@@ -21,7 +21,24 @@ You will find below different architectures for creating websites.
 
 This architecture is the simplest. Assets are hosted on a separate domain than the PHP code.
 
-The main downside is that **API Gateway only supports HTTPS**. Hosting websites on HTTPS is a good thing, however that means that there is no redirection from HTTP to HTTPS. In short, `https://website.com` will work but not `http://website.com`. It is up to you to decide if this limitation is acceptable for your use case.
+However, by default **API Gateway only supports HTTPS**. That means there is no redirection from HTTP to HTTPS: `https://website.com` will work but not `http://website.com`.
+
+To solve that, we can switch from API Gateway's ["HTTP API" to "REST API"](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html) (which provides a HTTP -> HTTPS redirection).
+Despite the name, REST API work fine for websites.
+
+```diff
+functions:
+    website:
+        # ...
+        events:
+-            - httpApi: '*'
++            - http: 'ANY /'
++            - http: 'ANY /{proxy+}'
+```
+
+Finally, when [setting up a custom domain](/docs/environment/custom-domains.md) make sure to select **Edge deployment**:
+
+![](/docs/web-hosting/edge-deployment.png)
 
 ### Same domain
 

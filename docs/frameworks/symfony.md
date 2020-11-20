@@ -44,8 +44,7 @@ functions:
         layers:
             - ${bref:layer.php-74-fpm}
         events:
-            -   http: 'ANY /'
-            -   http: 'ANY /{proxy+}'
+            - httpApi: '*'
     console:
         handler: bin/console
         timeout: 120 # in seconds

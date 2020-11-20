@@ -30,14 +30,12 @@ provider:
 plugins:
     - ./vendor/bref/bref
 functions:
-    website:
+    app:
         handler: index.php
         layers:
             - ${bref:layer.php-74-fpm}
-        # This section contains the URL routing configuration of API Gateway
         events:
-            -   http: 'ANY /'
-            -   http: 'ANY /{proxy+}'
+            - httpApi: '*'
 ```
 
 ## Handler
@@ -83,17 +81,11 @@ To configure HTTP routing we must configure API Gateway using `serverless.yml`.
 
 ### Catch-all
 
-The simplest configuration is to catch all incoming requests and send them to PHP. With API Gateway we must define 2 patterns:
-
-- the `/` root URL
-- the `/*` catch-all URL (which does not catch `/`)
-
-Here is an example of such configuration:
+The simplest configuration is to catch all incoming requests and send them to PHP:
 
 ```yaml
         events:
-            -   http: 'ANY /'
-            -   http: 'ANY /{proxy+}'
+            - httpApi: '*'
 ```
 
 ### Advanced routing
@@ -102,8 +94,8 @@ API Gateway provides a routing system that lets us define routes that match spec
 
 ```yaml
         events:
-            -   http: 'POST /articles'
-            -   http: 'GET /articles/{id}'
+            - httpApi: 'POST /articles'
+            - httpApi: 'GET /articles/{id}'
 ```
 
 Use `{foo}` as a placeholder for a parameter and `{foo+}` as a parameter that matches everything, including sub-folders.
@@ -180,8 +172,7 @@ You can generate automatically such events using AWS CloudWatch ([read this arti
 
 ```yaml
         events:
-            -   http: 'ANY /'
-            -   http: 'ANY /{proxy+}'
+            - httpApi: '*'
             - schedule:
                 rate: rate(5 minutes)
                 input:
