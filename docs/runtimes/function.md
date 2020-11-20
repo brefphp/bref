@@ -1,7 +1,7 @@
 ---
 title: PHP Lambda functions
 current_menu: php-functions
-introduction: Learn how to run serverless PHP functions on AWS Lambda using Bref.
+introduction: Run serverless event-driven PHP functions on AWS Lambda using Bref.
 previous:
     link: /docs/runtimes/
     title: What are runtimes?
@@ -11,7 +11,7 @@ next:
 ---
 
 Previously, we saw how to use AWS Lambda as web hosting for complete web applications.
-But we can also run **PHP functions** on AWS Lambda.
+But we can also run event-driven **PHP functions** on AWS Lambda.
 
 Here is an example of a PHP Lambda function written as an anonymous function:
 
@@ -36,7 +36,7 @@ exports.myHandler = async function (event, context) {
 Writing functions is very useful to process events and data from other AWS services.
 For example, this is perfect to implement **asynchronous workers, event handling, file processing**, etc.
 
-If you are looking to create HTTP applications, have a look at [Bref for Web hosting](/docs/runtimes/http.md).
+If you are looking to create HTTP applications, have a look at [Bref for web apps](/docs/runtimes/http.md).
 
 ## The function
 
@@ -101,7 +101,7 @@ The runtime (aka layer) to use is `php-XX`. To learn more check out [the runtime
 
 A PHP function must be invoked via the AWS Lambda API, either manually or by integrating with other AWS services.
 
-> If you instead want to write a classic **HTTP application** read [Bref for Web hosting](/docs/runtimes/http.md).
+> If you instead want to write a classic **HTTP application** read [Bref for web apps](/docs/runtimes/http.md).
 
 ### CLI
 

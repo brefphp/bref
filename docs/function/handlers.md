@@ -143,13 +143,13 @@ You can read more about SQS workers in [Serverless Visually Explained](https://s
 
 ## API Gateway HTTP events
 
-**Reminder:** to create HTTP applications, it is possible to use the more traditional "[Bref for Web hosting](/docs/runtimes/http.md)" runtime, which runs with PHP-FPM.
+**Reminder:** to create HTTP applications, it is possible to use the more traditional "[Bref for web apps](/docs/runtimes/http.md)" runtime, which runs with PHP-FPM.
 
 That being said, it is possible to handle HTTP events from API Gateway with a simple PHP class, like other handlers detailed in this page.
 
 Here is a full comparison between both approaches:
 
-|                                                    | Bref for Web hosting                                                                                                       | HTTP handler class                                                                    |
+|                                                    | Bref for web apps                                                                                                       | HTTP handler class                                                                    |
 |----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
 | How to read the request?                           | $_GET, $_POST, etc.                                                                                                        | The `$request` parameter (PSR-7 request).                                             |
 | How to write a response?                           | `echo`, `header()` function, etc.                                                                                          | Returning a PSR-7 response from the handler class.                                    |

@@ -33,10 +33,10 @@ menu:
 #                    url: /docs/first-steps.html
 
     webHosting:
-        -   section: 'Bref for <strong class="text-gray-700">web hosting</strong>'
+        -   section: 'Bref for <strong class="text-gray-700">web apps</strong>'
             items:
                 web-hosting:
-                    text: Web hosting on AWS Lambda
+                    text: Web apps on AWS Lambda
                     url: /docs/runtimes/http.html
                 websites:
                     text: Website assets
@@ -64,7 +64,7 @@ menu:
                     title: Learn how to deploy serverless Symfony applications
 
     functions:
-        -   section: 'Bref for <strong class="text-gray-700">functions</strong>'
+        -   section: 'Bref for <strong class="text-gray-700">event-driven functions</strong>'
             items:
                 php-functions:
                     text: PHP functions on AWS Lambda

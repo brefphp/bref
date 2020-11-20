@@ -1,11 +1,11 @@
 ---
-title: Local development for web hosting
+title: Local development for web apps
 current_menu: web-local-development
 ---
 
 It is possible to run **web applications** locally.
 
-> To run **PHP functions** locally, see [Local development for PHP Functions](/docs/function/local-development.md) instead.
+> To run event-driven **PHP functions** locally, see [Local development for PHP Functions](/docs/function/local-development.md) instead.
 
 ## The simple way
 
