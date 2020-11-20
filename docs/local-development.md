@@ -63,6 +63,12 @@ $ vendor/bin/bref local --handler=my-function.php --file=event.json
 Hello Jane
 ```
 
+Or if your `serverless.yml` is not in root folder, use the `--config` parameter instead:
+```bash
+$ vendor/bin/bref local hello --config=path/to/your/serverless.yml --file=event.json
+Hello world
+```
+
 ## HTTP applications
 
 If you want to keep things simple, you can run your PHP application like you did without Bref. For example with your favorite framework:

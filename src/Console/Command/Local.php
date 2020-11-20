@@ -17,19 +17,23 @@ use Throwable;
  */
 class Local
 {
-    public const SIGNATURE = 'local [function] [data] [--file=] [--handler=]';
+    public const SIGNATURE = 'local [function] [data] [--file=] [--handler=] [--config=]';
 
-    public function __invoke(?string $function, ?string $data, ?string $file, ?string $handler, SymfonyStyle $io): int
+    public function __invoke(?string $function, ?string $data, ?string $file, ?string $handler, ?string $config, SymfonyStyle $io): int
     {
         if ($function && $data && $handler) {
             throw new Exception('You cannot provide both a funtion name and the --handler= option.');
+        }
+
+        if (null !== $config && ! file_exists($config)) {
+            throw new Exception("The serverless file '$config' does not exist.");
         }
 
         if ($handler) {
             // Shift the arguments since there is no function passed
             $data = $function;
         } else {
-            $handler = $this->handlerFromServerlessYml($function);
+            $handler = $this->handlerFromServerlessYml($function, $config);
         }
 
         if ($data && $file) {
@@ -77,13 +81,14 @@ class Local
         return 0;
     }
 
-    private function handlerFromServerlessYml(string $function): string
+    private function handlerFromServerlessYml(string $function, ?string $config): string
     {
-        if (! file_exists('serverless.yml')) {
+        $file = $config ?? 'serverless.yml';
+        if (! file_exists($file)) {
             throw new Exception("No `serverless.yml` file was found to resolve function $function.\nIf you do not use serverless.yml, pass the handler via the `--handler` option: vendor/bin/bref local --handler=file.php");
         }
 
-        $serverlessConfig = Yaml::parseFile('serverless.yml');
+        $serverlessConfig = Yaml::parseFile($file);
 
         if (! isset($serverlessConfig['functions'][$function])) {
             throw new Exception("There is no function named '$function' in serverless.yml");
