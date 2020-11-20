@@ -2,9 +2,6 @@
 title: PHP Lambda functions
 current_menu: php-functions
 introduction: Run serverless event-driven PHP functions on AWS Lambda using Bref.
-previous:
-    link: /docs/runtimes/
-    title: What are runtimes?
 next:
     link: /docs/function/handlers.html
     title: Typed PHP Lambda handlers

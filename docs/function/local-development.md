@@ -1,6 +1,12 @@
 ---
 title: Local development for functions
 current_menu: function-local-development
+previous:
+    link: /docs/function/handlers.html
+    title: Typed handlers
+next:
+    link: /docs/function/cron.html
+    title: Cron functions
 ---
 
 It is possible to run **PHP functions** locally.

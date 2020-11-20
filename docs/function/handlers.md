@@ -1,6 +1,6 @@
 ---
 title: Typed PHP Lambda handlers
-current_menu: function-handlers
+current_menu: typed-handlers
 introduction: Handle AWS Lambda events using typed PHP classes.
 previous:
     link: /docs/runtimes/function.html

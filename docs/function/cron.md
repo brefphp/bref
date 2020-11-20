@@ -2,6 +2,9 @@
 title: Cron functions on AWS Lambda
 current_menu: cron-function
 introduction: Learn how to create serverless cron functions with PHP on AWS Lambda.
+previous:
+    link: /docs/function/local-development.html
+    title: Local development
 ---
 
 AWS Lambda lets us run [PHP functions](/docs/runtimes/function.md) as cron tasks using the `schedule` event:
