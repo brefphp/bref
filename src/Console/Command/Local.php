@@ -85,7 +85,7 @@ class Local
     {
         $file = $config ?? 'serverless.yml';
         if (! file_exists($file)) {
-            throw new Exception("No `serverless.yml` file was found to resolve function $function.\nIf you do not use serverless.yml, pass the handler via the `--handler` option: vendor/bin/bref local --handler=file.php");
+            throw new Exception("No `serverless.yml` file was found to resolve function $function.\nIf you do not use serverless.yml, pass the handler via the `--handler` option: vendor/bin/bref local --handler=file.php\nIf your serverless.yml file is stored elsewhere, use the `--config` option: vendor/bin/bref local --config=foo/serverless.yml");
         }
 
         $serverlessConfig = Yaml::parseFile($file);
