@@ -5,19 +5,17 @@ current_menu: deploy
 
 Bref recommends using [the Serverless framework](https://serverless.com/) to deploy your serverless application. This page will show you how.
 
-## First deployment
+## Deploying manually
 
-Deploy your application on your AWS account by running:
+To deploy an application configured with `serverless.yml` to AWS, run:
 
 ```bash
 serverless deploy
 ```
 
-🎉 congrats on creating your serverless application!
-
 > A `.serverless/` directory will be created. You can add it to `.gitignore`.
 >
-> Want to get an overview of your deployed application? Launch the Bref Dashboard via the `vendor/bin/bref dashboard` command.
+> Want to get an overview of your deployed application? Launch the **Bref Dashboard** via the `vendor/bin/bref dashboard` command.
 
 ## Deploying for production
 
