@@ -6,8 +6,8 @@ previous:
     link: /docs/runtimes/
     title: What are runtimes?
 next:
-    link: /docs/runtimes/http.html
-    title: HTTP applications
+    link: /docs/function/handlers.html
+    title: Typed PHP Lambda handlers
 ---
 
 Previously, we saw how to use AWS Lambda as web hosting for complete web applications.

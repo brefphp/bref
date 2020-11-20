@@ -71,7 +71,7 @@ menu:
                     url: /docs/runtimes/function.html
                 typed-handlers:
                     text: Typed handlers
-                    url: /docs/function/typed-handlers.html
+                    url: /docs/function/handlers.html
                 function-local-development:
                     text: Local development
                     url: /docs/function/local-development.html
