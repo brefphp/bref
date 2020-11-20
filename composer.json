@@ -8,10 +8,7 @@
     "autoload": {
         "psr-4": {
             "Bref\\": "src"
-        },
-        "files": [
-            "src/functions.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
