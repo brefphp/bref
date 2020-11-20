@@ -2,6 +2,12 @@
 title: Creating serverless PHP websites
 current_menu: websites
 introduction: Learn how to deal with assets and static files to deploy serverless PHP websites.
+previous:
+    link: /docs/runtimes/http.html
+    title: Web applications on AWS Lambda
+next:
+    link: /docs/runtimes/console.html
+    title: Console commands
 ---
 
 > Before reading this article we assume that you have read [Bref's introduction](/docs/first-steps.md) and that you are familiar with [Bref's HTTP runtime](/docs/runtimes/http.md).
@@ -297,3 +303,12 @@ The last step will be to point your domain name to the CloudFront URL:
 - create a CNAME to point your domain name to this URL
     - if you use Route53 you can read [the official guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)
     - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [CloudFlare allows this with a technique called CNAME flattening](https://support.cloudflare.com/hc/en-us/articles/200169056-Understand-and-configure-CNAME-Flattening))
+
+## More examples
+
+Complete deployable examples for:
+
+- server-side websites with assets
+- single-page applications with a backend API
+
+are available in the [Serverless Visually Explained](https://serverless-visually-explained.com/) course.

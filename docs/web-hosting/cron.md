@@ -2,6 +2,12 @@
 title: CLI cron tasks on AWS Lambda
 current_menu: web-hosting-cron
 introduction: Learn how to create CLI serverless cron tasks with PHP on AWS Lambda.
+previous:
+    link: /docs/runtimes/console.html
+    title: Console commands
+next:
+    link: /docs/web-hosting/local-development.html
+    title: Local development for web apps
 ---
 
 AWS Lambda lets us run [console commands](/docs/runtimes/console.md) as cron tasks using the `schedule` event:

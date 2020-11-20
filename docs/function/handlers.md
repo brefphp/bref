@@ -185,6 +185,24 @@ class HttpHandler implements RequestHandlerInterface
 return new HttpHandler();
 ```
 
+Since a handler is a controller for a specific route, we can use API Gateway's routing to deploy multiple Lambda functions:
+
+```yaml
+functions:
+    create-article:
+        handler: create-article-handler.php
+        layers:
+            - ${bref:layer.php-74}
+        events:
+            - httpApi: 'POST /articles'
+    get-article:
+        handler: get-article-handler.php
+        layers:
+            - ${bref:layer.php-74}
+        events:
+            - httpApi: 'GET /articles/{id}'
+```
+
 [Full reference of HTTP events in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/http-api/).
 
 ## Websocket events
