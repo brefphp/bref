@@ -25,7 +25,7 @@ class Local
             throw new Exception('You cannot provide both a funtion name and the --handler= option.');
         }
 
-        if (null !== $config && ! file_exists($config)) {
+        if ($config !== null && ! file_exists($config)) {
             throw new Exception("The serverless file '$config' does not exist.");
         }
 
