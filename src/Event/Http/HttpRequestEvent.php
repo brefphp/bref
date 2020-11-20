@@ -113,7 +113,11 @@ final class HttpRequestEvent implements LambdaEvent
             return $this->event['rawPath'] ?? '/';
         }
 
-        return $this->event['path'] ?? '/';
+        /**
+         * $event['requestContext']['path'] contains the real URL, including the stage prefix.
+         * $event['path'] contains the URL without the stage prefix.
+         */
+        return $this->event['requestContext']['path'] ?? '/';
     }
 
     public function getUri(): string
