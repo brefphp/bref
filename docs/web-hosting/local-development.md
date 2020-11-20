@@ -26,7 +26,7 @@ php -S localhost:8000
 
 ## Docker
 
-In order to run the application locally in an environment closer to production, you can use the [Bref Docker images](https://hub.docker.com/u/bref). For example for an HTTP application, create the following `docker-compose.yml`:
+In order to run the application locally in an environment closer to production, you can use the [Bref Docker images](https://hub.docker.com/u/bref). For example, create the following `docker-compose.yml`:
 
 ```yaml
 version: "3.5"

@@ -117,7 +117,7 @@ menu:
                 custom-domains:
                     text: Custom domains
                     url: /docs/environment/custom-domains.html
-                    title: Configuring custom domain names for HTTP applications
+                    title: Configuring custom domain names
                 performances:
                     text: Performance
                     url: /docs/environment/performances.html

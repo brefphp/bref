@@ -39,7 +39,7 @@ class Local
         try {
             $handler = Bref::getContainer()->get($handler);
         } catch (NotFoundExceptionInterface $e) {
-            throw new Exception($e->getMessage() . PHP_EOL . 'Reminder: `bref local` can invoke functions that use the FUNCTION runtime, not the HTTP (or "FPM") runtime. If you are unsure, check out https://bref.sh/docs/local-development.html#http-applications to run HTTP applications locally.');
+            throw new Exception($e->getMessage() . PHP_EOL . 'Reminder: `bref local` can invoke event-driven functions that use the FUNCTION runtime, not the web app (or "FPM") runtime. Check out https://bref.sh/docs/web-hosting/local-development.html to run web applications locally.');
         }
 
         if ($file) {

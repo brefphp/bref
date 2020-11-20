@@ -25,7 +25,7 @@ You can see in the documentation menu how these two runtimes are used to for two
 
 ### Web apps: `php-74-fpm` and `php-73-fpm`
 
-This runtime uses PHP-FPM to run **HTTP applications** on AWS Lambda.
+This runtime uses PHP-FPM to run **web applications** on AWS Lambda.
 
 It's **the easiest to start with**: it works like traditional PHP hosting and is compatible with Symfony and Laravel.
 

@@ -26,8 +26,8 @@ That means that you don't have to configure anything to log errors, warnings or 
 
 Your application can write logs to CloudWatch:
 
-- in a [PHP function](/docs/runtimes/function.md): write logs to `stdout` (using `echo` for example) or `stderr`
-- in a [HTTP application](/docs/runtimes/http.md): write logs to `stderr`
+- [Bref for web apps](/docs/runtimes/http.md): write logs to `stderr`
+- [Bref for event-driven functions](/docs/runtimes/function.md): write logs to `stdout` (using `echo` for example) or `stderr`
 
 For example with [Monolog](https://github.com/Seldaek/monolog):
 

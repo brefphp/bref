@@ -4,10 +4,10 @@ current_menu: custom-domains
 introduction: Configure custom domain names for your web applications.
 ---
 
-AWS generates random domain names for [HTTP applications](/docs/runtimes/http.md):
+API Gateway generates random domain names for our applications:
 
 ```
-https://<random>.execute-api.<region>.amazonaws.com/Prod/
+https://<random>.execute-api.<region>.amazonaws.com/
 ```
 
 It is possible to replace those URLs by a custom domain.
@@ -31,13 +31,13 @@ After validating the domain and the certificate we can now link the custom domai
 - click "Create"
 - enter your domain name, select the certificate you created above and save
 - edit the domain that was created
-- click "Configure API mappings" to add an "API mapping" which maps the `/` URL (or any URL you want) to your HTTP application in the `Dev` stage, for example:
+- click "Configure API mappings" to add an "API mapping": select your application and the `$default` stage (or `dev` in some cases), for example:
 
   ![](custom-domains-path-mapping.png)
 - after saving the "API mappings", find the `API Gateway domain name` in the "Configurations" tab
 - create a CNAME entry in your DNS to point your domain name to this domain
 
-After waiting for the DNS change to propagate (sometimes up to 24 hours) your website is now accessible via your custom domain.
+After waiting for the DNS change to propagate (sometimes up to several hours) your website is now accessible via your custom domain.
 
 > You can also take a look at the plugin [serverless-domain-manager](https://www.serverless.com/plugins/serverless-domain-manager).  
 > It handles the custom domain creation and optionally adds the Route53 record if asked. It is still necessary to create the ACM certificate manually.
