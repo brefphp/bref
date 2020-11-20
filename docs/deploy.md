@@ -13,7 +13,7 @@ Deploy your application on your AWS account by running:
 serverless deploy
 ```
 
-🎉 congrats on creating your first serverless application!
+🎉 congrats on creating your serverless application!
 
 > A `.serverless/` directory will be created. You can add it to `.gitignore`.
 >

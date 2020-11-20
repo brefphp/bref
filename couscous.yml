@@ -28,9 +28,12 @@ menu:
                 installation:
                     text: Installation
                     url: /docs/installation.html
-#                first-steps:
-#                    text: First steps
-#                    url: /docs/first-steps.html
+                first-steps:
+                    text: First steps
+                    url: /docs/first-steps.html
+#                runtimes-introduction:
+#                    text: Introduction to PHP runtimes
+#                    url: /docs/runtimes/
 
     webHosting:
         -   section: 'Bref for <strong class="text-gray-700">web apps</strong>'
@@ -80,11 +83,6 @@ menu:
                     url: /docs/function/cron.html
 
     other:
-#        -   section: Runtimes
-#            items:
-#                runtimes-introduction:
-#                    text: Introduction to PHP runtimes
-#                    url: /docs/runtimes/
         -   section: Workflow
             items:
                 deploy:
