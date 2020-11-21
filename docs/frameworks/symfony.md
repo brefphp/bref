@@ -36,6 +36,7 @@ package:
     exclude:
         - node_modules/**
         - tests/**
+        - var/**
 
 functions:
     website:
