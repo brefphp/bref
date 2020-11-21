@@ -11,7 +11,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 class WebsocketClientTest extends TestCase
 {
-    public function test_message_success()
+    public function test message success()
     {
         $request = json_decode(file_get_contents(__DIR__ . '/Samples/message-success.json'), true);
         $client = $this->getClient($request);
@@ -20,7 +20,7 @@ class WebsocketClientTest extends TestCase
         $this->assertTrue(true, 'Assertion to mark that no exception was thrown');
     }
 
-    public function test_message_failure()
+    public function test message failure()
     {
         $request = json_decode(file_get_contents(__DIR__ . '/Samples/message-failure-invalid-connectionid.json'), true);
         $client = $this->getClient($request);
@@ -31,7 +31,7 @@ class WebsocketClientTest extends TestCase
         $client->message('WDGT8fY4joECJrQ=test', 'ping');
     }
 
-    public function test_disconnect_success()
+    public function test disconnect success()
     {
         $request = json_decode(file_get_contents(__DIR__ . '/Samples/disconnect-success.json'), true);
         $client = $this->getClient($request);
@@ -40,7 +40,7 @@ class WebsocketClientTest extends TestCase
         $this->assertTrue(true, 'Assertion to mark that no exception was thrown');
     }
 
-    public function test_disconnect_failure()
+    public function test disconnect failure()
     {
         $request = json_decode(file_get_contents(__DIR__ . '/Samples/disconnect-failure-gone.json'), true);
         $client = $this->getClient($request);
@@ -50,7 +50,7 @@ class WebsocketClientTest extends TestCase
         $client->disconnect('WDGT8fY4joECJrQ=test');
     }
 
-    public function test_status()
+    public function test status()
     {
         $request = json_decode(file_get_contents(__DIR__ . '/Samples/status.json'), true);
         $client = $this->getClient($request);

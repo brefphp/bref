@@ -17,6 +17,21 @@ final class SimpleWebsocketClient
     /** @var WebsocketClient */
     private $client;
 
+    public static function create(string $apiId, string $region, string $stage, int $timeout = 10): SimpleWebsocketClient
+    {
+        return new static(
+            $apiId,
+            $region,
+            $stage,
+            HttpClient::create([
+                'timeout' => $timeout,
+            ])
+        );
+    }
+
+    /**
+     * @internal Method only public for tests, use `create()` instead.
+     */
     public function __construct(
         string $apiId,
         string $region,
@@ -32,18 +47,6 @@ final class SimpleWebsocketClient
             ],
             $credentialProvider,
             $httpClient
-        );
-    }
-
-    public static function create(string $apiId, string $region, string $stage, int $timeout = 10): SimpleWebsocketClient
-    {
-        return new static(
-            $apiId,
-            $region,
-            $stage,
-            HttpClient::create([
-                'timeout' => $timeout,
-            ])
         );
     }
 
