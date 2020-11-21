@@ -1,16 +1,16 @@
 ---
-title: PHP functions
+title: PHP Lambda functions
 current_menu: php-functions
-introduction: Learn how to run serverless PHP functions on AWS Lambda using Bref.
-previous:
-    link: /docs/runtimes/
-    title: What are runtimes?
+introduction: Run serverless event-driven PHP functions on AWS Lambda using Bref.
 next:
-    link: /docs/runtimes/http.html
-    title: HTTP applications
+    link: /docs/function/handlers.html
+    title: Typed PHP Lambda handlers
 ---
 
-The simplest way to write a lambda is to write one in the form of a PHP anonymous function:
+Previously, we saw how to use AWS Lambda as web hosting for complete web applications.
+But we can also run event-driven **PHP functions** on AWS Lambda.
+
+Here is an example of a PHP Lambda function written as an anonymous function:
 
 ```php
 <?php
@@ -30,9 +30,14 @@ exports.myHandler = async function (event, context) {
 }
 ```
 
+Writing functions is very useful to process events and data from other AWS services.
+For example, this is perfect to implement **asynchronous workers, event handling, file processing**, etc.
+
+If you are looking to create HTTP applications, have a look at [Bref for web apps](/docs/runtimes/http.md).
+
 ## The function
 
-The PHP file defined as the "handler" in `serverless.yml` must return a function. This function can be an anonymous function or [any kind of callable supported by PHP](http://php.net/manual/en/language.types.callable.php).
+Functions that can run on Lambda can be an anonymous function or [any kind of callable supported by PHP](http://php.net/manual/en/language.types.callable.php).
 
 ```php
 <?php
@@ -40,14 +45,14 @@ The PHP file defined as the "handler" in `serverless.yml` must return a function
 require __DIR__ . '/vendor/autoload.php';
 
 return function ($event) {
-    return /* response */;
+    return /* result */;
 };
 ```
 
 The function:
 
 - takes an `$event` parameter which contains data from the event that triggered the function ([list of examples here](https://docs.aws.amazon.com/lambda/latest/dg/eventsources.html))
-- can optionally return a response: the response must be serializable to JSON
+- can optionally return a result: the result must be serializable to JSON
 
 There can only be one function returned per PHP file.
 
@@ -63,13 +68,13 @@ use Bref\Context\Context;
 require __DIR__ . '/vendor/autoload.php';
 
 return function ($event, Context $context) {
-    return /* response */;
+    return /* result */;
 };
 ```
 
 The `Context` object is inspired from the [`context` parameter in other languages](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html) and provides information about the current lambda invocation (the request ID, the X-Ray trace ID, etc.).
 
-## `serverless.yml` configuration
+## Deployment configuration
 
 Below is a minimal `serverless.yml` to deploy a function. To create it automatically, run `vendor/bin/bref init`.
 
@@ -82,7 +87,7 @@ plugins:
     - ./vendor/bref/bref
 functions:
     hello:
-        handler: index.php
+        handler: my-function.php
         layers:
             - ${bref:layer.php-74}
 ```
@@ -93,7 +98,7 @@ The runtime (aka layer) to use is `php-XX`. To learn more check out [the runtime
 
 A PHP function must be invoked via the AWS Lambda API, either manually or by integrating with other AWS services.
 
-If you instead want to write a classic **HTTP application** read the [HTTP guide](http.md).
+> If you instead want to write a classic **HTTP application** read [Bref for web apps](/docs/runtimes/http.md).
 
 ### CLI
 
@@ -140,7 +145,7 @@ $result = $lambda->invoke([
 $result = json_decode($result->get('Payload')->getContents(), true);
 ```
 
-Alternatively, you can achieve the same result with the lighter [AsyncAws Lambda](https://github.com/async-aws/lambda) package.
+> A lighter alternative to the official AWS PHP SDK is the [AsyncAws Lambda](https://async-aws.com/clients/lambda.html) package.
 
 ### From other AWS services
 

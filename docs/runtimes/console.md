@@ -1,22 +1,25 @@
 ---
-title: Console applications
+title: Console commands
 current_menu: console-applications
 introduction: Learn how to run serverless console commands on AWS Lambda with Symfony Console or Laravel Artisan.
 previous:
-    link: /docs/runtimes/http.html
-    title: HTTP applications
+    link: /docs/websites.html
+    title: Website assets
+next:
+    link: /docs/web-apps/cron.html
+    title: Cron commands
 ---
 
 Bref provides a way to run console commands on AWS Lambda.
 
-This can be used to run the [Symfony Console](https://symfony.com/doc/master/components/console.html), [Silly](https://github.com/mnapoli/silly) or [Laravel Artisan](https://laravel.com/docs/5.8/artisan) commands in production.
+This can be used to run PHP scripts, the [Symfony Console](https://symfony.com/doc/current/console.html), as well as [Laravel Artisan](https://laravel.com/docs/8.x/artisan) commands in production.
 
 ## Configuration
 
 The lambda function used for running console applications must use two Lambda layers:
 
-- the [base PHP layer](function.md) (the PHP runtime that provides the `php` binary)
-- the "console" layer that overrides the base runtime to execute your console application
+- the base PHP layer that provides the `php` binary,
+- the `console` layer that overrides the base runtime to execute our console commands.
 
 Below is a minimal `serverless.yml`. To create it automatically run `vendor/bin/bref init` and select "Console application".
 
@@ -29,7 +32,7 @@ plugins:
     - ./vendor/bref/bref
 functions:
     hello:
-        handler: bin/console # or `artisan` if you are using Laravel
+        handler: bin/console # or 'artisan' for Laravel
         layers:
             - ${bref:layer.php-74} # PHP runtime
             - ${bref:layer.console} # Console layer
@@ -37,7 +40,7 @@ functions:
 
 ## Usage
 
-To run a console command on AWS Lambda use `bref cli`:
+To run a console command on AWS Lambda, run `bref cli` on your computer:
 
 ```bash
 vendor/bin/bref cli <function-name> -- <command>

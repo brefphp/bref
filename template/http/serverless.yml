@@ -16,8 +16,7 @@ functions:
         layers:
             - ${bref:layer.php-74-fpm}
         events:
-            -   http: 'ANY /'
-            -   http: 'ANY /{proxy+}'
+            -   httpApi: '*'
 
 # Exclude files from deployment
 package:

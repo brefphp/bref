@@ -52,16 +52,14 @@ $app->command('init', function (SymfonyStyle $io) {
     $choice = $io->choice(
         'What kind of lambda do you want to create? (you will be able to add more functions later by editing `serverless.yml`)',
         [
-            'PHP function',
-            'HTTP application',
-            'Console application',
+            'Web application',
+            'Event-driven function',
         ],
-        'PHP function'
+        'Web application',
     );
     $templateDirectory = [
-        'PHP function' => 'default',
-        'HTTP application' => 'http',
-        'Console application' => 'console',
+        'Web application' => 'http',
+        'Event-driven function' => 'function',
     ][$choice];
 
     $fs = new Filesystem;
