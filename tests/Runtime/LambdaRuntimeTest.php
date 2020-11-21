@@ -174,7 +174,7 @@ class LambdaRuntimeTest extends TestCase
 
         $message = <<<ERROR
 The Lambda response cannot be encoded to JSON.
-This error usually happens when you try to return binary content. If you are writing a HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses
+This error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses
 Here is the original JSON error: 'Malformed UTF-8 characters, possibly incorrectly encoded'
 ERROR;
         $this->assertInvocationErrorResult('Exception', $message);

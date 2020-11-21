@@ -14,7 +14,7 @@ To set up Bref correctly please complete all the sections below.
 
 ## AWS account
 
-You will need an AWS account. To create one, go on [aws.amazon.com](https://aws.amazon.com/) and click *Sign up*.
+You will need an AWS account. To create one, go to [aws.amazon.com](https://aws.amazon.com/) and click *Sign up*.
 
 AWS has a generous free tier that will usually allow you to deploy your first test applications for free.
 
@@ -46,7 +46,7 @@ Install Bref in your project using [Composer](https://getcomposer.org/):
 composer require bref/bref
 ```
 
-> Make sure that you have installed a version greater than or equal to 0.5.* of Bref.
+> Make sure that you have installed a version greater than or equal to 1.0.* of Bref.
 
 > To run the latest version of Bref you must have PHP 7.3 or greater! If you are using PHP 7.2 or less, an outdated version of Bref will be installed instead.
 
