@@ -189,9 +189,6 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context));
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext()));
 
-        /** @deprecated The LAMBDA_CONTEXT has been renamed to LAMBDA_REQUEST_CONTEXT for clarity */
-        $request->setCustomVar('LAMBDA_CONTEXT', json_encode($event->getRequestContext()));
-
         $contentType = $event->getContentType();
         if ($contentType) {
             $request->setContentType($contentType);
