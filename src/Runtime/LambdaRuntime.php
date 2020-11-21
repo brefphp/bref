@@ -320,6 +320,11 @@ final class LambdaRuntime
             return;
         }
 
+        // Support cases where the sockets extension is not installed
+        if (! function_exists('socket_create')) {
+            return;
+        }
+
         // Only run the code in 1% of requests
         // We don't need to collect all invocations, only to get an approximation
         if (rand(0, 99) > 0) {
