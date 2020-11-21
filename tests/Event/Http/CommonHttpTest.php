@@ -70,6 +70,14 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         $this->assertHasMultiHeader(false);
     }
 
+    public function test v1 stage prefix is included in the URL()
+    {
+        $this->fromFixture(__DIR__ . '/Fixture/ag-v1-stage-prefix.json');
+
+        $this->assertPath('/dev/path');
+        $this->assertUri('/dev/path');
+    }
+
     /**
      * @dataProvider provide API Gateway versions
      */
