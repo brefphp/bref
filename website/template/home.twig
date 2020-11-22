@@ -14,9 +14,9 @@
                        class="inline-block text-blue-100 hover:text-white px-4 py-2 mr-4">
                         Documentation
                     </a>
-                    <a href="/#enterprise" title="Bref enterprise"
+                    <a href="/docs/news/" title="Bref news"
                        class="inline-block text-blue-100 hover:text-white px-4 py-2 mr-4">
-                        Enterprise
+                        News
                     </a>
                 </div>
                 <div>
@@ -189,19 +189,6 @@
 
     {% include 'enterprise.twig' %}
 
-    <section class="pt-24 pb-12 bg-gray-800 text-gray-400">
-        <div class="container max-w-screen-xl mx-auto px-4">
-            <p class="font-light">
-                Need
-                <a href="https://training.bref.sh"
-                        title="Join a serverless PHP workshop to get trained on using Bref and creating applications"
-                        class="text-blue-400 hover:text-white">
-                    training
-                </a>
-                or support? Get in touch with
-                <a href="https://null.tc/" title="null is a consulting and web development company." class="text-blue-400">null</a>, the team that creates Bref.
-            </p>
-        </div>
-    </section>
+    {% include 'footer.twig' %}
 
 {% endblock %}

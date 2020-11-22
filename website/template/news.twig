@@ -1,0 +1,72 @@
+{% extends 'layout.twig' %}
+
+{% set metaTitle = title ~ ' - Bref' %}
+{% set metaDescription = introduction|default %}
+
+{% block body %}
+
+    <nav class="h-16 fixed top-0 inset-x-0 z-10 bg-gradient-to-r from-blue-800 to-blue-700 px-1 sm:px-4 py-3 font-light shadow-md flex items-center justify-between">
+        <div class="container max-w-screen-lg mx-auto flex items-center">
+            <a href="/" title="Bref"
+               class="inline-block text-blue-100 hover:text-white px-4 py-2 sm:mr-4 font-bref text-xl">
+                bref
+            </a>
+            <a href="/docs/" title="Bref documentation for serverless PHP applications"
+               class="inline-block text-blue-100 hover:text-white px-4 py-2 sm:mr-4">
+                <span class="hidden sm:block">Documentation</span>
+                <span class="sm:hidden">Docs</span>
+            </a>
+            <a href="/docs/news/" title="Bref news"
+               class="inline-block text-blue-100 hover:text-white px-4 py-2 sm:mr-4">
+                News
+            </a>
+            <a href="https://github.com/brefphp/bref" title="Bref on GitHub"
+               class="inline-block text-blue-100 hover:text-white px-3 py-2 sm:mr-4 flex items-center">
+                <svg class="fill-current text-blue-200 w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
+                <span class="hidden sm:block">GitHub</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container max-w-screen-lg mx-auto mt-16">
+        {% block content %}
+            <article class="w-full px-4 sm:px-8 lg:px-4 py-8 md:py-16">
+                <h1 class="text-3xl font-bold">{{ title }}</h1>
+                {% if subTitle %}
+                    <div class="text-xl text-gray-600 -mt-8 mb-8">{{ subTitle }}</div>
+                {% endif %}
+                {% block article %}
+                    {{ content|raw }}
+                {% endblock %}
+            </article>
+        {% endblock %}
+    </div>
+
+    {% include 'footer.twig' %}
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/github-gist.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/languages/yaml.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script>
+        $(function() {
+            $('article h2, article h3, article h4, article h5').each(function () {
+                if ($(this).find('a').length) {
+                    return;
+                }
+                var url = document.URL.replace(/#.*$/, "") + '#' + $(this).attr('id');
+                $(this).prepend(' <a class="title-anchor" href="' + url + '">#</a>');
+            });
+            $('article h2').each(function () {
+                if ($(this).find('a').length) {
+                    return;
+                }
+                var url = '#' + $(this).attr('id');
+                var caption = $(this).text().substr(2);
+                $('#in-page-menu ul').append('<li class="py-2"><a class="text-gray-500" href="' + url + '">' + caption + '</a></li>');
+            });
+        });
+    </script>
+
+{% endblock %}
