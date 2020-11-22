@@ -57,7 +57,6 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.fileinfo.php">fileinfo</a></li>
         <li><a href="http://php.net/manual/en/book.filter.php">filter</a></li>
         <li><a href="http://php.net/manual/en/book.ftp.php">ftp</a></li>
-        <li><a href="http://php.net/manual/en/book.image.php">gd</a></li>
         <li><a href="http://php.net/manual/en/book.gettext.php">gettext</a></li>
         <li><a href="http://php.net/manual/en/book.hash.php">hash</a></li>
         <li><a href="http://php.net/manual/en/book.iconv.php">iconv</a></li>
@@ -108,22 +107,14 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 
 - **[intl](http://php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
 - **[APCu](http://php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
-- **[phpredis](https://github.com/phpredis/phpredis)** -  The phpredis extension provides an API for communicating with the Redis key-value store.
 - **[PostgreSQL PDO Driver](http://php.net/manual/en/ref.pdo-pgsql.php)** -  PDO_PGSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to PostgreSQL databases.
-- **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
-- **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
-- **[imagick](http://php.net/manual/en/book.imagick.php)** - imagick is an image processing library.
 
 You can enable these extensions by loading them in `php/conf.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
 ```ini
 extension=intl
 extension=apcu
-extension=redis
 extension=pdo_pgsql
-extension=mongodb
-extension=pthreads
-extension=imagick
 ```
 
 ### Extra extensions
@@ -156,13 +147,10 @@ To compile the extension, Bref provides the `bref/build-php-*` Docker images. He
 ```dockerfile
 FROM bref/build-php-74
 
-RUN curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/7.3 \
-    && mkdir -p /tmp/blackfire \
-    && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
-    && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so
+RUN curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-74.so"
 
 # Build the final image from the lambci image that is close to the production environment
-FROM lambci/lambda:provided
+FROM lambci/lambda:provided.al2
 
 # Copy things we installed to the final image
 COPY --from=0 /tmp/blackfire.so /opt/bref-extra/blackfire.so

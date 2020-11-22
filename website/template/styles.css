@@ -9,19 +9,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 a {
-    color: theme('colors.blue.700');
+    @apply text-blue-700;
 }
 a:hover {
-    color: theme('colors.blue.800');
+    @apply text-blue-800;
 }
 
 ul {
     list-style-type: disc;
-    padding-left: theme('padding.4');
+    @apply pl-4;
 }
 ol {
     list-style-type: decimal;
-    padding-left: theme('padding.4');
+    @apply pl-4;
 }
 
 /* Home */
@@ -145,7 +145,7 @@ article pre code {
     font-size: .85rem;
 }
 article blockquote {
-    @apply text-blue-600 bg-blue-100 border-blue-500;
+    @apply text-blue-700 bg-blue-100 border-blue-500;
     border-left-width: 4px;
     padding: 1rem;
     margin-top: 16px;
@@ -180,6 +180,33 @@ article table td {
     vertical-align: text-top;
 }
 
+/* Menu */
+#menu h3 {
+    @apply mb-4 text-gray-500 uppercase font-semibold text-sm tracking-wider;
+}
+@screen lg {
+    #menu h3 {
+        @apply text-xs;
+    }
+}
+#menu ul {
+    @apply list-none p-0 mb-6 ml-4;
+}
+#menu ul:last-child {
+    @apply mb-0;
+}
+#menu ul > li {
+    @apply my-3;
+}
+#menu ul > li:last-child {
+    @apply mb-0;
+}
+#menu ul > li > a {
+    @apply text-gray-800;
+}
+#menu ul > li > a.active {
+    @apply text-blue-600 underline;
+}
 
 @tailwind components;
 

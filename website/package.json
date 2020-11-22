@@ -1,6 +1,5 @@
 {
   "devDependencies": {
-    "tailwind-css-variables": "^2.0.3",
-    "tailwindcss": "^1.0.6"
+    "tailwindcss": "^2.0"
   }
 }

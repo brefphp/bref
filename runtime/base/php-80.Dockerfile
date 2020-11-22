@@ -23,7 +23,7 @@ FROM bref/tmp/step-1/build-environment as build-environment
 # https://github.com/kkos/oniguruma/releases
 # Needed by:
 #   - php mbstring
-ENV VERSION_ONIG=6.9.3
+ENV VERSION_ONIG=6.9.8
 ENV ONIG_BUILD_DIR=${BUILD_DIR}/oniguruma
 RUN set -xe; \
     mkdir -p ${ONIG_BUILD_DIR}; \
@@ -36,7 +36,7 @@ RUN set -xe; \
     make install
 
 
-ENV VERSION_PHP=8.0.0beta4
+ENV VERSION_PHP=8.0.0RC5
 
 
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
@@ -46,7 +46,7 @@ RUN set -xe; \
     # --location will follow redirects
     # --silent will hide the progress, but also the errors: we restore error messages with --show-error
     # --fail makes sure that curl returns an error instead of fetching the 404 page
-    curl --location --silent --show-error --fail https://downloads.php.net/~pollita/php-${VERSION_PHP}.tar.gz \
+    curl --location --silent --show-error --fail https://downloads.php.net/~carusogabriel/php-${VERSION_PHP}.tar.gz \
   | tar xzC ${PHP_BUILD_DIR} --strip-components=1
 # Move into the unpackaged code directory
 WORKDIR  ${PHP_BUILD_DIR}/
@@ -60,7 +60,6 @@ WORKDIR  ${PHP_BUILD_DIR}/
 # --enable-option-checking=fatal: make sure invalid --configure-flags are fatal errors instead of just warnings
 # --enable-ftp: because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
 # --enable-mbstring: because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
-# --enable-maintainer-zts: build PHP as ZTS (Zend Thread Safe) to be able to use pthreads
 # --with-zlib and --with-zlib-dir: See https://stackoverflow.com/a/42978649/245552
 # --with-pear: necessary for `pecl` to work (to install PHP extensions)
 #
@@ -100,8 +99,6 @@ RUN set -xe \
         --enable-intl=shared \
         --enable-soap \
         --with-xsl=${INSTALL_DIR} \
-        --enable-gd \
-        --with-jpeg=${INSTALL_DIR} \
         --with-pear
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
@@ -112,17 +109,14 @@ RUN set -xe; \
  cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
 # Symlink all our binaries into /opt/bin so that Lambda sees them in the path.
-RUN mkdir -p /opt/bin
-RUN ln -s /opt/bref/bin/* /opt/bin
-RUN ln -s /opt/bref/sbin/* /opt/bin
+RUN mkdir -p /opt/bin \
+    && cd /opt/bin \
+    && ln -s ../bref/bin/* . \
+    && ln -s ../bref/sbin/* .
 
 # Install extensions
 # We can install extensions manually or using `pecl`
-#RUN pecl install mongodb
-#RUN pecl install redis
 RUN pecl install APCu
-#RUN pecl install imagick
-
 
 # Run the next step in the previous environment because the `clean.sh` script needs `find`,
 # which isn't installed by default
@@ -135,7 +129,7 @@ RUN /tmp/clean.sh && rm /tmp/clean.sh
 # Now we start back from a clean image.
 # We get rid of everything that is unnecessary (build tools, source code, and anything else
 # that might have created intermediate layers for docker) by copying online the /opt directory.
-FROM amazonlinux:2018.03
+FROM lambci/lambda:build-provided.al2
 ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/bref/lib64:/opt/bref/lib"
 

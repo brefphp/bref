@@ -1,59 +1,32 @@
 ---
-title: Local development
-current_menu: local-development
+title: Local development for web apps
+current_menu: web-local-development
+previous:
+    link: /docs/web-apps/cron.html
+    title: Cron commands
 ---
 
-To run your applications locally with an architecture close to production you can use the `sam` command line tool from AWS.
+It is possible to run **web applications** locally.
 
-## PHP functions
+> To run event-driven **PHP functions** locally, see [Local development for PHP Functions](/docs/function/local-development.md) instead.
 
-The `serverless invoke local` command invokes your [PHP functions](/docs/runtimes/function.md) locally. You can provide an event if your function expects one.
+## The simple way
 
-For example, given this function:
+To keep things simple, you can run your PHP application like you did without Bref. For example with your favorite framework:
 
-```php
-return function (array $event) {
-    return 'Hello ' . ($event['name'] ?? 'world');
-};
-```
-
-```yaml
-# ...
-
-functions:
-    myFunction:
-        handler: index.php
-        layers:
-            - ${bref:layer.php-74}
-```
-
-You can invoke it with or without event data:
-
-```sh
-$ serverless invoke local -f myFunction
-Hello world
-
-$ serverless invoke local -f myFunction --data '{"name": "Jane"}'
-Hello Jane
-```
-
-> Learn more in the [`serverless invoke local` documentation](https://serverless.com/framework/docs/providers/aws/cli-reference/invoke-local/) or run `serverless invoke local --help`.
-
-## HTTP applications
-
-If you want to keep things simple, you can run your PHP application like you did without Bref. For example with your favorite framework:
-
-- Laravel via `php artisan serve` or [Homestead](https://laravel.com/docs/5.7/homestead) or [Laravel Valet](https://laravel.com/docs/5.7/valet)
-- Symfony via `php bin/console server:start` ([documentation](https://symfony.com/doc/current/setup/built_in_web_server.html))
+- Laravel via `php artisan serve` or [Homestead](https://laravel.com/docs/8.x/homestead) or [Laravel Valet](https://laravel.com/docs/8.x/valet)
+- Symfony via `symfony server:start` ([documentation](https://symfony.com/doc/current/setup/symfony_server.html))
 
 If you are not using any framework, you can use PHP's built-in server:
 
 ```bash
-php -S localhost:8000 index.php
+php -S localhost:8000
 # The application is now available at http://localhost:8000/
 ```
 
-In order to run the application locally in an environment closer to production, you can use the [Bref Docker images](https://hub.docker.com/u/bref). For example for an HTTP application, create the following `docker-compose.yml`:
+## Docker
+
+In order to run the application locally in an environment closer to production, you can use the [Bref Docker images](https://hub.docker.com/u/bref). For example, create the following `docker-compose.yml`:
 
 ```yaml
 version: "3.5"

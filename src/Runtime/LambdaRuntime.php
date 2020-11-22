@@ -5,7 +5,6 @@ namespace Bref\Runtime;
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
-use Bref\Event\Http\Psr15Handler;
 use Exception;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -40,6 +39,9 @@ final class LambdaRuntime
     /** @var string */
     private $apiUrl;
 
+    /** @var Invoker */
+    private $invoker;
+
     public static function fromEnvironmentVariable(): self
     {
         return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'));
@@ -52,6 +54,7 @@ final class LambdaRuntime
         }
 
         $this->apiUrl = $apiUrl;
+        $this->invoker = new Invoker;
     }
 
     public function __destruct()
@@ -95,22 +98,8 @@ final class LambdaRuntime
 
         $this->ping();
 
-        $result = null;
-
         try {
-            // PSR-15 adapter
-            if ($handler instanceof RequestHandlerInterface) {
-                $handler = new Psr15Handler($handler);
-            }
-
-            if ($handler instanceof Handler) {
-                $result = $handler->handle($event, $context);
-            } elseif (is_callable($handler)) {
-                // The handler is a callable
-                $result = $handler($event, $context);
-            } else {
-                throw new Exception('The lambda handler must be a callable or implement handler interfaces');
-            }
+            $result = $this->invoker->invoke($handler, $event, $context);
 
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (\Throwable $e) {
@@ -265,7 +254,7 @@ final class LambdaRuntime
         $jsonData = json_encode($data);
         if ($jsonData === false) {
             throw new Exception(sprintf(
-                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing a HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses\nHere is the original JSON error: '%s'",
+                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses\nHere is the original JSON error: '%s'",
                 json_last_error_msg()
             ));
         }
@@ -328,6 +317,11 @@ final class LambdaRuntime
     private function ping(): void
     {
         if ($_SERVER['BREF_PING_DISABLE'] ?? false) {
+            return;
+        }
+
+        // Support cases where the sockets extension is not installed
+        if (! function_exists('socket_create')) {
             return;
         }
 

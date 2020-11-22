@@ -2,6 +2,12 @@
 title: Creating serverless PHP websites
 current_menu: websites
 introduction: Learn how to deal with assets and static files to deploy serverless PHP websites.
+previous:
+    link: /docs/runtimes/http.html
+    title: Web applications on AWS Lambda
+next:
+    link: /docs/runtimes/console.html
+    title: Console commands
 ---
 
 > Before reading this article we assume that you have read [Bref's introduction](/docs/first-steps.md) and that you are familiar with [Bref's HTTP runtime](/docs/runtimes/http.md).
@@ -21,7 +27,24 @@ You will find below different architectures for creating websites.
 
 This architecture is the simplest. Assets are hosted on a separate domain than the PHP code.
 
-The main downside is that **API Gateway only supports HTTPS**. Hosting websites on HTTPS is a good thing, however that means that there is no redirection from HTTP to HTTPS. In short, `https://website.com` will work but not `http://website.com`. It is up to you to decide if this limitation is acceptable for your use case.
+However, by default **API Gateway only supports HTTPS**. That means there is no redirection from HTTP to HTTPS: `https://website.com` will work but not `http://website.com`.
+
+To solve that, we can switch from API Gateway's ["HTTP API" to "REST API"](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html) (which provides a HTTP -> HTTPS redirection).
+Despite the name, REST API work fine for websites.
+
+```diff
+functions:
+    website:
+        # ...
+        events:
+-            - httpApi: '*'
++            - http: 'ANY /'
++            - http: 'ANY /{proxy+}'
+```
+
+Finally, when [setting up a custom domain](/docs/environment/custom-domains.md) make sure to select **Edge deployment**:
+
+![](/docs/web-apps/edge-deployment.png)
 
 ### Same domain
 
@@ -135,7 +158,7 @@ The `serverless.yml` example below:
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 
 functions:
     website:
@@ -280,3 +303,12 @@ The last step will be to point your domain name to the CloudFront URL:
 - create a CNAME to point your domain name to this URL
     - if you use Route53 you can read [the official guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)
     - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [CloudFlare allows this with a technique called CNAME flattening](https://support.cloudflare.com/hc/en-us/articles/200169056-Understand-and-configure-CNAME-Flattening))
+
+## More examples
+
+Complete deployable examples for:
+
+- server-side websites with assets
+- single-page applications with a backend API
+
+are available in the [Serverless Visually Explained](https://serverless-visually-explained.com/) course.

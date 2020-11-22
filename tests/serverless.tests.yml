@@ -2,7 +2,7 @@ service: bref-tests
 
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
     region: eu-west-1
     profile: bref-tests
     apiGateway:

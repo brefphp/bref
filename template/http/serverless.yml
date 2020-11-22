@@ -3,7 +3,7 @@ service: app
 provider:
     name: aws
     region: us-east-1
-    runtime: provided
+    runtime: provided.al2
 
 plugins:
     - ./vendor/bref/bref
@@ -16,8 +16,7 @@ functions:
         layers:
             - ${bref:layer.php-74-fpm}
         events:
-            -   http: 'ANY /'
-            -   http: 'ANY /{proxy+}'
+            -   httpApi: '*'
 
 # Exclude files from deployment
 package:

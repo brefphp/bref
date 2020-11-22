@@ -32,6 +32,11 @@ final class FpmHandler extends HttpHandler
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const PID_FILE = '/tmp/.bref/php-fpm.pid';
     private const CONFIG = '/opt/bref/etc/php-fpm.conf';
+    /**
+     * We define this constant instead of using the PHP one because that avoids
+     * depending on the pcntl extension.
+     */
+    private const SIGTERM = 15;
 
     /** @var Client|null */
     private $client;
@@ -189,9 +194,6 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context));
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext()));
 
-        /** @deprecated The LAMBDA_CONTEXT has been renamed to LAMBDA_REQUEST_CONTEXT for clarity */
-        $request->setCustomVar('LAMBDA_CONTEXT', json_encode($event->getRequestContext()));
-
         $contentType = $event->getContentType();
         if ($contentType) {
             $request->setContentType($contentType);
@@ -246,7 +248,7 @@ final class FpmHandler extends HttpHandler
         echo "PHP-FPM seems to be running already. This might be because Lambda stopped the bootstrap process but didn't leave us an opportunity to stop PHP-FPM (did Lambda timeout?). Stopping PHP-FPM now to restart from a blank slate.\n";
 
         // The previous PHP-FPM process is running, let's try to kill it properly
-        $result = posix_kill($pid, SIGTERM);
+        $result = posix_kill($pid, self::SIGTERM);
         if ($result === false) {
             echo "PHP-FPM's PID file contained a PID that doesn't exist, assuming PHP-FPM isn't running.\n";
             unlink(self::SOCKET);

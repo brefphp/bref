@@ -24,7 +24,7 @@ service: bref-demo-symfony
 provider:
     name: aws
     region: us-east-1
-    runtime: provided
+    runtime: provided.al2
     environment:
         # Symfony environment variables
         APP_ENV: prod
@@ -45,8 +45,7 @@ functions:
         layers:
             - ${bref:layer.php-74-fpm}
         events:
-            -   http: 'ANY /'
-            -   http: 'ANY /{proxy+}'
+            - httpApi: '*'
     console:
         handler: bin/console
         timeout: 120 # in seconds
