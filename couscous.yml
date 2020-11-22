@@ -20,7 +20,7 @@ scripts:
 
 menu:
     intro:
-        -   section: Introduction
+        -   section: Getting started
             items:
                 what-is-bref:
                     text: What is Bref and serverless?
