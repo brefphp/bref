@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors')
+
 module.exports = {
     theme: {
         fontFamily: {
@@ -19,6 +21,18 @@ module.exports = {
         },
         extend: {
             colors: {
+                orange: colors.orange,
+                gray: {
+                    100: '#f7fafc',
+                    200: '#edf2f7',
+                    300: '#e2e8f0',
+                    400: '#cbd5e0',
+                    500: '#a0aec0',
+                    600: '#718096',
+                    700: '#4a5568',
+                    800: '#2d3748',
+                    900: '#1a202c',
+                },
                 blue: {
                     900: '#25516A',
                     800: '#266488',
@@ -54,28 +68,10 @@ module.exports = {
                     800: '#73352E',
                     900: '#4D231F',
                 },
-                // primary: {
-                //     900: '#1A202C',
-                //     800: '#3D4852', // #2D3748
-                //     700: '#4A5568',
-                //     600: '#718096',
-                //     500: '#A0AEC0', // #A0AEC0
-                //     400: '#B8C2CC', // #CBD5E0
-                //     300: '#E5E5E5', // #E2E8F0
-                //     200: '#EDF2F7',
-                //     100: '#F7FAFC',
-                // },
             },
             fontSize: {
-                '7xl': '5rem',
-                '8xl': '6rem',
-                '9xl': '8rem',
-                '40px': '40px',
-                '22px': '22px',
-            },
-            spacing: {
-                '80': '20rem',
-                '96': '24rem',
+                '40px': ['40px', '60px'],
+                '22px': ['22px', '33px'],
             },
             maxWidth: {
                 '700px': '700px',
@@ -83,14 +79,4 @@ module.exports = {
         }
     },
     variants: {},
-    plugins: [
-        require('tailwind-css-variables')(
-            {
-                // modules
-            },
-            {
-                // options
-            }
-        )
-    ]
 };

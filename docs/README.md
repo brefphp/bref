@@ -85,15 +85,15 @@ This maturity level is a vague metric, however it can be useful to anticipate th
 
 This matrix will be updated as Bref and AWS services evolve over time.
 
-<table class="w-full text-xs sm:text-sm text-gray-700 mt-8 mb-5 table-fixed">
+<table class="text-xs sm:text-sm text-gray-700 table-fixed">
     <tr class="bg-gray-100">
         <th class="p-4"></th>
-        <th class="font-normal p-4 border-b border-gray-400">Simplicity</th>
-        <th class="font-normal p-4 border-b border-gray-400">Performance</th>
-        <th class="font-normal p-4 border-b border-gray-400">Reliability</th>
+        <th class="font-normal p-4">Simplicity</th>
+        <th class="font-normal p-4">Performance</th>
+        <th class="font-normal p-4">Reliability</th>
     </tr>
     <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">
+        <td class="p-4 bg-gray-100 font-bold">
             Jobs, Cron
         </td>
         <td class="p-4 text-center">
@@ -107,7 +107,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">API</td>
+        <td class="p-4 bg-gray-100 font-bold">API</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-400"></span>
         </td>
@@ -119,7 +119,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Website</td>
+        <td class="p-4 bg-gray-100 font-bold">Website</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-400"></span>
         </td>
@@ -131,7 +131,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Legacy application</td>
+        <td class="p-4 bg-gray-100 font-bold">Legacy application</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-orange-400"></span>
         </td>

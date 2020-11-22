@@ -100,7 +100,7 @@
                         {% endblock %}
 
                         {% if next is defined or previous is defined %}
-                            <div class="mt-12 mb-12 clearfix">
+                            <div class="mt-12 mb-12 flow-root">
                                 {% if previous is defined %}
                                     <a class="float-left mt-3" href="{{ previous.link }}" title="{{ previous.title|e('html_attr') }}">
                                         &#9664;
