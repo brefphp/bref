@@ -119,4 +119,10 @@ final class WebsocketEvent implements LambdaEvent
     {
         return $this->stage;
     }
+
+    public function getRegion(): string
+    {
+        [, , $region] = explode('.', $this->getDomainName(), 4);
+        return $region;
+    }
 }
