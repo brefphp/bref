@@ -50,7 +50,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
             'httpMethod' => 'GET',
             'path' => '/hello',
             'requestContext' => [
-                'path' => '/hello',
                 'protocol' => 'HTTP/1.1',
             ],
         ];
@@ -69,7 +68,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
-                'LAMBDA_REQUEST_CONTEXT' => '{"path":"\/hello","protocol":"HTTP\/1.1"}',
+                'LAMBDA_REQUEST_CONTEXT' => '{"protocol":"HTTP\/1.1"}',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -84,9 +83,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
             'version' => '1.0',
             'httpMethod' => 'GET',
             'path' => '/hello',
-            'requestContext' => [
-                'path' => '/hello',
-            ],
             'queryStringParameters' => [
                 'foo' => 'bar',
                 'bim' => 'baz',
@@ -113,7 +109,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
-                'LAMBDA_REQUEST_CONTEXT' => '{"path":"\/hello"}',
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -128,9 +124,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
             'version' => '1.0',
             'httpMethod' => 'GET',
             'path' => '/hello',
-            'requestContext' => [
-                'path' => '/hello',
-            ],
             // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
             'multiValueQueryStringParameters' => [
                 'foo[]' => ['bar', 'baz'],
@@ -174,7 +167,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
-                'LAMBDA_REQUEST_CONTEXT' => '{"path":"\/hello"}',
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -187,7 +180,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
             'httpMethod' => 'GET',
             'path' => '/hello',
             'requestContext' => [
-                'path' => '/hello',
                 'foo' => 'baz',
                 'baz' => 'far',
                 'data' => [
@@ -211,7 +203,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
-                'LAMBDA_REQUEST_CONTEXT' => '{"path":"\/hello","foo":"baz","baz":"far","data":{"recurse1":1,"recurse2":2}}',
+                'LAMBDA_REQUEST_CONTEXT' => '{"foo":"baz","baz":"far","data":{"recurse1":1,"recurse2":2}}',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
