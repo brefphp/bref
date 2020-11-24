@@ -114,10 +114,21 @@ final class HttpRequestEvent implements LambdaEvent
         }
 
         /**
-         * $event['requestContext']['path'] contains the real URL, including the stage prefix.
-         * $event['path'] contains the URL without the stage prefix.
+         * $event['path'] contains the URL always without the stage prefix.
+         * $event['requestContext']['path'] contains the URL always with the stage prefix.
+         * None of the represents the real URL because:
+         * - the native API Gateway URL has the stage (`/dev`)
+         * - with a custom domain, the URL doesn't have the stage (`/`)
+         * - with CloudFront in front of AG, the URL doesn't have the stage (`/`)
+         * Because it's hard to detect whether CloudFront is used, we will go with the "non-prefixed" URL ($event['path'])
+         * as it's the one most likely used in production (because in production we use custom domains).
+         * Since Bref now recommends HTTP APIs (that don't have a stage prefix), this problem will not be common anyway.
+         * Full history:
+         * - https://github.com/brefphp/bref/issues/67
+         * - https://github.com/brefphp/bref/issues/309
+         * - https://github.com/brefphp/bref/pull/794
          */
-        return $this->event['requestContext']['path'] ?? '/';
+        return $this->event['path'] ?? '/';
     }
 
     public function getUri(): string
