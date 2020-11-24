@@ -35,7 +35,7 @@ Enough with the fun stuff, what's new?
 
 - [**Lighter Lambda runtimes**](#lighter-runtimes) by moving some extensions to an extra layer, instead of embedding them by default.
 - [**Migration to Amazon Linux 2**](#amazon-linux-2), which will be required by AWS Lambda at the end of the year.
-- [**Huge documentation improvements**](#documentation-improvements): a reorganization, documentation of _typed handlers_, updates all over the place and a better onboarding experience.
+- [**Huge documentation improvements**](#documentation-improvements): a search bar, a reorganization, documentation of _typed handlers_, updates all over the place and a better onboarding experience.
 - [**New `vendor/bin/bref local` command**](#run-functions-locally) to run functions locally.
 - [**New projects will use API Gateway v2**](#api-gateway-v2) because they are simpler, cheaper and faster.
 
@@ -143,6 +143,15 @@ You can also check out [Serverless Visually Explained](https://serverless-visual
 </self-promo\>
 
 Finally, the [`BREF_LOOP_MAX` variable](/docs/environment/performances.md#bref-for-event-driven-functions) is now documented, for those ready to keep the PHP process alive between events to accelerate their workers.
+
+### Redesigning the header
+
+The website has been slightly redesigned:
+
+- a top menu bar has been introduced, to easily navigate between the home, documentation, news and GitHub repository,
+- a search field has been introduced 🎉
+
+Thanks to [Algolia DocSearch](https://docsearch.algolia.com/) for providing the search engine!
 
 ## Run functions locally
 
