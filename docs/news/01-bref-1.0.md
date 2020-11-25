@@ -21,28 +21,28 @@ And to celebrate, we're finally releasing **Bref 1.0**!
 
 ## 1 billion executions per month
 
-Thanks to [Bref ping](/docs/runtimes/#bref-ping), we have an anonymous estimate of Bref's usage, i.e. the amount of monthly invocations (HTTP requests, worker jobs, etc.) across all users.
+Thanks to [Bref ping](/docs/runtimes/#bref-ping), we have an anonymous estimate of Bref's usage, i.e. the number of monthly invocations (HTTP requests, worker jobs, etc.) across all users.
 
 It illustrates clearly that Bref is getting traction and is used in production, at scale:
 
 ![](01/executions.png)
 
-Since we passed 1 billion monthly invocations, I want to celebrate with you this amazing milestone and thank you for being a part of Bref's community.
+Since we passed 1 billion monthly invocations, I want to celebrate with you this fantastic milestone and thank you for being a part of Bref's community.
 
 ## Bref 1.0
 
 Enough with the fun stuff, what's new?
 
-- [**Lighter Lambda runtimes**](#lighter-runtimes) by moving some extensions to an extra layer, instead of embedding them by default.
+- [**Lighter Lambda runtimes**](#lighter-runtimes) by moving some extensions to an extra layer instead of embedding them by default.
 - [**Migration to Amazon Linux 2**](#amazon-linux-2), which will be required by AWS Lambda at the end of the year.
-- [**Huge documentation improvements**](#documentation-improvements): a search bar, a reorganization, documentation of _typed handlers_, updates all over the place and a better onboarding experience.
+- [**Huge documentation improvements**](#documentation-improvements): a search bar, a reorganization, documentation of _typed handlers_, updates all over the place, and a better onboarding experience.
 - [**New `vendor/bin/bref local` command**](#run-functions-locally) to run functions locally.
-- [**New projects will use API Gateway v2**](#api-gateway-v2) because they are simpler, cheaper and faster.
+- [**New projects will use API Gateway v2**](#api-gateway-v2) because they are simpler, cheaper, and faster.
 
 What did we break? **Nothing major**, the upgrade should be smooth. Here are the details:
 
 - PHP 7.2 is no longer supported. PHP 7.3 still is.
-- GD, Imagick, Redis, MongoDB extensions are not installed by default, you need to include them via [Bref extra extensions](https://github.com/brefphp/extra-php-extensions).
+- GD, Imagick, Redis, MongoDB extensions are no longer installed by default; you need to include them via [Bref extra extensions](https://github.com/brefphp/extra-php-extensions).
 - PHP is now compiled without ZTS (thread safety).
 - Removed the deprecated `lambda()` function.
 - Removed deprecated `vendor/bin/bref` commands:
@@ -131,7 +131,7 @@ return function ($event) {
 };
 ```
 
-But for months now, you can also create completely typed handler classes instead.
+But for months now, you can also create fully typed handler classes instead.
 This is now documented in the [**Typed PHP Lambda handlers**](/docs/function/handlers.md) page.
 
 You can now write asynchronous workers to process SQS queues, process uploaded files via S3 events, create decoupled microservices using EventBridge, etc.
