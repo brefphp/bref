@@ -81,6 +81,22 @@ class LambdaRuntimeTest extends TestCase
         $this->assertErrorInLogs('RuntimeException', 'This is an exception');
     }
 
+    public function test nested exceptions in the handler result in an invocation error()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $this->runtime->processNextEvent(function () {
+            throw new \RuntimeException('This is an exception', 0, new \RuntimeException('The previous exception.', 0, new \Exception('The original exception.')));
+        });
+
+        $this->assertInvocationErrorResult('RuntimeException', 'This is an exception');
+        $this->assertErrorInLogs('RuntimeException', 'This is an exception');
+        $this->assertPreviousErrorsInLogs([
+            ['errorClass' => 'RuntimeException', 'errorMessage' => 'The previous exception.'],
+            ['errorClass' => 'Exception', 'errorMessage' => 'The original exception.'],
+        ]);
+    }
+
     public function test an error is thrown if the runtime API returns a wrong response()
     {
         $this->expectExceptionMessage('Failed to fetch next Lambda invocation: The requested URL returned error: 404 Not Found');
@@ -391,6 +407,7 @@ ERROR;
         $this->assertNotEmpty($requestId);
 
         $invocationResult = json_decode($json, true);
+        unset($invocationResult['previous']);
         $this->assertSame([
             'errorType',
             'errorMessage',
@@ -399,5 +416,26 @@ ERROR;
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
         $this->assertIsArray($invocationResult['stack']);
+    }
+
+    private function assertPreviousErrorsInLogs(array $previousErrors)
+    {
+        // Decode the logs from stdout
+        $stdout = $this->getActualOutput();
+
+        [, , $json] = explode("\t", $stdout);
+
+        ['previous' => $previous] = json_decode($json, true);
+        $this->assertCount(count($previousErrors), $previous);
+        foreach ($previous as $index => $error) {
+            $this->assertSame([
+                'errorType',
+                'errorMessage',
+                'stack',
+            ], array_keys($error));
+            $this->assertEquals($previousErrors[$index]['errorClass'], $error['errorType']);
+            $this->assertEquals($previousErrors[$index]['errorMessage'], $error['errorMessage']);
+            $this->assertIsArray($error['stack']);
+        }
     }
 }

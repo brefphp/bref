@@ -193,15 +193,31 @@ final class LambdaRuntime
     private function signalFailure(string $invocationId, \Throwable $error): void
     {
         $stackTraceAsArray = explode(PHP_EOL, $error->getTraceAsString());
+        $errorFormatted = [
+            'errorType' => get_class($error),
+            'errorMessage' => $error->getMessage(),
+            'stack' => $stackTraceAsArray,
+        ];
+
+        if ($error->getPrevious() !== null) {
+            $previousError = $error;
+            $previousErrors = [];
+            do {
+                $previousError = $previousError->getPrevious();
+                $previousErrors[] = [
+                    'errorType' => get_class($previousError),
+                    'errorMessage' => $previousError->getMessage(),
+                    'stack' => explode(PHP_EOL, $previousError->getTraceAsString()),
+                ];
+            } while ($previousError->getPrevious() !== null);
+
+            $errorFormatted['previous'] = $previousErrors;
+        }
 
         // Log the exception in CloudWatch
         // We aim to use the same log format as what we can see when throwing an exception in the NodeJS runtime
         // See https://github.com/brefphp/bref/pull/579
-        echo $invocationId . "\tInvoke Error\t" . json_encode([
-            'errorType' => get_class($error),
-            'errorMessage' => $error->getMessage(),
-            'stack' => $stackTraceAsArray,
-        ]) . PHP_EOL;
+        echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
 
         // Send an "error" Lambda response
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
