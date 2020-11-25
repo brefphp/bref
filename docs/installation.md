@@ -46,7 +46,7 @@ Install Bref in your project using [Composer](https://getcomposer.org/):
 composer require bref/bref
 ```
 
-> Make sure that you have installed a version greater than or equal to 1.0.* of Bref.
+> Make sure that the version of Bref that was installed is 1.0 or greater.
 
 > To run the latest version of Bref you must have PHP 7.3 or greater! If you are using PHP 7.2 or less, an outdated version of Bref will be installed instead.
 

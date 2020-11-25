@@ -149,7 +149,7 @@ Finally, the [`BREF_LOOP_MAX` variable](/docs/environment/performances.md#bref-f
 The website has been slightly redesigned:
 
 - a top menu bar has been introduced, to easily navigate between the home, documentation, news and GitHub repository,
-- a search field has been introduced 🎉
+- a **search field** has been introduced 🎉
 
 Thanks to [Algolia DocSearch](https://docsearch.algolia.com/) for providing the search engine!
 
@@ -236,6 +236,18 @@ return function (array $event) {
 
 The deprecated `$_SERVER['LAMBDA_CONTEXT']` has been removed in favor of `$_SERVER['LAMBDA_REQUEST_CONTEXT']` (same content).
 
+## Thanks
+
+A huge thanks to the [100 Bref contributors](https://github.com/brefphp/bref/graphs/contributors), to the community for supporting the project, and to those sponsoring the development:
+
+- [Null](https://null.tc/)
+- [GeckoEngage](https://geckoengage.com/)
+- [Laravel](https://laravel.com/)
+- [JetBrains](https://www.jetbrains.com/)
+- [Twilio](https://www.twilio.com/)
+
+and [many others](https://github.com/sponsors/mnapoli#sponsors). Thank you all!
+
 ## That's it!
 
 Hope you enjoy it! And stay tuned for the AWS re:Invent conference next week!
@@ -244,5 +256,5 @@ You can also join the community [in Slack](/docs/community.md), post details abo
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
     <a href="/docs/" class="rounded-md shadow px-8 py-8 border text-center font-bold hover:bg-gray-100">What is Bref and serverless?</a>
-    <a href="/docs/first-steps.md" class="rounded-md shadow px-8 py-8 border text-center font-bold hover:bg-gray-100">Get started with Bref</a>
+    <a href="/docs/first-steps.html" class="rounded-md shadow px-8 py-8 border text-center font-bold hover:bg-gray-100">Get started with Bref</a>
 </div>

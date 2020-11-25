@@ -22,6 +22,8 @@ Starting in an empty directory, install Bref using Composer:
 composer require bref/bref
 ```
 
+> Make sure that the version of Bref that was installed is 1.0 or greater.
+
 Then let's start by initializing the project by running:
 
 ```
