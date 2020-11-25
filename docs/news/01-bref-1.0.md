@@ -17,7 +17,9 @@ Needless to say, **Bref is stable** and has been for a long time.
     Indeed, Bref runs more than 1 billion requests and jobs every month!
 </div>
 
-And to celebrate, we're finally releasing **Bref 1.0**!
+"Serverless PHP" is no longer a niche, and running scalable PHP applications has never been simpler.
+
+To celebrate, we're finally releasing **Bref 1.0**!
 
 ## 1 billion executions per month
 
