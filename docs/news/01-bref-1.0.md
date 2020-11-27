@@ -43,6 +43,7 @@ Enough with the fun stuff, what's new?
 
 What did we break? **Nothing major**, the upgrade should be smooth. Here are the details:
 
+- [You need to edit `serverless.yml`](#amazon-linux-2) to switch to `provided.al2`.
 - PHP 7.2 is no longer supported. PHP 7.3 still is.
 - GD, Imagick, Redis, MongoDB extensions are no longer installed by default; you need to include them via [Bref extra extensions](https://github.com/brefphp/extra-php-extensions).
 - PHP is now compiled without ZTS (thread safety).
