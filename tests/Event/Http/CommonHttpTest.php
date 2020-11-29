@@ -424,6 +424,18 @@ Year,Make,Model
         $this->assertMethod('OPTIONS');
     }
 
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test path parameters(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-path-parameters.json");
+        $this->assertPathParameters([
+            'bar' => 'abc',
+            'baz' => 'def',
+        ]);
+    }
+
     abstract protected function fromFixture(string $file): void;
 
     abstract protected function assertBody(string $expected): void;
@@ -468,4 +480,6 @@ Year,Make,Model
         int $size,
         string $content
     ): void;
+
+    abstract protected function assertPathParameters(array $expected): void;
 }

@@ -1,0 +1,41 @@
+{
+    "version": "2.0",
+    "routeKey": "GET /foo/{bar}/{baz}",
+    "rawPath": "/foo/bar/baz",
+    "rawQueryString": "",
+    "headers": {
+        "accept": "*/*",
+        "accept-encoding": "gzip, deflate",
+        "cache-control": "no-cache",
+        "host": "example.org",
+        "upgrade-insecure-requests": "1",
+        "user-agent": "PostmanRuntime/7.20.1",
+        "x-amzn-trace-id": "Root=1-ffffffff-ffffffffffffffffffffffff",
+        "x-forwarded-for": "1.1.1.1",
+        "x-forwarded-port": "443",
+        "x-forwarded-proto": "https"
+    },
+    "requestContext": {
+        "accountId": "123400000000",
+        "apiId": "xxxxxxxxxx",
+        "domainName": "example.org",
+        "domainPrefix": "0000000000",
+        "http": {
+            "method": "GET",
+            "path": "/foo/bar/baz",
+            "protocol": "HTTP/1.1",
+            "sourceIp": "1.1.1.1",
+            "userAgent": "PostmanRuntime/7.20.1"
+        },
+        "requestId": "Wx7DAi1JiYcEPyg=",
+        "routeKey": "GET /foo/{bar}/{baz}",
+        "stage": "$default",
+        "time": "29/Nov/2020:17:20:57 +0000",
+        "timeEpoch": 1606670457514
+    },
+    "pathParameters": {
+        "bar": "abc",
+        "baz": "def"
+    },
+    "isBase64Encoded": false
+}
