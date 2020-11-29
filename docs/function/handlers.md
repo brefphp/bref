@@ -203,6 +203,12 @@ functions:
             - httpApi: 'GET /articles/{id}'
 ```
 
+Note that path parameters (e.g. `{id}` in the example above) are available as request attributes in the PSR-7 request:
+
+```php
+$id = $request->getAttribute('id');
+```
+
 [Full reference of HTTP events in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/http-api/).
 
 ## Websocket events

@@ -182,6 +182,14 @@ final class HttpRequestEvent implements LambdaEvent
         return $cookies;
     }
 
+    /**
+     * @return array<string,string>
+     */
+    public function getPathParameters(): array
+    {
+        return $this->event['pathParameters'] ?? [];
+    }
+
     private function rebuildQueryString(): string
     {
         if ($this->payloadVersion === 2.0) {

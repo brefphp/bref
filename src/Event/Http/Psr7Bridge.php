@@ -56,6 +56,10 @@ final class Psr7Bridge
             $server
         );
 
+        foreach ($event->getPathParameters() as $key => $value) {
+            $request = $request->withAttribute($key, $value);
+        }
+
         return $request->withUploadedFiles($files)
             ->withCookieParams($event->getCookies())
             ->withQueryParams($event->getQueryParameters())

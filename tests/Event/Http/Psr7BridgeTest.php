@@ -145,4 +145,11 @@ class Psr7BridgeTest extends CommonHttpTest
         $this->assertEquals($size, $uploadedFile->getSize());
         $this->assertEquals($content, $uploadedFile->getStream()->getContents());
     }
+
+    protected function assertPathParameters(array $expected): void
+    {
+        $parameters = $this->request->getAttributes();
+        unset($parameters['lambda-event'], $parameters['lambda-context']);
+        $this->assertEquals($expected, $parameters);
+    }
 }

@@ -119,4 +119,9 @@ class HttpRequestEventTest extends CommonHttpTest
     ): void {
         // Not applicable here since the class doesn't parse the body
     }
+
+    protected function assertPathParameters(array $expected): void
+    {
+        $this->assertEquals($expected, $this->event->getPathParameters());
+    }
 }
