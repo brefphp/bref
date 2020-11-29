@@ -13,6 +13,8 @@ class ServerlessPlugin {
         const filename = path.resolve(__dirname, 'layers.json');
         const layers = JSON.parse(fs.readFileSync(filename));
 
+        this.checkCompatibleRuntime(serverless);
+
         // Override the variable resolver to declare our own variables
         const delegate = serverless.variables
             .getValueFromSource.bind(serverless.variables);
@@ -31,6 +33,17 @@ class ServerlessPlugin {
             }
 
             return delegate(variableString);
+        }
+    }
+
+    checkCompatibleRuntime(serverless) {
+        if (serverless.service.provider.runtime === 'provided') {
+            throw new Error('Bref 1.0 layers are not compatible with the "provided" runtime. To upgrade to Bref 1.0, you have to switch to "provided.al2" in serverless.yml. More details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2');
+        }
+        for (const [name, f] of Object.entries(serverless.service.functions)) {
+            if (f.runtime === 'provided') {
+                throw new Error(`Bref 1.0 layers are not compatible with the "provided" runtime. To upgrade to Bref 1.0, you have to switch to "provided.al2" in serverless.yml for the function "${name}". More details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2`);
+            }
         }
     }
 }
