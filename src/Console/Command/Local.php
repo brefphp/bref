@@ -21,6 +21,10 @@ class Local
 
     public function __invoke(?string $function, ?string $data, ?string $file, ?string $handler, ?string $config, SymfonyStyle $io): int
     {
+        if ($function === null && $handler === null) {
+            throw new Exception('Please provide a function name or the --handler= option.');
+        }
+        
         if ($function && $data && $handler) {
             throw new Exception('You cannot provide both a funtion name and the --handler= option.');
         }
@@ -88,7 +92,7 @@ class Local
             throw new Exception("No `serverless.yml` file was found to resolve function $function.\nIf you do not use serverless.yml, pass the handler via the `--handler` option: vendor/bin/bref local --handler=file.php\nIf your serverless.yml file is stored elsewhere, use the `--config` option: vendor/bin/bref local --config=foo/serverless.yml");
         }
 
-        $serverlessConfig = Yaml::parseFile($file);
+        $serverlessConfig = Yaml::parseFile($file, Yaml::PARSE_CUSTOM_TAGS);
 
         if (! isset($serverlessConfig['functions'][$function])) {
             throw new Exception("There is no function named '$function' in serverless.yml");
