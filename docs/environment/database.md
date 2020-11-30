@@ -115,38 +115,16 @@ You can learn more about limitations and guidelines from the AWS documentation a
 
 ## Accessing the database from your machine
 
-Since the database is in a VPC, it cannot be accessed from the outside (i.e. the internet). You cannot connect to your database with MySQL Workbench or other administration tools.
+A database in a VPC cannot be accessed from the outside, i.e. the internet. You cannot connect to it via tools like MySQL Workbench.
 
-When creating a new project, the database can be set up through several means:
+Here are some solutions:
 
-- via a lambda that loads a SQL dump into the database (for example a [console lambda](/docs/runtimes/console.md))
-- by temporarily exposing the database on the internet
+- run tasks on Lambda, for example to import a SQL dump, to debug some data…
+- **insecure**: connect from your computer by exposing the database on the internet
+- **secure**: connect from your computer via a SSH tunnel
 
-**Exposing your database to the internet is risky** and should only be done for a few minutes or hours (for example to load a SQL dump).
+To create an SSH tunnel easily and securely, **[check out 7777](https://port7777.com/?utm_source=bref)**, made by Bref maintainers:
 
-> The Bref team is building a simpler and more secure alternative: [7777](https://port7777.com/), a CLI tool that makes RDS databases securely reachable from your computer in seconds.
->
-> This is coming soon, check out [port7777.com](https://port7777.com/) to learn more.
+[![](https://port7777.com/img/7777-social.png)](https://port7777.com/?utm_source=bref)
 
-To do so, open your RDS instance in the [RDS console](https://console.aws.amazon.com/rds/home#databases:):
-
-- click "Modify"
-- enable "Public accessibility"
-- click "Continue"
-- select "Apply immediately" (**do not skip this step**)
-- click "Modify DB Instance"
-
-Now click the *security group* of the instance:
-
-- open the "Inbound" tab
-- click "Edit"
-- add a rule: select "MySQL/Aurora" (or PostgreSQL) and set "Anywhere" as the source (you could also set your public IP for increased security)
-- save
-
-Connect to your database using your favorite tool. For example using `mysql` in the CLI:
-
-```bash
-mysql -h<endpoint> -u<root user> -p <database>
-```
-
-**Remember to revert those changes once you are done!**
+To expose the database publicly on the internet, [follow this guide](database-public.md).
