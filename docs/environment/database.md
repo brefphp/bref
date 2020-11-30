@@ -18,7 +18,7 @@ Here are some of the database services offered by RDS:
 All RDS databases can be setup with Lambda in two ways:
 
 1. the database can be made publicly accessible and protected by a username and password
-2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/fr/vpc/))
+2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/vpc/))
 
 > Note that Aurora Serverless [cannot be made publicly accessible](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html), only the second option is possible.
 
@@ -34,7 +34,7 @@ This page documents how to create databases using VPC (the reliable and secure s
 
 ### Accessing the internet
 
-A database inside a [VPC](https://aws.amazon.com/fr/vpc/) is isolated from the internet. Since a lambda function must run in the VPC to access the database, it cannot access the internet (for example external APIs) or most other AWS services.
+A database inside a [VPC](https://aws.amazon.com/vpc/) is isolated from the internet. Since a lambda function must run in the VPC to access the database, it cannot access the internet (for example external APIs) or most other AWS services.
 
 To enable internet access for a lambda you will need to create a NAT Gateway in the VPC: you can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12).
 

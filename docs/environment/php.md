@@ -24,7 +24,7 @@ PHP will automatically include any `*.ini` file found in `php/conf.d/` in your p
 
 ### Customizing php.ini using a custom path
 
-If you want PHP to scan a different directory than `php/conf.d/` in your project, you can override the path by setting it in the [`PHP_INI_SCAN_DIR`](http://php.net/manual/fr/configuration.file.php#configuration.file.scan) environment variable.
+If you want PHP to scan a different directory than `php/conf.d/` in your project, you can override the path by setting it in the [`PHP_INI_SCAN_DIR`](http://php.net/manual/configuration.file.php#configuration.file.scan) environment variable.
 
 > `PHP_INI_SCAN_DIR` must contain an absolute path. Since your code is placed in `/var/task` on AWS Lambda, the environment variable should contain something like `/var/task/my/different/dir`.
 

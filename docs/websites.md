@@ -292,7 +292,7 @@ resources:
                     ViewerCertificate:
                         # ARN of the certificate created in ACM
                         AcmCertificateArn: <certificate-arn>
-                        # See https://docs.aws.amazon.com/fr_fr/cloudfront/latest/APIReference/API_ViewerCertificate.html
+                        # See https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_ViewerCertificate.html
                         SslSupportMethod: 'sni-only'
                         MinimumProtocolVersion: TLSv1.1_2016
 ```
