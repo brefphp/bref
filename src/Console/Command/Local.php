@@ -73,6 +73,11 @@ class Local
             $invoker = new Invoker;
             $result = $invoker->invoke($handler, $event, new Context($requestId, 0, '', ''));
         } catch (Throwable $e) {
+            $io->writeln([
+                get_class($e) . ': ' . $e->getMessage(),
+                'Stack trace:',
+                $e->getTraceAsString(),
+            ]);
             $io->error($e->getMessage());
             return 1;
         }
