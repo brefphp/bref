@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Flows Dev
+Description: New Relic Daemon
 Parameters:
   OfficeCidr:
     Description: Network access allowed from office CIDR
