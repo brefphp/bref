@@ -6,6 +6,6 @@ contact_links:
     - name: Professional support
       url: https://bref.sh/#enterprise
       about: Get in touch with Null, the company behind Bref.
-    - name: Feature idea
-      url: https://github.com/brefphp/bref/discussions?discussions_q=category%3AIdeas
-      about: Discuss new features and other ideas in GitHub Discussions.
+    - name: Sponsor a feature
+      url: https://bref.sh/#enterprise
+      about: Sponsor the development of a new feature you want to see in Bref.
