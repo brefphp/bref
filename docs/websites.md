@@ -166,8 +166,7 @@ functions:
         layers:
             - ${bref:layer.php-74-fpm}
         events:
-            -   http: 'ANY /'
-            -   http: 'ANY {proxy+}'
+            - httpApi: '*'
 
 plugins:
     - ./vendor/bref/bref
@@ -187,17 +186,21 @@ resources:
                     Enabled: true
                     # Cheapest option by default (https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_DistributionConfig.html)
                     PriceClass: PriceClass_100
-                    # Enable http2 transfer for better performance
+                    # Enable http2 transfer for better performances
                     HttpVersion: http2
                     # Origins are where CloudFront fetches content
                     Origins:
                         # The website (AWS Lambda)
                         -   Id: Website
-                            DomainName: !Join ['.', [!Ref ApiGatewayRestApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com']]
-                            # This is the stage
-                            OriginPath: "/${opt:stage, 'dev'}"
+                            DomainName: !Join ['.', [!Ref HttpApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com']]
                             CustomOriginConfig:
                                 OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
+                            # CloudFront does not forward the original `Host` header. We use this
+                            # to forward the website domain name to PHP via the `X-Forwarded-Host` header.
+                            # Learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
+                            #OriginCustomHeaders:
+                            #    -   HeaderName: 'X-Forwarded-Host'
+                            #        HeaderValue: example.com # our custom domain
                         # The assets (S3)
                         -   Id: Assets
                             DomainName: !GetAtt Assets.RegionalDomainName
@@ -225,9 +228,12 @@ resources:
                             # We must *not* forward the `Host` header else it messes up API Gateway
                             Headers:
                                 - 'Accept'
+                                - 'Accept-Encoding'
                                 - 'Accept-Language'
+                                - 'Authorization'
                                 - 'Origin'
                                 - 'Referer'
+                        # CloudFront will force HTTPS on visitors (which is more secure)
                         ViewerProtocolPolicy: redirect-to-https
                     CacheBehaviors:
                         # Assets will be served under the `/assets/` prefix
@@ -242,7 +248,7 @@ resources:
                             ViewerProtocolPolicy: redirect-to-https
                             Compress: true # Serve files with gzip for browsers that support it (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html)
                     CustomErrorResponses:
-                        # Do not cache HTTP errors
+                        # Force CloudFront to not cache HTTP errors
                         -   ErrorCode: 500
                             ErrorCachingMinTTL: 0
                         -   ErrorCode: 504
