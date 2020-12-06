@@ -8,7 +8,15 @@ error_reporting(E_ALL);
 
 $appRoot = getenv('LAMBDA_TASK_ROOT');
 
-if (getenv('BREF_AUTOLOAD_PATH')) {
+if (getenv('BREF_DOWNLOAD_VENDOR')) {
+    if(! file_exists('/tmp/vendor') || ! file_exists('/tmp/vendor/autoload.php')) {
+        require_once '/opt/bref/breftoolbox.php';
+
+        \Bref\ToolBox\BrefToolBox::downloadAndConfigureVendor();
+    }
+
+    require '/tmp/vendor/autoload.php';
+} elseif (getenv('BREF_AUTOLOAD_PATH')) {
     /** @noinspection PhpIncludeInspection */
     require getenv('BREF_AUTOLOAD_PATH');
 } else {

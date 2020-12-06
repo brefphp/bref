@@ -177,3 +177,14 @@ provider:
 ```
 
 The path must start with `/var/task`, which is the directory where projects are installed on AWS Lambda.
+
+## Separate vendor folder
+
+Bref has the ability to shrink the Lambda deployment archive by separating the vendor folder from the applications code and injecting it later on into the Lambda function. This allows Bref to circumvent Lambda file size limitations.
+
+By setting the option `separateVendor` in the `custom` block to `true`, you can enable this feature.
+
+```yaml
+custom:
+    separateVendor: true
+```
