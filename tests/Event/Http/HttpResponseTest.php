@@ -79,4 +79,20 @@ class HttpResponseTest extends TestCase
             'body' => '',
         ], $response->toApiGatewayFormat(true));
     }
+
+    public function test cookie header conversion to API Gateway format version 2()
+    {
+        $response = new HttpResponse('', [
+            'set-cookie' => ['bar', 'baz'],
+            'x-foo-bar' => 'baz',
+        ]);
+
+        self::assertEquals([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => ['X-Foo-Bar' => 'baz'],
+            'cookies' => ['bar', 'baz'],
+            'body' => '',
+        ], $response->toApiGatewayFormat());
+    }
 }

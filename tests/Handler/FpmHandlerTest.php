@@ -1018,9 +1018,12 @@ Year,Make,Model
 
     public function test response with cookies()
     {
-        $cookieHeader = $this->get('cookies.php')['headers']['Set-Cookie'];
-
-        self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
+        $cookieHeader = $this->get('cookies.php', [
+            'version' => '1.0',
+            'httpMethod' => 'GET',
+        ])['cookies'];
+        self::assertEquals('MyCookie=FirstValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
+        self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
     }
 
     public function test response with multiple cookies with multiheader()

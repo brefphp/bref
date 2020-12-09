@@ -287,7 +287,9 @@ final class FpmHandler extends HttpHandler
             // If we are not in "multi-header" mode, we must keep the last value only
             // and cast it to string
             foreach ($responseHeaders as $key => $value) {
-                $responseHeaders[$key] = end($value);
+                if ($key !== 'Set-Cookie') {
+                    $responseHeaders[$key] = end($value);
+                }
             }
         }
 

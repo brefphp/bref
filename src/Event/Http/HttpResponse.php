@@ -39,8 +39,13 @@ final class HttpResponse
                 // Make sure the values are always arrays
                 $headers[$name] = is_array($values) ? $values : [$values];
             } else {
-                // Make sure the values are never arrays
-                $headers[$name] = is_array($values) ? end($values) : $values;
+                if ($name === 'Set-Cookie') {
+                     // Support for multiple cookies in http payload version 2.0
+                    $cookies = is_array($values) ? $values : [$values];
+                } else {
+                    // Make sure the values are never arrays
+                    $headers[$name] = is_array($values) ? end($values) : $values;
+                }
             }
         }
 
@@ -53,11 +58,17 @@ final class HttpResponse
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
-        return [
+        $response = [
             'isBase64Encoded' => $base64Encoding,
             'statusCode' => $this->statusCode,
             $headersKey => $headers,
             'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
         ];
+
+        if (isset($cookies)) {
+            $response['cookies'] = $cookies;
+        }
+
+        return $response;
     }
 }
