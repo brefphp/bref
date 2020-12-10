@@ -32,7 +32,11 @@ use const CURLOPT_FILE;
 use const CURLOPT_FOLLOWLOCATION;
 use const CURLOPT_HEADER;
 
-class BrefToolBox {
+/**
+ * @internal
+ */
+class BrefToolBox
+{
     /**
      * Path to autoload_static.php file from composer
      */
@@ -61,7 +65,7 @@ class BrefToolBox {
             self::EXTRACTION_PATH
         );
 
-        if(! $unzipped) {
+        if (!$unzipped) {
             throw new Exception('Unable to unzip vendor archive.');
         }
 
@@ -72,10 +76,6 @@ class BrefToolBox {
 
     /**
      * Download vendor archive from s3 bucket
-     *
-     * @param string $s3String
-     * @param string $downloadPath
-     * @return void
      */
     private static function downloadVendorArchive(string $s3String, string $downloadPath): void
     {
@@ -93,7 +93,7 @@ class BrefToolBox {
             $filePath
         );
 
-        if(file_exists($downloadPath)) {
+        if (file_exists($downloadPath)) {
             unlink($downloadPath);
         }
 
@@ -115,38 +115,28 @@ class BrefToolBox {
     /**
      * Create S3 signed url to download vendor archive from
      * From https://gist.github.com/anthonyeden/4448695ad531016ec12bcdacc9d91cb8
-     *
-     * @param $AWSAccessKeyId
-     * @param $AWSSecretAccessKey
-     * @param $AWSSessionToken
-     * @param $BucketName
-     * @param $AWSRegion
-     * @param $canonical_uri
-     * @param int $expires
-     * @return string
      */
     private static function AWS_S3_PresignDownload(
-        $AWSAccessKeyId,
-        $AWSSecretAccessKey,
-        $AWSSessionToken,
-        $BucketName,
-        $AWSRegion,
-        $canonical_uri,
-        $expires = 86400
-    ): string
-    {
+        string $AWSAccessKeyId,
+        string $AWSSecretAccessKey,
+        string $AWSSessionToken,
+        string $BucketName,
+        string $AWSRegion,
+        string $canonical_uri,
+        int $expires = 86400
+    ): string {
         // Creates a signed download link for an AWS S3 file
         // Based on https://gist.github.com/kelvinmo/d78be66c4f36415a6b80
 
         $encoded_uri = str_replace('%2F', '/', rawurlencode($canonical_uri));
 
         // Specify the hostname for the S3 endpoint
-        if($AWSRegion == 'us-east-1') {
-            $hostname = trim($BucketName .".s3.amazonaws.com");
+        if ($AWSRegion == 'us-east-1') {
+            $hostname = trim($BucketName . ".s3.amazonaws.com");
             $header_string = "host:" . $hostname . "\n";
             $signed_headers_string = "host";
         } else {
-            $hostname =  trim($BucketName . ".s3-" . $AWSRegion . ".amazonaws.com");
+            $hostname = trim($BucketName . ".s3-" . $AWSRegion . ".amazonaws.com");
             $header_string = "host:" . $hostname . "\n";
             $signed_headers_string = "host";
         }
@@ -178,7 +168,8 @@ class BrefToolBox {
         $query_string = substr($query_string, 0, -1);
 
         $canonical_request = "GET\n" . $encoded_uri . "\n" . $query_string . "\n" . $header_string . "\n" . $signed_headers_string . "\nUNSIGNED-PAYLOAD";
-        $string_to_sign = $algorithm . "\n" . $time_text . "\n" . $scope . "\n" . hash('sha256', $canonical_request, false);
+        $string_to_sign = $algorithm . "\n" . $time_text . "\n" . $scope . "\n" . hash('sha256', $canonical_request,
+                false);
         $signing_key = hash_hmac('sha256', 'aws4_request',
             hash_hmac('sha256', 's3',
                 hash_hmac('sha256', $AWSRegion,
@@ -194,17 +185,13 @@ class BrefToolBox {
 
     /**
      * Unzip vendor archive into temporary path
-     *
-     * @param string $filePath
-     * @param string $unzipPath
-     * @return bool
      */
     private static function unzipVendorArchive(string $filePath, string $unzipPath): bool
     {
         $zip = new ZipArchive();
         $resource = $zip->open($filePath);
 
-        if(! file_exists($unzipPath)) {
+        if (!file_exists($unzipPath)) {
             mkdir($unzipPath, 0755, true);
         }
 
@@ -220,8 +207,6 @@ class BrefToolBox {
 
     /**
      * Update composer autoload_static.php file with correct path for Lambda task root
-     *
-     * @return void
      */
     private static function updateComposerAutoloading(): void
     {

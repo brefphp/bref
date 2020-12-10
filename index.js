@@ -66,12 +66,16 @@ class ServerlessPlugin {
         const vendorZipHash = await this.createZipFile();
         this.newVendorZipName = vendorZipHash + '.zip';
 
+        // If the serverless config does not yet contain an exclude for the vendor folder
+        // we will add it here as we do not want the vendor folder in our
+        // lambda archive file.
         let excludes = this.serverless.service.package.exclude;
         if(excludes.indexOf('vendor/**') === -1) {
             excludes[excludes.length] = 'vendor/**';
         }
 
-        //let iamRoleStatements = this.serverless.service.provider.iamRoleStatements;
+        // This defines the access rights for Lambda, so it can download the
+        // vendor archive file from the vendors subfolder.
         const roleDetails = {
             'Effect': 'Allow',
             'Action': [
@@ -101,6 +105,7 @@ class ServerlessPlugin {
 
         this.consoleLog('Setting environment variables.');
 
+        // This environment variable will trigger Bref to download the zip on cold start
         this.serverless.service.provider.environment.BREF_DOWNLOAD_VENDOR = {
             'Fn::Join': [
                 '',
@@ -123,7 +128,7 @@ class ServerlessPlugin {
             const archiver = require(process.mainModule.path + '/../node_modules/archiver');
             const output = this.fs.createWriteStream(this.filePath);
             const archive = archiver('zip', {
-                zlib: { level: 9 } // Sets the compression level.
+                zlib: { level: 9 } // Highest compression level.
             });
 
             this.consoleLog(`Packaging the Composer vendor directory in ${this.filePath}.`);
@@ -143,7 +148,7 @@ class ServerlessPlugin {
                     console.warn('Archiver warning', err);
                 } else {
                     // throw error
-                    console.error('Archiver warning', err);
+                    console.error('Archiver error', err);
                     reject(err);
                 }
             });
@@ -154,6 +159,9 @@ class ServerlessPlugin {
             });
         })
             .then(() => {
+                // We will rename vendor.zip to a unique name to:
+                // - avoid overwriting zips from previous deployments running in production
+                // - avoid deploying vendor.zip with exactly the same contents
                 const crypto = require('crypto');
 
                 return new Promise(resolve => {
@@ -167,6 +175,10 @@ class ServerlessPlugin {
     }
 
     async uploadVendorZip() {
+        if(! this.serverless.service.custom.bref.separateVendor) {
+            return;
+        }
+
         await this.uploadZipToS3(this.filePath);
 
         this.consoleLog('Vendor separation done!');
@@ -206,6 +218,10 @@ class ServerlessPlugin {
         return path.replace(/^\/+/g, '');
     }
 
+    /**
+     * CloudFormation cannot delete a bucket that contains files.
+     * That's why we clean up the vendor zip files when `serverless remove` is being run.
+     */
     async removeVendorArchives() {
         this.consoleLog('Removing vendor archives from S3 bucket.');
 
@@ -218,7 +234,7 @@ class ServerlessPlugin {
         })
 
         if(bucketObjects.length === 0) {
-            this.consoleLog('No vendor archives found.');
+            this.consoleLog('No vendor archives found, all is good.');
             return;
         }
 
