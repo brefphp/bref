@@ -76,12 +76,14 @@ class ServerlessPlugin {
 
         // This defines the access rights for Lambda, so it can download the
         // vendor archive file from the vendors subfolder.
-        const roleDetails = {
-            'Effect': 'Allow',
-            'Action': [
+        this.serverless.service.provider.iamRoleStatements = this.serverless.service.provider.iamRoleStatements ? this.serverless.service.provider.iamRoleStatements : [];
+
+        this.serverless.service.provider.iamRoleStatements.push({
+            Effect: 'Allow',
+            Action: [
                 's3:GetObject',
             ],
-            'Resource': [
+            Resource: [
                 {
                     'Fn::Join': [
                         '',
@@ -96,12 +98,7 @@ class ServerlessPlugin {
                     ]
                 }
             ]
-        };
-
-        let resources = this.serverless.service.provider.coreCloudFormationTemplate.Resources;
-        resources[resources.length] = {
-            'ServerlessDeploymentBucketLambdaAccessPolicy': roleDetails
-        };
+        });
 
         this.consoleLog('Setting environment variables.');
 
