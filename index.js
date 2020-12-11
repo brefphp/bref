@@ -40,7 +40,11 @@ class ServerlessPlugin {
             return delegate(variableString);
         }
 
+        // Check if bref custom directive is set, otherwise initialize it with empty object
+        this.serverless.service.custom.bref = this.serverless.service.custom.bref ? this.serverless.service.custom.bref : {};
+
         this.hooks = {
+            'before:package:setupProviderConfiguration': this.addCustomIamRoleForVendorArchiveDownload.bind(this),
             'package:setupProviderConfiguration': this.createVendorZip.bind(this),
             'after:aws:deploy:deploy:createStack': this.uploadVendorZip.bind(this),
             'before:remove:remove': this.removeVendorArchives.bind(this)
@@ -58,13 +62,10 @@ class ServerlessPlugin {
         }
     }
 
-    async createVendorZip() {
+    addCustomIamRoleForVendorArchiveDownload() {
         if(! this.serverless.service.custom.bref.separateVendor) {
             return;
         }
-
-        const vendorZipHash = await this.createZipFile();
-        this.newVendorZipName = vendorZipHash + '.zip';
 
         // If the serverless config does not yet contain an exclude for the vendor folder
         // we will add it here as we do not want the vendor folder in our
@@ -99,6 +100,15 @@ class ServerlessPlugin {
                 }
             ]
         });
+    }
+
+    async createVendorZip() {
+        if(! this.serverless.service.custom.bref.separateVendor) {
+            return;
+        }
+
+        const vendorZipHash = await this.createZipFile();
+        this.newVendorZipName = vendorZipHash + '.zip';
 
         this.consoleLog('Setting environment variables.');
 
@@ -225,10 +235,17 @@ class ServerlessPlugin {
         const bucketName = await this.provider.getServerlessDeploymentBucketName();
         const deploymentPrefix = await this.provider.getDeploymentPrefix();
 
-        const bucketObjects = await this.provider.request('S3', 'listObjectsV2', {
-            Bucket: bucketName,
-            Prefix: this.stripSlashes(deploymentPrefix + '/vendors/')
-        })
+        let bucketObjects = [];
+        try {
+            bucketObjects = await this.provider.request('S3', 'listObjectsV2', {
+                Bucket: bucketName,
+                Prefix: this.stripSlashes(deploymentPrefix + '/vendors/')
+            });
+        } catch(e) {
+            this.consoleLog('Bucket not found, nothing to delete, all is good.');
+            return;
+        }
+
 
         if(bucketObjects.length === 0) {
             this.consoleLog('No vendor archives found, all is good.');
