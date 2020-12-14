@@ -121,7 +121,7 @@ ENV INSTALL_DIR="/opt/bref"
 # NewRelic agent
 ARG NEW_RELIC_AGENT_VERSION=9.11.0.267
 ARG NEW_RELIC_LICENSE_KEY=485399637409f4456a3f66db12c8377c50fa3549
-ARG NEW_RELIC_APPNAME='Quoting Portal'
+ARG NEW_RELIC_APPNAME='QuotingPortal'
 ARG NEW_RELIC_DAEMON_ADDRESS=portal-newrelic.clariondoor.com:31339
 
 RUN curl -L "https://download.newrelic.com/php_agent/archive/${NEW_RELIC_AGENT_VERSION}/newrelic-php5-${NEW_RELIC_AGENT_VERSION}-linux.tar.gz" | tar -C /tmp -zx \
