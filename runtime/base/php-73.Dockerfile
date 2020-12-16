@@ -122,7 +122,7 @@ ENV INSTALL_DIR="/opt/bref"
 ARG NEW_RELIC_AGENT_VERSION=9.11.0.267
 ARG NEW_RELIC_LICENSE_KEY='[INSERT YOUR LICENSE KEY]'
 ARG NEW_RELIC_APPNAME='[INSERT YOUR APP NAME]'
-#ARG NEW_RELIC_DAEMON_ADDRESS=portal-newrelic.clariondoor.com:31339
+ARG NEW_RELIC_DAEMON_ADDRESS=portal-newrelic.clariondoor.com:31339
 
 RUN curl -L "https://download.newrelic.com/php_agent/archive/${NEW_RELIC_AGENT_VERSION}/newrelic-php5-${NEW_RELIC_AGENT_VERSION}-linux.tar.gz" | tar -C /tmp -zx \
  && export NR_INSTALL_USE_CP_NOT_LN=1 \
@@ -135,11 +135,11 @@ RUN echo extension = "newrelic.so" >> ${INSTALL_DIR}/etc/php/php.ini && \
     echo newrelic.appname = "${NEW_RELIC_APPNAME}" >> ${INSTALL_DIR}/etc/php/php.ini && \
     echo newrelic.license = "${NEW_RELIC_LICENSE_KEY}" >> ${INSTALL_DIR}/etc/php/php.ini && \
     echo newrelic.logfile = "/dev/stderr" >> ${INSTALL_DIR}/etc/php/php.ini && \
-    echo newrelic.loglevel = "verbosedebug" >> ${INSTALL_DIR}/etc/php/php.ini && \
+    echo newrelic.loglevel = "error" >> ${INSTALL_DIR}/etc/php/php.ini && \
     echo newrelic.daemon.dont_launch = "3" >> ${INSTALL_DIR}/etc/php/php.ini
 
 RUN mkdir -p ${INSTALL_DIR}/etc/newrelic && \
-  echo "loglevel=debug" > ${INSTALL_DIR}/etc/newrelic/newrelic.cfg && \
+  echo "loglevel=error" > ${INSTALL_DIR}/etc/newrelic/newrelic.cfg && \
   echo "logfile=/dev/stderr" >> ${INSTALL_DIR}/etc/newrelic/newrelic.cfg && \
   echo "wait_for_port=0" >> ${INSTALL_DIR}/etc/newrelic/newrelic.cfg
 
