@@ -25,7 +25,7 @@ class Local
             throw new Exception('Please provide a function name or the --handler= option.');
         }
         if ($function && $data && $handler) {
-            throw new Exception('You cannot provide both a funtion name and the --handler= option.');
+            throw new Exception('You cannot provide both a function name and the --handler= option.');
         }
 
         if ($config !== null && ! file_exists($config)) {
