@@ -129,7 +129,7 @@ RUN /tmp/clean.sh && rm /tmp/clean.sh
 # Now we start back from a clean image.
 # We get rid of everything that is unnecessary (build tools, source code, and anything else
 # that might have created intermediate layers for docker) by copying online the /opt directory.
-FROM lambci/lambda:build-provided.al2
+FROM public.ecr.aws/lambda/provided:al2
 ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/bref/lib64:/opt/bref/lib"
 

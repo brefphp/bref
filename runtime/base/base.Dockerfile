@@ -6,7 +6,7 @@
 # https://docs.aws.amazon.com/lambda/latest/dg/current-supported-versions.html
 # AWS provides it a Docker image that we use here:
 # https://github.com/amazonlinux/container-images/tree/amzn2
-FROM amazonlinux:2
+FROM public.ecr.aws/lambda/provided:al2
 
 
 # Move to /tmp to compile everything in there.
@@ -28,7 +28,7 @@ RUN set -xe \
 # our libraries, and at least one library requires a version of cmake greater than that.
 #
 # Needed to build:
-# - libzip: minimum required CMAKE version 3.0.2
+# - libzip: minimum required CMAKE version 3.0.
 RUN LD_LIBRARY_PATH= yum install -y cmake3
 RUN ln -s /usr/bin/cmake3 /usr/bin/cmake
 
