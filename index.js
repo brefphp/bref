@@ -41,6 +41,7 @@ class ServerlessPlugin {
         }
 
         // Check if bref custom directive is set, otherwise initialize it with empty object
+        this.serverless.service.custom = this.serverless.service.custom ? this.serverless.service.custom : {};
         this.serverless.service.custom.bref = this.serverless.service.custom.bref ? this.serverless.service.custom.bref : {};
 
         this.hooks = {
