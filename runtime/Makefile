@@ -13,7 +13,15 @@ export/php%.zip: docker-images
 	PHP_VERSION=$$(echo $@ | cut -d'/' -f 2 | cut -d'.' -f 1);\
 	rm -f $@;\
 	cd export ; \
-	docker run --rm --entrypoint= bref/$$PHP_VERSION:latest sh -c "cd /opt && zip -qq -y -r - {*,.[!.]*} > /tmp/file.zip && cat /tmp/file.zip -" > $$PHP_VERSION.zip ;
+	set -e ; \
+	rm -rf opt ; \
+	CID=$$(docker create --entrypoint=scratch bref/$$PHP_VERSION:latest) ; \
+	docker cp $${CID}:/opt . ; \
+	docker rm $${CID} ; \
+	cd opt ; \
+	zip -qq -y -r - {*,.[!.]*} > ../$$PHP_VERSION.zip
+	cd ../ ; \
+	rm -rf opt ;
 
 # The console runtime
 export/console.zip: layers/console/bootstrap

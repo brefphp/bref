@@ -149,15 +149,15 @@ FROM bref/build-php-74
 
 RUN curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-74.so"
 
-# Build the final image from the lambci image that is close to the production environment
-FROM lambci/lambda:provided.al2
+# Build the final image from the amazon image that is close to the production environment
+FROM public.ecr.aws/lambda/provided:al2
 
 # Copy things we installed to the final image
 COPY --from=0 /tmp/blackfire.so /opt/bref-extra/blackfire.so
 ```
 
 The `.so` extension file can then be retrieved in `/opt/bref-extra/blackfire.so`.
-If you installed system libraries, you may also need to copy them to the `lambci/lambda`
+If you installed system libraries, you may also need to copy them to the `public.ecr.aws/lambda/provided:al2`
 image.
 
 See [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions)
