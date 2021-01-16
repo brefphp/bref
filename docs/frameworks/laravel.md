@@ -142,7 +142,7 @@ provider:
         -   Effect: Allow
             Action: s3:*
             Resource:
-                - Fn::GetAtt: Storage.Arn # the storage bucket
+                - Fn::GetAtt: [ Storage, Arn ]  # the storage bucket
                 - Fn::Join: ['', [Fn::GetAtt: Storage.Arn, '/*']] # everything in the storage bucket
 
 resources:
