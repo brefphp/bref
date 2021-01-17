@@ -11,7 +11,6 @@ class ServerlessPlugin {
         this.serverless = serverless;
         this.options = options;
         this.provider = this.serverless.getProvider('aws');
-        this.chalk = require(process.mainModule.path + '/../node_modules/chalk');
 
         this.fs = require('fs');
         this.path = require('path');
@@ -272,7 +271,7 @@ class ServerlessPlugin {
     }
 
     consoleLog(message) {
-        console.log(`Bref: ${this.chalk.yellow(message)}`);
+        console.log(`Bref: ${message}`);
     }
 }
 
