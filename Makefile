@@ -42,7 +42,7 @@ website-preview:
 
 website-assets: website/template/output.css
 website/template/output.css: website/node_modules website/template/styles.css website/tailwind.config.js
-	cd website && npx tailwind build template/styles.css -o template/output.css
+	cd website && NODE_ENV=production npx tailwind build template/styles.css -o template/output.css
 website/node_modules: website/package.json website/package-lock.json
 	cd website && npm install
 

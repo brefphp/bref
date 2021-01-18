@@ -1,6 +1,11 @@
 const colors = require('tailwindcss/colors')
 
 module.exports = {
+    purge: [
+        './template/**/*.twig',
+        './template/**/*.css',
+        './template/**/*.js',
+    ],
     theme: {
         fontFamily: {
             'sans': ['Open Sans', 'system-ui', 'BlinkMacSystemFont', '-apple-system', 'Helvetica Neue', 'sans-serif'],
