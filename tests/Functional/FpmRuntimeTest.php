@@ -113,7 +113,6 @@ class FpmRuntimeTest extends TestCase
             'fileinfo',
             'filter',
             'ftp',
-            'gd',
             'gettext',
             'hash',
             'iconv',
@@ -159,7 +158,7 @@ class FpmRuntimeTest extends TestCase
             'error_log' => null,
             // This is the default production value
             'error_reporting' => (string) (E_ALL & ~E_DEPRECATED & ~E_STRICT),
-            'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-zts-20190902',
+            'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-non-zts-20190902',
             // Same limit as API Gateway
             'max_execution_time' => '27',
             'max_input_time' => '60',
@@ -173,8 +172,7 @@ class FpmRuntimeTest extends TestCase
             'opcache.memory_consumption' => '128',
             // This is to make sure that we don't strip comments from source code since it would break annotations
             'opcache.save_comments' => '1',
-            // The code is readonly on lambdas so it never changes
-            'opcache.validate_timestamps' => '0',
+            'opcache.validate_timestamps' => '1',
             'short_open_tag' => '',
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
