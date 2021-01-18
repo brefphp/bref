@@ -161,21 +161,15 @@ final class HttpRequestEvent implements LambdaEvent
     {
         if ($this->isFormatV2()) {
             $cookieParts = $this->event['cookies'] ?? [];
-            $cookies = [];
-            foreach ($cookieParts as $cookiePart) {
-                [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
-                $cookies[$cookieName] = urldecode($cookieValue);
+        } else {
+            if (! isset($this->headers['cookie'])) {
+                return [];
             }
-            return $cookies;
+            // Multiple "Cookie" headers are not authorized
+            // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
+            $cookieHeader = $this->headers['cookie'][0];
+            $cookieParts = explode('; ', $cookieHeader);
         }
-
-        if (! isset($this->headers['cookie'])) {
-            return [];
-        }
-        // Multiple "Cookie" headers are not authorized
-        // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
-        $cookieHeader = $this->headers['cookie'][0];
-        $cookieParts = explode('; ', $cookieHeader);
 
         $cookies = [];
         foreach ($cookieParts as $cookiePart) {
