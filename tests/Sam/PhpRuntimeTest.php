@@ -249,7 +249,7 @@ LOGS;
         $process->setTimeout(0);
         $process->setTty(false);
         if ($event !== null) {
-            $process->setInput(json_encode($event));
+            $process->setInput(json_encode($event, JSON_THROW_ON_ERROR));
         }
         $process->mustRun();
 
@@ -261,7 +261,7 @@ LOGS;
         $output = explode("\n", trim($process->getOutput()));
         $lastLine = end($output);
         if (! empty($lastLine)) {
-            $result = json_decode($lastLine, true);
+            $result = json_decode($lastLine, true, 512, JSON_THROW_ON_ERROR);
             if (json_last_error()) {
                 throw new Exception(json_last_error_msg());
             }
@@ -271,7 +271,7 @@ LOGS;
             preg_match('/REPORT RequestId: [^\n]*(.*)/s', $stderr, $matches);
             $error = trim($matches[1] ?? '');
             if ($error !== '') {
-                $result = json_decode($error, true);
+                $result = json_decode($error, true, 512, JSON_THROW_ON_ERROR);
                 if (json_last_error()) {
                     throw new Exception(json_last_error_msg());
                 }
@@ -327,11 +327,11 @@ LOGS;
         [$requestId, $message, $json] = explode("\t", $logLine);
 
         // Check the request ID matches a UUID
-        $this->assertRegExp('/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/', $requestId);
+        $this->assertMatchesRegularExpression('/[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}/', $requestId);
 
         $this->assertSame('Invoke Error', $message);
 
-        $invocationResult = json_decode($json, true);
+        $invocationResult = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         $this->assertSame([
             'errorType',
             'errorMessage',
