@@ -47,6 +47,7 @@ functions:
             - ${bref:layer.php-74}
         events:
             -   http: 'ANY /psr7'
+            -   httpApi: 'GET /psr7'
         environment:
             BREF_LOOP_MAX: 100
 

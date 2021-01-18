@@ -33,3 +33,13 @@ functions:
             -   http: 'ANY /'
         environment:
             FOO: bar
+
+    httpApi:
+        handler: tests/Functional/http-api/index.php
+        description: 'Bref HTTP API test'
+        timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
+        reservedConcurrency: 5
+        layers:
+            - ${bref:layer.php-74}
+        events:
+            -   httpApi: 'GET /'
