@@ -12,6 +12,7 @@ return new class implements RequestHandlerInterface {
     {
         return new Response(200, [
             'Content-Type' => ['text/html'],
+            'Set-Cookie' => ['foo', 'bar'],
         ], 'Hello world!');
     }
 };

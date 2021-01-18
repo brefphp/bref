@@ -4,6 +4,7 @@ namespace Bref\Test\Event\Http;
 
 use Bref\Event\Http\HttpResponse;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class HttpResponseTest extends TestCase
 {
@@ -23,6 +24,16 @@ class HttpResponseTest extends TestCase
             ],
             'body' => '<p>Hello world!</p>',
         ], $response->toApiGatewayFormat());
+
+        self::assertSame([
+            'cookies' => [],
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => [
+                'Content-Type' => 'text/html; charset=utf-8',
+            ],
+            'body' => '<p>Hello world!</p>',
+        ], $response->toApiGatewayFormatV2());
     }
 
     public function test headers are capitalized()
@@ -37,6 +48,14 @@ class HttpResponseTest extends TestCase
             'headers' => ['X-Foo-Bar' => 'baz'],
             'body' => '',
         ], $response->toApiGatewayFormat());
+
+        self::assertEquals([
+            'cookies' => [],
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => ['X-Foo-Bar' => 'baz'],
+            'body' => '',
+        ], $response->toApiGatewayFormatV2());
     }
 
     public function test nested arrays in headers are flattened()
@@ -52,6 +71,15 @@ class HttpResponseTest extends TestCase
             'headers' => ['Foo' => 'baz'],
             'body' => '',
         ], $response->toApiGatewayFormat());
+
+        self::assertEquals([
+            'cookies' => [],
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            // The last value is kept (when multiheaders are not enabled)
+            'headers' => ['Foo' => 'baz'],
+            'body' => '',
+        ], $response->toApiGatewayFormatV2());
     }
 
     public function test empty headers are considered objects()
@@ -60,6 +88,7 @@ class HttpResponseTest extends TestCase
 
         // Make sure that the headers are `"headers":{}` (object) and not `"headers":[]` (array)
         self::assertEquals('{"isBase64Encoded":false,"statusCode":200,"headers":{},"body":""}', json_encode($response->toApiGatewayFormat()));
+        self::assertEquals('{"cookies":[],"isBase64Encoded":false,"statusCode":200,"headers":{},"body":""}', json_encode($response->toApiGatewayFormatV2()));
     }
 
     /**
@@ -78,5 +107,72 @@ class HttpResponseTest extends TestCase
             ],
             'body' => '',
         ], $response->toApiGatewayFormat(true));
+    }
+
+    public function test response with single cookie()
+    {
+        $response = new HttpResponse('', [
+            'set-cookie' => 'foo',
+        ]);
+
+        self::assertEquals([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => [
+                'Set-Cookie' => 'foo',
+            ],
+            'body' => '',
+        ], $response->toApiGatewayFormat());
+
+        self::assertEquals([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'multiValueHeaders' => [
+                'Set-Cookie' => ['foo'],
+            ],
+            'body' => '',
+        ], $response->toApiGatewayFormat(true));
+
+        self::assertEquals([
+            'cookies' => ['foo'],
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => new stdClass,
+            'body' => '',
+        ], $response->toApiGatewayFormatV2());
+    }
+
+    public function test response with multiple cookies()
+    {
+        $response = new HttpResponse('', [
+            'set-cookie' => ['foo', 'bar'],
+        ]);
+
+        self::assertEquals([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => [
+                // Keep only the last value in v1 without multi-headers
+                'Set-Cookie' => 'bar',
+            ],
+            'body' => '',
+        ], $response->toApiGatewayFormat());
+
+        self::assertEquals([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'multiValueHeaders' => [
+                'Set-Cookie' => ['foo', 'bar'],
+            ],
+            'body' => '',
+        ], $response->toApiGatewayFormat(true));
+
+        self::assertEquals([
+            'cookies' => ['foo', 'bar'],
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => new stdClass,
+            'body' => '',
+        ], $response->toApiGatewayFormatV2());
     }
 }

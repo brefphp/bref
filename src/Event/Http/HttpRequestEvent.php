@@ -70,7 +70,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function hasMultiHeader(): bool
     {
-        if ($this->payloadVersion === 2.0) {
+        if ($this->isFormatV2()) {
             return false;
         }
 
@@ -109,7 +109,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getPath(): string
     {
-        if ($this->payloadVersion >= 2) {
+        if ($this->isFormatV2()) {
             return $this->event['rawPath'] ?? '/';
         }
 
@@ -159,20 +159,23 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getCookies(): array
     {
-        if ($this->payloadVersion === 2.0) {
-            if (! isset($this->event['cookies'])) {
-                return [];
+        if ($this->isFormatV2()) {
+            $cookieParts = $this->event['cookies'] ?? [];
+            $cookies = [];
+            foreach ($cookieParts as $cookiePart) {
+                [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
+                $cookies[$cookieName] = urldecode($cookieValue);
             }
-            $cookieParts = $this->event['cookies'];
-        } else {
-            if (! isset($this->headers['cookie'])) {
-                return [];
-            }
-            // Multiple "Cookie" headers are not authorized
-            // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
-            $cookieHeader = $this->headers['cookie'][0];
-            $cookieParts = explode('; ', $cookieHeader);
+            return $cookies;
         }
+
+        if (! isset($this->headers['cookie'])) {
+            return [];
+        }
+        // Multiple "Cookie" headers are not authorized
+        // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
+        $cookieHeader = $this->headers['cookie'][0];
+        $cookieParts = explode('; ', $cookieHeader);
 
         $cookies = [];
         foreach ($cookieParts as $cookiePart) {
@@ -192,7 +195,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     private function rebuildQueryString(): string
     {
-        if ($this->payloadVersion === 2.0) {
+        if ($this->isFormatV2()) {
             $queryString = $this->event['rawQueryString'] ?? '';
             // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
@@ -302,11 +305,19 @@ final class HttpRequestEvent implements LambdaEvent
 
         // Cookies are separated from headers in payload v2, we re-add them in there
         // so that we have the full original HTTP request
-        if ($this->payloadVersion === 2.0 && ! empty($this->event['cookies'])) {
+        if (! empty($this->event['cookies']) && $this->isFormatV2()) {
             $cookieHeader = implode('; ', $this->event['cookies']);
             $headers['cookie'] = [$cookieHeader];
         }
 
         return $headers;
+    }
+
+    /**
+     * See https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.proxy-format
+     */
+    public function isFormatV2(): bool
+    {
+        return $this->payloadVersion === 2.0;
     }
 }
