@@ -126,7 +126,7 @@ final class FpmHandler extends HttpHandler
             throw new FastCgiCommunicationFailed;
         }
 
-        $responseHeaders = $this->getResponseHeaders($response, $event->hasMultiHeader());
+        $responseHeaders = $this->getResponseHeaders($response);
 
         // Extract the status code
         if (isset($responseHeaders['status'])) {
@@ -134,11 +134,9 @@ final class FpmHandler extends HttpHandler
             unset($responseHeaders['status']);
         }
 
-        $response = new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
-
         $this->ensureStillRunning();
 
-        return $response;
+        return new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
     }
 
     /**
@@ -280,17 +278,8 @@ final class FpmHandler extends HttpHandler
     /**
      * Return an array of the response headers.
      */
-    private function getResponseHeaders(ProvidesResponseData $response, bool $isMultiHeader): array
+    private function getResponseHeaders(ProvidesResponseData $response): array
     {
-        $responseHeaders = $response->getHeaders();
-        if (! $isMultiHeader) {
-            // If we are not in "multi-header" mode, we must keep the last value only
-            // and cast it to string
-            foreach ($responseHeaders as $key => $value) {
-                $responseHeaders[$key] = end($value);
-            }
-        }
-
-        return array_change_key_case($responseHeaders, CASE_LOWER);
+        return array_change_key_case($response->getHeaders(), CASE_LOWER);
     }
 }
