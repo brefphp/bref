@@ -135,15 +135,15 @@ Next, we need to create our bucket via `serverless.yml`:
 provider:
     ...
     environment:
-        AWS_BUCKET: # environment variable for Laravel
-            Ref: Storage
+        # environment variable for Laravel
+        AWS_BUCKET: !Ref Storage
     iamRoleStatements:
         # Allow Lambda to read and write files in the S3 buckets
         -   Effect: Allow
             Action: s3:*
             Resource:
-                - Fn::GetAtt: [ Storage, Arn ]  # the storage bucket
-                - Fn::Join: ['', [Fn::GetAtt: Storage.Arn, '/*']] # everything in the storage bucket
+                - !Sub '${Storage.Arn}' # the storage bucket
+                - !Sub '${Storage.Arn}/*' # and everything inside
 
 resources:
     Resources:
