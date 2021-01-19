@@ -230,27 +230,18 @@ class ServerlessPlugin {
      * That's why we clean up the vendor zip files when `serverless remove` is being run.
      */
     async removeVendorArchives() {
-        this.consoleLog('Removing vendor archives from S3 bucket.');
-
         const bucketName = await this.provider.getServerlessDeploymentBucketName();
         const deploymentPrefix = await this.provider.getDeploymentPrefix();
 
-        let bucketObjects = [];
-        try {
-            bucketObjects = await this.provider.request('S3', 'listObjectsV2', {
-                Bucket: bucketName,
-                Prefix: this.stripSlashes(deploymentPrefix + '/vendors/')
-            });
-        } catch(e) {
-            this.consoleLog('Bucket not found, nothing to delete, all is good.');
+        const bucketObjects = await this.provider.request('S3', 'listObjectsV2', {
+            Bucket: bucketName,
+            Prefix: this.stripSlashes(deploymentPrefix + '/vendors/')
+        });
+        if (bucketObjects.Contents.length === 0) {
             return;
         }
 
-
-        if(bucketObjects.length === 0) {
-            this.consoleLog('No vendor archives found, all is good.');
-            return;
-        }
+        this.consoleLog('Removing Composer `vendor` archives from the S3 bucket.');
 
         let details = {
             Bucket: bucketName,
