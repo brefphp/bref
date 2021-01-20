@@ -53,7 +53,7 @@ The `bref local` command runs using the local PHP installation. If you prefer to
 Here is an example, feel free to adjust it to fit your needs:
 
 ```bash
-docker run --rm -it -v $(PWD):/var/task:ro,delegated bref/php-74 vendor/bin/bref local hello
+docker run --rm -it -v $(PWD):/var/task:ro,delegated bref/php-74 --entrypoint=php vendor/bin/bref local hello
 ```
 
 If you do not use `serverless.yml` but something else like SAM/CDK/CloudFormation/Terraform, use the `--handler` parameter instead:
