@@ -189,3 +189,5 @@ custom:
     bref:
         separateVendor: true
 ```
+
+> Using this option changes the path of the vendor directory to `/tmp/vendor`. References in your code to the composer autoloader therefore must be adjusted to `/tmp/vendor/autoload.php`.
