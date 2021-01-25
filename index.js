@@ -111,6 +111,10 @@ class ServerlessPlugin {
         this.newVendorZipName = vendorZipHash + '.zip';
 
         this.consoleLog('Setting environment variables.');
+        
+        if (! this.serverless.service.provider.environment) {
+            this.serverless.service.provider.environment = [];
+        }
 
         // This environment variable will trigger Bref to download the zip on cold start
         this.serverless.service.provider.environment.BREF_DOWNLOAD_VENDOR = {
