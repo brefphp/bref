@@ -117,12 +117,11 @@ class Local
     private function logEnd(float $startTime, SymfonyStyle $io, string $requestId): void
     {
         $duration = ceil((microtime(true) - $startTime) * 1000);
-        $billedDuration = ceil(max($duration / 100, 1)) * 100;
         $memoryUsed = ceil(memory_get_usage() / 1024 / 1024);
 
         $io->writeln([
             "END RequestId: $requestId",
-            "REPORT RequestId: $requestId Duration: $duration ms Billed Duration: $billedDuration ms Memory Size: 1024 MB Max Memory Used: $memoryUsed MB",
+            "REPORT RequestId: $requestId Duration: $duration ms Billed Duration: $duration ms Memory Size: 1024 MB Max Memory Used: $memoryUsed MB",
         ]);
     }
 }
