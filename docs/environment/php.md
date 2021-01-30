@@ -74,7 +74,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.pcntl.php">pcntl</a></li>
         <li><a href="http://php.net/manual/en/book.pcre.php">pcre</a></li>
         <li><a href="http://php.net/manual/en/book.pdo.php">PDO</a></li>
-        <li><a href="http://php.net/manual/en/book.pdo-sqlite.php">pdo_sqlite</a></li>
+        <li><a href="http://php.net/manual/en/ref.pdo-sqlite.php">pdo_sqlite</a></li>
         <li><a href="http://php.net/manual/en/ref.pdo-mysql.php">pdo_mysql</a></li>
         <li><a href="http://php.net/manual/en/book.phar.php">Phar</a></li>
         <li><a href="http://php.net/manual/en/book.posix.php">posix</a></li>
