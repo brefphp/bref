@@ -49,6 +49,10 @@ docker-images:
 	cd layers/fpm ; docker build -t bref/php-73-fpm --build-arg PHP_VERSION=73 .
 	cd layers/fpm ; docker build -t bref/php-74-fpm --build-arg PHP_VERSION=74 .
 	cd layers/fpm ; docker build -t bref/php-80-fpm --build-arg PHP_VERSION=80 .
+	# - console
+	cd layers/console ; docker build -t bref/php-73-console --build-arg PHP_VERSION=73 .
+	cd layers/console ; docker build -t bref/php-74-console --build-arg PHP_VERSION=74 .
+	cd layers/console ; docker build -t bref/php-80-console --build-arg PHP_VERSION=80 .
 	# Other Docker images
 	cd layers/fpm-dev ; docker build -t bref/php-73-fpm-dev --build-arg PHP_VERSION=73 .
 	cd layers/fpm-dev ; docker build -t bref/php-74-fpm-dev --build-arg PHP_VERSION=74 .
