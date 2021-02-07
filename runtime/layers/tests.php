@@ -59,7 +59,7 @@ foreach ($fpmLayers as $layer) {
 $devLayers = [
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
-    // 'bref/php-80-fpm-dev', // skip until blackfire gets supported for PHP 8.0
+    'bref/php-80-fpm-dev',
 ];
 $devExtensions = [
     'xdebug',
