@@ -1,29 +1,11 @@
 ARG PHP_VERSION
 FROM bref/build-php-$PHP_VERSION as build_extensions
-# We need that variable so we re-import it again (args are cleared after each FROM)
-ARG PHP_VERSION
 
-RUN if [ "$PHP_VERSION" = "80" ] ; \
-    then \
-        echo "Installing xdebug from master to support PHP 8.0" \
-        && git clone git://github.com/xdebug/xdebug.git \
-        && cd xdebug \
-        && phpize \
-        && ./configure --enable-xdebug \
-        && make \
-        && make install \
-        && cd .. \
-        && rm -rf xdebug ; \
-    else \
-        pecl install xdebug ; \
-    fi
+RUN pecl install xdebug
 RUN cp $(php -r "echo ini_get('extension_dir');")/xdebug.so /tmp
 
-RUN if [ "$PHP_VERSION" != "80" ] ; \
-    then \
-        version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
-    && curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-"$version".so" ; \
-    fi
+RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
+    && curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-"$version".so" ;
 
 FROM bref/php-${PHP_VERSION}-fpm as build_dev
 
