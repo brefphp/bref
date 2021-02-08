@@ -6,6 +6,7 @@ use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
 use Exception;
+use JsonException;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
