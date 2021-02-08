@@ -267,12 +267,14 @@ final class LambdaRuntime
      */
     private function postJson(string $url, $data): void
     {
-        $jsonData = json_encode($data);
-        if ($jsonData === false) {
-            throw new Exception(sprintf(
-                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses\nHere is the original JSON error: '%s'",
-                json_last_error_msg()
-            ));
+        try {
+            $jsonData = json_encode($data, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new Exception(
+                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses",
+                0,
+                $e
+            );
         }
 
         if ($this->returnHandler === null) {
