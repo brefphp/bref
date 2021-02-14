@@ -114,7 +114,7 @@ final class FpmHandler extends HttpHandler
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
         $this->lambdaRequestId = $context->getAwsRequestId();
-        $this->apiGatewayRequestId = $event->getRequestContext()['requestId'];
+        $this->apiGatewayRequestId = $event->getRequestContext()['requestId'] ?? null;
 
         $request = $this->eventToFastCgiRequest($event, $context);
 
