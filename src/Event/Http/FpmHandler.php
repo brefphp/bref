@@ -49,7 +49,9 @@ final class FpmHandler extends HttpHandler
     /** @var Process|null */
     private $fpm;
 
+    /** @var string */
     private $lambdaRequestId;
+    /** @var string */
     private $apiGatewayRequestId;
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
@@ -120,7 +122,7 @@ final class FpmHandler extends HttpHandler
             $response = $this->client->sendRequest($this->connection, $request);
         } catch (Throwable $e) {
             $this->logToCloudwatch(sprintf(
-                "Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will restart PHP-FPM now. Original exception message: %s %s",
+                'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will restart PHP-FPM now. Original exception message: %s %s',
                 get_class($e),
                 $e->getMessage()
             ));
@@ -292,8 +294,6 @@ final class FpmHandler extends HttpHandler
     /**
      * Log a message to Cloudwatch, this is specific for FPM related errors and will include AWS Request IDs for the
      * current Lambda invocation and API Gateway (where applicable) to aid debugging any FPM-related issues.
-     *
-     * @param string $message
      */
     private function logToCloudwatch(string $message): void
     {
