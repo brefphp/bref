@@ -4,19 +4,19 @@ current_menu: symfony
 introduction: Learn how to deploy serverless Symfony applications on AWS Lambda using Bref.
 ---
 
-This guide helps you run Symfony applications on AWS Lambda using Bref. These instructions are kept up to date to target the latest Symfony version.
+This guide helps you run Symfony applications on AWS Lambda using Bref. These instructions are kept up-to-date to be compatible with the latest Symfony version.
 
 A demo application is available on GitHub at [github.com/mnapoli/bref-symfony-demo](https://github.com/mnapoli/bref-symfony-demo).
 
 ## Setup
 
-Assuming your are in existing Symfony project, let's install Bref via Composer:
+Assuming we're inside an existing Symfony project, let's install Bref via Composer:
 
 ```
 composer require bref/bref
 ```
 
-Then let's create a `serverless.yml` configuration file (at the root of the project) optimized for Symfony:
+Now we can create a `serverless.yml` configuration file (at the root of the project) optimized for Symfony:
 
 ```yaml
 service: bref-demo-symfony
@@ -54,9 +54,9 @@ functions:
             - ${bref:layer.console} # The "console" layer
 ```
 
-Now we still have a few modifications to do on the application to make it compatible with AWS Lambda.
+We still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and the logs are stored in the `src/Kernel.php` file. This is done by adding 2 new methods to the class:
+Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and the logs are stored in the `src/Kernel.php` file. This is done by adding 2 new methods to the `Kernel` class:
 
 ```php
     public function getLogDir()
@@ -82,7 +82,7 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
 
 ## Deploy
 
-Your application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
+The application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
 
 ## Console
 
@@ -94,7 +94,7 @@ To use it follow [the "Console" guide](/docs/runtimes/console.md).
 
 While overriding the log's location in the `Kernel` class was necessary for Symfony to run correctly, by default Symfony logs in `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.md).
 
-However if your application is using Monolog we need to configure Monolog to log into `stderr` as well:
+However if the application is using Monolog we need to configure Monolog to log into `stderr` as well:
 
 ```yaml
 # config/packages/prod/monolog.yaml
@@ -106,7 +106,7 @@ monolog:
             path: "php://stderr"
 ```
 
-Be aware that Symfony also log deprecations:
+Be aware that Symfony also logs deprecations:
 
 ```yaml
 monolog:
@@ -117,11 +117,11 @@ monolog:
             path: "%kernel.logs_dir%/%kernel.environment%.deprecations.log"
 ```
 
-Either change the path to `php://stderr` or remove the logging of deprecations entirely.
+We should either change the path to `php://stderr`, or remove the logging of deprecations entirely.
 
 ## Environment variables
 
-Since Symfony 4, the production parameters are configured through environment variables. You can define some in `serverless.yml`.
+Since Symfony 4, the production parameters are configured through environment variables. We can define them in `serverless.yml`.
 
 ```yaml
 provider:
@@ -141,6 +141,6 @@ A dedicated Bref package is available for this: [bref/symfony-messenger](https:/
 
 ## Using cache
 
-As mentioned above, the filesystem is readonly so if you need persistent cache you need to store it somewhere else.
+As mentioned above the filesystem is readonly, so if you need a persistent cache it must be stored somewhere else (such as Redis, an RDBMS, or DynamoDB).
 
 A Symfony bundle is available for using AWS DynamoDB as cache backend system: [rikudou/psr6-dynamo-db-bundle](https://github.com/RikudouSage/DynamoDbCachePsr6Bundle)
