@@ -310,7 +310,7 @@ final class FpmHandler extends HttpHandler
         $logContext = [];
 
         if ($this->lambdaRequestId) {
-            $logContext['lambdaRequestId'] = $this->lambdaRequestId;
+            $logContext['requestId'] = $this->lambdaRequestId;
         }
 
         if ($this->apiGatewayRequestId) {
