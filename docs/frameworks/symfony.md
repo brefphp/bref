@@ -155,7 +155,13 @@ framework:
     base_urls: 'https://<bucket-name>.s3.amazonaws.com'
 ```
 
-If using Webpack Encore, you also need to add the following config in `webpack.config.js`
+If using Webpack Encore, you also need to add the following config at the end of `webpack.config.js`
+
+```js
+if (Encore.isProduction()) {
+    Encore.setPublicPath('https://<bucket-name>.s3.amazonaws.com');
+}
+```
 
 ### Assets in templates
 
