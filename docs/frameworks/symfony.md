@@ -150,7 +150,9 @@ If using Webpack Encore, you also need to add the following config at the end of
 
 ```js
 if (Encore.isProduction()) {
-    Encore.setPublicPath('https://<bucket-name>.s3.amazonaws.com');
+    // Note the '/build' at the end of the URL
+    Encore.setPublicPath('https://<bucket-name>.s3.amazonaws.com/build');
+    Encore.setManifestKeyPrefix('build/')
 }
 ```
 
