@@ -137,16 +137,7 @@ To learn more about all this, read the [environment variables documentation](/do
 
 To deploy Symfony websites, we need assets to be served by AWS S3. Setting up the S3 bucket is already explained in the [websites documentation](../websites.md#hosting-static-files-with-s3). This section provides additional instructions specific to Symfony assets and Webpack Encore.
 
-First, you can compile assets for production in the `public` directory, then synchronize that directory to a S3 bucket:
-
-```bash
-php bin/console assets:install --env prod
-# if using Webpack Encore, additionally run
-yarn encore production
-aws s3 sync public/ s3://<bucket-name>/ --delete --exclude index.php
-```
-
-Then, you need to [tell Symfony](https://symfony.com/doc/current/reference/configuration/framework.html#base-urls) to use the S3 URL as the assets base URL, instead of your app domain in production.
+First, you need to [tell Symfony](https://symfony.com/doc/current/reference/configuration/framework.html#base-urls) to use the S3 URL as the assets base URL, instead of your app domain in production.
 
 ```yaml
 # config/packages/prod/framework.yaml
@@ -161,6 +152,15 @@ If using Webpack Encore, you also need to add the following config at the end of
 if (Encore.isProduction()) {
     Encore.setPublicPath('https://<bucket-name>.s3.amazonaws.com');
 }
+```
+
+Finally, you can compile assets for production in the `public` directory, then synchronize that directory to a S3 bucket:
+
+```bash
+php bin/console assets:install --env prod
+# if using Webpack Encore, additionally run
+yarn encore production
+aws s3 sync public/ s3://<bucket-name>/ --delete --exclude index.php
 ```
 
 ### Assets in templates
