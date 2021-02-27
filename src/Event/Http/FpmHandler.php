@@ -84,7 +84,7 @@ final class FpmHandler extends HttpHandler
         $this->fpm->setTimeout(null);
         $this->fpm->start(function ($type, $output): void {
             // Send any PHP-FPM log to CloudWatch
-            $this->logToCloudwatch($output);
+            echo $output;
         });
 
         $this->client = new Client;
