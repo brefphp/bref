@@ -133,6 +133,32 @@ The secrets (e.g. database passwords) must however not be committed in this file
 
 To learn more about all this, read the [environment variables documentation](/docs/environment/variables.md).
 
+## Trust API Gateway
+
+When hosting your site on Lambda, API Gateway will act as a proxy between the client and your function. 
+
+By default, Symfony doesn't trust proxies for security reasons, but it's safe to do it when using API Gateway and
+Lambda. 
+
+This is needed because otherwise, Symfony will not be able to generate URLs properly.
+
+You should add the following lines to `config/packages/framework.yaml`
+
+```yaml
+framework:
+    # trust the remote address because API Gateway has no fixed IP or CIDR range that we can target
+    trusted_proxies: '127.0.0.1,REMOTE_ADDR'
+    # trust "X-Forwarded-*" headers coming from API Gateway
+    trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port']
+```
+
+Note that API Gateway doesn't set the `X-Forwarded-Host` header, so we don't trust it by default. 
+You should only whitelist this header if you set it manually, for example in your CloudFront configuration.
+
+> Be careful with these settings if your app will not be executed only in a Lambda environment.
+ 
+You can get more details in the [Symfony documentation](https://symfony.com/doc/current/deployment/proxies.html).
+
 ## Assets
 
 To deploy Symfony websites, we need assets to be served by AWS S3. Setting up the S3 bucket is already explained in the [websites documentation](../websites.md#hosting-static-files-with-s3). This section provides additional instructions specific to Symfony assets and Webpack Encore.
