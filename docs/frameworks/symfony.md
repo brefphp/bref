@@ -38,7 +38,7 @@ package:
         - tests/**
         - var/**
     include:
-        - var/cache/prod # allows to deploy a pre-warmed container
+        - var/cache/prod/** # allows to deploy a pre-warmed container
 
 functions:
     website:
