@@ -37,6 +37,8 @@ package:
         - node_modules/**
         - tests/**
         - var/**
+    include:
+        - var/cache/prod # allows to deploy a pre-warmed container
 
 functions:
     website:
@@ -56,7 +58,11 @@ functions:
 
 We still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and the logs are stored in the `src/Kernel.php` file. This is done by adding 2 new methods to the `Kernel` class:
+Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and the logs are stored in the `src/Kernel.php` file. This is done by adding 3 new methods to the `Kernel` class. 
+We still want our [build directory](https://symfony.com/doc/current/reference/configuration/kernel.html#build-directory) 
+to be readonly so we make it use the default `var/cache` directory.
+
+> Note : having the build directory readonly on Lambda means you have to pre-warm the cache as part of your deploy process
 
 ```php
     public function getLogDir()
@@ -78,9 +84,20 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
 
         return parent::getCacheDir();
     }
+
+    public function getBuildDir(): string
+    {
+        return $this->getProjectDir().'/var/cache/'.$this->environment;
+    }
 ```
 
 ## Deploy
+
+Pre-warm the Symfony cache before deploying
+
+```bash
+php bin/console cache:clear --env=prod
+```
 
 The application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
 
