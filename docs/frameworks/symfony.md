@@ -37,6 +37,8 @@ package:
         - node_modules/**
         - tests/**
         - var/**
+    include:
+        - var/cache/prod/** # allows to deploy a pre-warmed container
 
 functions:
     website:
@@ -80,7 +82,24 @@ Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tm
     }
 ```
 
+We can also separate the [build directory](https://symfony.com/doc/current/reference/configuration/kernel.html#build-directory)
+from the cache directory to be able to [deploy a pre-warmed cache](#Deploy) and thus improve load time.
+
+```php
+    public function getBuildDir(): string
+    {
+        return $this->getProjectDir().'/var/cache/'.$this->environment;
+    }
+```
+
 ## Deploy
+
+If you separated the build directory from the cache directory, warmup the Symfony cache before deploying
+
+```bash
+# you need LAMBDA_TASK_ROOT to generate the container as if you were running in a Lambda environment
+LAMBDA_TASK_ROOT=bref php bin/console cache:warmup --env=prod
+```
 
 The application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
 
