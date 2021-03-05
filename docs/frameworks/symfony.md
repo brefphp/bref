@@ -153,11 +153,19 @@ framework:
 ```
 
 Note that API Gateway doesn't set the `X-Forwarded-Host` header, so we don't trust it by default. 
-You should only whitelist this header if you set it manually, for example in your CloudFront configuration.
+You should only whitelist this header if you set it manually, for example in your CloudFront configuration (see how to 
+do it in the [example Cloudformation template](../websites.md#serving-php-and-static-files-via-cloudfront)).
 
 > Be careful with these settings if your app will not be executed only in a Lambda environment.
  
 You can get more details in the [Symfony documentation](https://symfony.com/doc/current/deployment/proxies.html).
+
+### Getting the user IP
+
+**When using CloudFront** on top of API Gateway, you will not be able to retrieve the client IP address and you will
+instead get one of Cloudfront's IP when calling `Request::getClientIp()`. If you really need this, you will need
+to whitelist [every CloudFront IP](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html)
+in `trusted_proxies`.
 
 ## Assets
 
