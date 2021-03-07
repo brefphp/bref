@@ -242,6 +242,8 @@ return new Handler();
 
 [Full reference for Websockets in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/websocket/).
 
+A complete WebSocket example is available in [Serverless Visually Explained](https://serverless-visually-explained.com/).
+
 ## EventBridge events
 
 `EventBridgeHandler` instances handle EventBridge events:
