@@ -124,6 +124,10 @@ menu:
                     title: Performance tuning and optimizations
         -   section: Learning
             items:
+                course:
+                    text: Course
+                    url: https://serverless-visually-explained.com/?ref=bref-menu
+                    title: Serverless Visually Explained
                 case-studies:
                     text: Case studies
                     url: /docs/case-studies.html

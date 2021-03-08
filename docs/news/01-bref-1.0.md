@@ -142,7 +142,7 @@ Well, you already could, but now it will be a bit easier.
 
 > Self-promotion time: I've helped enterprises refactor their microservice architectures using Lambda and SQS/EventBridge.
 If you are interested, [get in touch to work together](mailto:matthieu@null.tc).
-You can also check out [Serverless Visually Explained](https://serverless-visually-explained.com/), it contains examples for those use cases.
+You can also check out [Serverless Visually Explained](https://serverless-visually-explained.com/?ref=bref-1.0), it contains examples for those use cases.
 </self-promo\>
 
 Finally, the [`BREF_LOOP_MAX` variable](/docs/environment/performances.md#bref-for-event-driven-functions) is now documented, for those ready to keep the PHP process alive between events to accelerate their workers.
