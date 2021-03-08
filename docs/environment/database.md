@@ -36,11 +36,11 @@ This page documents how to create databases using VPC (the reliable and secure s
 >
 > If you plan on using a database, please read this section.
 
-A database inside a [VPC](https://aws.amazon.com/vpc/) is isolated from the internet. Lambda must run in the VPC to access the database, but it will loose access the internet (for example external APIs, and other AWS services).
+A database inside a [VPC](https://aws.amazon.com/vpc/) is isolated from the internet. Lambda must run in the VPC to access the database, but it will lose access the internet (for example external APIs, and other AWS services).
 
 To be clear:
 
-**Lambda will loose internet access in a VPC.**
+**Lambda will lose internet access in a VPC.**
 
 Because of that, you may see errors like this:
 
