@@ -12,6 +12,6 @@ Read more on [the website](https://bref.sh/).
 
 # ClarionDoor
 
-1. Run `composer install`
+1. Run `php composer.phar install`
 2. Do what you gotta do.
 3. Run `make runtimes`

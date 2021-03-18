@@ -5,7 +5,6 @@
 /tests/Bridge/Symfony/logs
 /.bref/
 /.phpcs-cache
-/composer.lock
 /.couscous/
 /website/node_modules/
 /website/template/output.css
