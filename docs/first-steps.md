@@ -1,7 +1,7 @@
 ---
 title: First steps
 current_menu: first-steps
-introduction: First steps to discover Bref and deploy your first PHP function on AWS Lambda.
+introduction: First steps to discover Bref and deploy your first PHP application on AWS Lambda.
 previous:
     link: /docs/installation.html
     title: Installation
@@ -10,7 +10,7 @@ next:
     title: What are runtimes?
 ---
 
-This guide will help you deploy your first PHP function on AWS Lambda.
+This guide will help you deploy your first PHP application on AWS Lambda. For simplicity, we will not be using a PHP framework yet.
 
 Before getting started make sure you have [installed Bref and the required tools](installation.md) first.
 
@@ -22,45 +22,41 @@ Starting in an empty directory, install Bref using Composer:
 composer require bref/bref
 ```
 
+> Make sure that the version of Bref that was installed is 1.0 or greater.
+
 Then let's start by initializing the project by running:
 
 ```
 vendor/bin/bref init
 ```
 
-Accept all the defaults by pressing "Enter" for each question. Congratulations, you have just created your first [PHP function](/docs/runtimes/function.md).
+Accept all the defaults by pressing "Enter". The following files will be created in your project:
 
-> If you are not too familiar with AWS Lambda you need to understand that a "function" is the simplest form of code that can be deployed on AWS Lambda. It is **not** a web application: it must be invoked via AWS tools.
->
-> You will read in the next guides how to deploy web applications using the [HTTP runtime](/docs/runtimes/http.md). We want to start with something simpler right now!
-
-The following files have been created in your project:
-
-- `index.php` contains the function code
+- `index.php` contains the code of your application
 - `serverless.yml` contains the configuration for deploying on AWS
 
-## Editing the code
-
-You are free to edit the code in `index.php`, the file must however always return a function:
-
-```php
-require __DIR__ . '/vendor/autoload.php';
-
-return function ($event) {
-    // Do anything you want here
-    // For example:
-    return 'Hello ' . ($event['name'] ?? 'world');
-};
-```
-
-On every execution of your lambda, Bref will invoke this function.
-
-You can use classes and functions as well: Composer and its autoloader will work just like any PHP application.
+You are free to edit the code in `index.php`, but for now let's keep it simple: we want to run `index.php` on Lambda first.
 
 ## Deployment
 
-To learn how to deploy your first function head over the [Deployment guide](deploy.md).
+To deploy, let's run:
+
+```bash
+serverless deploy
+```
+
+Once the command finishes, it should print a URL like this one:
+
+```sh
+https://3pjp2yiw97.execute-api.us-east-1.amazonaws.com
+```
+
+Open this URL and you should see your application: `index.php` is running on Lambda!
+
+🎉 congrats on creating your first serverless application!
+
+To learn more about deployments, head over the [Deployment guide](deploy.md).
 
 ## What's next?
 
-Now that you have deployed a simple PHP function you can [learn more about runtimes](/docs/runtimes/). That will help you deploy HTTP and console applications.
+Now that you have deployed a simple PHP web app, you can [learn more about runtimes](/docs/runtimes/). That will help you deploy HTTP and console applications.

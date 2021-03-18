@@ -3,17 +3,17 @@ service: app
 provider:
     name: aws
     region: us-east-1
-    runtime: provided
+    runtime: provided.al2
 
 plugins:
     - ./vendor/bref/bref
 
 functions:
-    function:
+    hello:
         handler: index.php
         description: ''
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 
 # Exclude files from deployment
 package:

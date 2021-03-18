@@ -11,3 +11,4 @@
 /.netlify/
 .DS_Store
 /.serverless/
+.phpunit.result.cache

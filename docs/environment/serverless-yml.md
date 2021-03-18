@@ -15,7 +15,7 @@ service: app
 
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 
 plugins:
     - ./vendor/bref/bref
@@ -24,7 +24,7 @@ functions:
     foo:
         handler: index.php
         layers:
-            - ${bref:layer.php-73} # PHP
+            - ${bref:layer.php-74} # PHP
 
 resources:
     Resources:
@@ -68,17 +68,17 @@ The `provider` section also lets us configure global options on all functions:
 provider:
     name: aws
     timeout: 10
-    runtime: provided
+    runtime: provided.al2
 
 functions:
     foo:
         handler: foo.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
     bar:
         handler: bar.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 
 # ...
 ```
@@ -93,15 +93,15 @@ functions:
     foo:
         handler: foo.php
         timeout: 10
-        runtime: provided
+        runtime: provided.al2
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
     bar:
         handler: bar.php
         timeout: 10
-        runtime: provided
+        runtime: provided.al2
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 
 # ...
 ```
@@ -147,11 +147,11 @@ functions:
     foo:
         handler: foo.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
     bar:
         handler: bar.php
         layers:
-            - ${bref:layer.php-73}
+            - ${bref:layer.php-74}
 ```
 
 Functions are AWS Lambda functions. You can find all options available [in this Serverless documentation page](https://serverless.com/framework/docs/providers/aws/guide/functions/).
@@ -166,7 +166,7 @@ If your lambda needs to access other AWS services (S3, SQS, SNS…), you will ne
 provider:
     name: aws
     timeout: 10
-    runtime: provided
+    runtime: provided.al2
     iamRoleStatements:
         # Allow to put a file in the `my-bucket` S3 bucket
         -   Effect: Allow

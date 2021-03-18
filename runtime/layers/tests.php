@@ -19,14 +19,18 @@ foreach ($allLayers as $layer) {
 
     // PHP runs correctly
     $phpVersion = trim(`docker run --rm --entrypoint php $layer -v`);
-    assertContains('PHP 7.', $phpVersion);
+    assertMatchesRegex('/PHP (7|8)\.\d+\.\d+/', $phpVersion);
     echo '.';
 
-    exec("docker run --rm -v \${PWD}/helpers:/var/task/ --entrypoint /var/task/extensions-test.sh $layer", $output, $exitCode);
-    if ($exitCode !== 0) {
-        throw new Exception(implode(PHP_EOL, $output), $exitCode);
+    // Test extensions load correctly
+    // Skip this for PHP 8.0 until all extensions are supported
+    if (strpos($layer, 'php-80') === false) {
+        exec("docker run --rm -v \${PWD}/helpers:/var/task/ --entrypoint /var/task/extensions-test.sh $layer", $output, $exitCode);
+        if ($exitCode !== 0) {
+            throw new Exception(implode(PHP_EOL, $output), $exitCode);
+        }
+        echo '.';
     }
-    echo '.';
 }
 
 // FPM layers
@@ -37,13 +41,15 @@ $fpmLayers = [
 foreach ($fpmLayers as $layer) {
     // PHP-FPM is installed
     $phpVersion = trim(`docker run --rm --entrypoint php-fpm $layer -v`);
-    assertContains('PHP 7.', $phpVersion);
+    assertMatchesRegex('/PHP (7|8)\.\d+\.\d+/', $phpVersion);
     echo '.';
 }
 
 // dev layers
 $devLayers = [
     'bref/php-73-fpm-dev',
+    'bref/php-74-fpm-dev',
+    'bref/php-80-fpm-dev',
 ];
 $devExtensions = [
     'xdebug',
@@ -54,7 +60,9 @@ foreach ($devLayers as $layer) {
     $notLoaded = array_diff($devExtensions, $output);
     // all development extensions are loaded
     if ($exitCode !== 0 || count($notLoaded) > 0) {
-        throw new Exception(implode(PHP_EOL, array_map(function ($extension) { return "Extension $extension is not loaded"; }, $notLoaded)), $exitCode);
+        throw new Exception(implode(PHP_EOL, array_map(function ($extension) {
+            return "Extension $extension is not loaded";
+        }, $notLoaded)), $exitCode);
     }
     echo '.';
 }
@@ -68,9 +76,9 @@ function assertEquals($expected, $actual)
     }
 }
 
-function assertContains(string $expected, string $actual)
+function assertMatchesRegex(string $expected, string $actual)
 {
-    if (strpos($actual, $expected) === false) {
-        throw new Exception("$actual does not contain $expected");
+    if (preg_match($expected, $actual) === false) {
+        throw new Exception("$actual does not match regex $expected");
     }
 }

@@ -18,13 +18,13 @@ These files *cannot be customized*.
 You can create your own `php.ini` to customize PHP's configuration:
 
 1. create a `php/conf.d/` subdirectory in your project
-1. create a `php.ini` file inside that directory _(the name of the file does not matter, it must have an `.ini` extensions)_
+1. create a `php.ini` file inside that directory _(the name of the file does not matter, it must have an `.ini` extension)_
 
 PHP will automatically include any `*.ini` file found in `php/conf.d/` in your project.
 
 ### Customizing php.ini using a custom path
 
-If you want PHP to scan a different directory than `php/conf.d/` in your project, you can override the path by setting it in the [`PHP_INI_SCAN_DIR`](http://php.net/manual/fr/configuration.file.php#configuration.file.scan) environment variable.
+If you want PHP to scan a different directory than `php/conf.d/` in your project, you can override the path by setting it in the [`PHP_INI_SCAN_DIR`](http://php.net/manual/configuration.file.php#configuration.file.scan) environment variable.
 
 > `PHP_INI_SCAN_DIR` must contain an absolute path. Since your code is placed in `/var/task` on AWS Lambda, the environment variable should contain something like `/var/task/my/different/dir`.
 
@@ -34,7 +34,7 @@ Learn how to declare environment variables by reading the [Environment Variables
 
 If you are using Lambda layers, for example to use custom PHP extensions, you can override the default `php.ini` by placing your own configuration file in `/opt/bref/etc/php/conf.d/`.
 
-Make sur to give a unique name to your `.ini` file to avoid any collision with other layers.
+Make sure to give a unique name to your `.ini` file to avoid any collision with other layers.
 
 ## Extensions
 
@@ -73,25 +73,24 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.openssl.php">openssl</a></li>
         <li><a href="http://php.net/manual/en/book.pcntl.php">pcntl</a></li>
         <li><a href="http://php.net/manual/en/book.pcre.php">pcre</a></li>
-        <li><a href="http://php.net/manual/en/book.PDO.php">PDO</a></li>
-        <li><a href="http://php.net/manual/en/book.pdo_sqlite.php">pdo_sqlite</a></li>
+        <li><a href="http://php.net/manual/en/book.pdo.php">PDO</a></li>
+        <li><a href="http://php.net/manual/en/ref.pdo-sqlite.php">pdo_sqlite</a></li>
         <li><a href="http://php.net/manual/en/ref.pdo-mysql.php">pdo_mysql</a></li>
-        <li><a href="http://php.net/manual/en/book.Phar.php">Phar</a></li>
+        <li><a href="http://php.net/manual/en/book.phar.php">Phar</a></li>
         <li><a href="http://php.net/manual/en/book.posix.php">posix</a></li>
         <li><a href="http://php.net/manual/en/book.readline.php">readline</a></li>
-        <li><a href="http://php.net/manual/en/book.Reflection.php">Reflection</a></li>
+        <li><a href="http://php.net/manual/en/book.reflection.php">Reflection</a></li>
         <li><a href="http://php.net/manual/en/book.session.php">session</a></li>
         </ul>
       </td>
       <td align="left" valign="top">
-        <ul>  
-        <li><a href="http://php.net/manual/en/book.SimpleXML.php">SimpleXML</a></li>
+        <ul>
+        <li><a href="https://php.net/manual/en/book.simplexml.php">SimpleXML</a></li>
         <li><a href="http://php.net/manual/en/book.sodium.php">sodium</a></li>
         <li><a href="http://php.net/manual/en/book.soap.php">SOAP</a></li>
         <li><a href="http://php.net/manual/en/book.sockets.php">sockets</a></li>
-        <li><a href="http://php.net/manual/en/book.SPL.php">SPL</a></li>
+        <li><a href="http://php.net/manual/en/book.spl.php">SPL</a></li>
         <li><a href="http://php.net/manual/en/book.sqlite3.php">sqlite3</a></li>
-        <li><a href="http://php.net/manual/en/book.standard.php">standard</a></li>
         <li><a href="http://php.net/manual/en/book.tokenizer.php">tokenizer</a></li>
         <li><a href="http://php.net/manual/en/book.xml.php">xml</a></li>
         <li><a href="http://php.net/manual/en/book.xmlreader.php">xmlreader</a></li>
@@ -108,36 +107,26 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
 
 - **[intl](http://php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
 - **[APCu](http://php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
-- **[phpredis](https://github.com/phpredis/phpredis)** -  The phpredis extension provides an API for communicating with the Redis key-value store. 
 - **[PostgreSQL PDO Driver](http://php.net/manual/en/ref.pdo-pgsql.php)** -  PDO_PGSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to PostgreSQL databases.
-- **[Mongodb](http://php.net/manual/en/set.mongodb.php)** - Unlike the mongo extension, this extension is developed atop the » libmongoc and » libbson libraries. It provides a minimal API for core driver functionality: commands, queries, writes, connection management, and BSON serialization.
-- **[pthreads](http://php.net/manual/en/book.pthreads.php)** - pthreads is an object-orientated API that provides all of the tools needed for multi-threading in PHP. PHP applications can create, read, write, execute and synchronize with Threads, Workers and Threaded objects.
-- **[imagick](http://php.net/manual/en/book.imagick.php)** - imagick is an image processing library.
-- **[GD](http://php.net/manual/en/book.image.php)** - GD is an image processing library.
 
 You can enable these extensions by loading them in `php/conf.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
 ```ini
 extension=intl
 extension=apcu
-extension=redis
 extension=pdo_pgsql
-extension=mongodb
-extension=pthreads
-extension=imagick
-extension=gd
 ```
 
 ### Extra extensions
 
-Due to space limitations in AWS Lambda, Bref cannot provide every possible extension. 
-There are a list of additional PHP extensions that can be installed as a separate 
-layer. They are less common extensions or extensions that for some reasons should 
+Due to space limitations in AWS Lambda, Bref cannot provide every possible extension.
+There are a list of additional PHP extensions that can be installed as a separate
+layer. They are less common extensions or extensions that for some reasons should
 not be in the normal Bref layer.
 
 All extra PHP extensions are found in [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions).
 
-Contributions to add more PHP extensions are welcomed. 
+Contributions to add more PHP extensions are welcomed.
 
 ### Custom extensions
 
@@ -156,23 +145,49 @@ To create your custom layer, you will need to:
 To compile the extension, Bref provides the `bref/build-php-*` Docker images. Here is an example with Blackfire:
 
 ```dockerfile
-FROM bref/build-php-73
+FROM bref/build-php-74
 
-RUN curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s https://blackfire.io/api/v1/releases/probe/php/linux/amd64/7.3 \
-    && mkdir -p /tmp/blackfire \
-    && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
-    && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so
+RUN curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-74.so"
 
-# Build the final image from the lambci image that is close to the production environment
-FROM lambci/lambda:provided
+# Build the final image from the amazon image that is close to the production environment
+FROM public.ecr.aws/lambda/provided:al2
 
 # Copy things we installed to the final image
 COPY --from=0 /tmp/blackfire.so /opt/bref-extra/blackfire.so
 ```
 
-The `.so` extension file can then be retrieved in `/opt/bref-extra/blackfire.so`. 
-If you installed system libraries, you may also need to copy them to the `lambci/lambda`
-image.  
+The `.so` extension file can then be retrieved in `/opt/bref-extra/blackfire.so`.
+If you installed system libraries, you may also need to copy them to the `public.ecr.aws/lambda/provided:al2`
+image.
 
 See [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions)
-for more examples. 
+for more examples.
+
+## Custom vendor path
+
+Bref automatically requires vendor dependencies from the default `vendor/autoload.php` path.
+
+If your Composer dependencies are installed elsewhere, you can customize that path via the `BREF_AUTOLOAD_PATH` environment variable.
+
+```yaml
+provider:
+    # ...
+    environment:
+        BREF_AUTOLOAD_PATH: '/var/task/foo-bar/vendor/autoload.php'
+```
+
+The path must start with `/var/task`, which is the directory where projects are installed on AWS Lambda.
+
+## Separate vendor folder
+
+Bref has the ability to shrink the Lambda deployment archive by separating the vendor folder from the applications code and injecting it later on into the Lambda function. This allows Bref to circumvent Lambda file size limitations.
+
+By setting the option `separateVendor` in the `custom.bref` block to `true`, you can enable this feature.
+
+```yaml
+custom:
+    bref:
+        separateVendor: true
+```
+
+> Using this option changes the path of the vendor directory to `/tmp/vendor`. References in your code to the composer autoloader therefore must be adjusted to `/tmp/vendor/autoload.php`.

@@ -1,14 +1,14 @@
 ---
-title: Performances
+title: Performance
 current_menu: performances
 introduction: Performance tuning and optimizations for serverless PHP applications on AWS Lambda.
 ---
 
-This article sums up what to expect in terms of performances and how to optimize serverless PHP applications. The benchmarks included in this page can be reproduced via [the code on GitHub](https://github.com/brefphp/benchmarks).
+This article sums up what to expect in terms of performance and how to optimize serverless PHP applications. The benchmarks included in this page can be reproduced via [the code on GitHub](https://github.com/brefphp/benchmarks).
 
 ## CPU power and memory size
 
-The main factor affecting performances is memory size. Indeed, [the amount of memory is proportional to the CPU power available](https://docs.aws.amazon.com/lambda/latest/dg/resource-model.html).
+The main factor affecting performance is memory size. Indeed, [the amount of memory is proportional to the CPU power available](https://docs.aws.amazon.com/lambda/latest/dg/resource-model.html).
 
 In other words, **more memory means a more powerful CPU**. A 1024M lambda has a CPU two times more powerful than a 512M lambda.
 
@@ -47,9 +47,9 @@ In general, **use smaller and slower lambdas only when speed is not important at
 
 ## PHP runtime overhead
 
-### HTTP
+### Bref for web apps
 
-The Bref [runtime for HTTP applications](/docs/runtimes/http.md) **does not add overhead to response times**.
+The [FPM runtime for web apps](/docs/runtimes/http.md) **does not add overhead to response times**.
 
 Here are execution times for an empty PHP application:
 
@@ -57,7 +57,7 @@ Here are execution times for an empty PHP application:
 |------------------|------:|-----:|------:|------:|
 | Execution time   |  10ms |  1ms |   1ms |   1ms |
 
-Unless we use a particularly slow lambda (see the next section, 128M is not recommended), 1ms is the same execution time when PHP runs with Apache or Nginx on a classic server.
+Unless we use a particularly slow lambda (see the previous section, 128M is not recommended), 1ms is the same execution time when PHP runs with Apache or Nginx on a classic server.
 
 We can see the same result with a "Hello world" written in Symfony (4ms being the minimum execution time of the framework):
 
@@ -65,15 +65,30 @@ We can see the same result with a "Hello world" written in Symfony (4ms being th
 |------------------|------:|-----:|------:|------:|
 | Execution time   |  58ms |  4ms |   4ms |   4ms |
 
-### Functions
+### Bref for event-driven functions
 
-The Bref [runtime for PHP functions](/docs/runtimes/function.md) (non-HTTP applications) adds a small overhead:
+The [runtime for event-driven functions](/docs/runtimes/function.md) adds a small overhead:
 
 |                  | 128M  | 512M | 1024M | 2048M |
 |------------------|------:|-----:|------:|------:|
 | Execution time   | 175ms | 35ms |  16ms |  13ms |
 
 Since this runtime is often used in asynchronous scenarios (for example, processing queue messages), it is often negligible.
+
+This overhead is caused by the PHP executable starting for every new invocation.
+We can skip that overhead by keeping the PHP process alive:
+
+```yaml
+functions:
+    hello:
+        # ...
+        environment:
+            BREF_LOOP_MAX: 100
+```
+
+In the example above, the PHP process will restart only every 100 invocations, removing the overhead the rest of the time.
+
+In that case, be careful with clearing in-memory data between every event.
 
 ## Cold starts
 

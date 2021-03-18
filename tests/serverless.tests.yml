@@ -2,7 +2,7 @@ service: bref-tests
 
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
     region: eu-west-1
     profile: bref-tests
     apiGateway:
@@ -26,10 +26,20 @@ functions:
         handler: tests/Functional/fpm/index.php
         description: 'Bref FPM test'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
-        reservedConcurrency: 2
+        reservedConcurrency: 5
         layers:
             - ${bref:layer.php-74-fpm}
         events:
             -   http: 'ANY /'
         environment:
             FOO: bar
+
+    httpApi:
+        handler: tests/Functional/http-api/index.php
+        description: 'Bref HTTP API test'
+        timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
+        reservedConcurrency: 5
+        layers:
+            - ${bref:layer.php-74}
+        events:
+            -   httpApi: 'GET /'

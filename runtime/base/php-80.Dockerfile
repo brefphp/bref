@@ -13,7 +13,31 @@
 
 FROM bref/tmp/step-1/build-environment as build-environment
 
-ENV VERSION_PHP=7.2.31
+
+###############################################################################
+# Oniguruma
+# This library is not packaged in PHP since PHP 7.4.
+# See https://github.com/php/php-src/blob/43dc7da8e3719d3e89bd8ec15ebb13f997bbbaa9/UPGRADING#L578-L581
+# We do not install the system version because I didn't manage to make it work...
+# Ideally we shouldn't compile it ourselves.
+# https://github.com/kkos/oniguruma/releases
+# Needed by:
+#   - php mbstring
+ENV VERSION_ONIG=6.9.6
+ENV ONIG_BUILD_DIR=${BUILD_DIR}/oniguruma
+RUN set -xe; \
+    mkdir -p ${ONIG_BUILD_DIR}; \
+    curl -Ls https://github.com/kkos/oniguruma/releases/download/v${VERSION_ONIG}/onig-${VERSION_ONIG}.tar.gz \
+    | tar xzC ${ONIG_BUILD_DIR} --strip-components=1
+WORKDIR  ${ONIG_BUILD_DIR}/
+RUN set -xe; \
+    ./configure --prefix=${INSTALL_DIR}; \
+    make -j $(nproc); \
+    make install
+
+
+ENV VERSION_PHP=8.0.3
+
 
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
 RUN set -xe; \
@@ -22,7 +46,7 @@ RUN set -xe; \
     # --location will follow redirects
     # --silent will hide the progress, but also the errors: we restore error messages with --show-error
     # --fail makes sure that curl returns an error instead of fetching the 404 page
-    curl --location --silent --show-error --fail https://github.com/php/php-src/archive/php-${VERSION_PHP}.tar.gz \
+    curl --location --silent --show-error --fail https://www.php.net/get/php-${VERSION_PHP}.tar.gz/from/this/mirror \
   | tar xzC ${PHP_BUILD_DIR} --strip-components=1
 # Move into the unpackaged code directory
 WORKDIR  ${PHP_BUILD_DIR}/
@@ -36,9 +60,8 @@ WORKDIR  ${PHP_BUILD_DIR}/
 # --enable-option-checking=fatal: make sure invalid --configure-flags are fatal errors instead of just warnings
 # --enable-ftp: because ftp_ssl_connect() needs ftp to be compiled statically (see https://github.com/docker-library/php/issues/236)
 # --enable-mbstring: because otherwise there's no way to get pecl to use it properly (see https://github.com/docker-library/php/issues/195)
-# --enable-maintainer-zts: build PHP as ZTS (Zend Thread Safe) to be able to use pthreads
 # --with-zlib and --with-zlib-dir: See https://stackoverflow.com/a/42978649/245552
-# --enable-opcache-file: allows to use the `opcache.file_cache` option
+# --with-pear: necessary for `pecl` to work (to install PHP extensions)
 #
 RUN set -xe \
  && ./buildconf --force \
@@ -49,7 +72,6 @@ RUN set -xe \
         --build=x86_64-pc-linux-gnu \
         --prefix=${INSTALL_DIR} \
         --enable-option-checking=fatal \
-        --enable-maintainer-zts \
         --enable-sockets \
         --with-config-file-path=${INSTALL_DIR}/etc/php \
         --with-config-file-scan-dir=${INSTALL_DIR}/etc/php/conf.d:/var/task/php/conf.d \
@@ -71,16 +93,13 @@ RUN set -xe \
         --with-pdo-mysql=shared,mysqlnd \
         --with-mysqli \
         --enable-pcntl \
-        --enable-zip \
+        --with-zip \
         --enable-bcmath \
         --with-pdo-pgsql=shared,${INSTALL_DIR} \
         --enable-intl=shared \
-        --enable-opcache-file \
         --enable-soap \
         --with-xsl=${INSTALL_DIR} \
-        --with-gd \
-        --with-png-dir=${INSTALL_DIR} \
-        --with-jpeg-dir=${INSTALL_DIR}
+        --with-pear
 RUN make -j $(nproc)
 # Run `make install` and override PEAR's PHAR URL because pear.php.net is down
 RUN set -xe; \
@@ -89,33 +108,15 @@ RUN set -xe; \
  make clean; \
  cp php.ini-production ${INSTALL_DIR}/etc/php/php.ini
 
-
 # Symlink all our binaries into /opt/bin so that Lambda sees them in the path.
-RUN mkdir -p /opt/bin
-RUN ln -s /opt/bref/bin/* /opt/bin
-RUN ln -s /opt/bref/sbin/* /opt/bin
+RUN mkdir -p /opt/bin \
+    && cd /opt/bin \
+    && ln -s ../bref/bin/* . \
+    && ln -s ../bref/sbin/* .
 
 # Install extensions
 # We can install extensions manually or using `pecl`
-RUN pecl install mongodb
-RUN pecl install redis
 RUN pecl install APCu
-RUN pecl install imagick
-
-# pthreads
-ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
-# Build from master because there are no pthreads release compatible with PHP 7.3
-RUN set -xe; \
-    mkdir -p ${PTHREADS_BUILD_DIR}/bin; \
-    curl -Ls https://github.com/krakjoe/pthreads/archive/master.tar.gz \
-    | tar xzC ${PTHREADS_BUILD_DIR} --strip-components=1
-WORKDIR  ${PTHREADS_BUILD_DIR}/
-RUN set -xe; \
-    phpize \
- && ./configure \
- && make \
- && make install
-
 
 # Run the next step in the previous environment because the `clean.sh` script needs `find`,
 # which isn't installed by default
@@ -128,7 +129,7 @@ RUN /tmp/clean.sh && rm /tmp/clean.sh
 # Now we start back from a clean image.
 # We get rid of everything that is unnecessary (build tools, source code, and anything else
 # that might have created intermediate layers for docker) by copying online the /opt directory.
-FROM amazonlinux:2018.03
+FROM public.ecr.aws/lambda/provided:al2
 ENV PATH="/opt/bin:${PATH}" \
     LD_LIBRARY_PATH="/opt/bref/lib64:/opt/bref/lib"
 

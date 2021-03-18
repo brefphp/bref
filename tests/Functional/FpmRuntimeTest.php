@@ -2,12 +2,15 @@
 
 namespace Bref\Test\Functional;
 
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
 class FpmRuntimeTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var Client */
     private $http;
 
@@ -42,7 +45,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?stderr=1');
 
         $this->assertResponseSuccessful($response);
-        self::assertNotContains('This is a test log into stderr', $this->responseAsString($response));
+        self::assertStringNotContainsString('This is a test log into stderr', $this->responseAsString($response));
     }
 
     public function test error_log function()
@@ -50,7 +53,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?error_log=1');
 
         $this->assertResponseSuccessful($response);
-        self::assertNotContains('This is a test log from error_log', $this->responseAsString($response));
+        self::assertStringNotContainsString('This is a test log from error_log', $this->responseAsString($response));
     }
 
     public function test uncaught exception returns a 500 without the details()
@@ -58,7 +61,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?exception=1');
 
         self::assertSame(500, $response->getStatusCode());
-        self::assertNotContains('This is an uncaught exception', $this->responseAsString($response));
+        self::assertStringNotContainsString('This is an uncaught exception', $this->responseAsString($response));
     }
 
     public function test error returns a 500 without the details()
@@ -66,7 +69,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?error=1');
 
         self::assertSame(500, $response->getStatusCode());
-        self::assertNotContains('strlen() expects exactly 1 parameter, 0 given', $this->responseAsString($response));
+        self::assertStringNotContainsString('strlen() expects exactly 1 parameter, 0 given', $this->responseAsString($response));
     }
 
     public function test fatal error returns a 500 without the details()
@@ -74,7 +77,7 @@ class FpmRuntimeTest extends TestCase
         $response = $this->http->request('GET', '?fatal_error=1');
 
         self::assertSame(500, $response->getStatusCode());
-        self::assertNotContains("require(): Failed opening required 'foo'", $this->responseAsString($response));
+        self::assertStringNotContainsString("require(): Failed opening required 'foo'", $this->responseAsString($response));
     }
 
     public function test warnings do not fail the request and do not appear in the response()
@@ -83,7 +86,7 @@ class FpmRuntimeTest extends TestCase
 
         $this->assertResponseSuccessful($response);
         self::assertEquals('Hello world!', $this->getBody($response));
-        self::assertNotContains('This is a test warning', $this->responseAsString($response));
+        self::assertStringNotContainsString('This is a test warning', $this->responseAsString($response));
     }
 
     public function test php extensions()
@@ -110,7 +113,6 @@ class FpmRuntimeTest extends TestCase
             'fileinfo',
             'filter',
             'ftp',
-            'gd',
             'gettext',
             'hash',
             'iconv',
@@ -122,6 +124,7 @@ class FpmRuntimeTest extends TestCase
             'openssl',
             'pcntl',
             'pcre',
+            'pdo_mysql',
             'pdo_sqlite',
             'posix',
             'readline',
@@ -155,9 +158,9 @@ class FpmRuntimeTest extends TestCase
             'error_log' => null,
             // This is the default production value
             'error_reporting' => (string) (E_ALL & ~E_DEPRECATED & ~E_STRICT),
-            'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-zts-20190902',
+            'extension_dir' => '/opt/bref/lib/php/extensions/no-debug-non-zts-20190902',
             // Same limit as API Gateway
-            'max_execution_time' => '30',
+            'max_execution_time' => '27',
             'max_input_time' => '60',
             // Use the max amount of memory possibly available, lambda will limit us
             'memory_limit' => '3008M',
@@ -169,8 +172,7 @@ class FpmRuntimeTest extends TestCase
             'opcache.memory_consumption' => '128',
             // This is to make sure that we don't strip comments from source code since it would break annotations
             'opcache.save_comments' => '1',
-            // The code is readonly on lambdas so it never changes
-            'opcache.validate_timestamps' => '0',
+            'opcache.validate_timestamps' => '1',
             'short_open_tag' => '',
             'zend.assertions' => '-1',
             'zend.enable_gc' => '1',
@@ -226,6 +228,9 @@ class FpmRuntimeTest extends TestCase
         return $response->getBody()->__toString();
     }
 
+    /**
+     * @return mixed
+     */
     private function getJsonBody(ResponseInterface $response)
     {
         return json_decode($response->getBody()->getContents(), true);

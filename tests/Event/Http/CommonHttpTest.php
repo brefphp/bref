@@ -70,6 +70,14 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         $this->assertHasMultiHeader(false);
     }
 
+    public function test v1 stage prefix is not included in the URL()
+    {
+        $this->fromFixture(__DIR__ . '/Fixture/ag-v1-stage-prefix.json');
+
+        $this->assertPath('/path');
+        $this->assertUri('/path');
+    }
+
     /**
      * @dataProvider provide API Gateway versions
      */
@@ -90,10 +98,15 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-query-string-multivalue.json");
 
-        // TODO The feature is not implemented yet
-        $this->assertQueryParameters(['foo' => 'bar']);
-        $this->assertQueryString('foo=bar');
-        $this->assertUri('/path?foo=bar');
+        $this->assertQueryParameters([
+            'foo' => ['bar', 'baz'],
+            'cards' => ['birthday'],
+            'colors' => [['red'], ['blue']],
+            'shapes' => ['a' => ['square', 'triangle']],
+            'myvar' => 'abc',
+        ]);
+        $this->assertQueryString('foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc');
+        $this->assertUri('/path?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc');
     }
 
     /**
@@ -411,6 +424,18 @@ Year,Make,Model
         $this->assertMethod('OPTIONS');
     }
 
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test path parameters(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-path-parameters.json");
+        $this->assertPathParameters([
+            'bar' => 'abc',
+            'baz' => 'def',
+        ]);
+    }
+
     abstract protected function fromFixture(string $file): void;
 
     abstract protected function assertBody(string $expected): void;
@@ -455,4 +480,6 @@ Year,Make,Model
         int $size,
         string $content
     ): void;
+
+    abstract protected function assertPathParameters(array $expected): void;
 }

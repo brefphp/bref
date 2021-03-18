@@ -12,9 +12,16 @@ layers: export/console.zip export/php-73.zip export/php-73-fpm.zip
 export/php%.zip: docker-images
 	PHP_VERSION=$$(echo $@ | cut -d'/' -f 2 | cut -d'.' -f 1);\
 	rm -f $@;\
-	mkdir export/tmp ; cd export/tmp ;\
-	docker run --entrypoint "tar" bref/$$PHP_VERSION:latest -ch -C /opt .  |tar -x;zip --quiet --recurse-paths ../$$PHP_VERSION.zip . ;
-	rm -rf export/tmp
+	cd export ; \
+	set -e ; \
+	rm -rf opt ; \
+	CID=$$(docker create --entrypoint=scratch bref/$$PHP_VERSION:latest) ; \
+	docker cp $${CID}:/opt . ; \
+	docker rm $${CID} ; \
+	cd opt ; \
+	zip -qq -y -r - {*,.[!.]*} > ../$$PHP_VERSION.zip
+	cd ../ ; \
+	rm -rf opt ;
 
 # The console runtime
 export/console.zip: layers/console/bootstrap

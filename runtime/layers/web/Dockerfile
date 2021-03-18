@@ -1,4 +1,4 @@
-FROM nginx:latest
+FROM nginx:alpine
 COPY default.conf /etc/nginx/conf.d/default.conf
 
 CMD  if [ -z "$DOCUMENT_ROOT" ];then HANDLER_DR=$HANDLER;else HANDLER_DR=${HANDLER#"$DOCUMENT_ROOT/"};fi;\

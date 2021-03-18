@@ -8,18 +8,21 @@
     <div class="hero">
 
         <nav class="py-5 font-light">
-            <div class="container mx-auto px-4 flex items-center justify-between flex-wrap">
+            <div class="container max-w-screen-xl mx-auto px-4 flex items-center justify-between flex-wrap">
                 <div class="flex items-center flex-shrink-0">
                     <a href="/docs/" title="Bref documentation for serverless PHP applications"
                        class="inline-block text-blue-100 hover:text-white px-4 py-2 mr-4">
                         Documentation
                     </a>
-                    <a href="/#enterprise" title="Bref enterprise"
+                    <a href="/docs/news/" title="Bref news"
                        class="inline-block text-blue-100 hover:text-white px-4 py-2 mr-4">
-                        Enterprise
+                        News
                     </a>
                 </div>
-                <div>
+                <div class="flex items-center">
+                    <div class="hidden md:inline-block px-4 py-2 sm:mr-4">
+                        <input type="search" placeholder="Search" class="search-input w-48 lg:w-64 rounded-md px-4 lg:px-6 py-2 bg-transparent transition-all duration-200 bg-blue-700 outline-none focus:outline-none text-white shadow-md focus:shadow-2xl transform focus:scale-125 placeholder-blue-300 cursor-pointer" />
+                    </div>
                     <a href="https://github.com/brefphp/bref" title="Bref on GitHub"
                        class="inline-block text-blue-200 hover:text-white">
                         <svg class="fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
@@ -28,9 +31,9 @@
             </div>
         </nav>
 
-        <section class="container mx-auto py-12 lg:py-24 xl:pt-32 px-4">
+        <section class="container max-w-screen-xl mx-auto py-12 lg:py-24 xl:pt-32 px-4">
             <div class="md:flex">
-                <div class="flex-1 clearfix">
+                <div class="flex-1 flow-root">
                     <img src="/img/logo-white.svg" alt="bref logo" class="home-logo md:float-right md:mr-12">
                 </div>
                 <div class="flex-1">
@@ -60,14 +63,14 @@
     </div>
 
     <section class="py-24 lg:pb-32">
-        <div class="container mx-auto px-4">
+        <div class="container max-w-screen-xl mx-auto px-4">
             <div class="md:flex">
                 <div class="flex-1 md:mr-6">
                     <h2 class="mb-12 text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bref text-gray-800">
                         A higher level stack
                     </h2>
                     <p class="mb-3">
-                        Creating and running <strong>modern and scalable PHP applications</strong> can be simple. By using serverless technologies, like AWS Lambda, we can focus on development and worry less about servers.
+                        Creating and running <strong>modern and scalable PHP applications</strong> should be simpler. By using serverless technologies, like AWS Lambda, we can focus on development and worry less about servers.
                     </p>
                     <p>
                         Bref is an open source project that brings full support for PHP and its frameworks to AWS Lambda.
@@ -113,23 +116,50 @@
         </div>
     </section>
 
+    <section id="course" class="py-8 md:py-12 bg-blue-800 text-white text-sm md:text-base">
+        <div class="container mx-auto max-w-4xl px-4 md:flex items-end lg:items-center">
+            <div class="flex-grow md:pr-12">
+                <h2 class="mb-6 text-2xl md:text-3xl font-bref text-blue-100">
+                    Take the serverless course
+                </h2>
+                <p class="mb-4">
+                    <a class="text-blue-200 hover:text-white underline" href="https://serverless-visually-explained.com/?ref=bref-home"
+                       title="Learn how to create serverless applications on AWS">
+                        Serverless Visually Explained</a>
+                    is a hands-on course that teaches developers how to create serverless applications.
+                </p>
+                <p class="mb-4">
+                    Written by Bref's creator, this interactive course focuses on use cases:
+                    APIs, websites, workers, micro-services…
+                </p>
+                <p class="mb-4 md:mb-0">
+                    Learn more at
+                    <a class="text-blue-200 hover:text-white underline" href="https://serverless-visually-explained.com/?ref=bref-home"
+                       title="Serverless course for developers">
+                        serverless-visually-explained.com</a>.
+                </p>
+            </div>
+            <a href="https://serverless-visually-explained.com/?ref=bref-home"
+               title="Serverless course for developers"
+               class="w-full max-w-xs mx-auto md:w-96 lg:w-full block rounded overflow-hidden shadow-lg">
+                <img src="/img/serverless-visually-explained.png" alt="Serverless Visually Explained"></a>
+        </div>
+    </section>
+
     <section id="sponsors" class="py-24 lg:pb-32 bg-gray-100 text-center">
-        <div class="container mx-auto px-4">
+        <div class="container max-w-screen-xl mx-auto px-4">
             <h2 class="mb-12 md:mb-16 text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bref text-gray-800">
                 They sponsor the project
             </h2>
-            <div class="mb-8 flex flex-wrap justify-around max-w-3xl mx-auto">
-                <a class="block self-center mx-6 mb-6" href="https://null.tc/" title="Serverless consulting company">
+            <div class="mb-4 flex flex-wrap justify-around max-w-lg mx-auto">
+                <a class="block self-center mx-6 -mt-2 mb-6" href="https://null.tc/" title="Serverless consulting company">
                     <img class="h-12" src="/img/logo-null.png" alt="Null">
-                </a>
-                <a class="block self-center mx-6 mb-6" href="https://craftcms.com/" title="Craft CMS">
-                    <img class="h-12" src="/img/logo-craft-cms.png" alt="Craft CMS">
                 </a>
                 <a class="block self-center mx-6 mb-6" href="https://geckoengage.com/" title="GeckoEngage">
                     <img class="h-8" src="/img/logo-gecko-engage.png" alt="GeckoEngage">
                 </a>
             </div>
-            <div class="mb-8 flex flex-wrap justify-around max-w-2xl mx-auto">
+            <div class="mb-4 flex flex-wrap justify-around max-w-xl mx-auto">
                 <a class="block self-center mx-6 mb-6" href="https://www.twilio.com/" title="Twilio">
                     <img class="h-10" src="/img/logo-twilio.svg" alt="Twilio">
                 </a>
@@ -140,15 +170,18 @@
                     <img class="h-20" src="/img/logo-laravel.svg" alt="Laravel">
                 </a>
             </div>
-            <div class="mb-8 flex flex-wrap justify-center">
+            <div class="mb-4 flex flex-wrap justify-center">
                 <a class="block self-center mx-6 mb-6" href="https://www.amezmo.com/" title="Amezmo - Cloud hosting and deployment for PHP">
-                    <img class="w-24" src="/img/logo-amezmo.svg" alt="Amezmo">
+                    <img class="w-20 mt-1" src="/img/logo-amezmo.svg" alt="Amezmo">
                 </a>
                 <a class="block self-center mx-6 mb-6" href="https://www.web-id.fr/" title="Web-ID - Laravel web agency">
                     <img class="h-10" src="/img/logo-web-id.png" alt="Web-ID">
                 </a>
                 <a class="block self-center mx-6 mb-6" href="https://ecomail.cz/" title="Ecomail.cz">
                     <img class="w-24" src="/img/logo-ecomail.png" alt="Ecomail.cz">
+                </a>
+                <a class="block self-center mx-6 mb-6" href="https://akaunting.com/" title="Akaunting - Free Accounting Software">
+                    <img class="w-32" src="/img/logo-akaunting.svg" alt="Akaunting">
                 </a>
             </div>
             <p class="text-sm">
@@ -159,19 +192,16 @@
 
     {% include 'enterprise.twig' %}
 
-    <section class="pt-24 pb-12 bg-gray-800 text-gray-400">
-        <div class="container mx-auto px-4">
-            <p class="font-light">
-                Need
-                <a href="https://training.bref.sh"
-                        title="Join a serverless PHP workshop to get trained on using Bref and creating applications"
-                        class="text-blue-400 hover:text-white">
-                    training
-                </a>
-                or support? Get in touch with
-                <a href="https://null.tc/" title="null is a consulting and web development company." class="text-blue-400">null</a>, the team that creates Bref.
-            </p>
-        </div>
-    </section>
+    {% include 'footer.twig' %}
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+    <script type="text/javascript"> docsearch({
+            apiKey: 'ab85f420c1da297f9d9916e57fe81f7d',
+            indexName: 'bref',
+            inputSelector: '.search-input',
+            debug: false, // Set debug to true if you want to inspect the dropdown
+        });
+    </script>
 
 {% endblock %}

@@ -81,6 +81,22 @@ class LambdaRuntimeTest extends TestCase
         $this->assertErrorInLogs('RuntimeException', 'This is an exception');
     }
 
+    public function test nested exceptions in the handler result in an invocation error()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $this->runtime->processNextEvent(function () {
+            throw new \RuntimeException('This is an exception', 0, new \RuntimeException('The previous exception.', 0, new \Exception('The original exception.')));
+        });
+
+        $this->assertInvocationErrorResult('RuntimeException', 'This is an exception');
+        $this->assertErrorInLogs('RuntimeException', 'This is an exception');
+        $this->assertPreviousErrorsInLogs([
+            ['errorClass' => 'RuntimeException', 'errorMessage' => 'The previous exception.'],
+            ['errorClass' => 'Exception', 'errorMessage' => 'The original exception.'],
+        ]);
+    }
+
     public function test an error is thrown if the runtime API returns a wrong response()
     {
         $this->expectExceptionMessage('Failed to fetch next Lambda invocation: The requested URL returned error: 404 Not Found');
@@ -174,7 +190,7 @@ class LambdaRuntimeTest extends TestCase
 
         $message = <<<ERROR
 The Lambda response cannot be encoded to JSON.
-This error usually happens when you try to return binary content. If you are writing a HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses
+This error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-responses
 Here is the original JSON error: 'Malformed UTF-8 characters, possibly incorrectly encoded'
 ERROR;
         $this->assertInvocationErrorResult('Exception', $message);
@@ -184,7 +200,10 @@ ERROR;
     public function test generic event handler()
     {
         $handler = new class() implements Handler {
-            /** @param mixed $event */
+            /**
+             * @param mixed $event
+             * @return mixed
+             */
             public function handle($event, Context $context)
             {
                 return $event;
@@ -372,7 +391,7 @@ ERROR;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
-        $this->assertInternalType('array', $invocationResult['stackTrace']);
+        $this->assertIsArray($invocationResult['stackTrace']);
     }
 
     private function assertErrorInLogs(string $errorClass, string $errorMessage): void
@@ -388,6 +407,7 @@ ERROR;
         $this->assertNotEmpty($requestId);
 
         $invocationResult = json_decode($json, true);
+        unset($invocationResult['previous']);
         $this->assertSame([
             'errorType',
             'errorMessage',
@@ -395,6 +415,27 @@ ERROR;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
-        $this->assertInternalType('array', $invocationResult['stack']);
+        $this->assertIsArray($invocationResult['stack']);
+    }
+
+    private function assertPreviousErrorsInLogs(array $previousErrors)
+    {
+        // Decode the logs from stdout
+        $stdout = $this->getActualOutput();
+
+        [, , $json] = explode("\t", $stdout);
+
+        ['previous' => $previous] = json_decode($json, true);
+        $this->assertCount(count($previousErrors), $previous);
+        foreach ($previous as $index => $error) {
+            $this->assertSame([
+                'errorType',
+                'errorMessage',
+                'stack',
+            ], array_keys($error));
+            $this->assertEquals($previousErrors[$index]['errorClass'], $error['errorType']);
+            $this->assertEquals($previousErrors[$index]['errorMessage'], $error['errorMessage']);
+            $this->assertIsArray($error['stack']);
+        }
     }
 }

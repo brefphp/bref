@@ -1,0 +1,27 @@
+{% extends 'news.twig' %}
+
+{% block article %}
+    <hr class="md:mb-8">
+    <div class="md:flex">
+        <div class="md:w-1/5 py-4 md:mr-8 text-gray-600">
+            <div class="mb-8 md:mb-12">{{ articleDate }}</div>
+            <div class="mb-8 md:mb-12 text-sm flex justify-start content-center">
+                <a href="https://github.com/{{ authorGithub }}" class="mr-2">
+                    <img src="https://github.com/{{ authorGithub }}.png?size=200" alt="{{ author }}" class="rounded-full w-10 h-10">
+                </a>
+                <div>
+                    <div class="text-gray-600">
+                        {{ author }}
+                    </div>
+                    <a href="https://github.com/{{ authorGithub }}" class="block">
+                        @{{ authorGithub }}
+                    </a>
+                </div>
+            </div>
+            <div><a href="/docs/news/" class="text-sm">← All news</a></div>
+        </div>
+        <div class="md:w-4/5">
+            {{ content|raw }}
+        </div>
+    </div>
+{% endblock %}

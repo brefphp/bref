@@ -2,6 +2,12 @@
 title: Creating serverless PHP websites
 current_menu: websites
 introduction: Learn how to deal with assets and static files to deploy serverless PHP websites.
+previous:
+    link: /docs/runtimes/http.html
+    title: Web applications on AWS Lambda
+next:
+    link: /docs/runtimes/console.html
+    title: Console commands
 ---
 
 > Before reading this article we assume that you have read [Bref's introduction](/docs/first-steps.md) and that you are familiar with [Bref's HTTP runtime](/docs/runtimes/http.md).
@@ -21,7 +27,24 @@ You will find below different architectures for creating websites.
 
 This architecture is the simplest. Assets are hosted on a separate domain than the PHP code.
 
-The main downside is that **API Gateway only supports HTTPS**. Hosting websites on HTTPS is a good thing, however that means that there is no redirection from HTTP to HTTPS. In short, `https://website.com` will work but not `http://website.com`. It is up to you to decide if this limitation is acceptable for your use case.
+However, by default **API Gateway only supports HTTPS**. That means there is no redirection from HTTP to HTTPS: `https://website.com` will work but not `http://website.com`.
+
+To solve that, we can switch from API Gateway's ["HTTP API" to "REST API"](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html) (which provides a HTTP -> HTTPS redirection).
+Despite the name, REST API work fine for websites.
+
+```diff
+functions:
+    website:
+        # ...
+        events:
+-            - httpApi: '*'
++            - http: 'ANY /'
++            - http: 'ANY /{proxy+}'
+```
+
+Finally, when [setting up a custom domain](/docs/environment/custom-domains.md) make sure to select **Edge deployment**:
+
+![](/docs/web-apps/edge-deployment.png)
 
 ### Same domain
 
@@ -71,7 +94,7 @@ resources:
                             # alternatively you can write out Resource: 'arn:aws:s3:::<bucket-name>/*'
 ```
 
-Don't forget to replace `<bucket-name>` with the bucket name of your choice.
+Don't forget to replace `<bucket-name>` with the bucket name of your choice. Note that the name must be universally unique within Amazon (so you can't use `assets`) otherwise you'll get this error when you deploy: `Assets - assets already exists.`
 
 After [deploying with `serverless deploy`](/docs/deploy.md), the static files will be served from `https://<bucket>.s3.amazonaws.com/`. Read the next section to upload your files.
 
@@ -105,7 +128,7 @@ It is not possible to use `serverless deploy` to upload files to S3, you need to
 aws s3 sync <your-assets-directory> s3://<bucket-name>/<your-assets-folder> --delete
 ```
 
-Please note that the assets would normally need to be inside a folder, and not in the root of your bucket. 
+Please note that the assets would normally need to be inside a folder, and not in the root of your bucket.
 
 Be aware that the content of the bucket is public!
 
@@ -135,16 +158,15 @@ The `serverless.yml` example below:
 service: app
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
 
 functions:
     website:
         handler: public/index.php
         layers:
-            - ${bref:layer.php-73-fpm}
+            - ${bref:layer.php-74-fpm}
         events:
-            -   http: 'ANY /'
-            -   http: 'ANY {proxy+}'
+            - httpApi: '*'
 
 plugins:
     - ./vendor/bref/bref
@@ -153,10 +175,10 @@ resources:
     Resources:
         # The S3 bucket that stores the assets
         Assets:
-            # [...] see the previous section for details 
+            # [...] see the previous section for details
         AssetsBucketPolicy:
-            # [...] see the previous section for details 
-    
+            # [...] see the previous section for details
+
         WebsiteCDN:
             Type: AWS::CloudFront::Distribution
             Properties:
@@ -170,11 +192,15 @@ resources:
                     Origins:
                         # The website (AWS Lambda)
                         -   Id: Website
-                            DomainName: !Join ['.', [!Ref ApiGatewayRestApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com']]
-                            # This is the stage
-                            OriginPath: "/${opt:stage, 'dev'}"
+                            DomainName: !Join ['.', [!Ref HttpApi, 'execute-api', !Ref AWS::Region, 'amazonaws.com']]
                             CustomOriginConfig:
                                 OriginProtocolPolicy: 'https-only' # API Gateway only supports HTTPS
+                            # CloudFront does not forward the original `Host` header. We use this
+                            # to forward the website domain name to PHP via the `X-Forwarded-Host` header.
+                            # Learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Host
+                            #OriginCustomHeaders:
+                            #    -   HeaderName: 'X-Forwarded-Host'
+                            #        HeaderValue: example.com # our custom domain
                         # The assets (S3)
                         -   Id: Assets
                             DomainName: !GetAtt Assets.RegionalDomainName
@@ -202,9 +228,12 @@ resources:
                             # We must *not* forward the `Host` header else it messes up API Gateway
                             Headers:
                                 - 'Accept'
+                                - 'Accept-Encoding'
                                 - 'Accept-Language'
+                                - 'Authorization'
                                 - 'Origin'
                                 - 'Referer'
+                        # CloudFront will force HTTPS on visitors (which is more secure)
                         ViewerProtocolPolicy: redirect-to-https
                     CacheBehaviors:
                         # Assets will be served under the `/assets/` prefix
@@ -219,7 +248,7 @@ resources:
                             ViewerProtocolPolicy: redirect-to-https
                             Compress: true # Serve files with gzip for browsers that support it (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/ServingCompressedFiles.html)
                     CustomErrorResponses:
-                        # Do not cache HTTP errors
+                        # Force CloudFront to not cache HTTP errors
                         -   ErrorCode: 500
                             ErrorCachingMinTTL: 0
                         -   ErrorCode: 504
@@ -228,7 +257,7 @@ resources:
 
 Feel free to customize the `/asset/` path. If your application is a JS application backed by a PHP API, you will want to invert API Gateway and S3 (set S3 as the `DefaultCacheBehavior` and serve API Gateway under a `/api/` path).
 
-> The first deployment takes a lot of time (20 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay. You will know it is finished when the `Status` column changes from `In Progress` to `Deployed` in your [CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home).
+> The first deployment takes a lot of time (5 to 10 minutes) because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay. You will know it is finished when the `Status` column changes from `In Progress` to `Deployed` in your [CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home).
 
 The URL of the deployed CloudFront distribution can be found in [the CloudFront dashboard](https://console.aws.amazon.com/cloudfront/home) under `Domain Name`.
 
@@ -269,7 +298,7 @@ resources:
                     ViewerCertificate:
                         # ARN of the certificate created in ACM
                         AcmCertificateArn: <certificate-arn>
-                        # See https://docs.aws.amazon.com/fr_fr/cloudfront/latest/APIReference/API_ViewerCertificate.html
+                        # See https://docs.aws.amazon.com/cloudfront/latest/APIReference/API_ViewerCertificate.html
                         SslSupportMethod: 'sni-only'
                         MinimumProtocolVersion: TLSv1.1_2016
 ```
@@ -280,3 +309,12 @@ The last step will be to point your domain name to the CloudFront URL:
 - create a CNAME to point your domain name to this URL
     - if you use Route53 you can read [the official guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)
     - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [CloudFlare allows this with a technique called CNAME flattening](https://support.cloudflare.com/hc/en-us/articles/200169056-Understand-and-configure-CNAME-Flattening))
+
+## More examples
+
+Complete deployable examples for:
+
+- server-side websites with assets
+- single-page applications with a backend API
+
+are available in the [Serverless Visually Explained](https://serverless-visually-explained.com/) course.

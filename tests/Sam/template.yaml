@@ -8,9 +8,9 @@ Resources:
             FunctionName: 'bref-tests-function'
             CodeUri: ../..
             Handler: tests/Sam/Php/function.php
-            Runtime: provided
+            Runtime: provided.al2
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-74:9'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-74:18'
             Environment:
                 Variables:
                     FOO: bar
@@ -21,9 +21,9 @@ Resources:
             FunctionName: 'bref-tests-http'
             CodeUri: ../..
             Handler: tests/Sam/PhpFpm/index.php
-            Runtime: provided
+            Runtime: provided.al2
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-74-fpm:9'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-74-fpm:18'
             Events:
                 HttpRoot:
                     Type: Api
@@ -40,9 +40,9 @@ Resources:
             FunctionName: 'bref-tests-http-missing-handler'
             CodeUri: ../..
             Handler: tests/Sam/PhpFpm/UNKNOWN.php
-            Runtime: provided
+            Runtime: provided.al2
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-74-fpm:9'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-74-fpm:18'
             Events:
                 HttpRoot:
                     Type: Api
@@ -56,9 +56,9 @@ Resources:
             FunctionName: 'bref-tests-psr7'
             CodeUri: ../..
             Handler: tests/Sam/Php/psr7.php
-            Runtime: provided
+            Runtime: provided.al2
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-74:9'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-74:18'
             Events:
                 HttpRoot:
                     Type: Api

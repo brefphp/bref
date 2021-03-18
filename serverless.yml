@@ -2,7 +2,7 @@ service: bref-demo
 
 provider:
     name: aws
-    runtime: provided
+    runtime: provided.al2
     region: us-east-2
     logs:
         restApi: true
@@ -34,7 +34,6 @@ functions:
         handler: demo/http.php
         description: 'Bref HTTP demo'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
-        memory: 1024
         layers:
             - ${bref:layer.php-74-fpm}
         events:
@@ -44,11 +43,11 @@ functions:
         handler: demo/psr7.php
         description: 'Bref HTTP demo with a PSR-7 handler'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
-        memory: 1024
         layers:
             - ${bref:layer.php-74}
         events:
             -   http: 'ANY /psr7'
+            -   httpApi: 'GET /psr7'
         environment:
             BREF_LOOP_MAX: 100
 
@@ -56,7 +55,6 @@ functions:
         handler: demo/http.php
         description: 'Bref HTTP demo'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
-        memory: 1024
         layers:
             - ${bref:layer.php-74-fpm}
         events:

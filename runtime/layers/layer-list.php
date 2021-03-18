@@ -7,7 +7,7 @@
  */
 
 use AsyncAws\Lambda\LambdaClient;
-use AsyncAws\Lambda\Result\LayerVersionsListItem;
+use AsyncAws\Lambda\ValueObject\LayerVersionsListItem;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -60,4 +60,3 @@ function listLayers(string $selectedRegion): array
 
     return $layers;
 }
-

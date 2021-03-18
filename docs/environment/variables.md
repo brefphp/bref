@@ -37,13 +37,19 @@ Secrets (API tokens, database passwords, etc.) should not be defined in `serverl
 
 Instead you can use the [SSM parameter store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html), a free service provided by AWS.
 
-To create a parameter you can either do it manually in the [SSM parameter store console](https://console.aws.amazon.com/systems-manager/parameters) or use the following command:
+To create a parameter, you can do it via the [AWS SSM console](https://console.aws.amazon.com/systems-manager/parameters) or in the Bref Dashboard by running:
+
+```bash
+vendor/bin/bref dashboard
+```
+
+You can also do it in the CLI via the following command:
 
 ```bash
 aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
 ```
 
-For Windows users, the first part of the parth needs to be double slashes and all subsequent forward slashes changed to backslashes:
+For Windows users, the first part of the path needs to be double slashes and all subsequent forward slashes changed to backslashes:
 ```bash
 aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type String --value 'mysecretvalue'
 ```
@@ -70,10 +76,15 @@ However Secrets Manager is not free: [pricing details](https://aws.amazon.com/se
 
 ## Local development
 
-When [developing locally using `serverless invoke local`](/docs/local-development.md) you can override environment variables via the `--env` option:
+When [developing locally using `vendor/bin/bref local`](/docs/local-development.md), you can set environment variables using bash:
 
 ```bash
-serverless invoke local -f <Function> --env VAR1=val1 --env VAR2=val2
+VAR1=val1 VAR2=val2 vendor/bin/bref local <funtion>
+
+# Or using `export`:
+export VAR1=val1
+export VAR2=val2
+vendor/bin/bref local <funtion>
 ```
 
 ## Learn more

@@ -26,8 +26,8 @@ That means that you don't have to configure anything to log errors, warnings or 
 
 Your application can write logs to CloudWatch:
 
-- in a [PHP function](/docs/runtimes/function.md): write logs to `stdout` (using `echo` for example) or `stderr`
-- in a [HTTP application](/docs/runtimes/http.md): write logs to `stderr`
+- [Bref for web apps](/docs/runtimes/http.md): write logs to `stderr`
+- [Bref for event-driven functions](/docs/runtimes/function.md): write logs to `stdout` (using `echo` for example) or `stderr`
 
 For example with [Monolog](https://github.com/Seldaek/monolog):
 
@@ -48,9 +48,13 @@ $log->warning('This is a warning!');
 
 ### Reading logs
 
-To read logs, either open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:) or open the Bref Dashboard by running `vendor/bin/bref dashboard`.
+To read logs, either open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:) or the Bref Dashboard by running:
 
-You can also use `serverless logs`:
+```bash
+vendor/bin/bref dashboard
+```
+
+You can also use `serverless logs` to view them in the CLI:
 
 ```bash
 serverless logs -f <function-name>
@@ -58,7 +62,3 @@ serverless logs -f <function-name>
 # Tail logs:
 serverless logs -f <function-name> --tail
 ```
-
-## Advanced use cases
-
-If you have more specific needs you can send logs to other services, for example Logstash, Papertrail, or Loggly.

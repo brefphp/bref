@@ -18,7 +18,9 @@ Here are some of the database services offered by RDS:
 All RDS databases can be setup with Lambda in two ways:
 
 1. the database can be made publicly accessible and protected by a username and password
-2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/fr/vpc/))
+2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/vpc/))
+
+> Note that Aurora Serverless [cannot be made publicly accessible](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html), only the second option is possible.
 
 While the first solution is simpler, the second is more secure. Using a VPC also comes with a few limitations that are detailed below.
 
@@ -26,19 +28,31 @@ This page documents how to create databases using VPC (the reliable and secure s
 
 > If you use Aurora Serverless, you can also use the [RDS Data API](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/data-api.html). SQL queries are executed through an HTTP API instead of the traditional MySQL/PostgreSQL connection. To help you, the [dbal-rds-data](https://github.com/Nemo64/dbal-rds-data) library is a Doctrine DBAL driver. Please note that the library and the API itself are new and experimental.
 
-## Limitations
+## Accessing the internet
 
-> Running a function inside a VPC used to induce a [cold start](/docs/environment/performances.md#cold-starts) of several seconds. This is no longer the case since October 2019.
+> <strong class="text-xl">⚠️ WARNING ⚠️</strong>
+>
+> If your Lambda function has **timeouts**, please read this section.
+>
+> If you plan on using a database, please read this section.
 
-### Accessing the internet
+A database inside a [VPC](https://aws.amazon.com/vpc/) is isolated from the internet. Lambda must run in the VPC to access the database, but it will lose access the internet (for example external APIs, and other AWS services).
 
-A database inside a [VPC](https://aws.amazon.com/fr/vpc/) is isolated from the internet. Since a lambda function must run in the VPC to access the database, it cannot access the internet (for example external APIs) or most other AWS services.
+To be clear:
 
-To enable internet access for a lambda you will need to create a NAT Gateway in the VPC: you can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12).
+**Lambda will lose internet access in a VPC.**
+
+Because of that, you may see errors like this:
+
+> Task timed out after 28 seconds
+
+To restore internet access for a lambda you will need to create a NAT Gateway in the VPC: you can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12), use [the serverless VPC plugin](https://github.com/smoketurner/serverless-vpc-plugin), or use the complete example in [Serverless Visually Explained](https://serverless-visually-explained.com/).
 
 Watch out, a NAT Gateway will increase costs (starts at $27 per month). Note that you can use one VPC and one NAT Gateway for multiple projects.
 
-When possible, an alternative to NAT Gateways is to split the work done by a lambda in 2 lambdas: one in the VPC that accesses the database and one outside that accesses the external API. It is also possible to access specific AWS services in a VPC by creating "private endpoints": this is possible for S3, API Gateway, [and more](https://docs.aws.amazon.com/en_pv/vpc/latest/userguide/vpc-endpoints-access.html).
+When possible, an alternative to NAT Gateways is to split the work done by a lambda in 2 lambdas: one in the VPC that accesses the database and one outside that accesses the external API. But that's often hard to implement in practice.
+
+Finally, another free alternative to NAT Gateway is to access AWS services by creating "*private VPC endpoints*": this is possible for S3, API Gateway, [and more](https://docs.aws.amazon.com/en_pv/vpc/latest/userguide/vpc-endpoints-access.html).
 
 ## Creating a database
 
@@ -113,34 +127,16 @@ You can learn more about limitations and guidelines from the AWS documentation a
 
 ## Accessing the database from your machine
 
-Since the database is in a VPC, it cannot be accessed from the outside (i.e. the internet). You cannot connect to your database with MySQL Workbench or other administration tools.
+A database in a VPC cannot be accessed from the outside, i.e. the internet. You cannot connect to it via tools like MySQL Workbench.
 
-When creating a new project, the database can be set up through several means:
+Here are some solutions:
 
-- via a lambda that loads a SQL dump into the database (for example a [console lambda](/docs/runtimes/console.md))
-- by temporarily exposing the database on the internet
+- run tasks on Lambda, for example to import a SQL dump, to debug some data…
+- **insecure**: connect from your computer by exposing the database on the internet
+- **secure**: connect from your computer via a SSH tunnel
 
-Exposing your database to the internet is risky and should only be done for a few minutes or hours (for example to load a SQL dump).
+To create an SSH tunnel easily and securely, **[check out 7777](https://port7777.com/?utm_source=bref)**, made by Bref maintainers:
 
-To do so, open your RDS instance in the [RDS console](https://console.aws.amazon.com/rds/home#databases:):
+[![](https://port7777.com/img/7777-social.png)](https://port7777.com/?utm_source=bref)
 
-- click "Modify"
-- enable "Public accessibility"
-- click "Continue"
-- select "Apply immediately" (**do not skip this step**)
-- click "Modify DB Instance"
-
-Now click the *security group* of the instance:
-
-- open the "Inbound" tab
-- click "Edit"
-- add a rule: select "MySQL/Aurora" (or PostgreSQL) and set "Anywhere" as the source (you could also set your public IP for increased security)
-- save
-
-Connect to your database using your favorite tool. For example using `mysql` in the CLI:
-
-```bash
-mysql -h<endpoint> -u<root user> -p <database>
-```
-
-**Remember to revert those changes once you are done!**
+To expose the database publicly on the internet, [follow this guide](database-public.md).

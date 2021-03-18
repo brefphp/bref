@@ -38,7 +38,7 @@ website-preview:
 
 website-assets: website/template/output.css
 website/template/output.css: website/node_modules website/template/styles.css website/tailwind.config.js
-	cd website && npx tailwind build template/styles.css -o template/output.css
+	cd website && NODE_ENV=production npx tailwind build template/styles.css -o template/output.css
 website/node_modules: website/package.json website/package-lock.json
 	cd website && npm install
 
@@ -52,4 +52,13 @@ layers.json:
 test-stack:
 	serverless deploy -c tests/serverless.tests.yml
 
-.PHONY: runtimes website website-preview website-assets demo layers.json test-stack
+changelog:
+	docker run -it --rm -v "$(pwd)":/usr/local/src/your-app ferrarimarco/github-changelog-generator --user brefphp --project bref --output= --unreleased-only --token=$$GITHUB_TOKEN_READ --no-issues --usernames-as-github-logins --no-verbose
+
+# http://amazon-linux-2-packages.bref.sh/
+amazonlinux-package-list:
+	docker run --rm -it --entrypoint= public.ecr.aws/lambda/provided:al2 yum list --quiet --color=never > index.html
+	aws s3 cp index.html s3://amazon-linux-2-packages.bref.sh/ --content-type=text/plain
+	rm index.html
+
+.PHONY: runtimes website website-preview website-assets demo layers.json test-stack changelog

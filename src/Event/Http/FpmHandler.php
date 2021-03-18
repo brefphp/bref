@@ -32,6 +32,11 @@ final class FpmHandler extends HttpHandler
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const PID_FILE = '/tmp/.bref/php-fpm.pid';
     private const CONFIG = '/opt/bref/etc/php-fpm.conf';
+    /**
+     * We define this constant instead of using the PHP one because that avoids
+     * depending on the pcntl extension.
+     */
+    private const SIGTERM = 15;
 
     /** @var Client|null */
     private $client;
@@ -70,6 +75,7 @@ final class FpmHandler extends HttpHandler
          * --force-stderr: force logs to be sent to stderr, which will allow us to send them to CloudWatch
          */
         $this->fpm = new Process(['php-fpm', '--nodaemonize', '--force-stderr', '--fpm-config', $this->configFile]);
+
         $this->fpm->setTimeout(null);
         $this->fpm->start(function ($type, $output): void {
             // Send any PHP-FPM log to CloudWatch
@@ -77,7 +83,7 @@ final class FpmHandler extends HttpHandler
         });
 
         $this->client = new Client;
-        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 30000);
+        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 900000);
 
         $this->waitUntilReady();
     }
@@ -107,26 +113,30 @@ final class FpmHandler extends HttpHandler
         try {
             $response = $this->client->sendRequest($this->connection, $request);
         } catch (Throwable $e) {
-            throw new FastCgiCommunicationFailed(sprintf(
-                'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
+            printf(
+                "Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will restart PHP-FPM now. Original exception message: %s %s\n",
                 get_class($e),
                 $e->getMessage()
-            ), 0, $e);
+            );
+
+            // Restart PHP-FPM: in some cases PHP-FPM is borked, that's the only way we can recover
+            $this->stop();
+            $this->start();
+
+            throw new FastCgiCommunicationFailed;
         }
 
-        $responseHeaders = $this->getResponseHeaders($response, $event->hasMultiHeader());
+        $responseHeaders = $this->getResponseHeaders($response);
 
         // Extract the status code
         if (isset($responseHeaders['status'])) {
-            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status']);
+            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
             unset($responseHeaders['status']);
         }
 
-        $response = new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
-
         $this->ensureStillRunning();
 
-        return $response;
+        return new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
     }
 
     /**
@@ -155,7 +165,7 @@ final class FpmHandler extends HttpHandler
 
             // If the process has crashed we can stop immediately
             if (! $this->fpm->isRunning()) {
-                throw new Exception('PHP-FPM failed to start');
+                throw new Exception('PHP-FPM failed to start: ' . PHP_EOL . $this->fpm->getOutput() . PHP_EOL . $this->fpm->getErrorOutput());
             }
         }
     }
@@ -181,9 +191,6 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('QUERY_STRING', $event->getQueryString());
         $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context));
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext()));
-
-        /** @deprecated The LAMBDA_CONTEXT has been renamed to LAMBDA_REQUEST_CONTEXT for clarity */
-        $request->setCustomVar('LAMBDA_CONTEXT', json_encode($event->getRequestContext()));
 
         $contentType = $event->getContentType();
         if ($contentType) {
@@ -239,7 +246,7 @@ final class FpmHandler extends HttpHandler
         echo "PHP-FPM seems to be running already. This might be because Lambda stopped the bootstrap process but didn't leave us an opportunity to stop PHP-FPM (did Lambda timeout?). Stopping PHP-FPM now to restart from a blank slate.\n";
 
         // The previous PHP-FPM process is running, let's try to kill it properly
-        $result = posix_kill($pid, SIGTERM);
+        $result = posix_kill($pid, self::SIGTERM);
         if ($result === false) {
             echo "PHP-FPM's PID file contained a PID that doesn't exist, assuming PHP-FPM isn't running.\n";
             unlink(self::SOCKET);
@@ -271,17 +278,8 @@ final class FpmHandler extends HttpHandler
     /**
      * Return an array of the response headers.
      */
-    private function getResponseHeaders(ProvidesResponseData $response, bool $isMultiHeader): array
+    private function getResponseHeaders(ProvidesResponseData $response): array
     {
-        $responseHeaders = $response->getHeaders();
-        if (! $isMultiHeader) {
-            // If we are not in "multi-header" mode, we must keep the last value only
-            // and cast it to string
-            foreach ($responseHeaders as $key => $value) {
-                $responseHeaders[$key] = end($value);
-            }
-        }
-
-        return array_change_key_case($responseHeaders, CASE_LOWER);
+        return array_change_key_case($response->getHeaders(), CASE_LOWER);
     }
 }

@@ -6,10 +6,13 @@ use Bref\Context\Context;
 use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
 use Bref\Event\Http\FpmHandler;
 use Bref\Test\HttpRequestProxyTest;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 
 class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
 {
+    use ArraySubsetAsserts;
+
     /** @var FpmHandler|null */
     private $fpm;
     /** @var Context */
@@ -66,7 +69,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '{"protocol":"HTTP\/1.1"}',
-                'LAMBDA_CONTEXT' => '{"protocol":"HTTP\/1.1"}',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -108,7 +110,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -125,34 +126,48 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
             'path' => '/hello',
             // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
             'multiValueQueryStringParameters' => [
-                'foo' => ['bar', 'baz'],
+                'foo[]' => ['bar', 'baz'],
+                'cards[]' => ['birthday'],
+                'colors[][]' => ['red', 'blue'],
+                'shapes[a][]' => ['square', 'triangle'],
+                'myvar' => ['abc'],
             ],
             'queryStringParameters' => [
-                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
+                'foo[]' => 'baz', // the 2nd value is preserved only by API Gateway
+                'cards[]' => 'birthday',
+                'colors[][]' => 'red',
+                'shapes[a][]' => 'square',
+                'myvar' => 'abc',
             ],
         ];
         $this->assertGlobalVariables($event, [
             '$_GET' => [
-                // TODO The feature is not implemented yet
-                'foo' => 'bar',
+                'foo' => ['bar', 'baz'],
+                'cards' => ['birthday'],
+                'colors' => [['red'], ['blue']],
+                'shapes' => ['a' => ['square', 'triangle']],
+                'myvar' => 'abc',
             ],
             '$_POST' => [],
             '$_FILES' => [],
             '$_COOKIE' => [],
             '$_REQUEST' => [
-                'foo' => 'bar',
+                'foo' => ['bar', 'baz'],
+                'cards' => ['birthday'],
+                'colors' => [['red'], ['blue']],
+                'shapes' => ['a' => ['square', 'triangle']],
+                'myvar' => 'abc',
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?foo=bar',
+                'REQUEST_URI' => '/hello?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'foo=bar',
+                'QUERY_STRING' => 'foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -164,13 +179,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
             'version' => '1.0',
             'httpMethod' => 'GET',
             'path' => '/hello',
-            // See https://aws.amazon.com/blogs/compute/support-for-multi-value-parameters-in-amazon-api-gateway/
-            'multiValueQueryStringParameters' => [
-                'foo' => ['bar', 'baz'],
-            ],
-            'queryStringParameters' => [
-                'foo' => 'baz', // the 2nd value is preserved only by API Gateway
-            ],
             'requestContext' => [
                 'foo' => 'baz',
                 'baz' => 'far',
@@ -181,30 +189,23 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
             ],
         ];
         $this->assertGlobalVariables($event, [
-            '$_GET' => [
-                // TODO The feature is not implemented yet
-                'foo' => 'bar',
-            ],
+            '$_GET' => [],
             '$_POST' => [],
             '$_FILES' => [],
             '$_COOKIE' => [],
-            '$_REQUEST' => [
-                'foo' => 'bar',
-            ],
+            '$_REQUEST' => [],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?foo=bar',
+                'REQUEST_URI' => '/hello',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'foo=bar',
+                'QUERY_STRING' => '',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '{"foo":"baz","baz":"far","data":{"recurse1":1,"recurse2":2}}',
-                'LAMBDA_CONTEXT' => '{"foo":"baz","baz":"far","data":{"recurse1":1,"recurse2":2}}',
             ],
             'HTTP_RAW_BODY' => '',
-
         ]);
     }
 
@@ -247,7 +248,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -283,7 +283,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -322,7 +321,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -360,7 +358,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'HTTP_CONTENT_LENGTH' => '14',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '"Hello world!"',
         ]);
@@ -403,7 +400,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'HTTP_CONTENT_LENGTH' => '15',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => 'foo=bar&bim=baz',
         ]);
@@ -473,7 +469,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'HTTP_CONTENT_LENGTH' => '14',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '"Hello world!"',
         ]);
@@ -512,7 +507,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'HTTP_CONTENT_LENGTH' => '10',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => 'Hello 🌍',
         ]);
@@ -551,7 +545,6 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'HTTP_CONTENT_LENGTH' => '2',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '{}',
         ]);
@@ -605,7 +598,6 @@ baz\r
                 'HTTP_CONTENT_LENGTH' => '152',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -667,7 +659,6 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
                 'HTTP_CONTENT_LENGTH' => '186',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -706,7 +697,6 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -775,7 +765,6 @@ Year,Make,Model
                 'HTTP_CONTENT_LENGTH' => '323',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -818,7 +807,6 @@ Year,Make,Model
                 'HTTP_CONTENT_LENGTH' => '7',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => 'foo=bar',
         ]);
@@ -851,7 +839,6 @@ Year,Make,Model
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -882,7 +869,6 @@ Year,Make,Model
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -913,7 +899,6 @@ Year,Make,Model
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -944,7 +929,6 @@ Year,Make,Model
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -975,7 +959,6 @@ Year,Make,Model
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
-                'LAMBDA_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
@@ -1126,9 +1109,9 @@ Year,Make,Model
         // Test global variables that cannot be hardcoded
         self::assertNotEmpty($response['$_SERVER']['HOME']);
         unset($response['$_SERVER']['HOME']);
-        self::assertEquals(microtime(true), $response['$_SERVER']['REQUEST_TIME_FLOAT'], '', 5);
+        self::assertEqualsWithDelta(microtime(true), $response['$_SERVER']['REQUEST_TIME_FLOAT'], 5, '');
         unset($response['$_SERVER']['REQUEST_TIME_FLOAT']);
-        self::assertEquals(time(), $response['$_SERVER']['REQUEST_TIME'], '', 5);
+        self::assertEqualsWithDelta(time(), $response['$_SERVER']['REQUEST_TIME'], 5, '');
         unset($response['$_SERVER']['REQUEST_TIME']);
 
         // Test global variables that never change (simplifies all the tests)

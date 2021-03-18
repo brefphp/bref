@@ -1,0 +1,33 @@
+{
+  "requestContext": {
+      "routeKey": "$default",
+      "messageId": "xyz-messageId",
+      "eventType": "MESSAGE",
+      "extendedRequestId": "xyz-extended-request-id",
+      "requestTime": "09/Oct/2020:21:44:57 +0000",
+      "messageDirection": "IN",
+      "stage": "dev",
+      "connectedAt": 1602279896599,
+      "requestTimeEpoch": 1602279897133,
+      "identity": {
+          "cognitoIdentityPoolId": null,
+          "cognitoIdentityId": null,
+          "principalOrgId": null,
+          "cognitoAuthenticationType": null,
+          "userArn": null,
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36",
+          "accountId": null,
+          "caller": null,
+          "sourceIp": "0.0.0.0",
+          "accessKey": null,
+          "cognitoAuthenticationProvider": null,
+          "user": null
+      },
+      "requestId": "xyz-requestId",
+      "domainName": "xyz-apiId.execute-api.eu-west-1.amazonaws.com",
+      "connectionId": "xyz-connectionId",
+      "apiId": "xyz-apiId"
+  },
+  "body": "Hello Server!",
+  "isBase64Encoded": false
+}

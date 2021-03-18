@@ -1,0 +1,85 @@
+{
+    "resource": "/foo/{bar}/{baz}",
+    "path": "/foo/abc/def",
+    "httpMethod": "GET",
+    "headers": {
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate",
+        "Cache-Control": "no-cache",
+        "Host": "example.org",
+        "upgrade-insecure-requests": "1",
+        "User-Agent": "PostmanRuntime/7.20.1",
+        "X-Amzn-Trace-Id": "Root=1-ffffffff-ffffffffffffffffffffffff",
+        "X-Forwarded-For": "1.1.1.1",
+        "X-Forwarded-Port": "443",
+        "X-Forwarded-Proto": "https"
+    },
+    "multiValueHeaders": {
+        "Accept": [
+            "*/*"
+        ],
+        "Accept-Encoding": [
+            "gzip, deflate"
+        ],
+        "Host": [
+            "abc.execute-api.us-east-2.amazonaws.com"
+        ],
+        "upgrade-insecure-requests": [
+            "1"
+        ],
+        "User-Agent": [
+            "PostmanRuntime/7.20.1"
+        ],
+        "X-Amzn-Trace-Id": [
+            "Root=1-ffffffff-ffffffffffffffffffffffff"
+        ],
+        "X-Forwarded-For": [
+            "1.1.1.1"
+        ],
+        "X-Forwarded-Port": [
+            "443"
+        ],
+        "X-Forwarded-Proto": [
+            "https"
+        ]
+    },
+    "queryStringParameters": null,
+    "multiValueQueryStringParameters": null,
+    "pathParameters": {
+        "bar": "abc",
+        "baz": "def"
+    },
+    "stageVariables": null,
+    "requestContext": {
+        "resourceId": "ykuvjw",
+        "resourcePath": "/foo/{bar}/{baz}",
+        "httpMethod": "GET",
+        "extendedRequestId": "Wx6fsEQ4iYcF1Ow=",
+        "requestTime": "29/Nov/2020:17:17:11 +0000",
+        "path": "/dev/foo/abc/def",
+        "accountId": "123400000000",
+        "protocol": "HTTP/1.1",
+        "stage": "dev",
+        "domainPrefix": "dev",
+        "requestTimeEpoch": 1606670231507,
+        "requestId": "dca85d84-6962-4790-95ad-a58f755a59b2",
+        "identity": {
+            "cognitoIdentityPoolId": null,
+            "accountId": null,
+            "cognitoIdentityId": null,
+            "caller": null,
+            "sourceIp": "1.1.1.1",
+            "principalOrgId": null,
+            "accessKey": null,
+            "cognitoAuthenticationType": null,
+            "cognitoAuthenticationProvider": null,
+            "userArn": null,
+            "userAgent": "PostmanRuntime/7.20.1",
+            "user": null
+        },
+        "domainName": "example.org",
+        "apiId": "xxxxxxxxxx"
+    },
+    "body": null,
+    "isBase64Encoded": false
+}

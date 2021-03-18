@@ -7,15 +7,23 @@ next:
     title: Installation
 ---
 
+Serverless means using cloud services that manage the servers for us.
+
 ## Why serverless?
 
-Serverless replaces the traditional approaches to running applications. With serverless:
+When running PHP on a server, we must:
 
-- We don't manage, update, configure, provision servers or containers,
-- We don't reserve or scale servers or containers, instead they are scaled automatically and transparently for us,
-- We don't pay for fixed resources, instead we pay for what we actually use (e.g. execution time).
+- setup, configure and maintain that server,
+- pay a fixed price for the server,
+- scale the server(s) if we get more traffic.
 
-**Serverless can provide more scalable, affordable and reliable architectures for less effort.**
+When running PHP serverless:
+
+- We do not need to set up servers, the cloud provider takes care of that.
+- We pay only for what we use.
+- Our application scales automatically.
+
+**Serverless provides more scalable, affordable and reliable architectures for less effort.**
 
 Serverless includes services like storage as a service, database as a service, message queue as a service, etc. One service in particular is interesting for us developers: *Function as a Service* (FaaS).
 
@@ -52,7 +60,7 @@ Bref provides:
 - deployment tooling
 - PHP frameworks integration
 
-The choice of AWS as serverless provider is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performances and reliability.
+The choice of AWS as serverless provider is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performance and reliability.
 
 Bref uses [the Serverless framework](https://serverless.com/) to configure and deploy serverless applications. Being the most popular tool, Serverless comes with a huge community, a lot of examples online and a simple configuration format.
 
@@ -77,15 +85,15 @@ This maturity level is a vague metric, however it can be useful to anticipate th
 
 This matrix will be updated as Bref and AWS services evolve over time.
 
-<table class="w-full text-xs sm:text-sm text-gray-700 mt-8 mb-5 table-fixed">
+<table class="text-xs sm:text-sm text-gray-700 table-fixed">
     <tr class="bg-gray-100">
         <th class="p-4"></th>
-        <th class="font-normal p-4 border-b border-gray-400">Simplicity</th>
-        <th class="font-normal p-4 border-b border-gray-400">Performances</th>
-        <th class="font-normal p-4 border-b border-gray-400">Reliability</th>
+        <th class="font-normal p-4">Simplicity</th>
+        <th class="font-normal p-4">Performance</th>
+        <th class="font-normal p-4">Reliability</th>
     </tr>
     <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">
+        <td class="p-4 bg-gray-100 font-bold">
             Jobs, Cron
         </td>
         <td class="p-4 text-center">
@@ -99,7 +107,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">API</td>
+        <td class="p-4 bg-gray-100 font-bold">API</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-400"></span>
         </td>
@@ -111,7 +119,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Website</td>
+        <td class="p-4 bg-gray-100 font-bold">Website</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-green-400"></span>
         </td>
@@ -123,15 +131,15 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold border-r border-gray-400">Legacy application</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-red-400"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
+        <td class="p-4 bg-gray-100 font-bold">Legacy application</td>
         <td class="p-4 text-center">
             <span class="maturity-icon shadow bg-orange-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td class="p-4 text-center">
+            <span class="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
     <tr class="text-xs text-center leading-normal text-gray-600">
@@ -140,7 +148,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
             Is this documented and simple to achieve?
         </td>
         <td class="p-3">
-            Are performances acceptable?
+            Is performance acceptable?
         </td>
         <td class="p-3">
             Is this scenario production-ready?
@@ -163,15 +171,15 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **API**
 
-    APIs run on AWS Lambda without problems. Performances are now similar to what you could expect on traditional VPS.
+    APIs run on AWS Lambda without problems. Performance is now similar to what you could expect on traditional VPS.
 
 - **Website**
 
-    Websites can run on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md). Performances are as good as any server.
+    Websites can run on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md). Performance is as good as any server.
 
 - **Legacy application**
 
-    Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite some parts of the code to make the application fit for Lambda. For example, file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and possibly SQS. Finally there are no case studies or online examples to help you along the way.
+    Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite some parts of the code to make the application fit for Lambda (or running in containers in general). For example, file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and SQS.
 
     Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net).
 
