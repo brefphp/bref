@@ -119,7 +119,7 @@ RUN set -xe; \
 #   - php
 ENV VERSION_OPENSSL=1.1.1g
 ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
-ENV CA_BUNDLE_SOURCE="https://curl.haxx.se/ca/cacert.pem"
+ENV CA_BUNDLE_SOURCE="https://curl.se/ca/cacert.pem"
 ENV CA_BUNDLE="${INSTALL_DIR}/ssl/cert.pem"
 
 
@@ -148,7 +148,7 @@ RUN set -xe; \
 
 RUN set -xe; \
     make install \
- && curl -k -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
+ && curl -Lk -o ${CA_BUNDLE} ${CA_BUNDLE_SOURCE}
 
 ###############################################################################
 # LIBSSH2 Build
