@@ -10,7 +10,7 @@ layout: home
 
 Read more on [the website](https://bref.sh/).
 
-#ClarionDoor
+# ClarionDoor
 
 1. Run `composer install`
 2. Do what you gotta do.

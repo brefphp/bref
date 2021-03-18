@@ -93,23 +93,6 @@ RUN mkdir -p /opt/bin \
 # Install extensions
 # We can install extensions manually or using `pecl`
 RUN pecl install APCu
-RUN pecl install imagick
-
-# pthreads
-ENV PTHREADS_BUILD_DIR=${BUILD_DIR}/pthreads
-# Build from master because there are no pthreads release compatible with PHP 7.3
-RUN set -xe; \
-    mkdir -p ${PTHREADS_BUILD_DIR}/bin; \
-    curl -Ls https://github.com/krakjoe/pthreads/archive/master.tar.gz \
-    | tar xzC ${PTHREADS_BUILD_DIR} --strip-components=1
-WORKDIR  ${PTHREADS_BUILD_DIR}/
-RUN set -xe; \
-    phpize \
- && ./configure \
- && make \
- && make install
-
-ENV INSTALL_DIR="/opt/bref"
 
 ###############################################################################
 # NewRelic agent
@@ -137,6 +120,7 @@ RUN mkdir -p ${INSTALL_DIR}/etc/newrelic && \
   echo "logfile=/dev/stderr" >> ${INSTALL_DIR}/etc/newrelic/newrelic.cfg && \
   echo "wait_for_port=0" >> ${INSTALL_DIR}/etc/newrelic/newrelic.cfg
 
+###############################################################################
 # Run the next step in the previous environment because the `clean.sh` script needs `find`,
 # which isn't installed by default
 FROM build-environment as build-environment-cleaned
