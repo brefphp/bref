@@ -21,10 +21,10 @@ publish-docker-images: docker-images
 	test $(DOCKER_TAG)
 
 	for image in \
-	  "bref/php-73" "bref/php-73-fpm" "bref/php-73-console" "bref/php-73-fpm-dev" \
-	  "bref/php-74" "bref/php-74-fpm" "bref/php-74-console" "bref/php-74-fpm-dev" \
-	  "bref/php-80" "bref/php-80-fpm" "bref/php-80-console" "bref/php-80-fpm-dev" \
-	  "bref/php-81" "bref/php-81-fpm" "bref/php-81-console" "bref/php-81-fpm-dev" \
+	  "bref/php-73" "bref/php-73-runtime" "bref/php-73-fpm" "bref/php-73-console" "bref/php-73-fpm-dev" \
+	  "bref/php-74" "bref/php-74-runtime" "bref/php-74-fpm" "bref/php-74-console" "bref/php-74-fpm-dev" \
+	  "bref/php-80" "bref/php-80-runtime" "bref/php-80-fpm" "bref/php-80-console" "bref/php-80-fpm-dev" \
+	  "bref/php-81" "bref/php-81-runtime" "bref/php-81-fpm" "bref/php-81-console" "bref/php-81-fpm-dev" \
 	  "bref/build-php-73" \
 	  "bref/build-php-74" \
 	  "bref/build-php-80" \
