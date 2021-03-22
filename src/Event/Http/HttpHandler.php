@@ -8,15 +8,21 @@ use Bref\Event\Handler;
 abstract class HttpHandler implements Handler
 {
     abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse;
+    
+    public function handleWarmer(HttpRequestEvent $event, Context $context): void
+    {
+        // Delay the response to ensure concurrent invocation
+        // See https://github.com/brefphp/bref/pull/734
+        usleep(10000); // 10ms
+    }
 
     /** {@inheritDoc} */
     public function handle($event, Context $context): array
     {
         // See https://bref.sh/docs/runtimes/http.html#cold-starts
         if (isset($event['warmer']) && $event['warmer'] === true) {
-            // Delay the response to ensure concurrent invocation
-            // See https://github.com/brefphp/bref/pull/734
-            usleep(10000); // 10ms
+            $this->handleWarmer($event, $context);
+
             return ['Lambda is warm'];
         }
 
