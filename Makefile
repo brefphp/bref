@@ -11,7 +11,7 @@ docker-images:
 # Publish doocker images
 publish-docker-images: docker-images
     # Make sure we have defined the docker tag
-	(test $(DOCKER_TAG)) && echo "Tagging images with \"${DOCKER_TAG}\"" || echo "You have to define environemnt variable DOCKER_TAG"
+	(test $(DOCKER_TAG)) && echo "Tagging images with \"${DOCKER_TAG}\"" || echo "You have to define environment variable DOCKER_TAG"
 	test $(DOCKER_TAG)
 
 	for image in \
