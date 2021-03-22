@@ -8,8 +8,11 @@ use Bref\Event\Handler;
 abstract class HttpHandler implements Handler
 {
     abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse;
-    
-    public function handleWarmer(HttpRequestEvent $event, Context $context): void
+
+    /**
+     * @param mixed $event The raw event data.
+     */
+    public function handleWarmer($event, Context $context): void
     {
         // Delay the response to ensure concurrent invocation
         // See https://github.com/brefphp/bref/pull/734
