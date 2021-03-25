@@ -117,7 +117,7 @@ RUN set -xe; \
 # Needed by:
 #   - curl
 #   - php
-ENV VERSION_OPENSSL=1.1.1g
+ENV VERSION_OPENSSL=1.1.1k
 ENV OPENSSL_BUILD_DIR=${BUILD_DIR}/openssl
 ENV CA_BUNDLE_SOURCE="https://curl.se/ca/cacert.pem"
 ENV CA_BUNDLE="${INSTALL_DIR}/ssl/cert.pem"
@@ -152,13 +152,13 @@ RUN set -xe; \
 
 ###############################################################################
 # LIBSSH2 Build
-# https://github.com/libssh2/libssh2/releases/
+# https://github.com/libssh2/libssh2/releases
 # Needs:
 #   - zlib
 #   - OpenSSL
 # Needed by:
 #   - curl
-ENV VERSION_LIBSSH2=1.8.2
+ENV VERSION_LIBSSH2=1.9.0
 ENV LIBSSH2_BUILD_DIR=${BUILD_DIR}/libssh2
 
 RUN set -xe; \
@@ -195,7 +195,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - curl
-ENV VERSION_NGHTTP2=1.41.0
+ENV VERSION_NGHTTP2=1.43.0
 ENV NGHTTP2_BUILD_DIR=${BUILD_DIR}/nghttp2
 
 RUN set -xe; \
@@ -219,14 +219,14 @@ RUN set -xe; \
 
 ###############################################################################
 # CURL Build
-# # https://github.com/curl/curl/releases/
+# # https://github.com/curl/curl/releases
 # # Needs:
 # #   - zlib
 # #   - OpenSSL
 # #   - libssh2
 # # Needed by:
 # #   - php
-ENV VERSION_CURL=7.73.0
+ENV VERSION_CURL=7.75.0
 ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
 
 RUN set -xe; \
@@ -371,12 +371,12 @@ RUN set -xe; \
 
 ###############################################################################
 # Postgres Build
-# https://github.com/postgres/postgres/releases/
+# https://github.com/postgres/postgres/releases
 # Needs:
 #   - OpenSSL
 # Needed by:
 #   - php
-ENV VERSION_POSTGRES=9.6.17
+ENV VERSION_POSTGRES=9.6.21
 ENV POSTGRES_BUILD_DIR=${BUILD_DIR}/postgres
 
 RUN set -xe; \
