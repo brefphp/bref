@@ -5,6 +5,7 @@ namespace Bref\Runtime;
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
+use Bref\Timeout\Timeout;
 use Exception;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -42,12 +43,20 @@ final class LambdaRuntime
     /** @var Invoker */
     private $invoker;
 
-    public static function fromEnvironmentVariable(): self
+    /** @var int seconds */
+    private $timeout;
+
+    public static function fromEnvironmentVariable(?int $timeout = null): self
     {
-        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'));
+        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'), $timeout ?? (int) getenv('BREF_TIMEOUT'));
     }
 
-    public function __construct(string $apiUrl)
+    /**
+     * @param int $timeout number of seconds before a TimeoutException is thrown.
+     *                     Value -1 means "disabled". Value 0 means "auto", this will
+     *                     set the timeout just a bit shorter than the Lambda timeout.
+     */
+    public function __construct(string $apiUrl, int $timeout = 0)
     {
         if ($apiUrl === '') {
             die('At the moment lambdas can only be executed in an Lambda environment');
@@ -55,6 +64,12 @@ final class LambdaRuntime
 
         $this->apiUrl = $apiUrl;
         $this->invoker = new Invoker;
+        $this->timeout = $timeout;
+
+        if ($timeout >= 0 && ! Timeout::init()) {
+            // If we fail to initialize
+            $this->timeout = -1;
+        }
     }
 
     public function __destruct()
@@ -96,6 +111,13 @@ final class LambdaRuntime
         [$event, $context] = $this->waitNextInvocation();
         \assert($context instanceof Context);
 
+        if ($this->timeout > 0) {
+            Timeout::timeoutAfter($this->timeout);
+        } elseif ($this->timeout === 0 && 0 < $context->getRemainingTimeInMillis()) {
+            // Throw exception one second before Lambda pulls the plug.
+            Timeout::timeoutAfter(max(1, (int) floor($context->getRemainingTimeInMillis() / 1000) - 1));
+        }
+
         $this->ping();
 
         try {
@@ -104,6 +126,8 @@ final class LambdaRuntime
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (\Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
+        } finally {
+            Timeout::reset();
         }
     }
 

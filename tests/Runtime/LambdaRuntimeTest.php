@@ -35,13 +35,36 @@ class LambdaRuntimeTest extends TestCase
     {
         ob_start();
         Server::start();
-        $this->runtime = new LambdaRuntime('localhost:8126');
+        $this->runtime = new LambdaRuntime('localhost:8126', -1);
     }
 
     protected function tearDown(): void
     {
         Server::stop();
         ob_end_clean();
+    }
+
+    public function testFromEnvironmentVariable()
+    {
+        $getTimeout = function ($runtime) {
+            $reflectionProp = (new \ReflectionObject($runtime))->getProperty('timeout');
+            $reflectionProp->setAccessible(true);
+
+            return $reflectionProp->getValue($runtime);
+        };
+
+        putenv('AWS_LAMBDA_RUNTIME_API=foo');
+        putenv('BREF_TIMEOUT'); // unset
+        $this->assertEquals(0, $getTimeout(LambdaRuntime::fromEnvironmentVariable()));
+        $this->assertEquals(-1, $getTimeout(LambdaRuntime::fromEnvironmentVariable(-1)));
+        $this->assertEquals(0, $getTimeout(LambdaRuntime::fromEnvironmentVariable(0)));
+        $this->assertEquals(10, $getTimeout(LambdaRuntime::fromEnvironmentVariable(10)));
+
+        putenv('BREF_TIMEOUT=5');
+        $this->assertEquals(5, $getTimeout(LambdaRuntime::fromEnvironmentVariable()));
+        $this->assertEquals(-1, $getTimeout(LambdaRuntime::fromEnvironmentVariable(-1)));
+        $this->assertEquals(0, $getTimeout(LambdaRuntime::fromEnvironmentVariable(0)));
+        $this->assertEquals(10, $getTimeout(LambdaRuntime::fromEnvironmentVariable(10)));
     }
 
     public function test basic behavior()
