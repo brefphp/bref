@@ -8,6 +8,8 @@ When a Lambda function times out, it is like the power to the computer is sudden
 just turned off. This does not give the application a chance to shutdown properly.
 This often leaves you without any logs and the problem could be hard to fix.
 
+> Note, this feature is experimental in Bref 1.3 and you need top opt-in by defining `BREF_TIMEOUT=0`.
+
 Bref will throw an `LambdaTimeout` exception just before the Lambda actually times
 out. This will allow your application to actually shutdown.
 

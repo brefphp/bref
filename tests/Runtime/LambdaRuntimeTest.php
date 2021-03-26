@@ -55,7 +55,12 @@ class LambdaRuntimeTest extends TestCase
 
         putenv('AWS_LAMBDA_RUNTIME_API=foo');
         putenv('BREF_TIMEOUT'); // unset
-        $this->assertEquals(0, $getTimeout(LambdaRuntime::fromEnvironmentVariable()));
+
+        // In 1.3 this feature is opt-in only.
+        $this->assertEquals(-1, $getTimeout(LambdaRuntime::fromEnvironmentVariable()));
+
+        // Enable this test when we want to enable the Timeout exception for all users
+        //$this->assertEquals(0, $getTimeout(LambdaRuntime::fromEnvironmentVariable()));
         $this->assertEquals(-1, $getTimeout(LambdaRuntime::fromEnvironmentVariable(-1)));
         $this->assertEquals(0, $getTimeout(LambdaRuntime::fromEnvironmentVariable(0)));
         $this->assertEquals(10, $getTimeout(LambdaRuntime::fromEnvironmentVariable(10)));

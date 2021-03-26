@@ -48,7 +48,17 @@ final class LambdaRuntime
 
     public static function fromEnvironmentVariable(?int $timeout = null): self
     {
-        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'), $timeout ?? (int) getenv('BREF_TIMEOUT'));
+        if ($timeout === null) {
+            $envTimeout = getenv('BREF_TIMEOUT');
+            if ($envTimeout === false || $envTimeout === '') {
+                // In 1.3 the Timeout exception is opt-in only
+                $timeout = -1;
+            } else {
+                $timeout = (int) $envTimeout;
+            }
+        }
+
+        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'), $timeout);
     }
 
     /**
