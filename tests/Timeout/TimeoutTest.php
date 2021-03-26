@@ -70,7 +70,7 @@ class TimeoutTest extends TestCase
 
         Timeout::enable();
         $timeout = pcntl_alarm(0);
-        $this->assertEqualsWithDelta(30, $timeout, 1, 'BREF_TIMEOUT=0 should fallback to context');
+        $this->assertEqualsWithDelta(29, $timeout, 1, 'BREF_TIMEOUT=0 should fallback to context');
     }
 
     public function testEnableWithContext()
@@ -79,7 +79,7 @@ class TimeoutTest extends TestCase
 
         Timeout::enable();
         $timeout = pcntl_alarm(0);
-        $this->assertEqualsWithDelta(30, $timeout, 1);
+        $this->assertEqualsWithDelta(29, $timeout, 1);
     }
 
     public function testTimeoutAfter()

@@ -36,7 +36,7 @@ final class Timeout
             $deadlineMs = $context['deadlineMs'];
             $remainingTime = $deadlineMs - intval(microtime(true) * 1000);
 
-            self::timeoutAfter((int) floor($remainingTime / 1000));
+            self::timeoutAfter(max(1, (int) floor($remainingTime / 1000) - 1));
 
             return;
         }
