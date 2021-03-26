@@ -45,20 +45,17 @@ final class Timeout
     }
 
     /**
-     * Setup custom handler for SIGTERM. One need to call Timeout::timoutAfter()
-     * to make an exception to be thrown.
-     *
-     * @return bool true if successful.
+     * Setup custom handler for SIGTERM.
      */
-    public static function init(): bool
+    private static function init(): void
     {
         if (self::$initialized) {
-            return true;
+            return;
         }
 
         if (! function_exists('pcntl_async_signals')) {
             trigger_error('Could not enable timeout exceptions because pcntl extension is not enabled.');
-            return false;
+            return;
         }
 
         pcntl_async_signals(true);
@@ -67,8 +64,6 @@ final class Timeout
         });
 
         self::$initialized = true;
-
-        return true;
     }
 
     /**

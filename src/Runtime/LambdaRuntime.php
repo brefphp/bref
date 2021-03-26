@@ -65,11 +65,6 @@ final class LambdaRuntime
         $this->apiUrl = $apiUrl;
         $this->invoker = new Invoker;
         $this->timeout = $timeout;
-
-        if ($timeout >= 0 && ! Timeout::init()) {
-            // If we fail to initialize
-            $this->timeout = -1;
-        }
     }
 
     public function __destruct()
