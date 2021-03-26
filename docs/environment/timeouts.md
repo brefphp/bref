@@ -63,3 +63,12 @@ class Handler implements \Bref\Event\Handler
 
 return new Handler();
 ```
+
+## Debugging timeouts
+
+The exception stacktrace will show you which line that was executing when the
+exception was thrown. This could be helpful when trying to figure out why the
+application took more time than expected.
+
+In the vast majority of cases, it is an external call to a database, cache or API
+that is stuck waiting for IO.
