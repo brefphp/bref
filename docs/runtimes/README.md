@@ -21,7 +21,7 @@ Bref provides 2 main runtimes:
 - The "FPM" runtime, to create **web applications**.
 - The "function" runtime, to create **event-driven functions**.
 
-You can see in the documentation menu how these two runtimes are used to for two different kinds of applications.
+You can see in the documentation menu how these two runtimes are used for two different kinds of applications.
 
 ### Web apps: `php-74-fpm` and `php-73-fpm`
 
@@ -43,7 +43,7 @@ This runtime works great to create **event-driven micro-services**.
 
 ### Console: `console`
 
-This runtime lets use run console commands on Lambda.
+This runtime lets you run console commands on Lambda.
 
 For example, we can run the [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Laravel Artisan](https://laravel.com/docs/5.8/artisan).
 
@@ -93,7 +93,7 @@ Bref currently provides runtimes for PHP 7.3, 7.4 and 8.0.
 
 Bref runtimes are [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html). While Bref provides a Serverless plugin to simplify how to use them, you can use the layers directly.
 
-The layers names follow this pattern:
+The layer names follow this pattern:
 
 ```
 arn:aws:lambda:<region>:209497400698:layer:<layer-name>:<layer-version>
