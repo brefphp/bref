@@ -97,6 +97,7 @@ Bref strives to include the most common PHP extensions. If a major PHP extension
         <li><a href="http://php.net/manual/en/book.xmlwriter.php">xmlwriter</a></li>
         <li><a href="http://php.net/manual/en/book.xsl.php">xsl</a></li>
         <li><a href="http://php.net/manual/en/book.zlib.php">zlib</a></li>
+        <li><a href="http://php.net/manual/en/book.calendar.php">calendar</a></li>
         </ul>
       </td>
     </tr>
