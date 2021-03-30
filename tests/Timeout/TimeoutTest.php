@@ -31,8 +31,8 @@ class TimeoutTest extends TestCase
     {
         Timeout::enable(3000);
         $timeout = pcntl_alarm(0);
-        // 2 seconds (1 second shorter than the 3s remaining time)
-        $this->assertSame(2, $timeout);
+        // 1 second (2 seconds shorter than the 3s remaining time)
+        $this->assertSame(1, $timeout);
     }
 
     public function test enable in FPM()
@@ -41,7 +41,7 @@ class TimeoutTest extends TestCase
 
         Timeout::enableInFpm();
         $timeout = pcntl_alarm(0);
-        $this->assertEqualsWithDelta(29, $timeout, 1);
+        $this->assertEqualsWithDelta(28, $timeout, 1);
     }
 
     public function test enable in FPM requires the context()
@@ -53,13 +53,14 @@ class TimeoutTest extends TestCase
     public function test timeouts are interrupted in time()
     {
         $start = microtime(true);
-        Timeout::enable(2000);
+        Timeout::enable(3000);
         try {
             sleep(4);
             $this->fail('We expect a LambdaTimeout before we reach this line');
         } catch (LambdaTimeout $e) {
             $time = 1000 * (microtime(true) - $start);
-            $this->assertEqualsWithDelta(1000, $time, 200, 'We must wait about 1 second');
+            $this->assertEqualsWithDelta(2000, $time, 200, 'We must wait about 1 second');
+            Timeout::reset();
         } catch (\Throwable $e) {
             $this->fail('It must throw a LambdaTimeout.');
         }

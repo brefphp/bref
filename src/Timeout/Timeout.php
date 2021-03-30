@@ -11,6 +11,9 @@ final class Timeout
     /** @var bool */
     private static $initialized = false;
 
+    /** @var string|null */
+    private static $stackTrace = null;
+
     /**
      * Automatically setup a timeout (based on the AWS Lambda timeout).
      *
@@ -38,9 +41,9 @@ final class Timeout
 
         $remainingTimeInSeconds = (int) floor($remainingTimeInMillis / 1000);
 
-        // The script will timeout 1 second before the remaining time
+        // The script will timeout 2 seconds before the remaining time
         // to allow some time for Bref/our app to recover and cleanup
-        $margin = 1;
+        $margin = 2;
 
         $timeoutDelayInSeconds = max(1, $remainingTimeInSeconds - $margin);
 
@@ -53,6 +56,8 @@ final class Timeout
      */
     private static function init(): void
     {
+        Timeout::$stackTrace = null;
+
         if (self::$initialized) {
             return;
         }
@@ -66,14 +71,30 @@ final class Timeout
         // Setup a handler for SIGALRM that throws an exception
         // This will interrupt any running PHP code, including `sleep()` or code stuck waiting for I/O.
         pcntl_signal(SIGALRM, function (): void {
-            throw new LambdaTimeout('Maximum AWS Lambda execution time reached');
+            if (Timeout::$stackTrace !== null) {
+                // we already thrown an exception, do a harder exit.
+                error_log('Lambda timed out');
+                error_log((new LambdaTimeout)->getTraceAsString());
+                error_log('Original stack trace');
+                error_log(Timeout::$stackTrace);
+
+                exit(1);
+            }
+
+            $exception = new LambdaTimeout('Maximum AWS Lambda execution time reached');
+            Timeout::$stackTrace = $exception->getTraceAsString();
+
+            // Trigger another alarm after 1 second to do a hard exit.
+            pcntl_alarm(1);
+
+            throw $exception;
         });
 
         self::$initialized = true;
     }
 
     /**
-     * Reset timeout.
+     * Cancel all current timeouts.
      *
      * @internal
      */
@@ -81,6 +102,7 @@ final class Timeout
     {
         if (self::$initialized) {
             pcntl_alarm(0);
+            Timeout::$stackTrace = null;
         }
     }
 }

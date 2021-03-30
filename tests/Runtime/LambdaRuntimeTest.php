@@ -16,6 +16,7 @@ use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
 use Bref\Timeout\LambdaTimeout;
+use Bref\Timeout\Timeout;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -67,6 +68,7 @@ class LambdaRuntimeTest extends TestCase
         $elapsedTime = microtime(true) - $start;
         // The Lambda timeout was 2 seconds, we expect the Bref timeout to trigger 1 second before that: 1 second
         $this->assertEqualsWithDelta(1, $elapsedTime, 0.2);
+        Timeout::reset();
 
         $this->assertInvocationErrorResult(LambdaTimeout::class, 'Maximum AWS Lambda execution time reached');
         $this->assertErrorInLogs(LambdaTimeout::class, 'Maximum AWS Lambda execution time reached');
