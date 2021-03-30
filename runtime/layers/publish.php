@@ -28,7 +28,13 @@ foreach ($layers as $layer => $layerDescription) {
 /**
  * These are the regions on which the layers are published.
  */
-$regions = json_decode(file_get_contents(__DIR__ . '/regions.json'), true);
+$singleRegion = getenv('PUBLISH_REGION');
+if ($singleRegion) {
+    // Allow to override with a specific region for testing
+    $regions = [$singleRegion];
+} else {
+    $regions = json_decode(file_get_contents(__DIR__ . '/regions.json'), true);
+}
 
 // Publish the layers
 /** @var Process[] $publishingProcesses */
