@@ -5,41 +5,44 @@ introduction: Configure and handle timeouts.
 ---
 
 When a Lambda function times out, it is like the power to the computer is suddenly
-just turned off. This does not give the application a chance to shutdown properly.
-This often leaves you without any logs and the problem could be hard to fix.
+just turned off. This does not give the application a chance to shut down properly.
+This leaves you without any logs and the problem could be hard to fix.
 
-> Note, this feature is experimental in Bref 1.3 and you need top opt-in by defining `BREF_TIMEOUT=0`.
+To allow your application to shut down properly and write logs, Bref can throw an exception just before the Lambda times out.
 
-Bref will throw an `LambdaTimeout` exception just before the Lambda actually times
-out. This will allow your application to actually shutdown.
+> Note, this feature is experimental and available since Bref 1.3.
 
-This feature is enabled automatically for the `php-xx` layer and the `console` layer.
-The `php-xx-fpm` layer needs to opt-in by adding the following to `index.php`.
+To enable this feature **in `php-XX` layers**, set the environment variable `BREF_FEATURE_TIMEOUT`:
+
+```yaml
+provider: 
+    environment:
+        BREF_FEATURE_TIMEOUT: 1
+```
+
+To enable this feature **in `php-XX-fpm` layers**, call `Timeout::enableInFpm()` in your application.
+For example in `index.php`:
 
 ```php
 if (isset($_SERVER['LAMBDA_TASK_ROOT'])) {
-    \Bref\Timeout\Timeout::enable();
+    \Bref\Timeout\Timeout::enableInFpm();
 }
 ```
 
-## Configuration
+Whenever a timeout happens, a full stack trace will be logged, including the line that was executing.
 
-You may configure this behavior with the `BREF_TIMEOUT` environment variable. To
-always trigger an exception after 10 seconds, set `BREF_TIMEOUT=10`. To disable
-Bref throwing an exception use value `BREF_TIMEOUT=-1`. To automatically set the
-timeout just a hair shorter than the Lambda timeout, use `BREF_TIMEOUT=0`.
+In most cases, it is an external call to a database, cache or API that is stuck waiting.
+If you are using a RDS database, [you are encouraged to read this section](database.md#accessing-the-internet).
 
 ## Catching the exception
 
-If you are using a framework, then the framework is probably catching all exceptions
-and displays an error page for the users. You may of course catch the exception
-yourself:
+You can catch the timeout exception to perform some cleanup, logs or even display a proper error page.
+
+In `php-XX-fpm` layers, most frameworks will catch the `LambdaTimeout` exception automatically (like any other error).
+
+In `php-XX` layers, you can catch it in your handlers. For example:
 
 ```php
-<?php
-
-require dirname(__DIR__) . '/vendor/autoload.php';
-
 use Bref\Context\Context;
 use Bref\Timeout\LambdaTimeout;
 
@@ -48,29 +51,13 @@ class Handler implements \Bref\Event\Handler
     public function handle($event, Context $context)
     {
         try {
-            $this->generateResponse();
+            // your code here
+            // ...
         } catch (LambdaTimeout $e) {
             echo 'Oops, sorry. We spent too much time on this.';
         } catch (\Throwable $e) {
-            echo 'Some unexpected error happened.';
+            echo 'Some other unexpected error happened.';
         }
     }
-
-    private function generateResponse()
-    {
-        $pi = // ...
-        echo 'Pi is '.$pi;
-    }
 }
-
-return new Handler();
 ```
-
-## Debugging timeouts
-
-The exception stacktrace will show you which line that was executing when the
-exception was thrown. This could be helpful when trying to figure out why the
-application took more time than expected.
-
-In the vast majority of cases, it is an external call to a database, cache or API
-that is stuck waiting for IO.

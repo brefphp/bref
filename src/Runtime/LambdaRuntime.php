@@ -43,30 +43,15 @@ final class LambdaRuntime
     /** @var Invoker */
     private $invoker;
 
-    /** @var int seconds */
-    private $timeout;
+    /** @var bool */
+    private $enableTimeout;
 
-    public static function fromEnvironmentVariable(?int $timeout = null): self
+    public static function fromEnvironmentVariable(): self
     {
-        if ($timeout === null) {
-            $envTimeout = getenv('BREF_TIMEOUT');
-            if ($envTimeout === false || $envTimeout === '') {
-                // In 1.3 the Timeout exception is opt-in only
-                $timeout = -1;
-            } else {
-                $timeout = (int) $envTimeout;
-            }
-        }
-
-        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'), $timeout);
+        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'), (bool) getenv('BREF_FEATURE_TIMEOUT'));
     }
 
-    /**
-     * @param int $timeout number of seconds before a TimeoutException is thrown.
-     *                     Value -1 means "disabled". Value 0 means "auto", this will
-     *                     set the timeout just a bit shorter than the Lambda timeout.
-     */
-    public function __construct(string $apiUrl, int $timeout = 0)
+    private function __construct(string $apiUrl, bool $enableTimeout)
     {
         if ($apiUrl === '') {
             die('At the moment lambdas can only be executed in an Lambda environment');
@@ -74,7 +59,7 @@ final class LambdaRuntime
 
         $this->apiUrl = $apiUrl;
         $this->invoker = new Invoker;
-        $this->timeout = $timeout;
+        $this->enableTimeout = $enableTimeout;
     }
 
     public function __destruct()
@@ -116,11 +101,10 @@ final class LambdaRuntime
         [$event, $context] = $this->waitNextInvocation();
         \assert($context instanceof Context);
 
-        if ($this->timeout > 0) {
-            Timeout::timeoutAfter($this->timeout);
-        } elseif ($this->timeout === 0 && 0 < $context->getRemainingTimeInMillis()) {
+        $remainingTimeInMillis = $context->getRemainingTimeInMillis();
+        if ($this->enableTimeout && 0 < $remainingTimeInMillis) {
             // Throw exception one second before Lambda pulls the plug.
-            Timeout::timeoutAfter(max(1, (int) floor($context->getRemainingTimeInMillis() / 1000) - 1));
+            Timeout::enable($context->getRemainingTimeInMillis());
         }
 
         $this->ping();

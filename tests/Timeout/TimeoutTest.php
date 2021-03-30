@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Timeout;
+namespace Bref\Test\Timeout;
 
 use Bref\Timeout\LambdaTimeout;
 use Bref\Timeout\Timeout;
@@ -19,7 +19,6 @@ class TimeoutTest extends TestCase
     {
         parent::setUp();
         unset($_SERVER['LAMBDA_INVOCATION_CONTEXT']);
-        unset($_SERVER['BREF_TIMEOUT']);
     }
 
     protected function tearDown(): void
@@ -28,70 +27,39 @@ class TimeoutTest extends TestCase
         parent::tearDown();
     }
 
-    public function testEnableWithoutContext()
+    public function test enable()
     {
-        $this->expectException(\LogicException::class);
-        Timeout::enable();
-    }
-
-    public function testEnableWithBrefTimeoutInactive()
-    {
-        $_SERVER['BREF_TIMEOUT'] = -1;
-        $_SERVER['LAMBDA_INVOCATION_CONTEXT'] = json_encode(['deadlineMs' => (time() + 30) * 1000]);
-
-        Timeout::enable();
+        Timeout::enable(3000);
         $timeout = pcntl_alarm(0);
-        $this->assertSame(0, $timeout, 'Timeout should not be active when BREF_TIMEOUT=-1');
+        // 2 seconds (1 second shorter than the 3s remaining time)
+        $this->assertSame(2, $timeout);
     }
 
-    public function testEnableWithBrefTimeout()
-    {
-        $_SERVER['BREF_TIMEOUT'] = 10;
-
-        Timeout::enable();
-        $timeout = pcntl_alarm(0);
-        $this->assertSame(10, $timeout, 'BREF_TIMEOUT=10 should have effect');
-    }
-
-    public function testEnableWithBrefTimeoutAndContext()
-    {
-        $_SERVER['BREF_TIMEOUT'] = 10;
-        $_SERVER['LAMBDA_INVOCATION_CONTEXT'] = json_encode(['deadlineMs' => (time() + 30) * 1000]);
-
-        Timeout::enable();
-        $timeout = pcntl_alarm(0);
-        $this->assertSame(10, $timeout, 'BREF_TIMEOUT=10 should have effect over context');
-    }
-
-    public function testEnableWithBrefTimeoutZeroAndContext()
-    {
-        $_SERVER['BREF_TIMEOUT'] = 0;
-        $_SERVER['LAMBDA_INVOCATION_CONTEXT'] = json_encode(['deadlineMs' => (time() + 30) * 1000]);
-
-        Timeout::enable();
-        $timeout = pcntl_alarm(0);
-        $this->assertEqualsWithDelta(29, $timeout, 1, 'BREF_TIMEOUT=0 should fallback to context');
-    }
-
-    public function testEnableWithContext()
+    public function test enable in FPM()
     {
         $_SERVER['LAMBDA_INVOCATION_CONTEXT'] = json_encode(['deadlineMs' => (time() + 30) * 1000]);
 
-        Timeout::enable();
+        Timeout::enableInFpm();
         $timeout = pcntl_alarm(0);
         $this->assertEqualsWithDelta(29, $timeout, 1);
     }
 
-    public function testTimeoutAfter()
+    public function test enable in FPM requires the context()
+    {
+        $this->expectException(\LogicException::class);
+        Timeout::enableInFpm();
+    }
+
+    public function test timeouts are interrupted in time()
     {
         $start = microtime(true);
-        Timeout::timeoutAfter(2);
+        Timeout::enable(2000);
         try {
             sleep(4);
             $this->fail('We expect a LambdaTimeout before we reach this line');
         } catch (LambdaTimeout $e) {
             $time = 1000 * (microtime(true) - $start);
-            $this->assertEqualsWithDelta(2000, $time, 200, 'We must wait about 2 seconds');
+            $this->assertEqualsWithDelta(1000, $time, 200, 'We must wait about 1 second');
         } catch (\Throwable $e) {
             $this->fail('It must throw a LambdaTimeout.');
         }

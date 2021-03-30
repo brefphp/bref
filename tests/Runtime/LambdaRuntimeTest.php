@@ -15,6 +15,7 @@ use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
+use Bref\Timeout\LambdaTimeout;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
@@ -35,41 +36,40 @@ class LambdaRuntimeTest extends TestCase
     {
         ob_start();
         Server::start();
-        $this->runtime = new LambdaRuntime('localhost:8126', -1);
+        // Mock the API with our test server
+        putenv('AWS_LAMBDA_RUNTIME_API=localhost:8126');
+        $this->runtime = LambdaRuntime::fromEnvironmentVariable();
     }
 
     protected function tearDown(): void
     {
         Server::stop();
         ob_end_clean();
+        // Cleanup
+        putenv('AWS_LAMBDA_RUNTIME_API=');
+        putenv('BREF_FEATURE_TIMEOUT=');
     }
 
-    public function testFromEnvironmentVariable()
+    public function test Lambda timeouts can be anticipated()
     {
-        $getTimeout = function ($runtime) {
-            $reflectionProp = (new \ReflectionObject($runtime))->getProperty('timeout');
-            $reflectionProp->setAccessible(true);
+        // Re-create the runtime class with timeout prevention enabled
+        putenv('BREF_FEATURE_TIMEOUT=1');
+        $this->runtime = LambdaRuntime::fromEnvironmentVariable();
 
-            return $reflectionProp->getValue($runtime);
-        };
+        $this->givenAnEvent([]);
 
-        putenv('AWS_LAMBDA_RUNTIME_API=foo');
-        putenv('BREF_TIMEOUT'); // unset
+        $start = microtime(true);
+        $this->runtime->processNextEvent(function () {
+            // This 10s sleep should be interrupted
+            sleep(10);
+        });
 
-        // In 1.3 this feature is opt-in only.
-        $this->assertEquals(-1, $getTimeout(LambdaRuntime::fromEnvironmentVariable()));
+        $elapsedTime = microtime(true) - $start;
+        // The Lambda timeout was 2 seconds, we expect the Bref timeout to trigger 1 second before that: 1 second
+        $this->assertEqualsWithDelta(1, $elapsedTime, 0.2);
 
-        // Enable this test when we want to enable the Timeout exception for all users
-        //$this->assertEquals(0, $getTimeout(LambdaRuntime::fromEnvironmentVariable()));
-        $this->assertEquals(-1, $getTimeout(LambdaRuntime::fromEnvironmentVariable(-1)));
-        $this->assertEquals(0, $getTimeout(LambdaRuntime::fromEnvironmentVariable(0)));
-        $this->assertEquals(10, $getTimeout(LambdaRuntime::fromEnvironmentVariable(10)));
-
-        putenv('BREF_TIMEOUT=5');
-        $this->assertEquals(5, $getTimeout(LambdaRuntime::fromEnvironmentVariable()));
-        $this->assertEquals(-1, $getTimeout(LambdaRuntime::fromEnvironmentVariable(-1)));
-        $this->assertEquals(0, $getTimeout(LambdaRuntime::fromEnvironmentVariable(0)));
-        $this->assertEquals(10, $getTimeout(LambdaRuntime::fromEnvironmentVariable(10)));
+        $this->assertInvocationErrorResult(LambdaTimeout::class, 'Maximum AWS Lambda execution time reached');
+        $this->assertErrorInLogs(LambdaTimeout::class, 'Maximum AWS Lambda execution time reached');
     }
 
     public function test basic behavior()
@@ -376,6 +376,8 @@ ERROR;
                 [
                     'lambda-runtime-aws-request-id' => '1',
                     'lambda-runtime-invoked-function-arn' => 'test-function-name',
+                    // now + 2 seconds
+                    'lambda-runtime-deadline-ms' => intval((microtime(true) + 2) * 1000),
                 ],
                 json_encode($event)
             ),

@@ -3,7 +3,7 @@
 namespace Bref\Timeout;
 
 /**
- * Helper class to trigger an exception just before the Lamba times out. This
+ * Helper class to trigger an exception just before the Lambda times out. This
  * will give the application a chance to shut down.
  */
 final class Timeout
@@ -12,40 +12,44 @@ final class Timeout
     private static $initialized = false;
 
     /**
-     * Read environment variables and setup timeout exception.
+     * Automatically setup a timeout (based on the AWS Lambda timeout).
+     *
+     * This method can only be called when running in PHP-FPM, i.e. when using a `php-XX-fpm` layer.
      */
-    public static function enable(): void
+    public static function enableInFpm(): void
     {
-        if (isset($_SERVER['BREF_TIMEOUT'])) {
-            $timeout = (int) $_SERVER['BREF_TIMEOUT'];
-            if ($timeout === -1) {
-                return;
-            }
-
-            if ($timeout > 0) {
-                self::timeoutAfter($timeout);
-
-                return;
-            }
-
-            // else if 0, continue
+        if (! isset($_SERVER['LAMBDA_INVOCATION_CONTEXT'])) {
+            throw new \LogicException('Could not find value for bref timeout. Are we running on Lambda?');
         }
 
-        if (isset($_SERVER['LAMBDA_INVOCATION_CONTEXT'])) {
-            $context = json_decode($_SERVER['LAMBDA_INVOCATION_CONTEXT'], true, 512, JSON_THROW_ON_ERROR);
-            $deadlineMs = $context['deadlineMs'];
-            $remainingTime = $deadlineMs - intval(microtime(true) * 1000);
+        $context = json_decode($_SERVER['LAMBDA_INVOCATION_CONTEXT'], true, 512, JSON_THROW_ON_ERROR);
+        $deadlineMs = $context['deadlineMs'];
+        $remainingTimeInMillis = $deadlineMs - intval(microtime(true) * 1000);
 
-            self::timeoutAfter(max(1, (int) floor($remainingTime / 1000) - 1));
-
-            return;
-        }
-
-        throw new \LogicException('Could not find value for bref timeout. Are we running on Lambda?');
+        self::enable($remainingTimeInMillis);
     }
 
     /**
-     * Setup custom handler for SIGTERM.
+     * @internal
+     */
+    public static function enable(int $remainingTimeInMillis): void
+    {
+        self::init();
+
+        $remainingTimeInSeconds = (int) floor($remainingTimeInMillis / 1000);
+
+        // The script will timeout 1 second before the remaining time
+        // to allow some time for Bref/our app to recover and cleanup
+        $margin = 1;
+
+        $timeoutDelayInSeconds = max(1, $remainingTimeInSeconds - $margin);
+
+        // Trigger SIGALRM in X seconds
+        pcntl_alarm($timeoutDelayInSeconds);
+    }
+
+    /**
+     * Setup custom handler for SIGALRM.
      */
     private static function init(): void
     {
@@ -59,6 +63,8 @@ final class Timeout
         }
 
         pcntl_async_signals(true);
+        // Setup a handler for SIGALRM that throws an exception
+        // This will interrupt any running PHP code, including `sleep()` or code stuck waiting for I/O.
         pcntl_signal(SIGALRM, function (): void {
             throw new LambdaTimeout('Maximum AWS Lambda execution time reached');
         });
@@ -67,16 +73,9 @@ final class Timeout
     }
 
     /**
-     * Set a timer to throw an exception.
-     */
-    public static function timeoutAfter(int $seconds): void
-    {
-        self::init();
-        pcntl_alarm($seconds);
-    }
-
-    /**
      * Reset timeout.
+     *
+     * @internal
      */
     public static function reset(): void
     {
