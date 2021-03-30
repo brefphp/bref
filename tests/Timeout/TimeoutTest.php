@@ -59,7 +59,7 @@ class TimeoutTest extends TestCase
             $this->fail('We expect a LambdaTimeout before we reach this line');
         } catch (LambdaTimeout $e) {
             $time = 1000 * (microtime(true) - $start);
-            $this->assertEqualsWithDelta(2000, $time, 200, 'We must wait about 1 second');
+            $this->assertEqualsWithDelta(1000, $time, 200, 'We must wait about 1 second');
             Timeout::reset();
         } catch (\Throwable $e) {
             $this->fail('It must throw a LambdaTimeout.');

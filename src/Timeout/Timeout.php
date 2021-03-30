@@ -56,7 +56,7 @@ final class Timeout
      */
     private static function init(): void
     {
-        Timeout::$stackTrace = null;
+        self::$stackTrace = null;
 
         if (self::$initialized) {
             return;
@@ -102,7 +102,7 @@ final class Timeout
     {
         if (self::$initialized) {
             pcntl_alarm(0);
-            Timeout::$stackTrace = null;
+            self::$stackTrace = null;
         }
     }
 }
