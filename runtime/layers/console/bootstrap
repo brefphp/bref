@@ -3,6 +3,7 @@
 
 use Bref\Context\Context;
 use Bref\Runtime\LambdaRuntime;
+use Symfony\Component\Process\Process;
 
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
@@ -43,20 +44,14 @@ while (true) {
             $cliOptions = '';
         }
 
-        // We redirect stderr to stdout so that all the output is collected
-        $command = sprintf(
-            'LAMBDA_INVOCATION_CONTEXT=%s /opt/bin/php %s %s 2>&1',
-            escapeshellarg(json_encode($context)),
-            $handlerFile,
-            $cliOptions
-        );
+        $command = sprintf('/opt/bin/php %s %s 2>&1', $handlerFile, $cliOptions);
+        $process = Process::fromShellCommandline($command, null, ['LAMBDA_INVOCATION_CONTEXT' => json_encode($context)]);
 
-        exec($command, $output, $exitCode);
+        $process->run(function ($type, $buffer) {
+            echo $buffer;
+        });
 
-        $output = implode("\n", $output);
-
-        // Echo the output so that it is written to CloudWatch logs
-        echo $output;
+        $exitCode = $process->getExitCode();
 
         if ($exitCode > 0) {
             throw new Exception('The command exited with a non-zero status code: ' . $exitCode);
@@ -64,7 +59,7 @@ while (true) {
 
         return [
             'exitCode' => $exitCode, // will always be 0
-            'output' => $output,
+            'output' => $process->getOutput(),
         ];
     });
 }
