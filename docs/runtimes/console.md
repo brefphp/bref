@@ -61,11 +61,11 @@ For example:
 $ vendor/bin/bref cli hello-dev
 # ...
 
-$ vendor/bin/bref cli hello-dev -- doctrine:migrate
+$ vendor/bin/bref cli hello-dev -- doctrine:migrations:migrate
 Your database will be migrated.
 To execute the SQL queries run the command with the `--force` option.
 
-$ vendor/bin/bref cli hello-dev -- doctrine:migrate --force
+$ vendor/bin/bref cli hello-dev -- doctrine:migrations:migrate --force
 Your database has been migrated.
 
 # Use environment variables to configure your AWS credentials
