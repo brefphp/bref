@@ -19,6 +19,38 @@ class ServerlessPlugin {
 
         this.checkCompatibleRuntime();
 
+        // Declare `${bref:xxx}` variables
+        // See https://www.serverless.com/framework/docs/providers/aws/guide/plugins#custom-variable-types
+        this.configurationVariablesSources = {
+            bref: {
+                async resolve({address, params, resolveConfigurationProperty, options}) {
+                    // `address` and `params` reflect values configured with a variable: ${bref(param1, param2):address}
+
+                    // `options` is CLI options
+                    // `resolveConfigurationProperty` allows to access other configuration properties,
+                    // and guarantees to return a fully resolved form (even if property is configured with variables)
+                    const region = options.region || await resolveConfigurationProperty(['provider', 'region']);
+
+                    if (!address.startsWith('layer.')) {
+                        throw new Error(`Unknown Bref variable \${bref:${address}}, the only supported syntax right now is \${bref:layer.XXX}`);
+                    }
+
+                    const layerName = address.substr('layer.'.length);
+                    if (! (layerName in layers)) {
+                        throw new Error(`Unknown Bref layer named "${layerName}"`);
+                    }
+                    if (! (region in layers[layerName])) {
+                        throw new Error(`There is no Bref layer named "${layerName}" in region "${region}"`);
+                    }
+                    const version = layers[layerName][region];
+                    return {
+                        value: `arn:aws:lambda:${region}:209497400698:layer:${layerName}:${version}`,
+                    }
+                }
+            }
+        };
+
+        // This is the legacy way of declaring `${bref:xxx}` variables. This has been deprecated in 20210326.
         // Override the variable resolver to declare our own variables
         const delegate = this.serverless.variables
             .getValueFromSource.bind(this.serverless.variables);
@@ -111,7 +143,7 @@ class ServerlessPlugin {
         this.newVendorZipName = vendorZipHash + '.zip';
 
         this.consoleLog('Setting environment variables.');
-        
+
         if (! this.serverless.service.provider.environment) {
             this.serverless.service.provider.environment = [];
         }
