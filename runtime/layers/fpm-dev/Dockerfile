@@ -5,7 +5,7 @@ RUN pecl install xdebug
 RUN cp $(php -r "echo ini_get('extension_dir');")/xdebug.so /tmp
 
 RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
-    && curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-"$version".so" ;
+    && curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.55.0/blackfire-php-linux_amd64-php-"$version".so" ;
 
 FROM bref/php-${PHP_VERSION}-fpm as build_dev
 
