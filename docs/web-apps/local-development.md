@@ -14,7 +14,7 @@ It is possible to run **web applications** locally.
 
 To keep things simple, you can run your PHP application like you did without Bref. For example with your favorite framework:
 
-- Laravel via `php artisan serve` or [Homestead](https://laravel.com/docs/8.x/homestead) or [Laravel Valet](https://laravel.com/docs/8.x/valet)
+- Laravel via `php artisan serve` or [Homestead](https://laravel.com/docs/homestead) or [Laravel Valet](https://laravel.com/docs/valet)
 - Symfony via `symfony server:start` ([documentation](https://symfony.com/doc/current/setup/symfony_server.html))
 
 If you are not using any framework, you can use PHP's built-in server:
