@@ -31,7 +31,7 @@ By default, the Laravel-Bref package will automatically configure Laravel to wor
 If you are curious, the package will:
 
 - enable the `stderr` log driver, to send logs to CloudWatch ([read more about logs](../environment/logs.md))
-- enable the [`cookie` session driver](https://laravel.com/docs/7.x/session#configuration)
+- enable the [`cookie` session driver](https://laravel.com/docs/session#configuration)
     - if you don't need sessions (e.g. for an API), you can manually set `SESSION_DRIVER=array` in `.env`
     - if you prefer, you can configure sessions to be store in database or Redis
 - move the cache directory to `/tmp` (because the default storage directory is read-only on Lambda)
@@ -120,7 +120,7 @@ If your templates reference some assets via direct path, you should edit them to
 
 ## File storage on S3
 
-Laravel has a [filesystem abstraction](https://laravel.com/docs/7.x/filesystem) that lets us easily change where files are stored. When running on Lambda, you will need to use the `s3` adapter to store files on AWS S3. To do this, configure you production `.env` file:
+Laravel has a [filesystem abstraction](https://laravel.com/docs/filesystem) that lets us easily change where files are stored. When running on Lambda, you will need to use the `s3` adapter to store files on AWS S3. To do this, configure you production `.env` file:
 
 ```dotenv
 # .env
@@ -169,7 +169,7 @@ That's it! The `'AWS_ACCESS_KEY_ID'`, `'AWS_SECRET_ACCESS_KEY'` and `'AWS_SESSIO
 
 ### Public files
 
-Laravel has a [special disk called `public`](https://laravel.com/docs/7.x/filesystem#the-public-disk): this disk stores files that we want to make public, like uploaded photos, generated PDF files, etc.
+Laravel has a [special disk called `public`](https://laravel.com/docs/filesystem#the-public-disk): this disk stores files that we want to make public, like uploaded photos, generated PDF files, etc.
 
 Again, those files cannot be stored on Lambda, i.e. they cannot be stored in the default `storage/app/public` directory. You need to store those files on S3.
 
@@ -280,4 +280,4 @@ Instead, here is what you need to do:
    vendor/bin/bref cli <artisan-function-name> -- passport:client --password --name 'Laravel Personal Access Client'
    ```
 
-All these steps were replacements of running the `passport:install` command [from the Passport documentation](https://laravel.com/docs/7.x/passport#installation).
+All these steps were replacements of running the `passport:install` command [from the Passport documentation](https://laravel.com/docs/passport#installation).
