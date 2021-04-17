@@ -12,7 +12,7 @@ next:
 
 Bref provides a way to run console commands on AWS Lambda.
 
-This can be used to run PHP scripts, the [Symfony Console](https://symfony.com/doc/current/console.html), as well as [Laravel Artisan](https://laravel.com/docs/8.x/artisan) commands in production.
+This can be used to run PHP scripts, the [Symfony Console](https://symfony.com/doc/current/console.html), as well as [Laravel Artisan](https://laravel.com/docs/artisan) commands in production.
 
 ## Configuration
 
