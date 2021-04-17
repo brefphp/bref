@@ -45,7 +45,7 @@ This runtime works great to create **event-driven micro-services**.
 
 This runtime lets you run console commands on Lambda.
 
-For example, we can run the [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Laravel Artisan](https://laravel.com/docs/5.8/artisan).
+For example, we can run the [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Laravel Artisan](https://laravel.com/docs/artisan).
 
 [Read more about the `console` runtime here](/docs/runtimes/console.md).
 
