@@ -122,7 +122,7 @@ More options can be set on the bucket, [read more here](https://docs.aws.amazon.
 
 ### Uploading files to S3
 
-It is not possible to use `serverless deploy` to upload files to S3, you need to upload them separately. To do this, you can use the [`aws s3 sync` command](https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html):
+It is not possible to use `serverless deploy` to upload files to S3, you need to upload them separately. To do this, you can use the [`aws s3 sync` command](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/s3/sync.html):
 
 ```bash
 aws s3 sync <your-assets-directory> s3://<bucket-name>/<your-assets-folder> --delete
