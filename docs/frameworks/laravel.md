@@ -120,7 +120,7 @@ If your templates reference some assets via direct path, you should edit them to
 
 ## File storage on S3
 
-Laravel has a [filesystem abstraction](https://laravel.com/docs/7.x/filesystem) that lets us easily change where files are stored. When running on Lambda, you will need to use the `s3` adapter to store files on AWS S3. To do this, configure you production `.env` file:
+Laravel has a [filesystem abstraction](https://laravel.com/docs/filesystem) that lets us easily change where files are stored. When running on Lambda, you will need to use the `s3` adapter to store files on AWS S3. To do this, configure you production `.env` file:
 
 ```dotenv
 # .env
