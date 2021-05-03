@@ -37,11 +37,7 @@ Secrets (API tokens, database passwords, etc.) should not be defined in `serverl
 
 Instead you can use the [SSM parameter store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-paramstore.html), a free service provided by AWS.
 
-To create a parameter, you can do it via the [AWS SSM console](https://console.aws.amazon.com/systems-manager/parameters) or in the Bref Dashboard by running:
-
-```bash
-vendor/bin/bref dashboard
-```
+To create a parameter, you can do it via the [AWS SSM console](https://console.aws.amazon.com/systems-manager/parameters) or the [Bref Dashboard](https://dashboard.bref.sh/).
 
 You can also do it in the CLI via the following command:
 

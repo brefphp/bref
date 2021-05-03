@@ -129,6 +129,7 @@ $app->command('cli function [--region=] [--profile=] [arguments]*', function (st
 $app->command(Local::SIGNATURE, new Local);
 
 $app->command('dashboard [--host=] [--port=] [--profile=] [--stage=]', function (SymfonyStyle $io, string $host = 'localhost', int $port = 8000, string $profile = null, string $stage = null) {
+    $io->info('The Bref Dashboard is also available as an application: https://dashboard.bref.sh');
     if ($host === 'localhost') {
         $host = '127.0.0.1';
     }

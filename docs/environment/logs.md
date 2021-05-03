@@ -48,11 +48,7 @@ $log->warning('This is a warning!');
 
 ### Reading logs
 
-To read logs, either open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:) or the Bref Dashboard by running:
-
-```bash
-vendor/bin/bref dashboard
-```
+To read logs, either open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:) or the [Bref Dashboard](https://dashboard.bref.sh/).
 
 You can also use `serverless logs` to view them in the CLI:
 
