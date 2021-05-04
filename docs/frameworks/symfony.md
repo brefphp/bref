@@ -18,65 +18,19 @@ Next, in an existing Symfony project, install Bref and the [Symfony Bridge packa
 composer require bref/symfony-bridge
 ```
 
-If you are using [Symfony Flex](https://flex.symfony.com/), you're done. Flex will automatically run
+If you are using [Symfony Flex](https://flex.symfony.com/),it will automatically run
 the [bref/symfony-bridge recipe](https://github.com/symfony/recipes-contrib/tree/master/bref/symfony-bridge/0.1) which will perform the following tasks:
 
 - Create a `serverless.yml` configuration file optimized for Symfony.
 - Add the `.serverless` folder to the `.gitignore` file.
 
-Otherwise, you can create the `serverless.yml` file manually at the root of the project, with the following configuration:
-
-```yaml
-# serverless.yml
-
-service: symfony
-
-provider:
-  name: aws
-  # The AWS region in which to deploy (us-east-1 is the default)
-  region: us-east-1
-  # The stage of the application, e.g. dev, production, staging… ('dev' is the default)
-  stage: dev
-  runtime: provided.al2
-  environment:
-    # Symfony environment variables
-    APP_ENV: prod
-
-plugins:
-  - ./vendor/bref/bref
-
-functions:
-  # This function runs the Symfony website/API
-  web:
-    handler: public/index.php
-    timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
-    layers:
-      - ${bref:layer.php-80-fpm}
-    events:
-      - httpApi: '*'
-  # This function let us run console commands in Lambda
-  console:
-    handler: bin/console
-    timeout: 120 # in seconds
-    layers:
-      - ${bref:layer.php-80} # PHP
-      - ${bref:layer.console} # The "console" layer
-
-package:
-  patterns:
-    # Excluded files and folders for deployment
-    - '!node_modules/**'
-    - '!tests/**'
-    - '!var/**'
-    # If you want to include files and folders that are part of excluded folders,
-    # add them at the end
-    - 'var/cache/prod/**'
-```
+> Otherwise, you can create the `serverless.yml` file manually at the root of the project. Take a look
+at the [default configuration](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml) provided by the recipe.
 
 You still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` you need to customize where the cache and logs are stored in
-the `src/Kernel.php` file. This is done by extending the default `Kernel` class create by Symfony with the `Kernel` class provide by the bridge:
+Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and logs are stored in
+the `src/Kernel.php` file. This is automatically done by the bridge, you just need to use the `BrefKernel` class instead of the default `BaseKernel`:
 
 ```diff
 // src/Kernel.php
@@ -97,30 +51,12 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
     // ...
 ```
 
-You can also separate the [build directory](https://symfony.com/doc/current/reference/configuration/kernel.html#build-directory)
-from the cache directory to be able to [deploy a pre-warmed cache](#Deploy) and thus improve load time.
-
-```php
-// src/Kernel.php
-
-class Kernel extends BrefKernel
-{
-    // ...
-    
-    public function getBuildDir(): string
-    {
-        return $this->getProjectDir().'/var/cache/'.$this->environment;
-    }
-}
-```
-
 ## Deploy
 
-If you separated the build directory from the cache directory, warmup the Symfony cache before deploying
+For better performance, warmup the Symfony cache before deploying:
 
 ```bash
-# you need LAMBDA_TASK_ROOT to generate the container as if you were running in a Lambda environment
-LAMBDA_TASK_ROOT=bref php bin/console cache:warmup --env=prod
+php bin/console cache:warmup --env=prod
 ```
 
 The application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
@@ -134,8 +70,7 @@ To use it follow [the "Console" guide](/docs/runtimes/console.md).
 
 ## Logs
 
-While overriding the log's location in the `Kernel` class was necessary for Symfony to run correctly, by default Symfony logs in `stderr`. That is great because
-Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.md).
+By default, Symfony logs in `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.md).
 
 However, if the application is using Monolog you need to configure it to log into `stderr` as well:
 
@@ -243,7 +178,7 @@ aws s3 sync public/ s3://<bucket-name>/ \
   --exclude public/build/entrypoint.json
 ```
 
-Finally, you need to update the `serverless.yml` file to exclude the `assets` and `public/build` directories from deployment:
+Finally, you need to update the `serverless.yml` file to exclude the `assets`, `public/build` and `public/bundles` directories from deployment:
 
 ```yaml
 # serverless.yml
@@ -252,17 +187,18 @@ package:
   pattern:
     - '!assets/**'
     - '!public/build/**'
+    - '!public/bundles/**'
     - 'public/build/manifest.json'
     - 'public/build/entrypoint.json'
 ```
 
 ### Assets in templates
 
-For the above configuration to work, assets must be referenced in templates via the `asset()` helper:
+For the above configuration to work, assets must be referenced in templates via the `asset()` helper as [recommended by Symfony](https://symfony.com/doc/current/templates.html#linking-to-css-javascript-and-image-assets):
 
 ```diff
 - <img src="/images/logo.png">
-+ <img src="{{ asset('build/images/logo.png') }}">
++ <img src="{{ asset('images/logo.png') }}">
 ```
 
 ## Symfony Messenger
