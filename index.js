@@ -103,8 +103,12 @@ class ServerlessPlugin {
         // we will add it here as we do not want the vendor folder in our
         // lambda archive file.
         let excludes = this.serverless.service.package.exclude;
-        if(excludes.indexOf('vendor/**') === -1) {
-            excludes[excludes.length] = 'vendor/**';
+        if(excludes && excludes.indexOf('vendor/**') === -1) {
+            excludes.push('vendor/**');
+        }
+        let patterns = this.serverless.service.package.patterns;
+        if(patterns && patterns.indexOf('!vendor/**') === -1) {
+            patterns.push('!vendor/**');
         }
 
         // This defines the access rights for Lambda, so it can download the
