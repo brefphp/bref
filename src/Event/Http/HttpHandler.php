@@ -20,6 +20,11 @@ abstract class HttpHandler implements Handler
             return ['Lambda is warm'];
         }
 
+        // $event must be an array for HttpRequestEvent but might come in as null
+        if (!is_array($event)) {
+            $event = [];
+        }
+
         $httpEvent = new HttpRequestEvent($event);
 
         $response = $this->handleRequest($httpEvent, $context);
