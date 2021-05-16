@@ -18,7 +18,7 @@ Next, in an existing Symfony project, install Bref and the [Symfony Bridge packa
 composer require bref/symfony-bridge
 ```
 
-If you are using [Symfony Flex](https://flex.symfony.com/),it will automatically run
+If you are using [Symfony Flex](https://flex.symfony.com/), it will automatically run
 the [bref/symfony-bridge recipe](https://github.com/symfony/recipes-contrib/tree/master/bref/symfony-bridge/0.1) which will perform the following tasks:
 
 - Create a `serverless.yml` configuration file optimized for Symfony.
