@@ -54,8 +54,10 @@ $app->command('init', function (SymfonyStyle $io) {
         'Event-driven function' => 'function',
     ][$choice];
 
+    $phpVersion = \PHP_VERSION_ID >= 80000 ? '8' : '7';
+
     $fs = new Filesystem;
-    $rootPath = __DIR__ . "/template/$templateDirectory";
+    $rootPath = __DIR__ . "/template/$phpVersion/$templateDirectory";
     $filesToGitAdd = [];
     foreach (scandir($rootPath, SCANDIR_SORT_NONE) as $file) {
         if (in_array($file, ['.', '..'])) {

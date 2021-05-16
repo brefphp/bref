@@ -17,5 +17,5 @@ functions:
 
 # Exclude files from deployment
 package:
-    exclude:
-        - 'tests/**'
+    pattern:
+        - '!tests/**'
