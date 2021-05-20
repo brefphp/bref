@@ -25,7 +25,7 @@ abstract class HttpHandler implements Handler
             $event = [
                 'requestContext' => [
                     'http' => [
-                        'method' => 'GET'
+                        'method' => 'GET',
                     ],
                 ],
             ];
