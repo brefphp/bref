@@ -14,12 +14,12 @@ functions:
         description: ''
         timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
         layers:
-            - ${bref:layer.php-74-fpm}
+            - ${bref:layer.php-PHP_VERSION-fpm}
         events:
             -   httpApi: '*'
 
 # Exclude files from deployment
 package:
-    exclude:
-        - 'node_modules/**'
-        - 'tests/**'
+    patterns:
+        - '!node_modules/**'
+        - '!tests/**'
