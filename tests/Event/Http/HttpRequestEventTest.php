@@ -3,6 +3,7 @@
 namespace Bref\Test\Event\Http;
 
 use Bref\Event\Http\HttpRequestEvent;
+use Bref\Event\InvalidLambdaEvent;
 
 class HttpRequestEventTest extends CommonHttpTest
 {
@@ -123,5 +124,15 @@ class HttpRequestEventTest extends CommonHttpTest
     protected function assertPathParameters(array $expected): void
     {
         $this->assertEquals($expected, $this->event->getPathParameters());
+    }
+
+    public function test empty invocation will have friendly error message()
+    {
+        $message = 'This handler expected to be invoked with a API Gateway or ALB event. Instead, the handler was invoked with invalid event data: null';
+
+        $this->expectException(InvalidLambdaEvent::class);
+        $this->expectExceptionMessage($message);
+
+        new HttpRequestEvent(null);
     }
 }

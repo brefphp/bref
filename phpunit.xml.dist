@@ -1,23 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit colors="true"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.3/phpunit.xsd"
-         bootstrap="./vendor/autoload.php">
-
-    <testsuites>
-        <testsuite name="small">
-            <directory>./tests/</directory>
-            <exclude>./tests/Sam</exclude>
-        </testsuite>
-        <testsuite name="runtimes">
-            <directory>./tests/Sam</directory>
-        </testsuite>
-    </testsuites>
-
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
-
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" bootstrap="./vendor/autoload.php">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="small">
+      <directory>./tests/</directory>
+      <exclude>./tests/Sam</exclude>
+    </testsuite>
+    <testsuite name="runtimes">
+      <directory>./tests/Sam</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>
