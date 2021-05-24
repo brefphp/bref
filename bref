@@ -54,8 +54,6 @@ $app->command('init', function (SymfonyStyle $io) {
         'Event-driven function' => 'function',
     ][$choice];
 
-    $phpVersion = PHP_MAJOR_VERSION . PHP_MINOR_VERSION;
-
     $fs = new Filesystem;
     $rootPath = __DIR__ . "/template/$templateDirectory";
 
@@ -66,7 +64,7 @@ $app->command('init', function (SymfonyStyle $io) {
 
     $template = file_get_contents("$rootPath/serverless.yml");
 
-    $template = str_replace('PHP_VERSION', $phpVersion, $template);
+    $template = str_replace('PHP_VERSION', PHP_MAJOR_VERSION . PHP_MINOR_VERSION, $template);
 
     file_put_contents('serverless.yml', $template);
 
