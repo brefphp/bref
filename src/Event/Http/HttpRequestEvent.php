@@ -26,7 +26,9 @@ final class HttpRequestEvent implements LambdaEvent
     /** @var float */
     private $payloadVersion;
 
-    /** @param array $event */
+    /**
+     * @param mixed $event
+     */
     public function __construct($event)
     {
         // version 1.0 of the HTTP payload
