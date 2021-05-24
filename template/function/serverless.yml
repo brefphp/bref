@@ -13,9 +13,9 @@ functions:
         handler: index.php
         description: ''
         layers:
-            - ${bref:layer.php-80}
+            - ${bref:layer.php-PHP_VERSION}
 
 # Exclude files from deployment
 package:
-    pattern:
+    patterns:
         - '!tests/**'
