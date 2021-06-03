@@ -184,7 +184,7 @@ Finally, you need to update the `serverless.yml` file to exclude the `assets`, `
 # serverless.yml
 
 package:
-  pattern:
+  patterns:
     - '!assets/**'
     - '!public/build/**'
     - '!public/bundles/**'
