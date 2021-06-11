@@ -71,10 +71,6 @@ class ServerlessPlugin {
             return delegate(variableString);
         }
 
-        // Check if bref custom directive is set, otherwise initialize it with empty object
-        this.serverless.service.custom = this.serverless.service.custom ? this.serverless.service.custom : {};
-        this.serverless.service.custom.bref = this.serverless.service.custom.bref ? this.serverless.service.custom.bref : {};
-
         this.hooks = {
             'before:package:setupProviderConfiguration': this.addCustomIamRoleForVendorArchiveDownload.bind(this),
             'package:setupProviderConfiguration': this.createVendorZip.bind(this),
@@ -95,7 +91,9 @@ class ServerlessPlugin {
     }
 
     addCustomIamRoleForVendorArchiveDownload() {
-        if(! this.serverless.service.custom.bref.separateVendor) {
+        this.serverless.service.custom = this.serverless.service.custom ? this.serverless.service.custom : {};
+        this.serverless.service.custom.bref = this.serverless.service.custom.bref ? this.serverless.service.custom.bref : {};
+        if (! this.serverless.service.custom.bref.separateVendor) {
             return;
         }
 
@@ -139,6 +137,8 @@ class ServerlessPlugin {
     }
 
     async createVendorZip() {
+        this.serverless.service.custom = this.serverless.service.custom ? this.serverless.service.custom : {};
+        this.serverless.service.custom.bref = this.serverless.service.custom.bref ? this.serverless.service.custom.bref : {};
         if(! this.serverless.service.custom.bref.separateVendor) {
             return;
         }
@@ -222,6 +222,8 @@ class ServerlessPlugin {
     }
 
     async uploadVendorZip() {
+        this.serverless.service.custom = this.serverless.service.custom ? this.serverless.service.custom : {};
+        this.serverless.service.custom.bref = this.serverless.service.custom.bref ? this.serverless.service.custom.bref : {};
         if(! this.serverless.service.custom.bref.separateVendor) {
             return;
         }
