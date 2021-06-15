@@ -10,12 +10,12 @@ Multiple demo applications are available on GitHub at [github.com/brefphp/exampl
 
 ## Setup
 
-First, make sure you have followed the [Installation guide](../installation.md) to create an AWS account and install the necessary tools.
+First, **follow the [Installation guide](../installation.md)** to create an AWS account and install the necessary tools.
 
 Next, in an existing Symfony project, install Bref and the [Symfony Bridge package](https://github.com/brefphp/symfony-bridge).
 
 ```
-composer require bref/symfony-bridge
+composer require bref/bref bref/symfony-bridge
 ```
 
 If you are using [Symfony Flex](https://flex.symfony.com/), it will automatically run
@@ -53,13 +53,13 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
 
 ## Deploy
 
-For better performance, warmup the Symfony cache before deploying:
+The application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
+
+For better performance in production, warmup the Symfony cache before deploying:
 
 ```bash
 php bin/console cache:warmup --env=prod
 ```
-
-The application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
 
 ## Console
 
@@ -116,7 +116,7 @@ You should add the following lines to `config/packages/framework.yaml`
 
 framework:
   # trust the remote address because API Gateway has no fixed IP or CIDR range that we can target
-  trusted_proxies: '127.0.0.1,REMOTE_ADDR'
+  trusted_proxies: '127.0.0.1'
   # trust "X-Forwarded-*" headers coming from API Gateway
   trusted_headers: [ 'x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port' ]
 ```
