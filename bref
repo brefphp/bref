@@ -54,6 +54,40 @@ function getServerlessInfo($stage, $profile, $io): array
     return ($serverlessInfoOutput);
 }
 
+function getFunctionWithConsoleLayer(): string
+{
+    $serverlessPrintInfo = new Symfony\Component\Process\Process(
+        ['serverless', 'print'],
+        null,
+        ['SLS_DEPRECATION_DISABLE'=>"*"]
+    );
+    $serverlessPrintInfo->start();
+    $serverlessPrintInfo->wait();
+
+    if (!$serverlessPrintInfo->isSuccessful()) {
+        throw new Exception("'The command `serverless print` failed' ".PHP_EOL.$serverlessPrintInfo->getOutput());
+    }
+
+    $serverlessInfoOutput = Yaml::parse($serverlessPrintInfo->getOutput());
+    $nominatedFunctions = [];
+    foreach ($serverlessInfoOutput['functions'] as $functionName => $function) {
+        foreach ($function['layers'] as $layer) {
+            if (strpos($layer, 'layer:console') !==FALSE) {
+                $nominatedFunctions[] = $functionName;
+            }
+        }
+    }
+
+    if (sizeof($nominatedFunctions) == 0) {
+        throw new Exception('Layer console is missing');
+    }
+    if (sizeof($nominatedFunctions) > 1) {
+        throw new Exception('More than one function has the console layer. You can\'t use the default behavior');
+    }
+
+    return (reset($nominatedFunctions));
+}
+
 $app = new Silly\Application('Deploy serverless PHP applications');
 
 $app->command('init', function (SymfonyStyle $io) {
@@ -123,10 +157,20 @@ $app->command('init', function (SymfonyStyle $io) {
 /**
  * Run a CLI command in the remote environment.
  */
-$app->command('cli function [--profile=] [arguments]*', function (string $function, ?string $profile, array $arguments, SymfonyStyle $io) {
+$app->command('cli [function] [--profile=] [--stage=] [arguments]*', function (?string $function, ?string $profile, ?string $stage, array $arguments, SymfonyStyle $io) {
+
+    try {
+        if (!$function) {
+            $function= getFunctionWithConsoleLayer();
+        }
+    } catch (Exception $e) {
+        $io->error($e->getMessage());
+        return 1;
+    }
+
 
     $profile = $profile ?: getenv('AWS_PROFILE') ?: 'default';
-    $serverlessInfo =getServerlessInfo(null, $profile, $io);
+    $serverlessInfo =getServerlessInfo($stage, $profile, $io);
 
     $lambda = new SimpleLambdaClient(
         $serverlessInfo['region'],
@@ -135,7 +179,7 @@ $app->command('cli function [--profile=] [arguments]*', function (string $functi
     );
 
     // Replace short function name (like in serverless.yml) by full qualified name
-    if ($serverlessInfo['functions'][$function]){
+    if (array_key_exists($function, $serverlessInfo['functions'])){
         $function = $serverlessInfo['functions'][$function];
     }
     // Because arguments may contain spaces, and are going to be executed remotely
