@@ -25,8 +25,17 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 function getServerlessInfo($stage, $profile, $io): array
 {
+    $command = ['serverless', 'info', '--aws-profile', $profile];
+
+    if ($stage) {
+        $command += ['--stage', $stage];
+    }
+
+    // serverless print deprecation message on stdout instead of stderr. We need to disable it to parse the outpout
     $serverlessInfo = new Symfony\Component\Process\Process(
-        ['serverless', 'info','--stage', $stage, '--aws-profile', $profile]
+        $command,
+        null,
+        ['SLS_DEPRECATION_DISABLE'=>"*"]
     );
     $serverlessInfo->start();
     $animation = new LoadingAnimation($io);
