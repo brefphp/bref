@@ -10,9 +10,29 @@ On top of that, the filesystem is not shared between instances of a lambda when 
 
 ## Application data
 
-Application data must not be stored in `/tmp` because of the behavior described above.
+Application data **must not** be stored in `/tmp` because of the behavior described above.
 
-Instead data can be stored in [databases](/docs/environment/database.md) or in storage services like AWS S3.
+Instead, data can be stored in [databases](/docs/environment/database.md) or in storage services like AWS S3.
+
+### S3 storage
+
+It is possible to deploy a S3 bucket in `serverless.yml` using the <a href="https://github.com/getlift/lift/blob/master/docs/storage.md">`Storage` feature of the Lift plugin</a>. For example:
+
+```yaml
+# serverless.yml
+
+# ...
+
+provider:
+    environment:
+        BUCKET_NAME: ${constructs:reports-bucket.bucketName}
+
+constructs:
+    reports-bucket:
+        type: storage
+```
+
+Read more <a href="https://github.com/getlift/lift/blob/master/docs/storage.md">in the Lift documentation</a>.
 
 ## Application cache
 
