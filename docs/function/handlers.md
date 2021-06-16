@@ -137,9 +137,24 @@ class Handler extends SqsHandler
 return new Handler();
 ```
 
-You can read more about SQS workers in [Serverless Visually Explained](https://serverless-visually-explained.com/).
+It is possible to deploy a preconfigured SQS queue in `serverless.yml` using the <a href="https://github.com/getlift/lift/blob/master/docs/queue.md">`Queue` feature of the Lift plugin</a>. For example:
 
-[Full reference of SQS in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/sqs/).
+```yaml
+# serverless.yml
+# ...
+
+constructs:
+    my-queue:
+        type: queue
+        worker:
+            handler: handler.php
+```
+
+Read more:
+
+- <a href="https://github.com/getlift/lift/blob/master/docs/queue.md">Deploying SQS queues with Lift</a>
+- [Full reference of SQS in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/sqs/)
+- Learn more about SQS and workers in [Serverless Visually Explained](https://serverless-visually-explained.com/)
 
 ## API Gateway HTTP events
 
