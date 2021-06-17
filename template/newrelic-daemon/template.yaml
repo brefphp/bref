@@ -341,6 +341,7 @@ Resources:
         Ref: LoadBalancer
       Port: 443
       Protocol: HTTPS
+      SslPolicy: ELBSecurityPolicy-TLS-1-2-Ext-2018-06
   ListenerHTTP:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
