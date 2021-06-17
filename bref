@@ -56,23 +56,15 @@ function getServerlessInfo($stage, $profile, $io): array
 
 function getFunctionWithConsoleLayer(): string
 {
-    $serverlessPrintInfo = new Symfony\Component\Process\Process(
-        ['serverless', 'print'],
-        null,
-        ['SLS_DEPRECATION_DISABLE'=>"*"]
-    );
-    $serverlessPrintInfo->start();
-    $serverlessPrintInfo->wait();
-
-    if (!$serverlessPrintInfo->isSuccessful()) {
-        throw new Exception("'The command `serverless print` failed' ".PHP_EOL.$serverlessPrintInfo->getOutput());
+    if (!file_exists(__DIR__ . '/../../serverless.yml')) {
+        throw new Exception('serverless.yml not found');
     }
 
-    $serverlessInfoOutput = Yaml::parse($serverlessPrintInfo->getOutput());
+    $serverlessInfoOutput = Yaml::parse(file_get_contents(__DIR__ . '/../../serverless.yml'));
     $nominatedFunctions = [];
     foreach ($serverlessInfoOutput['functions'] as $functionName => $function) {
         foreach ($function['layers'] as $layer) {
-            if (strpos($layer, 'layer:console') !==FALSE) {
+            if (strpos($layer, 'layer.console') !==FALSE) {
                 $nominatedFunctions[] = $functionName;
             }
         }
