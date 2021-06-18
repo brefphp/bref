@@ -25,7 +25,7 @@ It is possible to deploy a S3 bucket in `serverless.yml` using the <a href="http
 
 provider:
     environment:
-        BUCKET_NAME: ${constructs:reports-bucket.bucketName}
+        BUCKET_NAME: ${construct:reports-bucket.bucketName}
 
 constructs:
     reports-bucket:
