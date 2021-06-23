@@ -14,9 +14,8 @@ plugins:
     - ./index.js
 
 package:
-    exclude:
-        - '**'
-    include:
+    patterns:
+        - '!**'
         - 'demo/**'
         - 'src/**'
         - 'vendor/**'
