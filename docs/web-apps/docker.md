@@ -37,6 +37,7 @@ COPY --from=installation /app/ /var/task/
 
 RUN echo "<?php echo 'Hello from Docker Bref!';" >> /var/task/public/index.php
 
+# Configure the handler file (the entrypoint that receives all HTTP requests)
 CMD ["public/index.php"]
 ```
 
