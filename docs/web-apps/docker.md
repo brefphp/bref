@@ -7,11 +7,11 @@ previous:
 ---
 
 AWS Lambda support running a Docker Container as a handler
-for your function. This alternative is valid when:
+for your function. This alternative is a last resort  when:
 
 - Your Lambda Function is larger than 250MB when unzipped
 - You need more than 5 extensions
-- You need resources installed (e.g. mysqldump)
+- You need resources locally installed (e.g. mysqldump)
 
 
 ## Docker Image
