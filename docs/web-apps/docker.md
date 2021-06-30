@@ -95,3 +95,11 @@ a limited disk space under `/tmp` for read/write. This folder
 will always be empty when a new cold start happens. Avoid
 writing content to `/tmp` in your Dockerfile because that
 content will **not be available** for your Lambda function.
+
+## Docker Registry
+
+AWS Lambda only support AWS ECR as the source location for
+Docker images. The Lambda service will use the image digest
+as the unique identifier. This means that even if you overwrite
+the exact same tag on ECR, your lambda will still run the previous
+image code until you actually redeploy using the new image.
