@@ -7,11 +7,11 @@ previous:
 ---
 
 AWS Lambda support running a Docker Container as a handler
-for your function. This alternative allows for lambda functions
-with up to 10GB to be deployed, as opposed to 250MB for non-docker.
-Another reason to choose this approach is if you need more than 5
-PHP extensions. Installing/Enabling multiple extensions on Docker
-is easier and will avoid hitting the limit of 5 layers per function.
+for your function. This alternative is valid when:
+
+- Your Lambda Function is larger than 250MB when unzipped
+- You need more than 5 extensions
+- You need resources installed (e.g. mysqldump)
 
 
 ## Docker Image
@@ -48,7 +48,6 @@ COPY --from=bref/extra-gmp-php-80:0.10 /opt/bref/ /opt/bref
 
 COPY . /var/task
 
-# Configure the handler file (the entrypoint that receives all HTTP requests)
 CMD ["public/index.php"]
 ```
 
@@ -89,3 +88,10 @@ When running `serverless deploy`, the framework will:
 When the deployment finishes, your lambda is ready to be
 invoked from your API Gateway address.
 
+## Filesystem
+
+The filesystem for Docker on AWS Lambda is also readonly with
+a limited disk space under `/tmp` for read/write. This folder
+will always be empty when a new cold start happens. Avoid
+writing content to `/tmp` in your Dockerfile because that
+content will **not be available** for your Lambda function.
