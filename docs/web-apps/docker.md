@@ -7,16 +7,17 @@ previous:
 ---
 
 AWS Lambda support running a Docker Container as a handler
-for your function. This alternative is a last resort  when:
+for your function. This alternative **is a last resort** when:
 
 - Your Lambda Function is larger than 250MB when unzipped
 - You need more than 5 extensions
 - You need resources locally installed (e.g. mysqldump)
 
+> Note: this documentation page assumes that you have read about [web apps on Lambda](../runtimes/http.md) first.
 
 ## Docker Image
 
-Bref helps you deploy Docker to AWS Lambda by offering
+Bref helps you deploy to AWS Lambda using Docker by offering
 out-of-the-box base images that are package for the Lambda environment.
 Here is an example of a Docker image
 
@@ -29,11 +30,11 @@ COPY . /var/task
 CMD ["public/index.php"]
 ```
 
-This Dockerfile outline the 3 key aspects of Docker on Lambda:
+This Dockerfile outlines the 3 key aspects of Docker on Lambda:
 
 - Base image compatible with Lambda Runtime
-- Source code placed under /var/task
-- CMD pointing to entrypoint that will handle requests
+- Source code placed under `/var/task`
+- CMD pointing to the entrypoint that will handle requests
 
 You may also enable PHP extensions by pulling them from
 [Bref Extensions](https://github.com/brefphp/extra-php-extensions)
@@ -53,24 +54,24 @@ CMD ["public/index.php"]
 
 ## Deployment
 
-The Serverless Framework supports deploying Docker Images to Lambda
+The Serverless Framework supports deploying Docker images to Lambda:
 
 ```yaml
 service: bref-with-docker
 
 provider:
-  name: aws
-  ecr:
-    images:
-      hello-world:
-        path: ./
+    name: aws
+    ecr:
+        images:
+            hello-world:
+                path: ./
 
 functions:
-  hello:
-    image:
-      name: hello-world
-    events:
-      - httpApi: '*'
+    hello:
+        image:
+            name: hello-world
+        events:
+            - httpApi: '*'
 ```
 
 Instead of having a `handler` and a `layer`, we'll declare an
@@ -95,6 +96,8 @@ a limited disk space under `/tmp` for read/write. This folder
 will always be empty when a new cold start happens. Avoid
 writing content to `/tmp` in your Dockerfile because that
 content will **not be available** for your Lambda function.
+
+[Read more about file storage in Lambda](../environment/storage.md).
 
 ## Docker Registry
 
