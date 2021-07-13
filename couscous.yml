@@ -11,7 +11,7 @@ exclude:
     - vendor
     - website
     # This special entry will ask Couscous to read the excluded directories from your ".gitignore" file
-    - %gitignore%
+    - "%gitignore%"
 
 scripts:
     # Scripts to execute before generating the website
@@ -55,6 +55,9 @@ menu:
                 web-local-development:
                     text: Local development
                     url: /docs/web-apps/local-development.html
+                web-docker:
+                    text: Docker
+                    url: /docs/web-apps/docker.html
         -   section: Frameworks
             items:
                 laravel:
