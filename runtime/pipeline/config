@@ -1,0 +1,3 @@
+[default]
+role_arn = arn:aws:iam::179453031647:role/cg-administrator
+credential_source = Ec2InstanceMetadata

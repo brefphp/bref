@@ -17,5 +17,8 @@ phases:
       # Necessary for publish.php to use Symfony Processor
       - php composer.phar install
 
+      # Copy AWS config to be able to automatically assume role into the layer account
+      - mkdir ~/.aws && copy ./runtime/pipeline/config ~/.aws/config
+
       - make runtimes
 
