@@ -57,7 +57,7 @@ Resources:
                 - Name: src
               Configuration:
                 ConnectionArn: !Ref GitHubConnection
-                FullRepositoryId: deleugpn/bref                 #TODO: Change this to brefphp/bref
+                FullRepositoryId: brefphp/bref
                 BranchName: php-binary-pipeline
                 OutputArtifactFormat: CODEBUILD_CLONE_REF
                 DetectChanges: false
