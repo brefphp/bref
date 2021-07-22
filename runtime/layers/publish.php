@@ -86,6 +86,8 @@ function publishLayer(string $region, string $layer, string $layerDescription): 
         'text',
         '--query',
         'Version',
+        '--profile',
+        'layer'
     ]);
     $process->setTimeout(null);
 
@@ -136,6 +138,8 @@ function addPublicLayerPermissions(string $region, string $layer, string $layerV
         'lambda:GetLayerVersion',
         '--principal',
         '*',
+        '--profile',
+        'layer'
     ]);
     $process->setTimeout(null);
 
