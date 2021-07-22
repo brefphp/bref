@@ -10,12 +10,12 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 $layers = [
     'php-80' => 'PHP 8.0 for event-driven PHP functions',
-//    'php-80-fpm' => 'PHP-FPM 8.0 for web applications',
-//    'php-74' => 'PHP 7.4 for event-driven PHP functions',
-//    'php-74-fpm' => 'PHP-FPM 7.4 for web applications',
-//    'php-73' => 'PHP 7.3 for event-driven PHP functions',
-//    'php-73-fpm' => 'PHP-FPM 7.3 for web applications',
-//    'console' => 'Console runtime for PHP applications',
+    'php-80-fpm' => 'PHP-FPM 8.0 for web applications',
+    'php-74' => 'PHP 7.4 for event-driven PHP functions',
+    'php-74-fpm' => 'PHP-FPM 7.4 for web applications',
+    'php-73' => 'PHP 7.3 for event-driven PHP functions',
+    'php-73-fpm' => 'PHP-FPM 7.3 for web applications',
+    'console' => 'Console runtime for PHP applications',
 ];
 foreach ($layers as $layer => $layerDescription) {
     $file = __DIR__ . "/../export/$layer.zip";
@@ -86,8 +86,6 @@ function publishLayer(string $region, string $layer, string $layerDescription): 
         'text',
         '--query',
         'Version',
-        '--profile',
-        'layer'
     ]);
     $process->setTimeout(null);
 
@@ -138,8 +136,6 @@ function addPublicLayerPermissions(string $region, string $layer, string $layerV
         'lambda:GetLayerVersion',
         '--principal',
         '*',
-        '--profile',
-        'layer'
     ]);
     $process->setTimeout(null);
 
