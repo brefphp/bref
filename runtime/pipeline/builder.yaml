@@ -100,7 +100,7 @@ Resources:
                 Action:
                   - sts:AssumeRole
                 Resource:
-                  - 'arn:aws:iam::179453031647:role/bref-layer-publisher'
+                  - 'arn:aws:iam::209497400698:role/bref-layer-publisher'
 
               - Effect: Allow
                 Action:
