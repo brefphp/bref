@@ -1,9 +1,5 @@
 Description: AWS CodePipeline for building PHP Binary
 
-Parameters:
-  LayerAccountRoleArn:
-    Type: String
-
 Resources:
   SourceCodeStorageBucket:
     Type: AWS::S3::Bucket
@@ -83,6 +79,7 @@ Resources:
   CodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: bref-php-binary-builder
       AssumeRolePolicyDocument:
         Statement:
           Effect: Allow
@@ -103,7 +100,7 @@ Resources:
                 Action:
                   - sts:AssumeRole
                 Resource:
-                  - !Ref LayerAccountRoleArn
+                  - 'arn:aws:iam::179453031647:role/bref-layer-publisher'
 
               - Effect: Allow
                 Action:
