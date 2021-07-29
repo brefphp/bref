@@ -71,15 +71,17 @@ functions:
 
 The `${...}` notation is the [syntax to use variables](https://serverless.com/framework/docs/providers/aws/guide/variables/) in `serverless.yml`. Bref provides a serverless plugin ("`./vendor/bref/bref`") that provides those variables:
 
+- `${bref:layer.php-81}`
 - `${bref:layer.php-80}`
 - `${bref:layer.php-74}`
 - `${bref:layer.php-73}`
+- `${bref:layer.php-81-fpm}`
 - `${bref:layer.php-80-fpm}`
 - `${bref:layer.php-74-fpm}`
 - `${bref:layer.php-73-fpm}`
 - `${bref:layer.console}`
 
-Bref currently provides runtimes for PHP 7.3, 7.4 and 8.0.
+Bref currently provides runtimes for PHP 7.3, 7.4 and 8.0. It also provides **experimental** runtimes for PHP 8.1.
 
 > `php-80` means PHP 8.0.\*. It is not possible to require a specific "patch" version.
 

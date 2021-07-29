@@ -9,6 +9,8 @@ use Symfony\Component\Process\Process;
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 $layers = [
+    'php-81' => 'PHP 8.1 for event-driven PHP functions',
+    'php-81-fpm' => 'PHP-FPM 8.1 for web applications',
     'php-80' => 'PHP 8.0 for event-driven PHP functions',
     'php-80-fpm' => 'PHP-FPM 8.0 for web applications',
     'php-74' => 'PHP 7.4 for event-driven PHP functions',

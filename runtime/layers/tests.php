@@ -10,12 +10,15 @@ $allLayers = [
     'bref/php-73',
     'bref/php-74',
     'bref/php-80',
+    'bref/php-81',
     'bref/php-73-fpm',
     'bref/php-74-fpm',
     'bref/php-80-fpm',
+    'bref/php-81-fpm',
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
     'bref/php-80-fpm-dev',
+    'bref/php-81-fpm-dev',
 ];
 foreach ($allLayers as $layer) {
     // Working directory
@@ -44,9 +47,11 @@ $fpmLayers = [
     'bref/php-73-fpm',
     'bref/php-74-fpm',
     'bref/php-80-fpm',
+    'bref/php-81-fpm',
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
     'bref/php-80-fpm-dev',
+    'bref/php-81-fpm-dev',
 ];
 foreach ($fpmLayers as $layer) {
     // PHP-FPM is installed
@@ -60,6 +65,7 @@ $devLayers = [
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
     'bref/php-80-fpm-dev',
+    'bref/php-81-fpm-dev',
 ];
 $devExtensions = [
     'xdebug',
