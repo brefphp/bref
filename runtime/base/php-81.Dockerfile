@@ -79,7 +79,6 @@ RUN set -xe \
         --disable-cgi \
         --enable-cli \
         --disable-phpdbg \
-        --disable-phpdbg-webhelper \
         --with-sodium \
         --with-readline \
         --with-openssl \
