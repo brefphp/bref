@@ -32,8 +32,8 @@ foreach ($allLayers as $layer) {
     echo '.';
 
     // Test extensions load correctly
-    // Skip this for PHP 8.0 until all extensions are supported
-    if (strpos($layer, 'php-80') === false) {
+    // Skip this for PHP 8.0 and 8.1 until all extensions are supported
+    if (strpos($layer, 'php-8') === false) {
         exec("docker run --rm -v \${PWD}/helpers:/var/task/ --entrypoint /var/task/extensions-test.sh $layer", $output, $exitCode);
         if ($exitCode !== 0) {
             throw new Exception(implode(PHP_EOL, $output), $exitCode);
