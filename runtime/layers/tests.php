@@ -65,7 +65,7 @@ $devLayers = [
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
     'bref/php-80-fpm-dev',
-    'bref/php-81-fpm-dev',
+    // 'bref/php-81-fpm-dev',
 ];
 $devExtensions = [
     'xdebug',
