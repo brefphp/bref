@@ -23,5 +23,9 @@ Resources:
                 Action:
                   - lambda:PublishLayerVersion
                   - lambda:AddLayerVersionPermission
+                  - lambda:GetLayerVersion
+                  - lambda:GetLayerVersionPolicy
+                  - lambda:ListLayers
+                  - lambda:ListLayerVersions
                 Resource:
                   - '*'
