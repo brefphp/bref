@@ -58,7 +58,7 @@ Resources:
               Configuration:
                 ConnectionArn: !Ref GitHubConnection
                 FullRepositoryId: brefphp/bref
-                BranchName: php-binary-pipeline
+                BranchName: master
                 OutputArtifactFormat: CODEBUILD_CLONE_REF
                 DetectChanges: false
 
