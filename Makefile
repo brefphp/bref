@@ -1,5 +1,8 @@
 .EXPORT_ALL_VARIABLES:
 
+trigger_runtimes:
+	aws codepipeline start-pipeline-execution --name bref-php-binary
+
 # Build the PHP runtimes
 runtimes:
 	cd runtime ; make publish
