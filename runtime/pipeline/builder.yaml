@@ -24,6 +24,10 @@ Resources:
       Environment:
         ComputeType: BUILD_GENERAL1_LARGE
         EnvironmentVariables:
+          - Name: DOCKER_HUB_USERNAME
+            Value: '{{resolve:ssm:/bref-layers-builder/docker/hub/username:1}}'
+          - Name: DOCKER_HUB_PASSWORD
+            Value: '{{resolve:ssm:/bref-layers-builder/docker/hub/password:1}}'
           - Name: DOCKER_BUILDKIT
             Value: 1
         Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
