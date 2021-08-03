@@ -24,6 +24,12 @@ if (getenv('BREF_DOWNLOAD_VENDOR')) {
     require $appRoot . '/vendor/autoload.php';
 }
 
+$customBootstrap = $appRoot . '/lambda_bootstrap.php';
+if (file_exists($customBootstrap)) {
+    /** @noinspection PhpIncludeInspection */
+    require_once $customBootstrap;
+}
+
 $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
 
 $container = Bref::getContainer();
