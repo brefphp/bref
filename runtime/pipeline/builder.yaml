@@ -30,6 +30,8 @@ Resources:
             Value: '{{resolve:ssm:/bref-layers-builder/docker/hub/password:1}}'
           - Name: DOCKER_BUILDKIT
             Value: 1
+          - Name: AWS_STS_REGIONAL_ENDPOINTS
+            Value: regional
         Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
         PrivilegedMode: true
         Type: LINUX_CONTAINER
