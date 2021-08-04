@@ -26,7 +26,7 @@ export/php%.zip: docker-images
 # The console runtime
 export/console.zip: layers/console/bootstrap
 	rm -f export/console.zip
-	cd layers/console && zip ../../export/console.zip bootstrap
+	cd layers/console && zip ../../export/console.zip bootstrap breftoolbox.php
 
 # Build Docker images
 docker-images:
