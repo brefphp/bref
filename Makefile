@@ -2,6 +2,8 @@
 
 trigger_runtimes:
 	aws codepipeline start-pipeline-execution --name bref-php-binary
+runtime_build_status:
+	aws codepipeline get-pipeline-state --name=bref-php-binary | jq ".stageStates[1].latestExecution.status"
 
 # Build the PHP runtimes
 runtimes:
