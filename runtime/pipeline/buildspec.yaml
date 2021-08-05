@@ -15,22 +15,11 @@ phases:
       - curl https://cli.github.com/packages/rpm/gh-cli.repo --output /etc/yum.repos.d/gh-cli.repo
       - yum install -y gh
 
-      # Configure GitHub User
+      # Configure GitHub User & Branch
       - git config --global user.email "deleugyn+bref@gmail.com"
       - git config --global user.name "Brefphp Bot by @deleugyn"
-
       - git checkout master
-      - git status
       - git checkout -b bref/layers
-      - echo "testing" > testing.json
-
-      - git add testing.json
-      - git commit -m "layer.json update"
-
-      - git remote add github https://brefphp-bot:${GITHUB_TOKEN}@github.com/brefphp-bot/bref.git
-      - git push --set-upstream github bref/layers --force
-
-      - gh pr create --title "New PHP Layers" --reviewer "mnapoli" --body "New layers have finished building" --repo "brefphp/bref" --base master --head "brefphp-bot:bref/layers"
 
       # Login to Docker Hub to avoid rate limit
 #      - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
@@ -48,4 +37,16 @@ phases:
 #      - mkdir ~/.aws && cp ./runtime/pipeline/config ~/.aws/config
 
 #      - make runtimes
+
+      # TODO: swap with make layers.json
+      - echo "testing existing file" > README.md
+
+      - echo $'layers.json update\n\nCo-authored-by: Marco Deleu <deleugyn@gmail.com>' > git-message
+      - git commit -a --file git-message
+
+      - git remote add github https://brefphp-bot:${GITHUB_TOKEN}@github.com/brefphp-bot/bref.git
+      - git push --set-upstream github bref/layers --force
+
+      - gh pr create --title "New PHP Layers" --reviewer "mnapoli" --body "New layers have finished building" --repo "brefphp/bref" --base master --head "brefphp-bot:bref/layers"
+
 
