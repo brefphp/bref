@@ -17,7 +17,7 @@ phases:
 
       # Configure GitHub User
       - git config --global user.email "deleugyn+bref@gmail.com"
-      - git config --global user.name "[Bot] Marco Deleu"
+      - git config --global user.name "Brefphp Bot by @deleugyn"
 
       - git checkout master
       - git status
