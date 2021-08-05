@@ -28,7 +28,7 @@ phases:
       - git commit -m "layer.json update"
 
       - echo $GITHUB_KEY > ./bref_ssh_key
-      - sed  '/^$/d' /bref_ssh_key > id_rsa
+      - sed  '/^$/d' ./bref_ssh_key > id_rsa
       - chmod 0600 ./bref_ssh_key
       - cat bref_ssh_key
       - eval "$(ssh-agent -s)" && ssh-add ./bref_ssh_key
