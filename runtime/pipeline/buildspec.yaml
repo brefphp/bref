@@ -34,12 +34,11 @@ phases:
 #      - php composer.phar install
 
       # Copy AWS config to be able to automatically assume role into the layer account
-#      - mkdir ~/.aws && cp ./runtime/pipeline/config ~/.aws/config
+      - mkdir ~/.aws && cp ./runtime/pipeline/config ~/.aws/config
 
 #      - make runtimes
 
-      # TODO: swap with make layers.json
-      - echo "testing existing file" > README.md
+      - make layers.json
 
       - |
         echo -en 'layers.json update\n\nCo-authored-by: Marco Deleu <deleugyn@gmail.com>' > git-message
