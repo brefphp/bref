@@ -16,7 +16,7 @@ phases:
       - yum install -y gh
 
       # Configure GitHub User
-      - git config --global user.email "deleugyn@gmail.com"
+      - git config --global user.email "deleugyn+bref@gmail.com"
       - git config --global user.name "[Bot] Marco Deleu"
 
       - git checkout master
@@ -27,13 +27,7 @@ phases:
       - git add testing.json
       - git commit -m "layer.json update"
 
-      - echo $GITHUB_KEY > ./bref_ssh_key
-      - sed  '/^$/d' ./bref_ssh_key > id_rsa
-      - chmod 0600 ./bref_ssh_key
-      - cat bref_ssh_key
-      - eval "$(ssh-agent -s)" && ssh-add ./bref_ssh_key
-
-      - git remote add github git@github.com:brefphp/bref.git
+      - git remote add github https://brefphp-bot:${GITHUB_TOKEN}@github.com/brefphp-bot/bref.git
       - git push --set-upstream github bref/layers --force
 
       - gh pr create --title "New PHP Layers" --reviewer "mnapoli" --body "New layers have finished building" --base brefphp:master --head "brefphp-bot:bref/layers"
