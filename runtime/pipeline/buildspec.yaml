@@ -30,7 +30,7 @@ phases:
       - git remote add github https://brefphp-bot:${GITHUB_TOKEN}@github.com/brefphp-bot/bref.git
       - git push --set-upstream github bref/layers --force
 
-      - gh pr create --title "New PHP Layers" --reviewer "mnapoli" --body "New layers have finished building" --base "brefphp:master" --head "brefphp-bot:bref/layers"
+      - gh pr create --title "New PHP Layers" --reviewer "mnapoli" --body "New layers have finished building" --base "brefphp/bref:master" --head "brefphp-bot/bref:bref/layers"
 
       # Login to Docker Hub to avoid rate limit
 #      - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
