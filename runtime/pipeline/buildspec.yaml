@@ -41,7 +41,7 @@ phases:
       # TODO: swap with make layers.json
       - echo "testing existing file" > README.md
 
-      - echo $'layers.json update\n\nCo-authored-by: Marco Deleu <deleugyn@gmail.com>' > git-message
+      - echo -en 'layers.json update\n\nCo-authored-by: Marco Deleu <deleugyn@gmail.com>'
       - git commit -a --file git-message
 
       - git remote add github https://brefphp-bot:${GITHUB_TOKEN}@github.com/brefphp-bot/bref.git
