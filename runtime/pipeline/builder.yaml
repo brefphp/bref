@@ -24,10 +24,10 @@ Resources:
       Environment:
         ComputeType: BUILD_GENERAL1_LARGE
         EnvironmentVariables:
-          - Name: DOCKER_HUB_USERNAME
-            Value: '{{resolve:ssm:/bref-layers-builder/docker/hub/username:1}}'
-          - Name: DOCKER_HUB_PASSWORD
-            Value: '{{resolve:ssm:/bref-layers-builder/docker/hub/password:1}}'
+#          - Name: DOCKER_HUB_USERNAME
+#            Value: '{{resolve:ssm:/bref-layers-builder/docker/hub/username:1}}'
+#          - Name: DOCKER_HUB_PASSWORD
+#            Value: '{{resolve:ssm:/bref-layers-builder/docker/hub/password:1}}'
           - Name: DOCKER_BUILDKIT
             Value: 1
           - Name: AWS_STS_REGIONAL_ENDPOINTS
@@ -64,7 +64,7 @@ Resources:
               Configuration:
                 ConnectionArn: !Ref GitHubConnection
                 FullRepositoryId: brefphp/bref
-                BranchName: master
+                BranchName: layers-json
                 OutputArtifactFormat: CODEBUILD_CLONE_REF
                 DetectChanges: false
 
