@@ -26,7 +26,8 @@ phases:
 
       - git add testing.json
       - git commit -m "layer.json update"
-      - git push --set-upstream origin bref/layers --force
+      - git remote add github git@github.com:brefphp/bref.git
+      - git push --set-upstream github bref/layers --force
 
       - gh pr create --title "New PHP Layers" --reviewer "mnapoli" --body "New layers have finished building" --base master --head "bref/layers"
 
