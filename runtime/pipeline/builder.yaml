@@ -131,6 +131,7 @@ Resources:
                 Action:
                   - lambda:PublishLayerVersion
                   - lambda:AddLayerVersionPermission
+                  - lambda:ListLayerVersions
                 Resource:
                   - '*'
 
