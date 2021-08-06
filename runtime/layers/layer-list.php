@@ -44,6 +44,7 @@ function lambdaClient(string $region): LambdaClient
 {
     if (getenv('AWS_STS_REGIONAL_ENDPOINTS') === 'regional') {
         $stsClient = new StsClient([
+            'sts_regional_endpoints' => 'regional',
             'region' => $region,
             'version' => '2011-06-15'
         ]);
