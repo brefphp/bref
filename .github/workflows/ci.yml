@@ -40,7 +40,9 @@ jobs:
                 env:
                     version: ${{ matrix.php }}
                 run: |
-                    sudo apt-get install -y php$version-fpm
+                    # sudo apt-get install -y php$version-fpm
+                    whereis php
+                    which php
                     sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
                     echo 'expose_php=1' | sudo tee -a /etc/php/$version/fpm/php.ini
             -   name: Install dependencies
