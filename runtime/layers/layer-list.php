@@ -7,7 +7,8 @@
  */
 
 use AsyncAws\Lambda\LambdaClient;
-use AsyncAws\Core\Sts\StsClient;
+# AsyncAWS doesn't support regional endpoints: https://github.com/async-aws/aws/issues/1061
+use Aws\Sts\StsClient;
 use AsyncAws\Lambda\ValueObject\LayerVersionsListItem;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
