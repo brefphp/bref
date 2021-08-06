@@ -57,11 +57,9 @@ function lambdaClient(string $region): LambdaClient
 
         return new LambdaClient([
             'region' => $region,
-            'credentials' => [
-                'key'    => $credentials['Credentials']['AccessKeyId'],
-                'secret' => $credentials['Credentials']['SecretAccessKey'],
-                'token'  => $credentials['Credentials']['SessionToken']
-            ],
+            'accessKeyId' => $credentials['Credentials']['AccessKeyId'],
+            'accessKeySecret' => $credentials['Credentials']['SecretAccessKey'],
+            'sessionToken'  => $credentials['Credentials']['SessionToken'],
         ]);
     } else {
         return new LambdaClient([
