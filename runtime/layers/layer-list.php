@@ -6,9 +6,8 @@
  * `layers.json` contains the layer versions that Bref should use.
  */
 
+use Aws\Sts\StsClient; # AsyncAWS doesn't support regional endpoints: https://github.com/async-aws/aws/issues/1061
 use AsyncAws\Lambda\LambdaClient;
-# AsyncAWS doesn't support regional endpoints: https://github.com/async-aws/aws/issues/1061
-use Aws\Sts\StsClient;
 use AsyncAws\Lambda\ValueObject\LayerVersionsListItem;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -23,26 +22,28 @@ const LAYER_NAMES = [
     'console',
 ];
 
-//$regions = json_decode(file_get_contents(__DIR__ . '/regions.json'), true);
+$regions = json_decode(file_get_contents(__DIR__ . '/regions.json'), true);
 
 $export = [];
-//foreach ($regions as $region) {
-    $region = 'eu-west-1';
-
+foreach ($regions as $region) {
     $client = lambdaClient($region);
 
     $layers = listLayers($client, $region);
+
     foreach (LAYER_NAMES as $layerName) {
         $export[$layerName][$region] = $layers[$layerName];
     }
-    echo "$region\n";
-//}
-file_put_contents(__DIR__ . '/../../layers.json', json_encode($export, JSON_PRETTY_PRINT));
-echo "Done\n";
 
+    echo "$region\n";
+}
+
+file_put_contents(__DIR__ . '/../../layers.json', json_encode($export, JSON_PRETTY_PRINT));
+
+echo "Done\n";
 
 function lambdaClient(string $region): LambdaClient
 {
+    // If we're running on CodeBuild, let's switch to the Publisher Account Role.
     if (getenv('AWS_STS_REGIONAL_ENDPOINTS') === 'regional') {
         $stsClient = new StsClient([
             'sts_regional_endpoints' => 'regional',
@@ -51,7 +52,7 @@ function lambdaClient(string $region): LambdaClient
         ]);
 
         $credentials = $stsClient->AssumeRole([
-            'RoleArn' => 'arn:aws:iam::179453031647:role/bref-layer-publisher',
+            'RoleArn' => 'arn:aws:iam::209497400698:role/bref-layer-publisher',
             'RoleSessionName' => 'bref-layer-builder',
         ]);
 
@@ -72,14 +73,13 @@ function listLayers(LambdaClient $lambda, string $selectedRegion): array
 {
     // Run the API calls in parallel (thanks to async)
     $results = [];
-//    foreach (LAYER_NAMES as $layerName) {
-        $layerName = 'GoogleSheetLayers';
 
+    foreach (LAYER_NAMES as $layerName) {
         $results[$layerName] = $lambda->listLayerVersions([
-            'LayerName' => sprintf('arn:aws:lambda:%s:179453031647:layer:%s', $selectedRegion, $layerName),
+            'LayerName' => sprintf('arn:aws:lambda:%s:209497400698:layer:%s', $selectedRegion, $layerName),
             'MaxItems' => 1,
         ]);
-//    }
+    }
 
     $layers = [];
     foreach ($results as $layerName => $result) {
