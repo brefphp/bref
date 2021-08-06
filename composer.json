@@ -30,6 +30,7 @@
         "riverline/multipart-parser": "^2.0.6",
         "psr/http-server-handler": "^1.0",
         "async-aws/lambda": "^1.0",
+        "async-aws/core": "^1.0",
         "nyholm/psr7": "^1.2",
         "psr/container": "^1.0",
         "symfony/yaml": "^3.1|^4.0|^5.0",
