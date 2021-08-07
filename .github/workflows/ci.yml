@@ -49,7 +49,7 @@ jobs:
                     # sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
                     # echo 'expose_php=1' | sudo tee -a /etc/php/$version/fpm/php.ini
             -   name: Install dependencies
-                run: 'composer update ${{ matrix.dependency-version }} --no-interaction --prefer-dist --no-progress'
+                run: 'composer update ${{ matrix.dependency-version }} --no-interaction --prefer-dist --no-progress --ignore-platform-req=php'
             -   name: Execute Unit Tests
                 run: 'vendor/bin/phpunit --testsuite small'
 
