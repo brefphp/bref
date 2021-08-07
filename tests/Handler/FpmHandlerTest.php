@@ -1117,7 +1117,7 @@ Year,Make,Model
         // Test global variables that never change (simplifies all the tests)
         $response = $this->assertCommonServerVariables($response, $expectedGlobalVariables);
 
-        self::assertEquals($expectedGlobalVariables, $response);
+        self::assertArraySubset($expectedGlobalVariables, $response);
     }
 
     private function assertCommonServerVariables(array $response, array $expectedGlobalVariables): array
