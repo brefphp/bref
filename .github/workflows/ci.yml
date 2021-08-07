@@ -15,8 +15,9 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 15
         strategy:
+            fail-fast: false
             matrix:
-                php: [ '8.1' ]
+                php: [ '8.1', '8.0', '7.4', '7.3' ]
                 dependency-version: [ '' ]
                 include:
                     -   php: '7.3'
