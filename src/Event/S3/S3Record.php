@@ -41,7 +41,7 @@ final class S3Record
     public function getObject(): BucketObject
     {
         $bucket = $this->record['s3']['object'];
-        return new BucketObject($bucket['key'], $bucket['size'], $bucket['versionId'] ?? null);
+        return new BucketObject($bucket['key'], $bucket['size'] ?? 0, $bucket['versionId'] ?? null);
     }
 
     public function getEventTime(): DateTimeImmutable

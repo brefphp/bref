@@ -37,4 +37,12 @@ class S3EventTest extends TestCase
         $this->expectExceptionMessage('This handler expected to be invoked with a S3 event. Instead, the handler was invoked with invalid event data');
         new S3Event([]);
     }
+
+    public function test event without size attribute()
+    {
+        $event = json_decode(file_get_contents(__DIR__ . '/s3-object-removed.json'), true);
+
+        $record = (new S3Event($event))->getRecords()[0];
+        $this->assertSame(0, $record->getObject()->getSize());
+    }
 }
