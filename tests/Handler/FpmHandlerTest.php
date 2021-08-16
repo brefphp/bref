@@ -732,7 +732,8 @@ Year,Make,Model
             ],
             'body' => $body,
         ];
-        $this->assertGlobalVariables($event, [
+
+        $expectedGlobalVariables = [
             '$_GET' => [],
             '$_POST' => [],
             '$_FILES' => [
@@ -742,6 +743,7 @@ Year,Make,Model
                     'error' => 0,
                     'size' => 57,
                     'content' => "Lorem ipsum dolor sit amet,\nconsectetur adipiscing elit.\n",
+                    'full_path' => 'lorem.txt',
                 ],
                 'bar' => [
                     'name' => 'cars.csv',
@@ -749,6 +751,7 @@ Year,Make,Model
                     'error' => 0,
                     'size' => 51,
                     'content' => "Year,Make,Model\n1997,Ford,E350\n2000,Mercury,Cougar\n",
+                    'full_path' => 'cars.csv',
                 ],
             ],
             '$_COOKIE' => [],
@@ -767,7 +770,15 @@ Year,Make,Model
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
             ],
             'HTTP_RAW_BODY' => '',
-        ]);
+        ];
+
+        if (\PHP_VERSION_ID < 80100) {
+            // full_path was introduced in PHP 8.1, remove it for lower versions
+            unset($expectedGlobalVariables['$_FILES']['foo']['full_path']);
+            unset($expectedGlobalVariables['$_FILES']['bar']['full_path']);
+        }
+
+        $this->assertGlobalVariables($event, $expectedGlobalVariables);
     }
 
     /**
@@ -1117,7 +1128,7 @@ Year,Make,Model
         // Test global variables that never change (simplifies all the tests)
         $response = $this->assertCommonServerVariables($response, $expectedGlobalVariables);
 
-        self::assertArraySubset($expectedGlobalVariables, $response);
+        self::assertEquals($expectedGlobalVariables, $response);
     }
 
     private function assertCommonServerVariables(array $response, array $expectedGlobalVariables): array
