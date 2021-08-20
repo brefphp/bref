@@ -21,7 +21,7 @@ The lambda function used for running console applications must use two Lambda la
 - the base PHP layer that provides the `php` binary,
 - the `console` layer that overrides the base runtime to execute our console commands.
 
-Below is a minimal `serverless.yml`. To create it automatically run `vendor/bin/bref init` and select "Console application".
+Below is a minimal `serverless.yml`.
 
 ```yaml
 service: app
