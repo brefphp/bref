@@ -36,6 +36,8 @@
         "symfony/http-client": "^4.4|^5.0"
     },
     "require-dev": {
+        "aws/aws-sdk-php": "^3.172",
+        "async-aws/core": "^1.0",
         "phpunit/phpunit": "^9.0",
         "dms/phpunit-arraysubset-asserts": "^0.2.0",
         "doctrine/coding-standard": "^8.0",

@@ -24,6 +24,8 @@ Resources:
       Environment:
         ComputeType: BUILD_GENERAL1_LARGE
         EnvironmentVariables:
+          - Name: GITHUB_TOKEN
+            Value: '{{resolve:ssm:/bref-layers-builder/github/token:1}}'
           - Name: DOCKER_HUB_USERNAME
             Value: '{{resolve:ssm:/bref-layers-builder/docker/hub/username:1}}'
           - Name: DOCKER_HUB_PASSWORD
