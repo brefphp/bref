@@ -32,3 +32,6 @@ RUN cp /tmp/*.so $(php -r "echo ini_get('extension_dir');")
 FROM without_extensions
 
 COPY --from=build_dev  /opt /opt
+
+# Override the config so that PHP-FPM listens on port 9000
+COPY php-fpm.conf /opt/bref/etc/php-fpm.conf
