@@ -4,12 +4,16 @@ FROM bref/php-${PHP_VERSION}-fpm as without_extensions
 # Override the config so that PHP-FPM listens on port 9000
 COPY php-fpm.conf /opt/bref/etc/php-fpm.conf
 
+ENV PHP_INI_SCAN_DIR="/opt/bref/etc/php/conf.d:/var/task/php/conf.d:/var/task/php/conf.dev.d"
+
 EXPOSE 9001
 
 # Clear the parent entrypoint
 ENTRYPOINT []
 
-ENV PHP_INI_SCAN_DIR="/opt/bref/etc/php/conf.d:/var/task/php/conf.d:/var/task/php/conf.dev.d"
+# Run PHP-FPM
+# opcache.validate_timestamps=1 : cancels the flag in the base configuration so that files are reloaded
+CMD /opt/bin/php-fpm --nodaemonize --fpm-config /opt/bref/etc/php-fpm.conf -d opcache.validate_timestamps=1 --force-stderr
 
 FROM bref/build-php-$PHP_VERSION as build_extensions
 
@@ -25,10 +29,9 @@ USER root
 COPY --from=build_extensions /tmp/*.so /tmp/
 RUN cp /tmp/*.so $(php -r "echo ini_get('extension_dir');")
 
-# Run PHP-FPM
-# opcache.validate_timestamps=1 : cancels the flag in the base configuration so that files are reloaded
-CMD /opt/bin/php-fpm --nodaemonize --fpm-config /opt/bref/etc/php-fpm.conf -d opcache.validate_timestamps=1 --force-stderr
-
 FROM without_extensions
 
 COPY --from=build_dev  /opt /opt
+
+# Override the config so that PHP-FPM listens on port 9000
+COPY php-fpm.conf /opt/bref/etc/php-fpm.conf
