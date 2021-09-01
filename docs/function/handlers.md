@@ -225,7 +225,7 @@ $id = $request->getAttribute('id');
 ```
 
 ### Event and context
-The HTTP request event and Lambda context array are available as attributes on the request:
+The HTTP request event and context are available as attributes on the request:
 ```php
 // Instance of Bref\Event\Http\HttpRequestEvent
 $event = $request->getAttribute('lambda-event'); 
