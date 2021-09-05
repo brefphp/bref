@@ -89,9 +89,10 @@ final class LambdaRuntime
      *     $lambdaRuntime->processNextEvent(function ($event, Context $context) {
      *         return 'Hello ' . $event['name'] . '. We have ' . $context->getRemainingTimeInMillis()/1000 . ' seconds left';
      *     });
+     * @return bool true if event was successfully handled
      * @throws Exception
      */
-    public function processNextEvent($handler): void
+    public function processNextEvent($handler): bool
     {
         [$event, $context] = $this->waitNextInvocation();
         \assert($context instanceof Context);
@@ -104,7 +105,11 @@ final class LambdaRuntime
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (\Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
+
+            return false;
         }
+
+        return true;
     }
 
     /**
