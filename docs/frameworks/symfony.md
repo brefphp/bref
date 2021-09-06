@@ -138,59 +138,48 @@ in `trusted_proxies`.
 
 ## Assets
 
-To deploy Symfony websites, assets needs to be served by AWS S3. Setting up the S3 bucket is already explained in
-the [websites documentation](../websites.md#hosting-static-files-with-s3). This section provides additional instructions specific to Symfony assets and Webpack
-Encore.
+To deploy Symfony websites, assets needs to be served from AWS S3. The easiest solution to do this is to use the
+[Server-side website construct of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
 
-First, you need to [tell Symfony](https://symfony.com/doc/current/reference/configuration/framework.html#base-urls) to use the S3 URL as the assets base URL,
-instead of your app domain in production.
+This will deploy a Cloudfront distribution that will act as a proxy: it will serve
+static files directly from S3 and will forward everything else to Lambda. This is very close
+to how traditional web servers like Apache or Nginx work which means you application doesn't need to change!
+For more details, see [the offical documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md#how-it-works). 
+
+First install the plugin
+
+```bash
+serverless plugin install -n serverless-lift
+```
+
+Then add this configuration to your `serverless.yml` file.
 
 ```yaml
-# config/packages/prod/assets.yaml
+...
 
-framework:
-  assets:
-    base_urls: 'https://<bucket-name>.s3.amazonaws.com'
+constructs:
+    website:
+        type: server-side-website
+        assets:
+            '/bundles/*': public/bundles
+            '/build/*': public/build
+            '/favicon.ico': public/favicon.ico
+            '/robots.txt': public/robots.txt
+            # add here any file or directory that needs to be served from S3
 ```
 
-If using Webpack Encore, you also need to add the following config at the end of `webpack.config.js`
-
-```js
-// webpack.config.js
-
-if (Encore.isProduction()) {
-    // Note the '/build' at the end of the URL
-    Encore.setPublicPath('https://<bucket-name>.s3.amazonaws.com/build');
-    Encore.setManifestKeyPrefix('build/')
-}
-```
-
-Then, you can compile assets for production in the `public` directory, and synchronize that directory to a S3 bucket:
+Then, you can compile assets for production in the `public` directory
 
 ```bash
 php bin/console assets:install --env prod
 # if using Webpack Encore, additionally run
 yarn encore production
-aws s3 sync public/ s3://<bucket-name>/ \
-  --delete \
-  --exclude index.php \
-  --exclude public/build/manifest.json \
-  --exclude public/build/entrypoint.json
 ```
 
-Finally, you need to update the `serverless.yml` file to exclude the `assets`, `public/build` and `public/bundles` directories from deployment:
+Now run `serverless deploy`, Lift will automatically create the S3 bucket, a Cloudfront distribution and
+upload all specified files and directories to the bucket.
 
-```yaml
-# serverless.yml
-
-package:
-  patterns:
-    - '!assets/**'
-    - '!public/build/**'
-    - '!public/bundles/**'
-    - 'public/build/manifest.json'
-    - 'public/build/entrypoint.json'
-```
+> If you are not using Flex, update the `serverless.yml` file to exclude assets from the deployment ([see the recipe](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml#L35))
 
 ### Assets in templates
 
