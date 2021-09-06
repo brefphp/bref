@@ -25,7 +25,11 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 function getServerlessInfo($stage, $profile, $io): array
 {
-    $command = ['serverless', 'info', '--aws-profile', $profile];
+    $command = ['serverless', 'info'];
+    
+    if ($profile !== null) {
+        $command += ['--aws-profile', $profile]
+    }
 
     if ($stage) {
         $command += ['--stage', $stage];
@@ -70,11 +74,11 @@ function getFunctionWithConsoleLayer(): string
         }
     }
 
-    if (sizeof($nominatedFunctions) == 0) {
-        throw new Exception('Layer console is missing');
+    if (count($nominatedFunctions) === 0) {
+        throw new Exception('No function is using the console layer. See https://bref.sh/docs/runtimes/console.html');
     }
-    if (sizeof($nominatedFunctions) > 1) {
-        throw new Exception('More than one function has the console layer. You can\'t use the default behavior');
+    if (count($nominatedFunctions) > 1) {
+        throw new Exception('More than one function uses the console layer. You need to explicitly provide a function name to this command.');
     }
 
     return (reset($nominatedFunctions));
@@ -153,7 +157,7 @@ $app->command('cli [function] [--profile=] [--stage=] [arguments]*', function (?
 
     try {
         if (!$function) {
-            $function= getFunctionWithConsoleLayer();
+            $function = getFunctionWithConsoleLayer();
         }
     } catch (Exception $e) {
         $io->error($e->getMessage());
@@ -161,8 +165,8 @@ $app->command('cli [function] [--profile=] [--stage=] [arguments]*', function (?
     }
 
 
-    $profile = $profile ?: getenv('AWS_PROFILE') ?: 'default';
-    $serverlessInfo =getServerlessInfo($stage, $profile, $io);
+    $profile = $profile ?: getenv('AWS_PROFILE') ?: null;
+    $serverlessInfo = getServerlessInfo($stage, $profile, $io);
 
     $lambda = new SimpleLambdaClient(
         $serverlessInfo['region'],
@@ -170,7 +174,7 @@ $app->command('cli [function] [--profile=] [--stage=] [arguments]*', function (?
         15 * 60 // maximum duration on Lambda
     );
 
-    // Replace short function name (like in serverless.yml) by full qualified name
+    // Replace short function name (like in serverless.yml) by fully qualified name
     if (array_key_exists($function, $serverlessInfo['functions'])){
         $function = $serverlessInfo['functions'][$function];
     }
@@ -244,7 +248,7 @@ $app->command('dashboard [--host=] [--port=] [--profile=] [--stage=]', function 
 
     try {
         $serverlessInfo = getServerlessInfo($stage, $profile, $io);
-    }catch (\Exception $e) {
+    } catch (\Exception $e) {
         $io->error($e->getMessage());
 
         return 1;

@@ -46,7 +46,7 @@ To run a console command on AWS Lambda, run `bref cli` on your computer:
 vendor/bin/bref cli <function-name> -- <command>
 ```
 
-`<function-name>` is the name of the function that was define in `serverless.yml`. In our example above that would be `hello`.
+`<function-name>` is the name of the function that was defined in `serverless.yml`. In our example above that would be `hello`.
 
 Pass your command, arguments and options by putting them after `--`. The `--` delimiter separates between options for the `bref cli` command (before `--`) and your command (after `--`).
 
