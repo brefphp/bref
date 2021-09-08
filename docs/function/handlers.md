@@ -224,7 +224,9 @@ Note that path parameters (e.g. `{id}` in the example above) are available as re
 $id = $request->getAttribute('id');
 ```
 
-### Event and context
+[Full reference of HTTP events in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/http-api/).
+
+### Lambda event and context
 
 The API Gateway event and Lambda context are available as attributes on the request:
 ```php
@@ -239,8 +241,6 @@ If you're looking for the request context array, for example when using a [Lambd
 ```php
 $requestContext = $request->getAttribute('lambda-event')->getRequestContext(); 
 ```
-
-[Full reference of HTTP events in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/http-api/).
 
 ## Websocket events
 
