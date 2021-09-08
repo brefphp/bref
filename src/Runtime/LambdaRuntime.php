@@ -90,6 +90,7 @@ final class LambdaRuntime
      *         return 'Hello ' . $event['name'] . '. We have ' . $context->getRemainingTimeInMillis()/1000 . ' seconds left';
      *     });
      * @throws Exception
+     * @throws \Throwable
      */
     public function processNextEvent($handler): void
     {
@@ -104,6 +105,8 @@ final class LambdaRuntime
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (\Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
+
+            throw $e;
         }
     }
 

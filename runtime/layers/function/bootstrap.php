@@ -40,5 +40,8 @@ while (true) {
     if (++$loops > $loopMax) {
         exit(0);
     }
-    $lambdaRuntime->processNextEvent($handler);
+
+    try {
+        $lambdaRuntime->processNextEvent($handler);
+    } catch (\Throwable $e) {}
 }

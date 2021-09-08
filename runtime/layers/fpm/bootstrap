@@ -40,5 +40,7 @@ try {
 }
 
 while (true) {
-    $lambdaRuntime->processNextEvent($phpFpm);
+    try {
+        $lambdaRuntime->processNextEvent($phpFpm);
+    } catch (\Throwable $e) {}
 }
