@@ -217,7 +217,7 @@ final class LambdaRuntime
         // Log the exception in CloudWatch
         // We aim to use the same log format as what we can see when throwing an exception in the NodeJS runtime
         // See https://github.com/brefphp/bref/pull/579
-        echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
+        error_log($invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL);
 
         // Send an "error" Lambda response
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
@@ -236,7 +236,7 @@ final class LambdaRuntime
     public function failInitialization(string $message, ?\Throwable $error = null): void
     {
         // Log the exception in CloudWatch
-        echo "$message\n";
+        error_log("$message\n");
         if ($error) {
             if ($error instanceof Exception) {
                 $errorMessage = get_class($error) . ': ' . $error->getMessage();
