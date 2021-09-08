@@ -225,12 +225,13 @@ $id = $request->getAttribute('id');
 ```
 
 ### Event and context
+
 The HTTP request event and context are available as attributes on the request:
 ```php
-// Instance of Bref\Event\Http\HttpRequestEvent
+/** @var $event Bref\Event\Http\HttpRequestEvent */
 $event = $request->getAttribute('lambda-event'); 
 
-// Instance of Bref\Context\Context
+/** @var $context Bref\Context\Context */
 $context = $request->getAttribute('lambda-context');
 ```
 
