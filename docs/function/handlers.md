@@ -226,7 +226,7 @@ $id = $request->getAttribute('id');
 
 ### Event and context
 
-The HTTP request event and context are available as attributes on the request:
+The API Gateway event and Lambda context are available as attributes on the request:
 ```php
 /** @var $event Bref\Event\Http\HttpRequestEvent */
 $event = $request->getAttribute('lambda-event'); 
