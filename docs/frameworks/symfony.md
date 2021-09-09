@@ -138,12 +138,12 @@ in `trusted_proxies`.
 
 ## Assets
 
-To deploy Symfony websites, assets needs to be served from AWS S3. The easiest solution to do this is to use the
+To deploy Symfony websites, assets need to be served from AWS S3. The easiest solution to do this is to use the
 [Server-side website construct of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
 
 This will deploy a Cloudfront distribution that will act as a proxy: it will serve
 static files directly from S3 and will forward everything else to Lambda. This is very close
-to how traditional web servers like Apache or Nginx work which means you application doesn't need to change!
+to how traditional web servers like Apache or Nginx work, which means your application doesn't need to change!
 For more details, see [the offical documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md#how-it-works). 
 
 First install the plugin
@@ -156,16 +156,27 @@ Then add this configuration to your `serverless.yml` file.
 
 ```yaml
 ...
+service: symfony
+
+provider:
+  ...
+
+plugins:
+  - ./vendor/bref/bref
+  - serverless-lift
+    
+functions:
+  ...
 
 constructs:
-    website:
-        type: server-side-website
-        assets:
-            '/bundles/*': public/bundles
-            '/build/*': public/build
-            '/favicon.ico': public/favicon.ico
-            '/robots.txt': public/robots.txt
-            # add here any file or directory that needs to be served from S3
+  website:
+    type: server-side-website
+    assets:
+      '/bundles/*': public/bundles
+      '/build/*': public/build
+      '/favicon.ico': public/favicon.ico
+      '/robots.txt': public/robots.txt
+      # add here any file or directory that needs to be served from S3
 ```
 
 Then, you can compile assets for production in the `public` directory
