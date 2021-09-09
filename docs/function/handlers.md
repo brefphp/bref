@@ -226,6 +226,22 @@ $id = $request->getAttribute('id');
 
 [Full reference of HTTP events in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/http-api/).
 
+### Lambda event and context
+
+The API Gateway event and Lambda context are available as attributes on the request:
+```php
+/** @var $event Bref\Event\Http\HttpRequestEvent */
+$event = $request->getAttribute('lambda-event'); 
+
+/** @var $context Bref\Context\Context */
+$context = $request->getAttribute('lambda-context');
+```
+
+If you're looking for the request context array, for example when using a [Lambda authorizer](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-lambda-authorizer.html#http-api-lambda-authorizer.payload-format-response):
+```php
+$requestContext = $request->getAttribute('lambda-event')->getRequestContext(); 
+```
+
 ## Websocket events
 
 `WebsocketHandler` instances handle Websocket events:
