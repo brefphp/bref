@@ -70,3 +70,9 @@ Hello Jane
 $ vendor/bin/bref local --handler=my-function.php --file=event.json
 Hello Jane
 ```
+
+## API Gateway local development
+
+If you build HTTP applications with [API Gateway HTTP events](handlers.md#api-gateway-http-events), `bref local` is a bit unpractical.
+
+You can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate API Gateway locally.
