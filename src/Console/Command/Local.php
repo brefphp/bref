@@ -98,6 +98,27 @@ class Local
 
         $serverlessConfig = Yaml::parseFile($file, Yaml::PARSE_CUSTOM_TAGS);
 
+        /**
+         * Verify and parse functions using `file()` notation:
+         *
+         * functions:
+         *   - ${file(serverless/functions/web.yml)}
+         *   - ${file(serverless/functions/artisan.yml)}
+         */
+        if (isset($serverlessConfig['functions'])) {
+            foreach ($serverlessConfig['functions'] as $key => $fileInclude) {
+                preg_match('/\$\{file\((.*?)\)\}/', $fileInclude, $matches);
+
+                if (is_int($key) && ! empty($matches[1])) {
+                    $parsedFunction = Yaml::parseFile($matches[1], Yaml::PARSE_CUSTOM_TAGS);
+
+                    if (isset($parsedFunction[$function])) {
+                        $serverlessConfig['functions'][$function] = $parsedFunction[$function];
+                    }
+                }
+            }
+        }
+
         if (! isset($serverlessConfig['functions'][$function])) {
             throw new Exception("There is no function named '$function' in serverless.yml");
         }
