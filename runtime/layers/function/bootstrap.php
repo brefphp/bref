@@ -40,5 +40,10 @@ while (true) {
     if (++$loops > $loopMax) {
         exit(0);
     }
-    $lambdaRuntime->processNextEvent($handler);
+    $success = $lambdaRuntime->processNextEvent($handler);
+    // In case the execution failed, we force starting a new process regardless of BREF_LOOP_MAX
+    // Why: an exception could have left the application in a non-clean state, this is preventive
+    if (! $success) {
+        exit(0);
+    }
 }
