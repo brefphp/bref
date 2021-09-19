@@ -25,7 +25,7 @@ if (getenv('BREF_DOWNLOAD_VENDOR')) {
     require $appRoot . '/vendor/autoload.php';
 }
 
-$lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
+$lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('fpm');
 
 $handlerFile = $appRoot . '/' . getenv('_HANDLER');
 if (! is_file($handlerFile)) {
