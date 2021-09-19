@@ -68,6 +68,10 @@ menu:
                     text: Symfony
                     url: /docs/frameworks/symfony.html
                     title: Learn how to deploy serverless Symfony applications
+                symfony-runtime:
+                    text: Symfony Runtime
+                    url: /docs/frameworks/symfony-runtime.html
+                    title: Learn how to deploy serverless application prowed by the Runtime component
 
     functions:
         -   section: 'Bref for <strong class="text-gray-700">event-driven functions</strong>'
