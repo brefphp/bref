@@ -90,6 +90,8 @@ In the example above, the PHP process will restart only every 100 invocations, r
 
 In that case, be careful with clearing in-memory data between every event.
 
+> Note: the PHP process will be restarted in case of a failed invocation (PHP exception thrown in the handler).
+
 ## Cold starts
 
 Code on AWS Lambda runs on-demand. When a new Lambda instance boots to handle a request, the initialization time is what we call a *cold start*. To learn more, [you can read this article](https://hackernoon.com/im-afraid-you-re-thinking-about-aws-lambda-cold-starts-all-wrong-7d907f278a4f).
