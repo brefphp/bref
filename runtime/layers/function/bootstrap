@@ -3,9 +3,17 @@
 # Fail on error
 set -e
 
+# if APP_RUNTIME does not exist
+if [[ -z "${APP_RUNTIME}" ]]; then
+  BOOTSTRAP="/opt/bref/bootstrap.php"
+else
+  # Split _HANDLER on ":" and take the first part
+  BOOTSTRAP=(${_HANDLER//:/ })
+fi
+
 while true
 do
     # We redirect stderr to stdout so that everything
     # written on the output ends up in Cloudwatch automatically
-    /opt/bin/php "/opt/bref/bootstrap.php" 2>&1
+    /opt/bin/php "${BOOTSTRAP}" 2>&1
 done
