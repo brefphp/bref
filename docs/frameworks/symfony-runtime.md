@@ -4,7 +4,7 @@ current_menu: symfony-runtime
 introduction: Learn how to deploy serverless applications on AWS Lambda using Bref and Symfony Runtime component.
 ---
 
-The Symfony Runtime runtime component was release with Symfony 5.3. All new Symfony
+The Symfony Runtime component was released with Symfony 5.3. All new Symfony
 applications are using that component as default, but the component can also be
 used with non-Symfony applications.
 
