@@ -42,12 +42,15 @@ final class LambdaRuntime
     /** @var Invoker */
     private $invoker;
 
-    public static function fromEnvironmentVariable(): self
+    /** @var string */
+    private $layer;
+
+    public static function fromEnvironmentVariable(string $layer): self
     {
-        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'));
+        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'), $layer);
     }
 
-    public function __construct(string $apiUrl)
+    public function __construct(string $apiUrl, string $layer)
     {
         if ($apiUrl === '') {
             die('At the moment lambdas can only be executed in an Lambda environment');
@@ -55,6 +58,7 @@ final class LambdaRuntime
 
         $this->apiUrl = $apiUrl;
         $this->invoker = new Invoker;
+        $this->layer = $layer;
     }
 
     public function __destruct()
@@ -313,7 +317,7 @@ final class LambdaRuntime
      * WHAT?
      * The data sent in the ping is anonymous.
      * It does not contain any identifiable data about anything (the project, users, etc.).
-     * The only data it contains is: "A Bref invocation happened".
+     * The only data it contains is: "A Bref invocation happened using a specific layer".
      * You can verify that by checking the content of the message in the function.
      *
      * HOW?
@@ -354,7 +358,7 @@ final class LambdaRuntime
 
         /**
          * Here is the content sent to the Bref analytics server.
-         * It signals an invocation happened.
+         * It signals an invocation happened on which layer.
          * Nothing else is sent.
          *
          * `Invocations_100` is used to signal that this is 1 ping equals 100 invocations.
@@ -365,7 +369,7 @@ final class LambdaRuntime
          *
          * See https://github.com/statsd/statsd/blob/master/docs/metric_types.md for more information.
          */
-        $message = 'Invocations_100:1|c';
+        $message = "Invocations_100:1|c\nLayer_{$this->layer}_100:1|c";
 
         $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         // This IP address is the Bref server.

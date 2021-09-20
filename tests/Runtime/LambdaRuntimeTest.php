@@ -35,7 +35,7 @@ class LambdaRuntimeTest extends TestCase
     {
         ob_start();
         Server::start();
-        $this->runtime = new LambdaRuntime('localhost:8126');
+        $this->runtime = new LambdaRuntime('localhost:8126', 'phpunit');
     }
 
     protected function tearDown(): void

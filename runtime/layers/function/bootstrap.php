@@ -24,7 +24,7 @@ if (getenv('BREF_DOWNLOAD_VENDOR')) {
     require $appRoot . '/vendor/autoload.php';
 }
 
-$lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
+$lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('function');
 
 $container = Bref::getContainer();
 
