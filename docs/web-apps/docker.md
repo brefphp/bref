@@ -2,7 +2,7 @@
 title: Docker
 current_menu: web-docker
 previous:
-    link: docs/web-apps/local-development.html
+    link: local-development.html
     title: Local development for web apps
 ---
 
