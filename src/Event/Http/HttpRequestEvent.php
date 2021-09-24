@@ -193,10 +193,9 @@ final class HttpRequestEvent implements LambdaEvent
     private function rebuildQueryString(): string
     {
         if ($this->isFormatV2()) {
-            $queryString = $this->event['rawQueryString'] ?? '';
             // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
-            parse_str($queryString, $queryParameters);
+            $queryParameters = $this->queryStringToArray($this->event['rawQueryString'] ?? '');
             return http_build_query($queryParameters);
         }
 
@@ -238,7 +237,7 @@ final class HttpRequestEvent implements LambdaEvent
             // parse_str will automatically `urldecode` any value that needs decoding. This will allow parameters
             // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work. `$decodedQueryParameters`
             // will be an array with parameter names as keys.
-            parse_str($queryString, $decodedQueryParameters);
+            $decodedQueryParameters = $this->queryStringToArray($queryString);
 
             return http_build_query($decodedQueryParameters);
         }
@@ -254,7 +253,7 @@ final class HttpRequestEvent implements LambdaEvent
 
             // re-parse the query-string so it matches the format used when using PHP outside of Lambda
             // this is particularly important when using multi-value params - eg. myvar[]=2&myvar=3 ... = [2, 3]
-            parse_str(implode('&', $queryParameterStr), $queryParameters);
+            $queryParameters = $this->queryStringToArray(implode('&', $queryParameterStr));
             return http_build_query($queryParameters);
         }
 
@@ -316,5 +315,70 @@ final class HttpRequestEvent implements LambdaEvent
     public function isFormatV2(): bool
     {
         return $this->payloadVersion === 2.0;
+    }
+
+    private function queryStringToArray(string $queryString): array
+    {
+        $queryString = preg_replace('/^[?#&]/', '', trim($queryString));
+        if (empty($queryString)) {
+            return [];
+        }
+
+        $parameters = [];
+        foreach (explode('&', $queryString) as $parameter) {
+            if ($parameter === '') {
+                continue;
+            }
+
+            [$key, $value] = explode('=', $parameter, 2) + [null, null];
+            $key = urldecode($key);
+            $value = urldecode($value ?? '');
+
+            if (strpos($key, '[') === false) {
+                $parameters[$key] = $value;
+            }
+
+            $tokens = explode('[', $key);
+            $current = &$parameters;
+            foreach ($tokens as $idx => $token) {
+                if ($idx !== 0 && substr($token, -1) !== ']') {
+                    // Malformed string: unclosed parameter index
+                    return [];
+                }
+
+                if ($idx === count($tokens) - 1) {
+                    if ($token === ']') {
+                        $current[] = $value;
+                        break;
+                    }
+
+                    $token = preg_replace('/]$/', '', $token);
+                    $current[$token] = $value;
+                    break;
+                }
+
+                if ($token === ']') {
+                    $current[] = [];
+                    end($current);
+                    $nextKey = key($current);
+                } else {
+                    $token = preg_replace('/]$/', '', $token);
+                    if ($idx === count($tokens) - 1) {
+                        $current[$token] = $value;
+                        break;
+                    }
+
+                    if (! isset($current[$token])) {
+                        $current[$token] = [];
+                    }
+
+                    $nextKey = $token;
+                }
+
+                $current = &$current[$nextKey];
+            }
+        }
+
+        return $parameters;
     }
 }
