@@ -115,6 +115,204 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    public function test request with with encoded data()
+    {
+        $event = [
+            'version' => '2.0',
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            'rawPath' => '/hello',
+            'rawQueryString' => 'a=%3c%3d%3d%20%20foo+bar++%3d%3d%3e&b=%23%23%23Hello+World%23%23%23',
+            'queryStringParameters' => [
+                'a' => '<==  foo bar  ==>',
+                'b' => '###Hello World###',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                'a' => '<==  foo bar  ==>',
+                'b' => '###Hello World###',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'a' => '<==  foo bar  ==>',
+                'b' => '###Hello World###',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?a=%3C%3D%3D++foo+bar++%3D%3D%3E&b=%23%23%23Hello+World%23%23%23',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'a=%3C%3D%3D++foo+bar++%3D%3D%3E&b=%23%23%23Hello+World%23%23%23',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with with single quotes()
+    {
+        $event = [
+            'version' => '2.0',
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            'rawPath' => '/hello',
+            'rawQueryString' => 'firstname=Billy&surname=O%27Reilly',
+            'queryStringParameters' => [
+                'firstname' => 'Billy',
+                'surname' => 'O\'Reilly',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                'firstname' => 'Billy',
+                'surname' => 'O\'Reilly',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'firstname' => 'Billy',
+                'surname' => 'O\'Reilly',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?firstname=Billy&surname=O%27Reilly',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'firstname=Billy&surname=O%27Reilly',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with with backslash characters()
+    {
+        $event = [
+            'version' => '2.0',
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            'rawPath' => '/hello',
+            'rawQueryString' => 'sum=10%5c2%3d5',
+            'queryStringParameters' => [
+                'sum' => '10\\2=5',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                'sum' => '10\\2=5',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'sum' => '10\\2=5',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?sum=10%5C2%3D5',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'sum=10%5C2%3D5',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with with null characters()
+    {
+        $event = [
+            'version' => '2.0',
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            'rawPath' => '/hello',
+            'rawQueryString' => 'str=A%20string%20with%20containing%20%00%00%00%20nulls',
+            'queryStringParameters' => [
+                'str' => "A string with containing \0\0\0 nulls",
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                'str' => "A string with containing \0\0\0 nulls",
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'str' => "A string with containing \0\0\0 nulls",
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?str=A+string+with+containing+%00%00%00+nulls',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'str=A+string+with+containing+%00%00%00+nulls',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test request with with badly formed string()
+    {
+        $event = [
+            'version' => '2.0',
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            'rawPath' => '/hello',
+            'rawQueryString' => 'arr[1=sid&arr[4][2=fred',
+            'queryStringParameters' => [
+                'arr[1' => 'sid',
+                'arr[4][2' => 'fred',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [
+                'arr_1' => 'sid',
+                'arr' => [
+                    '4' => 'fred',
+                ],
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'arr_1' => 'sid',
+                'arr' => [
+                    '4' => 'fred',
+                ],
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?arr%5B1=sid&arr%5B4%5D%5B2=fred',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'arr%5B1=sid&arr%5B4%5D%5B2=fred',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
     /**
      * @dataProvider provide API Gateway versions
      */

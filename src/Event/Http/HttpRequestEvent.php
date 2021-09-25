@@ -339,35 +339,35 @@ final class HttpRequestEvent implements LambdaEvent
             }
 
             $tokens = explode('[', $key);
-            $current = &$parameters;
-            foreach ($tokens as $idx => $token) {
-                if ($idx !== 0 && substr($token, -1) !== ']') {
-                    // Malformed string: unclosed parameter index
-                    return [];
+            $tokenCount = count($tokens);
+            for ($i = 1; $i < $tokenCount; ++$i) {
+                if (substr($tokens[$i], -1) === ']') {
+                    continue;
                 }
 
+                // Malformed string: unclosed parameter index
+                $tokens = [implode('[', $tokens)];
+                break;
+            }
+
+            $current = &$parameters;
+            foreach ($tokens as $idx => $token) {
+                $token = preg_replace('/]$/', '', $token);
                 if ($idx === count($tokens) - 1) {
-                    if ($token === ']') {
+                    if ($token === '') {
                         $current[] = $value;
                         break;
                     }
 
-                    $token = preg_replace('/]$/', '', $token);
                     $current[$token] = $value;
                     break;
                 }
 
-                if ($token === ']') {
+                if ($token === '') {
                     $current[] = [];
                     end($current);
                     $nextKey = key($current);
                 } else {
-                    $token = preg_replace('/]$/', '', $token);
-                    if ($idx === count($tokens) - 1) {
-                        $current[$token] = $value;
-                        break;
-                    }
-
                     if (! isset($current[$token])) {
                         $current[$token] = [];
                     }
