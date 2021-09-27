@@ -299,11 +299,11 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 ],
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?arr%5B1=sid&arr%5B4%5D%5B2=fred',
+                'REQUEST_URI' => '/hello?arr%5B1=sid&arr%5B4%5D=fred',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'arr%5B1=sid&arr%5B4%5D%5B2=fred',
+                'QUERY_STRING' => 'arr%5B1=sid&arr%5B4%5D=fred',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
