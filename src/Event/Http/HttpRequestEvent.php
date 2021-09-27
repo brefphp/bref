@@ -325,24 +325,33 @@ final class HttpRequestEvent implements LambdaEvent
         }
 
         $parameters = [];
+        // Process one parameter at a time, split query string by "&"
         foreach (explode('&', $queryString) as $parameter) {
             if ($parameter === '') {
+                // Empty parameter, ignore.
                 continue;
             }
 
+            // Search for an equal sign; if not present, the value is null.
             [$key, $value] = explode('=', $parameter, 2) + [null, null];
+
+            // Decode parameters: will be sent encoded from the browser.
             $key = urldecode($key);
             $value = urldecode($value ?? '');
 
             if (strpos($key, '[') === false) {
+                // No need to process it further.
                 $parameters[$key] = $value;
                 continue;
             }
 
+            // Check if parameter key is well-formed
             $tokens = [strtok($key, '[')];
             $token = strtok('[');
             for (; $token !== false; $token = strtok('[')) {
                 if (substr($token, -1) !== ']') {
+                    // Token does not end with ']' which means that the parameter is malformed
+                    // Append all the remaining tokens to the last one and try to parse that
                     end($tokens);
                     $k = key($tokens);
 
@@ -357,9 +366,13 @@ final class HttpRequestEvent implements LambdaEvent
 
             $current = &$parameters;
             foreach ($tokens as $idx => $token) {
+                // Search for the first closing char, if found we can discard all the remaining characters of the token
                 $closeIdx = strpos($token, ']');
                 $token = $closeIdx !== false ? substr($token, 0, $closeIdx) : $token;
+
                 if ($idx === count($tokens) - 1) {
+                    // We reached the end of the tokens list. Now add the parameter
+                    // value to the appropriate key (push to the array if no key is specified)
                     if ($token === '') {
                         $current[] = $value;
                     } else {
@@ -369,11 +382,16 @@ final class HttpRequestEvent implements LambdaEvent
                     break;
                 }
 
+                // Here's where the magic happens: current is now a pointer to the current-nesting level
+                // parameter array. We know that this is not the last token, so we have to create
+                // empty arrays if needed, and prepare for the next loop.
                 if ($token === '') {
+                    // No key, push a new element into the array.
                     $current[] = [];
                     end($current);
                     $nextKey = key($current);
                 } else {
+                    // Prepare an empty array if needed
                     if (! isset($current[$token])) {
                         $current[$token] = [];
                     }
@@ -381,6 +399,7 @@ final class HttpRequestEvent implements LambdaEvent
                     $nextKey = $token;
                 }
 
+                // Update the current pointer.
                 $current = &$current[$nextKey];
             }
         }
