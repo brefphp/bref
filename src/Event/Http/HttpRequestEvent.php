@@ -195,7 +195,7 @@ final class HttpRequestEvent implements LambdaEvent
         if ($this->isFormatV2()) {
             // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
-            $queryParameters = $this->queryStringToArray($this->event['rawQueryString'] ?? '');
+            $queryParameters = self::queryStringToArray($this->event['rawQueryString'] ?? '');
             return http_build_query($queryParameters);
         }
 
@@ -237,7 +237,7 @@ final class HttpRequestEvent implements LambdaEvent
             // parse_str will automatically `urldecode` any value that needs decoding. This will allow parameters
             // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work. `$decodedQueryParameters`
             // will be an array with parameter names as keys.
-            $decodedQueryParameters = $this->queryStringToArray($queryString);
+            $decodedQueryParameters = self::queryStringToArray($queryString);
 
             return http_build_query($decodedQueryParameters);
         }
@@ -253,7 +253,7 @@ final class HttpRequestEvent implements LambdaEvent
 
             // re-parse the query-string so it matches the format used when using PHP outside of Lambda
             // this is particularly important when using multi-value params - eg. myvar[]=2&myvar=3 ... = [2, 3]
-            $queryParameters = $this->queryStringToArray(implode('&', $queryParameterStr));
+            $queryParameters = self::queryStringToArray(implode('&', $queryParameterStr));
             return http_build_query($queryParameters);
         }
 
@@ -317,9 +317,14 @@ final class HttpRequestEvent implements LambdaEvent
         return $this->payloadVersion === 2.0;
     }
 
-    private function queryStringToArray(string $queryString): array
+    private static function queryStringToArray(string $queryString): array
     {
-        $queryString = preg_replace('/^[?#&]/', '', trim($queryString));
+        $queryString = trim($queryString);
+        $firstChar = $queryString[0] ?? '';
+        if ($firstChar === '?' || $firstChar === '#' || $firstChar === '&') {
+            $queryString = substr($queryString, 1);
+        }
+
         if (empty($queryString)) {
             return [];
         }

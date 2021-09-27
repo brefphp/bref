@@ -115,7 +115,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with with encoded data()
+    public function test request with encoded data()
     {
         $event = [
             'version' => '2.0',
@@ -155,7 +155,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with with single quotes()
+    public function test request with single quotes()
     {
         $event = [
             'version' => '2.0',
@@ -195,7 +195,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with with backslash characters()
+    public function test request with backslash characters()
     {
         $event = [
             'version' => '2.0',
@@ -232,7 +232,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with with null characters()
+    public function test request with null characters()
     {
         $event = [
             'version' => '2.0',
@@ -269,7 +269,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function test request with with badly formed string()
+    public function test request with badly formed string()
     {
         $event = [
             'version' => '2.0',
