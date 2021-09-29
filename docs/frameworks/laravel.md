@@ -18,7 +18,7 @@ Next, in an existing Laravel project, install Bref and the [Laravel-Bref package
 composer require bref/bref bref/laravel-bridge --update-with-dependencies
 ```
 
-Then let's create a `serverless.yml` configuration file:
+Then let's create a [`serverless.yml` configuration file](https://github.com/brefphp/laravel-bridge/blob/master/config/serverless.yml):
 
 ```
 php artisan vendor:publish --tag=serverless-config
