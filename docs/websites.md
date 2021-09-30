@@ -100,7 +100,7 @@ After [deploying with `serverless deploy`](/docs/deploy.md), the static files wi
 
 You can either [setup a custom domain to point to this URL](environment/custom-domains.md#custom-domains-for-static-files-on-s3) or setup CloudFront as explained below.
 
-> In this section we explained how to host assets on S3. It is also possible to host static websites on S3 (i.e. HTML files). In that cas you will need to enable this feature and use different S3 URLs. See [the AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html) to learn more.
+> In this section we explained how to host assets on S3. It is also possible to host static websites on S3 (i.e. HTML files). In that case you will need to enable this feature and use different S3 URLs. See [the AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html) to learn more.
 
 If you need to enable CORS, for example if a CSS or JavaScript file needs to load additional resources like fonts from S3:
 
