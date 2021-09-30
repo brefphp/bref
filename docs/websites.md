@@ -96,7 +96,7 @@ resources:
 
 Don't forget to replace `<bucket-name>` with the bucket name of your choice. Note that the name must be universally unique within Amazon (so you can't use `assets`) otherwise you'll get this error when you deploy: `Assets - assets already exists.`
 
-After [deploying with `serverless deploy`](/docs/deploy.md), the static files will be served from `https://<bucket>.s3.amazonaws.com/`. Read the next section to upload your files.
+After [deploying with `serverless deploy`](/docs/deploy.md), the static files will be served from `https://<bucket>.s3.<region>.amazonaws.com/`. Read the next section to upload your files.
 
 You can either [setup a custom domain to point to this URL](environment/custom-domains.md#custom-domains-for-static-files-on-s3) or setup CloudFront as explained below.
 
