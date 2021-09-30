@@ -116,7 +116,7 @@ You should add the following lines to `config/packages/framework.yaml`
 
 framework:
   # trust the remote address because API Gateway has no fixed IP or CIDR range that we can target
-  trusted_proxies: '127.0.0.1'
+  trusted_proxies: '127.0.0.1,REMOTE_ADDR'
   # trust "X-Forwarded-*" headers coming from API Gateway
   trusted_headers: [ 'x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port' ]
 ```
