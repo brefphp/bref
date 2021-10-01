@@ -100,7 +100,7 @@ aws s3 sync public/ s3://<bucket-name>/ --delete --exclude index.php
 Then, the assets need to be included from S3. In the production `.env` file you can now set that variable:
 
 ```dotenv
-MIX_ASSET_URL=https://<bucket-name>.s3.amazonaws.com
+MIX_ASSET_URL=https://<bucket-name>.s3.<region>.amazonaws.com
 ```
 
 ### Assets in templates
