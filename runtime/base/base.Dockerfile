@@ -85,6 +85,7 @@ RUN mkdir -p ${BUILD_DIR}  \
 #   - xml2
 ENV VERSION_ZLIB=1.2.11
 ENV ZLIB_BUILD_DIR=${BUILD_DIR}/xml2
+ENV CHOST=arm
 
 RUN set -xe; \
     mkdir -p ${ZLIB_BUILD_DIR}; \
