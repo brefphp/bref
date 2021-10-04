@@ -42,7 +42,7 @@ The following solutions can be used instead:
 
 - pre-generate the cache in the project directory before deploying
 - store the cache into the `/tmp` directory
-- store the cache into a distributed cache service like Memcache or Redis
+- store the cache into a distributed cache service like Memcache, Redis or DynamoDB (an AWS service which fits the pay-per-request model nicely)
 
 ### Pre-generating the cache
 
@@ -70,6 +70,9 @@ Using a distributed cache service has the following advantages:
 
 The disadvantage is that if data format changes between deployments then a deployment strategy must be used to either clear the cache and regenerate it, or separate the cache between application versions.
 
-Cache services that can be used include for example Redis or Memcache. AWS offers those as managed services through AWS Elasticache.
+Cache services that can be used include for example Redis, Memcache or DynamoDB. AWS offers those as managed services through AWS Elasticache (Redis, Memcache) or DynamoDB.
+
+Note that Redis and Memcache through ElastiCache run even when not used and thus incur costs while DynamoDB is a little slower than both of those but can be deployed in a
+pay-per-request mode where you don't pay when the store is not used. There is a package implementing the PSR cache interfaces using DynamoDB ([rikudou/psr6-dynamo-db](https://github.com/RikudouSage/DynamoDbCachePsr6)).
 
 This solution is ideal for cache data that can change during the life of the application (e.g. caching a website menu, an API response).
