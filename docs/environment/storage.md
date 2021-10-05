@@ -79,107 +79,48 @@ This solution is ideal for cache data that can change during the life of the app
 
 #### Deploy DynamoDB table as part of serverless
 
-The example will be based on the minimal configuration which is as follows:
-
-```yaml
-service: app
-provider:
-    name: aws
-    runtime: provided.al2
-plugins:
-    - ./vendor/bref/bref
-functions:
-    app:
-        handler: index.php
-        layers:
-            - ${bref:layer.php-74-fpm}
-        events:
-            - httpApi: '*'
-```
-
 As any service, the DynamoDB table can be deployed using the `resources.Resources` subkey:
 
 ```yaml
 service: app
-provider:
-    name: aws
-    runtime: provided.al2
-plugins:
-    - ./vendor/bref/bref
-functions:
-    app:
-        handler: index.php
-        layers:
-            - ${bref:layer.php-74-fpm}
-        events:
-            - httpApi: '*'
+...
+
 resources:
     Resources:
         CacheTable:
             Type: AWS::DynamoDB::Table
             Properties:
-              AttributeDefinitions:
-                - AttributeName: id
-                  AttributeType: S
-              BillingMode: PAY_PER_REQUEST
-              TimeToLiveSpecification:
+              AttributeDefinitions: # only keys are defined here, other attributes are dynamic
+                - AttributeName: id # adds a mandatory id field
+                  AttributeType: S # the type of id is a string
+              BillingMode: PAY_PER_REQUEST # billed for each request instead of paying for a constant capacity
+              TimeToLiveSpecification: # deletes cache keys automatically based on the ttl field which contains a timestamp
                 AttributeName: ttl
                 Enabled: true
               KeySchema:
                 - AttributeName: id
-                  KeyType: HASH
+                  KeyType: HASH # the type of key, HASH means partition key (similar to primary keys in SQL)
 ```
 
-Explanation of the properties:
-
-- [AttributeDefinitions](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html#cfn-dynamodb-table-attributedef) contains the list of mandatory attributes and must contain a partition key (similar to primary key in databases), which is in this example simply called `id`. The [AttributeType](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-dynamodb-attributedef.html#cfn-dynamodb-attributedef-attributename-attributetype) `S` means it's a string. Note that no other properties except the keys need to be specified as DynamoDB is a NoSQL database without a fixed schema.
-- [BillingMode](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html#cfn-dynamodb-table-billingmode) needs to be set to PAY_PER_REQUEST, otherwise you will incur costs even when no requests are arriving.
-- [TimeToLiveSpecification](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html#cfn-dynamodb-table-timetolivespecification) is optional and allows you to set a field that will act as a time to live attribute, it's very useful for caching purposes.
-- [KeySchema](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html#cfn-dynamodb-table-keyschema) is a definition of the type of the primary/sort keys (not a datatype which was already defined in AttributeDefinitions). Possible values for [KeyType](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-dynamodb-keyschema.html#aws-properties-dynamodb-keyschema-keytype) are `HASH` (partition/primary key) and `RANGE` (sort/secondary key).
-
-You need to add a permission to access the DynamoDB from your function using `provider.iamRoleStatements`.
+You need to add a permission to access the DynamoDB from your function using `provider.iam.role.statements`.
 We're also passing the table name as an environment variable to your app.
 
 ```yaml
 service: app
 provider:
-    name: aws
-    runtime: provided.al2
-    iamRoleStatements:
-        - Effect: Allow
-          Resource: !GetAtt CacheTable.Arn
-          Action:
-            - dynamodb:DescribeTable
-            - dynamodb:Query
-            - dynamodb:Scan
-            - dynamodb:GetItem
-            - dynamodb:PutItem
-            - dynamodb:UpdateItem
-            - dynamodb:DeleteItem
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Resource: !GetAtt CacheTable.Arn
+                  Action:
+                    - dynamodb:DescribeTable
+                    - dynamodb:Query
+                    - dynamodb:Scan
+                    - dynamodb:GetItem
+                    - dynamodb:PutItem
+                    - dynamodb:UpdateItem
+                    - dynamodb:DeleteItem
     environment:
         DYNAMO_DB_TABLE: !Ref CacheTable
-plugins:
-    - ./vendor/bref/bref
-functions:
-    app:
-        handler: index.php
-        layers:
-            - ${bref:layer.php-74-fpm}
-        events:
-            - httpApi: '*'
-resources:
-    Resources:
-        CacheTable:
-            Type: AWS::DynamoDB::Table
-            Properties:
-              AttributeDefinitions:
-                - AttributeName: id
-                  AttributeType: S
-              BillingMode: PAY_PER_REQUEST
-              TimeToLiveSpecification:
-                AttributeName: ttl
-                Enabled: true
-              KeySchema:
-                - AttributeName: id
-                  KeyType: HASH
 ```
