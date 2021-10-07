@@ -122,8 +122,8 @@ framework:
 ```
 
 Note that API Gateway doesn't set the `X-Forwarded-Host` header, so we don't trust it by default. You should only whitelist this header if you set it manually,
-for example in your CloudFront configuration (see how to do it in
-the [example Cloudformation template](../websites.md#serving-php-and-static-files-via-cloudfront)).
+for example in your CloudFront configuration (this is done automatically
+in [the Cloudfront distribution deployed by Lift](#assets)).
 
 > Be careful with these settings if your app will not be executed only in a Lambda environment.
 
@@ -177,6 +177,16 @@ constructs:
       '/favicon.ico': public/favicon.ico
       '/robots.txt': public/robots.txt
       # add here any file or directory that needs to be served from S3
+```
+
+Because this construct sets the `X-Forwarded-Host` header by default, you should add it in your `trusted_headers` config, otherwise Symfony
+might generate wrong URLs.
+
+```diff
+# config/packages/framework.yaml
+
+-   trusted_headers: [ 'x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port' ]
++   trusted_headers: [ 'x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-host' ]
 ```
 
 Then, you can compile assets for production in the `public` directory
