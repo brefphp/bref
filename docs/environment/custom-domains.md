@@ -47,31 +47,9 @@ After waiting for the DNS change to propagate (sometimes up to several hours) yo
 
 ## Custom domains for static files on S3
 
-Some applications serve static files hosted on AWS S3. You can read the [Websites](/docs/websites.md#hosting-static-files-with-s3) documentation to learn more.
+Some applications serve static files hosted on AWS S3. You can read the [Websites](/docs/websites.md) documentation to learn more.
 
-The S3 bucket can be accessed at this URL: `https://<bucket>.s3.amazonaws.com/` (supports both HTTP and HTTPS).
+If you want to host a fully static website with HTML files or a Single Page Application (eg. built with Vue, React or Angular)
+you may be interested in [the Static Website construct of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/static-website.md).
 
-To use a custom domain for a S3 static website the process lies in 2 steps:
-
-- name the S3 bucket like the wanted domain name
-
-  For example for the http://www.example.com website, the S3 bucket has to be named `www.example.com`
-- point the domain to the S3 URL via DNS
-
-  In our example the DNS entry to create would be a CNAME for `www.example.com` pointing to `www.example.com.s3.amazonaws.com`
-
-### Static websites
-
-If you are hosting a full static website with HTML files ([per this documentation](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)), the URLs to use will be different:
-
-```bash
-http://<bucket>.s3-website-<region>.amazonaws.com/
-# or
-http://<bucket>.s3-website.<region>.amazonaws.com/
-```
-
-In that case you need to use the domains above for the CNAME.
-
-Note that the URL is **HTTP-only** and [depends on the region](https://docs.aws.amazon.com/general/latest/gr/rande.html#s3_website_region_endpoints).
-
-To add HTTPS to your website for free it is possible to use a CDN like [CloudFlare](https://cloudflare.com/) (simplest) or [AWS CloudFront](/docs/websites.md#serving-php-and-static-files-via-cloudfront).
+This allows to configure custom domains, root domain to `www` redirects and more. Check out [the official documentation](https://github.com/getlift/lift/blob/master/docs/static-website.md) for more details.

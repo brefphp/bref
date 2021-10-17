@@ -202,6 +202,9 @@ upload all specified files and directories to the bucket.
 
 > If you are not using Flex, update the `serverless.yml` file to exclude assets from the deployment ([see the recipe](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml#L35))
 
+For more details, see the [Websites section](/docs/websites.md) of this documentation 
+and the official [Lift documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
+
 ### Assets in templates
 
 For the above configuration to work, assets must be referenced in templates via the `asset()` helper as [recommended by Symfony](https://symfony.com/doc/current/templates.html#linking-to-css-javascript-and-image-assets):
