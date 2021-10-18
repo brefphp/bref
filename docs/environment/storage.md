@@ -68,18 +68,17 @@ Using a distributed cache service has the following advantages:
 - the cache is not lost when deploying
 - the cache is shared between all lambda instances
 
-The disadvantage is that if data format changes between deployments then a deployment strategy must be used to either clear the cache and regenerate it, or separate the cache between application versions.
+The disadvantage is that if the data format changes between deployments, then a deployment strategy must be used to either clear the cache and regenerate it, or separate the cache between application versions.
 
-Cache services that can be used include for example Redis, Memcache or DynamoDB. AWS offers those as managed services through AWS Elasticache (Redis, Memcache) or DynamoDB.
+Cache services that can be used include for example Redis, Memcache or DynamoDB. AWS offers those as managed services through AWS ElastiCache (Redis, Memcache) or DynamoDB.
 
-Note that Redis and Memcache through ElastiCache run even when not used and thus incur costs while DynamoDB is a little slower than both of those but can be deployed in a
-pay-per-request mode where you don't pay when the store is not used. There is a package implementing the PSR cache interfaces using DynamoDB ([rikudou/psr6-dynamo-db](https://github.com/RikudouSage/DynamoDbCachePsr6)).
+Note that Redis and Memcache (through ElastiCache) run even when not used, which incurs costs. DynamoDB is a little slower than both of those but can be deployed in a "pay-per-request" mode where costs are proportional to the usage. There is a package implementing the PSR cache interfaces using DynamoDB ([rikudou/psr6-dynamo-db](https://github.com/RikudouSage/DynamoDbCachePsr6)).
 
-This solution is ideal for cache data that can change during the life of the application (e.g. caching a website menu, an API response).
+This solution is ideal for cache data that can change during the life of the application (e.g. caching a website menu, an API response…).
 
-#### Deploy DynamoDB table as part of serverless
+#### Deploying DynamoDB tables
 
-As any service, the DynamoDB table can be deployed using the `resources.Resources` subkey:
+As any service, DynamoDB tables can be deployed via CloudFormation using the `resources` key in `serverless.yml`:
 
 ```yaml
 service: app
@@ -90,20 +89,20 @@ resources:
         CacheTable:
             Type: AWS::DynamoDB::Table
             Properties:
-              AttributeDefinitions: # only keys are defined here, other attributes are dynamic
-                - AttributeName: id # adds a mandatory id field
-                  AttributeType: S # the type of id is a string
-              BillingMode: PAY_PER_REQUEST # billed for each request instead of paying for a constant capacity
-              TimeToLiveSpecification: # deletes cache keys automatically based on the ttl field which contains a timestamp
-                AttributeName: ttl
-                Enabled: true
-              KeySchema:
-                - AttributeName: id
-                  KeyType: HASH # the type of key, HASH means partition key (similar to primary keys in SQL)
+                AttributeDefinitions: # only keys are defined here, other attributes are dynamic
+                    -   AttributeName: id # adds a mandatory id field
+                        AttributeType: S # the type of id is a string
+                BillingMode: PAY_PER_REQUEST # billed for each request instead of paying for a constant capacity
+                TimeToLiveSpecification: # deletes cache keys automatically based on a ttl field which contains a timestamp
+                    AttributeName: ttl
+                    Enabled: true
+                KeySchema:
+                    -   AttributeName: id
+                        KeyType: HASH # the type of key, HASH means partition key (similar to primary keys in SQL)
 ```
 
-You need to add a permission to access the DynamoDB from your function using `provider.iam.role.statements`.
-We're also passing the table name as an environment variable to your app.
+We need to allow code in Lambda functions to access DynamoDB.
+We can also pass the table name as an environment variable to the application.
 
 ```yaml
 service: app
@@ -112,15 +111,16 @@ provider:
         role:
             statements:
                 - Effect: Allow
-                  Resource: !GetAtt CacheTable.Arn
-                  Action:
-                    - dynamodb:DescribeTable
-                    - dynamodb:Query
-                    - dynamodb:Scan
-                    - dynamodb:GetItem
-                    - dynamodb:PutItem
-                    - dynamodb:UpdateItem
-                    - dynamodb:DeleteItem
+                    Resource: !GetAtt CacheTable.Arn
+                    Action:
+                        - dynamodb:DescribeTable
+                        - dynamodb:Query
+                        - dynamodb:Scan
+                        - dynamodb:GetItem
+                        - dynamodb:PutItem
+                        - dynamodb:UpdateItem
+                        - dynamodb:DeleteItem
     environment:
-        DYNAMO_DB_TABLE: !Ref CacheTable
+        # That environment variable will contain the table name
+        DYNAMODB_TABLE: !Ref CacheTable
 ```
