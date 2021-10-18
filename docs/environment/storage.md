@@ -76,3 +76,51 @@ Note that Redis and Memcache through ElastiCache run even when not used and thus
 pay-per-request mode where you don't pay when the store is not used. There is a package implementing the PSR cache interfaces using DynamoDB ([rikudou/psr6-dynamo-db](https://github.com/RikudouSage/DynamoDbCachePsr6)).
 
 This solution is ideal for cache data that can change during the life of the application (e.g. caching a website menu, an API response).
+
+#### Deploy DynamoDB table as part of serverless
+
+As any service, the DynamoDB table can be deployed using the `resources.Resources` subkey:
+
+```yaml
+service: app
+...
+
+resources:
+    Resources:
+        CacheTable:
+            Type: AWS::DynamoDB::Table
+            Properties:
+              AttributeDefinitions: # only keys are defined here, other attributes are dynamic
+                - AttributeName: id # adds a mandatory id field
+                  AttributeType: S # the type of id is a string
+              BillingMode: PAY_PER_REQUEST # billed for each request instead of paying for a constant capacity
+              TimeToLiveSpecification: # deletes cache keys automatically based on the ttl field which contains a timestamp
+                AttributeName: ttl
+                Enabled: true
+              KeySchema:
+                - AttributeName: id
+                  KeyType: HASH # the type of key, HASH means partition key (similar to primary keys in SQL)
+```
+
+You need to add a permission to access the DynamoDB from your function using `provider.iam.role.statements`.
+We're also passing the table name as an environment variable to your app.
+
+```yaml
+service: app
+provider:
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Resource: !GetAtt CacheTable.Arn
+                  Action:
+                    - dynamodb:DescribeTable
+                    - dynamodb:Query
+                    - dynamodb:Scan
+                    - dynamodb:GetItem
+                    - dynamodb:PutItem
+                    - dynamodb:UpdateItem
+                    - dynamodb:DeleteItem
+    environment:
+        DYNAMO_DB_TABLE: !Ref CacheTable
+```
