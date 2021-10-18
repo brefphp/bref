@@ -25,7 +25,7 @@ Websites usually contain 2 parts:
 
 This lets us host everything under the same domain and support both HTTP and HTTPS.
 
-The easiest solution to do this is to use the
+The easiest approach is to use the
 [Server-side website construct of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/server-side-website.md). 
 If you don't want to use it, see the [alternative solutions](#alternative-solutions).
 
@@ -77,7 +77,7 @@ Just like in the "[Custom domains](/docs/environment/custom-domains.md)" guide, 
 - open [this link](https://console.aws.amazon.com/acm/home?region=us-east-1#/wizard/) or manually go in the ACM Console and click "Request a new certificate" **in the `us-east-1` region** (CloudFront requires certificates from `us-east-1`)
 - add your domain name and click "Next"
 - choose the domain validation of your choice
-    - domain validation will require you to add entries to your DNS configuration (this is **recommended** because it will be renewed automatically if the DNS record is still configured)
+    - domain validation will require you to create DNS entries (this is **recommended** because it renews the certificate automatically)
     - email validation will require you to click a link you will receive in an email sent to `admin@your-domain.com`
 
 Copy the ARN of the ACM certificate. It should look like this:
@@ -99,12 +99,12 @@ constructs:
 
 The last step will be to point your domain name DNS records to the CloudFront URL:
 
-- copy the domain outputted by Lift during `serverless deploy`
+- copy the domain outputted by Lift during `serverless deploy`  (or run `serverless info` to retrieve it)
 - create a CNAME to point your domain name to this URL
     - if you use Route53 you can read [the official guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)
     - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [CloudFlare allows this with a technique called CNAME flattening](https://support.cloudflare.com/hc/en-us/articles/200169056-Understand-and-configure-CNAME-Flattening))
 
-This plugin supports more advanced use cases like multiple domains, root domain to `www` redirects and more. Check out [the official documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md) for a complete reference of available configuration.
+Lift supports more advanced use cases like multiple domains, root domain to `www` redirects and more. Check out [the official documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md) for a complete reference of available configuration.
 
 ## Alternative solutions
 
