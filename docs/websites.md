@@ -104,7 +104,7 @@ The last step will be to point your domain name DNS records to the CloudFront UR
     - if you use Route53 you can read [the official guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)
     - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [CloudFlare allows this with a technique called CNAME flattening](https://support.cloudflare.com/hc/en-us/articles/200169056-Understand-and-configure-CNAME-Flattening))
 
-Lift supports more advanced use cases like multiple domains, root domain to `www` redirects and more. Check out [the official documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md) for a complete reference of available configuration.
+Lift supports more advanced use cases like multiple domains, root domain to `www` redirects, and more. Check out [the official documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
 
 ## Alternative solutions
 

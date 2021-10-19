@@ -88,7 +88,7 @@ For more details follow [the "Console" guide](/docs/runtimes/console.md).
 
 ## Assets
 
-To deploy Laravel websites, assets need to be served from AWS S3. The easiest solution to do this is to use the
+To deploy Laravel websites, assets need to be served from AWS S3. The easiest approach is to use the
 [Server-side website construct of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
 
 This will deploy a Cloudfront distribution that will act as a proxy: it will serve
