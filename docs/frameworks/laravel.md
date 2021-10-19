@@ -74,6 +74,28 @@ By default, the Bref bridge will move Laravel's cache directory to `/tmp` to avo
 The `/tmp` directory isn't shared across Lambda instances: while this works, this isn't the ideal solution for production workloads.
 If you plan on actively using the cache, or anything that uses it (like API rate limiting), you should instead use Redis or DynamoDB.
 
+### Using DynamoDB
+
+To use DynamoDB as a cache store, change this configuration in `config/cache.php`
+
+```diff
+  # config/cache.php
+  'dynamodb' => [
+      'driver' => 'dynamodb',
+      'key' => env('AWS_ACCESS_KEY_ID'),
+      'secret' => env('AWS_SECRET_ACCESS_KEY'),
+      'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+      'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
+      'endpoint' => env('DYNAMODB_ENDPOINT'),
++     'attributes' => [
++         'key' => 'id',
++         'expiration' => 'ttl',
++     ]  
+  ],
+```
+
+Then follow [this section of the documentation](/docs/environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework.
+
 ## Laravel Artisan
 
 As you may have noticed, we define a function named "artisan" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
