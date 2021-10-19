@@ -19,7 +19,7 @@ Websites usually contain 2 parts:
 - PHP code, running on [AWS Lambda + API Gateway with the HTTP runtime](/docs/runtimes/http.md)
 - static assets (CSS, JS…), [hosted on AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)
 
-![](websites/same-domain.svg)
+![](websites/cloudfront.svg)
 
 [CloudFront](https://aws.amazon.com/cloudfront/) (the AWS CDN) serves as an HTTP/HTTPS proxy.
 
