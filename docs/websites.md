@@ -25,9 +25,7 @@ Websites usually contain 2 parts:
 
 This lets us host everything under the same domain and support both HTTP and HTTPS.
 
-The easiest approach is to use the
-[Server-side website construct of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/server-side-website.md). 
-If you don't want to use it, see the [alternative solutions](#alternative-solutions).
+The easiest approach is to use the <a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md">Server-side website construct of the Lift plugin</a>. If you don't want to use it, see the [alternative solutions](#alternative-solutions).
 
 First install the plugin
 
@@ -104,9 +102,8 @@ The last step will be to point your domain name DNS records to the CloudFront UR
     - if you use Route53 you can read [the official guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)
     - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [CloudFlare allows this with a technique called CNAME flattening](https://support.cloudflare.com/hc/en-us/articles/200169056-Understand-and-configure-CNAME-Flattening))
 
-Lift supports more advanced use cases like multiple domains, root domain to `www` redirects, and more. Check out [the official documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
+Lift supports more advanced use cases like multiple domains, root domain to `www` redirects, and more. Check out <a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md">the official documentation</a>.
 
 ## Alternative solutions
 
-If you don't want to use Lift or Cloudfront, you may want to read the [older version of this documentation](https://github.com/brefphp/bref/blob/d1dd690d020cd03f134010db456bb61a6d0ffafb/docs/websites.md#architectures) 
-which featured configuration using S3 only on a separate domain and Cloudfront configured through plain Cloudformation.
+If you don't want to use Lift or Cloudfront, you may want to read the <a href="https://github.com/brefphp/bref/blob/d1dd690d020cd03f134010db456bb61a6d0ffafb/docs/websites.md#architectures">older version of this documentation</a> which featured configuration using S3 only on a separate domain and Cloudfront configured through plain CloudFormation.
