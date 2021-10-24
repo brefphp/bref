@@ -144,7 +144,7 @@ To deploy Symfony websites, assets need to be served from AWS S3. The easiest ap
 This will deploy a Cloudfront distribution that will act as a proxy: it will serve
 static files directly from S3 and will forward everything else to Lambda. This is very close
 to how traditional web servers like Apache or Nginx work, which means your application doesn't need to change!
-For more details, see <a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md#how-it-works"the offical documentation</a>. 
+For more details, see <a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md#how-it-works">the offical documentation</a>. 
 
 First install the plugin
 
