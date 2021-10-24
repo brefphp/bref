@@ -23,7 +23,7 @@ Bref provides 2 main runtimes:
 
 You can see in the documentation menu how these two runtimes are used for two different kinds of applications.
 
-### Web apps: `php-74-fpm` and `php-73-fpm`
+### Web apps: `php-80-fpm` and `php-74-fpm`
 
 This runtime uses PHP-FPM to run **web applications** on AWS Lambda.
 
@@ -31,7 +31,7 @@ It's **the easiest to start with**: it works like traditional PHP hosting and is
 
 [Get started with the FPM runtime in "Bref for web apps"](/docs/runtimes/http.md).
 
-### Event-driven functions: `php-74` and `php-73`
+### Event-driven functions: `php-80` and `php-74`
 
 AWS Lambda was initially created to run _functions_ (yes, functions of code) in the cloud.
 
@@ -64,9 +64,9 @@ functions:
     hello:
         ...
         layers:
-            - ${bref:layer.php-74}
+            - ${bref:layer.php-80}
             # or:
-            - ${bref:layer.php-74-fpm}
+            - ${bref:layer.php-80-fpm}
 ```
 
 The `${...}` notation is the [syntax to use variables](https://serverless.com/framework/docs/providers/aws/guide/variables/) in `serverless.yml`. Bref provides a serverless plugin ("`./vendor/bref/bref`") that provides those variables:
@@ -99,9 +99,12 @@ The layer names follow this pattern:
 
 ```
 arn:aws:lambda:<region>:209497400698:layer:<layer-name>:<layer-version>
+
+For example:
+arn:aws:lambda:us-east-1:209497400698:layer:php-80:21
 ```
 
-To use them manually you need to use that full name. For example in `serverless.yml`:
+You can use layers via their full ARN, or example in `serverless.yml`:
 
 ```yaml
 service: app
@@ -112,7 +115,7 @@ functions:
     hello:
         ...
         layers:
-            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7'
+            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-80:21'
 ```
 
 Or if you are using [SAM's `template.yaml`](https://aws.amazon.com/serverless/sam/):
@@ -127,7 +130,7 @@ Resources:
             ...
             Runtime: provided.al2
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-73:7'
+                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-80:21'
 ```
 
 Bref layers work with AWS Lambda regardless of the tool you use to deploy your application: Serverless, SAM, CloudFormation, Terraform, AWS CDK, etc.
@@ -139,6 +142,8 @@ Bref layers work with AWS Lambda regardless of the tool you use to deploy your a
 The latest of runtime versions can be found at [runtimes.bref.sh](https://runtimes.bref.sh/) and is shown below:
 
 <iframe src="https://runtimes.bref.sh/embedded" class="w-full h-96"></iframe>
+
+**Watch out:** if you use the layer ARN directly instead of the `${bref:layer.php-80}` variables (which only work in `serverless.yml`), you may need to update the ARN (the `<version>` part) when you update Bref. Follow the Bref release notes closely.
 
 ### Bref ping
 
