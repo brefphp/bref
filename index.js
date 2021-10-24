@@ -32,15 +32,15 @@ class ServerlessPlugin {
                     const region = options.region || await resolveConfigurationProperty(['provider', 'region']);
 
                     if (!address.startsWith('layer.')) {
-                        throw new Error(`Unknown Bref variable \${bref:${address}}, the only supported syntax right now is \${bref:layer.XXX}`);
+                        throw new serverless.classes.Error(`Unknown Bref variable \${bref:${address}}, the only supported syntax right now is \${bref:layer.XXX}`);
                     }
 
                     const layerName = address.substr('layer.'.length);
                     if (! (layerName in layers)) {
-                        throw new Error(`Unknown Bref layer named "${layerName}"`);
+                        throw new serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
                     }
                     if (! (region in layers[layerName])) {
-                        throw new Error(`There is no Bref layer named "${layerName}" in region "${region}"`);
+                        throw new serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
                     }
                     const version = layers[layerName][region];
                     return {
@@ -59,10 +59,10 @@ class ServerlessPlugin {
                 const region = this.provider.getRegion();
                 const layerName = variableString.substr('bref:layer.'.length);
                 if (! (layerName in layers)) {
-                    throw `Unknown Bref layer named "${layerName}"`;
+                    throw new serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
                 }
                 if (! (region in layers[layerName])) {
-                    throw `There is no Bref layer named "${layerName}" in region "${region}"`;
+                    throw new serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
                 }
                 const version = layers[layerName][region];
                 return `arn:aws:lambda:${region}:209497400698:layer:${layerName}:${version}`;
