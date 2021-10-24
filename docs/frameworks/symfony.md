@@ -139,12 +139,12 @@ in `trusted_proxies`.
 ## Assets
 
 To deploy Symfony websites, assets need to be served from AWS S3. The easiest approach is to use the
-[Server-side website construct of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
+<a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md">Server-side website construct of the Lift plugin</a>.
 
 This will deploy a Cloudfront distribution that will act as a proxy: it will serve
 static files directly from S3 and will forward everything else to Lambda. This is very close
 to how traditional web servers like Apache or Nginx work, which means your application doesn't need to change!
-For more details, see [the offical documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md#how-it-works). 
+For more details, see <a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md#how-it-works">the official documentation</a>. 
 
 First install the plugin
 
@@ -203,7 +203,7 @@ upload all specified files and directories to the bucket.
 > If you are not using Flex, update the `serverless.yml` file to exclude assets from the deployment ([see the recipe](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml#L35))
 
 For more details, see the [Websites section](/docs/websites.md) of this documentation 
-and the official [Lift documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
+and the official <a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md">Lift documentation</a>.
 
 ### Assets in templates
 
