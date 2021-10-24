@@ -175,7 +175,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Website**
 
-    Websites can run on AWS Lambda. Assets can be served via AWS S3. That requires a bit of setup but this is documented in the ["Websites" documentation](/docs/websites.md). Performance is as good as any server.
+    Websites can run on AWS Lambda. Assets can be stored in S3 and served via Cloudfront. This is documented in the ["Websites" documentation](/docs/websites.md). Performance is as good as any server.
 
 - **Legacy application**
 
