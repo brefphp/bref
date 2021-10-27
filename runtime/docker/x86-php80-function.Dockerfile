@@ -6,6 +6,9 @@ COPY runtime/configuration/bootstrap /opt/bootstrap
 COPY runtime/configuration/bootstrap /var/runtime/bootstrap
 COPY runtime/configuration/bref-function.ini /opt/php-ini/bref.ini
 
+RUN chmod +x /opt/bootstrap
+RUN chmod +x /var/runtime/bootstrap
+
 COPY --from=bref/x86-php80-ext-mbstring /opt/lib/* /opt/lib/
 COPY --from=bref/x86-php80-ext-mbstring /opt/php-modules/mbstring.so /opt/php-modules/mbstring.so
 
