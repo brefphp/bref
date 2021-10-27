@@ -1,0 +1,26 @@
+{
+  "name": "brefphp/fixture-fpm-test",
+  "description": "FPM Layer Tester",
+  "type": "project",
+  "license": "MIT",
+  "keywords": ["brefphp","serverless", "fpm", "tests"],
+  "authors": [
+    {
+      "name": "Marco Deleu",
+      "email": "deleugyn@gmail.com"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "path",
+      "url": "/package"
+    }
+  ],
+  "require": {
+    "php": ">=7.3",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "bref/bref": "dev-master",
+    "symfony/process": "^5.3"
+  }
+}
