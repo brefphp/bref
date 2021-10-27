@@ -6,6 +6,9 @@ COPY runtime/configuration/bootstrap /opt/bootstrap
 COPY runtime/configuration/bootstrap /var/runtime/bootstrap
 COPY runtime/configuration/bref.ini /opt/php-ini/bref.ini
 
+RUN chmod +x /opt/bootstrap
+RUN chmod +x /var/runtime/bootstrap
+
 COPY src/Context/Context.php /opt/bref-src/Context/Context.php
 COPY src/Context/ContextBuilder.php /opt/bref-src/Context/ContextBuilder.php
 COPY src/Toolbox/bootstrap.php /opt/bref-src/Toolbox/bootstrap.php
