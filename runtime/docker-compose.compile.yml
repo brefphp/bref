@@ -1,0 +1,108 @@
+version: '3.7'
+
+services:
+  # We don't need to start these services. It is used to create intermediate
+  # images used to install PHP and extensions.
+  php-base:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-base
+    build:
+      context: ..
+      dockerfile: runtime/docker/${ARCHITECTURE}-${PHP_VERSION}-base.Dockerfile
+
+  php-ext-mbstring:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-mbstring
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/mbstring.Dockerfile
+      args:
+        - PHP_VERSION
+
+  php-ext-bcmath:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-bcmath
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=bcmath
+
+  php-ext-ctype:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-ctype
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=ctype
+
+  php-ext-dom:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-dom
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=dom
+
+  php-ext-exif:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-exif
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=exif
+
+  php-ext-fileinfo:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-fileinfo
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=fileinfo
+
+  php-ext-ftp:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-ftp
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=ftp
+
+  php-ext-gettext:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-gettext
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=gettext
+
+  php-ext-iconv:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-iconv
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=iconv
+
+  php-ext-mysqli:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-mysqli
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=mysqli
+
+  php-ext-phar:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-phar
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=phar
