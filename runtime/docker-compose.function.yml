@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  php-function:
+    image: ${IMAGE}
+    build:
+      context: ..
+      dockerfile: runtime/docker/${LAYER}.Dockerfile
+    command: /tests/integration/fixture_function.php
+    environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
+    working_dir: /tests
+    volumes:
+      - ./runtime/tests:/tests
+      - ./runtime/tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
+
+  php-function-tester:
+    image: ${IMAGE}
+    entrypoint: /opt/bin/php
+    command: /tests/integration/test_invoke_function.php
+    environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
+    working_dir: /tests
+    volumes:
+      - ./runtime/tests:/tests
+
