@@ -1,0 +1,9 @@
+ARG PHP_VERSION
+
+FROM bref/x86-${PHP_VERSION}-base as standard
+
+ARG PHP_VERSION
+
+ARG EXTENSION
+
+RUN yum install -y ${PHP_VERSION}-php-${EXTENSION}
