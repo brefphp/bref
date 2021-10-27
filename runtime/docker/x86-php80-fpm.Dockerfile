@@ -38,7 +38,10 @@ COPY runtime/configuration/fpm/php-fpm.conf /opt/php-fpm/php-fpm.conf
 COPY runtime/configuration/fpm/bootstrap-fpm /opt/bootstrap
 COPY runtime/configuration/fpm/bootstrap-fpm /var/runtime/bootstrap
 
-COPY package/src/Toolbox/Runner.php /opt/bref-src/Toolbox/Runner.php
-COPY package/src/Toolbox/VendorDownloader.php /opt/bref-src/Toolbox/VendorDownloader.php
-COPY package/src/Toolbox/bootstrap.php /opt/bref-src/Toolbox/bootstrap.php
+RUN chmod +x /opt/bootstrap
+RUN chmod +x /var/runtime/bootstrap
+
+COPY src/Toolbox/Runner.php /opt/bref-src/Toolbox/Runner.php
+COPY src/Toolbox/VendorDownloader.php /opt/bref-src/Toolbox/VendorDownloader.php
+COPY src/Toolbox/bootstrap.php /opt/bref-src/Toolbox/bootstrap.php
 
