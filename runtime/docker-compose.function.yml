@@ -10,8 +10,8 @@ services:
     environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
     working_dir: /tests
     volumes:
-      - ./runtime/tests:/tests
-      - ./runtime/tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
+      - ./tests:/tests
+      - ./tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
 
   php-function-tester:
     image: ${IMAGE}
@@ -20,5 +20,5 @@ services:
     environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
     working_dir: /tests
     volumes:
-      - ./runtime/tests:/tests
+      - ./tests:/tests
 
