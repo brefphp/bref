@@ -77,8 +77,6 @@ final class Runner
                 throw new RuntimeException('Composer Autoload could not be found.');
             }
 
-            $this->require('/Bref.php');
-
             $this->require('/Context/Context.php');
             $this->require('/Context/ContextBuilder.php');
 
