@@ -1,0 +1,38 @@
+version: "3.7"
+
+services:
+  zip:
+    image: ${IMAGE}-zip
+    build:
+      args:
+        - IMAGE=${IMAGE}
+      context: ..
+      dockerfile: runtime/publish/Zip.Dockerfile
+    entrypoint: /usr/bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/layer.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
+  upload:
+    image: amazon/aws-cli
+    command: ["s3", "cp", "/tmp/bref-zip/layer.zip", "s3://${BUCKET}/${IMAGE}-layer.zip"]
+    environment:
+      - AWS_PROFILE=${AWS_PROFILE}
+    volumes:
+      - ~/.aws:/root/.aws
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
+  publish:
+    image: amazon/aws-cli
+    entrypoint: /bin/bash
+    command: /publish.sh
+    environment:
+      - AWS_PROFILE
+      - IMAGE
+      - LAYER
+      - BUCKET
+      - REGION
+    volumes:
+      - ./runtime/publish/publish.sh:/publish.sh
+      - ~/.aws:/root/.aws
+      - /tmp/bref-zip/:/tmp/bref-zip/

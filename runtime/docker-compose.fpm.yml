@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  php-fpm:
+    image: ${IMAGE}
+    build:
+      context: ..
+      dockerfile: runtime/docker/${LAYER}.Dockerfile
+    command: fixture_fpm.php
+    environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
+    working_dir: /var/task
+    volumes:
+      - ./runtime/tests:/tests
+      - ./runtime/tests/integration:/var/task
+      - ./runtime/tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
+      - ./package:/package
+
+  php-fpm-config-tester:
+    image: ${IMAGE}
+    entrypoint: /opt/bin/php-fpm
+    command: ["--test", "--fpm-config", "/opt/php-fpm/php-fpm.conf"]
+
+  php-fpm-tester:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-fpm-layer-tester
+    build:
+      dockerfile: runtime/tests/integration/fixture_fpm.Dockerfile
+      context: ..
+    entrypoint: /usr/bin/tail
+    command: ["-f", "/dev/null"]
+    stop_grace_period: 0s
+    working_dir: /var/task
+    volumes:
+      - ./runtime/tests:/tests
+      - ./package:/package
