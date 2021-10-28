@@ -10,10 +10,10 @@ services:
     environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
     working_dir: /var/task
     volumes:
-      - ./runtime/tests:/tests
-      - ./runtime/tests/integration:/var/task
-      - ./runtime/tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
-      - ./package:/package
+      - ./tests:/tests
+      - ./tests/integration:/var/task
+      - ./tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
+      - ../src:/package
 
   php-fpm-config-tester:
     image: ${IMAGE}
@@ -30,5 +30,5 @@ services:
     stop_grace_period: 0s
     working_dir: /var/task
     volumes:
-      - ./runtime/tests:/tests
-      - ./package:/package
+      - ./tests:/tests
+      - ../src:/package
