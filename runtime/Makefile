@@ -16,11 +16,10 @@ slim:
 	docker-compose -f docker-compose.publish.yml run zip
 	docker-compose -f docker-compose.publish.yml run upload
 
-	REGION=eu-west-1 docker-compose -f docker-compose.publish.yml run publish &
+	REGION=eu-west-1 docker-compose -f docker-compose.publish.yml run publish
 	#REGION=us-east-1 docker-compose -f docker-compose.publish.yml run publish &
 	#REGION=ap-southeast-2 docker-compose -f docker-compose.publish.yml run publish &
 	#REGION=eu-west-2 docker-compose -f docker-compose.publish.yml run publish &
-	wait
 
 function:
 	# Build the base image individually so that the extensions can be built using it
