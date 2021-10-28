@@ -17,9 +17,9 @@ slim:
 	docker-compose -f docker-compose.publish.yml run upload
 
 	REGION=eu-west-1 docker-compose -f docker-compose.publish.yml run publish &
-	REGION=us-east-1 docker-compose -f docker-compose.publish.yml run publish &
-	REGION=ap-southeast-2 docker-compose -f docker-compose.publish.yml run publish &
-	REGION=eu-west-2 docker-compose -f docker-compose.publish.yml run publish &
+	#REGION=us-east-1 docker-compose -f docker-compose.publish.yml run publish &
+	#REGION=ap-southeast-2 docker-compose -f docker-compose.publish.yml run publish &
+	#REGION=eu-west-2 docker-compose -f docker-compose.publish.yml run publish &
 	wait
 
 function:

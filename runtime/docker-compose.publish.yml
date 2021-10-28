@@ -13,11 +13,15 @@ services:
     volumes:
       - /tmp/bref-zip/:/tmp/bref-zip/
 
+  # TODO: remove this step since we cannot do cross-region S3 layer
   upload:
     image: amazon/aws-cli
     command: ["s3", "cp", "/tmp/bref-zip/layer.zip", "s3://${BUCKET}/${IMAGE}-layer.zip"]
     environment:
-      - AWS_PROFILE=${AWS_PROFILE}
+      - AWS_PROFILE
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
     volumes:
       - ~/.aws:/root/.aws
       - /tmp/bref-zip/:/tmp/bref-zip/
@@ -28,11 +32,14 @@ services:
     command: /publish.sh
     environment:
       - AWS_PROFILE
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_SESSION_TOKEN
       - IMAGE
       - LAYER
       - BUCKET
       - REGION
     volumes:
-      - ./runtime/publish/publish.sh:/publish.sh
+      - ./publish/publish.sh:/publish.sh
       - ~/.aws:/root/.aws
       - /tmp/bref-zip/:/tmp/bref-zip/
