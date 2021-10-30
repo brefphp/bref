@@ -10,9 +10,7 @@ $provider = [
     'gettext' => gettext('gettext extension') === 'gettext extension',
     'iconv' => iconv_strlen('12characters') === 12,
     'mbstring' => mb_strlen('12characters') === 12,
-
-    # TODO: not working yet
-    # 'mysqli' => mysqli_real_escape_string("Bref's extensions") === "Bref\'s extensions",
+    'mysqli' => function_exists('mysqli_connect'),
 ];
 
 foreach ($provider as $extension => $test) {
