@@ -3,7 +3,7 @@
 $versions = [
     '7.4.25',
     '8.0.12',
-    '8.1.0RC4',
+    '8.1.0RC5',
 ];
 
 if (! in_array(PHP_VERSION, $versions)) {

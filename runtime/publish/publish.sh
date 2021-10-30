@@ -7,7 +7,7 @@ VERSION=$(aws lambda publish-layer-version \
    --layer-name ${LAYER} \
    --description "description here" \
    --license-info MIT \
-   --content S3Bucket=${BUCKET},S3Key=${IMAGE}-layer.zip \
+   --zip-file fileb:///tmp/bref-zip/${LAYER}-layer.zip \
    --compatible-runtimes provided.al2 \
    --output text \
    --query Version)
