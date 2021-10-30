@@ -37,6 +37,14 @@ final class HttpRequestEvent implements LambdaEvent
         } elseif (isset($event['requestContext']['http']['method'])) {
             // version 2.0 - https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.proxy-format
             $this->method = strtoupper($event['requestContext']['http']['method']);
+        } elseif (isset($event['BREF_HTTP_METHOD'])) {
+            // @TODO: write phpunit test for this
+            $this->method = strtoupper($event['BREF_HTTP_METHOD']);
+            $this->event = $event['BREF_HTTP_BODY'] ?? [];
+            $this->queryString = $event['BREF_HTTP_QUERY_STRINGS'] ?? '';
+            $this->headers = $event['BREF_HTTP_HEADERS'] ?? [];
+
+            return;
         } else {
             throw new InvalidLambdaEvent('API Gateway or ALB', $event);
         }
