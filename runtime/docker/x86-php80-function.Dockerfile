@@ -20,9 +20,8 @@ COPY --from=bref/x86-php80-ext-fileinfo /opt/php-modules/fileinfo.so /opt/php-mo
 COPY --from=bref/x86-php80-ext-ftp /opt/php-modules/ftp.so /opt/php-modules/ftp.so
 COPY --from=bref/x86-php80-ext-gettext /opt/php-modules/gettext.so /opt/php-modules/gettext.so
 COPY --from=bref/x86-php80-ext-iconv /opt/php-modules/iconv.so /opt/php-modules/iconv.so
-
-#TODO: figure out why it doesn't work
-#COPY --from=bref/x86-php80-ext-mysqli /opt/php-modules/mysqli.so /opt/php-modules/mysqli.so
+COPY --from=bref/x86-php80-ext-mysqli /opt/php-modules/mysqli.so /opt/php-modules/mysqli.so
+COPY --from=bref/x86-php80-ext-mysqli /opt/php-modules/mysqlnd.so /opt/php-modules/mysqlnd.so
 
 COPY src/Context/Context.php /opt/bref-src/Context/Context.php
 COPY src/Context/ContextBuilder.php /opt/bref-src/Context/ContextBuilder.php
