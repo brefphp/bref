@@ -12,8 +12,6 @@ $response = post($endpoint, $request);
 
 $response = json_decode($response);
 
-var_dump($response);
-
 if ($response->body !== 'Hello from Bref FPM!') {
     throw new Exception('Unexpected response: ' . json_encode($response));
 }
