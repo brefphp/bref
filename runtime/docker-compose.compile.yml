@@ -97,6 +97,15 @@ services:
       args:
         - PHP_VERSION
 
+  php-ext-opcache:
+    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-opcache
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION
+        - EXTENSION=opcache
+
   php-ext-phar:
     image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-phar
     build:
