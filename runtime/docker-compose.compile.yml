@@ -93,10 +93,9 @@ services:
     image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-mysqli
     build:
       context: ..
-      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/mysqli.Dockerfile
       args:
         - PHP_VERSION
-        - EXTENSION=mysqli
 
   php-ext-phar:
     image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-phar
