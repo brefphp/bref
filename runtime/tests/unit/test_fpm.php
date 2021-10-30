@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
+echo PHP_VERSION;
+
 require '/opt/bref-fpm-src/vendor/autoload.php';
 
 $versions = [
     '8.0.12',
-    '7.4.25'
+    '7.4.25',
+    '8.1.0RC5',
 ];
 
 $provider = [

@@ -11,6 +11,7 @@ $provider = [
     'iconv' => iconv_strlen('12characters') === 12,
     'mbstring' => mb_strlen('12characters') === 12,
     'mysqli' => function_exists('mysqli_connect'),
+    'opcache' => ini_get('opcache.enable') == 1 && ini_get('opcache.enable_cli') == 1,
 ];
 
 foreach ($provider as $extension => $test) {

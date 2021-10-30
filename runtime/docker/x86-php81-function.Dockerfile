@@ -4,7 +4,11 @@ COPY --from=bref/x86-php81-base /bref /opt
 
 COPY runtime/configuration/bootstrap /opt/bootstrap
 COPY runtime/configuration/bootstrap /var/runtime/bootstrap
-COPY runtime/configuration/bref-function.ini /opt/php-ini/bref.ini
+COPY runtime/configuration/bref.ini /opt/php-ini/bref.ini
+COPY runtime/configuration/bref-ext.ini /opt/php-ini/bref-ext.ini
+COPY runtime/configuration/bref-ext-opcache.ini /opt/php-ini/bref-ext-opcache.ini
+
+
 
 RUN chmod +x /opt/bootstrap
 RUN chmod +x /var/runtime/bootstrap
@@ -20,9 +24,9 @@ COPY --from=bref/x86-php81-ext-fileinfo /opt/php-modules/fileinfo.so /opt/php-mo
 COPY --from=bref/x86-php81-ext-ftp /opt/php-modules/ftp.so /opt/php-modules/ftp.so
 COPY --from=bref/x86-php81-ext-gettext /opt/php-modules/gettext.so /opt/php-modules/gettext.so
 COPY --from=bref/x86-php81-ext-iconv /opt/php-modules/iconv.so /opt/php-modules/iconv.so
-
-#TODO: figure out why it doesn't work
-#COPY --from=bref/x86-php80-ext-mysqli /opt/php-modules/mysqli.so /opt/php-modules/mysqli.so
+COPY --from=bref/x86-php81-ext-mysqli /opt/php-modules/mysqli.so /opt/php-modules/mysqli.so
+COPY --from=bref/x86-php81-ext-mysqli /opt/php-modules/mysqlnd.so /opt/php-modules/mysqlnd.so
+COPY --from=bref/x86-php81-ext-opcache /opt/php-modules/opcache.so /opt/php-modules/opcache.so
 
 COPY src/Context/Context.php /opt/bref-src/Context/Context.php
 COPY src/Context/ContextBuilder.php /opt/bref-src/Context/ContextBuilder.php
