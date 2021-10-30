@@ -73,8 +73,14 @@ final class Runner
             /** @noinspection PhpIncludeInspection */
             require $this->appRoot . '/vendor/autoload.php';
         } else {
-            if ($this->layer === 'fpm' || $this->layer === 'console') {
+            if ($this->layer === 'console') {
                 throw new RuntimeException('Composer Autoload could not be found.');
+            }
+
+            if ($this->layer === 'fpm') {
+                require '/opt/bref-fpm-src/vendor/autoload.php';
+
+                return;
             }
 
             $this->require('/Context/Context.php');

@@ -48,15 +48,14 @@ fpm:
 	# Build all extensions upfront
 	docker-compose -f docker-compose.compile.yml build --parallel
 
-	docker-compose -f docker-compose.fpm.yml build php-fpm php-fpm-tester
+	docker-compose -f docker-compose.fpm.yml build bref-fpm php-fpm php-fpm-tester
 	docker-compose -f docker-compose.fpm.yml run --entrypoint /opt/bin/php php-fpm /tests/unit/test_fpm.php
 	docker-compose -f docker-compose.fpm.yml run php-fpm-config-tester
 	docker-compose -f docker-compose.fpm.yml up -d php-fpm php-fpm-tester
-	docker-compose -f docker-compose.fpm.yml exec php-fpm-tester composer install --no-dev -d /tests/integration
 	docker-compose -f docker-compose.fpm.yml exec php-fpm-tester php /tests/integration/test_invoke_fpm.php
 	docker-compose -f docker-compose.fpm.yml stop
 
 	rm /tmp/bref-zip -rf
 	docker-compose -f docker-compose.publish.yml run zip
 	docker-compose -f docker-compose.publish.yml run upload
-	docker-compose -f docker-compose.publish.yml run publish
+	REGION=eu-west-1 docker-compose -f docker-compose.publish.yml run publish

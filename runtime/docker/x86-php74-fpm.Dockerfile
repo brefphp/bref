@@ -49,6 +49,8 @@ COPY runtime/configuration/fpm/bootstrap-fpm /var/runtime/bootstrap
 RUN chmod +x /opt/bootstrap
 RUN chmod +x /var/runtime/bootstrap
 
+COPY --from=bref/fpm-source-package /opt/bref-fpm-src /opt/bref-fpm-src
+
 COPY src/Toolbox/Runner.php /opt/bref-src/Toolbox/Runner.php
 COPY src/Toolbox/VendorDownloader.php /opt/bref-src/Toolbox/VendorDownloader.php
 COPY src/Toolbox/bootstrap.php /opt/bref-src/Toolbox/bootstrap.php
