@@ -20,7 +20,7 @@
     "php": ">=7.3",
     "ext-json": "*",
     "ext-curl": "*",
-    "bref/bref": "dev-master",
+    "bref/bref": "*",
     "symfony/process": "^5.3"
   }
 }

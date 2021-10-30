@@ -1,6 +1,14 @@
 version: '3.7'
 
 services:
+  bref-fpm:
+    image: bref/fpm-source-package
+    build:
+      context: ..
+      dockerfile: runtime/docker/fpm/Fpm.Dockerfile
+    volumes:
+      - ./tests:/tests
+
   php-fpm:
     image: ${IMAGE}
     build:
@@ -8,12 +16,12 @@ services:
       dockerfile: runtime/docker/${LAYER}.Dockerfile
     command: fixture_fpm.php
     environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
+    stop_grace_period: 0s
     working_dir: /var/task
     volumes:
       - ./tests:/tests
       - ./tests/integration:/var/task
       - ./tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
-      - ../src:/package
 
   php-fpm-config-tester:
     image: ${IMAGE}
