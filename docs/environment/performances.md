@@ -110,10 +110,11 @@ While the memory size has no impact, the codebase size can increase the cold sta
 
 ```yaml
 package:
-    exclude:
-        - 'assets/**'
-        - 'node_modules/**'
-        - 'tests/**'
+    patterns:
+        - '!assets/**'
+        - '!node_modules/**'
+        - '!tests/**'
+        - ...
 ```
 
 Read more about this [in the serverless.yml documentation](serverless-yml.md#exclusions).
