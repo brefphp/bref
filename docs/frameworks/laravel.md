@@ -301,6 +301,10 @@ Instead, here is what you need to do:
     ```yaml
       package:
           patterns:
+              - ...
+              # Exclude the 'storage' directory
+              - '!storage/**'
+              # Except the public and private keys required by Laravel Passport
               - 'storage/oauth-private.key'
               - 'storage/oauth-public.key'
       ```
