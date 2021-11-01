@@ -175,13 +175,15 @@ provider:
     environment:
         # environment variable for Laravel
         AWS_BUCKET: !Ref Storage
-    iamRoleStatements:
-        # Allow Lambda to read and write files in the S3 buckets
-        -   Effect: Allow
-            Action: s3:*
-            Resource:
-                - !Sub '${Storage.Arn}' # the storage bucket
-                - !Sub '${Storage.Arn}/*' # and everything inside
+    iam:
+        role:
+            statements:
+                # Allow Lambda to read and write files in the S3 buckets
+                -   Effect: Allow
+                    Action: s3:*
+                    Resource:
+                        - !Sub '${Storage.Arn}' # the storage bucket
+                        - !Sub '${Storage.Arn}/*' # and everything inside
 
 resources:
     Resources:
@@ -298,11 +300,13 @@ Instead, here is what you need to do:
 
     ```yaml
       package:
-          exclude:
-              ...
-          include:
-              - storage/oauth-private.key
-              - storage/oauth-public.key
+          patterns:
+              - ...
+              # Exclude the 'storage' directory
+              - '!storage/**'
+              # Except the public and private keys required by Laravel Passport
+              - 'storage/oauth-private.key'
+              - 'storage/oauth-public.key'
       ```
 
 - You can now deploy the application:

@@ -123,13 +123,13 @@ You can find the list of [all Serverless plugins here](https://serverless.com/pl
 
 ## Exclusions
 
-It is possible to exclude directories from being deployed via the `package.exclude` section:
+It is possible to exclude directories from being deployed via the `package.patterns` section:
 
 ```yaml
 package:
-    exclude:
-        - 'node_modules/**'
-        - 'tests/**'
+    patterns:
+        - '!node_modules/**'
+        - '!tests/**'
 ```
 
 This has the following benefits:
@@ -138,7 +138,7 @@ This has the following benefits:
 - less risk of hitting [Lambda's size limit](https://docs.aws.amazon.com/lambda/latest/dg/limits.html)
 - [faster cold starts](performances.md)
 
-Read more about the `package` configuration [in the serverless.yml documentation](https://serverless.com/framework/docs/providers/aws/guide/packaging#exclude--include).
+Read more about the `package` configuration [in the serverless.yml documentation](https://www.serverless.com/framework/docs/providers/aws/guide/packaging#patterns).
 
 ## Functions
 
@@ -160,28 +160,30 @@ Note that it is possible to mix PHP functions with functions written in other la
 
 ### Permissions
 
-If your lambda needs to access other AWS services (S3, SQS, SNS…), you will need to add the proper permissions via the [`iamRoleStatements` section](https://serverless.com/framework/docs/providers/aws/guide/functions#permissions):
+If your lambda needs to access other AWS services (S3, SQS, SNS…), you will need to add the proper permissions via the [`iam.role.statements` section](https://serverless.com/framework/docs/providers/aws/guide/functions#permissions):
 
 ```yaml
 provider:
     name: aws
     timeout: 10
     runtime: provided.al2
-    iamRoleStatements:
-        # Allow to put a file in the `my-bucket` S3 bucket
-        -   Effect: Allow
-            Action: s3:PutObject
-            Resource: 'arn:aws:s3:::my-bucket/*'
-        # Allow to query and update the `example` DynamoDB table
-        -   Effect: Allow
-            Action:
-                - dynamodb:Query
-                - dynamodb:Scan
-                - dynamodb:GetItem
-                - dynamodb:PutItem
-                - dynamodb:UpdateItem
-                - dynamodb:DeleteItem
-            Resource: 'arn:aws:dynamodb:us-east-1:111110002222:table/example'
+    iam:
+        role:
+            statements:
+                # Allow to put a file in the `my-bucket` S3 bucket
+                -   Effect: Allow
+                    Action: s3:PutObject
+                    Resource: 'arn:aws:s3:::my-bucket/*'
+                # Allow to query and update the `example` DynamoDB table
+                -   Effect: Allow
+                    Action:
+                        - dynamodb:Query
+                        - dynamodb:Scan
+                        - dynamodb:GetItem
+                        - dynamodb:PutItem
+                        - dynamodb:UpdateItem
+                        - dynamodb:DeleteItem
+                    Resource: 'arn:aws:dynamodb:us-east-1:111110002222:table/example'
 ```
 
 If you only want to define some permissions **per function**, instead of globally (ie: in the provider), you should install and enable the Serverless plugin [`serverless-iam-roles-per-function`](https://github.com/functionalone/serverless-iam-roles-per-function) and then use the `iamRoleStatements` at the function definition block.
