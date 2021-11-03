@@ -27,6 +27,9 @@ RUN chmod +x /bref/bin/php
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/curl.so > /bref/php-modules/curl.so
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/json.so > /bref/php-modules/json.so
 
+# Configuration
+COPY runtime/configuration/base/php74.ini /bref/php-ini/php74.ini
+
 # Shared Libraries
 
 # These files are included on Amazon Linux 2

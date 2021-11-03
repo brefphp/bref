@@ -1,0 +1,116 @@
+version: '3.7'
+
+services:
+  # We don't need to start these services. It is used to create intermediate
+  # images used to install PHP and extensions.
+  php74-base:
+    image: bref/${ARCHITECTURE}-php74-base
+    build:
+      context: ..
+      dockerfile: runtime/docker/${ARCHITECTURE}-php74-base.Dockerfile
+
+  php74-ext-mbstring:
+    image: bref/${ARCHITECTURE}-php74-ext-mbstring
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/mbstring.Dockerfile
+      args:
+        - PHP_VERSION=php74
+
+  php74-ext-bcmath:
+    image: bref/${ARCHITECTURE}-php74-ext-bcmath
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=bcmath
+
+  php74-ext-ctype:
+    image: bref/${ARCHITECTURE}-php74-ext-ctype
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=ctype
+
+  php74-ext-dom:
+    image: bref/${ARCHITECTURE}-php74-ext-dom
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=dom
+
+  php74-ext-exif:
+    image: bref/${ARCHITECTURE}-php74-ext-exif
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=exif
+
+  php74-ext-fileinfo:
+    image: bref/${ARCHITECTURE}-php74-ext-fileinfo
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=fileinfo
+
+  php74-ext-ftp:
+    image: bref/${ARCHITECTURE}-php74-ext-ftp
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=ftp
+
+  php74-ext-gettext:
+    image: bref/${ARCHITECTURE}-php74-ext-gettext
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=gettext
+
+  php74-ext-iconv:
+    image: bref/${ARCHITECTURE}-php74-ext-iconv
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=iconv
+
+  php74-ext-mysqli:
+    image: bref/${ARCHITECTURE}-php74-ext-mysqli
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/mysqli.Dockerfile
+      args:
+        - PHP_VERSION=php74
+
+  php74-ext-opcache:
+    image: bref/${ARCHITECTURE}-php74-ext-opcache
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=opcache
+
+  php74-ext-phar:
+    image: bref/${ARCHITECTURE}-php74-ext-phar
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php74
+        - EXTENSION=phar

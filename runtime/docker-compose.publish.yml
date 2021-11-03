@@ -2,10 +2,10 @@ version: "3.7"
 
 services:
   zip:
-    image: ${IMAGE}-zip
+    image: bref/${LAYER}-zip
     build:
       args:
-        - IMAGE=${IMAGE}
+        - IMAGE=bref/${LAYER}
       context: ..
       dockerfile: runtime/publish/Zip.Dockerfile
     entrypoint: /usr/bin/cp
