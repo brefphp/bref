@@ -1,12 +1,12 @@
 version: '3.7'
 
 services:
-  php74-function:
-    container_name: ${ARCHITECTURE}-php74-function
-    image: bref/${ARCHITECTURE}-php74-function
+  php74-slim:
+    container_name: ${ARCHITECTURE}-php74-slim
+    image: bref/${ARCHITECTURE}-php74-slim
     build:
       context: ..
-      dockerfile: runtime/docker/function.Dockerfile
+      dockerfile: runtime/docker/slim.Dockerfile
       args:
         - AWS_TAG
         - ARCHITECTURE
@@ -20,25 +20,26 @@ services:
       - ./tests:/tests
       - ./tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
 
-  php74-function-tester:
-    container_name: ${ARCHITECTURE}-php74-function-tester
-    image: bref/${ARCHITECTURE}-php74-function
+  php74-slim-tester:
+    container_name: ${ARCHITECTURE}-php74-slim-tester
+    image: bref/${ARCHITECTURE}-php74-slim
     entrypoint: /opt/bin/php
-    command: /tests/integration/test_invoke_function.php
+    command: /tests/integration/test_invoke_slim.php
     environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
     working_dir: /tests
-    links: [php74-function:php-function]
+    links:
+      - php74-slim:php-slim
     volumes:
       - ./tests:/tests
 
-###############################
+#######################################
 
-  php80-function:
-    container_name: ${ARCHITECTURE}-php80-function
-    image: bref/${ARCHITECTURE}-php80-function
+  php80-slim:
+    container_name: ${ARCHITECTURE}-php80-slim
+    image: bref/${ARCHITECTURE}-php80-slim
     build:
       context: ..
-      dockerfile: runtime/docker/function.Dockerfile
+      dockerfile: runtime/docker/slim.Dockerfile
       args:
         - AWS_TAG
         - ARCHITECTURE
@@ -52,25 +53,26 @@ services:
       - ./tests:/tests
       - ./tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
 
-  php80-function-tester:
-    container_name: ${ARCHITECTURE}-php80-function-tester
-    image: bref/${ARCHITECTURE}-php80-function
+  php80-slim-tester:
+    container_name: ${ARCHITECTURE}-php80-slim-tester
+    image: bref/${ARCHITECTURE}-php80-slim
     entrypoint: /opt/bin/php
-    command: /tests/integration/test_invoke_function.php
+    command: /tests/integration/test_invoke_slim.php
     environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
     working_dir: /tests
-    links: [php80-function:php-function]
+    links:
+      - php80-slim:php-slim
     volumes:
       - ./tests:/tests
 
-###############################
+#######################################
 
-  php81-function:
-    container_name: ${ARCHITECTURE}-php81-function
-    image: bref/${ARCHITECTURE}-php81-function
+  php81-slim:
+    container_name: ${ARCHITECTURE}-php81-slim
+    image: bref/${ARCHITECTURE}-php81-slim
     build:
       context: ..
-      dockerfile: runtime/docker/function.Dockerfile
+      dockerfile: runtime/docker/slim.Dockerfile
       args:
         - AWS_TAG
         - ARCHITECTURE
@@ -84,15 +86,14 @@ services:
       - ./tests:/tests
       - ./tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
 
-  php81-function-tester:
-    container_name: ${ARCHITECTURE}-php81-function-tester
-    image: bref/${ARCHITECTURE}-php81-function
+  php81-slim-tester:
+    container_name: ${ARCHITECTURE}-php81-slim-tester
+    image: bref/${ARCHITECTURE}-php81-slim
     entrypoint: /opt/bin/php
-    command: /tests/integration/test_invoke_function.php
+    command: /tests/integration/test_invoke_slim.php
     environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
     working_dir: /tests
-    links: [php81-function:php-function]
+    links:
+      - php81-slim:php-slim
     volumes:
       - ./tests:/tests
-
-

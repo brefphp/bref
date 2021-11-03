@@ -3,114 +3,114 @@ version: '3.7'
 services:
   # We don't need to start these services. It is used to create intermediate
   # images used to install PHP and extensions.
-  php-base:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-base
+  php81-base:
+    image: bref/${ARCHITECTURE}-php81-base
     build:
       context: ..
-      dockerfile: runtime/docker/${ARCHITECTURE}-${PHP_VERSION}-base.Dockerfile
+      dockerfile: runtime/docker/${ARCHITECTURE}-php81-base.Dockerfile
 
-  php-ext-mbstring:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-mbstring
+  php81-ext-mbstring:
+    image: bref/${ARCHITECTURE}-php81-ext-mbstring
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/mbstring.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
 
-  php-ext-bcmath:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-bcmath
+  php81-ext-bcmath:
+    image: bref/${ARCHITECTURE}-php81-ext-bcmath
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=bcmath
 
-  php-ext-ctype:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-ctype
+  php81-ext-ctype:
+    image: bref/${ARCHITECTURE}-php81-ext-ctype
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=ctype
 
-  php-ext-dom:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-dom
+  php81-ext-dom:
+    image: bref/${ARCHITECTURE}-php81-ext-dom
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=dom
 
-  php-ext-exif:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-exif
+  php81-ext-exif:
+    image: bref/${ARCHITECTURE}-php81-ext-exif
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=exif
 
-  php-ext-fileinfo:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-fileinfo
+  php81-ext-fileinfo:
+    image: bref/${ARCHITECTURE}-php81-ext-fileinfo
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=fileinfo
 
-  php-ext-ftp:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-ftp
+  php81-ext-ftp:
+    image: bref/${ARCHITECTURE}-php81-ext-ftp
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=ftp
 
-  php-ext-gettext:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-gettext
+  php81-ext-gettext:
+    image: bref/${ARCHITECTURE}-php81-ext-gettext
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=gettext
 
-  php-ext-iconv:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-iconv
+  php81-ext-iconv:
+    image: bref/${ARCHITECTURE}-php81-ext-iconv
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=iconv
 
-  php-ext-mysqli:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-mysqli
+  php81-ext-mysqli:
+    image: bref/${ARCHITECTURE}-php81-ext-mysqli
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/mysqli.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
 
-  php-ext-opcache:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-opcache
+  php81-ext-opcache:
+    image: bref/${ARCHITECTURE}-php81-ext-opcache
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=opcache
 
-  php-ext-phar:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-ext-phar
+  php81-ext-phar:
+    image: bref/${ARCHITECTURE}-php81-ext-phar
     build:
       context: ..
       dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
       args:
-        - PHP_VERSION
+        - PHP_VERSION=php81
         - EXTENSION=phar

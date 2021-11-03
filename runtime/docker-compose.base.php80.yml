@@ -1,0 +1,116 @@
+version: '3.7'
+
+services:
+  # We don't need to start these services. It is used to create intermediate
+  # images used to install PHP and extensions.
+  php80-base:
+    image: bref/${ARCHITECTURE}-php80-base
+    build:
+      context: ..
+      dockerfile: runtime/docker/${ARCHITECTURE}-php80-base.Dockerfile
+
+  php80-ext-mbstring:
+    image: bref/${ARCHITECTURE}-php80-ext-mbstring
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/mbstring.Dockerfile
+      args:
+        - PHP_VERSION=php80
+
+  php80-ext-bcmath:
+    image: bref/${ARCHITECTURE}-php80-ext-bcmath
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=bcmath
+
+  php80-ext-ctype:
+    image: bref/${ARCHITECTURE}-php80-ext-ctype
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=ctype
+
+  php80-ext-dom:
+    image: bref/${ARCHITECTURE}-php80-ext-dom
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=dom
+
+  php80-ext-exif:
+    image: bref/${ARCHITECTURE}-php80-ext-exif
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=exif
+
+  php80-ext-fileinfo:
+    image: bref/${ARCHITECTURE}-php80-ext-fileinfo
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=fileinfo
+
+  php80-ext-ftp:
+    image: bref/${ARCHITECTURE}-php80-ext-ftp
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=ftp
+
+  php80-ext-gettext:
+    image: bref/${ARCHITECTURE}-php80-ext-gettext
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=gettext
+
+  php80-ext-iconv:
+    image: bref/${ARCHITECTURE}-php80-ext-iconv
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=iconv
+
+  php80-ext-mysqli:
+    image: bref/${ARCHITECTURE}-php80-ext-mysqli
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/mysqli.Dockerfile
+      args:
+        - PHP_VERSION=php80
+
+  php80-ext-opcache:
+    image: bref/${ARCHITECTURE}-php80-ext-opcache
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=opcache
+
+  php80-ext-phar:
+    image: bref/${ARCHITECTURE}-php80-ext-phar
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=phar
