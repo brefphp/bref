@@ -1,6 +1,18 @@
-FROM public.ecr.aws/lambda/provided:al2-x86_64
+ARG AWS_TAG
 
-COPY --from=bref/x86-php80-base /bref /opt
+ARG ARCHITECTURE
+
+ARG PHP_VERSION
+
+FROM bref/${ARCHITECTURE}-${PHP_VERSION}-base
+
+ARG AWS_TAG
+
+FROM public.ecr.aws/lambda/provided:${AWS_TAG}
+
+# This is a workaround because Docker cannot interpret variable inside `--from`
+# https://github.com/moby/moby/issues/34482#issuecomment-332298635
+COPY --from=0 /bref /opt
 
 COPY runtime/configuration/bootstrap /opt/bootstrap
 COPY runtime/configuration/bootstrap /var/runtime/bootstrap
