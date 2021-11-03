@@ -1,14 +1,22 @@
 <?php declare(strict_types=1);
 
 $versions = [
-    '7.4.25',
-    '8.0.12',
-    '8.1.0RC5',
+    'php74' => '7.4.25',
+    'php80' => '8.0.12',
+    'php81' => '8.1.0RC5',
 ];
 
 if (! in_array(PHP_VERSION, $versions)) {
     throw new Exception('Unexpected PHP Version: ' . PHP_VERSION);
 }
+
+$expected = $versions[getenv('PHP_VERSION')];
+
+if ($expected !== PHP_VERSION) {
+    throw new Exception("Expected version [$expected] did not match: " . PHP_VERSION);
+}
+
+echo "\033[36m [Unit] " . "PHP version " . PHP_VERSION . " verified!\033[0m" . PHP_EOL;
 
 $provider = [
     'cURL' => function_exists('curl_init'),

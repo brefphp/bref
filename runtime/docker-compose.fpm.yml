@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   bref-fpm:
+    container_name: ${ARCHITECTURE}-bref-package
     image: bref/fpm-source-package
     build:
       context: ..
@@ -9,13 +10,20 @@ services:
     volumes:
       - ./tests:/tests
 
-  php-fpm:
-    image: ${IMAGE}
+  php74-fpm:
+    container_name: ${ARCHITECTURE}-php74-fpm
+    image: bref/${ARCHITECTURE}-php74-fpm
     build:
       context: ..
-      dockerfile: runtime/docker/${LAYER}.Dockerfile
+      dockerfile: runtime/docker/fpm.Dockerfile
+      args:
+        - AWS_TAG
+        - ARCHITECTURE
+        - PHP_VERSION=php74
     command: fixture_fpm.php
-    environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
+    environment:
+      - PHP_INI_SCAN_DIR=/opt/php-ini
+      - PHP_VERSION=php74
     stop_grace_period: 0s
     working_dir: /var/task
     volumes:
@@ -23,20 +31,99 @@ services:
       - ./tests/integration:/var/task
       - ./tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
 
-  php-fpm-config-tester:
-    image: ${IMAGE}
+  php74-fpm-config-tester:
+    container_name: ${ARCHITECTURE}-php74-fpm-config-tester
+    image: bref/${ARCHITECTURE}-php74-fpm
     entrypoint: /opt/bin/php-fpm
     command: ["--test", "--fpm-config", "/opt/php-fpm/php-fpm.conf"]
 
-  php-fpm-tester:
-    image: bref/${ARCHITECTURE}-${PHP_VERSION}-fpm-layer-tester
+  php74-fpm-tester:
+    container_name: ${ARCHITECTURE}-php74-fpm-tester
+    image: bref/${ARCHITECTURE}-php74-fpm
+    entrypoint: /opt/bin/php
+    command: /tests/integration/test_invoke_fpm.php
+    environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
+    working_dir: /tests
+    links: [php74-fpm:php-fpm]
+    volumes:
+      - ./tests:/tests
+
+##################################
+
+  php80-fpm:
+    container_name: ${ARCHITECTURE}-php80-fpm
+    image: bref/${ARCHITECTURE}-php80-fpm
     build:
-      dockerfile: runtime/tests/integration/fixture_fpm.Dockerfile
       context: ..
-    entrypoint: /usr/bin/tail
-    command: ["-f", "/dev/null"]
+      dockerfile: runtime/docker/fpm.Dockerfile
+      args:
+        - AWS_TAG
+        - ARCHITECTURE
+        - PHP_VERSION=php80
+    command: fixture_fpm.php
+    environment:
+      - PHP_INI_SCAN_DIR=/opt/php-ini
+      - PHP_VERSION=php80
     stop_grace_period: 0s
     working_dir: /var/task
     volumes:
       - ./tests:/tests
-      - ../src:/package
+      - ./tests/integration:/var/task
+      - ./tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
+
+  php80-fpm-config-tester:
+    container_name: ${ARCHITECTURE}-php80-fpm-config-tester
+    image: bref/${ARCHITECTURE}-php80-fpm
+    entrypoint: /opt/bin/php-fpm
+    command: ["--test", "--fpm-config", "/opt/php-fpm/php-fpm.conf"]
+
+  php80-fpm-tester:
+    container_name: ${ARCHITECTURE}-php80-fpm-tester
+    image: bref/${ARCHITECTURE}-php80-fpm
+    entrypoint: /opt/bin/php
+    command: /tests/integration/test_invoke_fpm.php
+    environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
+    working_dir: /tests
+    links: [php80-fpm:php-fpm]
+    volumes:
+      - ./tests:/tests
+
+##################################
+
+  php81-fpm:
+    container_name: ${ARCHITECTURE}-php81-fpm
+    image: bref/${ARCHITECTURE}-php81-fpm
+    build:
+      context: ..
+      dockerfile: runtime/docker/fpm.Dockerfile
+      args:
+        - AWS_TAG
+        - ARCHITECTURE
+        - PHP_VERSION=php81
+    command: fixture_fpm.php
+    environment:
+      - PHP_INI_SCAN_DIR=/opt/php-ini
+      - PHP_VERSION=php81
+    stop_grace_period: 0s
+    working_dir: /var/task
+    volumes:
+      - ./tests:/tests
+      - ./tests/integration:/var/task
+      - ./tests/integration/fixture_php.ini:/var/task/php/conf.d/fixture_php.ini
+
+  php81-fpm-config-tester:
+    container_name: ${ARCHITECTURE}-php81-fpm-config-tester
+    image: bref/${ARCHITECTURE}-php81-fpm
+    entrypoint: /opt/bin/php-fpm
+    command: ["--test", "--fpm-config", "/opt/php-fpm/php-fpm.conf"]
+
+  php81-fpm-tester:
+    container_name: ${ARCHITECTURE}-php81-fpm-tester
+    image: bref/${ARCHITECTURE}-php81-fpm
+    entrypoint: /opt/bin/php
+    command: /tests/integration/test_invoke_fpm.php
+    environment: [PHP_INI_SCAN_DIR=/opt/php-ini]
+    working_dir: /tests
+    links: [php81-fpm:php-fpm]
+    volumes:
+      - ./tests:/tests
