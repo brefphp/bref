@@ -1,5 +1,8 @@
 #!/bin/bash
 
+PHP_VERSION=php74
+EXTENSION=sodium
+
 docker build \
   --build-arg PHP_VERSION=${PHP_VERSION} \
   --build-arg EXTENSION=${EXTENSION} \

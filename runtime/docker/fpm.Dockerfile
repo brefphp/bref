@@ -16,6 +16,9 @@ FROM bref/${ARCHITECTURE}-${PHP_VERSION}-ext-gettext as gettext
 FROM bref/${ARCHITECTURE}-${PHP_VERSION}-ext-iconv as iconv
 FROM bref/${ARCHITECTURE}-${PHP_VERSION}-ext-mysqli as mysqli
 FROM bref/${ARCHITECTURE}-${PHP_VERSION}-ext-opcache as opcache
+FROM bref/${ARCHITECTURE}-${PHP_VERSION}-ext-pdo as pdo
+FROM bref/${ARCHITECTURE}-${PHP_VERSION}-ext-pdo_mysql as pdo_mysql
+FROM bref/${ARCHITECTURE}-${PHP_VERSION}-ext-simplexml as simplexml
 
 FROM base as fpm
 
@@ -70,6 +73,9 @@ COPY --from=iconv /opt/php-modules/iconv.so /opt/php-modules/iconv.so
 COPY --from=mysqli /opt/php-modules/mysqli.so /opt/php-modules/mysqli.so
 COPY --from=mysqli /opt/php-modules/mysqlnd.so /opt/php-modules/mysqlnd.so
 COPY --from=opcache /opt/php-modules/opcache.so /opt/php-modules/opcache.so
+COPY --from=pdo /opt/php-modules/pdo.so /opt/php-modules/pdo.so
+COPY --from=pdo_mysql /opt/php-modules/pdo_mysql.so /opt/php-modules/pdo_mysql.so
+COPY --from=simplexml /opt/php-modules/simplexml.so /opt/php-modules/simplexml.so
 
 COPY --from=bref/fpm-source-package /opt/bref-fpm-src /opt/bref-fpm-src
 

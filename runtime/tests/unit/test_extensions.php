@@ -12,6 +12,10 @@ $provider = [
     'mbstring' => mb_strlen('12characters') === 12,
     'mysqli' => function_exists('mysqli_connect'),
     'opcache' => ini_get('opcache.enable') == 1 && ini_get('opcache.enable_cli') == 1,
+    'pdo' => class_exists(\PDO::class),
+    'pdo_mysql' => extension_loaded('pdo_mysql'),
+    'simplexml' => class_exists(\SimpleXMLElement::class),
+    'sodium' => defined('PASSWORD_ARGON2I'),
 ];
 
 foreach ($provider as $extension => $test) {
