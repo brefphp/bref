@@ -48,6 +48,18 @@ services:
     volumes:
       - ./tests:/tests
 
+  php74-fpm-zip:
+    image: bref/${ARCHITECTURE}-php74-fpm-zip
+    build:
+      args:
+        IMAGE: bref/${ARCHITECTURE}-php74-fpm
+      context: ..
+      dockerfile: runtime/publish/Zip.Dockerfile
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/fpm/php74-fpm-layer.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
 ##################################
 
   php80-fpm:
@@ -88,6 +100,18 @@ services:
     volumes:
       - ./tests:/tests
 
+  php80-fpm-zip:
+    image: bref/${ARCHITECTURE}-php80-fpm-zip
+    build:
+      args:
+        IMAGE: bref/${ARCHITECTURE}-php80-fpm
+      context: ..
+      dockerfile: runtime/publish/Zip.Dockerfile
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/fpm/php80-fpm-layer.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
 ##################################
 
   php81-fpm:
@@ -127,3 +151,15 @@ services:
     links: [php81-fpm:php-fpm]
     volumes:
       - ./tests:/tests
+
+  php81-fpm-zip:
+    image: bref/${ARCHITECTURE}-php81-fpm-zip
+    build:
+      args:
+        IMAGE: bref/${ARCHITECTURE}-php81-fpm
+      context: ..
+      dockerfile: runtime/publish/Zip.Dockerfile
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/fpm/php81-fpm-layer.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
