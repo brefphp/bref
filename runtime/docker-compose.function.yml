@@ -31,6 +31,18 @@ services:
     volumes:
       - ./tests:/tests
 
+  php74-function-zip:
+    image: bref/${ARCHITECTURE}-php74-function-zip
+    build:
+      args:
+        IMAGE: bref/${ARCHITECTURE}-php74-function
+      context: ..
+      dockerfile: runtime/publish/Zip.Dockerfile
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/function/php74-function-layer.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
 ###############################
 
   php80-function:
@@ -62,6 +74,18 @@ services:
     links: [php80-function:php-function]
     volumes:
       - ./tests:/tests
+
+  php80-function-zip:
+    image: bref/${ARCHITECTURE}-php80-function-zip
+    build:
+      args:
+        IMAGE: bref/${ARCHITECTURE}-php80-function
+      context: ..
+      dockerfile: runtime/publish/Zip.Dockerfile
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/function/php80-function-layer.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
 
 ###############################
 
@@ -95,4 +119,14 @@ services:
     volumes:
       - ./tests:/tests
 
-
+  php81-function-zip:
+    image: bref/${ARCHITECTURE}-php81-function-zip
+    build:
+      args:
+        IMAGE: bref/${ARCHITECTURE}-php81-function
+      context: ..
+      dockerfile: runtime/publish/Zip.Dockerfile
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/function/php81-function-layer.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/

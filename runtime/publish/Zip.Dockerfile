@@ -1,8 +1,12 @@
 ARG IMAGE
 
-FROM ${IMAGE}
+FROM ${IMAGE} as src
 
-RUN yum install -y zip
+FROM alpine:3.14
+
+RUN apk add zip
+
+COPY --from=src /opt /opt
 
 WORKDIR /opt
 
