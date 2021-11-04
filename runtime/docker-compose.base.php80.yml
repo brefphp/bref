@@ -106,6 +106,24 @@ services:
         - PHP_VERSION=php80
         - EXTENSION=opcache
 
+  php80-ext-pdo:
+    image: bref/${ARCHITECTURE}-php80-ext-pdo
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=pdo
+
+  php80-ext-pdo_mysql:
+    image: bref/${ARCHITECTURE}-php80-ext-pdo_mysql
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=pdo_mysql
+
   php80-ext-phar:
     image: bref/${ARCHITECTURE}-php80-ext-phar
     build:
@@ -114,3 +132,20 @@ services:
       args:
         - PHP_VERSION=php80
         - EXTENSION=phar
+
+  php80-ext-simplexml:
+    image: bref/${ARCHITECTURE}-php80-ext-simplexml
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+      args:
+        - PHP_VERSION=php80
+        - EXTENSION=simplexml
+
+  php80-ext-sodium:
+    image: bref/${ARCHITECTURE}-php80-ext-sodium
+    build:
+      context: ..
+      dockerfile: runtime/docker/ext-${ARCHITECTURE}/sodium.Dockerfile
+      args:
+        - PHP_VERSION=php80
