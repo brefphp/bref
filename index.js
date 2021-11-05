@@ -7,9 +7,10 @@
  */
 
 class ServerlessPlugin {
-    constructor(serverless, options) {
+    constructor(serverless, options, utils) {
         this.serverless = serverless;
         this.options = options;
+        this.utils = utils;
         this.provider = this.serverless.getProvider('aws');
 
         this.fs = require('fs');
@@ -81,11 +82,11 @@ class ServerlessPlugin {
 
     checkCompatibleRuntime() {
         if (this.serverless.service.provider.runtime === 'provided') {
-            throw new Error('Bref 1.0 layers are not compatible with the "provided" runtime. To upgrade to Bref 1.0, you have to switch to "provided.al2" in serverless.yml. More details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2');
+            throw new this.serverless.classes.Error('Bref 1.0 layers are not compatible with the "provided" runtime.\nTo upgrade to Bref 1.0, you have to switch to "provided.al2" in serverless.yml.\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2');
         }
         for (const [name, f] of Object.entries(this.serverless.service.functions)) {
             if (f.runtime === 'provided') {
-                throw new Error(`Bref 1.0 layers are not compatible with the "provided" runtime. To upgrade to Bref 1.0, you have to switch to "provided.al2" in serverless.yml for the function "${name}". More details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2`);
+                throw new this.serverless.classes.Error(`Bref 1.0 layers are not compatible with the "provided" runtime.\nTo upgrade to Bref 1.0, you have to switch to "provided.al2" in serverless.yml for the function "${name}".\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2`);
             }
         }
     }
@@ -146,7 +147,7 @@ class ServerlessPlugin {
         const vendorZipHash = await this.createZipFile();
         this.newVendorZipName = vendorZipHash + '.zip';
 
-        this.consoleLog('Setting environment variables.');
+        this.logVerbose('Setting environment variables');
 
         if (! this.serverless.service.provider.environment) {
             this.serverless.service.provider.environment = [];
@@ -178,31 +179,27 @@ class ServerlessPlugin {
                 zlib: { level: 9 } // Highest compression level.
             });
 
-            this.consoleLog(`Packaging the Composer vendor directory in ${this.filePath}.`);
+            this.logVerbose(`Packaging the Composer vendor directory in ${this.filePath}`);
 
             archive.pipe(output);
             archive.directory('vendor/', false);
             archive.finalize();
 
             output.on('close', () => {
-                this.consoleLog(`Created vendor.zip with ${archive.pointer()} total bytes.`);
+                this.logVerbose(`Created vendor.zip with ${archive.pointer()} total bytes.`);
                 resolve();
             });
 
             archive.on('warning', err => {
                 if (err.code === 'ENOENT') {
-                    // log warning
-                    console.warn('Archiver warning', err);
+                    this.logWarning('Archiver warning', err);
                 } else {
-                    // throw error
-                    console.error('Archiver error', err);
-                    reject(err);
+                    throw new Error(err);
                 }
             });
 
             archive.on('error', err => {
-                console.error('Archiver error', err);
-                reject(err);
+                throw new Error(err);
             });
         })
             .then(() => {
@@ -230,14 +227,14 @@ class ServerlessPlugin {
 
         await this.uploadZipToS3(this.filePath);
 
-        this.consoleLog('Vendor separation done!');
+        this.logVerbose('Vendor separation done');
     }
 
     async uploadZipToS3(zipFile) {
         const bucketName = await this.provider.getServerlessDeploymentBucketName();
         const deploymentPrefix = await this.provider.getDeploymentPrefix();
 
-        this.consoleLog('Checking vendor file on bucket...');
+        this.logVerbose('Checking vendor file on bucket...');
 
         try {
             await this.provider.request('S3', 'headObject', {
@@ -245,10 +242,11 @@ class ServerlessPlugin {
                 Key: this.stripSlashes(deploymentPrefix + '/vendors/' + this.newVendorZipName)
             });
 
-            this.consoleLog('Vendor file already exists on bucket. Not uploading again.');
+            this.logVerbose('Vendor file already exists on bucket. Not uploading again.');
             return;
         } catch(e) {
-            this.consoleLog('Vendor file not found. Uploading...');
+            // The vendor file needs to be uploaded
+            this.logVerbose('Vendor file not found. Uploading...');
         }
 
         const readStream = this.fs.createReadStream(zipFile);
@@ -283,7 +281,7 @@ class ServerlessPlugin {
             return;
         }
 
-        this.consoleLog('Removing Composer `vendor` archives from the S3 bucket.');
+        this.logVerbose('Removing Composer `vendor` archives from the S3 bucket.');
 
         let details = {
             Bucket: bucketName,
@@ -298,13 +296,29 @@ class ServerlessPlugin {
             });
         });
 
-        this.consoleLog(`Found ${details.Delete.Objects.length} vendor archives. Removing them from Bucket now.`);
+        this.logVerbose(`Found ${details.Delete.Objects.length} vendor archives. Removing them from Bucket now.`);
 
         return await this.provider.request('S3', 'deleteObjects', details);
     }
 
-    consoleLog(message) {
-        console.log(`Bref: ${message}`);
+    logVerbose(message) {
+        if (this.utils) {
+            // Serverless v3
+            this.utils.log.verbose(`Bref: ${message}`);
+        } else {
+            // Serverless v2
+            this.serverless.cli.log(`Bref: ${message}`);
+        }
+    }
+
+    logWarning(message) {
+        if (this.utils) {
+            // Serverless v3
+            this.utils.log.warning(`Bref: ${message}`);
+        } else {
+            // Serverless v2
+            console.warn(`Bref: ${message}`);
+        }
     }
 }
 
