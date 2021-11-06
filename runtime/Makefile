@@ -1,6 +1,6 @@
 export AWS_TAG ?= al2-x86_64
 export ARCHITECTURE ?= x86
-export PHP_VERSION ?= php74
+export PHP_VERSION ?= php80
 export LAYER = ${ARCHITECTURE}-${PHP_VERSION}-${TYPE}
 export IMAGE = bref/${LAYER}
 export REGION ?= eu-west-1
