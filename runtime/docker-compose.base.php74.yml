@@ -26,15 +26,6 @@ services:
         - PHP_VERSION=php74
         - EXTENSION=bcmath
 
-  php74-ext-ctype:
-    image: bref/${ARCHITECTURE}-php74-ext-ctype
-    build:
-      context: ..
-      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
-      args:
-        - PHP_VERSION=php74
-        - EXTENSION=ctype
-
   php74-ext-dom:
     image: bref/${ARCHITECTURE}-php74-ext-dom
     build:
@@ -43,51 +34,6 @@ services:
       args:
         - PHP_VERSION=php74
         - EXTENSION=dom
-
-  php74-ext-exif:
-    image: bref/${ARCHITECTURE}-php74-ext-exif
-    build:
-      context: ..
-      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
-      args:
-        - PHP_VERSION=php74
-        - EXTENSION=exif
-
-  php74-ext-fileinfo:
-    image: bref/${ARCHITECTURE}-php74-ext-fileinfo
-    build:
-      context: ..
-      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
-      args:
-        - PHP_VERSION=php74
-        - EXTENSION=fileinfo
-
-  php74-ext-ftp:
-    image: bref/${ARCHITECTURE}-php74-ext-ftp
-    build:
-      context: ..
-      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
-      args:
-        - PHP_VERSION=php74
-        - EXTENSION=ftp
-
-  php74-ext-gettext:
-    image: bref/${ARCHITECTURE}-php74-ext-gettext
-    build:
-      context: ..
-      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
-      args:
-        - PHP_VERSION=php74
-        - EXTENSION=gettext
-
-  php74-ext-iconv:
-    image: bref/${ARCHITECTURE}-php74-ext-iconv
-    build:
-      context: ..
-      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
-      args:
-        - PHP_VERSION=php74
-        - EXTENSION=iconv
 
   php74-ext-mysqli:
     image: bref/${ARCHITECTURE}-php74-ext-mysqli
@@ -124,15 +70,6 @@ services:
         - PHP_VERSION=php74
         - EXTENSION=pdo_mysql
 
-  php74-ext-phar:
-    image: bref/${ARCHITECTURE}-php74-ext-phar
-    build:
-      context: ..
-      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
-      args:
-        - PHP_VERSION=php74
-        - EXTENSION=phar
-
   php74-ext-simplexml:
     image: bref/${ARCHITECTURE}-php74-ext-simplexml
     build:
@@ -142,10 +79,70 @@ services:
         - PHP_VERSION=php74
         - EXTENSION=simplexml
 
-  php74-ext-sodium:
-    image: bref/${ARCHITECTURE}-php74-ext-sodium
-    build:
-      context: ..
-      dockerfile: runtime/docker/ext-${ARCHITECTURE}/sodium.Dockerfile
-      args:
-        - PHP_VERSION=php74
+# The following extensions are installed by default by remi-collect
+# We need to check whether we'll have to install them on the
+# arm64-base image ourselves.
+
+#  php74-ext-ctype:
+#    image: bref/${ARCHITECTURE}-php74-ext-ctype
+#    build:
+#      context: ..
+#      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+#      args:
+#        - PHP_VERSION=php74
+#        - EXTENSION=ctype
+#  php74-ext-exif:
+#    image: bref/${ARCHITECTURE}-php74-ext-exif
+#    build:
+#      context: ..
+#      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+#      args:
+#        - PHP_VERSION=php74
+#        - EXTENSION=exif
+#  php74-ext-fileinfo:
+#    image: bref/${ARCHITECTURE}-php74-ext-fileinfo
+#    build:
+#      context: ..
+#      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+#      args:
+#        - PHP_VERSION=php74
+#        - EXTENSION=fileinfo
+#  php74-ext-ftp:
+#    image: bref/${ARCHITECTURE}-php74-ext-ftp
+#    build:
+#      context: ..
+#      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+#      args:
+#        - PHP_VERSION=php74
+#        - EXTENSION=ftp
+#  php74-ext-gettext:
+#    image: bref/${ARCHITECTURE}-php74-ext-gettext
+#    build:
+#      context: ..
+#      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+#      args:
+#        - PHP_VERSION=php74
+#        - EXTENSION=gettext
+#  php74-ext-iconv:
+#    image: bref/${ARCHITECTURE}-php74-ext-iconv
+#    build:
+#      context: ..
+#      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+#      args:
+#        - PHP_VERSION=php74
+#        - EXTENSION=iconv
+#  php74-ext-phar:
+#    image: bref/${ARCHITECTURE}-php74-ext-phar
+#    build:
+#      context: ..
+#      dockerfile: runtime/docker/ext-${ARCHITECTURE}/ext.Dockerfile
+#      args:
+#        - PHP_VERSION=php74
+#        - EXTENSION=phar
+#  php74-ext-sodium:
+#    image: bref/${ARCHITECTURE}-php74-ext-sodium
+#    build:
+#      context: ..
+#      dockerfile: runtime/docker/ext-${ARCHITECTURE}/sodium.Dockerfile
+#      args:
+#        - PHP_VERSION=php74
