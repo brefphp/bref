@@ -13,6 +13,9 @@ RUN yum update -y && yum upgrade -y
 
 RUN yum install -y php74-php unzip
 
+# This will force yum to download remi metadata so that extension installation will be faster
+RUN yum update --assumeno
+
 RUN mkdir /bref \
 &&  mkdir -p /bref/bin \
 &&  mkdir -p /bref/lib \
@@ -83,3 +86,16 @@ RUN /bin/cat /lib64/libnssutil3.so > /bref/lib/libnssutil3.so
 RUN /bin/cat /lib64/libplds4.so > /bref/lib/libplds4.so
 RUN /bin/cat /lib64/libplc4.so > /bref/lib/libplc4.so
 RUN /bin/cat /lib64/libnspr4.so > /bref/lib/libnspr4.so
+
+# Default PHP Extensions
+
+RUN /bin/cat /usr/lib64/libsodium.so.23 > /bref/lib/libsodium.so.23
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/sodium.so > /bref/php-modules/sodium.so
+
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/ctype.so > /bref/php-modules/ctype.so
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/exif.so > /bref/php-modules/exif.so
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/fileinfo.so > /bref/php-modules/fileinfo.so
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/ftp.so > /bref/php-modules/ftp.so
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/gettext.so > /bref/php-modules/gettext.so
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/iconv.so > /bref/php-modules/iconv.so
+
