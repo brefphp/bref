@@ -26,11 +26,11 @@ RUN /bin/cat /opt/remi/php74/root/usr/bin/php > /bref/bin/php
 
 RUN chmod +x /bref/bin/php
 
-# Modules
+# Bref itself doesn't work without curl and json extensions
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/curl.so > /bref/php-modules/curl.so
-RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/json.so > /bref/php-modules/json.so
 
-# Configuration
+# PHP 7.4 doesn't have json enabled by default.
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/json.so > /bref/php-modules/json.so
 COPY runtime/configuration/base/php74.ini /bref/php-ini/php74.ini
 
 # Shared Libraries
@@ -87,7 +87,7 @@ RUN /bin/cat /lib64/libplds4.so > /bref/lib/libplds4.so
 RUN /bin/cat /lib64/libplc4.so > /bref/lib/libplc4.so
 RUN /bin/cat /lib64/libnspr4.so > /bref/lib/libnspr4.so
 
-# Default PHP Extensions
+# Default PHP Extensions already installed
 
 RUN /bin/cat /usr/lib64/libsodium.so.23 > /bref/lib/libsodium.so.23
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/sodium.so > /bref/php-modules/sodium.so
@@ -98,4 +98,5 @@ RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/fileinfo.so > /bref/php-modu
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/ftp.so > /bref/php-modules/ftp.so
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/gettext.so > /bref/php-modules/gettext.so
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/iconv.so > /bref/php-modules/iconv.so
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/tokenizer.so > /bref/php-modules/tokenizer.so
 

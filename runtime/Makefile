@@ -1,6 +1,6 @@
 export AWS_TAG ?= al2-x86_64
 export ARCHITECTURE ?= x86
-export PHP_VERSION ?= php80
+export PHP_VERSION ?= php74
 export LAYER = ${ARCHITECTURE}-${PHP_VERSION}-${TYPE}
 export IMAGE = bref/${LAYER}
 export REGION ?= eu-west-1
@@ -28,7 +28,7 @@ function:
 	docker-compose -f docker-compose.base.${PHP_VERSION}.yml build ${PHP_VERSION}-base
 
 	# Build all extensions upfront
-	docker-compose -f docker-compose.base.${PHP_VERSION}.yml build --parallel
+	docker-compose -f docker-compose.base.${PHP_VERSION}.yml build ${PHP_VERSION}-ext-default
 
 	# Build the Layer image and test it
 	docker-compose -f docker-compose.function.yml build ${PHP_VERSION}-function
@@ -47,9 +47,9 @@ fpm:
 	docker-compose -f docker-compose.base.${PHP_VERSION}.yml build ${PHP_VERSION}-base
 
 	# Build all extensions upfront
-	docker-compose -f docker-compose.base.${PHP_VERSION}.yml build --parallel
+	docker-compose -f docker-compose.base.${PHP_VERSION}.yml build ${PHP_VERSION}-ext-default
 
-	docker-compose -f docker-compose.fpm.yml build bref-fpm ${PHP_VERSION}-fpm ${PHP_VERSION}-fpm-tester
+	docker-compose -f docker-compose.fpm.yml build bref-fpm ${PHP_VERSION}-ext-fpm ${PHP_VERSION}-fpm ${PHP_VERSION}-fpm-tester
 	docker-compose -f docker-compose.fpm.yml run --entrypoint /opt/bin/php ${PHP_VERSION}-fpm /tests/unit/test_slim.php
 	docker-compose -f docker-compose.fpm.yml run --entrypoint /opt/bin/php ${PHP_VERSION}-fpm /tests/unit/test_fpm.php
 	docker-compose -f docker-compose.fpm.yml run --entrypoint /opt/bin/php ${PHP_VERSION}-fpm /tests/unit/test_extensions.php
@@ -77,29 +77,17 @@ everything:
                 -f docker-compose.base.php81.yml \
                 build --parallel
 
-	# Build Bref Package
-	docker-compose -f docker-compose.fpm.yml build bref-fpm
+	# Build fpm extensions and Bref Package
+	docker-compose -f docker-compose.fpm.yml build --parallel \
+                bref-fpm \
+                php74-ext-fpm php80-ext-fpm php81-ext-fpm
 
-	# Build the Slim, Function and Fpm layers in parallel
-	docker-compose -f docker-compose.slim.yml \
-                -f docker-compose.function.yml \
-                -f docker-compose.fpm.yml \
+	# Build the Function and Fpm layers in parallel
+	docker-compose -f docker-compose.function.yml \
+				-f docker-compose.fpm.yml \
                 build --parallel \
-                php74-slim php80-slim php81-slim \
                 php74-function php80-function php81-function \
                 php74-fpm php80-fpm php81-fpm
-
-
-	# Test Slim Layer
-	docker-compose -f docker-compose.slim.yml run --entrypoint /opt/bin/php php74-slim /tests/unit/test_slim.php
-	docker-compose -f docker-compose.slim.yml run --entrypoint /opt/bin/php php80-slim /tests/unit/test_slim.php
-	docker-compose -f docker-compose.slim.yml run --entrypoint /opt/bin/php php81-slim /tests/unit/test_slim.php
-
-	docker-compose -f docker-compose.slim.yml up -d php74-slim php80-slim php81-slim
-
-	docker-compose -f docker-compose.slim.yml up php74-slim-tester php80-slim-tester php81-slim-tester
-
-	docker-compose -f docker-compose.slim.yml stop -t 0
 
 	# Test Function Layer
 	docker-compose -f docker-compose.function.yml run --entrypoint /opt/bin/php php74-function /tests/unit/test_slim.php
@@ -139,22 +127,17 @@ everything:
 	rm /tmp/bref-zip/function -rf && mkdir -p /tmp/bref-zip/function
 	rm /tmp/bref-zip/fpm -rf && mkdir -p /tmp/bref-zip/fpm
 
-	docker-compose -f docker-compose.slim.yml \
-                -f docker-compose.function.yml \
+	ARCHITECTURE=x86 docker-compose -f docker-compose.function.yml \
                 -f docker-compose.fpm.yml \
-                build --parallel \
-                    php74-slim-zip php80-slim-zip php81-slim-zip \
+                build \
                     php74-function-zip php80-function-zip php81-function-zip \
                     php74-fpm-zip php80-fpm-zip php81-fpm-zip
 
-	docker-compose -f docker-compose.slim.yml \
-                -f docker-compose.function.yml \
+	docker-compose -f docker-compose.function.yml \
                 -f docker-compose.fpm.yml \
                 up \
-                    php74-slim-zip php80-slim-zip php81-slim-zip \
                     php74-function-zip php80-function-zip php81-function-zip \
                     php74-fpm-zip php80-fpm-zip php81-fpm-zip
 
-	TYPE=slim docker-compose -f docker-compose.upload.yml up
 	TYPE=function docker-compose -f docker-compose.upload.yml up
 	TYPE=fpm docker-compose -f docker-compose.upload.yml up

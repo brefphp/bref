@@ -16,11 +16,19 @@ $provider = [
     'openssl' => strlen(openssl_random_pseudo_bytes(1)) === 1,
     'pdo' => class_exists(\PDO::class),
     'pdo_mysql' => extension_loaded('pdo_mysql'),
+    'pdo_sqlite' => extension_loaded('pdo_sqlite'),
+    'phar' => extension_loaded('phar'),
+    'posix' => function_exists('posix_getpgid'),
     'readline' => READLINE_LIB === 'libedit',
     'reflection' => class_exists(\ReflectionClass::class),
     'session' => session_status() === PHP_SESSION_NONE,
     'simplexml' => class_exists(\SimpleXMLElement::class),
     'sodium' => defined('PASSWORD_ARGON2I'),
+    'sqlite3' => class_exists(\SQLite3::class),
+    'tokenizer' => function_exists('token_get_all'),
+    'xml' => function_exists('xml_parse'),
+    'xmlreader' => class_exists(\XMLReader::class),
+    'xmlwriter' => class_exists(\XMLWriter::class),
 ];
 
 foreach ($provider as $extension => $test) {
