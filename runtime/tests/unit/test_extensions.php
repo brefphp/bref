@@ -10,6 +10,7 @@ $provider = [
     'ftp' => function_exists('ftp_connect'),
     'gettext' => gettext('gettext extension') === 'gettext extension',
     'iconv' => iconv_strlen('12characters') === 12,
+    'libxml' => class_exists(\libXMLError::class),
     'mbstring' => mb_strlen('12characters') === 12,
     'mysqli' => function_exists('mysqli_connect'),
     'opcache' => ini_get('opcache.enable') == 1 && ini_get('opcache.enable_cli') == 1,
@@ -18,7 +19,9 @@ $provider = [
     'pdo_mysql' => extension_loaded('pdo_mysql'),
     'pdo_sqlite' => extension_loaded('pdo_sqlite'),
     'phar' => extension_loaded('phar'),
+    'pntcl' => function_exists('pcntl_fork'),
     'posix' => function_exists('posix_getpgid'),
+    'pcre' => preg_match('/abc/', 'abcde', $matches) && $matches[0] === 'abc',
     'readline' => READLINE_LIB === 'libedit',
     'reflection' => class_exists(\ReflectionClass::class),
     'session' => session_status() === PHP_SESSION_NONE,
@@ -33,6 +36,7 @@ $provider = [
     'xmlreader' => class_exists(\XMLReader::class),
     'xmlwriter' => class_exists(\XMLWriter::class),
     'xsl' => class_exists(\XSLTProcessor::class),
+    'zlib' => md5(gzcompress('abcde')) === 'db245560922b42f1935e73e20b30980e',
 ];
 
 foreach ($provider as $extension => $test) {
