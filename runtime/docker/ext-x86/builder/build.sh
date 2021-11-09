@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PHP_VERSION=php80
-EXTENSION=phar
+EXTENSION=xsl
 
 docker build \
   --build-arg PHP_VERSION=${PHP_VERSION} \

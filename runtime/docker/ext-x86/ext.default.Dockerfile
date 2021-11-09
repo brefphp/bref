@@ -16,9 +16,11 @@ RUN yum install -y \
     ${PHP_VERSION}-php-phar \
     ${PHP_VERSION}-php-posix \
     ${PHP_VERSION}-php-simplexml \
+    ${PHP_VERSION}-php-soap \
     ${PHP_VERSION}-php-xml \
     ${PHP_VERSION}-php-xmlreader \
-    ${PHP_VERSION}-php-xmlwriter
+    ${PHP_VERSION}-php-xmlwriter \
+    ${PHP_VERSION}-php-xsl
 
 FROM scratch
 
@@ -34,6 +36,12 @@ COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/mysqlnd.so /opt/ph
 COPY --from=0 /usr/lib64/libsqlite3.so.0 /opt/lib/libsqlite3.so.0
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/sqlite3.so /opt/php-modules/sqlite3.so
 
+COPY --from=0 /usr/lib64/libgpg-error.so.0 /opt/lib/libgpg-error.so.0
+COPY --from=0 /usr/lib64/libgcrypt.so.11 /opt/lib/libgcrypt.so.11
+COPY --from=0 /usr/lib64/libexslt.so.0 /opt/lib/libexslt.so.0
+COPY --from=0 /usr/lib64/libxslt.so.1 /opt/lib/libxslt.so.1
+COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/xsl.so /opt/php-modules/xsl.so
+
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/bcmath.so /opt/php-modules/bcmath.so
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/dom.so /opt/php-modules/dom.so
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/opcache.so /opt/php-modules/opcache.so
@@ -43,6 +51,7 @@ COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/pdo_sqlite.so /opt
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/phar.so /opt/php-modules/phar.so
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/posix.so /opt/php-modules/posix.so
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/simplexml.so /opt/php-modules/simplexml.so
+COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/soap.so /opt/php-modules/soap.so
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/xml.so /opt/php-modules/xml.so
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/xmlreader.so /opt/php-modules/xmlreader.so
 COPY --from=0 /opt/remi/${PHP_VERSION}/root/lib64/php/modules/xmlwriter.so /opt/php-modules/xmlwriter.so
