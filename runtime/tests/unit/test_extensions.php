@@ -24,11 +24,15 @@ $provider = [
     'session' => session_status() === PHP_SESSION_NONE,
     'simplexml' => class_exists(\SimpleXMLElement::class),
     'sodium' => defined('PASSWORD_ARGON2I'),
+    'soap' => class_exists(\SoapClient::class),
+    'sockets' => function_exists('socket_connect'),
+    'spl' => class_exists(\SplQueue::class),
     'sqlite3' => class_exists(\SQLite3::class),
     'tokenizer' => function_exists('token_get_all'),
     'xml' => function_exists('xml_parse'),
     'xmlreader' => class_exists(\XMLReader::class),
     'xmlwriter' => class_exists(\XMLWriter::class),
+    'xsl' => class_exists(\XSLTProcessor::class),
 ];
 
 foreach ($provider as $extension => $test) {
