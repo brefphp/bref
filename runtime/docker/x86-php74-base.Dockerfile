@@ -98,5 +98,5 @@ RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/fileinfo.so > /bref/php-modu
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/ftp.so > /bref/php-modules/ftp.so
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/gettext.so > /bref/php-modules/gettext.so
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/iconv.so > /bref/php-modules/iconv.so
+RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/sockets.so > /bref/php-modules/sockets.so
 RUN /bin/cat /opt/remi/php74/root/lib64/php/modules/tokenizer.so > /bref/php-modules/tokenizer.so
-
