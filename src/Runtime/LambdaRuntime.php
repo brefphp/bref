@@ -129,6 +129,8 @@ final class LambdaRuntime
             $this->handler = curl_init("http://{$this->apiUrl}/2018-06-01/runtime/invocation/next");
             curl_setopt($this->handler, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($this->handler, CURLOPT_FAILONERROR, true);
+            // Set a custom user agent so that AWS can estimate Bref usage in custom runtimes
+            curl_setopt($this->handler, CURLOPT_USERAGENT, "bref/{$this->layer}/");
         }
 
         // Retrieve invocation ID
