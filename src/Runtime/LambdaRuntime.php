@@ -130,7 +130,8 @@ final class LambdaRuntime
             curl_setopt($this->handler, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($this->handler, CURLOPT_FAILONERROR, true);
             // Set a custom user agent so that AWS can estimate Bref usage in custom runtimes
-            curl_setopt($this->handler, CURLOPT_USERAGENT, "bref/{$this->layer}/");
+            $phpVersion = substr(PHP_VERSION, 0, strpos(PHP_VERSION, '.', 2));
+            curl_setopt($this->handler, CURLOPT_USERAGENT, "bref/{$this->layer}/$phpVersion");
         }
 
         // Retrieve invocation ID
