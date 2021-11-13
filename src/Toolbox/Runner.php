@@ -60,7 +60,7 @@ final class Runner
     {
         if ($this->environment['BREF_DOWNLOAD_VENDOR']) {
             if(! file_exists('/tmp/vendor') || ! file_exists('/tmp/vendor/autoload.php')) {
-                $this->require('/Toolbox/VendorAutoloader.php');
+//                $this->require('/Toolbox/VendorAutoloader.php');
 
                 VendorDownloader::downloadAndConfigureVendor($this->environment);
             }
@@ -78,19 +78,12 @@ final class Runner
             }
 
             if ($this->layer === 'fpm') {
-                require '/opt/bref-fpm-src/vendor/autoload.php';
-
                 return;
             }
 
-            $this->require('/Context/Context.php');
-            $this->require('/Context/ContextBuilder.php');
-
-            // @TODO: '/Event/*'
-
-            $this->require('/Runtime/LambdaRuntime.php');
-            $this->require('/Runtime/Invoker.php');
-
+            // If we get up to here that means the user is running Lambda without composer.
+            // We will then assume an inline function and execute their code.
+            // @TODO: should we just load PSR-11 into the function layer and drop this?
             $this->layer = 'inline';
         }
     }
