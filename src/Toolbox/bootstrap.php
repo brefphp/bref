@@ -1,6 +1,8 @@
 #!/opt/bin/php
 <?php declare(strict_types=1);
 
+require '/opt/bref-internal-src/vendor/autoload.php';
+
 $initializer = $_SERVER['argv'][1];
 
 $environment = [
@@ -20,8 +22,6 @@ $environment = [
     'AWS_SECRET_ACCESS_KEY' => getenv('AWS_SECRET_ACCESS_KEY'),
     'AWS_SESSION_TOKEN' => getenv('AWS_SESSION_TOKEN'),
 ];
-
-require '/opt/bref-src/Toolbox/Runner.php';
 
 $runner = new \Bref\Toolbox\Runner($initializer, $environment);
 

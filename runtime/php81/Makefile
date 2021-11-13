@@ -1,0 +1,72 @@
+export TAG ?= al2-x86_64
+export CPU ?= x86
+export REGION ?= eu-west-1
+export ROOT_DIR ?= ../../
+export AWS_PROFILE ?= deleugpn_brefphp
+export PHP_VERSION = 8.1.0RC6
+
+.SILENT: function fpm
+
+function:
+	docker build -f ${ROOT_DIR}runtime/common/function/Dockerfile ${ROOT_DIR} -t bref/function-internal-src
+	docker-compose build function
+	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_1_binary.php ${PHP_VERSION}
+	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_2_default_extensions.php
+	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_3_additional_extensions.php
+	docker-compose up -d function && docker-compose exec function /opt/bin/php /opt/tests/test_4_function_invocation.php
+	docker-compose down
+	rm /tmp/bref-zip/ -rf
+	docker-compose run --rm zip-function
+	PHP_VERSION=php81 TYPE=function docker-compose -f ../common/publish/docker-compose.yml run ${REGION}
+
+fpm:
+	docker build -f ${ROOT_DIR}runtime/common/fpm/Dockerfile ${ROOT_DIR} -t bref/fpm-internal-src
+	docker-compose build fpm
+	docker-compose run --rm --entrypoint /opt/bin/php fpm /opt/tests/test_1_binary.php ${PHP_VERSION}
+	docker-compose run --rm --entrypoint /opt/bin/php fpm /opt/tests/test_2_default_extensions.php
+	docker-compose run --rm --entrypoint /opt/bin/php fpm /opt/tests/test_3_additional_extensions.php
+	docker-compose up -d fpm && docker-compose exec fpm /opt/bin/php /opt/tests/test_5_fpm_invocation.php
+	docker-compose down
+	rm /tmp/bref-zip/ -rf
+	docker-compose build zip-fpm && docker-compose run --rm zip-fpm
+	PHP_VERSION=php81 TYPE=fpm docker-compose -f ../common/publish/docker-compose.yml run ${REGION}
+
+test:
+	$(MAKE) test_php_binary
+	$(MAKE) test_default_extensions
+	$(MAKE) test_additional_extensions
+	$(MAKE) test_bref_file_isolation
+	$(MAKE) test_function_invocation
+	$(MAKE) test_fpm_invocation
+
+test_php_binary:
+	docker-compose build binary
+	docker-compose run --rm --entrypoint /bref/bin/php binary /bref/tests/test_1_binary.php ${PHP_VERSION}
+
+test_default_extensions:
+	docker-compose build binary
+	docker-compose run --rm --entrypoint /bref/bin/php binary /bref/tests/test_2_default_extensions.php
+
+test_additional_extensions:
+	docker-compose build extensions
+	docker-compose run --rm --entrypoint /bref/bin/php extensions /bref/tests/test_3_additional_extensions.php
+
+test_bref_file_isolation:
+	docker-compose build isolation
+	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_1_binary.php ${PHP_VERSION}
+	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_2_default_extensions.php
+	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_3_additional_extensions.php
+
+test_function_invocation:
+	docker build -f ${ROOT_DIR}runtime/common/function/Dockerfile ${ROOT_DIR} -t bref/function-internal-src
+	docker-compose build function
+	docker-compose up -d function
+	docker-compose exec function /opt/bin/php /opt/tests/test_4_function_invocation.php
+	docker-compose down
+
+test_fpm_invocation:
+	docker build -f ${ROOT_DIR}runtime/common/fpm/Dockerfile ${ROOT_DIR} -t bref/fpm-internal-src
+	docker-compose build fpm
+	docker-compose up -d fpm
+	docker-compose exec fpm /opt/bin/php /opt/tests/test_5_fpm_invocation.php
+	docker-compose down

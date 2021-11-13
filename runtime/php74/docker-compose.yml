@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  binary:
+    container_name: bref-${CPU}-php74-binary
+    image: bref/${CPU}-php74-binary
+    build:
+      context: ${ROOT_DIR}
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: binary
+
+  extensions:
+    container_name: bref-${CPU}-php74-extensions
+    image: bref/${CPU}-php74-extensions
+    build:
+      context: ${ROOT_DIR}
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: extensions
+
+  isolation:
+    container_name: bref-${CPU}-php74-isolation
+    image: bref/${CPU}-php74-isolation
+    environment: [PHP_INI_SCAN_DIR=/opt/php-ini/]
+    build:
+      context: ${ROOT_DIR}
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: isolation
+
+  function:
+    container_name: bref-${CPU}-php74-function
+    image: bref/${CPU}-php74-function
+    command: ["/opt/tests/test_4_function_handler.php"]
+    environment: [PHP_INI_SCAN_DIR=/opt/php-ini/]
+    stop_grace_period: 0s
+    build:
+      context: ${ROOT_DIR}
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: function
+
+  fpm:
+    container_name: bref-${CPU}-php74-fpm
+    image: bref/${CPU}-php74-fpm
+    command: ["test_5_fpm_handler.php"]
+    environment: [PHP_INI_SCAN_DIR=/opt/php-ini/]
+    stop_grace_period: 0s
+    build:
+      context: ${ROOT_DIR}
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: fpm
+
+  zip-function:
+    image: bref/${CPU}-php74-function-zip
+    build:
+      context: ${ROOT_DIR}
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: zip-function
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/php74-function.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
+  zip-fpm:
+    image: bref/${CPU}-php74-fpm-zip
+    build:
+      context: ${ROOT_DIR}
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: zip-fpm
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/php74-fpm.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+

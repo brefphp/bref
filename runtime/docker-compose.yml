@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+#### PHP 7.4
+
+  php74-function:
+    image: bref/${CPU}-php74-function
+    build:
+      context: ../
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: function
+      
+  php74-zip-function:
+    image: bref/${CPU}-php74-function-zip
+    build:
+      context: ../
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: zip-function
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/php74-function.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
+
+  php74-fpm:
+    image: bref/${CPU}-php74-fpm
+    build:
+      context: ../
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: fpm
+
+  php74-zip-fpm:
+    image: bref/${CPU}-php74-fpm-zip
+    build:
+      context: ../
+      dockerfile: runtime/php74/cpu-x86.Dockerfile
+      target: zip-fpm
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/php74-fpm.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
+#### PHP 8.0
+
+  php80-function:
+    image: bref/${CPU}-php80-function
+    build:
+      context: ../
+      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      target: function
+
+  php80-zip-function:
+    image: bref/${CPU}-php80-function-zip
+    build:
+      context: ../
+      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      target: zip-function
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/php80-function.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
+
+  php80-fpm:
+    image: bref/${CPU}-php80-fpm
+    build:
+      context: ../
+      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      target: fpm
+
+  php80-zip-fpm:
+    image: bref/${CPU}-php80-fpm-zip
+    build:
+      context: ../
+      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      target: zip-fpm
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/php80-fpm.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
+#### PHP 8.1
+
+  php81-function:
+    image: bref/${CPU}-php81-function
+    build:
+      context: ../
+      dockerfile: runtime/php81/cpu-x86.Dockerfile
+      target: function
+
+  php81-zip-function:
+    image: bref/${CPU}-php81-function-zip
+    build:
+      context: ../
+      dockerfile: runtime/php81/cpu-x86.Dockerfile
+      target: zip-function
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/php81-function.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+
+
+  php81-fpm:
+    image: bref/${CPU}-php81-fpm
+    build:
+      context: ../
+      dockerfile: runtime/php81/cpu-x86.Dockerfile
+      target: fpm
+
+  php81-zip-fpm:
+    image: bref/${CPU}-php81-fpm-zip
+    build:
+      context: ../
+      dockerfile: runtime/php81/cpu-x86.Dockerfile
+      target: zip-fpm
+    entrypoint: /bin/cp
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/php81-fpm.zip"]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
