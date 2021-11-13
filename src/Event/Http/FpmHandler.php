@@ -33,7 +33,7 @@ final class FpmHandler extends HttpHandler
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const PID_FILE = '/tmp/.bref/php-fpm.pid';
-    private const CONFIG = '/opt/php-fpm/php-fpm.conf';
+    private const CONFIG = '/opt/bref-internal-src/php-fpm.conf';
     /**
      * We define this constant instead of using the PHP one because that avoids
      * depending on the pcntl extension.
