@@ -1,6 +1,8 @@
 <?php declare(strict_types=1);
 
-# This list has been copied from the AWS Console and kept as-is.
+# This file is only used manually to generate ./docker-compose.yml with all regions
+# for publishing.
+# The following list has been copied from the AWS Console and kept as-is.
 
 $console = [
     'US East (N. Virginia)us-east-1',
