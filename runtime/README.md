@@ -1,4 +1,4 @@
-### Bref Runtime
+## Bref Runtime
 
 Welcome to the internals of Bref! Here are some quick tips:
 
@@ -7,7 +7,7 @@ Welcome to the internals of Bref! Here are some quick tips:
 - `runtime/common/utils/lib-check` is a small utility-tool to check whether we're copying unnecessary `.so` files into the Layer.
 - `ldd` is a linux utility that will show libraries used by a binary e.g. `ldd /opt/bin/php` or `ldd /opt/php-modules/curl.so`
 
-#### How Lambda Layers work?
+### How Lambda Layers work?
 
 In a nutshell, a Lambda Layer is a `zip` file containing files that are extracted into `/opt` when a Lambda
 is invoked. Anything we want to make available inside AWS Lambda is possible by preparing the right files
@@ -15,7 +15,7 @@ and packing them into a layer. For these files to work properly, they need to be
 environment which they'll be executed. AWS provides Docker images (e.g. `public.ecr.aws/lambda/provided:al2-x86_64`)
 with an exact replica of how the environment will look like.
 
-#### Bref Runtime Structure
+### Bref Runtime Structure
 
 This project is designed for easily discarding old PHP versions and easily creating new ones. Almost everything
 for a specific PHP Version stays inside `phpxx` folder. They are also optimized for packing single layers
@@ -28,22 +28,22 @@ steps:
 - Run `make function` to deploy a Layer on your own account.
 - You may choose which region layers get published at the top of `phpxx/Makefile`
 - Run `make fpm` if you want to deploy an FPM Layer on your own account
-# TODO: Console Layer.
+- TODO: Console Layer.
 
-#### runtime/common/function & runtime/common/fpm
+### runtime/common/function & runtime/common/fpm
 
 In order to make the Runtime self-sufficient, we need to include some basic functionality from Bref inside
 the layer itself. We do this by packaging the `src` folder as a composer installation inside the `runtime/common`
 folders. Two Docker Images are generated with Bref and it's minimal dependencies. This is what allows users
 to create Lambda Functions using the AWS Console and run their function on-the-fly (no composer or serverless deploy necessary).
 
-#### runtime/common/publish
+### runtime/common/publish
 
 In order to publish layers in parallel, we use a `docker-compose` file with one container per region. That means
 we can upload 21 layers in bulk. The containers expect a `TYPE` environment variable to locate and upload the zip
 file. The zip files are generated and stored in `/tmp/bref-zip/` folder on the root machine.
 
-#### The php{xx} folder
+### The php{xx} folder
 
 This is the heart of Bref Runtime Layers. We configure php using the `config` folder to store `php.ini` files that
 will be copied into `/opt/php-ini`. Note that we configure `/opt/bootstrap` to execute PHP with `PHP_INI_SCAN_DIR=/opt/php-ini:/var/task/php/conf.d/`.
@@ -84,7 +84,7 @@ The 7th layer goes back to `isolation` and start `fpm`. It mimics steps 3th and 
 
 Lastly, layer 8th zips FPM and pack everything ready for AWS Lambda.
 
-#### The Root Directory
+### The Root Directory
 
 The Root Directory was designed for Bref use only. Anybody is welcome to use it, but the intention is to prepare
 every PHP version (in parallel) and then upload to every AWS Region at once. Contributors trying to test things
