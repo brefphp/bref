@@ -1,8 +1,8 @@
 export TAG ?= al2-x86_64
 export CPU ?= x86
 export REGION ?= eu-west-1
-export ROOT_DIR ?= ../../
 export AWS_PROFILE ?= deleugpn_brefphp
+export ROOT_DIR = ../../
 export PHP_VERSION = 7.4.25
 
 .SILENT: function fpm
@@ -56,6 +56,8 @@ test_bref_file_isolation:
 	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_1_binary.php ${PHP_VERSION}
 	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_2_default_extensions.php
 	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_3_additional_extensions.php
+	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_6_disabled_extensions.php
+	docker-compose run --rm --entrypoint /opt/bin/php -e PHP_INI_SCAN_DIR="/opt/php-ini/:/opt/tests/" isolation /opt/tests/test_6_manual_enabling_extensions.php
 
 test_function_invocation:
 	docker build -f ${ROOT_DIR}runtime/common/function/Dockerfile ${ROOT_DIR} -t bref/function-internal-src
@@ -73,3 +75,16 @@ test_fpm_invocation:
 
 test_function_zip:
 	docker-compose build zip-function && docker-compose run --rm zip-function
+
+test_manual_extensions:
+	docker-compose run \
+		--rm \
+		--entrypoint /opt/bin/php \
+		-e PHP_INI_SCAN_DIR="/opt/php-ini/:/opt/tests/" \
+		isolation /opt/tests/test_6_manual_enabling_extensions.php
+
+ssh_extensions:
+	docker-compose run --rm --entrypoint /bin/bash extensions
+
+ssh_isolation:
+	docker-compose run -e PHP_INI_SCAN_DIR="/opt/php-ini/:/opt/tests/" --rm --entrypoint /bin/bash isolation
