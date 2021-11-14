@@ -47,7 +47,3 @@ everything:
 	docker-compose -f common/utils/docker-compose.yml run parse
 
 	# TODO: Docker Push to Docker Hub.
-
-clean:
-	docker rmi $(docker images | grep "bref/") -f || true
-	docker builder prune -af
