@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  parse:
+    # Here we can use the latest PHP release to parse the ini file. By using the most recent version
+    # it will take years until we have to change this file.
+    image: bref/${CPU}-php81-function
+    command: ["/parse-output-into-layers-json.php"]
+    environment: [CPU, PHP_INI_SCAN_DIR=/opt/php-ini/]
+    entrypoint: /opt/bin/php
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/
+      - ./parse-output-into-layers-json.php:/parse-output-into-layers-json.php
