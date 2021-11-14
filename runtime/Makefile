@@ -34,7 +34,7 @@ everything:
 	docker-compose down
 
 	# Upload the Function layers to AWS
-	TYPE=function PHP_VERSION=php74 docker-compose -f ./common/publish/docker-compose.yml up
+	#TYPE=function PHP_VERSION=php74 docker-compose -f ./common/publish/docker-compose.yml up
 	#TYPE=function PHP_VERSION=php80 docker-compose -f ./common/publish/docker-compose.yml up
 	#TYPE=function PHP_VERSION=php81 docker-compose -f ./common/publish/docker-compose.yml up
 
@@ -44,6 +44,6 @@ everything:
 	#TYPE=fpm PHP_VERSION=php81 docker-compose -f ./common/publish/docker-compose.yml up
 
 	# Transform /tmp/bref-zip/output.ini into layers.json
-	docker-compose -f common/utils/docker-compose.yml run parse
+	#docker-compose -f common/utils/docker-compose.yml run parse
 
 	# TODO: Docker Push to Docker Hub.
