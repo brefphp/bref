@@ -3,13 +3,13 @@ export CPU ?= x86
 export REGION ?= eu-west-1
 export AWS_PROFILE ?= deleugpn_brefphp
 export ROOT_DIR = ../../
-export PHP_VERSION = 8.1.0RC6
+export PHP_VERSION = 7.4.25
 
 .SILENT: function fpm
 
 function:
 	docker build -f ${ROOT_DIR}runtime/common/function/Dockerfile ${ROOT_DIR} -t bref/function-internal-src
-	docker-compose build function
+	docker-compose build isolation function zip-function
 	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_1_binary.php ${PHP_VERSION}
 	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_2_default_extensions.php
 	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_3_additional_extensions.php
@@ -21,7 +21,7 @@ function:
 
 fpm:
 	docker build -f ${ROOT_DIR}runtime/common/fpm/Dockerfile ${ROOT_DIR} -t bref/fpm-internal-src
-	docker-compose build fpm
+	docker-compose build isolation fpm zip-fpm
 	docker-compose run --rm --entrypoint /opt/bin/php fpm /opt/tests/test_1_binary.php ${PHP_VERSION}
 	docker-compose run --rm --entrypoint /opt/bin/php fpm /opt/tests/test_2_default_extensions.php
 	docker-compose run --rm --entrypoint /opt/bin/php fpm /opt/tests/test_3_additional_extensions.php
