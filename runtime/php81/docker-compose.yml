@@ -12,6 +12,7 @@ services:
   extensions:
     container_name: bref-${CPU}-php81-extensions
     image: bref/${CPU}-php81-extensions
+    stop_grace_period: 0s
     build:
       context: ${ROOT_DIR}
       dockerfile: runtime/php81/cpu-x86.Dockerfile

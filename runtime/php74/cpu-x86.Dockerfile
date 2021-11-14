@@ -18,6 +18,21 @@ RUN yum update -y && yum upgrade -y
 
 RUN yum install -y php74-php
 
+# These files are included on Amazon Linux 2
+
+# RUN cp /lib64/librt.so.1 /bref/lib/librt.so.1
+# RUN cp /lib64/libstdc++.so.6 /bref/lib/libstdc++.so.6
+# RUN cp /lib64/libutil.so.1 /bref/lib/libutil.so.1
+# RUN cp /lib64/libxml2.so.2 /bref/lib/libxml2.so.2
+# RUN cp /lib64/libssl.so.10 /bref/lib/libssl.so.10
+# RUN cp /lib64/libz.so.1 /bref/lib/libz.so.1
+# RUN cp /lib64/libselinux.so.1 /bref/lib/libselinux.so.1
+# RUN cp /lib64/libssh2.so.1 /bref/lib/libssh2.so.1
+# RUN cp /lib64/libunistring.so.0 /bref/lib/libunistring.so.0
+# RUN cp /lib64/libsasl2.so.3 /bref/lib/libsasl2.so.3
+# RUN cp /lib64/libssl3.so /bref/lib/libssl3.so
+# RUN cp /lib64/libsmime3.so /bref/lib/libsmime3.so
+
 # PHP Binary
 RUN cp /opt/remi/php74/root/usr/bin/php /bref/bin/php && chmod +x /bref/bin/php
 RUN cp /lib64/libtinfo.so.5 /bref/lib/libtinfo.so.5
@@ -91,7 +106,10 @@ RUN yum install -y \
     php74-php-xml \
     php74-php-xmlreader \
     php74-php-xmlwriter \
-    php74-php-xsl
+    php74-php-xsl \
+    php74-php-intl \
+    php74-php-apcu \
+    php74-php-pdo_pgsql
 
 RUN cp /opt/remi/php74/root/lib64/php/modules/mbstring.so /bref/php-modules/mbstring.so
 RUN cp /usr/lib64/libonig.so.105 /bref/lib/libonig.so.105
@@ -109,6 +127,18 @@ RUN cp /usr/lib64/libexslt.so.0 /bref/lib/libexslt.so.0
 RUN cp /usr/lib64/libxslt.so.1 /bref/lib/libxslt.so.1
 RUN cp /opt/remi/php74/root/lib64/php/modules/xsl.so /bref/php-modules/xsl.so
 
+RUN cp /usr/lib64/libicuio.so.69 /bref/lib/libicuio.so.69
+RUN cp /usr/lib64/libicui18n.so.69 /bref/lib/libicui18n.so.69
+RUN cp /usr/lib64/libicuuc.so.69 /bref/lib/libicuuc.so.69
+RUN cp /usr/lib64/libicudata.so.69 /bref/lib/libicudata.so.69
+RUN cp /opt/remi/php74/root/lib64/php/modules/intl.so /bref/php-modules/intl.so
+
+RUN cp /opt/remi/php74/root/lib64/php/modules/apcu.so /bref/php-modules/apcu.so
+
+RUN cp /usr/lib64/libpq.so.5 /bref/lib/libpq.so.5
+RUN cp /usr/lib64/libldap_r-2.4.so.2 /bref/lib/libldap_r-2.4.so.2
+RUN cp /opt/remi/php74/root/lib64/php/modules/pdo_pgsql.so /bref/php-modules/pdo_pgsql.so
+
 RUN cp /opt/remi/php74/root/lib64/php/modules/bcmath.so /bref/php-modules/bcmath.so
 RUN cp /opt/remi/php74/root/lib64/php/modules/dom.so /bref/php-modules/dom.so
 RUN cp /opt/remi/php74/root/lib64/php/modules/opcache.so /bref/php-modules/opcache.so
@@ -124,6 +154,9 @@ RUN cp /opt/remi/php74/root/lib64/php/modules/xmlreader.so /bref/php-modules/xml
 RUN cp /opt/remi/php74/root/lib64/php/modules/xmlwriter.so /bref/php-modules/xmlwriter.so
 
 COPY runtime/tests/test_3_additional_extensions.php /bref/tests/
+COPY runtime/tests/test_6_disabled_extensions.php /bref/tests/
+COPY runtime/tests/test_6_manual_enabling_extensions.php /bref/tests/
+COPY runtime/tests/test_6_manual_extensions.ini /bref/tests/
 
 FROM public.ecr.aws/lambda/provided:al2-x86_64 as isolation
 
