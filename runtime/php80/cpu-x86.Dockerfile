@@ -161,6 +161,7 @@ FROM public.ecr.aws/lambda/provided:al2-x86_64 as isolation
 
 COPY --from=extensions /bref /opt
 
+COPY runtime/php80/config/bref.ini /opt/php-ini/
 COPY runtime/php80/config/bref-extensions.ini /opt/php-ini/
 COPY runtime/php80/config/bref-opcache.ini /opt/php-ini/
 
