@@ -58,7 +58,7 @@ Resources:
                 Action:
                   - ssm:GetParameter
                 Resource:
-                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter//bref-layers-builder*"
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/bref-layers-builder*"
 
               - Effect: Allow
                 Action:
