@@ -11,6 +11,7 @@ Resources:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_LARGE
         Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        PrivilegedMode: true
       Source:
         Location: https://github.com/deleugpn/bref.git
         Type: GITHUB
