@@ -25,7 +25,7 @@ phases:
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
 
       # WARNING: Be very careful when merging pull requests that change this file. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
-      docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
+      - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
 
       - $(aws ecr get-login --region $AWS_REGION --no-include-email)
 
