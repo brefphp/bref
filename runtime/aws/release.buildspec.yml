@@ -25,10 +25,18 @@ phases:
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
 
       # WARNING: Be very careful when merging pull requests that change this file. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
-      - docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
-
-      - $(aws ecr get-login --region $AWS_REGION --no-include-email)
+      - echo $DOCKER_HUB_PASSWORD | docker login --username $DOCKER_HUB_USERNAME --password-stdin
 
   build:
     on-failure: abort
     commands:
+      # Install GH CLI
+      - curl https://cli.github.com/packages/rpm/gh-cli.repo --output /etc/yum.repos.d/gh-cli.repo
+      - yum install -y gh
+
+      # Configure GitHub User & Branch
+      - git config --global user.email "deleugyn+bref@gmail.com"
+      - git config --global user.name "Brefphp Bot by @deleugyn"
+      - git checkout master
+      - git checkout -b bref/layers
+      - git status
