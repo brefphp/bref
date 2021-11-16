@@ -1,0 +1,32 @@
+version: 0.2
+
+# AWS suggests this file not be stored within the project itself for AWS Public CodeBuild
+# (https://docs.aws.amazon.com/codebuild/latest/userguide/public-builds.html).
+# However, what protects us here is the fact that this build WILL ONLY be executed if a PULL_REQUEST_MERGED event
+# is triggered. Therefore, only AFTER a Bref Maintainer has approved and merged the changes this file will
+# be executed. Changes made here that are not merged does not run the public build.
+# Even if a "contributor" makes changes to the release.yml template itself to include more triggers, it requires
+# manually applying those changes to AWS CloudFormation before they take effect.
+
+phases:
+  install:
+    runtime-versions:
+      docker: 19
+
+  pre_build:
+    commands:
+      # We need to resolve these variables on-the-fly because public AWS CodeBuild projects show them as plain-text
+      - export GITHUB_TOKEN=$(aws ssm get-parameter --name /bref-layers-builder/github/token --output text --query Parameter.Value)
+      - export DOCKER_HUB_USERNAME=$(aws ssm get-parameter --name /bref-layers-builder/docker/hub/username --output text --query Parameter.Value)
+      # WARNING: Be very careful when merging pull requests that change this line. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
+      - export DOCKER_HUB_PASSWORD=$(aws ssm get-parameter --name /bref-layers-builder/docker/hub/username --output text --query Parameter.Value)
+      - export DOCKER_BUILDKIT=1
+      - export AWS_STS_REGIONAL_ENDPOINTS=regional
+
+      # WARNING: Be very careful when merging pull requests that change this file. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
+      - echo $DOCKER_HUB_PASSWORD | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+
+      - $(aws ecr get-login --region $AWS_REGION --no-include-email)
+
+  build:
+    commands:
