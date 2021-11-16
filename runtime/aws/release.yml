@@ -8,6 +8,9 @@ Resources:
       Environment:
           # We cannot use credentials as environment variable anymore because `public` CodeBuild displays
           # these variables to anyone on the internet.
+        EnvironmentVariables:
+          - Name: CPU
+            Value: x86
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_LARGE
         Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
