@@ -37,6 +37,17 @@ phases:
       # Configure GitHub User & Branch
       - git config --global user.email "deleugyn+bref@gmail.com"
       - git config --global user.name "Brefphp Bot by @deleugyn"
-      - git checkout master
-      - git checkout -b bref/layers
-      - git status
+      - git checkout runtime
+      - git checkout -b bref/layers-v2
+
+      # Copy AWS config to be able to automatically assume role into the layer account
+      - mkdir ~/.aws && cp ./runtime/pipeline/config ~/.aws/config
+
+      - cd runtime && AWS_PROFILE=layer make everything
+
+      - |
+        echo -en 'layers.json update\n\nCo-authored-by: Marco Deleu <deleugyn@gmail.com>' > git-message
+      - git commit -a --file git-message
+
+      - git remote add github https://brefphp-bot:${GITHUB_TOKEN}@github.com/brefphp-bot/bref.git
+      - git push --set-upstream github bref/layers-v2 --force
