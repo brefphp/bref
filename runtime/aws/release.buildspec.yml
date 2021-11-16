@@ -14,6 +14,7 @@ phases:
       docker: 19
 
   pre_build:
+    on-failure: abort
     commands:
       # We need to resolve these variables on-the-fly because public AWS CodeBuild projects show them as plain-text
       - export GITHUB_TOKEN=$(aws ssm get-parameter --name /bref-layers-builder/github/token --output text --query Parameter.Value)
@@ -24,9 +25,10 @@ phases:
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
 
       # WARNING: Be very careful when merging pull requests that change this file. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
-      - echo $DOCKER_HUB_PASSWORD | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+      docker login --username $DOCKER_HUB_USERNAME --password $DOCKER_HUB_PASSWORD
 
       - $(aws ecr get-login --region $AWS_REGION --no-include-email)
 
   build:
+    on-failure: abort
     commands:
