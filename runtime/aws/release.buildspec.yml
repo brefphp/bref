@@ -11,7 +11,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      docker: 20
+      docker: 19
 
   pre_build:
     on-failure: abort
@@ -22,6 +22,7 @@ phases:
       # WARNING: Be very careful when merging pull requests that change this line. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
       - export DOCKER_HUB_PASSWORD=$(aws ssm get-parameter --name /bref-layers-builder/docker/hub/password --output text --query Parameter.Value)
       - export DOCKER_BUILDKIT=1
+      - export COMPOSE_DOCKER_CLI_BUILD=1
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
 
       # WARNING: Be very careful when merging pull requests that change this file. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
