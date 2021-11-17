@@ -44,7 +44,7 @@ phases:
       # Copy AWS config to be able to automatically assume role into the layer account
       - mkdir ~/.aws && cp ./runtime/aws/config ~/.aws/config
 
-      - cd runtime && AWS_PROFILE=layer make everything
+      - cd runtime && make everything
 
       - |
         echo -en 'layers.json update\n\nCo-authored-by: Marco Deleu <deleugyn@gmail.com>' > git-message
