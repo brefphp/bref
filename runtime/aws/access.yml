@@ -13,7 +13,7 @@ Resources:
         Statement:
           Effect: Allow
           Principal:
-            AWS: !Sub "arn:aws:iam::${BuilderAccount}:role/bref-php-binary-builder"
+            AWS: !Sub "arn:aws:iam::${BuilderAccount}:role/bref-layer-builder"
           Action: sts:AssumeRole
       Policies:
         - PolicyName: LayerPublisherRole
