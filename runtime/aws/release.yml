@@ -11,6 +11,8 @@ Resources:
         EnvironmentVariables:
           - Name: CPU
             Value: x86
+          - Name: PUBLISHER_ACCOUNT_ROLE_ARN
+            Value: 'arn:aws:iam::978790411843:role/bref-layer-publisher'
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_LARGE
         Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
