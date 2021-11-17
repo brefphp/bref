@@ -52,8 +52,8 @@ publish: america-1 america-2 europe-1 europe-2 asia-1 asia-2 miscellaneous
 
 america-1:
 	REGION=us-east-1 ./common/publish/publish.sh #US East (N. Virginia)
-    REGION=us-east-2 ./common/publish/publish.sh #US East (Ohio)
-    REGION=us-west-1 ./common/publish/publish.sh #US West (N. California)
+	REGION=us-east-2 ./common/publish/publish.sh #US East (Ohio)
+	REGION=us-west-1 ./common/publish/publish.sh #US West (N. California)
 
 america-2:
 	REGION=us-west-2 ./common/publish/publish.sh #US West (Oregon)
@@ -62,22 +62,22 @@ america-2:
 
 europe-1:
 	REGION=eu-west-1 ./common/publish/publish.sh #Europe (Ireland)
-    REGION=eu-west-2 ./common/publish/publish.sh #Europe (London)
-    REGION=eu-west-3 ./common/publish/publish.sh #Europe (Paris)
+	REGION=eu-west-2 ./common/publish/publish.sh #Europe (London)
+	REGION=eu-west-3 ./common/publish/publish.sh #Europe (Paris)
 
 europe-2:
 	REGION=eu-north-1 ./common/publish/publish.sh #Europe (Stockholm)
-    REGION=eu-south-1 ./common/publish/publish.sh #Europe (Milan)
-    REGION=eu-central-1 ./common/publish/publish.sh #Europe (Frankfurt)
+	REGION=eu-south-1 ./common/publish/publish.sh #Europe (Milan)
+	REGION=eu-central-1 ./common/publish/publish.sh #Europe (Frankfurt)
 
 asia-1:
 	REGION=ap-east-1 ./common/publish/publish.sh #Asia Pacific (Hong Kong)
-    REGION=ap-south-1 ./common/publish/publish.sh #Asia Pacific (Mumbai)
+	REGION=ap-south-1 ./common/publish/publish.sh #Asia Pacific (Mumbai)
 	REGION=ap-southeast-1 ./common/publish/publish.sh #Asia Pacific (Singapore)
 
 asia-2:
 	REGION=ap-northeast-1 ./common/publish/publish.sh #Asia Pacific (Tokyo)
-    REGION=ap-northeast-3 ./common/publish/publish.sh #Asia Pacific (Osaka)
+	REGION=ap-northeast-3 ./common/publish/publish.sh #Asia Pacific (Osaka)
 	REGION=ap-northeast-2 ./common/publish/publish.sh #Asia Pacific (Seoul)
 
 miscellaneous:
