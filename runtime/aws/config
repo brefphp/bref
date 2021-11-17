@@ -1,3 +1,0 @@
-[default]
-role_arn = arn:aws:iam::978790411843:role/bref-layer-publisher
-credential_source = EcsContainer
