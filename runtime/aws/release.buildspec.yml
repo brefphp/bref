@@ -43,11 +43,7 @@ phases:
 
       # Let's generate credentials for the Layer Account
       # https://towardsthecloud.com/create-reusable-assume-role-script-cross-account-aws
-      - sts=$(aws sts assume-role \
-        --role-arn "${PUBLISHER_ACCOUNT_ROLE_ARN}" \
-        --role-session-name "bref-layer-publisher" \
-        --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
-        --output text)
+      - sts=$(aws sts assume-role --role-arn "${PUBLISHER_ACCOUNT_ROLE_ARN}" --role-session-name "bref-layer-publisher" --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)
       - sts=($sts)
       - export AWS_ACCESS_KEY_ID=${sts[0]}
       - export AWS_SECRET_ACCESS_KEY=${sts[1]}
