@@ -41,8 +41,17 @@ phases:
       - git checkout runtime
       - git checkout -b bref/layers-v2
 
-      # Copy AWS config to be able to automatically assume role into the layer account
-      - mkdir ~/.aws && cp ./runtime/aws/config ~/.aws/config
+      # Let's generate credentials for the Layer Account
+      # https://towardsthecloud.com/create-reusable-assume-role-script-cross-account-aws
+      - sts=$(aws sts assume-role \
+        --role-arn "${ROLE_ARN}" \
+        --role-session-name "bref-layer-publisher" \
+        --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+        --output text)
+      - sts=($sts)
+      - export AWS_ACCESS_KEY_ID=${sts[0]}
+      - export AWS_SECRET_ACCESS_KEY=${sts[1]}
+      - export AWS_SESSION_TOKEN=${sts[2]}
 
       - cd runtime && make everything
 
