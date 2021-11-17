@@ -33,6 +33,9 @@ everything:
 	# This will clean up orphan containers
 	docker-compose down
 
+	# Add executable permission to the publish script
+	chmod +x ./common/publish/publish.sh
+
 	# Upload the Function layers to AWS
 	TYPE=function PHP_VERSION=php74 $(MAKE) -j7 publish
 	#TYPE=function PHP_VERSION=php80 docker-compose -f ./common/publish/docker-compose.yml up
