@@ -24,6 +24,7 @@ phases:
       - export DOCKER_BUILDKIT=1
       - export COMPOSE_DOCKER_CLI_BUILD=1
       - export AWS_STS_REGIONAL_ENDPOINTS=regional
+      - export BREFPHP_BOT_BRANCH=-bref/layers/${CPU}
 
       # WARNING: Be very careful when merging pull requests that change this file. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
       - echo $DOCKER_HUB_PASSWORD | docker login --username $DOCKER_HUB_USERNAME --password-stdin
@@ -39,7 +40,7 @@ phases:
       - git config --global user.email "deleugyn+bref@gmail.com"
       - git config --global user.name "Brefphp Bot by @deleugyn"
       - git checkout runtime
-      - git checkout -b bref/layers-v2
+      - git checkout -b ${BREFPHP_BOT_BRANCH}
 
       # Let's generate credentials for the Layer Account
       # https://towardsthecloud.com/create-reusable-assume-role-script-cross-account-aws
@@ -56,4 +57,6 @@ phases:
       - git commit -a --file git-message
 
       - git remote add github https://brefphp-bot:${GITHUB_TOKEN}@github.com/brefphp-bot/bref.git
-      - git push --set-upstream github bref/layers-v2 --force
+      - git push --set-upstream github ${BREFPHP_BOT_BRANCH} --force
+
+      - gh pr create --title "[${CPU}] PHP Layers" --body "New layers have finished building" --repo "brefphp/bref" --base master --head "brefphp-bot:${BREFPHP_BOT_BRANCH}"

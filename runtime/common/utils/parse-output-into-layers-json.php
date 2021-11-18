@@ -16,4 +16,4 @@ if ($cpu !== 'x86' && $cpu !== 'arm64') {
     throw new Exception("[$cpu] is unexpected. Possible values are [x86] and [arm64]");
 }
 
-file_put_contents(__DIR__."/../../../layers.$cpu.json", json_encode($output));
+file_put_contents("/tmp/bref-zip/layers.$cpu.json", json_encode($output));
