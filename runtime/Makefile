@@ -17,10 +17,10 @@ everything:
 
 	# We build the layer first because we want the Docker Image to be properly tagged so that
 	# later on we can push to Docker Hub.
-	docker-compose build --parallel php74-function #php80-function php81-function
+	docker-compose build --parallel php74-function php80-function php81-function
 
 	# After we build the layer successfully we can then zip it up so that it's ready to be uploaded to AWS.
-	docker-compose build --parallel php74-zip-function #php80-zip-function php81-zip-function
+	docker-compose build --parallel php74-zip-function php80-zip-function php81-zip-function
 
 	# Repeat the same process for FPM
 	docker-compose build --parallel php74-fpm php80-fpm php81-fpm
