@@ -48,6 +48,7 @@ everything:
 
 	# Transform /tmp/bref-zip/output.ini into layers.json
 	docker-compose -f common/utils/docker-compose.yml run parse
+	cp /tmp/bref-zip/layers.${CPU}.json ./../
 
 	# TODO: Docker Push to Docker Hub.
 
