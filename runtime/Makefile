@@ -37,7 +37,7 @@ everything:
 	chmod +x ./common/publish/publish.sh
 
 	# Upload the Function layers to AWS
-	TYPE=function PHP_VERSION=php74 $(MAKE) -j7 publish
+	TYPE=function PHP_VERSION=php74 $(MAKE) publish
 	#TYPE=function PHP_VERSION=php80 docker-compose -f ./common/publish/docker-compose.yml up
 	#TYPE=function PHP_VERSION=php81 docker-compose -f ./common/publish/docker-compose.yml up
 
@@ -51,7 +51,7 @@ everything:
 
 	# TODO: Docker Push to Docker Hub.
 
-publish: america-1 america-2 europe-1 europe-2 asia-1 asia-2 miscellaneous
+publish: america-1 america-2 #europe-1 europe-2 asia-1 asia-2 miscellaneous
 
 america-1:
 	REGION=us-east-1 ./common/publish/publish.sh #US East (N. Virginia)
