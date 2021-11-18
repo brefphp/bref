@@ -2,9 +2,9 @@
 
 set -e
 
-echo "[Publish] Publishing layer..."
-
 LAYER_NAME="prototype-${CPU}-${PHP_VERSION}-${TYPE}"
+
+echo "[Publish] Publishing layer ${LAYER_NAME}..."
 
 VERSION=$(aws lambda publish-layer-version \
    --region ${REGION} \
