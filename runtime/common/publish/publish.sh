@@ -24,7 +24,7 @@ aws lambda add-layer-version-permission \
     --version-number ${VERSION} \
     --statement-id public \
     --action lambda:GetLayerVersion \
-    --principal * \
+    --principal "*" \
     --output text \
     --query Statement
 
