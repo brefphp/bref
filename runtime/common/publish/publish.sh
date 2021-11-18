@@ -1,10 +1,10 @@
 #!/bin/bash
 
-set -e
-
-echo "[Publish] Publishing layer..."
+set -xe
 
 LAYER_NAME="prototype-${CPU}-${PHP_VERSION}-${TYPE}"
+
+echo "[Publish] Publishing layer ${LAYER_NAME}..."
 
 VERSION=$(aws lambda publish-layer-version \
    --region ${REGION} \
@@ -24,7 +24,7 @@ aws lambda add-layer-version-permission \
     --version-number ${VERSION} \
     --statement-id public \
     --action lambda:GetLayerVersion \
-    --principal * \
+    --principal "*" \
     --output text \
     --query Statement
 

@@ -1,0 +1,62 @@
+version: 0.2
+
+# AWS suggests this file not be stored within the project itself for AWS Public CodeBuild
+# (https://docs.aws.amazon.com/codebuild/latest/userguide/public-builds.html).
+# However, what protects us here is the fact that this build WILL ONLY be executed if a PULL_REQUEST_MERGED event
+# is triggered. Therefore, only AFTER a Bref Maintainer has approved and merged the changes this file will
+# be executed. Changes made here that are not merged does not run the public build.
+# Even if a "contributor" makes changes to the release.yml template itself to include more triggers, it requires
+# manually applying those changes to AWS CloudFormation before they take effect.
+
+phases:
+  install:
+    runtime-versions:
+      docker: 19
+
+  pre_build:
+    on-failure: abort
+    commands:
+      # We need to resolve these variables on-the-fly because public AWS CodeBuild projects show them as plain-text
+      - export GITHUB_TOKEN=$(aws ssm get-parameter --name /bref-layers-builder/github/token --output text --query Parameter.Value)
+      - export DOCKER_HUB_USERNAME=$(aws ssm get-parameter --name /bref-layers-builder/docker/hub/username --output text --query Parameter.Value)
+      # WARNING: Be very careful when merging pull requests that change this line. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
+      - export DOCKER_HUB_PASSWORD=$(aws ssm get-parameter --name /bref-layers-builder/docker/hub/password --output text --query Parameter.Value)
+      - export DOCKER_BUILDKIT=1
+      - export COMPOSE_DOCKER_CLI_BUILD=1
+      - export AWS_STS_REGIONAL_ENDPOINTS=regional
+      - export BREFPHP_BOT_BRANCH="brefphp/layers/${CPU}"
+
+      # WARNING: Be very careful when merging pull requests that change this file. If a "contributor" changes this line to echo ${DOCKER_HUB_PASSWORD}, it will show up on the public logs.
+      - echo $DOCKER_HUB_PASSWORD | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+
+  build:
+    on-failure: abort
+    commands:
+      # Install GH CLI
+      - curl https://cli.github.com/packages/rpm/gh-cli.repo --output /etc/yum.repos.d/gh-cli.repo
+      - yum install -y gh
+
+      # Configure GitHub User & Branch
+      - git config --global user.email "deleugyn+bref@gmail.com"
+      - git config --global user.name "Brefphp Bot by @deleugyn"
+      - git checkout runtime
+      - git checkout -b ${BREFPHP_BOT_BRANCH}
+
+      # Let's generate credentials for the Layer Account
+      # https://towardsthecloud.com/create-reusable-assume-role-script-cross-account-aws
+      - sts=$(aws sts assume-role --role-arn "${PUBLISHER_ACCOUNT_ROLE_ARN}" --role-session-name "bref-layer-publisher" --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' --output text)
+      - sts=($sts)
+      - export AWS_ACCESS_KEY_ID=${sts[0]}
+      - export AWS_SECRET_ACCESS_KEY=${sts[1]}
+      - export AWS_SESSION_TOKEN=${sts[2]}
+
+      - cd runtime && make everything
+
+      - |
+        echo -en 'layers.json update\n\nCo-authored-by: Marco Deleu <deleugyn@gmail.com>' > git-message
+      - git commit -a --file git-message
+
+      - git remote add github https://brefphp-bot:${GITHUB_TOKEN}@github.com/brefphp-bot/bref.git
+      - git push --set-upstream github ${BREFPHP_BOT_BRANCH} --force
+
+      - gh pr create --title "[${CPU}] PHP Layers" --body "New layers have finished building" --repo "brefphp/bref" --base master --head "brefphp-bot:${BREFPHP_BOT_BRANCH}"

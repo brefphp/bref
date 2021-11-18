@@ -1,0 +1,74 @@
+Resources:
+  BrefLayersBuilder:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      ServiceRole: !Ref BrefLayersBuilderRole
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+          # We cannot use credentials as environment variable anymore because `public` CodeBuild displays
+          # these variables to anyone on the internet.
+        EnvironmentVariables:
+          - Name: CPU
+            Value: x86
+          - Name: PUBLISHER_ACCOUNT_ROLE_ARN
+            Value: 'arn:aws:iam::978790411843:role/bref-layer-publisher'
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        PrivilegedMode: true
+      Source:
+        Location: https://github.com/deleugpn/bref.git
+        Type: GITHUB
+        BuildSpec: runtime/aws/release.buildspec.yml
+      Visibility: PUBLIC_READ
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          - - Type: EVENT
+              Pattern: PULL_REQUEST_MERGED
+            - Type: BASE_REF
+              Pattern: ^refs/heads/runtime$
+            - Type: FILE_PATH
+              Pattern: runtime/*
+
+  BrefLayersBuilderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: bref-layer-builder
+      AssumeRolePolicyDocument:
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodeBuildServicePermissions
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sts:AssumeRole
+                Resource:
+                  - 'arn:aws:iam::978790411843:role/bref-layer-publisher'
+
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - 'arn:aws:logs:*:*:*'
+
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource:
+                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/bref-layers-builder*"
+
+              - Effect: Allow
+                Action:
+                  - lambda:PublishLayerVersion
+                  - lambda:AddLayerVersionPermission
+                Resource:
+                  - '*'
