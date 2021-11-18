@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -xe
 
 LAYER_NAME="prototype-${CPU}-${PHP_VERSION}-${TYPE}"
 
