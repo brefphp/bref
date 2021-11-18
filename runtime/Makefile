@@ -23,12 +23,12 @@ everything:
 	docker-compose build --parallel php74-zip-function #php80-zip-function php81-zip-function
 
 	# Repeat the same process for FPM
-	#docker-compose build --parallel php74-fpm php80-fpm php81-fpm
-	#docker-compose build --parallel php74-zip-fpm php80-zip-fpm php81-zip-fpm
+	docker-compose build --parallel php74-fpm php80-fpm php81-fpm
+	docker-compose build --parallel php74-zip-fpm php80-zip-fpm php81-zip-fpm
 
 	# By running the zip containers, the layers will be copied over to /tmp/bref-zip/
-	docker-compose up php74-zip-function #php80-zip-function php81-zip-function \
-		#php74-zip-fpm php80-zip-fpm php81-zip-fpm
+	docker-compose up php74-zip-function php80-zip-function php81-zip-function \
+		php74-zip-fpm php80-zip-fpm php81-zip-fpm
 
 	# This will clean up orphan containers
 	docker-compose down
@@ -37,21 +37,21 @@ everything:
 	chmod +x ./common/publish/publish.sh
 
 	# Upload the Function layers to AWS
-	TYPE=function PHP_VERSION=php74 $(MAKE) publish
-	#TYPE=function PHP_VERSION=php80 docker-compose -f ./common/publish/docker-compose.yml up
-	#TYPE=function PHP_VERSION=php81 docker-compose -f ./common/publish/docker-compose.yml up
+	TYPE=function PHP_VERSION=php74 $(MAKE) -j7 publish
+	TYPE=function PHP_VERSION=php80 $(MAKE) -j7 publish
+	TYPE=function PHP_VERSION=php81 $(MAKE) -j7 publish
 
 	# Upload the FPM Layers to AWS
-	#TYPE=fpm PHP_VERSION=php74 docker-compose -f ./common/publish/docker-compose.yml up
-	#TYPE=fpm PHP_VERSION=php80 docker-compose -f ./common/publish/docker-compose.yml up
-	#TYPE=fpm PHP_VERSION=php81 docker-compose -f ./common/publish/docker-compose.yml up
+	TYPE=fpm PHP_VERSION=php74 $(MAKE) -j7 publish
+	TYPE=fpm PHP_VERSION=php80 $(MAKE) -j7 publish
+	TYPE=fpm PHP_VERSION=php81 $(MAKE) -j7 publish
 
 	# Transform /tmp/bref-zip/output.ini into layers.json
 	docker-compose -f common/utils/docker-compose.yml run parse
 
 	# TODO: Docker Push to Docker Hub.
 
-publish: america-1 america-2 #europe-1 europe-2 asia-1 asia-2 miscellaneous
+publish: america-1 america-2 europe-1 europe-2 asia-1 asia-2 miscellaneous
 
 america-1:
 	REGION=us-east-1 ./common/publish/publish.sh #US East (N. Virginia)
