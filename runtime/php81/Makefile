@@ -17,7 +17,7 @@ function:
 	docker-compose down
 	rm /tmp/bref-zip/ -rf
 	docker-compose run --rm zip-function
-	PHP_VERSION=php81 TYPE=function docker-compose -f ../common/publish/docker-compose.yml run ${REGION}
+	PHP_VERSION=php81 TYPE=function docker-compose -f ../common/publish/docker-compose.yml run publish
 
 fpm:
 	docker build -f ${ROOT_DIR}runtime/common/fpm/Dockerfile ${ROOT_DIR} -t bref/fpm-internal-src
@@ -29,7 +29,7 @@ fpm:
 	docker-compose down
 	rm /tmp/bref-zip/ -rf
 	docker-compose build zip-fpm && docker-compose run --rm zip-fpm
-	PHP_VERSION=php81 TYPE=fpm docker-compose -f ../common/publish/docker-compose.yml run ${REGION}
+	PHP_VERSION=php81 TYPE=fpm docker-compose -f ../common/publish/docker-compose.yml run publish
 
 test:
 	$(MAKE) test_php_binary
