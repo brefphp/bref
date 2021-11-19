@@ -158,7 +158,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - curl
-ENV VERSION_LIBSSH2=1.8.2
+ENV VERSION_LIBSSH2=1.10.0
 ENV LIBSSH2_BUILD_DIR=${BUILD_DIR}/libssh2
 
 RUN set -xe; \
@@ -195,7 +195,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - curl
-ENV VERSION_NGHTTP2=1.43.0
+ENV VERSION_NGHTTP2=1.46.0
 ENV NGHTTP2_BUILD_DIR=${BUILD_DIR}/nghttp2
 
 RUN set -xe; \
@@ -226,7 +226,7 @@ RUN set -xe; \
 # #   - libssh2
 # # Needed by:
 # #   - php
-ENV VERSION_CURL=7.76.0
+ENV VERSION_CURL=7.80.0
 ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
 
 RUN set -xe; \
@@ -277,7 +277,7 @@ RUN set -xe; \
 #   - zlib
 # Needed by:
 #   - php
-ENV VERSION_XML2=2.9.10
+ENV VERSION_XML2=2.9.12
 ENV XML2_BUILD_DIR=${BUILD_DIR}/xml2
 
 RUN set -xe; \
@@ -315,7 +315,7 @@ RUN set -xe; \
 # https://github.com/nih-at/libzip/releases
 # Needed by:
 #   - php
-ENV VERSION_ZIP=1.7.3
+ENV VERSION_ZIP=1.8.0
 ENV ZIP_BUILD_DIR=${BUILD_DIR}/zip
 
 RUN set -xe; \
@@ -376,7 +376,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - php
-ENV VERSION_POSTGRES=9.6.21
+ENV VERSION_POSTGRES=9.6.24
 ENV POSTGRES_BUILD_DIR=${BUILD_DIR}/postgres
 
 RUN set -xe; \

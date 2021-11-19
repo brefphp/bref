@@ -23,7 +23,7 @@ FROM bref/tmp/step-1/build-environment as build-environment
 # https://github.com/kkos/oniguruma/releases
 # Needed by:
 #   - php mbstring
-ENV VERSION_ONIG=6.9.6
+ENV VERSION_ONIG=6.9.7.1
 ENV ONIG_BUILD_DIR=${BUILD_DIR}/oniguruma
 RUN set -xe; \
     mkdir -p ${ONIG_BUILD_DIR}; \
@@ -36,7 +36,7 @@ RUN set -xe; \
     make install
 
 
-ENV VERSION_PHP=7.4.25
+ENV VERSION_PHP=7.4.26
 
 
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
