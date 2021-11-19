@@ -404,7 +404,7 @@ RUN set -xe; cd ${POSTGRES_BUILD_DIR}/src/include && make install
 # libicu-devel : needed for
 # libxslt-devel : needed for the XSL extension
 # sqlite-devel : Since PHP 7.4 this must be installed (https://github.com/php/php-src/blob/99b8e67615159fc600a615e1e97f2d1cf18f14cb/UPGRADING#L616-L619)
-RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libxslt-devel sqlite-devel
+RUN LD_LIBRARY_PATH= yum install -y readline-devel gettext-devel libicu-devel libxslt-devel openldap-devel sqlite-devel
 
 RUN cp -a /usr/lib64/libgcrypt.so* ${INSTALL_DIR}/lib64/
 
