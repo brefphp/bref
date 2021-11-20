@@ -85,11 +85,21 @@ docker-hub-push-function:
 	docker push breftest/x86-php80-function
 	docker push breftest/x86-php81-function
 
+	# Backward compatibility
+	docker push breftest/php-74
+	docker push breftest/php-81
+	docker push breftest/php-81
+
 docker-hub-push-fpm:
 	#TODO: change breftest/ to bref/
 	docker push breftest/x86-php74-fpm
 	docker push breftest/x86-php80-fpm
 	docker push breftest/x86-php81-fpm
+
+	# Backward compatibility
+	docker push breftest/php-74-fpm
+	docker push breftest/php-81-fpm
+	docker push breftest/php-81-fpm
 ##########################################################################################
 
 # This command is designed for parallel execution of layer publishing.
