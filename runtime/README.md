@@ -91,3 +91,7 @@ every PHP version (in parallel) and then upload to every AWS Region at once. Con
 out will usually not want to "pollute" their AWS account by publishing the same layer on EVERY region. Hence,
 the `Makefile` on each PHP Version folder being more useful for contributors since it allows to publish
 a single layer on a single AWS Region.
+
+### Runtime Changes Workflow
+
+![](readme.workflow.png)
