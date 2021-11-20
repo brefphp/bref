@@ -50,8 +50,51 @@ everything:
 	docker-compose -f common/utils/docker-compose.yml run parse
 	cp /tmp/bref-zip/layers.${CPU}.json ./../
 
-	# TODO: Docker Push to Docker Hub.
 
+# Here we're only tagging the latest images. This process is executed when a merge to
+# master happens. We're using the same images that we built for the layers and
+# publishing them on Docker Hub. When a Release Tag is created, GitHub Actions
+# will be used to download the latest images, tag them with the version number
+# and reupload them with the right tag.
+docker-hub:
+	# Temporarily creating aliases of the Docker images so that I can push to my own account
+	docker tag bref/x86-php74-function breftest/x86-php74-function
+	docker tag bref/x86-php80-function breftest/x86-php80-function
+	docker tag bref/x86-php81-function breftest/x86-php81-function
+	docker tag bref/x86-php74-fpm breftest/x86-php74-fpm
+	docker tag bref/x86-php80-fpm breftest/x86-php80-fpm
+	docker tag bref/x86-php81-fpm breftest/x86-php81-fpm
+
+	# Backward compatible tags
+	#TODO: change breftest/ to bref/
+	docker tag bref/x86-php74-function breftest/php-74
+	docker tag bref/x86-php80-function breftest/php-80
+	docker tag bref/x86-php81-function breftest/php-81
+	docker tag bref/x86-php74-fpm breftest/php-74-fpm
+	docker tag bref/x86-php80-fpm breftest/php-80-fpm
+	docker tag bref/x86-php81-fpm breftest/php-81-fpm
+
+	$(MAKE) -j2 docker-hub-push-all
+
+
+docker-hub-push-all: docker-hub-push-function docker-hub-push-fpm
+
+docker-hub-push-function:
+	#TODO: change breftest/ to bref/
+	docker push breftest/x86-php74-function
+	docker push breftest/x86-php80-function
+	docker push breftest/x86-php81-function
+
+docker-hub-push-fpm:
+	#TODO: change breftest/ to bref/
+	docker push breftest/x86-php74-fpm
+	docker push breftest/x86-php80-fpm
+	docker push breftest/x86-php81-fpm
+##########################################################################################
+
+# This command is designed for parallel execution of layer publishing.
+# When we do `make publish -j7`, make will execute each command defined
+# here in parallel.
 publish: america-1 america-2 europe-1 europe-2 asia-1 asia-2 miscellaneous
 
 america-1:

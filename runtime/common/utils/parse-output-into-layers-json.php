@@ -16,4 +16,20 @@ if ($cpu !== 'x86' && $cpu !== 'arm64') {
     throw new Exception("[$cpu] is unexpected. Possible values are [x86] and [arm64]");
 }
 
-file_put_contents("/tmp/bref-zip/layers.$cpu.json", json_encode($output));
+# Let's create a backward-compatible mapping with the previous layer naming convention.
+if ($cpu === 'x86') {
+    foreach ($output as $layer => $regionVersionCollection) {
+        if (str_ends_with($layer, 'function')) {
+            // Here we'll parse layers such as x86-php80-function and extract php80 into $matches
+            preg_match('/php\d\d/', $layer, $matches);
+
+            // Now that we have the php version, we can toss out the `php` string and keep the version number.
+            $version = str_replace('php', '', $matches[0]);
+
+            // Let's copy the entire layer versions under this backward compatible name
+            $output["php-$version"] = $regionVersionCollection;
+        }
+    }
+}
+
+file_put_contents("/tmp/bref-zip/layers.$cpu.json", json_encode($output, JSON_PRETTY_PRINT));
