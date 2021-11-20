@@ -50,7 +50,7 @@ phases:
       - export AWS_SECRET_ACCESS_KEY=${sts[1]}
       - export AWS_SESSION_TOKEN=${sts[2]}
 
-      - cd runtime && make everything
+      - cd runtime && make everything && make docker-hub
 
       - |
         echo -en 'layers.json update\n\nCo-authored-by: Marco Deleu <deleugyn@gmail.com>' > git-message
