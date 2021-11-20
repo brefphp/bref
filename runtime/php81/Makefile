@@ -13,7 +13,7 @@ function:
 	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_1_binary.php ${PHP_VERSION}
 	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_2_default_extensions.php
 	docker-compose run --rm --entrypoint /opt/bin/php isolation /opt/tests/test_3_additional_extensions.php
-	docker-compose up -d function && docker-compose exec function /opt/bin/php /opt/tests/test_4_function_invocation.php
+	docker-compose up -d function && docker-compose exec -T function /opt/bin/php /opt/tests/test_4_function_invocation.php
 	docker-compose down
 	rm /tmp/bref-zip/ -rf
 	docker-compose run --rm zip-function
@@ -25,7 +25,7 @@ fpm:
 	docker-compose run --rm --entrypoint /opt/bin/php fpm /opt/tests/test_1_binary.php ${PHP_VERSION}
 	docker-compose run --rm --entrypoint /opt/bin/php fpm /opt/tests/test_2_default_extensions.php
 	docker-compose run --rm --entrypoint /opt/bin/php fpm /opt/tests/test_3_additional_extensions.php
-	docker-compose up -d fpm && docker-compose exec fpm /opt/bin/php /opt/tests/test_5_fpm_invocation.php
+	docker-compose up -d fpm && docker-compose exec -T fpm /opt/bin/php /opt/tests/test_5_fpm_invocation.php
 	docker-compose down
 	rm /tmp/bref-zip/ -rf
 	docker-compose build zip-fpm && docker-compose run --rm zip-fpm
@@ -63,14 +63,14 @@ test_function_invocation:
 	docker build -f ${ROOT_DIR}runtime/common/function/Dockerfile ${ROOT_DIR} -t bref/function-internal-src
 	docker-compose build function
 	docker-compose up -d function
-	docker-compose exec function /opt/bin/php /opt/tests/test_4_function_invocation.php
+	docker-compose exec -T function /opt/bin/php /opt/tests/test_4_function_invocation.php
 	docker-compose down
 
 test_fpm_invocation:
 	docker build -f ${ROOT_DIR}runtime/common/fpm/Dockerfile ${ROOT_DIR} -t bref/fpm-internal-src
 	docker-compose build fpm
 	docker-compose up -d fpm
-	docker-compose exec fpm /opt/bin/php /opt/tests/test_5_fpm_invocation.php
+	docker-compose exec -T fpm /opt/bin/php /opt/tests/test_5_fpm_invocation.php
 	docker-compose down
 
 test_function_zip:
