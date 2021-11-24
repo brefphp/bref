@@ -31,7 +31,7 @@ aws lambda add-layer-version-permission \
 echo "[Publish] Layer ${LAYER} added!"
 
 # This file will be used by runtime/common/utils/parse-output-into-layers-json.php
-# Here we will keep a mapping in the format of LAYER[REGION]=VERSION so that the
-# Serverless Plugin can resolve the Lambda Version at deployment time.
+# Here we will keep a mapping in the format of LAYER[REGION]="LAYER:VERSION" so
+# that the Serverless Plugin can resolve the Lambda Version at deployment time.
 # See https://bref.sh/docs/environment/serverless-yml.html#plugins
-echo "${LAYER_NAME}[${REGION}]=${VERSION}" >> /tmp/bref-zip/output.ini
+echo "${LAYER_NAME}[${REGION}]=${LAYER_NAME}:${VERSION}" >> /tmp/bref-zip/output.ini
