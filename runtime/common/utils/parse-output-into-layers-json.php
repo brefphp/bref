@@ -14,9 +14,9 @@ $cpu = $_SERVER['argv'][1];
 
 if ($cpu === 'x86') {
     // For backward compatibility, the x86 variable is not prefixed by the CPU architecture.
-    $variable = '';
+    $variablePrefix = '';
 } elseif ($cpu === 'arm64') {
-    $variable = 'arm64-';
+    $variablePrefix = 'arm64-';
 } else {
     throw new Exception("[$cpu] is unexpected. Possible values are [x86] and [arm64]");
 }
@@ -33,10 +33,10 @@ foreach ($output as $layer => $regionVersionCollection) {
 
     if (str_ends_with($layer, 'function')) {
         // PHP Function layers are called `php-xx`
-        $variable .= "php-$version";
+        $variable =  $variablePrefix . "php-$version";
     } elseif (str_ends_with($layer, 'fpm')) {
         // PHP FPM layers are called `php-xx-fpm`
-        $variable .= "php-$version-fpm";
+        $variable = $variablePrefix . "php-$version-fpm";
     } else {
         throw new Exception("Unexpected layer $layer");
     }

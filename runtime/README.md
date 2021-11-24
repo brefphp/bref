@@ -95,3 +95,64 @@ a single layer on a single AWS Region.
 ### Runtime Changes Workflow
 
 ![](readme.workflow.png)
+
+
+### Decision log
+
+
+##### Installing PHP from a distribution
+
+Compiling PHP is a complex process for the average PHP Developer. It takes a fair amount of time
+and can be cumbersome. Using remi-collect as a PHP distributor greatly simplifies and help the
+installation process. The code is more readable and approachable. Remi also distribute releases
+even before they are announced on the PHP Internal Mailing List by the Release Manager.
+
+The biggest downside is that we're no longer in control of compiling new releases whenever we want.
+But for x86 architecture, we see that using remi-collect will not be a problem for this.
+We can see the impact of this on arm64 (Graviton2 Support). Since remi-collect doesn't distribute arm64,
+we may have to rely on amazon-linux-extras, which is 5 months behind (as of this writing) with PHP 8.0.8.
+
+##### Bundling extensions
+
+While developing a new Runtime, the first attempt was to provide an "alpine-like" Bref Layer: only the PHP
+binary and no extension (or minimal extensions) installed. This turned out to slow down the process
+by a big factor because every layer needs to be compiled for multiple PHP versions and deployed
+across 21 AWS Region (at this time). Except for php-intl, most extensions are extremely small and lightweight.
+The benefits of maintaining a lightweight layer long-term didn't outweight the costs at this time.
+
+##### Variables vs Repetitive Code
+
+Before landing on the current architecture, there was several attempts (7 to be exact) on a back-and-forth
+between more environment variables vs more repetitive code. Environment variables grows complexity because
+they require contributors to understand how they intertwine with each other. We have layers, php version and
+CPU architecture. A more "reusable" Dockerfile or docker-compose requires a more complex Makefile. In contrast,
+a simpler and straight-forward Makefile requires more code duplication for Docker and Docker Compose.
+The current format makes it so that old PHP layers can easily be removed by dropping an entire folder
+and a new PHP Version can be added by copying an existing folder and doing search/replace on the
+PHP version. It's a hard balance between a process that allows parallelization, code reusability and
+readability.
+
+##### Layer Publishing
+
+It would have been ideal to be able to upload the layers to a single S3 folder and then "publish" a new
+layer by pointing it to the existing S3Bucket/S3Key. However, AWS Lambda does not allow publishing layers
+from a bucket in another region. Layers must be published on each region individually.
+
+Parallelization of all regions at once often leads to network crashing. The strategy applied divides AWS
+regions in chunks (7 to be precise) and tries to publish 7 layers at a time. AWS CodeBuild LARGE instance
+has 8 vCPU, so publishing 7 layers at a time should go smooth.
+
+##### AWS CodeBuild vs GitHub Actions
+
+AWS CodeBuild is preferred for publishing the layers because the account that holds the layers has no external
+access. It is dedicated exclusively for having the layers only and only Matthiew Napoli has access to it.
+GitHub Actions require exposing access to an external party. Using AWS CodeBuild allows us to use IAM Assume
+Role so that one "Builder Account" can build the layers and then cross-publish them onto the "Layer Account".
+The assume role limitations can be seen on runtime/aws/access.yml
+
+##### Automation tests
+
+the runtime/tests folder contains multiple PHP scripts that are executed inside a docker container that Bref builds.
+These scripts are suppose to ensure that the PHP version is expected, PHP extensions are correctly installed and
+available and PHP is correctly configured. Some acceptance tests uses AWS Runtime Interface Emulator (RIE) to
+test whether a Lambda invocation is expected to work.
