@@ -9,6 +9,7 @@
     <testsuite name="small">
       <directory>./tests/</directory>
       <exclude>./tests/Sam</exclude>
+      <exclude>./tests/Fixtures</exclude>
     </testsuite>
     <testsuite name="runtimes">
       <directory>./tests/Sam</directory>
