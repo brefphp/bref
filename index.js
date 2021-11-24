@@ -15,8 +15,20 @@ class ServerlessPlugin {
 
         this.fs = require('fs');
         this.path = require('path');
-        const filename = this.path.resolve(__dirname, 'layers.json');
-        const layers = JSON.parse(this.fs.readFileSync(filename));
+
+        const x86 = this.path.resolve(__dirname, 'layers.x86.json');
+        const layers_x86 = JSON.parse(this.fs.readFileSync(x86));
+
+        // TODO:
+        // const arm64 = this.path.resolve(__dirname, 'layers.arm64.json');
+        // const layers_arm64 = JSON.parse(this.fs.readFileSync(filename));
+
+        // These variables are defined on layers.x86.json and layers.arm64.json
+        // These files are written by parse-output-into-layers-json.php
+        // During the publishing of layers (publish.sh) we write a ini file
+        // and parse it onto a PHP Array. That array has the layer name
+        // and it's version per region
+        const layers = {...layers_x86, ...{}}
 
         this.checkCompatibleRuntime();
 
@@ -37,15 +49,19 @@ class ServerlessPlugin {
                     }
 
                     const layerName = address.substr('layer.'.length);
+
                     if (! (layerName in layers)) {
                         throw new serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
                     }
+
                     if (! (region in layers[layerName])) {
                         throw new serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
                     }
-                    const version = layers[layerName][region];
+
+                    const layer = layers[layerName][region];
+
                     return {
-                        value: `arn:aws:lambda:${region}:209497400698:layer:${layerName}:${version}`,
+                        value: `arn:aws:lambda:${region}:209497400698:layer:${layer}`,
                     }
                 }
             }

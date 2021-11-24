@@ -6,7 +6,7 @@ services:
     image: bref/${CPU}-php80-binary
     build:
       context: ${ROOT_DIR}
-      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      dockerfile: runtime/php80/cpu-${CPU}.Dockerfile
       target: binary
 
   extensions:
@@ -15,7 +15,7 @@ services:
     stop_grace_period: 0s
     build:
       context: ${ROOT_DIR}
-      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      dockerfile: runtime/php80/cpu-${CPU}.Dockerfile
       target: extensions
 
   isolation:
@@ -24,7 +24,7 @@ services:
     environment: [PHP_INI_SCAN_DIR=/opt/php-ini/]
     build:
       context: ${ROOT_DIR}
-      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      dockerfile: runtime/php80/cpu-${CPU}.Dockerfile
       target: isolation
 
   function:
@@ -35,7 +35,7 @@ services:
     stop_grace_period: 0s
     build:
       context: ${ROOT_DIR}
-      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      dockerfile: runtime/php80/cpu-${CPU}.Dockerfile
       target: function
 
   fpm:
@@ -46,14 +46,14 @@ services:
     stop_grace_period: 0s
     build:
       context: ${ROOT_DIR}
-      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      dockerfile: runtime/php80/cpu-${CPU}.Dockerfile
       target: fpm
 
   zip-function:
     image: bref/${CPU}-php80-function-zip
     build:
       context: ${ROOT_DIR}
-      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      dockerfile: runtime/php80/cpu-${CPU}.Dockerfile
       target: zip-function
     entrypoint: /bin/cp
     command: ["/tmp/layer.zip", "/tmp/bref-zip/php80-function.zip"]
@@ -64,7 +64,7 @@ services:
     image: bref/${CPU}-php80-fpm-zip
     build:
       context: ${ROOT_DIR}
-      dockerfile: runtime/php80/cpu-x86.Dockerfile
+      dockerfile: runtime/php80/cpu-${CPU}.Dockerfile
       target: zip-fpm
     entrypoint: /bin/cp
     command: ["/tmp/layer.zip", "/tmp/bref-zip/php80-fpm.zip"]

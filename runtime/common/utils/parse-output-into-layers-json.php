@@ -12,24 +12,36 @@ $output = parse_ini_file('/tmp/bref-zip/output.ini');
 
 $cpu = $_SERVER['argv'][1];
 
-if ($cpu !== 'x86' && $cpu !== 'arm64') {
+if ($cpu === 'x86') {
+    // For backward compatibility, the x86 variable is not prefixed by the CPU architecture.
+    $variable = '';
+} elseif ($cpu === 'arm64') {
+    $variable = 'arm64-';
+} else {
     throw new Exception("[$cpu] is unexpected. Possible values are [x86] and [arm64]");
 }
 
-# Let's create a backward-compatible mapping with the previous layer naming convention.
-if ($cpu === 'x86') {
-    foreach ($output as $layer => $regionVersionCollection) {
-        if (str_ends_with($layer, 'function')) {
-            // Here we'll parse layers such as x86-php80-function and extract php80 into $matches
-            preg_match('/php\d\d/', $layer, $matches);
+$variables = [];
 
-            // Now that we have the php version, we can toss out the `php` string and keep the version number.
-            $version = str_replace('php', '', $matches[0]);
+foreach ($output as $layer => $regionVersionCollection) {
+    // Here we'll parse layers such as x86-php80-function and extract php80 into $matches
+    preg_match('/php\d\d/', $layer, $matches);
 
-            // Let's copy the entire layer versions under this backward compatible name
-            $output["php-$version"] = $regionVersionCollection;
-        }
+    // Now that we have the php version, we can toss out the `php` string and keep the version number.
+    $version = str_replace('php', '', $matches[0]);
+
+
+    if (str_ends_with($layer, 'function')) {
+        // PHP Function layers are called `php-xx`
+        $variable .= "php-$version";
+    } elseif (str_ends_with($layer, 'fpm')) {
+        // PHP FPM layers are called `php-xx-fpm`
+        $variable .= "php-$version-fpm";
+    } else {
+        throw new Exception("Unexpected layer $layer");
     }
+
+    $variables[$variable] = $regionVersionCollection;
 }
 
-file_put_contents("/tmp/bref-zip/layers.$cpu.json", json_encode($output, JSON_PRETTY_PRINT));
+file_put_contents("/tmp/bref-zip/layers.$cpu.json", json_encode($variables, JSON_PRETTY_PRINT));
