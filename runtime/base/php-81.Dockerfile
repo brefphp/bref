@@ -36,7 +36,7 @@ RUN set -xe; \
     make install
 
 
-ENV VERSION_PHP=8.1.0RC6
+ENV VERSION_PHP=8.1.0
 
 
 ENV PHP_BUILD_DIR=${BUILD_DIR}/php
@@ -46,7 +46,7 @@ RUN set -xe; \
     # --location will follow redirects
     # --silent will hide the progress, but also the errors: we restore error messages with --show-error
     # --fail makes sure that curl returns an error instead of fetching the 404 page
-    curl --location --silent --show-error --fail https://downloads.php.net/~ramsey/php-${VERSION_PHP}.tar.gz \
+    curl --location --silent --show-error --fail https://www.php.net/get/php-${VERSION_PHP}.tar.gz/from/this/mirror \
   | tar xzC ${PHP_BUILD_DIR} --strip-components=1
 # Move into the unpackaged code directory
 WORKDIR  ${PHP_BUILD_DIR}/
