@@ -88,7 +88,23 @@ class ServerlessPlugin {
             if (f.runtime === 'provided') {
                 throw new this.serverless.classes.Error(`Bref 1.0 layers are not compatible with the "provided" runtime.\nTo upgrade to Bref 1.0, you have to switch to "provided.al2" in serverless.yml for the function "${name}".\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2`);
             }
+
+            this.defineBrefFpmTimeout(name)
         }
+    }
+
+    defineBrefFpmTimeout(name) {
+        const timeout = this.serverless.service.functions[name].timeout ??
+            this.serverless.service.provider?.environment?.timeout ??
+            29 // We assume API Gateway Limit.
+
+        const environment = this.serverless.service.functions[name].environment ?? {}
+
+        // Here we subtract one second so that FPM can timeout before lambda crashes
+        // That will give the Lambda execution enough time to flush out logs.
+        environment.BREF_FPM_TIMEOUT = (timeout - 1) * 1000
+
+        this.serverless.service.functions[name].environment = environment;
     }
 
     addCustomIamRoleForVendorArchiveDownload() {

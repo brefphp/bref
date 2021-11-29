@@ -32,7 +32,12 @@ if (! is_file($handlerFile)) {
     $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist");
 }
 
+$timeout = getenv('BREF_FPM_TIMEOUT');
+
 $phpFpm = new FpmHandler($handlerFile);
+
+$phpFpm->setTimeout((int) $timeout);
+
 try {
     $phpFpm->start();
 } catch (\Throwable $e) {
