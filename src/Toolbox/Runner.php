@@ -205,9 +205,4 @@ final class Runner
             });
         }
     }
-
-    private function require(string $path)
-    {
-        require '/opt/bref-src' . $path;
-    }
 }

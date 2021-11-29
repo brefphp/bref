@@ -44,6 +44,9 @@ class ServerlessPlugin {
                     // and guarantees to return a fully resolved form (even if property is configured with variables)
                     const region = options.region || await resolveConfigurationProperty(['provider', 'region']);
 
+                    // Allows compatible Bref Deployment with custom layers built by the user.
+                    const account = process.env.AWS_ACCOUNT ?? '209497400698'
+
                     if (!address.startsWith('layer.')) {
                         throw new serverless.classes.Error(`Unknown Bref variable \${bref:${address}}, the only supported syntax right now is \${bref:layer.XXX}`);
                     }
@@ -61,7 +64,7 @@ class ServerlessPlugin {
                     const layer = layers[layerName][region];
 
                     return {
-                        value: `arn:aws:lambda:${region}:209497400698:layer:${layer}`,
+                        value: `arn:aws:lambda:${region}:${account}:layer:${layer}`,
                     }
                 }
             }

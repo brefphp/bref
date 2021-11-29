@@ -56,7 +56,7 @@ services:
       dockerfile: runtime/php80/cpu-${CPU}.Dockerfile
       target: zip-function
     entrypoint: /bin/cp
-    command: ["/tmp/layer.zip", "/tmp/bref-zip/php80-function.zip"]
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/${CPU}-php80-function.zip"]
     volumes:
       - /tmp/bref-zip/:/tmp/bref-zip/
 
@@ -67,7 +67,7 @@ services:
       dockerfile: runtime/php80/cpu-${CPU}.Dockerfile
       target: zip-fpm
     entrypoint: /bin/cp
-    command: ["/tmp/layer.zip", "/tmp/bref-zip/php80-fpm.zip"]
+    command: ["/tmp/layer.zip", "/tmp/bref-zip/${CPU}-php80-fpm.zip"]
     volumes:
       - /tmp/bref-zip/:/tmp/bref-zip/
 
