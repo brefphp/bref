@@ -1,6 +1,6 @@
 export TAG ?= al2-x86_64
 export CPU ?= x86
-export REGION ?= eu-west-1
+export REGION ?= us-east-1
 export AWS_PROFILE ?= deleugpn_brefphp
 export ROOT_DIR = ../../
 export PHP_VERSION = 7.4.25
@@ -17,7 +17,7 @@ function:
 	docker-compose down
 	rm /tmp/bref-zip/ -rf
 	docker-compose run --rm zip-function
-	PHP_VERSION=php74 TYPE=function docker-compose -f ../common/publish/docker-compose.yml run publish
+	LAYER_NAME=${CPU}-php74-function docker-compose -f ../common/publish/docker-compose.yml run publish
 
 fpm:
 	docker build -f ${ROOT_DIR}runtime/common/fpm/Dockerfile ${ROOT_DIR} -t bref/fpm-internal-src
@@ -29,7 +29,7 @@ fpm:
 	docker-compose down
 	rm /tmp/bref-zip/ -rf
 	docker-compose build zip-fpm && docker-compose run --rm zip-fpm
-	PHP_VERSION=php74 TYPE=fpm docker-compose -f ../common/publish/docker-compose.yml run publish
+	LAYER_NAME=${CPU}-php74-fpm docker-compose -f ../common/publish/docker-compose.yml run publish
 
 test:
 	$(MAKE) test_php_binary

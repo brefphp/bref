@@ -33,18 +33,15 @@ everything:
 	# This will clean up orphan containers
 	docker-compose down
 
-	# Add executable permission to the publish script
-	chmod +x ./common/publish/publish.sh
-
 	# Upload the Function layers to AWS
-	TYPE=function PHP_VERSION=php74 $(MAKE) -j7 publish
-	TYPE=function PHP_VERSION=php80 $(MAKE) -j7 publish
-	TYPE=function PHP_VERSION=php81 $(MAKE) -j7 publish
+	TYPE=function PHP_VERSION=php74 $(MAKE) -C ./common/publish/ publish-by-type
+	TYPE=function PHP_VERSION=php80 $(MAKE) -C ./common/publish/ publish-by-type
+	TYPE=function PHP_VERSION=php81 $(MAKE) -C ./common/publish/ publish-by-type
 
 	# Upload the FPM Layers to AWS
-	TYPE=fpm PHP_VERSION=php74 $(MAKE) -j7 publish
-	TYPE=fpm PHP_VERSION=php80 $(MAKE) -j7 publish
-	TYPE=fpm PHP_VERSION=php81 $(MAKE) -j7 publish
+	TYPE=fpm PHP_VERSION=php74 $(MAKE) -C ./common/publish/ publish-by-type
+	TYPE=fpm PHP_VERSION=php80 $(MAKE) -C ./common/publish/ publish-by-type
+	TYPE=fpm PHP_VERSION=php81 $(MAKE) -C ./common/publish/ publish-by-type
 
 	# Transform /tmp/bref-zip/output.ini into layers.json
 	docker-compose -f common/utils/docker-compose.yml run parse
@@ -100,44 +97,3 @@ docker-hub-push-fpm:
 	docker push breftest/php-74-fpm
 	docker push breftest/php-81-fpm
 	docker push breftest/php-81-fpm
-##########################################################################################
-
-# This command is designed for parallel execution of layer publishing.
-# When we do `make publish -j7`, make will execute each command defined
-# here in parallel.
-publish: america-1 america-2 europe-1 europe-2 asia-1 asia-2 miscellaneous
-
-america-1:
-	REGION=us-east-1 ./common/publish/publish.sh #US East (N. Virginia)
-	REGION=us-east-2 ./common/publish/publish.sh #US East (Ohio)
-	REGION=us-west-1 ./common/publish/publish.sh #US West (N. California)
-
-america-2:
-	REGION=us-west-2 ./common/publish/publish.sh #US West (Oregon)
-	REGION=ca-central-1 ./common/publish/publish.sh #Canada (Central)
-	REGION=sa-east-1 ./common/publish/publish.sh #South America (São Paulo)
-
-europe-1:
-	REGION=eu-west-1 ./common/publish/publish.sh #Europe (Ireland)
-	REGION=eu-west-2 ./common/publish/publish.sh #Europe (London)
-	REGION=eu-west-3 ./common/publish/publish.sh #Europe (Paris)
-
-europe-2:
-	REGION=eu-north-1 ./common/publish/publish.sh #Europe (Stockholm)
-	REGION=eu-south-1 ./common/publish/publish.sh #Europe (Milan)
-	REGION=eu-central-1 ./common/publish/publish.sh #Europe (Frankfurt)
-
-asia-1:
-	REGION=ap-east-1 ./common/publish/publish.sh #Asia Pacific (Hong Kong)
-	REGION=ap-south-1 ./common/publish/publish.sh #Asia Pacific (Mumbai)
-	REGION=ap-southeast-1 ./common/publish/publish.sh #Asia Pacific (Singapore)
-
-asia-2:
-	REGION=ap-northeast-1 ./common/publish/publish.sh #Asia Pacific (Tokyo)
-	REGION=ap-northeast-3 ./common/publish/publish.sh #Asia Pacific (Osaka)
-	REGION=ap-northeast-2 ./common/publish/publish.sh #Asia Pacific (Seoul)
-
-miscellaneous:
-	REGION=af-south-1 ./common/publish/publish.sh #Africa (Cape Town)
-	REGION=me-south-1 ./common/publish/publish.sh #Middle East (Bahrain)
-	REGION=ap-southeast-2 ./common/publish/publish.sh #Asia Pacific (Sydney)

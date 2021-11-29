@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  console-pkg:
+    image: bref/console-internal-src-zip
+    build:
+      context: ../../../
+      dockerfile: runtime/plugins/console/Dockerfile
+
+  console-zip:
+    image: bref/console-internal-src-zip
+    entrypoint: /bin/cp
+    command: [ "/tmp/layer.zip", "/tmp/bref-zip/console.zip" ]
+    volumes:
+      - /tmp/bref-zip/:/tmp/bref-zip/

@@ -103,13 +103,13 @@ a single layer on a single AWS Region.
 ##### Installing PHP from a distribution
 
 Compiling PHP is a complex process for the average PHP Developer. It takes a fair amount of time
-and can be cumbersome. Using remi-collect as a PHP distributor greatly simplifies and help the
+and can be cumbersome. Using remi-collet as a PHP distributor greatly simplifies and help the
 installation process. The code is more readable and approachable. Remi also distribute releases
 even before they are announced on the PHP Internal Mailing List by the Release Manager.
 
 The biggest downside is that we're no longer in control of compiling new releases whenever we want.
-But for x86 architecture, we see that using remi-collect will not be a problem for this.
-We can see the impact of this on arm64 (Graviton2 Support). Since remi-collect doesn't distribute arm64,
+But for x86 architecture, we see that using remi-collet will not be a problem for this.
+We can see the impact of this on arm64 (Graviton2 Support). Since remi-collet doesn't distribute arm64,
 we may have to rely on amazon-linux-extras, which is 5 months behind (as of this writing) with PHP 8.0.8.
 
 ##### Bundling extensions
