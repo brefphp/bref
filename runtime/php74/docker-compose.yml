@@ -9,7 +9,7 @@ services:
       dockerfile: runtime/php74/cpu-${CPU}.Dockerfile
       target: binary
 
-  extensions:
+  extension:
     container_name: bref-${CPU}-php74-extensions
     image: bref/${CPU}-php74-extensions
     stop_grace_period: 0s
