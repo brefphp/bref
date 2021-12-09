@@ -38,7 +38,6 @@ jobs:
                     ini-values: expose_php=1
             # See https://github.com/shivammathur/setup-php/issues/280
             -   name: Setup php-fpm
-                if: ${{ matrix.php != '8.1' }}
                 env:
                     version: ${{ matrix.php }}
                 run: |
