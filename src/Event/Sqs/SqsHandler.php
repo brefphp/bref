@@ -35,11 +35,12 @@ abstract class SqsHandler implements Handler
         );
 
         return [
-            'batchItemFailures' => $failures
+            'batchItemFailures' => $failures,
         ];
     }
 
-    final protected function markAsFailed(SqsRecord $record) {
+    final protected function markAsFailed(SqsRecord $record): void
+    {
         $this->failedRecords[] = $record;
     }
 }

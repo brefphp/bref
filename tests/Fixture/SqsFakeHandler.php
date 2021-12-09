@@ -10,10 +10,10 @@ class SqsFakeHandler extends SqsHandler
 {
     public function handleSqs(SqsEvent $event, Context $context): void
     {
-        foreach ($event->getRecords() as $record){
+        foreach ($event->getRecords() as $record) {
             $body = json_decode($record->getBody(), true);
 
-            $isEven = ($body['count'] % 2) === 0;
+            $isEven = $body['count'] % 2 === 0;
 
             if ($isEven) {
                 $this->markAsFailed($record);
@@ -21,5 +21,3 @@ class SqsFakeHandler extends SqsHandler
         }
     }
 }
-
-return new SqsFakeHandler();
