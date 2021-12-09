@@ -9,6 +9,7 @@ use Exception;
 use JsonException;
 use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,17 +22,18 @@ use Throwable;
  */
 class Local extends Command
 {
+    /** @var string */
     protected static $defaultName = 'local';
-
-    public const SIGNATURE = 'local [function] [data] [--file=] [--handler=] [--config=]';
 
     protected function configure(): void
     {
-        $this->addArgument('function', null, '', null);
-        $this->addArgument('data');
-        $this->addOption('file', 'f', InputOption::VALUE_REQUIRED);
-        $this->addOption('handler', 'h', InputOption::VALUE_REQUIRED);
-        $this->addOption('config', 'c', InputOption::VALUE_REQUIRED);
+        $this
+            ->addArgument('function', InputArgument::OPTIONAL)
+            ->addArgument('data', InputArgument::OPTIONAL)
+            ->addOption('file', 'f', InputOption::VALUE_REQUIRED)
+            ->addOption('handler', null, InputOption::VALUE_REQUIRED)
+            ->addOption('config', 'c', InputOption::VALUE_REQUIRED)
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -101,14 +103,14 @@ class Local extends Command
                 $e->getTraceAsString(),
             ]);
             $io->error($e->getMessage());
-            return 1;
+            return Command::FAILURE;
         }
 
         $this->logEnd($startTime, $io, $requestId);
         // Show the invocation result
         $io->block(json_encode($result, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT), null, 'fg=black;bg=green', '', true);
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function handlerFromServerlessYml(string $function, ?string $config): string

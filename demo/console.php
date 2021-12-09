@@ -10,41 +10,36 @@ require __DIR__.'/../vendor/autoload.php';
 
 $app = new Application();
 
-$app->add(new class('hello') extends Command {
-    protected function configure(): void
-    {
-        $this->addArgument('name', InputArgument::OPTIONAL, '', 'World!');
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+$app->register('hello')
+    ->addArgument('name', InputArgument::OPTIONAL, '', 'World!')
+    ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $output->writeln('Hello, ' . $input->getArgument('name'));
-        return 0;
-    }
-});
+        return Command::SUCCESS;
+    })
+;
 
-$app->add((new class('phpinfo') extends Command {})->setCode(
-    function (InputInterface $input, OutputInterface $output) {
+$app->register('phpinfo')
+    ->setCode(function (InputInterface $input, OutputInterface $output): int {
         ob_start();
         phpinfo();
         $phpinfo = ob_get_clean();
         $output->write($phpinfo);
-        return 0;
-    }
-));
+        return Command::SUCCESS;
+    })
+;
 
-$app->add((new class('error') extends Command {})->setCode(
-    function (InputInterface $input, OutputInterface $output) {
+$app->register('error')
+    ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $output->writeln('There was an error!');
-        return 1;
-    }
-));
+        return Command::FAILURE;
+    })
+;
 
-$app->add((new class('sleep') extends Command {})->setCode(
-    function (InputInterface $input, OutputInterface $output) {
+$app->register('sleep')
+    ->setCode(function (InputInterface $input, OutputInterface $output): int {
         sleep(120);
-        return 0;
-    }
-));
+        return Command::SUCCESS;
+    })
+;
 
 $app->run();

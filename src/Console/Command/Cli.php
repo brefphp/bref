@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Console\Command;
 
@@ -9,21 +7,24 @@ use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class Cli extends Command
 {
+    /** @var string */
     protected static $defaultName = 'cli';
+    /** @var string */
     protected static $defaultDescription = 'Run a CLI command in the remote environment.';
 
     protected function configure(): void
     {
-        $this->addArgument('function', InputArgument::REQUIRED);
-        $this->addArgument('arguments', InputArgument::OPTIONAL);
-        $this->addOption('region', 'r');
-        $this->addOption('profile', 'p');
+        $this
+            ->addArgument('function', InputArgument::REQUIRED)
+            ->addArgument('arguments', InputArgument::OPTIONAL)
+            ->addOption('region', 'r')
+            ->addOption('profile', 'p')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -51,7 +52,7 @@ final class Cli extends Command
         } catch (InvocationFailed $e) {
             $io->getErrorStyle()->writeln('<info>' . $e->getInvocationLogs() . '</info>');
             $io->error($e->getMessage());
-            return 1;
+            return Command::FAILURE;
         }
 
         $payload = $result->getPayload();
@@ -63,9 +64,9 @@ final class Cli extends Command
             $io->write('<comment>' . $result->getLogs() . '</comment>');
             $io->writeln('<info>Lambda result payload:</info>');
             $io->writeln(json_encode($payload, JSON_PRETTY_PRINT));
-            return 1;
+            return Command::FAILURE;
         }
 
-        return (int) ($payload['exitCode'] ?? 1);
+        return (int) ($payload['exitCode'] ?? Command::FAILURE);
     }
 }

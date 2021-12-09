@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Console\Command;
 
@@ -16,22 +14,26 @@ use Symfony\Component\Process\Process;
 
 final class Dashboard extends Command
 {
+    /** @var string */
     protected static $defaultName = 'dashboard';
+    /** @var string */
     protected static $defaultDescription = 'Start the dashboard';
 
-    protected function configure()
+    protected function configure(): void
     {
-        $this->addOption('host', null, InputOption::VALUE_REQUIRED);
-        $this->addOption('port', null, InputOption::VALUE_REQUIRED);
-        $this->addOption('profile', null, InputOption::VALUE_REQUIRED);
-        $this->addOption('stage', null, InputOption::VALUE_REQUIRED);
+        $this
+            ->addOption('host', null, InputOption::VALUE_REQUIRED, '', 'localhost')
+            ->addOption('port', null, InputOption::VALUE_REQUIRED, '', '8000')
+            ->addOption('profile', null, InputOption::VALUE_REQUIRED)
+            ->addOption('stage', null, InputOption::VALUE_REQUIRED)
+        ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $host = $input->getOption('host');
-        $port = $input->getOption('port');
+        $port = (int) $input->getOption('port');
         $profile = $input->getOption('profile');
         $stage = $input->getOption('stage');
 
@@ -46,7 +48,7 @@ final class Dashboard extends Command
         if (! file_exists('serverless.yml')) {
             $io->error('No `serverless.yml` file found.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $exeFinder = new ExecutableFinder();
@@ -56,7 +58,7 @@ final class Dashboard extends Command
                 'Please follow the instructions at https://docs.docker.com/install/'
             );
 
-            return 1;
+            return Command::FAILURE;
         }
 
         if (! $exeFinder->find('serverless')) {
@@ -65,7 +67,7 @@ final class Dashboard extends Command
                 'Please follow the instructions at https://bref.sh/docs/installation.html'
             );
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $serverlessInfo = new Process(['serverless', 'info', '--stage', $stage, '--aws-profile', $profile]);
@@ -80,7 +82,7 @@ final class Dashboard extends Command
         if (!$serverlessInfo->isSuccessful()) {
             $io->error('The command `serverless info` failed' . PHP_EOL . $serverlessInfo->getOutput());
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $serverlessInfoOutput = $serverlessInfo->getOutput();
@@ -109,7 +111,7 @@ final class Dashboard extends Command
                 $dockerPull->getErrorOutput(),
             ]);
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $process = new Process(['docker', 'run', '--rm', '-p', $host . ':' . $port.':8000', '-v', getenv('HOME').'/.aws:/root/.aws:ro', '--env', 'STACKNAME='.$stack, '--env', 'REGION='.$region, '--env', 'AWS_PROFILE='.$profile, 'bref/dashboard']);
@@ -128,7 +130,7 @@ final class Dashboard extends Command
                 $process->getErrorOutput(),
             ]);
 
-            return 1;
+            return Command::FAILURE;
         }
         $url = "http://$host:$port";
         $io->writeln("Dashboard started: <fg=green;options=bold,underscore>$url</>");

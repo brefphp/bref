@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Console\Command;
 
@@ -14,25 +12,26 @@ use Symfony\Component\Process\Process;
 
 final class Init extends Command
 {
+    /** @var string */
     protected static $defaultName = 'init';
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $exeFinder = new ExecutableFinder();
+        $exeFinder = new ExecutableFinder;
         if (! $exeFinder->find('serverless')) {
             $io->error(
                 'The `serverless` command is not installed.' . PHP_EOL .
                 'Please follow the instructions at https://bref.sh/docs/installation.html'
             );
 
-            return 1;
+            return Command::FAILURE;
         }
 
         if (file_exists('serverless.yml') || file_exists('index.php')) {
             $io->error('The directory already contains a `serverless.yml` and/or `index.php` file.');
 
-            return 1;
+            return Command::FAILURE;
         }
 
         $choice = $io->choice(
@@ -48,13 +47,13 @@ final class Init extends Command
             'Event-driven function' => 'function',
         ][$choice];
 
-        $fs = new Filesystem();
-        $rootPath = __DIR__ . "/template/$templateDirectory";
+        $fs = new Filesystem;
+        $rootPath = dirname(__DIR__, 3) . "/template/$templateDirectory";
 
-        $io->writeln("Creating index.php");
+        $io->writeln('Creating index.php');
         $fs->copy("$rootPath/index.php", 'index.php');
 
-        $io->writeln("Creating serverless.yml");
+        $io->writeln('Creating serverless.yml');
 
         $template = file_get_contents("$rootPath/serverless.yml");
 
@@ -79,6 +78,6 @@ final class Init extends Command
             $io->success('Project initialized and ready to test or deploy.');
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

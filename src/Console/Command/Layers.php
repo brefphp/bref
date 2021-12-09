@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Console\Command;
 
@@ -11,20 +9,22 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class Layers extends Command
 {
+    /** @var string */
     protected static $defaultName = 'layers';
-    protected static $defaultDescription = 'Displays the versions of the Bref layers';
+    /** @var string */
+    protected static $defaultDescription = 'Display the versions of the Bref layers';
 
     protected function configure(): void
     {
         $this->addArgument('region');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $region = $input->getArgument('region');
 
-        $layers = json_decode(file_get_contents(__DIR__ . '/layers.json'), true);
+        $layers = json_decode(file_get_contents(dirname(__DIR__, 3) . '/layers.json'), true);
         $io->title("Layers for the $region region");
 
         $array = [];
@@ -42,6 +42,6 @@ final class Layers extends Command
             'ARN',
         ], $array);
 
-        return 0;
+        return Command::SUCCESS;
     }
 }
