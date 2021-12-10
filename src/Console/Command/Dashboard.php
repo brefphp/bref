@@ -14,14 +14,11 @@ use Symfony\Component\Process\Process;
 
 final class Dashboard extends Command
 {
-    /** @var string */
-    protected static $defaultName = 'dashboard';
-    /** @var string */
-    protected static $defaultDescription = 'Start the dashboard';
-
     protected function configure(): void
     {
         $this
+            ->setName('dashboard')
+            ->setDescription('Starts the dashboard')
             ->addOption('host', null, InputOption::VALUE_REQUIRED, '', 'localhost')
             ->addOption('port', null, InputOption::VALUE_REQUIRED, '', '8000')
             ->addOption('profile', null, InputOption::VALUE_REQUIRED)

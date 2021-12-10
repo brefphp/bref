@@ -9,14 +9,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class Layers extends Command
 {
-    /** @var string */
-    protected static $defaultName = 'layers';
-    /** @var string */
-    protected static $defaultDescription = 'Display the versions of the Bref layers';
-
     protected function configure(): void
     {
-        $this->addArgument('region');
+        $this
+            ->setName('layers')
+            ->setDescription('Displays the versions of the Bref layers')
+            ->addArgument('region')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

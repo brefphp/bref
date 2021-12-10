@@ -22,12 +22,10 @@ use Throwable;
  */
 class Local extends Command
 {
-    /** @var string */
-    protected static $defaultName = 'local';
-
     protected function configure(): void
     {
         $this
+            ->setName('local')
             ->addArgument('function', InputArgument::OPTIONAL)
             ->addArgument('data', InputArgument::OPTIONAL)
             ->addOption('file', 'f', InputOption::VALUE_REQUIRED)

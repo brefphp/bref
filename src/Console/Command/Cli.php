@@ -12,14 +12,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class Cli extends Command
 {
-    /** @var string */
-    protected static $defaultName = 'cli';
-    /** @var string */
-    protected static $defaultDescription = 'Run a CLI command in the remote environment.';
-
     protected function configure(): void
     {
         $this
+            ->setName('cli')
+            ->setDescription('Runs a CLI command in the remote environment')
             ->addArgument('function', InputArgument::REQUIRED)
             ->addArgument('arguments', InputArgument::OPTIONAL)
             ->addOption('region', 'r')

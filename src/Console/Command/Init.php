@@ -12,8 +12,10 @@ use Symfony\Component\Process\Process;
 
 final class Init extends Command
 {
-    /** @var string */
-    protected static $defaultName = 'init';
+    protected function configure()
+    {
+        $this->setName('init');
+    }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
