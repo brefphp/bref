@@ -30,8 +30,7 @@ class Local extends Command
             ->addArgument('data', InputArgument::OPTIONAL)
             ->addOption('file', 'f', InputOption::VALUE_REQUIRED)
             ->addOption('handler', null, InputOption::VALUE_REQUIRED)
-            ->addOption('config', 'c', InputOption::VALUE_REQUIRED)
-        ;
+            ->addOption('config', 'c', InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

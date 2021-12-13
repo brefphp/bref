@@ -22,8 +22,7 @@ final class Dashboard extends Command
             ->addOption('host', null, InputOption::VALUE_REQUIRED, '', 'localhost')
             ->addOption('port', null, InputOption::VALUE_REQUIRED, '', '8000')
             ->addOption('profile', null, InputOption::VALUE_REQUIRED)
-            ->addOption('stage', null, InputOption::VALUE_REQUIRED)
-        ;
+            ->addOption('stage', null, InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -48,7 +47,7 @@ final class Dashboard extends Command
             return Command::FAILURE;
         }
 
-        $exeFinder = new ExecutableFinder();
+        $exeFinder = new ExecutableFinder;
         if (! $exeFinder->find('docker')) {
             $io->error(
                 'The `docker` command is not installed.' . PHP_EOL .
@@ -72,11 +71,11 @@ final class Dashboard extends Command
         $animation = new LoadingAnimation($io);
         do {
             $animation->tick('Retrieving the stack');
-            usleep(100*1000);
+            usleep(100 * 1000);
         } while ($serverlessInfo->isRunning());
         $animation->clear();
 
-        if (!$serverlessInfo->isSuccessful()) {
+        if (! $serverlessInfo->isSuccessful()) {
             $io->error('The command `serverless info` failed' . PHP_EOL . $serverlessInfo->getOutput());
 
             return Command::FAILURE;
@@ -99,7 +98,7 @@ final class Dashboard extends Command
         $dockerPull->start();
         do {
             $animation->tick('Retrieving the latest version of the dashboard');
-            usleep(100*1000);
+            usleep(100 * 1000);
         } while ($dockerPull->isRunning());
         $animation->clear();
         if (! $dockerPull->isSuccessful()) {
@@ -111,17 +110,17 @@ final class Dashboard extends Command
             return Command::FAILURE;
         }
 
-        $process = new Process(['docker', 'run', '--rm', '-p', $host . ':' . $port.':8000', '-v', getenv('HOME').'/.aws:/root/.aws:ro', '--env', 'STACKNAME='.$stack, '--env', 'REGION='.$region, '--env', 'AWS_PROFILE='.$profile, 'bref/dashboard']);
+        $process = new Process(['docker', 'run', '--rm', '-p', $host . ':' . $port . ':8000', '-v', getenv('HOME') . '/.aws:/root/.aws:ro', '--env', 'STACKNAME=' . $stack, '--env', 'REGION=' . $region, '--env', 'AWS_PROFILE=' . $profile, 'bref/dashboard']);
         $process->setTimeout(null);
         $process->start();
         do {
             $animation->tick('Starting the dashboard');
-            usleep(100*1000);
+            usleep(100 * 1000);
             $serverOutput = $process->getOutput() . $process->getErrorOutput();
             $hasStarted = (strpos($serverOutput, 'Development Server') !== false);
-        } while ($process->isRunning() && !$hasStarted);
+        } while ($process->isRunning() && ! $hasStarted);
         $animation->clear();
-        if (!$process->isRunning()) {
+        if (! $process->isRunning()) {
             $io->error([
                 'The dashboard failed to start',
                 $process->getErrorOutput(),
@@ -132,15 +131,14 @@ final class Dashboard extends Command
         $url = "http://$host:$port";
         $io->writeln("Dashboard started: <fg=green;options=bold,underscore>$url</>");
         OpenUrl::open($url);
-        $process->wait(function ($type, $buffer) {
-            if (Process::ERR === $type) {
-                echo 'ERR > '.$buffer;
+        $process->wait(function ($type, $buffer): void {
+            if ($type === Process::ERR) {
+                echo 'ERR > ' . $buffer;
             } else {
-                echo 'OUT > '.$buffer;
+                echo 'OUT > ' . $buffer;
             }
         });
 
         return $process->getExitCode();
     }
-
 }

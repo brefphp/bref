@@ -14,8 +14,7 @@ final class Layers extends Command
         $this
             ->setName('layers')
             ->setDescription('Displays the versions of the Bref layers')
-            ->addArgument('region')
-        ;
+            ->addArgument('region');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

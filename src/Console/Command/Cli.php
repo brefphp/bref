@@ -20,8 +20,7 @@ final class Cli extends Command
             ->addArgument('function', InputArgument::REQUIRED)
             ->addArgument('arguments', InputArgument::OPTIONAL)
             ->addOption('region', 'r')
-            ->addOption('profile', 'p')
-        ;
+            ->addOption('profile', 'p');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
