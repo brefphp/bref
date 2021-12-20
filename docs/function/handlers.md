@@ -137,6 +137,24 @@ class Handler extends SqsHandler
 return new Handler();
 ```
 
+### Partial Batch Response
+
+While handling a batch of records, you can mark it as partially successful to reprocess only the failed records.
+
+```php
+    public function handleSqs(SqsEvent $event, Context $context): void
+    {
+        foreach ($event->getRecords() as $record) {
+            // do something
+
+            // if something went wrong, mark the record as failed
+            $this->markAsFailed($record);
+        }
+    }
+```
+
+### Lift Queue Construct
+
 It is possible to deploy a preconfigured SQS queue in `serverless.yml` using the <a href="https://github.com/getlift/lift/blob/master/docs/queue.md">`Queue` feature of the Lift plugin</a>. For example:
 
 ```yaml
