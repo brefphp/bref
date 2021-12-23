@@ -141,6 +141,21 @@ return new Handler();
 
 While handling a batch of records, you can mark it as partially successful to reprocess only the failed records.
 
+In your function declaration in `serverless.yml`, set `functionResponseType` to `ReportBatchItemFailures` to let your function return a partial success result if one or more messages in the batch have failed.
+
+```yaml
+functions:
+  worker:
+    handler: handler.php
+    events:
+      - sqs:
+          arn: arn:aws:sqs:eu-west-1:111111111111:queue-name
+          batchSize: 100
+          functionResponseType: ReportBatchItemFailures
+```
+
+In your PHP code, you can now use the `markAsFailed` method:
+
 ```php
     public function handleSqs(SqsEvent $event, Context $context): void
     {
