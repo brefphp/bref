@@ -7,6 +7,7 @@ use Bref\Lambda\SimpleLambdaClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -18,9 +19,9 @@ final class Cli extends Command
             ->setName('cli')
             ->setDescription('Runs a CLI command in the remote environment')
             ->addArgument('function', InputArgument::REQUIRED)
-            ->addArgument('arguments', InputArgument::OPTIONAL)
-            ->addOption('region', 'r')
-            ->addOption('profile', 'p');
+            ->addArgument('arguments', InputArgument::IS_ARRAY)
+            ->addOption('region', 'r', InputOption::VALUE_REQUIRED)
+            ->addOption('profile', 'p', InputOption::VALUE_REQUIRED);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

@@ -66,7 +66,12 @@ final class Dashboard extends Command
             return Command::FAILURE;
         }
 
-        $serverlessInfo = new Process(['serverless', 'info', '--stage', $stage, '--aws-profile', $profile]);
+        $args = ['serverless', 'info', '--aws-profile', $profile];
+        if ($stage) {
+            $args[] = '--stage';
+            $args[] = $stage;
+        }
+        $serverlessInfo = new Process($args);
         $serverlessInfo->start();
         $animation = new LoadingAnimation($io);
         do {

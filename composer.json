@@ -65,5 +65,10 @@
         "code-style": "Run code style checks using PHP_CodeSniffer",
         "static-analysis": "Run static analysis using PHPStan",
         "tests": "Run unit tests with PHPUnit"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }
