@@ -3,7 +3,7 @@ export CPU ?= x86
 export REGION ?= eu-west-1
 export AWS_PROFILE ?= deleugpn_brefphp
 export ROOT_DIR = ../../
-export PHP_VERSION = 8.1.0RC6
+export PHP_VERSION = 8.1.1
 
 .SILENT: function fpm
 
