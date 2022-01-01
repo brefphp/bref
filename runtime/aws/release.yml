@@ -13,9 +13,52 @@ Resources:
             Value: x86
           - Name: PUBLISHER_ACCOUNT_ROLE_ARN
             Value: 'arn:aws:iam::978790411843:role/bref-layer-publisher'
+          - Name: DOCKER_BUILDKIT
+            Value: '1'
+          - Name: COMPOSE_DOCKER_CLI_BUILD
+            Value: '1'
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_LARGE
         Image: aws/codebuild/amazonlinux2-x86_64-standard:3.0
+        PrivilegedMode: true
+      Source:
+        Location: https://github.com/deleugpn/bref.git
+        Type: GITHUB
+        BuildSpec: runtime/aws/release.buildspec.yml
+      Visibility: PUBLIC_READ
+      Triggers:
+        Webhook: true
+        FilterGroups:
+          - - Type: EVENT
+              Pattern: PULL_REQUEST_MERGED
+            - Type: BASE_REF
+              Pattern: ^refs/heads/runtime$
+            - Type: FILE_PATH
+              Pattern: runtime/*
+
+  ARMBrefLayersBuilder:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      ServiceRole: !Ref BrefLayersBuilderRole
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        # We cannot use credentials as environment variable anymore because `public` CodeBuild displays
+        # these variables to anyone on the internet.
+        EnvironmentVariables:
+          - Name: CPU
+            Value: arm
+          - Name: PUBLISHER_ACCOUNT_ROLE_ARN
+            Value: 'arn:aws:iam::978790411843:role/bref-layer-publisher'
+
+          # Bug Report: https://github.com/docker/compose/issues/8804
+          - Name: DOCKER_BUILDKIT
+            Value: '1'
+          - Name: COMPOSE_DOCKER_CLI_BUILD
+            Value: '1'
+        Type: ARM_CONTAINER
+        ComputeType: BUILD_GENERAL1_LARGE
+        Image: aws/codebuild/amazonlinux2-aarch64-standard:2.0
         PrivilegedMode: true
       Source:
         Location: https://github.com/deleugpn/bref.git
