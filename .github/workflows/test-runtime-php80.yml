@@ -1,0 +1,20 @@
+name: Build Docker images
+
+on:
+  pull_request:
+    paths:
+      - runtime/**
+
+jobs:
+  publish:
+    name: Testing Runtine PHP 7.4
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_BUILDKIT: 1
+      COMPOSE_DOCKER_CLI_BUILD: 1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Testing PHP 7.4
+        run: cd runtime/php74 && make test

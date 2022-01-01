@@ -16,9 +16,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # Here we're testing one PHP version instead of all of them.
-      # We should either enable testing on all of them in parallel
-      # Or make sure contributors and maintainers understand that
-      # all 3 layers should keep their similarity as much as possible.
-      - name: Testing PHP 80
+      - name: Testing PHP 8.0
         run: cd runtime/php80 && make test
