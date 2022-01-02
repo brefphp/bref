@@ -99,8 +99,8 @@ RUN yum install -y \
     php-xmlwriter \
     php-xsl \
     php-intl \
-    php-apcu \
     php-pdo_pgsql
+    #php-apcu NOT WORKING
 
 RUN cp /usr/lib64/php/modules/mbstring.so /bref/php-modules/mbstring.so
 RUN cp /usr/lib64/libonig.so.2 /bref/lib/libonig.so.2
@@ -124,7 +124,7 @@ RUN cp /usr/lib64/libicuuc.so.50 /bref/lib/libicuuc.so.50
 RUN cp /usr/lib64/libicudata.so.50 /bref/lib/libicudata.so.50
 RUN cp /usr/lib64/php/modules/intl.so /bref/php-modules/intl.so
 
-RUN cp /usr/lib64/php/modules/apcu.so /bref/php-modules/apcu.so
+#RUN cp /usr/lib64/php/modules/apcu.so /bref/php-modules/apcu.so
 
 RUN cp /usr/lib64/libpq.so.5 /bref/lib/libpq.so.5
 #RUN cp /usr/lib64/libldap_r-2.4.so.2 /bref/lib/libldap_r-2.4.so.2

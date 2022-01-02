@@ -64,7 +64,7 @@ docker-hub:
 	docker tag bref/x86-php74-fpm breftest/php-74-fpm
 	docker tag bref/x86-php80-fpm breftest/php-80-fpm
 
-	$(MAKE) -j2 docker-hub-push-all
+	$(MAKE) -f cpu-$(CPU).Makefile -j2 docker-hub-push-all
 
 
 docker-hub-push-all: docker-hub-push-function docker-hub-push-fpm
