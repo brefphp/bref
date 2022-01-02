@@ -1,4 +1,3 @@
-export TAG ?= al2-x86_64
 export CPU ?= x86
 export ROOT_DIR ?= $(shell pwd)/../
 #export AWS_PROFILE ?= deleugpn_brefphp
