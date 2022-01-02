@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    name: Testing Runtime PHP 7.4
+    name: Testing Runtine PHP 8.1
     runs-on: ubuntu-latest
     env:
       DOCKER_BUILDKIT: 1
@@ -16,5 +16,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Testing PHP 7.4
-        run: cd runtime/php74 && make test
+      - name: Testing PHP 8.1
+        run: cd runtime/php81 && make test
