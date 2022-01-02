@@ -1,4 +1,3 @@
-export TAG ?= al2-x86_64
 export CPU ?= x86
 export REGION ?= eu-west-1
 export AWS_PROFILE ?= deleugpn_brefphp
