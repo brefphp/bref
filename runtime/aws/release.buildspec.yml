@@ -37,7 +37,7 @@ phases:
       # Configure GitHub User & Branch
       - git config --global user.email "deleugyn+bref@gmail.com"
       - git config --global user.name "Brefphp Bot by @deleugyn"
-      - git checkout runtime
+      - git checkout origin/runtime
       - git checkout -b ${BREFPHP_BOT_BRANCH}
 
       # Let's generate credentials for the Layer Account
