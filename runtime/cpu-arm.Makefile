@@ -16,18 +16,18 @@ everything:
 
 	# We build the layer first because we want the Docker Image to be properly tagged so that
 	# later on we can push to Docker Hub.
-	docker-compose build --parallel php74-function php80-function php81-function
+	docker-compose build --parallel php74-function php80-function
 
 	# After we build the layer successfully we can then zip it up so that it's ready to be uploaded to AWS.
-	docker-compose build --parallel php74-zip-function php80-zip-function php81-zip-function
+	docker-compose build --parallel php74-zip-function php80-zip-function
 
 	# Repeat the same process for FPM
-	docker-compose build --parallel php74-fpm php80-fpm php81-fpm
-	docker-compose build --parallel php74-zip-fpm php80-zip-fpm php81-zip-fpm
+	docker-compose build --parallel php74-fpm php80-fpm
+	docker-compose build --parallel php74-zip-fpm php80-zip-fpm
 
 	# By running the zip containers, the layers will be copied over to /tmp/bref-zip/
-	docker-compose up php74-zip-function php80-zip-function php81-zip-function \
-		php74-zip-fpm php80-zip-fpm php81-zip-fpm
+	docker-compose up php74-zip-function php80-zip-function \
+		php74-zip-fpm php80-zip-fpm
 
 	# This will clean up orphan containers
 	docker-compose down
@@ -35,12 +35,10 @@ everything:
 	# Upload the Function layers to AWS
 	TYPE=function PHP_VERSION=php74 $(MAKE) -C ./common/publish/ publish-by-type
 	TYPE=function PHP_VERSION=php80 $(MAKE) -C ./common/publish/ publish-by-type
-	TYPE=function PHP_VERSION=php81 $(MAKE) -C ./common/publish/ publish-by-type
 
 	# Upload the FPM Layers to AWS
 	TYPE=fpm PHP_VERSION=php74 $(MAKE) -C ./common/publish/ publish-by-type
 	TYPE=fpm PHP_VERSION=php80 $(MAKE) -C ./common/publish/ publish-by-type
-	TYPE=fpm PHP_VERSION=php81 $(MAKE) -C ./common/publish/ publish-by-type
 
 	# Transform /tmp/bref-zip/output.ini into layers.json
 	docker-compose -f common/utils/docker-compose.yml run parse
@@ -56,19 +54,15 @@ docker-hub:
 	# Temporarily creating aliases of the Docker images so that I can push to my own account
 	docker tag bref/x86-php74-function breftest/x86-php74-function
 	docker tag bref/x86-php80-function breftest/x86-php80-function
-	docker tag bref/x86-php81-function breftest/x86-php81-function
 	docker tag bref/x86-php74-fpm breftest/x86-php74-fpm
 	docker tag bref/x86-php80-fpm breftest/x86-php80-fpm
-	docker tag bref/x86-php81-fpm breftest/x86-php81-fpm
 
 	# Backward compatible tags
 	#TODO: change breftest/ to bref/
 	docker tag bref/x86-php74-function breftest/php-74
 	docker tag bref/x86-php80-function breftest/php-80
-	docker tag bref/x86-php81-function breftest/php-81
 	docker tag bref/x86-php74-fpm breftest/php-74-fpm
 	docker tag bref/x86-php80-fpm breftest/php-80-fpm
-	docker tag bref/x86-php81-fpm breftest/php-81-fpm
 
 	$(MAKE) -j2 docker-hub-push-all
 
@@ -79,20 +73,16 @@ docker-hub-push-function:
 	#TODO: change breftest/ to bref/
 	docker push breftest/x86-php74-function
 	docker push breftest/x86-php80-function
-	docker push breftest/x86-php81-function
 
 	# Backward compatibility
 	docker push breftest/php-74
-	docker push breftest/php-81
-	docker push breftest/php-81
+	docker push breftest/php-80
 
 docker-hub-push-fpm:
 	#TODO: change breftest/ to bref/
 	docker push breftest/x86-php74-fpm
 	docker push breftest/x86-php80-fpm
-	docker push breftest/x86-php81-fpm
 
 	# Backward compatibility
 	docker push breftest/php-74-fpm
-	docker push breftest/php-81-fpm
-	docker push breftest/php-81-fpm
+	docker push breftest/php-80-fpm
