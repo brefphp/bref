@@ -9,7 +9,7 @@ RUN yum install -y amazon-linux-extras
 
 RUN amazon-linux-extras enable php8.0
 
-RUN yum install -y curl php-cli unzip
+RUN yum install -y curl php-cli php-sodium unzip
 
 # These files are included on Amazon Linux 2
 
@@ -28,9 +28,8 @@ RUN yum install -y curl php-cli unzip
 
 # PHP Binary
 RUN cp /usr/bin/php /bref/bin/php && chmod +x /bref/bin/php
-RUN cp /lib64/libtinfo.so.5 /bref/lib/libtinfo.so.5
 RUN cp /lib64/libedit.so.0 /bref/lib/libedit.so.0
-RUN cp /lib64/libncurses.so.5 /bref/lib/libncurses.so.5
+RUN cp /lib64/libncurses.so.6 /bref/lib/libncurses.so.6
 #RUN cp /lib64/libcrypt.so.1 /bref/lib/libcrypt.so.1
 #RUN cp /lib64/libresolv.so.2 /bref/lib/libresolv.so.2
 #RUN cp /lib64/libm.so.6 /bref/lib/libm.so.6
@@ -104,7 +103,7 @@ RUN yum install -y \
     php-pdo_pgsql
 
 RUN cp /usr/lib64/php/modules/mbstring.so /bref/php-modules/mbstring.so
-RUN cp /usr/lib64/libonig.so.105 /bref/lib/libonig.so.105
+RUN cp /usr/lib64/libonig.so.2 /bref/lib/libonig.so.2
 
 # mysqli depends on mysqlnd
 RUN cp /usr/lib64/php/modules/mysqli.so /bref/php-modules/mysqli.so
@@ -119,10 +118,10 @@ RUN cp /usr/lib64/libexslt.so.0 /bref/lib/libexslt.so.0
 RUN cp /usr/lib64/libxslt.so.1 /bref/lib/libxslt.so.1
 RUN cp /usr/lib64/php/modules/xsl.so /bref/php-modules/xsl.so
 
-RUN cp /usr/lib64/libicuio.so.69 /bref/lib/libicuio.so.69
-RUN cp /usr/lib64/libicui18n.so.69 /bref/lib/libicui18n.so.69
-RUN cp /usr/lib64/libicuuc.so.69 /bref/lib/libicuuc.so.69
-RUN cp /usr/lib64/libicudata.so.69 /bref/lib/libicudata.so.69
+RUN cp /usr/lib64/libicuio.so.50 /bref/lib/libicuio.so.50
+RUN cp /usr/lib64/libicui18n.so.50 /bref/lib/libicui18n.so.50
+RUN cp /usr/lib64/libicuuc.so.50 /bref/lib/libicuuc.so.50
+RUN cp /usr/lib64/libicudata.so.50 /bref/lib/libicudata.so.50
 RUN cp /usr/lib64/php/modules/intl.so /bref/php-modules/intl.so
 
 RUN cp /usr/lib64/php/modules/apcu.so /bref/php-modules/apcu.so
@@ -194,7 +193,7 @@ RUN yum install -y php-fpm
 
 FROM isolation as fpm
 
-COPY --from=fpm-extension /opt/remi/php80/root/sbin/php-fpm /opt/bin/php-fpm
+COPY --from=fpm-extension /usr/sbin/php-fpm /opt/bin/php-fpm
 
 COPY --from=fpm-extension /usr/lib64/libsystemd.so.0 /opt/lib/libsystemd.so.0
 COPY --from=fpm-extension /usr/lib64/liblz4.so.1 /opt/lib/liblz4.so.1
