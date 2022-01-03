@@ -170,7 +170,11 @@ class ServerlessPlugin {
     }
 
     async createZipFile() {
-        this.filePath = '.serverless/vendor.zip';
+        const vendorDir = '.serverless';
+        if (!this.fs.existsSync(vendorDir)){
+            this.fs.mkdirSync(vendorDir);
+        }
+        this.filePath = `${vendorDir}/vendor.zip`;
 
         return await new Promise((resolve, reject) => {
             const archiver = require(process.mainModule.path + '/../node_modules/archiver');
