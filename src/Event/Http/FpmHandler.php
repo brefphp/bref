@@ -5,8 +5,10 @@ namespace Bref\Event\Http;
 use Bref\Context\Context;
 use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
 use Bref\Event\Http\FastCgi\FastCgiRequest;
+use Bref\Event\Http\FastCgi\Timeout;
 use Exception;
 use hollodotme\FastCGI\Client;
+use hollodotme\FastCGI\Exceptions\TimedoutException;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
@@ -110,8 +112,28 @@ final class FpmHandler extends HttpHandler
     {
         $request = $this->eventToFastCgiRequest($event, $context);
 
+        // The script will timeout 1 second before the remaining time
+        // to allow some time for Bref/PHP-FPM to recover and cleanup
+        $margin = 1000;
+        $timeoutDelayInMs = max(1000, $context->getRemainingTimeInMillis() - $margin);
+
         try {
-            $response = $this->client->sendRequest($this->connection, $request);
+            $socketId = $this->client->sendAsyncRequest($this->connection, $request);
+
+            $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
+        } catch (TimedoutException $e) {
+            // Send a SIGUSR2 signal to PHP-FPM
+            // That causes FPM to reload all workers, which allows us to cleanly stop the FPM worker that is stuck in a timeout/waiting state.
+            // A (intentional) side-effect is that it causes all worker logs buffered by FPM to be written to stderr.
+            // Without that, all logs written by the PHP script are never written to stderr (and thus never logged to CloudWatch).
+            // This takes a bit of time (a few ms), but it's still faster than rebooting FPM entirely.
+            posix_kill($this->fpm->getPid(), SIGUSR2);
+
+            // Throw an exception so that:
+            // - this is reported as a Lambda execution error ("error rate" metrics are accurate)
+            // - the CloudWatch logs correctly reflect that an execution error occurred
+            // - the 500 response is the same as if an exception happened in Bref
+            throw new Timeout($timeoutDelayInMs);
         } catch (Throwable $e) {
             printf(
                 "Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will restart PHP-FPM now. Original exception message: %s %s\n",
