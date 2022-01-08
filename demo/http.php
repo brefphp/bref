@@ -3,6 +3,7 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 if (isset($_GET['sleep'])) {
+    error_log('This is a log');
     sleep(10);
 }
 

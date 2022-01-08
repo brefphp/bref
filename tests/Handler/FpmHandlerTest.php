@@ -3,7 +3,7 @@
 namespace Bref\Test\Handler;
 
 use Bref\Context\Context;
-use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
+use Bref\Event\Http\FastCgi\Timeout;
 use Bref\Event\Http\FpmHandler;
 use Bref\Test\HttpRequestProxyTest;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
@@ -1071,7 +1071,7 @@ Year,Make,Model
                 'httpMethod' => 'GET',
             ], $this->fakeContext);
             $this->fail('No exception was thrown');
-        } catch (FastCgiCommunicationFailed $e) {
+        } catch (Timeout $e) {
             // PHP-FPM should work after that
             $statusCode = $this->fpm->handle([
                 'version' => '1.0',
@@ -1081,6 +1081,26 @@ Year,Make,Model
                 ],
             ], $this->fakeContext)['statusCode'];
             self::assertEquals(200, $statusCode);
+        }
+    }
+
+    /**
+     * See https://github.com/brefphp/bref/issues/862
+     */
+    public function test worker logs are still written in case of a timeout()
+    {
+        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm->start();
+
+        try {
+            $this->fpm->handle([
+                'version' => '1.0',
+                'httpMethod' => 'GET',
+            ], new Context('abc', time(), 'abc', 'abc'));
+            $this->fail('No exception was thrown');
+        } catch (Timeout $e) {
+            $logs = ob_get_contents();
+            self::assertStringContainsString('This is a log message', $logs);
         }
     }
 
