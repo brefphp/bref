@@ -190,6 +190,15 @@ final class HttpRequestEvent implements LambdaEvent
         return $this->event['pathParameters'] ?? [];
     }
 
+    public function getSourceIp(): string
+    {
+        if ($this->isFormatV2()) {
+            return $this->event['requestContext']['http']['sourceIp'] ?? '127.0.0.1';
+        }
+
+        return $this->event['requestContext']['identity']['sourceIp'] ?? '127.0.0.1';
+    }
+
     private function rebuildQueryString(): string
     {
         if ($this->isFormatV2()) {
