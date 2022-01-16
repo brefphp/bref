@@ -34,6 +34,7 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         ]);
         $this->assertMethod('GET');
         $this->assertUri('/path');
+        $this->assertSourceIp('1.1.1.1');
     }
 
     /**
@@ -68,6 +69,7 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         $this->assertServerPort(443);
         $this->assertUri('/path');
         $this->assertHasMultiHeader(false);
+        $this->assertSourceIp('1.1.1.1');
     }
 
     public function test v1 stage prefix is not included in the URL()
@@ -471,6 +473,8 @@ Year,Make,Model
     abstract protected function assertHasMultiHeader(bool $expected): void;
 
     abstract protected function assertParsedBody(array $expected): void;
+
+    abstract protected function assertSourceIp(string $expected): void;
 
     abstract protected function assertUploadedFile(
         string $key,

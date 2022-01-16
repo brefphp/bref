@@ -152,4 +152,9 @@ class Psr7BridgeTest extends CommonHttpTest
         unset($parameters['lambda-event'], $parameters['lambda-context']);
         $this->assertEquals($expected, $parameters);
     }
+
+    protected function assertSourceIp(string $expected): void
+    {
+        $this->assertEquals($expected, $this->request->getServerParams()['REMOTE_ADDR']);
+    }
 }

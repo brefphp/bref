@@ -33,6 +33,7 @@ final class Psr7Bridge
             'QUERY_STRING' => $event->getQueryString(),
             'DOCUMENT_ROOT' => getcwd(),
             'REQUEST_URI' => $event->getUri(),
+            'REMOTE_ADDR' => $event->getSourceIp(),
         ];
 
         $headers = $event->getHeaders();
