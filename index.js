@@ -21,7 +21,7 @@ class ServerlessPlugin {
         this.checkCompatibleRuntime();
 
         // Declare `${bref:xxx}` variables
-        // See https://www.serverless.com/framework/docs/providers/aws/guide/plugins#custom-variable-types
+        // See https://www.serverless.com/framework/docs/guides/plugins/custom-variables
         this.configurationVariablesSources = {
             bref: {
                 async resolve({address, params, resolveConfigurationProperty, options}) {
@@ -51,25 +51,28 @@ class ServerlessPlugin {
             }
         };
 
-        // This is the legacy way of declaring `${bref:xxx}` variables. This has been deprecated in 20210326.
-        // Override the variable resolver to declare our own variables
-        const delegate = this.serverless.variables
-            .getValueFromSource.bind(this.serverless.variables);
-        this.serverless.variables.getValueFromSource = (variableString) => {
-            if (variableString.startsWith('bref:layer.')) {
-                const region = this.provider.getRegion();
-                const layerName = variableString.substr('bref:layer.'.length);
-                if (! (layerName in layers)) {
-                    throw new serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
+        // If we are on Serverless Framework v2, set up the legacy variable resolver
+        if (!this.utils) {
+            // This is the legacy way of declaring `${bref:xxx}` variables. This has been deprecated in 20210326.
+            // Override the variable resolver to declare our own variables
+            const delegate = this.serverless.variables
+                .getValueFromSource.bind(this.serverless.variables);
+            this.serverless.variables.getValueFromSource = (variableString) => {
+                if (variableString.startsWith('bref:layer.')) {
+                    const region = this.provider.getRegion();
+                    const layerName = variableString.substr('bref:layer.'.length);
+                    if (!(layerName in layers)) {
+                        throw new serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
+                    }
+                    if (!(region in layers[layerName])) {
+                        throw new serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
+                    }
+                    const version = layers[layerName][region];
+                    return `arn:aws:lambda:${region}:209497400698:layer:${layerName}:${version}`;
                 }
-                if (! (region in layers[layerName])) {
-                    throw new serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
-                }
-                const version = layers[layerName][region];
-                return `arn:aws:lambda:${region}:209497400698:layer:${layerName}:${version}`;
-            }
 
-            return delegate(variableString);
+                return delegate(variableString);
+            }
         }
 
         this.hooks = {
