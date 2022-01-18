@@ -30,10 +30,8 @@ phases:
   build:
     on-failure: abort
     commands:
-      - which docker-compose && exit 1;
-      
       - wget https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)
-      - mv docker-compose-$(uname -s)-$(uname -m) /usr/local/bin/docker-compose
+      - mv docker-compose-$(uname -s)-$(uname -m) /root/.pyenv/shims/docker-compose
       - chmod -v +x /usr/local/bin/docker-compose
       - docker-compose -v
 
