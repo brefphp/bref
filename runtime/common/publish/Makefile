@@ -3,7 +3,7 @@ publish-by-type:
 	# Add executable permission to the publish script
 	chmod +x ./publish.sh
 
-	LAYER_NAME=${CPU}-${PHP_VERSION}-${TYPE} $(MAKE) -j7 parallel-publish
+	LAYER_NAME=${CPU}-${PHP_VERSION}-${TYPE} $(MAKE) -j5 parallel-publish
 
 ##########################################################################################
 
