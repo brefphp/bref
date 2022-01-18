@@ -53,9 +53,9 @@ Resources:
 
           # Bug Report: https://github.com/docker/compose/issues/8804
           - Name: DOCKER_BUILDKIT
-            Value: '0'
+            Value: '1'
           - Name: COMPOSE_DOCKER_CLI_BUILD
-            Value: '0'
+            Value: '1'
         Type: ARM_CONTAINER
         ComputeType: BUILD_GENERAL1_LARGE
         Image: aws/codebuild/amazonlinux2-aarch64-standard:2.0
