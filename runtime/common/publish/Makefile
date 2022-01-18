@@ -3,6 +3,10 @@ publish-by-type:
 	# Add executable permission to the publish script
 	chmod +x ./publish.sh
 
+	echo "========================"
+	echo ${AWS_STS_REGIONAL_ENDPOINTS}
+	echo "========================"
+
 	LAYER_NAME=${CPU}-${PHP_VERSION}-${TYPE} $(MAKE) -j7 parallel-publish
 
 ##########################################################################################
