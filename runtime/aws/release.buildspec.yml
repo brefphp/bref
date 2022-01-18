@@ -30,6 +30,8 @@ phases:
   build:
     on-failure: abort
     commands:
+      - docker-compose -v
+
       # Install GH CLI
       - curl https://cli.github.com/packages/rpm/gh-cli.repo --output /etc/yum.repos.d/gh-cli.repo
       - yum install -y gh
