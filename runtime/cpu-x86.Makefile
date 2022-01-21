@@ -1,4 +1,3 @@
-export TAG ?= al2-x86_64
 export CPU ?= x86
 export ROOT_DIR ?= $(shell pwd)/../
 #export AWS_PROFILE ?= deleugpn_brefphp
@@ -71,7 +70,7 @@ docker-hub:
 	docker tag bref/x86-php80-fpm breftest/php-80-fpm
 	docker tag bref/x86-php81-fpm breftest/php-81-fpm
 
-	$(MAKE) -j2 docker-hub-push-all
+	$(MAKE) -f cpu-$(CPU).Makefile -j2 docker-hub-push-all
 
 
 docker-hub-push-all: docker-hub-push-function docker-hub-push-fpm
@@ -95,5 +94,5 @@ docker-hub-push-fpm:
 
 	# Backward compatibility
 	docker push breftest/php-74-fpm
-	docker push breftest/php-81-fpm
+	docker push breftest/php-80-fpm
 	docker push breftest/php-81-fpm
