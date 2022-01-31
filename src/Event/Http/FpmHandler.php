@@ -93,7 +93,11 @@ final class FpmHandler extends HttpHandler
     public function stop(): void
     {
         if ($this->fpm && $this->fpm->isRunning()) {
-            $this->fpm->stop(2);
+            // Give it less than a second to stop (500ms should be plenty enough time)
+            // this is for the case where the script timed out: we reserve 1 second before the end
+            // of the Lambda timeout, so we must kill everything and restart FPM in 1 second.
+            // Note: Symfony will first try sending SIGTERM (15) and then SIGKILL (9)
+            $this->fpm->stop(0.5);
             if ($this->isReady()) {
                 throw new Exception('PHP-FPM cannot be stopped');
             }
@@ -122,12 +126,23 @@ final class FpmHandler extends HttpHandler
 
             $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
         } catch (TimedoutException $e) {
-            // Send a SIGUSR2 signal to PHP-FPM
-            // That causes FPM to reload all workers, which allows us to cleanly stop the FPM worker that is stuck in a timeout/waiting state.
-            // A (intentional) side-effect is that it causes all worker logs buffered by FPM to be written to stderr.
-            // Without that, all logs written by the PHP script are never written to stderr (and thus never logged to CloudWatch).
-            // This takes a bit of time (a few ms), but it's still faster than rebooting FPM entirely.
-            posix_kill($this->fpm->getPid(), SIGUSR2);
+            echo "The PHP script timed out. Bref will now restart PHP-FPM to start from a clean slate and flush the PHP logs.\nTimeouts can happen for example when trying to connect to a remote API or database, if this happens continuously check for those.\nIf you are using a RDS database, read this: https://bref.sh/docs/environment/database.html#accessing-the-internet\n";
+
+            /**
+             * Restart FPM so that the blocked script is 100% terminated and that its logs are flushed to stderr.
+             *
+             * - "why restart FPM?": if we don't, the previous request continues to execute on the next request
+             * - "why not send a SIGUSR2 signal to FPM?": that was a promising approach because SIGUSR2
+             *   causes FPM to cleanly stop the FPM worker that is stuck in a timeout/waiting state.
+             *   It also causes all worker logs buffered by FPM to be written to stderr (great!).
+             *   This takes a bit of time (a few ms), but it's faster than rebooting FPM entirely.
+             *   However, the downside is that it doesn't "kill" the previous request execution:
+             *   it merely stops the execution of the line of code that is waiting (e.g. "sleep()",
+             *   "file_get_contents()", ...) and continues to the next line. That's super weird!
+             *   So SIGUSR2 isn't a great solution in the end.
+             */
+            $this->stop();
+            $this->start();
 
             // Throw an exception so that:
             // - this is reported as a Lambda execution error ("error rate" metrics are accurate)
@@ -136,7 +151,7 @@ final class FpmHandler extends HttpHandler
             throw new Timeout($timeoutDelayInMs);
         } catch (Throwable $e) {
             printf(
-                "Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Bref will restart PHP-FPM now. Original exception message: %s %s\n",
+                "Error communicating with PHP-FPM to read the HTTP response. Bref will restart PHP-FPM now. Original exception message: %s %s\n",
                 get_class($e),
                 $e->getMessage()
             );
