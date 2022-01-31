@@ -41,7 +41,7 @@ everything:
 	echo "Finished publishing PHP 80"
 
 	# Transform /tmp/bref-zip/output.ini into layers.json
-	docker-compose -f common/utils/docker-compose.yml run parse
+	docker-compose -f ./common/utils/docker-compose.yml run parse
 	cp /tmp/bref-zip/layers.${CPU}.json ./../
 
 
