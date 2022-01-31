@@ -15,10 +15,10 @@ $cpu = $_SERVER['argv'][1];
 if ($cpu === 'x86') {
     // For backward compatibility, the x86 variable is not prefixed by the CPU architecture.
     $variablePrefix = '';
-} elseif ($cpu === 'arm64') {
+} elseif ($cpu === 'arm') {
     $variablePrefix = 'arm64-';
 } else {
-    throw new Exception("[$cpu] is unexpected. Possible values are [x86] and [arm64]");
+    throw new Exception("[$cpu] is unexpected. Possible values are [x86] and [arm]");
 }
 
 $variables = [];
