@@ -2,8 +2,6 @@ export CPU ?= arm
 export ROOT_DIR ?= $(shell pwd)/../
 #export AWS_PROFILE ?= deleugpn_brefphp
 
-.SILENT: everything clean
-
 # This command is designed for bref internal use only and will publish every image
 # using the configured AWS_PROFILE. Most users will not want to use this option
 # as this will distribute all layers to all regions.
