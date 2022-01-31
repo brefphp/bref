@@ -1,8 +1,6 @@
-export CPU ?= x86
+export CPU ?= arm
 export ROOT_DIR ?= $(shell pwd)/../
 #export AWS_PROFILE ?= deleugpn_brefphp
-
-.SILENT: everything clean
 
 # This command is designed for bref internal use only and will publish every image
 # using the configured AWS_PROFILE. Most users will not want to use this option
@@ -38,10 +36,13 @@ everything:
 
 	# Upload the FPM Layers to AWS
 	TYPE=fpm PHP_VERSION=php74 $(MAKE) -C ./common/publish/ publish-by-type
+	echo "Finished publishing PHP 74"
 	TYPE=fpm PHP_VERSION=php80 $(MAKE) -C ./common/publish/ publish-by-type
+	echo "Finished publishing PHP 80"
 
 	# Transform /tmp/bref-zip/output.ini into layers.json
-	docker-compose -f common/utils/docker-compose.yml run parse
+	# @TODO: Errors on this execution (parse.php) are not being displayed here and I don't know why
+	docker-compose -f ./common/utils/docker-compose.yml run parse
 	cp /tmp/bref-zip/layers.${CPU}.json ./../
 
 
@@ -52,17 +53,17 @@ everything:
 # and reupload them with the right tag.
 docker-hub:
 	# Temporarily creating aliases of the Docker images so that I can push to my own account
-	docker tag bref/x86-php74-function breftest/x86-php74-function
-	docker tag bref/x86-php80-function breftest/x86-php80-function
-	docker tag bref/x86-php74-fpm breftest/x86-php74-fpm
-	docker tag bref/x86-php80-fpm breftest/x86-php80-fpm
+	docker tag bref/arm-php74-function breftest/arm-php74-function
+	docker tag bref/arm-php80-function breftest/arm-php80-function
+	docker tag bref/arm-php74-fpm breftest/arm-php74-fpm
+	docker tag bref/arm-php80-fpm breftest/arm-php80-fpm
 
 	# Backward compatible tags
 	#TODO: change breftest/ to bref/
-	docker tag bref/x86-php74-function breftest/php-74
-	docker tag bref/x86-php80-function breftest/php-80
-	docker tag bref/x86-php74-fpm breftest/php-74-fpm
-	docker tag bref/x86-php80-fpm breftest/php-80-fpm
+	docker tag bref/arm-php74-function breftest/php-74
+	docker tag bref/arm-php80-function breftest/php-80
+	docker tag bref/arm-php74-fpm breftest/php-74-fpm
+	docker tag bref/arm-php80-fpm breftest/php-80-fpm
 
 	$(MAKE) -f cpu-$(CPU).Makefile -j2 docker-hub-push-all
 
@@ -71,8 +72,8 @@ docker-hub-push-all: docker-hub-push-function docker-hub-push-fpm
 
 docker-hub-push-function:
 	#TODO: change breftest/ to bref/
-	docker push breftest/x86-php74-function
-	docker push breftest/x86-php80-function
+	docker push breftest/arm-php74-function
+	docker push breftest/arm-php80-function
 
 	# Backward compatibility
 	docker push breftest/php-74
@@ -80,8 +81,8 @@ docker-hub-push-function:
 
 docker-hub-push-fpm:
 	#TODO: change breftest/ to bref/
-	docker push breftest/x86-php74-fpm
-	docker push breftest/x86-php80-fpm
+	docker push breftest/arm-php74-fpm
+	docker push breftest/arm-php80-fpm
 
 	# Backward compatibility
 	docker push breftest/php-74-fpm
