@@ -41,6 +41,7 @@ everything:
 	echo "Finished publishing PHP 80"
 
 	# Transform /tmp/bref-zip/output.ini into layers.json
+	# @TODO: Errors on this execution (parse.php) are not being displayed here and I don't know why
 	docker-compose -f ./common/utils/docker-compose.yml run parse
 	cp /tmp/bref-zip/layers.${CPU}.json ./../
 
