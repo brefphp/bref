@@ -90,7 +90,8 @@ Now add your domain name and certificate in your `serverless.yml` file
 ...
 constructs:
   website:
-    # ...
+    # You need to select "type" that matches your needs, see: https://github.com/getlift/lift#constructs
+    type: server-side-website
     domain: mywebsite.com
     certificate: <your certificate ARN>
 ```
