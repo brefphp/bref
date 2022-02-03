@@ -100,14 +100,14 @@ class Local extends Command
                 $e->getTraceAsString(),
             ]);
             $io->error($e->getMessage());
-            return Command::FAILURE;
+            return 1;
         }
 
         $this->logEnd($startTime, $io, $requestId);
         // Show the invocation result
         $io->block(json_encode($result, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT), null, 'fg=black;bg=green', '', true);
 
-        return Command::SUCCESS;
+        return 0;
     }
 
     private function handlerFromServerlessYml(string $function, ?string $config): string

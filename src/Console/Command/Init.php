@@ -27,13 +27,13 @@ final class Init extends Command
                 'Please follow the instructions at https://bref.sh/docs/installation.html'
             );
 
-            return Command::FAILURE;
+            return 1;
         }
 
         if (file_exists('serverless.yml') || file_exists('index.php')) {
             $io->error('The directory already contains a `serverless.yml` and/or `index.php` file.');
 
-            return Command::FAILURE;
+            return 1;
         }
 
         $choice = $io->choice(
@@ -80,6 +80,6 @@ final class Init extends Command
             $io->success('Project initialized and ready to test or deploy.');
         }
 
-        return Command::SUCCESS;
+        return 0;
     }
 }
