@@ -49,7 +49,7 @@ final class Cli extends Command
         } catch (InvocationFailed $e) {
             $io->getErrorStyle()->writeln('<info>' . $e->getInvocationLogs() . '</info>');
             $io->error($e->getMessage());
-            return Command::FAILURE;
+            return 1;
         }
 
         $payload = $result->getPayload();
@@ -61,9 +61,9 @@ final class Cli extends Command
             $io->write('<comment>' . $result->getLogs() . '</comment>');
             $io->writeln('<info>Lambda result payload:</info>');
             $io->writeln(json_encode($payload, JSON_PRETTY_PRINT));
-            return Command::FAILURE;
+            return 1;
         }
 
-        return (int) ($payload['exitCode'] ?? Command::FAILURE);
+        return (int) ($payload['exitCode'] ?? 1);
     }
 }

@@ -42,6 +42,6 @@ final class Layers extends Command
             'ARN',
         ], $array);
 
-        return Command::SUCCESS;
+        return 0;
     }
 }

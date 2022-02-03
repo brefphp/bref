@@ -44,7 +44,7 @@ final class Dashboard extends Command
         if (! file_exists('serverless.yml')) {
             $io->error('No `serverless.yml` file found.');
 
-            return Command::FAILURE;
+            return 1;
         }
 
         $exeFinder = new ExecutableFinder;
@@ -54,7 +54,7 @@ final class Dashboard extends Command
                 'Please follow the instructions at https://docs.docker.com/install/'
             );
 
-            return Command::FAILURE;
+            return 1;
         }
 
         if (! $exeFinder->find('serverless')) {
@@ -63,7 +63,7 @@ final class Dashboard extends Command
                 'Please follow the instructions at https://bref.sh/docs/installation.html'
             );
 
-            return Command::FAILURE;
+            return 1;
         }
 
         $args = ['serverless', 'info', '--aws-profile', $profile];
@@ -83,7 +83,7 @@ final class Dashboard extends Command
         if (! $serverlessInfo->isSuccessful()) {
             $io->error('The command `serverless info` failed' . PHP_EOL . $serverlessInfo->getOutput());
 
-            return Command::FAILURE;
+            return 1;
         }
 
         $serverlessInfoOutput = $serverlessInfo->getOutput();
@@ -112,7 +112,7 @@ final class Dashboard extends Command
                 $dockerPull->getErrorOutput(),
             ]);
 
-            return Command::FAILURE;
+            return 1;
         }
 
         $process = new Process(['docker', 'run', '--rm', '-p', $host . ':' . $port . ':8000', '-v', getenv('HOME') . '/.aws:/root/.aws:ro', '--env', 'STACKNAME=' . $stack, '--env', 'REGION=' . $region, '--env', 'AWS_PROFILE=' . $profile, 'bref/dashboard']);
@@ -131,7 +131,7 @@ final class Dashboard extends Command
                 $process->getErrorOutput(),
             ]);
 
-            return Command::FAILURE;
+            return 1;
         }
         $url = "http://$host:$port";
         $io->writeln("Dashboard started: <fg=green;options=bold,underscore>$url</>");
