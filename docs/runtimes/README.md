@@ -158,7 +158,7 @@ We consider this to be beneficial both to the Bref project (by getting more user
 
 The data sent in the ping is completely anonymous. It does not contain any identifiable data about anything (the project, users, etc.).
 
-The only data it contains is: "A Bref invocation happened".
+**The only data it contains is:** "A Bref invocation happened with the layer XYZ" (where XYZ is the name of the Bref layer, like "function", "fpm" or "console).
 
 Anyone can inspect the code and the data sent by checking the [`Bref\Runtime\LambdaRuntime::ping()` function](https://github.com/brefphp/bref/blob/master/src/Runtime/LambdaRuntime.php#L328).
 
