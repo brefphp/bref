@@ -67,6 +67,21 @@ Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
 
+## Trusted proxies
+
+Because Laravel is executed through API Gateway, the `Host` header is set to the API Gateway host name. Helper functions such as `redirect()` will use this incorrect domain name. The correct domain name is set on the `X-Forwarded-Host` header.
+
+To get Laravel to use `X-Forwarded-Host` instead, edit the `App\Http\Middleware\TrustProxies` middleware and set `$proxies` to the `*` wildcard:
+
+```php
+class TrustProxies extends Middleware
+{
+    // ...
+    protected $proxies = '*';
+```
+
+Read more [in the official Laravel documentation](https://laravel.com/docs/8.x/requests#configuring-trusted-proxies).
+
 ## Caching
 
 By default, the Bref bridge will move Laravel's cache directory to `/tmp` to avoid issues with the default cache directory that is read-only.
@@ -140,19 +155,6 @@ uploading your assets to S3 automatically.
 
 For more details, see the [Websites section](/docs/websites.md) of this documentation
 and the official <a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md">Lift documentation</a>.
-
-### Trusted proxies
-
-Because Laravel is executed through API Gateway, the Host header is set to the API Gateway host name.  Helper functions 
-such as redirect() will incorrectly use this host name.  The correct host name is set on X_FORWARDED_HOST.
-
-To get Laravel to use X_FORWARDED_HOST instead, edit the TrustProxies middleware and set $proxies to the * wildcard:
-
-``` class TrustProxies extends Middleware
-{
-...
-    protected $proxies = '*';
-```
 
 ### Assets in templates
 
