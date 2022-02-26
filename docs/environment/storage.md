@@ -121,6 +121,6 @@ provider:
                         - dynamodb:UpdateItem
                         - dynamodb:DeleteItem
     environment:
-        # That environment variable will contain the table name
-        DYNAMODB_TABLE: !Ref CacheTable
+        # This environment variable will contain the table name
+        DYNAMODB_CACHE_TABLE: !Ref CacheTable
 ```
