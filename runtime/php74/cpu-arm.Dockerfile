@@ -155,6 +155,11 @@ COPY runtime/tests/test_6_disabled_extensions.php /bref/tests/
 COPY runtime/tests/test_6_manual_enabling_extensions.php /bref/tests/
 COPY runtime/tests/test_6_manual_extensions.ini /bref/tests/
 
+# This is a special FROM starting from "scratch" (AWS Provided Image).
+# Everything that was present on the previous stages up to here is thrown
+# away and we will be taking only the absolute necessary files.
+# Things like yum cache or remi-collet manual pages are
+# not going to be present from here on.
 FROM public.ecr.aws/lambda/provided:al2-arm64 as isolation
 
 COPY --from=extensions /bref /opt
