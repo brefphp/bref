@@ -1,3 +1,4 @@
+# This file is used to publish layers on multiple AWS regions in parallel.
 
 publish-by-type:
 	# Add executable permission to the publish script

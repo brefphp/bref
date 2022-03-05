@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# This file is responsible for publishing a new layer on AWS using the AWS CLI. We rely on AWS CLI
+# because it comes installed by default on AWS CodeBuild.
+# The LAYER NAME must be specified when invoking this script. That is done on ./Makefile
+# After publishing a new Layer, we retrieve the layer version and write a .ini file with the
+# Layer Name and it's version. We use ini file as it is safe to have parallel processes
+# appending new lines to the end of the file without needing a file lock system.
+
 set -e
 
 if [ -z "${LAYER_NAME}" ]
