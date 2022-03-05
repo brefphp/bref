@@ -156,3 +156,12 @@ the runtime/tests folder contains multiple PHP scripts that are executed inside 
 These scripts are suppose to ensure that the PHP version is expected, PHP extensions are correctly installed and
 available and PHP is correctly configured. Some acceptance tests uses AWS Runtime Interface Emulator (RIE) to
 test whether a Lambda invocation is expected to work.
+
+##### bootstrap.sh file
+
+The bootstrap.sh file that exists on all layers is the entrypoint that AWS Lambda will execute to start
+Bref's layer. We strive to keep it to a minimum and leave it to mostly execute `src/Toolbox/bootstrap.php`
+so that every layer has the same starting process. We do differentiate them through an argument 
+(function, fpm, console) in order to instruct Bref on how to properly boot up the process.
+One other use of bootstrap.sh is to define `PHP_INI_SCAN_DIR` before any PHP script has started
+so that we have a chance to configure which folders we want to look for PHP configuration files.
