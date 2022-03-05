@@ -51,7 +51,7 @@ We also have a `Makefile` to facilitate the development, testing and building of
 will build Docker Images with everything necessary for Bref Runtime and then run containers with `runtime/tests` files
 that will validate:
 
-1- The PHP Binary and it's verion
+1- The PHP Binary and it's version
 2- The Core Extensions installed by default
 3- The Additional Extensions Bref provide by default
 4- The Disabled Extensions Bref provide by default
@@ -60,7 +60,9 @@ that will validate:
 
 The Dockerfile attempts at a best-effort to follow a top-down execution process for easier reading. It starts from
 an AWS-provided Docker Image and installs PHP. Some standard files (such as the php binary) can already be
-isolated into the `/bref` folder.
+isolated into the `/bref` folder. The use of multiple Docker Layers helps with automation tests and investigations
+because the developer can have a faster feedback loop by checking each step of the process incrementally instead
+of trying to figure out why an entire build is failing.
 
 The 2nd layer is the `extensions` where all extensions are installed and isolated into the `/bref` folder.
 Reminder that `ldd` is a linux utility that helps discover which files need isolating.
