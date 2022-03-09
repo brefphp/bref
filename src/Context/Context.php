@@ -21,6 +21,9 @@ final class Context implements \JsonSerializable
     /** @var string */
     private $traceId;
 
+    /** @var null|self  */
+    private static $instance = null;
+
     public function __construct(string $awsRequestId, int $deadlineMs, string $invokedFunctionArn, string $traceId)
     {
         $this->awsRequestId = $awsRequestId;
@@ -72,5 +75,49 @@ final class Context implements \JsonSerializable
             'invokedFunctionArn' => $this->invokedFunctionArn,
             'traceId' => $this->traceId,
         ];
+    }
+
+    /**
+     * Bref will make the Context globally available as soon as a new Invocation is retrieved.
+     *
+     * @internal
+     */
+    public static function setInstance(self $instance): void
+    {
+        self::$instance = $instance;
+    }
+
+    /**
+     * Provide a null-safe Context statically for users. If this method is called during cold start
+     * bootstrapping or after an invocation has been finished, it will return null.
+     */
+    public static function getInstance(): ?self
+    {
+        if (self::$instance) {
+            return self::$instance;
+        }
+
+        return null;
+    }
+
+    /**
+     * Provide the current Context globally for users. Calling this method
+     * before an invocation event has been retrieved will result in
+     * a fatal error.
+     */
+    public static function current(): self
+    {
+        return self::getInstance();
+    }
+
+    /**
+     * Bref will make sure to not leave global Context hanging around stale as to not
+     * run the chance of mixing it between two invocations.
+     *
+     * @internal
+     */
+    public static function flush(): void
+    {
+        self::$instance = null;
     }
 }

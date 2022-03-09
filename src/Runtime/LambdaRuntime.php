@@ -83,21 +83,26 @@ final class LambdaRuntime
     public function processNextEvent($handler): bool
     {
         [$event, $context] = $this->waitNextInvocation();
-        \assert($context instanceof Context);
 
         $this->ping();
 
-        try {
-            $result = $this->invoker->invoke($handler, $event, $context);
+        $invocation = function () use ($handler, $event, $context) {
+            try {
+                Context::setInstance($context);
 
-            $this->sendResponse($context->getAwsRequestId(), $result);
-        } catch (\Throwable $e) {
-            $this->signalFailure($context->getAwsRequestId(), $e);
+                $result = $this->invoker->invoke($handler, $event, $context);
 
-            return false;
-        }
+                $this->sendResponse($context->getAwsRequestId(), $result);
+            } catch (\Throwable $e) {
+                $this->signalFailure($context->getAwsRequestId(), $e);
 
-        return true;
+                return false;
+            }
+
+            return true;
+        };
+
+        return $this->withGlobalContext($context, $invocation);
     }
 
     /**
@@ -380,5 +385,16 @@ final class LambdaRuntime
         // or execution time.
         socket_sendto($sock, $message, strlen($message), 0, '3.219.198.164', 8125);
         socket_close($sock);
+    }
+
+    private function withGlobalContext(Context $context, \Closure $invocation): bool
+    {
+        Context::setInstance($context);
+
+        $result = $invocation();
+
+        Context::flush();
+
+        return $result;
     }
 }
