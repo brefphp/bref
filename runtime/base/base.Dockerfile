@@ -83,7 +83,7 @@ RUN mkdir -p ${BUILD_DIR}  \
 #   - php
 # Used By:
 #   - xml2
-ENV VERSION_ZLIB=1.2.11
+ENV VERSION_ZLIB=1.2.12
 ENV ZLIB_BUILD_DIR=${BUILD_DIR}/xml2
 
 RUN set -xe; \
@@ -374,12 +374,12 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - php
-ENV VERSION_POSTGRES=9.6.24
+ENV VERSION_POSTGRES=14.2
 ENV POSTGRES_BUILD_DIR=${BUILD_DIR}/postgres
 
 RUN set -xe; \
     mkdir -p ${POSTGRES_BUILD_DIR}/bin; \
-    curl -Ls https://github.com/postgres/postgres/archive/REL${VERSION_POSTGRES//./_}.tar.gz \
+    curl -Ls https://github.com/postgres/postgres/archive/REL_${VERSION_POSTGRES//./_}.tar.gz \
     | tar xzC ${POSTGRES_BUILD_DIR} --strip-components=1
 
 
