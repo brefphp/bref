@@ -363,7 +363,7 @@ All these steps were replacements of running the `passport:install` command [fro
 
 ## Lambda Handler Example
 
-If you need to handle custom Lambda events, you can can wire up a handler, and an artisan command in the following way.
+If you need to handle custom Lambda events, you can can wire up a handler and respond to events with an Artisan command.
 
 ```yml
 # serverless.yml
