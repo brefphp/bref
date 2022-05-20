@@ -148,7 +148,7 @@ final class FpmHandler extends HttpHandler
             // - this is reported as a Lambda execution error ("error rate" metrics are accurate)
             // - the CloudWatch logs correctly reflect that an execution error occurred
             // - the 500 response is the same as if an exception happened in Bref
-            throw new Timeout($timeoutDelayInMs);
+            throw new Timeout($timeoutDelayInMs, $context->getAwsRequestId());
         } catch (Throwable $e) {
             printf(
                 "Error communicating with PHP-FPM to read the HTTP response. Bref will restart PHP-FPM now. Original exception message: %s %s\n",
