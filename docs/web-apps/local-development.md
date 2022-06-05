@@ -54,6 +54,55 @@ The `HANDLER` environment variable lets you define which PHP file will be handli
 
 > Currently the Docker image support only one PHP handler. If you have multiple HTTP functions in `serverless.yml`, you can duplicate the service in `docker-compose.yml` to have one container per lambda function.
 
+### For Laravel Octane
+
+#### Swoole Server
+
+```yaml
+version: "3.5"
+
+services:
+    web:
+        image: bref/octane-dev-gateway
+        ports:
+            - '8000:80'
+        volumes:
+            - .:/var/task
+        depends_on:
+            - php
+        environment:
+            HANDLER: public/index.php
+            DOCUMENT_ROOT: public
+            SERVER: swoole
+    php:
+        image: bref/php-80-swoole-dev
+        volumes:
+            - .:/var/task:ro
+```
+
+#### Roadrunner Server
+
+```yaml
+version: "3.5"
+
+services:
+    web:
+        image: bref/octane-dev-gateway
+        ports:
+            - '8000:80'
+        volumes:
+            - .:/var/task
+        depends_on:
+            - php
+        environment:
+            HANDLER: public/index.php
+            DOCUMENT_ROOT: public
+    php:
+        image: bref/php-80-roadrunner-dev
+        volumes:
+            - .:/var/task:ro
+```
+
 ### Read-only filesystem
 
 The code will be mounted as read-only in `/var/task`, just like in Lambda. However when developing locally, it is common to regenerate cache files on the fly (for example Symfony or Laravel cache). You have 2 options:
@@ -133,6 +182,21 @@ xdebug.remote_enable = 1
 xdebug.remote_autostart = 0
 xdebug.remote_host = 'host.docker.internal'
 ```
+
+##### NOTICE for Laravel Octane with Swoole Server
+
+> **XDebug can't work with Swoole Extension**
+
+So to be able to run XDebug
+- `Laravel Octane` will be run without XDebug Module
+- `Laravel Serve Command` will be run simultaneously with Octane Swoole Server with Xdebug Module
+
+To switch to XDebug mode
+- `SERVER=swoole` environment is required for `bref/octane-dev-gateway` container.
+- `LAMBDA_TASK_ROOT=/var/task` has to be added to `.env` file.
+  - Since Laravel Serve Command won't pass through this env to the server process. (https://github.com/laravel/framework/pull/42444/files)
+  - That will cause `BrefServiceProvider` won't be registered properly.
+- Append `?debug=1` as additional query parameter, `bref/octane-dev-gateway` will redirect the request to `Laravel Serve Command` server.
 
 ### Blackfire
 

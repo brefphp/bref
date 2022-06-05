@@ -1,0 +1,39 @@
+#!/opt/bin/php
+<?php declare(strict_types=1);
+
+use Bref\Runtime\LambdaRuntime;
+use Bref\Event\Http\OctaneHandler;
+
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
+$appRoot = getenv('LAMBDA_TASK_ROOT');
+
+if (getenv('BREF_DOWNLOAD_VENDOR')) {
+    if(! file_exists('/tmp/vendor') || ! file_exists('/tmp/vendor/autoload.php')) {
+        require_once __DIR__ . '/breftoolbox.php';
+
+        \Bref\ToolBox\BrefToolBox::downloadAndConfigureVendor();
+    }
+
+    require '/tmp/vendor/autoload.php';
+} elseif (getenv('BREF_AUTOLOAD_PATH')) {
+    /** @noinspection PhpIncludeInspection */
+    require getenv('BREF_AUTOLOAD_PATH');
+} else {
+    /** @noinspection PhpIncludeInspection */
+    require $appRoot . '/vendor/autoload.php';
+}
+
+$lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('octane');
+
+$octane = new OctaneHandler('swoole');
+try {
+    $octane->start();
+} catch (\Throwable $e) {
+    $lambdaRuntime->failInitialization('Error while starting Octane with [swoole] server', $e);
+}
+
+while (true) {
+    $lambdaRuntime->processNextEvent($octane);
+}

@@ -25,11 +25,16 @@ publish-docker-images: docker-images
 	  "bref/php-74" "bref/php-74-fpm" "bref/php-74-console" "bref/php-74-fpm-dev" \
 	  "bref/php-80" "bref/php-80-fpm" "bref/php-80-console" "bref/php-80-fpm-dev" \
 	  "bref/php-81" "bref/php-81-fpm" "bref/php-81-console" "bref/php-81-fpm-dev" \
+	  "bref/php-80-roadrunner" "bref/php-80-swoole" \
+	  "bref/php-81-roadrunner" "bref/php-81-swoole" \
+	  "bref/php-80-roadrunner-dev" "bref/php-80-swoole-dev" \
+	  "bref/php-81-roadrunner-dev" "bref/php-81-swoole-dev" \
 	  "bref/build-php-73" \
 	  "bref/build-php-74" \
 	  "bref/build-php-80" \
 	  "bref/build-php-81" \
 	  "bref/fpm-dev-gateway"; \
+	  "bref/octane-dev-gateway"; \
 	do \
 		docker image tag $$image:latest $$image:${DOCKER_TAG} ; \
 		docker image push --all-tags $$image ; \

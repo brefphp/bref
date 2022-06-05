@@ -6,7 +6,7 @@ publish: layers
 	cd layers ; php publish.php
 
 # Build the layers
-layers: export/console.zip export/php-73.zip export/php-74.zip export/php-80.zip export/php-81.zip export/php-73-fpm.zip export/php-74-fpm.zip export/php-80-fpm.zip export/php-81-fpm.zip
+layers: export/console.zip export/php-73.zip export/php-74.zip export/php-80.zip export/php-81.zip export/php-73-fpm.zip export/php-74-fpm.zip export/php-80-fpm.zip export/php-81-fpm.zip export/php-80-roadrunner.zip export/php-81-roadrunner.zip export/php-80-swoole.zip export/php-81-swoole.zip
 
 # The PHP runtimes
 export/php%.zip: docker-images
@@ -58,11 +58,22 @@ docker-images:
 	cd layers/console ; docker build -t bref/php-74-console --build-arg PHP_VERSION=74 .
 	cd layers/console ; docker build -t bref/php-80-console --build-arg PHP_VERSION=80 .
 	cd layers/console ; docker build -t bref/php-81-console --build-arg PHP_VERSION=81 .
+	# - roadrunner
+	cd layers/roadrunner ; docker build -t bref/php-80-roadrunner --build-arg PHP_VERSION=80 .
+	cd layers/roadrunner ; docker build -t bref/php-81-roadrunner --build-arg PHP_VERSION=81 .
+	# - swoole
+	cd layers/swoole ; docker build -t bref/php-80-swoole --build-arg PHP_VERSION=80 .
+	cd layers/swoole ; docker build -t bref/php-81-swoole --build-arg PHP_VERSION=81 .
 	# Other Docker images
 	cd layers/fpm-dev ; docker build -t bref/php-73-fpm-dev --build-arg PHP_VERSION=73 .
 	cd layers/fpm-dev ; docker build -t bref/php-74-fpm-dev --build-arg PHP_VERSION=74 .
 	cd layers/fpm-dev ; docker build -t bref/php-80-fpm-dev --build-arg PHP_VERSION=80 .
 	cd layers/fpm-dev ; docker build -t bref/php-81-fpm-dev --build-arg PHP_VERSION=81 .
+	cd layers/roadrunner-dev ; docker build -t bref/php-80-roadrunner-dev --build-arg PHP_VERSION=80 .
+	cd layers/roadrunner-dev ; docker build -t bref/php-81-roadrunner-dev --build-arg PHP_VERSION=81 .
+	cd layers/swoole-dev ; docker build -t bref/php-80-swoole-dev --build-arg PHP_VERSION=80 .
+	cd layers/swoole-dev ; docker build -t bref/php-81-swoole-dev --build-arg PHP_VERSION=81 .
 	cd layers/web; docker build -t bref/fpm-dev-gateway .
+	cd layers/web-octane; docker build -t bref/octane-dev-gateway .
 	# Run tests
 	php layers/tests.php

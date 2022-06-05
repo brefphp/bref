@@ -135,6 +135,15 @@ Here is an example to retrieve it:
 $requestContext = json_decode($_SERVER['LAMBDA_REQUEST_CONTEXT'], true);
 ```
 
+> For Laravel Octane (swoole and roadrunner layer)
+
+`HTTP_` prefix is required to access `LAMBDA_INVOCATION_CONTEXT` and `LAMBDA_INVOCATION_CONTEXT`
+
+```php
+$lambdaContext = json_decode($_SERVER['HTTP_LAMBDA_INVOCATION_CONTEXT'], true);
+$requestContext = json_decode($_SERVER['HTTP_LAMBDA_REQUEST_CONTEXT'], true);
+```
+
 ## Cold starts
 
 AWS Lambda automatically destroys Lambda containers that have been unused for 10 minutes. Warming up a new container can take some time, especially if your application is large. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).

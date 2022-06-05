@@ -15,6 +15,10 @@ $allLayers = [
     'bref/php-74-fpm',
     'bref/php-80-fpm',
     'bref/php-81-fpm',
+    'bref/php-80-swoole',
+    'bref/php-81-swoole',
+    'bref/php-80-roadrunner',
+    'bref/php-81-roadrunner',
     'bref/php-73-fpm-dev',
     'bref/php-74-fpm-dev',
     'bref/php-80-fpm-dev',
@@ -57,6 +61,34 @@ foreach ($fpmLayers as $layer) {
     // PHP-FPM is installed
     $phpVersion = trim(`docker run --rm --entrypoint php-fpm $layer -v`);
     assertMatchesRegex('/PHP (7|8)\.\d+\.\d+/', $phpVersion);
+    echo '.';
+}
+
+// Roadrunner layers
+$roadRunnerLayers = [
+    'bref/php-80-roadrunner',
+    'bref/php-81-roadrunner',
+    'bref/php-80-roadrunner-dev',
+    'bref/php-81-roadrunner-dev',
+];
+foreach ($roadRunnerLayers as $layer) {
+    // Roadrunner binary is installed
+    $roadRunnerVersion = trim(`docker run --rm --entrypoint rr $layer -v`);
+    assertMatchesRegex('/rr version 2\.\d+\.\d+/', $roadRunnerVersion);
+    echo '.';
+}
+
+// Swoole layers
+$swooleLayers = [
+    'bref/php-80-swoole',
+    'bref/php-81-swoole',
+    'bref/php-80-swoole-dev',
+    'bref/php-81-swoole-dev',
+];
+foreach ($swooleLayers as $layer) {
+    // Swoole Extension is installed
+    $swooleExt = trim(`docker run --rm --entrypoint php $layer -m | grep swoole`);
+    assertMatchesRegex('/swoole/', $swooleExt);
     echo '.';
 }
 
