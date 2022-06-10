@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Bref\Event\Kafka;
 
@@ -7,7 +7,6 @@ use Bref\Event\Handler;
 
 abstract class KafkaEventHandler implements Handler
 {
-
     abstract public function handleKafka(KafkaEvent $event, Context $context): void;
 
     /** {@inheritDoc} */
@@ -15,5 +14,4 @@ abstract class KafkaEventHandler implements Handler
     {
         $this->handleKafka(new KafkaEvent($event), $context);
     }
-
 }

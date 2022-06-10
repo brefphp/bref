@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Bref\Test\Event\Kafka;
 
@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 final class KafkaEventTest extends TestCase
 {
-
     public function test canonical case()
     {
         $event = json_decode(file_get_contents(__DIR__ . '/kafka.json'), true);
@@ -35,5 +34,4 @@ final class KafkaEventTest extends TestCase
         $this->expectExceptionMessage('This handler expected to be invoked with a Kafka event. Instead, the handler was invoked with invalid event data');
         new KafkaEvent([]);
     }
-
 }
