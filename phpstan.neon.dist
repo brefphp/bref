@@ -4,7 +4,7 @@ parameters:
     - bref
     - src
     - tests
-  excludes_analyse:
+  excludePaths:
     - %rootDir%/../../../tests/Bridge/Laravel/bootstrap/cache/*
     - %rootDir%/../../../tests/Bridge/Laravel/storage/*
     - %rootDir%/../../../tests/Bridge/Symfony/var/*
