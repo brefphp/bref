@@ -4,7 +4,7 @@ namespace Bref\Test\Handler;
 
 use Bref\Context\Context;
 use Bref\Event\Http\FpmHandler;
-use PHPStan\Testing\TestCase;
+use PHPUnit\Framework\TestCase;
 
 final class FpmHandlerLoadBalancerTest extends TestCase
 {

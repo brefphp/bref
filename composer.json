@@ -41,7 +41,7 @@
         "phpunit/phpunit": "^9.0",
         "dms/phpunit-arraysubset-asserts": "^0.2.0",
         "doctrine/coding-standard": "^8.0",
-        "phpstan/phpstan": "^0.12",
+        "phpstan/phpstan": "^1.0",
         "guzzlehttp/guzzle": "^6.3"
     },
     "scripts": {
