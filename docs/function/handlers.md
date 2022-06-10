@@ -430,3 +430,31 @@ return new Handler();
 ```
 
 [Full reference of Kinesis in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/streams/).
+
+## KafkaEvent events
+
+`KafkaEventHandler` instances handle [Kafka events](https://docs.aws.amazon.com/lambda/latest/dg/with-kafka.html):
+
+```php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Bref\Context\Context;
+use Bref\Event\Kafka\KafkaEvent;
+use Bref\Event\Kafka\KafkaEventHandler;
+
+class Handler extends KafkaEvent
+{
+    public function handleKafka(KafkaEvent $event, Context $context): void
+    {
+        foreach ($event->getRecords() as $record) {
+            $data = $record->getValue();
+
+            // do something
+        }
+    }
+}
+
+return new Handler();
+```
