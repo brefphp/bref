@@ -431,9 +431,9 @@ return new Handler();
 
 [Full reference of Kinesis in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/streams/).
 
-## KafkaEvent events
+## Kafka events
 
-`KafkaEventHandler` instances handle [Kafka events](https://docs.aws.amazon.com/lambda/latest/dg/with-kafka.html):
+`KafkaHandler` instances handle [Kafka events](https://docs.aws.amazon.com/lambda/latest/dg/with-kafka.html):
 
 ```php
 <?php

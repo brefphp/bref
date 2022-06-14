@@ -5,7 +5,7 @@ namespace Bref\Event\Kafka;
 use Bref\Context\Context;
 use Bref\Event\Handler;
 
-abstract class KafkaEventHandler implements Handler
+abstract class KafkaHandler implements Handler
 {
     abstract public function handleKafka(KafkaEvent $event, Context $context): void;
 
