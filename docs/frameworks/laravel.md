@@ -170,7 +170,6 @@ constructs:
     forwardedHeaders:
       - Accept
       - Accept-Language
-      - Authorization
       - Content-Type
       - Origin
       - Referer
@@ -179,9 +178,6 @@ constructs:
       - X-Requested-With
       # Laravel Framework Headers
       - X-Csrf-Token
-      - X-Xsrf-Token
-      # Laravel Telescope
-      - Location
       # Other Headers, e.g. Livewire
       - X-Livewire
 ```
