@@ -164,6 +164,26 @@ constructs:
       '/favicon.ico': public/favicon.ico
       '/robots.txt': public/robots.txt
       # add here any file or directory that needs to be served from S3
+    # Laravel uses some headers that are not in CloudFront's default whitelist.
+    # To add any, we need to list all accepted headers to pass through.
+    # https://github.com/getlift/lift/blob/master/docs/server-side-website.md#forwarded-headers
+    forwardedHeaders:
+      - Accept
+      - Accept-Language
+      - Authorization
+      - Content-Type
+      - Origin
+      - Referer
+      - User-Agent
+      - X-Forwarded-Host
+      - X-Requested-With
+      # Laravel Framework Headers
+      - X-Csrf-Token
+      - X-Xsrf-Token
+      # Laravel Telescope
+      - Location
+      # Other Headers, e.g. Livewire
+      - X-Livewire
 ```
 
 Before deploying, compile your assets using Laravel Mix.
