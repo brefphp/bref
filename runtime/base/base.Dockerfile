@@ -226,7 +226,7 @@ RUN set -xe; \
 # #   - libssh2
 # # Needed by:
 # #   - php
-ENV VERSION_CURL=7.83.1
+ENV VERSION_CURL=7.84.0
 ENV CURL_BUILD_DIR=${BUILD_DIR}/curl
 
 RUN set -xe; \
