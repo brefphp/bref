@@ -377,7 +377,7 @@ Instead, here is what you need to do:
 
 All these steps were replacements of running the `passport:install` command [from the Passport documentation](https://laravel.com/docs/passport#installation).
 
-## Livewire (or custom headers) and CouldFront distribution
+## Livewire (or custom headers) and CloudFront distribution
 
 The Livewire package uses two custom request headers `X-Csrf-Token` and `X-Livewire` under the hood. When using a CloudFront distribution, these headers are not forwarded to the Lambda function by default. CloudFront requires us to define explicitly the list of headers to forward. It isn't possible to forward all headers.
 
