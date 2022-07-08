@@ -78,6 +78,31 @@ The simplest API Gateway configuration is to send all incoming requests to our a
             - httpApi: '*'
 ```
 
+### Path Parameters
+
+API Gateway integrations parse and provide any path parameters matched in the HTTP event path. 
+
+This allows you to avoid re-parsing the path when using API Gateway as your router instead of within your app. 
+
+For example, the `name` parameter's value is included within the event.
+
+```yaml
+        events:
+            - httpApi: 'GET /hello/{name}'
+```
+
+Bref exposes the path parameters in the `$_SERVER['LAMBDA_REQUEST_PATH_PARAMS']` variable as a JSON-encoded string.
+Here is an example to retrieve it:
+
+```php
+$params = json_decode($_SERVER['LAMBDA_REQUEST_PATH_PARAMS'], true);
+
+// Inject the params into a ServerRequest's attributes
+foreach ($params as $name => $value) {
+    $request = $request->withAttribute($name, $value);
+}
+```
+
 ### Assets
 
 Lambda and API Gateway are only used for executing code. Serving assets via PHP does not make sense as this would be a waste of resources and money.

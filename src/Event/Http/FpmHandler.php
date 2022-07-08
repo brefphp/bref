@@ -228,6 +228,7 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('QUERY_STRING', $event->getQueryString());
         $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context));
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext()));
+        $request->setCustomVar('LAMBDA_REQUEST_PATH_PARAMS', json_encode($event->getPathParameters()));
 
         $contentType = $event->getContentType();
         if ($contentType) {
