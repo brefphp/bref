@@ -13,6 +13,8 @@ use AsyncAws\Lambda\ValueObject\LayerVersionsListItem;
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 const LAYER_NAMES = [
+    'php-82',
+    'php-82-fpm',
     'php-81',
     'php-81-fpm',
     'php-80',
