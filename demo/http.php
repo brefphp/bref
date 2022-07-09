@@ -26,11 +26,6 @@ if (isset($_GET['weird'])) {
     exit(0);
 }
 
-if (isset($_GET['phpinfo'])) {
-    phpinfo();
-    exit(0);
-}
-
 if (isset($_GET['tmp'])) {
     file_put_contents('/tmp/test.txt', 'hello');
     echo file_get_contents('/tmp/test.txt');

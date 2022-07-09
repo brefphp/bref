@@ -18,16 +18,6 @@ $app->register('hello')
     })
 ;
 
-$app->register('phpinfo')
-    ->setCode(function (InputInterface $input, OutputInterface $output): int {
-        ob_start();
-        phpinfo();
-        $phpinfo = ob_get_clean();
-        $output->write($phpinfo);
-        return Command::SUCCESS;
-    })
-;
-
 $app->register('error')
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $output->writeln('There was an error!');
