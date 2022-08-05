@@ -7,6 +7,18 @@ use Bref\Runtime\LambdaRuntime;
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
+// A wrapper script is configured
+// See https://docs.aws.amazon.com/lambda/latest/dg/runtimes-modify.html#runtime-wrapper
+// NOTE: EXPERIMENTAL FEATURE, DO NOT USE!!!
+// Note: If you do use it, open an issue or GitHub discussion or Slack thread
+// and let us know why it's useful to you, we might turn it into an official feature
+if (getenv('EXPERIMENTAL_AWS_LAMBDA_EXEC_WRAPPER')) {
+    $cmd = escapeshellcmd(getenv('EXPERIMENTAL_AWS_LAMBDA_EXEC_WRAPPER'));
+    $args = implode(' ', array_map('escapeshellarg', $argv));
+    passthru("$cmd $args", $exitCode);
+    exit($exitCode);
+}
+
 $appRoot = getenv('LAMBDA_TASK_ROOT');
 
 if (getenv('BREF_DOWNLOAD_VENDOR')) {
