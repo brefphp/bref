@@ -182,6 +182,8 @@ constructs:
       - X-Livewire
 ```
 
+> If you use Laravel Nova, don't forget to add the header `X-Inertia`
+
 Before deploying, compile your assets using Laravel Mix.
 
 ```bash
