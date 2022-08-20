@@ -76,9 +76,15 @@ class ServerlessPlugin {
         }
 
         this.hooks = {
-            'before:package:setupProviderConfiguration': this.addCustomIamRoleForVendorArchiveDownload.bind(this),
+            'initialize': this.addCustomIamRoleForVendorArchiveDownload.bind(this),
+
+            // Separate vendor for `sls deploy` command
             'package:setupProviderConfiguration': this.createVendorZip.bind(this),
             'after:aws:deploy:deploy:createStack': this.uploadVendorZip.bind(this),
+            // Separate vendor for `sls deploy function` command
+            'before:deploy:function:initialize': this.createVendorZip.bind(this),
+            'after:deploy:function:initialize': this.uploadVendorZip.bind(this),
+
             'before:remove:remove': this.removeVendorArchives.bind(this)
         };
     }
@@ -100,6 +106,8 @@ class ServerlessPlugin {
         if (! this.serverless.service.custom.bref.separateVendor) {
             return;
         }
+
+        this.logVerbose("Adding custom IAM role for vendor archive");
 
         // If the serverless config does not yet contain an exclude for the vendor folder
         // we will add it here as we do not want the vendor folder in our
@@ -146,6 +154,8 @@ class ServerlessPlugin {
         if(! this.serverless.service.custom.bref.separateVendor) {
             return;
         }
+
+        this.logVerbose("Creating vendor zip file");
 
         const vendorZipHash = await this.createZipFile();
         this.newVendorZipName = vendorZipHash + '.zip';
@@ -231,6 +241,8 @@ class ServerlessPlugin {
         if(! this.serverless.service.custom.bref.separateVendor) {
             return;
         }
+
+        this.logVerbose("Uploading vendor zip file...");
 
         await this.uploadZipToS3(this.filePath);
 
