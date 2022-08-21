@@ -178,11 +178,12 @@ constructs:
       - X-Requested-With
       # Laravel Framework Headers
       - X-Csrf-Token
-      # Other Headers, e.g. Livewire
-      - X-Livewire
+      # Other Headers, e.g. Livewire, Laravel Nova
+      # - X-Livewire
+      # - X-Inertia
 ```
 
-> If you use Laravel Nova, don't forget to add the header `X-Inertia`
+> If you use Laravel Nova, don't forget to uncomment the header `X-Inertia`
 
 Before deploying, compile your assets using Laravel Mix.
 
