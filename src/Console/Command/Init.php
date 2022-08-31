@@ -22,12 +22,12 @@ final class Init extends Command
         $io = new SymfonyStyle($input, $output);
         $exeFinder = new ExecutableFinder;
         if (! $exeFinder->find('serverless')) {
-            $io->error(
+            $io->warning(
                 'The `serverless` command is not installed.' . PHP_EOL .
-                'Please follow the instructions at https://bref.sh/docs/installation.html'
+                'You will not be able to deploy your application unless it is installed' . PHP_EOL .
+                'Please follow the instructions at https://bref.sh/docs/installation.html' . PHP_EOL .
+                'If you have the `serverless` command available elsewhere (eg in a Docker container) you can ignore this warning'
             );
-
-            return 1;
         }
 
         if (file_exists('serverless.yml') || file_exists('index.php')) {
