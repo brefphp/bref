@@ -281,7 +281,7 @@ ENV XML2_BUILD_DIR=${BUILD_DIR}/xml2
 RUN set -xe; \
     mkdir -p ${XML2_BUILD_DIR}; \
 # Download and upack the source code
-    curl -Ls https://download.gnome.org/sources/libxml2/2.10/libxml2-${VERSION_XML2}.tar.xz \
+    curl -Ls https://download.gnome.org/sources/libxml2/${VERSION_XML2%.*}/libxml2-${VERSION_XML2}.tar.xz \
   | tar xJC ${XML2_BUILD_DIR} --strip-components=1
 
 # Move into the unpackaged code directory
