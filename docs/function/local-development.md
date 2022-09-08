@@ -48,6 +48,11 @@ $ vendor/bin/bref local hello --file=event.json
 Hello Jane
 ```
 
+> **Note:** On Windows Powershell, you must escape the "double quote" char if you write JSON directly in the CLI. Example: 
+> ```bash
+> $ vendor/bin/bref local hello '{\"name\": \"Bill\"}'
+> ```
+
 The `bref local` command runs using the local PHP installation. If you prefer to run commands using the same environment as Lambda, you can use Docker.
 
 Here is an example, feel free to adjust it to fit your needs:
