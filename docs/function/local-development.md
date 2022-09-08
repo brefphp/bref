@@ -48,7 +48,7 @@ $ vendor/bin/bref local hello --file=event.json
 Hello Jane
 ```
 
-> **Note:** On Windows Powershell, you must escape the "double quote" char if you write JSON directly in the CLI. Example: 
+> **Note:** On Windows PowerShell, you must escape the "double quote" char if you write JSON directly in the CLI. Example: 
 > ```bash
 > $ vendor/bin/bref local hello '{\"name\": \"Bill\"}'
 > ```
