@@ -20,6 +20,7 @@ final class Init extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $filesToGitAdd = [];
         $exeFinder = new ExecutableFinder;
         if (! $exeFinder->find('serverless')) {
             $io->warning(
@@ -28,12 +29,6 @@ final class Init extends Command
                 'Please follow the instructions at https://bref.sh/docs/installation.html' . PHP_EOL .
                 'If you have the `serverless` command available elsewhere (eg in a Docker container) you can ignore this warning'
             );
-        }
-
-        if (file_exists('serverless.yml') || file_exists('index.php')) {
-            $io->error('The directory already contains a `serverless.yml` and/or `index.php` file.');
-
-            return 1;
         }
 
         $choice = $io->choice(
@@ -53,17 +48,24 @@ final class Init extends Command
         $rootPath = dirname(__DIR__, 3) . "/template/$templateDirectory";
 
         $io->writeln('Creating index.php');
-        $fs->copy("$rootPath/index.php", 'index.php');
+        if (file_exists('index.php')) {
+            $io->warning('The directory already contains a `index.php` file. Skipping...');
+        }
+        else {
+            $fs->copy("$rootPath/index.php", 'index.php');
+            $filesToGitAdd[] = 'index.php';
+        }
 
         $io->writeln('Creating serverless.yml');
-
-        $template = file_get_contents("$rootPath/serverless.yml");
-
-        $template = str_replace('PHP_VERSION', PHP_MAJOR_VERSION . PHP_MINOR_VERSION, $template);
-
-        file_put_contents('serverless.yml', $template);
-
-        $filesToGitAdd = ['index.php', 'serverless.yml'];
+        if (file_exists('serverless.yml')) {
+            $io->warning('The directory already contains a `serverless.yml` file. Skipping...');
+        }
+        else {
+            $template = file_get_contents("$rootPath/serverless.yml");
+            $template = str_replace('PHP_VERSION', PHP_MAJOR_VERSION . PHP_MINOR_VERSION, $template);
+            file_put_contents('serverless.yml', $template);
+            $filesToGitAdd[] = 'serverless.yml';
+        }
 
         /*
          * We check if this is a git repository to automatically add files to git.
