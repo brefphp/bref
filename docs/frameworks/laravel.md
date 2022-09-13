@@ -183,8 +183,6 @@ constructs:
       # - X-Inertia
 ```
 
-> If you use Laravel Nova, don't forget to uncomment the header `X-Inertia`
-
 > Note: the limit of forwardedHeaders for AWS is set to 10 
 
 Before deploying, compile your assets using Laravel Mix.
