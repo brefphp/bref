@@ -178,7 +178,7 @@ constructs:
       - X-Requested-With
       # Laravel Framework Headers
       - X-Csrf-Token
-      # Other Headers, e.g. Livewire, Laravel Nova
+      # Other Headers (e.g. Livewire, Laravel Nova), uncomment based on your needs
       # - X-Livewire
       # - X-Inertia
 ```
