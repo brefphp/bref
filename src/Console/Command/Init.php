@@ -23,9 +23,6 @@ final class Init extends Command
         $io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
 
-        /**
-         * @param $filesToGitAdd<string>
-         */
         $filesToGitAdd = [];
         $exeFinder = new ExecutableFinder;
         if (! $exeFinder->find('serverless')) {
