@@ -11,8 +11,20 @@ use Symfony\Component\Process\Process;
 
 final class Init extends Command
 {
-    private SymfonyStyle $io;
-    private string $rootPath;
+    /**
+     * Symfony console input/output handler
+     *
+     * @var SymfonyStyle
+     */
+    private $io;
+
+    /**
+     * Absolute path pointing into project's
+     * template directory
+     *
+     * @var string
+     */
+    private $rootPath;
 
     protected function configure(): void
     {
