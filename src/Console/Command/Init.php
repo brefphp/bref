@@ -23,7 +23,6 @@ final class Init extends Command
     {
         $this->io = $io = new SymfonyStyle($input, $output);
 
-        $filesToGitAdd = [];
         $exeFinder = new ExecutableFinder;
         if (! $exeFinder->find('serverless')) {
             $io->warning(
