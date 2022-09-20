@@ -5,14 +5,15 @@ namespace Bref\Console\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
 final class Init extends Command
 {
+    private SymfonyStyle $io;
+    private string $rootPath;
+
     protected function configure(): void
     {
         $this->setName('init');
@@ -20,8 +21,7 @@ final class Init extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $helper = $this->getHelper('question');
+        $this->io = $io = new SymfonyStyle($input, $output);
 
         $filesToGitAdd = [];
         $exeFinder = new ExecutableFinder;
@@ -42,58 +42,49 @@ final class Init extends Command
             ],
             'Web application',
         );
+
         $templateDirectory = [
             'Web application' => 'http',
             'Event-driven function' => 'function',
         ][$choice];
 
-        $fs = new Filesystem;
+        $this->rootPath = dirname(__DIR__, 3) . "/template/$templateDirectory";
 
-        $createFile = static function ($file) use ($templateDirectory, $io, $helper, $input, $output, &$filesToGitAdd): void {
-            $write = true;
-            $rootPath = dirname(__DIR__, 3) . "/template/$templateDirectory";
-            $io->writeln("Creating $file");
-            if (file_exists($file)) {
-                $question = new ConfirmationQuestion(
-                    "An $file file already exists, do you want to overwrite it? [Y/n]",
-                    false,
-                    '/^(y|j)/i'
-                );
-
-                $write = $helper->ask($input, $output, $question);
-            }
-
-            if ($write) {
-                $template = file_get_contents("$rootPath/$file");
-                $template = str_replace('PHP_VERSION', PHP_MAJOR_VERSION . PHP_MINOR_VERSION, $template);
-                file_put_contents($file, $template);
-                $filesToGitAdd[] = $file;
-            }
-        };
-
-        $createFile('index.php');
-        $createFile('serverless.yml');
-
-        /*
-         * We check if this is a git repository to automatically add files to git.
-         */
-        if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0 && $filesToGitAdd) {
-            $files = implode(',', $filesToGitAdd);
-            foreach ($filesToGitAdd as $file) {
-                (new Process(['git', 'add', $file]))->run();
-            }
-
-            if ($filesToGitAdd !== []) {
-                $io->success([
-                    'Project initialized and ready to test or deploy.',
-                    "The file/s $files created automatically added to git.",
-                ]);
-            }
-            return 0;
-        }
+        self::createFile('index.php');
+        self::createFile('serverless.yml');
 
         $io->success('Project initialized and ready to test or deploy.');
 
         return 0;
+    }
+
+    /**
+     * Creates files from the template directory and automatically adds
+     * them to git
+     */
+    private function createFile(string $file): void
+    {
+        $overwrite = true;
+
+        $this->io->writeln("Creating $file");
+
+        if (file_exists($file)) {
+            $overwrite = $this->io->confirm("An $file file already exists, do you want to overwrite it?", true);
+        }
+
+        if ($overwrite) {
+            $template = file_get_contents("$this->rootPath/$file");
+            $template = str_replace('PHP_VERSION', PHP_MAJOR_VERSION . PHP_MINOR_VERSION, $template);
+            file_put_contents($file, $template);
+
+            /*
+             * We check if this is a git repository to automatically add file to git.
+             */
+            if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {
+                    (new Process(['git', 'add', $file]))->run();
+            }
+
+            $this->io->success("$file successfully created and added to git automatically.");
+        }
     }
 }
