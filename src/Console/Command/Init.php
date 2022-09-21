@@ -80,7 +80,7 @@ final class Init extends Command
         $this->io->writeln("Creating $file");
 
         if (file_exists($file)) {
-            $overwrite = $this->io->confirm("An $file file already exists, do you want to overwrite it?", true);
+            $overwrite = $this->io->confirm("A file named $file already exists, do you want to overwrite it?", true);
         }
 
         if ($overwrite) {
