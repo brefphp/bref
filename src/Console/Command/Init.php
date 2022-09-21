@@ -91,11 +91,13 @@ final class Init extends Command
             /*
              * We check if this is a git repository to automatically add file to git.
              */
+            $message = "$file successfully created";
             if ((new Process(['git', 'rev-parse', '--is-inside-work-tree']))->run() === 0) {
-                    (new Process(['git', 'add', $file]))->run();
+                (new Process(['git', 'add', $file]))->run();
+                $message .= ' and added to git automatically';
             }
 
-            $this->io->success("$file successfully created and added to git automatically.");
+            $this->io->success("$message.");
         }
     }
 }
