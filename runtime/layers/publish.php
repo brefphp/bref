@@ -40,12 +40,15 @@ if ($singleRegion) {
     $regions = json_decode(file_get_contents(__DIR__ . '/regions.json'), true);
 }
 
+/** Get profile, fallback to default */
+$profile = getenv('PUBLISH_PROFILE') ?? 'default';
+
 // Publish the layers
 /** @var Process[] $publishingProcesses */
 $publishingProcesses = [];
 foreach ($regions as $region) {
     foreach ($layers as $layer => $layerDescription) {
-        $publishingProcesses[$region . $layer] = publishLayer($region, $layer, $layerDescription);
+        $publishingProcesses[$region . $layer] = publishLayer($region, $layer, $layerDescription, $profile);
     }
 }
 runProcessesInParallel($publishingProcesses);
@@ -59,19 +62,21 @@ foreach ($regions as $region) {
         $publishLayer = $publishingProcesses[$region . $layer];
         $layerVersion = trim($publishLayer->getOutput());
 
-        $permissionProcesses[] = addPublicLayerPermissions($region, $layer, $layerVersion);
+        $permissionProcesses[] = addPublicLayerPermissions($region, $layer, $layerVersion, $profile);
     }
 }
 runProcessesInParallel($permissionProcesses);
 echo "\nDone\n";
 
-function publishLayer(string $region, string $layer, string $layerDescription): Process
+function publishLayer(string $region, string $layer, string $layerDescription, $profile): Process
 {
     $file = __DIR__ . "/../export/$layer.zip";
 
     $process = new Process([
         'aws',
         'lambda',
+        '--profile',
+        $profile,
         'publish-layer-version',
         '--region',
         $region,
@@ -122,11 +127,13 @@ function runProcessesInParallel(array $processes): void
     }
 }
 
-function addPublicLayerPermissions(string $region, string $layer, string $layerVersion): Process
+function addPublicLayerPermissions(string $region, string $layer, string $layerVersion, $profile): Process
 {
     $process = new Process([
         'aws',
         'lambda',
+        '--profile',
+        $profile,
         'add-layer-version-permission',
         '--region',
         $region,
