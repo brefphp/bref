@@ -41,7 +41,7 @@ if ($singleRegion) {
 }
 
 /** Get profile, fallback to default */
-$profile = getenv('PUBLISH_PROFILE') ?? 'default';
+$profile = getenv('AWS_PROFILE') ?? 'default';
 
 // Publish the layers
 /** @var Process[] $publishingProcesses */
