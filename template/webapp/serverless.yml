@@ -10,20 +10,23 @@ provider:
   # global function settings (apply to each declared function)
   runtime: provided.al2
   memorySize: 1024
-  timeout: 6
+  timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
   logRetentionInDays: forever
   layers:
-    - ${bref:layer.php-TPL_PHP_VERSION}
+    - ${bref:layer.php-TPL_PHP_VERSION-fpm}
 
 plugins:
   - ./vendor/bref/bref
 
 functions:
-  hello:
-    description: 'Deployed with Bref TPL_BREF_VERSION for PHP TPL_PHP_VERSION_PRETTY'
+  api:
     handler: index.php
+    description: 'Deployed with Bref TPL_BREF_VERSION for PHP TPL_PHP_VERSION_PRETTY'
+    events:
+      - httpApi: '*'
 
 # Exclude files from deployment
 package:
   patterns:
+    - '!node_modules/**'
     - '!tests/**'
