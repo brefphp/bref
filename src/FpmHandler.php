@@ -57,6 +57,7 @@ final class FpmHandler extends HttpHandler
 
     /**
      * Start the PHP-FPM process.
+     * @throws Exception
      */
     public function start(): void
     {
@@ -88,6 +89,9 @@ final class FpmHandler extends HttpHandler
         $this->waitUntilReady();
     }
 
+    /**
+     * @throws Exception
+     */
     public function stop(): void
     {
         if ($this->fpm && $this->fpm->isRunning()) {
@@ -102,6 +106,9 @@ final class FpmHandler extends HttpHandler
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function __destruct()
     {
         $this->stop();
@@ -109,6 +116,9 @@ final class FpmHandler extends HttpHandler
 
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
+     * @throws FastCgiCommunicationFailed
+     * @throws Timeout
+     * @throws Exception
      */
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
@@ -123,7 +133,7 @@ final class FpmHandler extends HttpHandler
             $socketId = $this->client->sendAsyncRequest($this->connection, $request);
 
             $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
-        } catch (TimedoutException $e) {
+        } catch (TimedoutException) {
             echo "The PHP script timed out. Bref will now restart PHP-FPM to start from a clean slate and flush the PHP logs.\nTimeouts can happen for example when trying to connect to a remote API or database, if this happens continuously check for those.\nIf you are using a RDS database, read this: https://bref.sh/docs/environment/database.html#accessing-the-internet\n";
 
             /**
@@ -184,6 +194,9 @@ final class FpmHandler extends HttpHandler
         }
     }
 
+    /**
+     * @throws Exception
+     */
     private function waitUntilReady(): void
     {
         $wait = 5000; // 5ms
@@ -242,7 +255,8 @@ final class FpmHandler extends HttpHandler
     }
 
     /**
-     * This methods makes sure to kill any existing PHP-FPM process.
+     * This method makes sure to kill any existing PHP-FPM process.
+     * @throws Exception
      */
     private function killExistingFpm(): void
     {
@@ -295,6 +309,7 @@ final class FpmHandler extends HttpHandler
 
     /**
      * Wait until PHP-FPM has stopped.
+     * @throws Exception
      */
     private function waitUntilStopped(int $pid): void
     {
