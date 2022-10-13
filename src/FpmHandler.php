@@ -43,16 +43,11 @@ final class FpmHandler extends HttpHandler
      */
     private const SIGTERM = 15;
 
-    /** @var Client|null */
-    private $client;
-    /** @var UnixDomainSocket */
-    private $connection;
-    /** @var string */
-    private $handler;
-    /** @var string */
-    private $configFile;
-    /** @var Process|null */
-    private $fpm;
+    private ?Client $client;
+    private UnixDomainSocket $connection;
+    private string $handler;
+    private string $configFile;
+    private ?Process $fpm;
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
