@@ -9,7 +9,6 @@ use hollodotme\FastCGI\Requests\AbstractRequest;
  */
 final class FastCgiRequest extends AbstractRequest
 {
-    /** @var string */
     private string $method;
 
     public function __construct(string $method, string $scriptFilename, string $content)

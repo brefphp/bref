@@ -57,6 +57,7 @@ final class FpmHandler extends HttpHandler
 
     /**
      * Start the PHP-FPM process.
+     *
      * @throws Exception
      */
     public function start(): void
@@ -116,6 +117,7 @@ final class FpmHandler extends HttpHandler
 
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
+     *
      * @throws FastCgiCommunicationFailed
      * @throws Timeout
      * @throws Exception
@@ -256,6 +258,7 @@ final class FpmHandler extends HttpHandler
 
     /**
      * This method makes sure to kill any existing PHP-FPM process.
+     *
      * @throws Exception
      */
     private function killExistingFpm(): void
@@ -309,6 +312,7 @@ final class FpmHandler extends HttpHandler
 
     /**
      * Wait until PHP-FPM has stopped.
+     *
      * @throws Exception
      */
     private function waitUntilStopped(int $pid): void

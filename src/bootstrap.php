@@ -32,10 +32,11 @@ if (! is_file($handlerFile)) {
 $phpFpm = new FpmHandler($handlerFile);
 try {
     $phpFpm->start();
-} catch (\Throwable $e) {
+} catch (Throwable $e) {
     $lambdaRuntime->failInitialization('Error while starting PHP-FPM', $e);
 }
 
+/** @phpstan-ignore-next-line */
 while (true) {
     $lambdaRuntime->processNextEvent($phpFpm);
 }
