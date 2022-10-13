@@ -18,26 +18,12 @@ if (getenv('EXPERIMENTAL_AWS_LAMBDA_EXEC_WRAPPER')) {
     exit($exitCode);
 }
 
-$appRoot = getenv('LAMBDA_TASK_ROOT');
-
-if (getenv('BREF_DOWNLOAD_VENDOR')) {
-    if(! file_exists('/tmp/vendor') || ! file_exists('/tmp/vendor/autoload.php')) {
-        require_once __DIR__ . '/breftoolbox.php';
-
-        \Bref\ToolBox\BrefToolBox::downloadAndConfigureVendor();
-    }
-
-    require '/tmp/vendor/autoload.php';
-} elseif (getenv('BREF_AUTOLOAD_PATH')) {
-    /** @noinspection PhpIncludeInspection */
-    require getenv('BREF_AUTOLOAD_PATH');
-} else {
-    /** @noinspection PhpIncludeInspection */
-    require $appRoot . '/vendor/autoload.php';
-}
+/** @noinspection PhpIncludeInspection */
+require_once __DIR__ . '/../../autoload.php';
 
 $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('fpm');
 
+$appRoot = getenv('LAMBDA_TASK_ROOT');
 $handlerFile = $appRoot . '/' . getenv('_HANDLER');
 if (! is_file($handlerFile)) {
     $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist");
