@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test\Functional;
+namespace Bref\FpmRuntime\Test\Functional;
 
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Client;

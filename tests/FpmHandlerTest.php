@@ -1,11 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test\Handler;
+namespace Bref\FpmRuntime\Test;
 
 use Bref\Context\Context;
-use Bref\Event\Http\FastCgi\Timeout;
-use Bref\Event\Http\FpmHandler;
-use Bref\Test\HttpRequestProxyTest;
+use Bref\FpmRuntime\FastCgi\Timeout;
+use Bref\FpmRuntime\FpmHandler;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 
@@ -1062,7 +1061,7 @@ Year,Make,Model
      */
     public function test FPM timeouts are recovered from()
     {
-        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler(__DIR__ . '/fixtures/timeout.php', __DIR__ . '/fixtures/php-fpm.conf');
         $this->fpm->start();
 
         try {
@@ -1089,7 +1088,7 @@ Year,Make,Model
      */
     public function test worker logs are still written in case of a timeout()
     {
-        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler(__DIR__ . '/fixtures/timeout.php', __DIR__ . '/fixtures/php-fpm.conf');
         $this->fpm->start();
 
         try {
@@ -1113,7 +1112,7 @@ Year,Make,Model
         for ($i = 0; $i < 5; $i++) {
             $response = $this->get('large-response.php');
 
-            self::assertStringEqualsFile(__DIR__ . '/PhpFpm/big-json.json', $response['body']);
+            self::assertStringEqualsFile(__DIR__ . '/fixtures/big-json.json', $response['body']);
         }
     }
 
@@ -1121,7 +1120,7 @@ Year,Make,Model
     {
         // Run `timeout.php` to make sure that the handler is not really executed.
         // If it was, then PHP-FPM would timeout (and error).
-        $this->fpm = new FpmHandler(__DIR__ . '/PhpFpm/timeout.php', __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler(__DIR__ . '/fixtures/timeout.php', __DIR__ . '/fixtures/php-fpm.conf');
         $this->fpm->start();
 
         $result = $this->fpm->handle([
@@ -1132,7 +1131,7 @@ Year,Make,Model
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
-        $this->startFpm(__DIR__ . '/PhpFpm/request.php');
+        $this->startFpm(__DIR__ . '/fixtures/request.php');
         $response = $this->fpm->handle($event, $this->fakeContext);
 
         $response = json_decode($response['body'], true);
@@ -1162,7 +1161,7 @@ Year,Make,Model
             'REMOTE_PORT' => '80',
             'REMOTE_ADDR' => '127.0.0.1',
             'SERVER_SOFTWARE' => 'bref',
-            'SCRIPT_FILENAME' => __DIR__ . '/PhpFpm/request.php',
+            'SCRIPT_FILENAME' => __DIR__ . '/fixtures/request.php',
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'FCGI_ROLE' => 'RESPONDER',
         ];
@@ -1182,7 +1181,7 @@ Year,Make,Model
 
     private function get(string $file, ?array $event = null): array
     {
-        $this->startFpm(__DIR__ . '/PhpFpm/' . $file);
+        $this->startFpm(__DIR__ . '/fixtures/' . $file);
 
         return $this->fpm->handle($event ?? [
             'version' => '1.0',
@@ -1195,7 +1194,7 @@ Year,Make,Model
         if ($this->fpm) {
             $this->fpm->stop();
         }
-        $this->fpm = new FpmHandler($handler, __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler($handler, __DIR__ . '/fixtures/php-fpm.conf');
         $this->fpm->start();
     }
 }

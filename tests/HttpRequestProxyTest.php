@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test;
+namespace Bref\FpmRuntime\Test;
 
 /**
  * This interface standardizes tests for objects that proxy HTTP requests from one format to another.

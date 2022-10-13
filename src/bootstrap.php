@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-use Bref\Event\Http\FpmHandler;
+use Bref\FpmHandler;
 use Bref\Runtime\LambdaRuntime;
 
 ini_set('display_errors', '1');

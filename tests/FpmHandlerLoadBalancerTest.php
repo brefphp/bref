@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Test\Handler;
+namespace Bref\FpmRuntime\Test;
 
 use Bref\Context\Context;
-use Bref\Event\Http\FpmHandler;
+use Bref\FpmRuntime\FpmHandler;
 use PHPUnit\Framework\TestCase;
 
 final class FpmHandlerLoadBalancerTest extends TestCase
@@ -35,7 +35,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
      */
     public function test alb query strings()
     {
-        $loadBalancerEvent = file_get_contents(__DIR__ . '/PhpFpm/alb-query-string.json');
+        $loadBalancerEvent = file_get_contents(__DIR__ . '/fixtures/alb-query-string.json');
 
         $response = $this->get('request.php', json_decode($loadBalancerEvent, true));
 
@@ -55,7 +55,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
      */
     public function test alb query strings encoded()
     {
-        $loadBalancerEvent = file_get_contents(__DIR__ . '/PhpFpm/alb-query-string-encoded.json');
+        $loadBalancerEvent = file_get_contents(__DIR__ . '/fixtures/alb-query-string-encoded.json');
 
         $response = $this->get('request.php', json_decode($loadBalancerEvent, true));
 
@@ -69,7 +69,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
 
     public function test alb query strings mixed encoding()
     {
-        $loadBalancerEvent = file_get_contents(__DIR__ . '/PhpFpm/alb-query-string-mixed-encoding.json');
+        $loadBalancerEvent = file_get_contents(__DIR__ . '/fixtures/alb-query-string-mixed-encoding.json');
 
         $response = $this->get('request.php', json_decode($loadBalancerEvent, true));
 
@@ -81,7 +81,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
 
     public function test alb query strings with multi value enabled()
     {
-        $loadBalancerEvent = file_get_contents(__DIR__ . '/PhpFpm/alb-multi-value-query-string.json');
+        $loadBalancerEvent = file_get_contents(__DIR__ . '/fixtures/alb-multi-value-query-string.json');
 
         $response = $this->get('request.php', json_decode($loadBalancerEvent, true));
 
@@ -99,7 +99,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
 
     public function test alb query strings encoded with multi value enabled()
     {
-        $loadBalancerEvent = file_get_contents(__DIR__ . '/PhpFpm/alb-multi-value-query-string-encoded.json');
+        $loadBalancerEvent = file_get_contents(__DIR__ . '/fixtures/alb-multi-value-query-string-encoded.json');
 
         $response = $this->get('request.php', json_decode($loadBalancerEvent, true));
 
@@ -113,7 +113,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
 
     public function test alb query strings with multi value enabled includes numeric keys()
     {
-        $loadBalancerEvent = file_get_contents(__DIR__ . '/PhpFpm/alb-multi-value-query-string-with-numeric-keys.json');
+        $loadBalancerEvent = file_get_contents(__DIR__ . '/fixtures/alb-multi-value-query-string-with-numeric-keys.json');
 
         $response = $this->get('request.php', json_decode($loadBalancerEvent, true));
 
@@ -138,7 +138,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
 
     private function get(string $file, ?array $event = null): array
     {
-        $this->startFpm(__DIR__ . '/PhpFpm/' . $file);
+        $this->startFpm(__DIR__ . '/fixtures/' . $file);
 
         return $this->fpm->handle($event ?? [
             'version' => '1.0',
@@ -151,7 +151,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
         if ($this->fpm) {
             $this->fpm->stop();
         }
-        $this->fpm = new FpmHandler($handler, __DIR__ . '/PhpFpm/php-fpm.conf');
+        $this->fpm = new FpmHandler($handler, __DIR__ . '/fixtures/php-fpm.conf');
         $this->fpm->start();
     }
 }

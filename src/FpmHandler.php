@@ -1,11 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Event\Http;
+namespace Bref\FpmRuntime;
 
 use Bref\Context\Context;
-use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
-use Bref\Event\Http\FastCgi\FastCgiRequest;
-use Bref\Event\Http\FastCgi\Timeout;
+use Bref\Event\Http\HttpHandler;
+use Bref\Event\Http\HttpRequestEvent;
+use Bref\Event\Http\HttpResponse;
+use Bref\FpmRuntime\FastCgi\FastCgiCommunicationFailed;
+use Bref\FpmRuntime\FastCgi\FastCgiRequest;
+use Bref\FpmRuntime\FastCgi\Timeout;
 use Exception;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Exceptions\TimedoutException;

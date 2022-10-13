@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\Event\Http\FastCgi;
+namespace Bref\FpmRuntime\FastCgi;
 
 /**
  * There was a timeout while processing the PHP request

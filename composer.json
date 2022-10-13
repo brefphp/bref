@@ -5,12 +5,12 @@
     "description": "PHP-FPM runtime for AWS Lambda",
     "autoload": {
         "psr-4": {
-            "Bref\\": "src"
+            "Bref\\FpmRuntime\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Bref\\Test\\": "tests"
+            "Bref\\FpmRuntime\\Test\\": "tests"
         }
     },
     "require": {
