@@ -1,15 +1,6 @@
 /vendor
 /.idea
-/tests/Bridge/Symfony/var
-/tests/Bridge/Symfony/cache
-/tests/Bridge/Symfony/logs
-/.bref/
 /.phpcs-cache
 /composer.lock
-/.couscous/
-/website/node_modules/
-/website/template/output.css
-/.netlify/
 .DS_Store
-/.serverless/
 .phpunit.result.cache

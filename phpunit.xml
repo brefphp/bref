@@ -6,13 +6,8 @@
     </include>
   </coverage>
   <testsuites>
-    <testsuite name="small">
+    <testsuite name="tests">
       <directory>./tests/</directory>
-      <exclude>./tests/Sam</exclude>
-      <exclude>./tests/Fixtures</exclude>
-    </testsuite>
-    <testsuite name="runtimes">
-      <directory>./tests/Sam</directory>
     </testsuite>
   </testsuites>
 </phpunit>

@@ -1,0 +1,56 @@
+{
+    "name": "bref/php-fpm-runtime",
+    "license": "MIT",
+    "type": "project",
+    "description": "PHP-FPM runtime for AWS Lambda",
+    "autoload": {
+        "psr-4": {
+            "Bref\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bref\\Test\\": "tests"
+        }
+    },
+    "require": {
+        "php": ">=8.0.0",
+        "bref/php-runtime": "dev-main as 2.0",
+        "symfony/process": "^4.2|^5.0|^6.0",
+        "hollodotme/fast-cgi-client": "^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0",
+        "dms/phpunit-arraysubset-asserts": "^0.2.0",
+        "doctrine/coding-standard": "^8.0",
+        "phpstan/phpstan": "^1.0",
+        "guzzlehttp/guzzle": "^6.3"
+    },
+    "scripts": {
+        "code-style": [
+            "vendor/bin/phpcs"
+        ],
+        "static-analysis": [
+            "vendor/bin/phpstan analyse"
+        ],
+        "tests": [
+            "vendor/bin/phpunit"
+        ]
+    },
+    "scripts-descriptions": {
+        "code-style": "Run code style checks using PHP_CodeSniffer",
+        "static-analysis": "Run static analysis using PHPStan",
+        "tests": "Run tests with PHPUnit"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../php-runtime"
+        }
+    ]
+}
