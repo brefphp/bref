@@ -19,7 +19,7 @@ if (getenv('EXPERIMENTAL_AWS_LAMBDA_EXEC_WRAPPER')) {
 }
 
 /** @noinspection PhpIncludeInspection */
-require_once __DIR__ . '/../../autoload.php';
+require_once __DIR__ . '/../../../autoload.php';
 
 $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('fpm');
 
