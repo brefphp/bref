@@ -47,7 +47,7 @@ final class FpmHandler extends HttpHandler
     private UnixDomainSocket $connection;
     private string $handler;
     private string $configFile;
-    private ?Process $fpm;
+    private ?Process $fpm = null;
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
