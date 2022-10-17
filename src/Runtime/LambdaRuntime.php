@@ -94,6 +94,10 @@ final class LambdaRuntime
         } catch (\Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
 
+            if (in_array(getenv('BREF_INVOKE_LAMBDA_ERROR_THROW_EXCEPTIONS'), ['true', '1'], true)) {
+                throw $e;
+            }
+
             return false;
         }
 

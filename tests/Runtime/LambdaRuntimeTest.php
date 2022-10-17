@@ -339,6 +339,42 @@ ERROR;
         $this->assertErrorInLogs('Exception', 'The lambda handler must be a callable or implement handler interfaces');
     }
 
+    public function test_throw_exception_if_env_is_set_to_true()
+    {
+        putenv('BREF_INVOKE_LAMBDA_ERROR_THROW_EXCEPTIONS=true');
+
+        // Will throw exception
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage('The lambda handler must be a callable or implement handler interfaces');
+
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/ag-v1-simple.json'), true);
+        $this->givenAnEvent($eventData);
+
+        $this->runtime->processNextEvent(null);
+
+        // Will log exception
+        $this->assertInvocationErrorResult('Exception', 'The lambda handler must be a callable or implement handler interfaces');
+        $this->assertErrorInLogs('Exception', 'The lambda handler must be a callable or implement handler interfaces');
+    }
+
+    public function test_throw_exception_if_env_is_set_to_one()
+    {
+        putenv('BREF_INVOKE_LAMBDA_ERROR_THROW_EXCEPTIONS=1');
+
+        // Will throw exception
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage('The lambda handler must be a callable or implement handler interfaces');
+
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/ag-v1-simple.json'), true);
+        $this->givenAnEvent($eventData);
+
+        $this->runtime->processNextEvent(null);
+
+        // Will log exception
+        $this->assertInvocationErrorResult('Exception', 'The lambda handler must be a callable or implement handler interfaces');
+        $this->assertErrorInLogs('Exception', 'The lambda handler must be a callable or implement handler interfaces');
+    }
+
     /**
      * @param mixed $event
      */
