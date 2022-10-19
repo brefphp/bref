@@ -19,10 +19,6 @@ const LAYER_NAMES = [
     'php-81-fpm',
     'php-80',
     'php-80-fpm',
-    'php-74',
-    'php-74-fpm',
-    'php-73',
-    'php-73-fpm',
     'console',
 ];
 
@@ -35,7 +31,7 @@ foreach ($regions as $region) {
     $layers = listLayers($client, $region);
 
     foreach (LAYER_NAMES as $layerName) {
-        $export[$layerName][$region] = $layers[$layerName];
+        $export[$layerName][$region] = $layers[$layerName] ?? '';
     }
 
     echo "$region\n";
@@ -56,7 +52,7 @@ function lambdaClient(string $region): LambdaClient
         ]);
 
         $credentials = $stsClient->AssumeRole([
-            'RoleArn' => 'arn:aws:iam::209497400698:role/bref-layer-publisher',
+            'RoleArn' => 'arn:aws:iam::534081306603:role/bref-layer-publisher',
             'RoleSessionName' => 'bref-layer-builder',
         ]);
 
@@ -80,7 +76,7 @@ function listLayers(LambdaClient $lambda, string $selectedRegion): array
 
     foreach (LAYER_NAMES as $layerName) {
         $results[$layerName] = $lambda->listLayerVersions([
-            'LayerName' => sprintf('arn:aws:lambda:%s:209497400698:layer:%s', $selectedRegion, $layerName),
+            'LayerName' => sprintf('arn:aws:lambda:%s:534081306603:layer:%s', $selectedRegion, $layerName),
             'MaxItems' => 1,
         ]);
     }

@@ -61,7 +61,7 @@ demo:
 	serverless deploy
 
 layers.json:
-	php runtime/layers/layer-list.php
+	php utils/layers.json/update.php
 
 test-stack:
 	serverless deploy -c tests/serverless.tests.yml
