@@ -100,10 +100,10 @@ Bref runtimes are [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/
 The layer names follow this pattern:
 
 ```
-arn:aws:lambda:<region>:209497400698:layer:<layer-name>:<layer-version>
+arn:aws:lambda:<region>:534081306603:layer:<layer-name>:<layer-version>
 
 For example:
-arn:aws:lambda:us-east-1:209497400698:layer:php-80:21
+arn:aws:lambda:us-east-1:534081306603:layer:php-80:21
 ```
 
 You can use layers via their full ARN, or example in `serverless.yml`:
@@ -117,7 +117,7 @@ functions:
     hello:
         ...
         layers:
-            - 'arn:aws:lambda:us-east-1:209497400698:layer:php-80:21'
+            - 'arn:aws:lambda:us-east-1:534081306603:layer:php-80:21'
 ```
 
 Or if you are using [SAM's `template.yaml`](https://aws.amazon.com/serverless/sam/):
@@ -132,7 +132,7 @@ Resources:
             ...
             Runtime: provided.al2
             Layers:
-                - 'arn:aws:lambda:us-east-1:209497400698:layer:php-80:21'
+                - 'arn:aws:lambda:us-east-1:534081306603:layer:php-80:21'
 ```
 
 Bref layers work with AWS Lambda regardless of the tool you use to deploy your application: Serverless, SAM, CloudFormation, Terraform, AWS CDK, etc.

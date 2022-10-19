@@ -45,7 +45,7 @@ class ServerlessPlugin {
                     }
                     const version = layers[layerName][region];
                     return {
-                        value: `arn:aws:lambda:${region}:209497400698:layer:${layerName}:${version}`,
+                        value: `arn:aws:lambda:${region}:534081306603:layer:${layerName}:${version}`,
                     }
                 }
             }
@@ -68,7 +68,7 @@ class ServerlessPlugin {
                         throw new serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
                     }
                     const version = layers[layerName][region];
-                    return `arn:aws:lambda:${region}:209497400698:layer:${layerName}:${version}`;
+                    return `arn:aws:lambda:${region}:534081306603:layer:${layerName}:${version}`;
                 }
 
                 return delegate(variableString);
