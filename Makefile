@@ -66,9 +66,6 @@ layers.json:
 test-stack:
 	serverless deploy -c tests/serverless.tests.yml
 
-changelog:
-	docker run -it --rm -v "$(pwd)":/usr/local/src/your-app ferrarimarco/github-changelog-generator --user brefphp --project bref --output= --unreleased-only --token=$$GITHUB_TOKEN_READ --no-issues --usernames-as-github-logins --no-verbose
-
 # http://amazon-linux-2-packages.bref.sh/
 amazonlinux-package-list:
 	docker run --rm -it --entrypoint= public.ecr.aws/lambda/provided:al2 yum list --quiet --color=never > index.html
