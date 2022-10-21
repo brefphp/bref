@@ -24,13 +24,11 @@ use Throwable;
  * Usage example:
  *
  *     $event = [get the Lambda event];
- *     $phpFpm = new PhpFpm('index.php');
+ *     $phpFpm = new FpmHandler('index.php');
  *     $phpFpm->start();
  *     $lambdaResponse = $phpFpm->handle($event);
  *     $phpFpm->stop();
  *     [send the $lambdaResponse];
- *
- * @internal
  */
 final class FpmHandler extends HttpHandler
 {
