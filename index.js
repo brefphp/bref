@@ -1,5 +1,7 @@
 'use strict';
 
+const {listLayers} = require('./plugin/layers');
+
 /**
  * This file declares a plugin for the Serverless framework.
  *
@@ -75,6 +77,12 @@ class ServerlessPlugin {
             }
         }
 
+        this.commands = {
+            'bref:layers': {
+                lifecycleEvents: ['show'],
+            },
+        };
+
         this.hooks = {
             'initialize': this.addCustomIamRoleForVendorArchiveDownload.bind(this),
 
@@ -85,7 +93,10 @@ class ServerlessPlugin {
             'before:deploy:function:initialize': this.createVendorZip.bind(this),
             'after:deploy:function:initialize': this.uploadVendorZip.bind(this),
 
-            'before:remove:remove': this.removeVendorArchives.bind(this)
+            'before:remove:remove': this.removeVendorArchives.bind(this),
+
+            // Custom commands
+            'bref:layers:show': () => listLayers(this.serverless, utils.log),
         };
     }
 
