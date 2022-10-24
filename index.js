@@ -1,6 +1,7 @@
 'use strict';
 
 const {listLayers} = require('./plugin/layers');
+const {runConsole} = require('./plugin/run-console');
 
 /**
  * This file declares a plugin for the Serverless framework.
@@ -78,7 +79,20 @@ class ServerlessPlugin {
         }
 
         this.commands = {
+            'bref:cli': {
+                usage: 'Runs a CLI command in AWS Lambda',
+                lifecycleEvents: ['run'],
+                options: {
+                    // Define the '--args' option with the '-a' shortcut
+                    command: {
+                        usage: 'Specify the arguments/options of the command to run on AWS Lambda',
+                        shortcut: 'a',
+                        type: 'string',
+                    },
+                },
+            },
             'bref:layers': {
+                usage: 'Displays the versions of the Bref layers',
                 lifecycleEvents: ['show'],
             },
         };
@@ -96,6 +110,7 @@ class ServerlessPlugin {
             'before:remove:remove': this.removeVendorArchives.bind(this),
 
             // Custom commands
+            'bref:cli:run': () => runConsole(this.serverless, options),
             'bref:layers:show': () => listLayers(this.serverless, utils.log),
         };
     }
