@@ -40,36 +40,33 @@ functions:
 
 ## Usage
 
-To run a console command on AWS Lambda, run `bref cli` on your computer:
+To run a console command on AWS Lambda, run `serverless bref:cli` on your computer:
 
 ```bash
-vendor/bin/bref cli <function-name> -- <command>
+serverless bref:cli --args="<command to run in lambda>"
 ```
 
-`<function-name>` is the name of the function that was deployed on AWS. In our example above that would be `hello-dev` because Serverless adds the stage (by default `dev`) as a suffix.
+The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` layer and will run the command on that function.
 
-Pass your command, arguments and options by putting them after `--`. The `--` delimiter separates between options for the `bref cli` command (before `--`) and your command (after `--`).
-
-```bash
-vendor/bin/bref cli hello-dev <bref options> -- <your command, your options>
-```
-
-For example:
+Pass your command arguments and options in the `--args` flag (shortcut: `-a`). Remember to escape quotes properly. Some examples:
 
 ```bash
 # Runs the CLI application without arguments and displays the help
-$ vendor/bin/bref cli hello-dev
+$ serverless bref:cli
 # ...
 
-$ vendor/bin/bref cli hello-dev -- doctrine:migrations:migrate
+$ serverless bref:cli --args="doctrine:migrations:migrate"
 Your database will be migrated.
 To execute the SQL queries run the command with the `--force` option.
 
-$ vendor/bin/bref cli hello-dev -- doctrine:migrations:migrate --force
+$ serverless bref:cli -a "doctrine:migrations:migrate --force"
 Your database has been migrated.
 
-# Use environment variables to configure your AWS credentials
-$ AWS_DEFAULT_REGION=eu-central-1 AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar vendor/bin/bref cli my-function
+$ serverless bref:cli --stage=prod -a "db:dump --file='/tmp/dump.sql' --verbose"
+# ...
+
+# You can use environment variables to configure AWS credentials (e.g. in CI)
+$ AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar serverless bref:cli
 # ...
 ```
 

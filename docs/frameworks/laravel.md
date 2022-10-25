@@ -117,8 +117,8 @@ As you may have noticed, we define a function named "artisan" in `serverless.yml
 
 For example, to execute an `artisan` command on Lambda for the above configuration, run the below command.
 
-```
-vendor/bin/bref cli bref-demo-laravel-artisan <bref options> -- <your command, your options>
+```sh
+serverless bref:cli --args="<artisan command and options>"
 ```
 
 For more details follow [the "Console" guide](/docs/runtimes/console.md).
@@ -374,8 +374,8 @@ Instead, here is what you need to do:
 - Finally, you can create the tokens (which is the second part of the `passport:install` command):
 
    ```bash
-   vendor/bin/bref cli <artisan-function-name> -- passport:client --personal --name 'Laravel Personal Access Client'
-   vendor/bin/bref cli <artisan-function-name> -- passport:client --password --name 'Laravel Personal Access Client'
+   serverless bref:cli --args="passport:client --personal --name 'Laravel Personal Access Client'"
+   serverless bref:cli --args="passport:client --password --name 'Laravel Personal Access Client'"
    ```
 
 All these steps were replacements of running the `passport:install` command [from the Passport documentation](https://laravel.com/docs/passport#installation).
