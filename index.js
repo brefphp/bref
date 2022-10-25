@@ -2,6 +2,7 @@
 
 const {listLayers} = require('./plugin/layers');
 const {runConsole} = require('./plugin/run-console');
+const {runLocal} = require('./plugin/local');
 
 /**
  * This file declares a plugin for the Serverless framework.
@@ -91,6 +92,28 @@ class ServerlessPlugin {
                     },
                 },
             },
+            'bref:local': {
+                usage: 'Runs a PHP Lambda function locally (better alternative to "serverless local")',
+                lifecycleEvents: ['run'],
+                options: {
+                    function: {
+                        usage: 'The name of the function to invoke',
+                        shortcut: 'f',
+                        required: true,
+                        type: 'string',
+                    },
+                    data: {
+                        usage: 'The data (as a JSON string) to pass to the handler',
+                        shortcut: 'd',
+                        type: 'string',
+                    },
+                    path: {
+                        usage: 'Path to JSON or YAML file holding input data (use either this or --data)',
+                        shortcut: 'p',
+                        type: 'string',
+                    },
+                },
+            },
             'bref:layers': {
                 usage: 'Displays the versions of the Bref layers',
                 lifecycleEvents: ['show'],
@@ -111,6 +134,7 @@ class ServerlessPlugin {
 
             // Custom commands
             'bref:cli:run': () => runConsole(this.serverless, options),
+            'bref:local:run': () => runLocal(this.serverless, options),
             'bref:layers:show': () => listLayers(this.serverless, utils.log),
         };
     }

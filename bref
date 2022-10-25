@@ -8,16 +8,7 @@ use Bref\Console\Command\Init;
 use Bref\Console\Command\Layers;
 use Bref\Console\Command\Local;
 use Symfony\Component\Console\Application;
-
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
-} elseif (file_exists(__DIR__ . '/../autoload.php')) {
-    /** @noinspection PhpIncludeInspection */
-    require_once __DIR__ . '/../autoload.php';
-} else {
-    /** @noinspection PhpIncludeInspection */
-    require_once __DIR__ . '/../../autoload.php';
-}
+@
 
 $app = new Application('Deploy serverless PHP applications');
 $app->add(new Init());
