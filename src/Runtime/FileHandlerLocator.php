@@ -23,7 +23,7 @@ class FileHandlerLocator implements ContainerInterface
     {
         $this->directory = $directory ?: ($_SERVER['LAMBDA_TASK_ROOT'] ?? null);
 
-        // When running locally (`bref local` CLI command) `LAMBDA_TASK_ROOT` is undefined
+        // When running locally (`serverless bref:local` CLI command) `LAMBDA_TASK_ROOT` is undefined
         if (! $this->directory) {
             $this->directory = getcwd();
         }

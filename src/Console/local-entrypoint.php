@@ -17,7 +17,7 @@ if (file_exists(__DIR__ . '/../../vendor/autoload.php')) {
 try {
     $handler = Bref::getContainer()->get($handler);
 } catch (NotFoundExceptionInterface $e) {
-    throw new Exception($e->getMessage() . PHP_EOL . 'Reminder: `bref local` can invoke event-driven functions that use the FUNCTION runtime, not the web app (or "FPM") runtime. Check out https://bref.sh/docs/web-apps/local-development.html to run web applications locally.');
+    throw new Exception($e->getMessage() . PHP_EOL . 'Reminder: `serverless bref:local` can invoke event-driven functions that use the FUNCTION runtime, not the web app (or "FPM") runtime. Check out https://bref.sh/docs/web-apps/local-development.html to run web applications locally.');
 }
 
 try {

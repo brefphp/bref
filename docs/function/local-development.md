@@ -13,7 +13,10 @@ It is possible to run **PHP functions** locally.
 
 > To run **web apps** locally, see [Local development for HTTP applications](/docs/web-apps/local-development.md) instead.
 
-The `vendor/bin/bref local` command invokes your [PHP functions](/docs/runtimes/function.md) locally. You can provide an event if your function expects one.
+The `serverless bref:local` command invokes your [PHP functions](/docs/runtimes/function.md) locally, using PHP installed on your machine. You can provide an event if your function expects one.
+
+> **Note:**
+> The `serverless bref:local` command is a simpler alternative to the native `serverless invoke local` command, which tries to run PHP using Docker with very little success. Use `bref:local` instead of `invoke local`.
 
 For example, given this function:
 
@@ -30,40 +33,42 @@ functions:
     hello:
         handler: my-function.php
         layers:
-            - ${bref:layer.php-74}
+            - ${bref:layer.php-81}
 ```
 
 You can invoke it with or without event data:
 
 ```bash
-$ vendor/bin/bref local hello
+$ serverless bref:local -f hello
 Hello world
 
 # With JSON event data
-$ vendor/bin/bref local hello '{"name": "Jane"}'
+$ serverless bref:local -f hello --data '{"name": "Jane"}'
 Hello Jane
 
 # With JSON in a file
-$ vendor/bin/bref local hello --file=event.json
+$ serverless bref:local -f hello --path=event.json
 Hello Jane
 ```
 
 > **Note:** On Windows PowerShell, you must escape the "double quote" char if you write JSON directly in the CLI. Example: 
 > ```bash
-> $ vendor/bin/bref local hello '{\"name\": \"Bill\"}'
+> $ serverless bref:local -f hello --data '{\"name\": \"Bill\"}'
 > ```
 
-The `bref local` command runs using the local PHP installation. If you prefer to run commands using the same environment as Lambda, you can use Docker.
+The `serverless bref:local` command runs using the local PHP installation. If you prefer to run commands using the same environment as Lambda, you can use Docker.
 
 Here is an example, feel free to adjust it to fit your needs:
 
 ```bash
+# TODO needs to be adjusted
 docker run --rm -it --entrypoint= -v $(PWD):/var/task:ro bref/php-74 vendor/bin/bref local hello
 ```
 
 If you do not use `serverless.yml` but something else like SAM/CDK/CloudFormation/Terraform, use the `--handler` parameter instead:
 
 ```bash
+# TODO needs to be adjusted
 $ vendor/bin/bref local --handler=my-function.php
 Hello world
 
@@ -78,6 +83,6 @@ Hello Jane
 
 ## API Gateway local development
 
-If you build HTTP applications with [API Gateway HTTP events](handlers.md#api-gateway-http-events), `bref local` is a bit unpractical.
+If you build HTTP applications with [API Gateway HTTP events](handlers.md#api-gateway-http-events), `serverless bref:local` is a bit unpractical because you need to manually craft HTTP events in JSON.
 
-You can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate API Gateway locally.
+Instead, you can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate API Gateway locally.
