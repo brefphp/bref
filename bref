@@ -2,13 +2,6 @@
 <?php
 declare(strict_types=1);
 
-use Bref\Console\Command\Cli;
-use Bref\Console\Command\Dashboard;
-use Bref\Console\Command\Init;
-use Bref\Console\Command\Layers;
-use Bref\Console\Command\Local;
-use Symfony\Component\Console\Application;
-
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
 } elseif (file_exists(__DIR__ . '/../autoload.php')) {
@@ -19,11 +12,58 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/../../autoload.php';
 }
 
-$app = new Application('Deploy serverless PHP applications');
-$app->add(new Init());
-$app->add(new Cli());
-$app->add(new Local());
-$app->add(new Dashboard());
-$app->add(new Layers());
+switch ($argv[1] ?? '') {
+    case 'init':
+        init();
+        exit(0);
+    case 'cli':
+        cliWarning();
+        echo "TODO\n";
+        exit(1);
+    case 'layers':
+        cliWarning();
+        echo "Bref layer ARNs can be found here: https://runtimes.bref.sh/\n\n";
+        echo "If you are using Serverless Framework, you can also run the 'serverless bref:layers' command.\n";
+        exit(1);
+    case 'local':
+        cliWarning();
+        echo "TODO\n";
+        exit(1);
+    case 'dashboard':
+        cliWarning();
+        echo "The Bref Dashboard is now available as a desktop application.\n\n";
+        echo "Check out https://dashboard.bref.sh/\n";
+        exit(1);
+    case '':
+        help();
+        exit(0);
+    default:
+        error('Unknown command');
+}
 
-$app->run();
+function help()
+{
+    echo "Bref initialization command\n\n";
+    echo "Run 'bref init' to get started!\n";
+    exit(0);
+}
+
+function init()
+{
+    echo "TODO\n";
+    exit(0);
+}
+
+/**
+ * @return never-return
+ */
+function error(string $message): void
+{
+    echo "\033[31m⨯ $message\033[0m" . PHP_EOL;
+    exit(1);
+}
+
+function cliWarning(): void
+{
+    echo "\033[33mWarning: the vendor/bin/bref CLI has been removed in Bref 2.\033[0m" . PHP_EOL . PHP_EOL;
+}
