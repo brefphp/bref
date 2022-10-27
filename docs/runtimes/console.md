@@ -89,7 +89,7 @@ aws lambda invoke \
     --cli-binary-format raw-in-base64-out \
     --payload "doctrine:migrations:migrate --force" \
     response.json
-    
+
 # To extract the command output from the response.json file using jq
 # https://stedolan.github.io/jq/
 aws lambda invoke \
