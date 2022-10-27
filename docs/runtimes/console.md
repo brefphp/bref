@@ -70,6 +70,36 @@ $ AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar serverless bref:cli
 # ...
 ```
 
+### Usage without Serverless Framework
+
+If you do not use `serverless.yml` but something else, like SAM/AWS CDK/Terraform, you can invoke your console function via the AWS CLI. For example:
+
+```bash
+aws lambda invoke \
+    --function-name <console function name> \
+    --region <region> \
+    --cli-binary-format raw-in-base64-out \
+    --payload "<command arguments and options>" \
+    <file to store the output>.json
+
+# For example:
+aws lambda invoke \
+    --function-name myapp-dev-myfunction \
+    --region us-east-1 \
+    --cli-binary-format raw-in-base64-out \
+    --payload "doctrine:migrations:migrate --force" \
+    response.json
+    
+# To extract the command output from the response.json file using jq
+# https://stedolan.github.io/jq/
+aws lambda invoke \
+    --function-name myapp-dev-myfunction \
+    --region us-east-1 \
+    --cli-binary-format raw-in-base64-out \
+    --payload "doctrine:migrations:migrate --force" \
+    response.json && jq -r .output response.json
+```
+
 ## Lambda context
 
 Lambda provides information about the invocation, function, and execution environment via the *lambda context*.
