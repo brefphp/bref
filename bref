@@ -14,13 +14,12 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 switch ($argv[1] ?? '') {
     case 'init':
-        require_once __DIR__ . '/src/Console/init.php';
+        require_once __DIR__ . '/src/Cli/init.php';
         init();
         break;
     case 'cli':
         cliWarning();
-        echo "TODO\n";
-        exit(1);
+        error('Since Bref 2.0, the "bref cli" command has been moved. Read https://bref.sh/docs/runtimes/console.html#usage');
     case 'layers':
         cliWarning();
         echo "Bref layer ARNs can be found here: https://runtimes.bref.sh/\n\n";
@@ -28,8 +27,7 @@ switch ($argv[1] ?? '') {
         exit(1);
     case 'local':
         cliWarning();
-        echo "TODO\n";
-        exit(1);
+        error('Since Bref 2.0, the "bref local" command has been moved. Read https://bref.sh/docs/function/local-development.html\n');
     case 'dashboard':
         cliWarning();
         echo "The Bref Dashboard is now available as a desktop application.\n\n";
@@ -75,5 +73,5 @@ function green(string $message): string
 
 function cliWarning(): void
 {
-    warning("Warning: the vendor/bin/bref CLI has been removed in Bref 2." . PHP_EOL);
+    warning("Warning: the 'vendor/bin/bref' CLI has been removed in Bref 2." . PHP_EOL);
 }
