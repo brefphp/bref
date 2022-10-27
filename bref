@@ -14,6 +14,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 switch ($argv[1] ?? '') {
     case 'init':
+        require_once __DIR__ . '/src/Console/init.php';
         init();
         exit(0);
     case 'cli':
@@ -48,12 +49,6 @@ function help()
     exit(0);
 }
 
-function init()
-{
-    echo "TODO\n";
-    exit(0);
-}
-
 /**
  * @return never-return
  */
@@ -63,7 +58,22 @@ function error(string $message): void
     exit(1);
 }
 
+function warning(string $message): void
+{
+    echo "\033[33m$message\033[0m" . PHP_EOL;
+}
+
+function success(string $message): void
+{
+    echo green($message) . PHP_EOL;
+}
+
+function green(string $message): string
+{
+    return "\033[32m$message\033[0m";
+}
+
 function cliWarning(): void
 {
-    echo "\033[33mWarning: the vendor/bin/bref CLI has been removed in Bref 2.\033[0m" . PHP_EOL . PHP_EOL;
+    warning("Warning: the vendor/bin/bref CLI has been removed in Bref 2." . PHP_EOL);
 }
