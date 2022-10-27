@@ -16,7 +16,7 @@ switch ($argv[1] ?? '') {
     case 'init':
         require_once __DIR__ . '/src/Console/init.php';
         init();
-        exit(0);
+        break;
     case 'cli':
         cliWarning();
         echo "TODO\n";
@@ -37,7 +37,7 @@ switch ($argv[1] ?? '') {
         exit(1);
     case '':
         help();
-        exit(0);
+        break;
     default:
         error('Unknown command');
 }
