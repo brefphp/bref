@@ -15,7 +15,7 @@ function runLocal(serverless, options) {
     const fn = serverless.service.getFunction(options.function);
 
     const args = [
-        path.join(__dirname, '../src/Console/local-entrypoint.php'),
+        path.join(__dirname, '../src/bref-local'),
         fn.handler,
         data ?? '',
     ];

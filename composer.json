@@ -16,7 +16,8 @@
         }
     },
     "bin": [
-        "bref"
+        "bref",
+        "src/bref-local"
     ],
     "require": {
         "php": ">=7.3.0",

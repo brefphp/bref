@@ -11,7 +11,10 @@ next:
 
 It is possible to run **PHP functions** locally.
 
+> **Warning:**
 > To run **web apps** locally, see [Local development for HTTP applications](/docs/web-apps/local-development.md) instead.
+
+## With Serverless Framework
 
 The `serverless bref:local` command invokes your [PHP functions](/docs/runtimes/function.md) locally, using PHP installed on your machine. You can provide an event if your function expects one.
 
@@ -56,33 +59,29 @@ Hello Jane
 > $ serverless bref:local -f hello --data '{\"name\": \"Bill\"}'
 > ```
 
-The `serverless bref:local` command runs using the local PHP installation. If you prefer to run commands using the same environment as Lambda, you can use Docker.
-
-Here is an example, feel free to adjust it to fit your needs:
-
-```bash
-# TODO needs to be adjusted
-docker run --rm -it --entrypoint= -v $(PWD):/var/task:ro bref/php-74 vendor/bin/bref local hello
-```
-
-If you do not use `serverless.yml` but something else like SAM/CDK/CloudFormation/Terraform, use the `--handler` parameter instead:
-
-```bash
-# TODO needs to be adjusted
-$ vendor/bin/bref local --handler=my-function.php
-Hello world
-
-# With JSON event data
-$ vendor/bin/bref local '{"name": "Jane"}' --handler=my-function.php
-Hello Jane
-
-# With JSON in a file
-$ vendor/bin/bref local --handler=my-function.php --file=event.json
-Hello Jane
-```
+The `serverless bref:local` command runs using the local PHP installation. If you prefer to use Docker, check out the "Without Serverless Framework" section below.
 
 ## API Gateway local development
 
 If you build HTTP applications with [API Gateway HTTP events](handlers.md#api-gateway-http-events), `serverless bref:local` is a bit unpractical because you need to manually craft HTTP events in JSON.
 
 Instead, you can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate API Gateway locally.
+
+## Without Serverless Framework
+
+If you do not use `serverless.yml` but something else, like SAM/AWS CDK/Terraform, use the `vendor/bin/bref-local` command instead:
+
+```bash
+$ vendor/bin/bref-local <handler> <event-data>
+
+# For example
+$ vendor/bin/bref-local my-function.php
+Hello world
+
+# With JSON event data
+$ vendor/bin/bref-local my-function.php '{"name": "Jane"}'
+Hello Jane
+
+# Run in Docker
+$ docker run --rm -it --entrypoint= -v $(PWD):/var/task:ro bref/php-81 vendor/bin/bref-local my-function.php
+```
