@@ -1,5 +1,9 @@
 'use strict';
 
+const {listLayers} = require('./plugin/layers');
+const {runConsole} = require('./plugin/run-console');
+const {runLocal} = require('./plugin/local');
+
 /**
  * This file declares a plugin for the Serverless framework.
  *
@@ -75,6 +79,47 @@ class ServerlessPlugin {
             }
         }
 
+        this.commands = {
+            'bref:cli': {
+                usage: 'Runs a CLI command in AWS Lambda',
+                lifecycleEvents: ['run'],
+                options: {
+                    // Define the '--args' option with the '-a' shortcut
+                    command: {
+                        usage: 'Specify the arguments/options of the command to run on AWS Lambda',
+                        shortcut: 'a',
+                        type: 'string',
+                    },
+                },
+            },
+            'bref:local': {
+                usage: 'Runs a PHP Lambda function locally (better alternative to "serverless local")',
+                lifecycleEvents: ['run'],
+                options: {
+                    function: {
+                        usage: 'The name of the function to invoke',
+                        shortcut: 'f',
+                        required: true,
+                        type: 'string',
+                    },
+                    data: {
+                        usage: 'The data (as a JSON string) to pass to the handler',
+                        shortcut: 'd',
+                        type: 'string',
+                    },
+                    path: {
+                        usage: 'Path to JSON or YAML file holding input data (use either this or --data)',
+                        shortcut: 'p',
+                        type: 'string',
+                    },
+                },
+            },
+            'bref:layers': {
+                usage: 'Displays the versions of the Bref layers',
+                lifecycleEvents: ['show'],
+            },
+        };
+
         this.hooks = {
             'initialize': this.addCustomIamRoleForVendorArchiveDownload.bind(this),
 
@@ -85,7 +130,12 @@ class ServerlessPlugin {
             'before:deploy:function:initialize': this.createVendorZip.bind(this),
             'after:deploy:function:initialize': this.uploadVendorZip.bind(this),
 
-            'before:remove:remove': this.removeVendorArchives.bind(this)
+            'before:remove:remove': this.removeVendorArchives.bind(this),
+
+            // Custom commands
+            'bref:cli:run': () => runConsole(this.serverless, options),
+            'bref:local:run': () => runLocal(this.serverless, options),
+            'bref:layers:show': () => listLayers(this.serverless, utils.log),
         };
     }
 

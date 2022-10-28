@@ -72,15 +72,15 @@ However Secrets Manager is not free: [pricing details](https://aws.amazon.com/se
 
 ## Local development
 
-When [developing locally using `vendor/bin/bref local`](/docs/local-development.md), you can set environment variables using bash:
+When [developing locally using `serverless bref:local`](/docs/local-development.md), you can set environment variables using bash:
 
 ```bash
-VAR1=val1 VAR2=val2 vendor/bin/bref local <function>
+VAR1=val1 VAR2=val2 serverless bref:local -f <function>
 
 # Or using `export`:
 export VAR1=val1
 export VAR2=val2
-vendor/bin/bref local <function>
+serverless bref:local -f <function>
 ```
 
 ## Learn more

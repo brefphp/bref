@@ -141,9 +141,17 @@ Bref layers work with AWS Lambda regardless of the tool you use to deploy your a
 
 ### Layer version (`<layer-version>`)
 
-The latest of runtime versions can be found at [runtimes.bref.sh](https://runtimes.bref.sh/) and is shown below:
+The latest of runtime versions can be found at [**runtimes.bref.sh**](https://runtimes.bref.sh/).
+
+Here are the latest versions:
 
 <iframe src="https://runtimes.bref.sh/embedded" class="w-full h-96"></iframe>
+
+You can also find the appropriate ARN/version for your current Bref version by running:
+
+```bash
+serverless bref:layers
+```
 
 **Watch out:** if you use the layer ARN directly instead of the `${bref:layer.php-80}` variables (which only work in `serverless.yml`), you may need to update the ARN (the `<version>` part) when you update Bref. Follow the Bref release notes closely.
 
