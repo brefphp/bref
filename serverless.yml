@@ -62,7 +62,7 @@ functions:
     console:
         handler: demo/console.php
         description: 'Bref console command demo'
-        timeout: 900
+        timeout: 5
         layers:
             - ${bref:layer.php-81}
             - ${bref:layer.console}
