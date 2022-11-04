@@ -28,6 +28,15 @@ jobs:
                     role-session-name: bref-github-actions
                     aws-region: us-east-1
 
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.1
+                    tools: composer
+
+            -   name: Install Composer dependencies
+                run: composer install --prefer-dist
+
             -   run: make layers.json
 
             -   name: Create Pull Request
