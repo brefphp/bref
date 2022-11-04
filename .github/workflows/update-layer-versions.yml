@@ -1,0 +1,49 @@
+name: Update layer versions (Bref v2)
+
+# Triggered manually or automatically when new Bref layers published
+on: workflow_dispatch
+
+# Necessary to connect to AWS using OIDC
+# https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+permissions:
+    id-token: write # This is required for requesting the JWT token
+    # To allow creating GitHub commits
+    contents: write
+
+jobs:
+    update-layer-versions:
+        name: Update layer versions
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v3
+                with:
+                    # Check out the `v2` branch
+                    # TODO Update that to `main` when the v2 is merged and released
+                    ref: v2
+
+            -   name: Set AWS credentials
+                uses: aws-actions/configure-aws-credentials@v1
+                with:
+                    role-to-assume: arn:aws:iam::534081306603:role/bref-github-actions
+                    role-session-name: bref-github-actions
+                    aws-region: us-east-1
+
+            -   run: make layers.json
+
+            -   name: Create Pull Request
+                uses: peter-evans/create-pull-request@v4
+                with:
+                    commit-message: Update layer versions
+                    title: Updated AWS Lambda layers (Bref v2)
+                    body: |
+                        New AWS Lambda layers [have been released](https://github.com/brefphp/aws-lambda-layers/releases) for Bref v2.
+
+                        This PR was automatically generated to update the layer versions used by Bref.
+                        After merging, a new Bref release needs to be created.
+                        
+                        If you are using AWS Lambda layer ARNs, check out [runtimes.bref.sh](https://runtimes.bref.sh/) to see the latest ARNs.
+                    branch: new-layer-versions
+                    delete-branch: true # delete after merging or closing the PR
+                    # https://github.com/actions/checkout/issues/13#issuecomment-724415212
+                    committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+                    author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
