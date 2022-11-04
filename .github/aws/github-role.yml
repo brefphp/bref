@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: OIDC provider that lets brefphp/bref retrieve layer versions
+
+Parameters:
+    FullRepoName:
+        Type: String
+
+Resources:
+    Role:
+        Type: AWS::IAM::Role
+        Properties:
+            RoleName: bref-github-actions
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Action: sts:AssumeRoleWithWebIdentity
+                      Principal:
+                          Federated: arn:aws:iam::534081306603:oidc-provider/token.actions.githubusercontent.com
+                      Condition:
+                          StringLike:
+                              token.actions.githubusercontent.com:sub: !Sub repo:${FullRepoName}:*
+            Policies:
+                -   PolicyName: RetrieveLayersForLayerJsRole
+                    PolicyDocument:
+                        Statement:
+                            -   Effect: Allow
+                                Action:
+                                    - lambda:GetLayerVersion
+                                    - lambda:GetLayerVersionPolicy
+                                    - lambda:ListLayers
+                                    - lambda:ListLayerVersions
+                                Resource:
+                                    - '*'
+
+Outputs:
+    Role:
+        Value: !GetAtt Role.Arn
