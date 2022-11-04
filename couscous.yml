@@ -138,4 +138,18 @@ menu:
                 community:
                     text: Community
                     url: /docs/community.html
-                    title: Places where to learne and exchange about Bref.
+                    title: Places where to learn and exchange about Bref.
+        -   section: Ecosystem
+            items:
+                github:
+                    text: GitHub
+                    url: https://github.com/brefphp
+                    title: Bref on GitHub
+                twitter:
+                    text: Twitter
+                    url: https://twitter.com/brefphp
+                    title: Bref on Twitter
+                dashboard:
+                    text: Bref Dashboard
+                    url: https://dashboard.bref.sh/?ref=bref
+                    title: Bref Dashboard
