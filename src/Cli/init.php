@@ -33,7 +33,7 @@ function init(): void
         '1' => 'function',
     ][$choice];
 
-    $rootPath = dirname(__DIR__, 3) . "/template/$templateDirectory";
+    $rootPath = dirname(__DIR__, 2) . "/template/$templateDirectory";
 
     createFile($rootPath, 'index.php');
     createFile($rootPath, 'serverless.yml');
@@ -65,6 +65,9 @@ function createFile(string $templatePath, string $file): void
     }
 
     $template = file_get_contents("$templatePath/$file");
+    if (! $template) {
+        error("Could not read file $templatePath/$file");
+    }
     $template = str_replace('PHP_VERSION', PHP_MAJOR_VERSION . PHP_MINOR_VERSION, $template);
     file_put_contents($file, $template);
 
