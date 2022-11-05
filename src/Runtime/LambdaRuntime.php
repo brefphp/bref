@@ -85,6 +85,8 @@ final class LambdaRuntime
         [$event, $context] = $this->waitNextInvocation();
         \assert($context instanceof Context);
 
+        $this->hook();
+
         $this->ping();
 
         try {
@@ -305,6 +307,16 @@ final class LambdaRuntime
         if ($this->curlHandleResult !== null) {
             curl_close($this->curlHandleResult);
             $this->curlHandleResult = null;
+        }
+    }
+
+    private function hook()
+    {
+        /**
+         * This is completely experimental, do not use
+         */
+        if (isset($_SERVER['BREF_HOOK_BEFORE_INVOKE'])) {
+            system($_SERVER['BREF_HOOK_BEFORE_INVOKE']);
         }
     }
 
