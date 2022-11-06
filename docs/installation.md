@@ -27,6 +27,8 @@ Bref relies on the [Serverless framework](https://serverless.com/) and AWS acces
     ```bash
     npm install -g serverless
     ```
+  
+    _Bref is compatible with Serverless Framework v3 (current version) and the older v2._
 
 - [create AWS access keys](/docs/installation/aws-keys.md)
 
