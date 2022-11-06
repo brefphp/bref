@@ -23,7 +23,11 @@ Bref provides 2 main runtimes:
 
 You can see in the documentation menu how these two runtimes are used for two different kinds of applications.
 
-### Web apps: `php-80-fpm` and `php-74-fpm`
+These runtimes are available as AWS Lambda layers that you can use (explained below). They are also published as Docker images so that you can run your applications locally (more on that later).
+
+### Web apps
+
+Name: `php-82-fpm`, `php-81-fpm`, `php-80-fpm` and `php-74-fpm`.
 
 This runtime uses PHP-FPM to run **web applications** on AWS Lambda.
 
@@ -31,13 +35,17 @@ It's **the easiest to start with**: it works like traditional PHP hosting and is
 
 [Get started with the FPM runtime in "Bref for web apps"](/docs/runtimes/http.md).
 
-### Event-driven functions: `php-80` and `php-74`
+### Event-driven functions
+
+Name: `php-82`, `php-81`, `php-80` and `php-74`.
 
 AWS Lambda was initially created to run _functions_ (yes, functions of code) in the cloud.
 
 The Bref function runtime lets you create Lambda functions in PHP like with any other language.
 
 This runtime works great to create **event-driven micro-services**.
+
+_Note: if you are getting started, we highly recommend using the FPM runtime instead. It's "PHP as usual" (like on any server), with all the benefits of serverless (simplicity, scaling, etc.)._
 
 [Get started with the Function runtime in "Bref for event-driven functions"](/docs/runtimes/function.md).
 
