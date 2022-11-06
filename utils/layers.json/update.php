@@ -19,6 +19,8 @@ const LAYER_NAMES = [
     'php-81-fpm',
     'php-80',
     'php-80-fpm',
+    'arm-php-80',
+    'arm-php-80-fpm',
     'console',
 ];
 
