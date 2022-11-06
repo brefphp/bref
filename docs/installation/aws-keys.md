@@ -15,7 +15,7 @@ To create AWS access key for Bref and the `serverless` CLI tool follow these ste
 
     ![](aws-keys-step-2.png)
 
-    > **WARNING**: the "AdministratorAccess" policy grants full access to your AWS account. This is simpler when starting with AWS and deploying for the first time. However it is highly recommended to restrict permissions further.
+    > **Warning**: the "AdministratorAccess" policy grants full access to your AWS account. This is simpler when starting with AWS and Bref. However, it is recommended to restrict permissions further eventually.
     >
     > The Serverless documentation has an example of a configuration with stricter permissions: [read this article to create a more secure policy](https://serverless.com/framework/docs/providers/aws/guide/credentials/#creating-aws-access-keys).
 
