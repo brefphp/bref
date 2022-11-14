@@ -166,7 +166,7 @@ final class Psr7Bridge
     
     /**
      * Parse the username and password from the `Authorization` header.
-     * Only "Basic" is supported.
+     * Only "Basic" is supported for now.
      *
      * @param  array  $headers
      * @return string[]|null[]
