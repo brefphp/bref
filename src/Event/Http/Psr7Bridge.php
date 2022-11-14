@@ -40,6 +40,12 @@ final class Psr7Bridge
         if (isset($headers['Host'])) {
             $server['HTTP_HOST'] = $headers['Host'];
         }
+        
+        [$user, $password] = self::parseBasicAuthorization($headers);
+        if ($user !== null && $password !== null) {
+            $server['PHP_AUTH_USER'] = $user;
+            $server['PHP_AUTH_PW'] = $password;
+        }
 
         /**
          * Nyholm/psr7 does not rewind body streams, we do it manually
@@ -156,5 +162,32 @@ final class Psr7Bridge
         }
 
         $pointer = $value;
+    }
+    
+    /**
+     * Parse the username and password from the `Authorization` header.
+     * Only "Basic" is supported.
+     *
+     * @param  array  $headers
+     * @return string[]|null[]
+     */
+    protected static function parseBasicAuthorization(array $headers)
+    {
+        $authorization = trim($headers['authorization'][0] ?? '');
+
+        if (! str_starts_with($authorization, 'Basic ')) {
+            return [null, null];
+        }
+
+        $auth = base64_decode(trim(explode(' ', $authorization)[1]));
+
+        if (! $auth || ! strpos($auth, ':')) {
+            return [null, null];
+        }
+
+        return [
+            strstr($auth, ':', true),
+            substr(strstr($auth, ':'), 1),
+        ];
     }
 }
