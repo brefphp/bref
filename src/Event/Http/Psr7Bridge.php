@@ -171,7 +171,7 @@ final class Psr7Bridge
      * @param  array  $headers
      * @return string[]|null[]
      */
-    protected static function parseBasicAuthorization(array $headers)
+    protected static function parseBasicAuthorization(array $headers): array
     {
         $authorization = trim($headers['authorization'][0] ?? '');
 
