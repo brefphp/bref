@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bref\Event\Http;
 
@@ -40,7 +42,7 @@ final class Psr7Bridge
         if (isset($headers['Host'])) {
             $server['HTTP_HOST'] = $headers['Host'];
         }
-        
+
         [$user, $password] = self::parseBasicAuthorization($headers);
         if ($user !== null && $password !== null) {
             $server['PHP_AUTH_USER'] = $user;
@@ -163,13 +165,12 @@ final class Psr7Bridge
 
         $pointer = $value;
     }
-    
+
     /**
      * Parse the username and password from the `Authorization` header.
      * Only "Basic" is supported for now.
      *
-     * @param  array  $headers
-     * @return string[]|null[]
+     * @return array{string, string}|array{null, null}
      */
     protected static function parseBasicAuthorization(array $headers): array
     {
@@ -185,9 +186,6 @@ final class Psr7Bridge
             return [null, null];
         }
 
-        return [
-            strstr($auth, ':', true),
-            substr(strstr($auth, ':'), 1),
-        ];
+        return explode(':', $auth, 1);
     }
 }
