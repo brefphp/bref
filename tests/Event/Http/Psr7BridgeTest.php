@@ -31,6 +31,24 @@ class Psr7BridgeTest extends CommonHttpTest
         ], $response->toApiGatewayFormat());
     }
 
+    public function test request with basic auth contains a user and password()
+    {
+        $this->fromFixture(__DIR__ . '/Fixture/ag-v1-header-basic-auth.json');
+
+        $this->assertEquals('fake', $this->request->getServerParams()['PHP_AUTH_USER']);
+        $this->assertEquals('secret', $this->request->getServerParams()['PHP_AUTH_PW']);
+    }
+
+    public function test multipart form content type can have a suffix()
+    {
+        $this->fromFixture(__DIR__ . '/Fixture/ag-v1-body-base64-utf8.json');
+
+        $this->assertContentType('application/x-www-form-urlencoded;charset=UTF-8');
+        $this->assertParsedBody([
+            'foo' => 'bar',
+        ]);
+    }
+
     protected function fromFixture(string $file): void
     {
         $event = new HttpRequestEvent(json_decode(file_get_contents($file), true));
@@ -83,12 +101,12 @@ class Psr7BridgeTest extends CommonHttpTest
     protected function assertProtocol(string $expected): void
     {
         $this->assertEquals($expected, 'HTTP/' . $this->request->getProtocolVersion());
+        $this->assertEquals($expected, $this->request->getServerParams()['SERVER_PROTOCOL']);
     }
 
     protected function assertProtocolVersion(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getProtocolVersion());
-        $this->assertEquals($expected, $this->request->getServerParams()['SERVER_PROTOCOL']);
     }
 
     protected function assertHeader(string $header, array $expectedValue): void

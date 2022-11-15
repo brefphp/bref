@@ -41,6 +41,7 @@ final class Psr7Bridge
             'SERVER_PROTOCOL' => $event->getProtocol(),
             'PATH_INFO' => $event->getPath(),
             'HTTP_HOST' => $headers['host'] ?? null,
+            'REMOTE_ADDR' => $event->getSourceIp(),
             'REMOTE_PORT' => $event->getRemotePort(),
             'REQUEST_TIME' => time(),
             'REQUEST_TIME_FLOAT' => microtime(true),
@@ -190,6 +191,6 @@ final class Psr7Bridge
             return [null, null];
         }
 
-        return explode(':', $auth, 1);
+        return explode(':', $auth, 2);
     }
 }
