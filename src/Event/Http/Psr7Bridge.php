@@ -25,28 +25,32 @@ final class Psr7Bridge
      */
     public static function convertRequest(HttpRequestEvent $event, Context $context): ServerRequestInterface
     {
-        [$files, $parsedBody] = self::parseBodyAndUploadedFiles($event);
+        $headers = $event->getHeaders();
 
-        $server = [
-            'SERVER_PROTOCOL' => $event->getProtocolVersion(),
+        [$files, $parsedBody] = self::parseBodyAndUploadedFiles($event);
+        [$user, $password] = self::parseBasicAuthorization($headers);
+
+        $server = array_filter([
+            'CONTENT_LENGTH' => $headers['content-length'][0] ?? null,
+            'CONTENT_TYPE' => $event->getContentType(),
+            'DOCUMENT_ROOT' => getcwd(),
+            'QUERY_STRING' => $event->getQueryString(),
             'REQUEST_METHOD' => $event->getMethod(),
+            'SERVER_NAME' => $event->getServerName(),
+            'SERVER_PORT' => $event->getServerPort(),
+            'SERVER_PROTOCOL' => $event->getProtocol(),
+            'PATH_INFO' => $event->getPath(),
+            'HTTP_HOST' => $headers['host'] ?? null,
+            'REMOTE_PORT' => $event->getRemotePort(),
             'REQUEST_TIME' => time(),
             'REQUEST_TIME_FLOAT' => microtime(true),
-            'QUERY_STRING' => $event->getQueryString(),
-            'DOCUMENT_ROOT' => getcwd(),
             'REQUEST_URI' => $event->getUri(),
-            'REMOTE_ADDR' => $event->getSourceIp(),
-        ];
+            'PHP_AUTH_USER' => $user,
+            'PHP_AUTH_PW' => $password,
+        ], fn ($value) => ! is_null($value));
 
-        $headers = $event->getHeaders();
-        if (isset($headers['Host'])) {
-            $server['HTTP_HOST'] = $headers['Host'];
-        }
-
-        [$user, $password] = self::parseBasicAuthorization($headers);
-        if ($user !== null && $password !== null) {
-            $server['PHP_AUTH_USER'] = $user;
-            $server['PHP_AUTH_PW'] = $password;
+        foreach ($headers as $name => $values) {
+            $server['HTTP_' . strtoupper(str_replace('-', '_', $name))] = $values[0];
         }
 
         /**
