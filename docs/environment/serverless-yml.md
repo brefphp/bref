@@ -188,8 +188,6 @@ provider:
 
 If you only want to define some permissions **per function**, instead of globally (ie: in the provider), you should install and enable the Serverless plugin [`serverless-iam-roles-per-function`](https://github.com/functionalone/serverless-iam-roles-per-function) and then use the `iamRoleStatements` at the function definition block.
 
-If you are using the custom parameter `separateVendor: true` with **per function** permissions, you should also add the `iamRoleStatementsInherit: true` parameter at the function definition block otherwise the Lambda won't have permissions to retrieve the vendor directory in the S3 bucket anymore.
-
 ## Resources
 
 ```yaml
