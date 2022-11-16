@@ -310,7 +310,7 @@ final class LambdaRuntime
         }
     }
 
-    private function hook()
+    private function hook(): void
     {
         /**
          * This is completely experimental, do not use
