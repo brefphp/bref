@@ -1,32 +1,238 @@
-
+{# Double id="" to keep old links working #}
 <section id="enterprise" class="py-24 lg:pb-32">
-    <div class="container max-w-screen-xl mx-auto px-4">
-        <h2 class="mb-12 text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bref text-gray-800">
-            Bref Enterprise
+    <div id="plans" class="container max-w-screen-xl mx-auto px-4">
+        <h2 class="text-3xl md:text-4xl lg:text-4xl xl:text-5xl font-bref text-gray-800 relative">
+            <a class="title-anchor text-gray-300 -ml-10" href="#plans">#</a>
+            Ecosystem
         </h2>
-        <div class="lg:flex">
-            <div class="flex-1 mb-12 lg:mr-20">
-                <p class="mb-3">
-                    <strong>New to serverless?</strong> Let's work together!
-                </p>
-                <p class="mb-6">
-                    Get <a href="https://enterprise.bref.sh/services.html?ref=bref">professional support</a>
-                    or <a href="https://calendly.com/bref-enterprise/consulting">one-off consulting</a> from the Bref core team.
-                    Get in touch to learn more:
-                </p>
-                <script charset="utf-8" type="text/javascript" src="//js.hsforms.net/forms/shell.js"></script>
-                <script>
-                    hbspt.forms.create({
-                        portalId: "6812669",
-                        formId: "b66804ae-abc9-4231-8de7-65045da10715"
-                    });
-                </script>
+
+        <div class="mt-12 space-y-4 sm:mt-16 sm:grid sm:grid-cols-2 sm:gap-6 sm:space-y-0 lg:mx-auto lg:max-w-4xl xl:mx-0 xl:max-w-none lg:grid-cols-3">
+            <div class="divide-y divide-gray-200 rounded-lg border border-gray-200 shadow-sm">
+                <div class="p-6">
+                    <h3 class="text-3xl font-bref font-bold leading-6 text-gray-900">Bref</h3>
+                    <p class="mt-8">
+                        <span class="font-bold text-lg text-gray-900">Free and Open Source</span>
+                    </p>
+                    <p class="h-4 mt-1"></p>
+                    <a href="/docs/" class="mt-6 block w-full rounded-md bg-blue-600 py-3 text-center text-sm font-semibold text-white hover:bg-blue-800 hover:text-white">Documentation</a>
+                </div>
+                <div class="px-6 pt-6 pb-8">
+                    <ul role="list" class="space-y-4 pl-0">
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">The Bref open-source project, its documentation and framework integrations</span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">Public AWS Lambda runtimes hosted in the Bref AWS account</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
-            <div class="flex-1">
+            <div class="divide-y divide-gray-200 rounded-lg border border-gray-200 shadow-sm">
+                <div class="p-6">
+                    <h3 class="text-3xl font-bref font-bold leading-6 text-gray-900">Bref Pro</h3>
+                    <p class="mt-8">
+                        <span class="text-xl font-bold tracking-tight text-gray-900">$100</span>
+                        <span class="text-base font-medium text-gray-500">/mo</span>
+                    </p>
+                    <p class="h-4 mt-1 text-gray-500 text-xs">
+                        * cancel anytime, full refund if not satisfied
+                    </p>
+                    <a href="https://matthieunapoli.typeform.com/to/d2OoXKln" target="_blank" class="mt-6 block w-full rounded-md bg-gray-800 py-3 text-center text-sm font-semibold text-white hover:bg-gray-900 hover:text-white">Get Started</a>
+                </div>
+                <div class="px-6 pt-6 pb-8">
+                    <ul role="list" class="space-y-4 pl-0">
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">The Bref open-source project, its documentation and framework integrations</span>
+                        </li>
 
-                <div class="flex">
-                    <div class="flex-grow-0 pr-8">
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">Public AWS Lambda runtimes hosted in the Bref AWS account</span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">AWS Lambda runtimes hosted in <em>your</em> AWS account</span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">
+                                Tailor-made AWS Lambda runtimes optimized for your project
+                            </span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">Expert support via Slack and Email</span>
+                            <a href="#expert-support" title="Learn more about support">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="divide-y divide-gray-200 rounded-lg border border-gray-200 shadow-sm">
+                <div class="p-6">
+                    <h3 class="text-3xl font-bref font-bold leading-6 text-gray-900">Bref Enterprise</h3>
+                    <p class="mt-8">
+                        <span class="text-base font-medium text-gray-500">Starting at</span>
+                        <span class="text-xl font-bold tracking-tight text-gray-900">$1000</span>
+                        <span class="text-base font-medium text-gray-500">/mo</span>
+                    </p>
+                    <p class="h-4 mt-1 text-gray-500 text-xs">
+                        * cancel anytime, full refund if not satisfied
+                    </p>
+                    <a href="https://calendly.com/bref-enterprise/intro" class="mt-6 block w-full rounded-md bg-gray-800 py-3 text-center text-sm font-semibold text-white hover:bg-gray-900 hover:text-white">Get In Touch</a>
+                </div>
+                <div class="px-6 pt-6 pb-8">
+                    <ul role="list" class="space-y-4 pl-0">
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">The Bref open-source project, its documentation and framework integrations</span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">Public AWS Lambda runtimes hosted in the Bref AWS account</span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">AWS Lambda runtimes hosted in <em>your</em> AWS account</span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">
+                                Tailor-made AWS Lambda runtimes optimized for your project
+                            </span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">Expert support via Zoom, Slack, and Email</span>
+                            <a href="#expert-support" title="Learn more about support">
+                                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                </svg>
+                            </a>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">GitHub/GitLab review for infrastructure code</span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">Engineer-led onboarding and project setup</span>
+                        </li>
+
+                        <li class="flex space-x-3">
+                            <!-- Heroicon name: mini/check -->
+                            <svg class="h-5 w-5 flex-shrink-0 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-sm text-gray-600">
+                                Team access to the
+                                <a href="https://serverless-visually-explained.com/?ref=bref-home" title="Serverless PHP training">Serverless Visually Explained</a>
+                                course
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-10 space-y-10 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0 lg:mx-auto lg:max-w-4xl xl:mx-0 xl:max-w-none">
+            <div>
+                <p class="mb-3">
+                    Bref is a free and open-source project <a href="https://github.com/brefphp/bref">hosted on GitHub</a>.
+                </p>
+                <p>
+                    Bref Pro and Bref Enterprise are offered by <a href="https://null.tc">Null</a>, the company created by the author of Bref. Got any question about these plans?
+                    <script type="text/javascript">
+                        <!--
+                        // Email obfuscator script 2.1 by Tim Williams, University of Arizona
+                        // Random encryption key feature coded by Andrew Moulden
+                        // This code is freeware provided these four comment lines remain intact
+                        // A wizard to generate this code is at http://www.jottings.com/obfuscator/
+                        { coded = "KxmmOjHo@AoLL.mz"
+                            key = "iPREema9VAO7Qp0ljbZdHKxWN2kDJBGLcuM1Us5T8C6rqIFSzowtvX4nhYfy3g"
+                            shift=coded.length
+                            link=""
+                            for (i=0; i<coded.length; i++) {
+                                if (key.indexOf(coded.charAt(i))==-1) {
+                                    ltr = coded.charAt(i)
+                                    link += (ltr)
+                                }
+                                else {
+                                    ltr = (key.indexOf(coded.charAt(i))-shift+key.length) % key.length
+                                    link += (key.charAt(ltr))
+                                }
+                            }
+                            document.write("<a href='mailto:"+link+"'>Get in touch by email</a>")
+                        }
+                        //-->
+                    </script><noscript>Sorry, Javascript is required to display the email address.</noscript>.
+                </p>
+            </div>
+
+            <div class="col-span-2">
+
+                <div id="expert-support" class="flex">
+                    <div class="flex-grow-0 pr-6">
                         <svg viewBox="0 0 24 24" class="w-10 fill-current text-blue-700">
                             <rect width="24" height="24" fill="none" rx="0" ry="0"/>
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M1.99995 5C1.99995 3.89543 2.89538 3 3.99995 3H19.9999C21.1045 3 21.9999 3.89543 21.9999 5V15C21.9999 16.1046 21.1045 17 19.9999 17H14.4563L8.79008 21.0371C8.45908 21.2729 7.99995 21.0362 7.99995 20.6298V16.8C7.99995 16.4686 8.26858 16.2 8.59995 16.2C8.93132 16.2 9.19995 16.4686 9.19995 16.8V19.2563L13.9045 15.9348C13.9798 15.8816 14.0637 15.8483 14.1496 15.834C14.2121 15.812 14.2793 15.8 14.3493 15.8H15.1966H19.7999C20.3522 15.8 20.7999 15.3523 20.7999 14.8V5.2C20.7999 4.64772 20.3522 4.2 19.7999 4.2H4.19995C3.64766 4.2 3.19995 4.64771 3.19995 5.2V14.8C3.19995 15.3523 3.64767 15.8 4.19995 15.8H4.74844H5.39575C5.72712 15.8 5.99575 16.0686 5.99575 16.4C5.99575 16.7314 5.72712 17 5.39575 17H3.99995C2.89538 17 1.99995 16.1046 1.99995 15V5Z"/>
@@ -35,63 +241,58 @@
                     </div>
                     <div class="flex-grow mb-6">
                         <p class="text-lg font-bold mb-1">
-                            Dedicated expert support
+                            Direct support, aka Matthieu-as-a-Service
                         </p>
                         <p class="text-gray-700">
-                            Provide your team with expert support covering Bref, serverless, and AWS.
+                            Provide your team with direct support from
+                            <a href="https://mnapoli.fr">Matthieu</a>,
+                            author of Bref,
+                            <a href="https://aws.amazon.com/developer/community/heroes/matthieu-napoli/">AWS Serverless Hero</a>,
+                            and former
+                            <a href="https://github.com/serverless/serverless">Serverless Framework product manager</a>.
                             <br>
-                            Get architecture reviews for new projects, and continuous help while implementing and running them. Implement best practices regarding cost-efficiency, performance, and security.
+                            Support covers Bref (including priority bugfixes), serverless, and AWS.
                         </p>
                     </div>
                 </div>
 
                 <div class="flex">
-                    <div class="flex-grow-0 pr-8">
-                        <svg viewBox="0 0 24 24" class="w-10 fill-current text-blue-700">
-                            <rect width="24" height="24" fill="none" rx="0" ry="0"/>
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M7.00002 19.5999H17C18.43 19.5999 19.6 18.4299 19.6 16.9999V15.9999C19.6 15.6699 19.33 15.3999 19 15.3999C18.67 15.3999 18.4 15.6699 18.4 15.9999V16.9999C18.4 17.7699 17.77 18.3999 17 18.3999H7.00002C6.23002 18.3999 5.60002 17.7699 5.60002 16.9999V13.4477L7.57996 15.42C7.68996 15.54 7.84996 15.6 7.99996 15.6C8.14996 15.6 8.30996 15.54 8.41996 15.43C8.64996 15.19 8.64996 14.81 8.41996 14.58L5.47711 11.6371C5.36724 11.4932 5.194 11.3999 5.00002 11.3999C4.87404 11.3999 4.75681 11.4393 4.66 11.5063C4.62812 11.5274 4.59793 11.552 4.56996 11.58L1.56996 14.58C1.33996 14.82 1.33996 15.2 1.56996 15.43C1.80996 15.66 2.18996 15.66 2.41996 15.43L4.40002 13.4499V16.9999C4.40002 18.4299 5.57002 19.5999 7.00002 19.5999Z"/>
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M19.0377 12.5987C19.0251 12.5996 19.0125 12.6 19 12.6C18.9866 12.6 18.9732 12.5995 18.9597 12.5986C18.9098 12.5952 18.8616 12.5857 18.8157 12.5708C18.7279 12.5428 18.6451 12.4951 18.58 12.43L15.58 9.42997C15.35 9.19997 15.35 8.81997 15.58 8.57997C15.82 8.34997 16.2 8.34997 16.43 8.57997L18.4 10.55V6.9999C18.4 6.2299 17.77 5.5999 17 5.5999H7.00002C6.23002 5.5999 5.60002 6.2299 5.60002 6.9999V7.9999C5.60002 8.3299 5.33002 8.5999 5.00002 8.5999C4.67002 8.5999 4.40002 8.3299 4.40002 7.9999V6.9999C4.40002 5.5699 5.57002 4.3999 7.00002 4.3999H17C18.43 4.3999 19.6 5.5699 19.6 6.9999V10.5699L21.59 8.57997C21.82 8.34997 22.2 8.34997 22.44 8.57997C22.67 8.80997 22.67 9.18997 22.44 9.42997L19.44 12.43C19.3527 12.5038 19.252 12.5551 19.1498 12.5809C19.1136 12.5902 19.0761 12.5963 19.0377 12.5987Z"/>
+                    <div class="flex-grow-0 pr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-10 text-blue-700">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
                         </svg>
                     </div>
                     <div class="flex-grow mb-6">
                         <p class="text-lg font-bold mb-1">
-                            Bref sponsorship and priority bug fixes
+                            Self-hosted AWS Lambda runtimes
                         </p>
                         <p class="text-gray-700">
-                            Ensure that Bref gets continuously maintained, and that bugs affecting your teams get fixed in priority.
+                            Runtimes provided by the open-source project are served from the Bref AWS account.
+                            <br>
+                            If your company policy requires full ownership of AWS Lambda runtimes, Bref Pro and Bref Enterprise help you publish the runtimes to your own AWS account.
                         </p>
                     </div>
                 </div>
 
                 <div class="flex">
-                    <div class="flex-grow-0 pr-8">
-                        <svg viewBox="0 0 24 24" class="w-10 fill-current text-blue-700">
-                            <rect width="24" height="24" fill="none" rx="0" ry="0"/>
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M9.34502 10.3837C9.68989 11.8965 10.7665 13.2449 11.7234 14.1005C11.6197 14.2084 11.556 14.3549 11.556 14.5165C11.556 14.5195 11.556 14.5226 11.556 14.5257V16.7231C11.556 16.7262 11.556 16.7292 11.556 16.7323C11.556 17.0638 11.8245 17.3324 12.1556 17.3324H15.1458C15.4769 17.3324 15.7454 17.0638 15.7454 16.7323H15.7455V14.5165H15.7454C15.7454 14.3553 15.6819 14.2089 15.5786 14.1011C16.5353 13.2455 17.6124 11.8969 17.9573 10.3837C18.219 9.23474 17.9964 8.1532 17.3148 7.25623C16.4222 6.08044 15.0872 5.40662 13.6517 5.40613H13.6507C12.2161 5.40613 10.8802 6.08044 9.98663 7.25623C9.30499 8.1532 9.08331 9.23474 9.34502 10.3837ZM12.7552 16.1322H14.5463V15.1166H12.7552V16.1322ZM13.6507 6.60632C12.594 6.60632 11.6067 7.10779 10.9417 7.9823C10.469 8.60437 10.3294 9.30261 10.5149 10.1171C10.8424 11.5536 12.1383 12.9676 13.011 13.6049V11.3193C12.6429 11.1103 12.3946 10.7147 12.3946 10.2612C12.3946 9.58966 12.939 9.04529 13.6105 9.04529C14.282 9.04529 14.8264 9.58966 14.8264 10.2612C14.8264 10.7146 14.5782 11.1101 14.2103 11.3191V13.6629C15.0821 13.0568 16.4496 11.5989 16.7874 10.1171C16.972 9.3031 16.8323 8.60437 16.3597 7.9823C15.6956 7.10779 14.7083 6.60632 13.6517 6.60632H13.6507Z"/>
-                            <path fill-rule="evenodd" clip-rule="evenodd" d="M15.0916 4.19056C15.1581 4.21448 15.2264 4.22571 15.2938 4.22571C15.5399 4.22571 15.7704 4.07288 15.8582 3.82825L16.2205 2.80339C16.3329 2.49138 16.1707 2.14763 15.8582 2.03581C15.5477 1.92302 15.2039 2.08561 15.0916 2.39811L14.7293 3.42298C14.617 3.73499 14.7791 4.07874 15.0916 4.19056ZM19.2396 6.91156C19.3578 7.06927 19.5375 7.15228 19.7201 7.15228C19.8451 7.15228 19.972 7.11322 20.0795 7.03265L22.0497 5.55827C22.3153 5.35954 22.3691 4.98357 22.1708 4.71843C21.9706 4.45183 21.5946 4.40007 21.331 4.59733L19.3607 6.07171C19.0951 6.27044 19.0414 6.64642 19.2396 6.91156ZM21.9804 12.6095C21.9658 12.6095 21.9511 12.6091 21.9365 12.6081L19.7333 12.3753C19.4022 12.3514 19.1542 12.0638 19.1776 11.7337C19.203 11.4027 19.4989 11.1624 19.8192 11.178L22.0224 11.4108C22.3535 11.4347 22.6015 11.7223 22.5781 12.0524C22.5546 12.3683 22.2919 12.6095 21.9804 12.6095ZM10.9603 21.7386C10.6752 21.7386 10.4222 21.5341 10.3705 21.2435L10.0648 19.5219C6.22336 19.7879 6.13703 19.3576 6.04625 18.9052C5.81383 17.7362 5.43785 15.6439 5.27379 14.6107L3.32262 13.6537C3.0648 13.6044 2.84703 13.4442 2.73277 13.2118C2.60387 12.9496 2.63512 12.6415 2.8148 12.4076L6.17906 8.09753C6.2357 4.04285 9.28355 2.10437 12.138 2.01941C12.5218 2.15176 13.0662 2.57691 12.1732 3.21863C10.3714 3.27234 7.33336 4.40222 7.37828 8.29724L7.38121 8.5072L4.10777 12.702L6.36656 13.8104L6.41246 14.1234C6.52281 14.8778 6.90562 17.037 7.16246 18.3597C7.75035 18.4286 9.25621 18.3842 10.514 18.2855L11.057 18.243L11.5521 21.0336C11.6097 21.3597 11.3929 21.6713 11.0658 21.7294C11.0306 21.7357 10.9955 21.7386 10.9603 21.7386Z"/>
+                    <div class="flex-grow-0 pr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-10 text-blue-700">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                         </svg>
                     </div>
                     <div class="flex-grow mb-6">
                         <p class="text-lg font-bold mb-1">
-                            Serverless training
+                            Tailored and optimized runtimes
                         </p>
                         <p class="text-gray-700">
-                            Bref Enterprise includes a license of the
-                            <a href="https://serverless-visually-explained.com/?ref=bref-home" title="Serverless PHP training">Serverless Visually Explained</a>
-                            course for your whole team.
-                        </p>
-                        <p class="text-gray-700">
-                            Interested in a hands-on training?
-                            <a href="https://training.bref.sh/?ref=bref" title="Serverless PHP training">On-site and remote training</a> are also possible.
+                            Bref Pro and Bref Enterprise help you optimize runtimes to your needs by enabling the extensions you need and removing the rest.
                         </p>
                     </div>
                 </div>
-
-                <p class="mt-6 text-gray-700">
-                    The detailed list of services is available <a href="https://enterprise.bref.sh/services.html?ref=bref">here</a>.
-                </p>
 
             </div>
         </div>
+
     </div>
+
 </section>
