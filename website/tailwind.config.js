@@ -76,7 +76,6 @@ module.exports = {
             },
             fontSize: {
                 '40px': ['40px', '60px'],
-                '22px': ['22px', '33px'],
             },
             maxWidth: {
                 '700px': '700px',
