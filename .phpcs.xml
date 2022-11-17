@@ -172,6 +172,7 @@
 
     <!-- ########################-->
     <!-- For PHP 7.4+ only       -->
+    <!-- TODO remove?            -->
     <!-- ########################-->
     <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint">
         <severity>0</severity>

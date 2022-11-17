@@ -20,7 +20,7 @@
         "src/bref-local"
     ],
     "require": {
-        "php": ">=7.3.0",
+        "php": ">=8.0",
         "ext-curl": "*",
         "ext-json": "*",
         "symfony/process": "^4.2|^5.0|^6.0",
