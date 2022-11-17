@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - runtime/**
+    # Ignore the v2 branch
+    branches-ignore:
+      - v2
 
 jobs:
   publish:
