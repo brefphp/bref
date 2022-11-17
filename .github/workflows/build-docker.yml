@@ -1,12 +1,7 @@
 name: Build Docker images
 
-on:
-  pull_request:
-    paths:
-      - runtime/**
-    # Ignore the v2 branch
-    branches-ignore:
-      - v2
+# Ignore the v2 branch
+on: workflow_dispatch
 
 jobs:
   publish:
