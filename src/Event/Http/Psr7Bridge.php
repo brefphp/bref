@@ -26,7 +26,7 @@ final class Psr7Bridge
         $headers = $event->getHeaders();
 
         [$files, $parsedBody] = self::parseBodyAndUploadedFiles($event);
-        [$user, $password] = self::parseBasicAuthorization($headers);
+        [$user, $password] = $event->getBasicAuthCredentials();
 
         $server = array_filter([
             'CONTENT_LENGTH' => $headers['content-length'][0] ?? null,
@@ -46,7 +46,7 @@ final class Psr7Bridge
             'REQUEST_URI' => $event->getUri(),
             'PHP_AUTH_USER' => $user,
             'PHP_AUTH_PW' => $password,
-        ], fn ($value) => ! is_null($value));
+        ]);
 
         foreach ($headers as $name => $values) {
             $server['HTTP_' . strtoupper(str_replace('-', '_', $name))] = $values[0];
@@ -167,28 +167,5 @@ final class Psr7Bridge
         }
 
         $pointer = $value;
-    }
-
-    /**
-     * Parse the username and password from the `Authorization` header.
-     * Only "Basic" is supported for now.
-     *
-     * @return array{string, string}|array{null, null}
-     */
-    protected static function parseBasicAuthorization(array $headers): array
-    {
-        $authorization = trim($headers['authorization'][0] ?? '');
-
-        if (! str_starts_with($authorization, 'Basic ')) {
-            return [null, null];
-        }
-
-        $auth = base64_decode(trim(explode(' ', $authorization)[1]));
-
-        if (! $auth || ! strpos($auth, ':')) {
-            return [null, null];
-        }
-
-        return explode(':', $auth, 2);
     }
 }

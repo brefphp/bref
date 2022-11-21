@@ -438,6 +438,24 @@ Year,Make,Model
         ]);
     }
 
+    public function test request with basic auth contains a user and password()
+    {
+        $this->fromFixture(__DIR__ . '/Fixture/ag-v1-header-basic-auth.json');
+
+        $this->assertBasicAuthUser('fake');
+        $this->assertBasicAuthPassword('secret');
+    }
+
+    public function test multipart form content type can have a suffix()
+    {
+        $this->fromFixture(__DIR__ . '/Fixture/ag-v1-body-base64-utf8.json');
+
+        $this->assertContentType('application/x-www-form-urlencoded;charset=UTF-8');
+        $this->assertParsedBody([
+            'foo' => 'bar',
+        ]);
+    }
+
     abstract protected function fromFixture(string $file): void;
 
     abstract protected function assertBody(string $expected): void;
@@ -475,6 +493,10 @@ Year,Make,Model
     abstract protected function assertParsedBody(array $expected): void;
 
     abstract protected function assertSourceIp(string $expected): void;
+
+    abstract protected function assertBasicAuthUser(string $expected): void;
+
+    abstract protected function assertBasicAuthPassword(string $expected): void;
 
     abstract protected function assertUploadedFile(
         string $key,
