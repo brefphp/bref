@@ -98,7 +98,7 @@ final class Psr7Bridge
         $parsedBody = null;
         $contentType = $event->getContentType();
         if ($contentType !== null && $event->getMethod() === 'POST') {
-            if (substr($contentType, 0, 33) === 'application/x-www-form-urlencoded') {
+            if (strpos($contentType, 'application/x-www-form-urlencoded') === 0) {
                 parse_str($bodyString, $parsedBody);
             } else {
                 $document = new Part("Content-type: $contentType\r\n\r\n" . $bodyString);
