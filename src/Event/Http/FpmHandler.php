@@ -229,6 +229,10 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context));
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext()));
 
+        [$user, $password] = $event->getBasicAuthCredentials();
+        $request->setCustomVar('PHP_AUTH_USER', $user);
+        $request->setCustomVar('PHP_AUTH_PW', $password);
+
         $contentType = $event->getContentType();
         if ($contentType) {
             $request->setContentType($contentType);
