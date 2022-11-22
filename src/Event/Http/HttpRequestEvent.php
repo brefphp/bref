@@ -107,7 +107,7 @@ final class HttpRequestEvent implements LambdaEvent
     {
         $authorizationHeader = trim($this->headers['authorization'][0] ?? '');
 
-        if (! str_starts_with($authorizationHeader, 'Basic ')) {
+        if (\strpos($authorizationHeader, 'Basic ') !== 0) {
             return [null, null];
         }
 
