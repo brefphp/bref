@@ -26,6 +26,11 @@ interface HttpRequestProxyTest
     public function test POST request with form data(int $version);
 
     /**
+     * @see https://github.com/brefphp/bref/pull/1325
+     */
+    public function test POST request with form data and content type(int $version);
+
+    /**
      * @see https://github.com/brefphp/bref/issues/162
      */
     public function test request with body and no content length(int $version, string $method);
@@ -51,4 +56,6 @@ interface HttpRequestProxyTest
     public function test DELETE request(int $version);
 
     public function test OPTIONS request(int $version);
+
+    public function test request with basic auth(int $version);
 }
