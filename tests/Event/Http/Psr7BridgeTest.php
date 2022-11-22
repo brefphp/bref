@@ -72,7 +72,7 @@ class Psr7BridgeTest extends CommonHttpTest
     protected function assertQueryString(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getUri()->getQuery());
-        $this->assertEquals($expected, $this->request->getServerParams()['QUERY_STRING']);
+        $this->assertEquals($expected, $this->request->getServerParams()['QUERY_STRING'] ?? '');
     }
 
     protected function assertQueryParameters(array $expected): void
