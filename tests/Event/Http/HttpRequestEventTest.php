@@ -131,6 +131,18 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertEquals($expected, $this->event->getPathParameters());
     }
 
+    protected function assertBasicAuthUser(string $expected): void
+    {
+        [$user, $pass] = $this->event->getBasicAuthCredentials();
+        $this->assertEquals($expected, $user);
+    }
+
+    protected function assertBasicAuthPassword(string $expected): void
+    {
+        [$user, $pass] = $this->event->getBasicAuthCredentials();
+        $this->assertEquals($expected, $pass);
+    }
+
     public function test empty invocation will have friendly error message()
     {
         $message = 'This handler expected to be invoked with a API Gateway or ALB event. Instead, the handler was invoked with invalid event data: null';

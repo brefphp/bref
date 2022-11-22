@@ -190,6 +190,20 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with form data and content type(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-content-type.json");
+
+        $this->assertContentType('application/x-www-form-urlencoded;charset=UTF-8');
+        $this->assertParsedBody([
+            'foo' => 'bar',
+            'bim' => 'baz',
+        ]);
+    }
+
     public function provideHttpMethodsWithRequestBodySupport(): array
     {
         return [
@@ -438,6 +452,17 @@ Year,Make,Model
         ]);
     }
 
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with basic auth(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-header-basic-auth.json");
+
+        $this->assertBasicAuthUser('fake');
+        $this->assertBasicAuthPassword('secret');
+    }
+
     abstract protected function fromFixture(string $file): void;
 
     abstract protected function assertBody(string $expected): void;
@@ -475,6 +500,10 @@ Year,Make,Model
     abstract protected function assertParsedBody(array $expected): void;
 
     abstract protected function assertSourceIp(string $expected): void;
+
+    abstract protected function assertBasicAuthUser(string $expected): void;
+
+    abstract protected function assertBasicAuthPassword(string $expected): void;
 
     abstract protected function assertUploadedFile(
         string $key,
