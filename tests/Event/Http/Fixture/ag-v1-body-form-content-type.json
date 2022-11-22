@@ -48,6 +48,6 @@
         "domainName": "example.org",
         "apiId": "xxxxxxxxxx"
     },
-    "body": "Zm9vPWJhcg==",
-    "isBase64Encoded": true
+    "body": "foo=bar&bim=baz",
+    "isBase64Encoded": false
 }

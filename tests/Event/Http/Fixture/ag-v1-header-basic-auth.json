@@ -13,8 +13,7 @@
         "X-Amzn-Trace-Id": "Root=1-ffffffff-ffffffffffffffffffffffff",
         "X-Forwarded-For": "1.1.1.1",
         "X-Forwarded-Port": "443",
-        "X-Forwarded-Proto": "https",
-        "X-My-Header": "Hello world"
+        "X-Forwarded-Proto": "https"
     },
     "queryStringParameters": null,
     "pathParameters": null,
