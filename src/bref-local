@@ -16,7 +16,8 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../../../autoload.php';
 }
 
-[$currentScript, $handler, $data] = $argv;
+$handler = $argv[1] ?? '';
+$data = $argv[2] ?? null;
 
 try {
     $handler = Bref::getContainer()->get($handler);
