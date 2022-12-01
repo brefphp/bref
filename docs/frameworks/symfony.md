@@ -220,7 +220,7 @@ It is possible to run Symfony Messenger workers on AWS Lambda.
 
 A dedicated Bref package is available for this: [bref/symfony-messenger](https://github.com/brefphp/symfony-messenger).
 
-## Using cache
+## Caching
 
 As mentioned above the filesystem is readonly, so if you need a persistent cache it must be stored somewhere else (such as Redis, an RDBMS, or DynamoDB).
 
@@ -237,3 +237,11 @@ composer require rikudou/psr6-dynamo-db-bundle
 Thanks to Symfony Flex, the bundle comes pre-configured to run in Lambda. 
 
 Now, you can follow [this section of the documentation](/docs/environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework.
+
+## The `kernel.terminate` Event
+
+The [`kernel.terminate` event](https://symfony.com/doc/current/components/http_kernel.html#component-http-kernel-kernel-terminate) runs **synchronously** on Lambda.
+
+That means that if you use this event, its listeners will be executed **before** the Lambda function returns its response. That will add latency to your response.
+
+To run asynchronous tasks, use the [Messenger component](#symfony-messenger) instead.
