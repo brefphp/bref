@@ -100,6 +100,26 @@ final class HttpRequestEvent implements LambdaEvent
         return (int) ($this->headers['x-forwarded-port'][0] ?? 80);
     }
 
+    /**
+     * @return array{string, string}|array{null, null}
+     */
+    public function getBasicAuthCredentials(): array
+    {
+        $authorizationHeader = trim($this->headers['authorization'][0] ?? '');
+
+        if (\strpos($authorizationHeader, 'Basic ') !== 0) {
+            return [null, null];
+        }
+
+        $auth = base64_decode(trim(explode(' ', $authorizationHeader)[1]));
+
+        if (! $auth || ! strpos($auth, ':')) {
+            return [null, null];
+        }
+
+        return explode(':', $auth, 2);
+    }
+
     public function getServerPort(): int
     {
         return (int) ($this->headers['x-forwarded-port'][0] ?? 80);

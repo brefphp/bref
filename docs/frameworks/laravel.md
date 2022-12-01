@@ -218,7 +218,7 @@ Laravel has a [filesystem abstraction](https://laravel.com/docs/filesystem) that
 
 ```dotenv
 # .env
-FILESYSTEM_DRIVER=s3
+FILESYSTEM_DISK=s3
 ```
 
 Next, we need to create our bucket via `serverless.yml`:
@@ -287,7 +287,7 @@ but doing this will not let your application work locally. A better solution, bu
     |--------------------------------------------------------------------------
     */
 
-+   'public' => env('FILESYSTEM_DRIVER_PUBLIC', 'public_local'),
++   'public' => env('FILESYSTEM_DISK', 'public_local'),
 
     ...
 
@@ -332,8 +332,8 @@ but doing this will not let your application work locally. A better solution, bu
 You can now configure the `public` disk to use S3 by changing your production `.env`:
 
 ```dotenv
-FILESYSTEM_DRIVER=s3
-FILESYSTEM_DRIVER_PUBLIC=s3
+FILESYSTEM_DISK=s3
+FILESYSTEM_DISK_PUBLIC=s3
 ```
 
 ## Laravel Queues

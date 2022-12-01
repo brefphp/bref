@@ -72,7 +72,7 @@ class Psr7BridgeTest extends CommonHttpTest
     protected function assertQueryString(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getUri()->getQuery());
-        $this->assertEquals($expected, $this->request->getServerParams()['QUERY_STRING']);
+        $this->assertEquals($expected, $this->request->getServerParams()['QUERY_STRING'] ?? '');
     }
 
     protected function assertQueryParameters(array $expected): void
@@ -83,12 +83,12 @@ class Psr7BridgeTest extends CommonHttpTest
     protected function assertProtocol(string $expected): void
     {
         $this->assertEquals($expected, 'HTTP/' . $this->request->getProtocolVersion());
+        $this->assertEquals($expected, $this->request->getServerParams()['SERVER_PROTOCOL']);
     }
 
     protected function assertProtocolVersion(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getProtocolVersion());
-        $this->assertEquals($expected, $this->request->getServerParams()['SERVER_PROTOCOL']);
     }
 
     protected function assertHeader(string $header, array $expectedValue): void
@@ -156,5 +156,15 @@ class Psr7BridgeTest extends CommonHttpTest
     protected function assertSourceIp(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getServerParams()['REMOTE_ADDR']);
+    }
+
+    protected function assertBasicAuthUser(string $expected): void
+    {
+        $this->assertEquals($expected, $this->request->getServerParams()['PHP_AUTH_USER']);
+    }
+
+    protected function assertBasicAuthPassword(string $expected): void
+    {
+        $this->assertEquals($expected, $this->request->getServerParams()['PHP_AUTH_PW']);
     }
 }
