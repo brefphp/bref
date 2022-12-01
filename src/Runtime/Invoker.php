@@ -13,12 +13,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 final class Invoker
 {
-    /**
-     * @param mixed $handler
-     * @param mixed $event
-     * @return mixed
-     */
-    public function invoke($handler, $event, Context $context)
+    public function invoke(mixed $handler, mixed $event, Context $context): mixed
     {
         // PSR-15 adapter
         if ($handler instanceof RequestHandlerInterface) {

@@ -12,13 +12,9 @@ use InvalidArgumentException;
  */
 final class SnsRecord
 {
-    /** @var array */
-    private $record;
+    private array $record;
 
-    /**
-     * @param mixed $record
-     */
-    public function __construct($record)
+    public function __construct(mixed $record)
     {
         if (! is_array($record) || ! isset($record['EventSource']) || $record['EventSource'] !== 'aws:sns') {
             throw new InvalidArgumentException;

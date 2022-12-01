@@ -10,10 +10,6 @@
     <file>bref</file>
     <file>src</file>
     <file>tests</file>
-    <exclude-pattern>tests/Bridge/Symfony/var</exclude-pattern>
-    <exclude-pattern>tests/Bridge/Symfony/cache</exclude-pattern>
-    <exclude-pattern>tests/Bridge/Symfony/logs</exclude-pattern>
-    <exclude-pattern>tests/Bridge/Laravel/bootstrap/cache</exclude-pattern>
 
     <!-- Import the Doctrine coding standard -->
     <rule ref="Doctrine"/>
@@ -167,15 +163,6 @@
     <!-- Do not enforce return types in tests else it crowds the test methods with `: void` -->
     <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint.MissingNativeTypeHint">
         <exclude-pattern type="relative">tests/*</exclude-pattern>
-    </rule>
-
-
-    <!-- ########################-->
-    <!-- For PHP 7.4+ only       -->
-    <!-- TODO remove?            -->
-    <!-- ########################-->
-    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint">
-        <severity>0</severity>
     </rule>
 
     <!-- Bref contains self-contained PHP files mixing code and functions -->

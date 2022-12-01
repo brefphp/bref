@@ -10,35 +10,19 @@ use Bref\Event\LambdaEvent;
  */
 final class WebsocketEvent implements LambdaEvent
 {
-    /** @var array */
-    private $event;
-
-    /** @var string */
-    private $routeKey;
-
-    /** @var string|null */
-    private $eventType = null;
-
-    /** @var mixed|null */
-    private $body = null;
-
-    /** @var string */
-    private $connectionId;
-
-    /** @var string */
-    private $domainName;
-
-    /** @var string */
-    private $apiId;
-
-    /** @var string */
-    private $stage;
+    private array $event;
+    private string $routeKey;
+    private string | null $eventType = null;
+    private mixed $body = null;
+    private string $connectionId;
+    private string $domainName;
+    private string $apiId;
+    private string $stage;
 
     /**
-     * @param mixed $event
      * @throws InvalidLambdaEvent
      */
-    public function __construct($event)
+    public function __construct(mixed $event)
     {
         if (
             ! is_array($event) ||
@@ -92,10 +76,7 @@ final class WebsocketEvent implements LambdaEvent
         return $this->eventType;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getBody()
+    public function getBody(): mixed
     {
         return $this->body;
     }

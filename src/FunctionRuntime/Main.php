@@ -18,7 +18,6 @@ class Main
             $handler = $container->get(getenv('_HANDLER'));
         } catch (Throwable $e) {
             $lambdaRuntime->failInitialization($e->getMessage());
-            exit(1);
         }
 
         $loopMax = getenv('BREF_LOOP_MAX') ?: 1;

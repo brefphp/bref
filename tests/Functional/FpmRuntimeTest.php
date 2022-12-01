@@ -11,8 +11,7 @@ class FpmRuntimeTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @var Client */
-    private $http;
+    private Client $http;
 
     public function setUp(): void
     {
@@ -228,12 +227,9 @@ class FpmRuntimeTest extends TestCase
         return $response->getBody()->__toString();
     }
 
-    /**
-     * @return mixed
-     */
-    private function getJsonBody(ResponseInterface $response)
+    private function getJsonBody(ResponseInterface $response): mixed
     {
-        return json_decode($response->getBody()->getContents(), true);
+        return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
     }
 
     private function responseAsString(ResponseInterface $response): string

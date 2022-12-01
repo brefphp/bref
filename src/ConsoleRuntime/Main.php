@@ -34,7 +34,7 @@ class Main
                 $timeout = max(1, $context->getRemainingTimeInMillis() / 1000 - 1);
                 $command = sprintf('/opt/bin/php %s %s 2>&1', $handlerFile, $cliOptions);
                 $process = Process::fromShellCommandline($command, null, [
-                    'LAMBDA_INVOCATION_CONTEXT' => json_encode($context),
+                    'LAMBDA_INVOCATION_CONTEXT' => json_encode($context, JSON_THROW_ON_ERROR),
                 ], null, $timeout);
 
                 $process->run(function ($type, $buffer): void {

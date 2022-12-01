@@ -45,14 +45,10 @@ use Psr\Http\Message\ResponseInterface;
  */
 class Server
 {
-    /** @var Client|null */
-    private static $client;
-    /** @var bool */
-    private static $started = false;
-    /** @var string */
-    public static $url = 'http://127.0.0.1:8126/';
-    /** @var int */
-    public static $port = 8126;
+    private static ?Client $client = null;
+    private static bool $started = false;
+    public static string $url = 'http://127.0.0.1:8126/';
+    public static int $port = 8126;
 
     /**
      * Flush the received requests from the server

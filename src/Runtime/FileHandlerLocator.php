@@ -16,8 +16,7 @@ use Psr\Container\ContainerInterface;
  */
 class FileHandlerLocator implements ContainerInterface
 {
-    /** @var string */
-    private $directory;
+    private string $directory;
 
     public function __construct(?string $directory = null)
     {
@@ -39,7 +38,6 @@ class FileHandlerLocator implements ContainerInterface
             throw new HandlerNotFound("Handler `$handlerFile` doesn't exist");
         }
 
-        /** @noinspection PhpIncludeInspection */
         $handler = require $handlerFile;
 
         if (! (is_object($handler) || is_array($handler))) {

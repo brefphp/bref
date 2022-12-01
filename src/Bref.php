@@ -7,22 +7,15 @@ use Closure;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 
-/**
- * @experimental This class is not covered by backward compatibility yet.
- */
 class Bref
 {
-    /** @var Closure|null */
-    private static $containerProvider;
-    /** @var ContainerInterface|null */
-    private static $container;
+    private static ?Closure $containerProvider = null;
+    private static ?ContainerInterface $container = null;
 
     /**
      * Configure the container that provides Lambda handlers.
      *
-     * @param Closure $containerProvider Function that must return a `ContainerInterface`.
-     *
-     * @psalm-param Closure(): ContainerInterface $containerProvider
+     * @param Closure(): ContainerInterface $containerProvider Function that must return a `ContainerInterface`.
      */
     public static function setContainer(Closure $containerProvider): void
     {

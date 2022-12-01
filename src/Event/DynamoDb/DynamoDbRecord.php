@@ -2,18 +2,16 @@
 
 namespace Bref\Event\DynamoDb;
 
+use InvalidArgumentException;
+
 final class DynamoDbRecord
 {
-    /** @var array */
-    private $record;
+    private array $record;
 
-    /**
-     * @param mixed $record
-     */
-    public function __construct($record)
+    public function __construct(mixed $record)
     {
         if (! is_array($record) || ! isset($record['eventSource']) || $record['eventSource'] !== 'aws:dynamodb') {
-            throw new \InvalidArgumentException('Event source must come from DynamoDB');
+            throw new InvalidArgumentException('Event source must come from DynamoDB');
         }
 
         $this->record = $record;

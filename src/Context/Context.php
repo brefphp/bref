@@ -2,31 +2,24 @@
 
 namespace Bref\Context;
 
+use JsonSerializable;
+
 /**
  * The execution context of a Lambda.
  *
  * @see https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
  */
-final class Context implements \JsonSerializable
+final class Context implements JsonSerializable
 {
-    /** @var string */
-    private $awsRequestId;
-
-    /** @var int Holds the deadline Unix timestamp in millis */
-    private $deadlineMs;
-
-    /** @var string */
-    private $invokedFunctionArn;
-
-    /** @var string */
-    private $traceId;
-
-    public function __construct(string $awsRequestId, int $deadlineMs, string $invokedFunctionArn, string $traceId)
-    {
-        $this->awsRequestId = $awsRequestId;
-        $this->deadlineMs = $deadlineMs;
-        $this->invokedFunctionArn = $invokedFunctionArn;
-        $this->traceId = $traceId;
+    /**
+     * @param int $deadlineMs Holds the deadline Unix timestamp in millis
+     */
+    public function __construct(
+        private string $awsRequestId,
+        private int $deadlineMs,
+        private string $invokedFunctionArn,
+        private string $traceId
+    ) {
     }
 
     /**
