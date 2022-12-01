@@ -7,10 +7,8 @@ namespace Bref\Event\S3;
  */
 final class Bucket
 {
-    /** @var string */
-    private $name;
-    /** @var string */
-    private $arn;
+    private string $name;
+    private string $arn;
 
     /**
      * @internal

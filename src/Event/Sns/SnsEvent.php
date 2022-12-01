@@ -11,13 +11,9 @@ use InvalidArgumentException;
  */
 final class SnsEvent implements LambdaEvent
 {
-    /** @var array */
-    private $event;
+    private array $event;
 
-    /**
-     * @param mixed $event
-     */
-    public function __construct($event)
+    public function __construct(mixed $event)
     {
         if (! is_array($event) || ! isset($event['Records'])) {
             throw new InvalidLambdaEvent('SNS', $event);
@@ -33,7 +29,7 @@ final class SnsEvent implements LambdaEvent
         return array_map(function ($record): SnsRecord {
             try {
                 return new SnsRecord($record);
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
                 throw new InvalidLambdaEvent('SNS', $this->event);
             }
         }, $this->event['Records']);

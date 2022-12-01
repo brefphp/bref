@@ -7,12 +7,11 @@ use Bref\Event\InvalidLambdaEvent;
 
 class HttpRequestEventTest extends CommonHttpTest
 {
-    /** @var HttpRequestEvent */
-    private $event;
+    private HttpRequestEvent $event;
 
     protected function fromFixture(string $file): void
     {
-        $this->event = new HttpRequestEvent(json_decode(file_get_contents($file), true));
+        $this->event = new HttpRequestEvent(json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR));
     }
 
     protected function assertBody(string $expected): void
@@ -133,7 +132,7 @@ class HttpRequestEventTest extends CommonHttpTest
 
     protected function assertBasicAuthUser(string $expected): void
     {
-        [$user, $pass] = $this->event->getBasicAuthCredentials();
+        [$user] = $this->event->getBasicAuthCredentials();
         $this->assertEquals($expected, $user);
     }
 

@@ -10,15 +10,12 @@ use InvalidArgumentException;
  */
 final class S3Record
 {
-    /** @var array */
-    private $record;
+    private array $record;
 
     /**
-     * @param mixed $record
-     *
      * @internal
      */
-    public function __construct($record)
+    public function __construct(mixed $record)
     {
         if (! is_array($record) || ! isset($record['eventSource']) || $record['eventSource'] !== 'aws:s3') {
             throw new InvalidArgumentException;

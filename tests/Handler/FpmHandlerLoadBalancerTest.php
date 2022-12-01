@@ -8,10 +8,8 @@ use PHPUnit\Framework\TestCase;
 
 final class FpmHandlerLoadBalancerTest extends TestCase
 {
-    /** @var FpmHandler|null */
-    private $fpm;
-    /** @var Context */
-    private $fakeContext;
+    private ?FpmHandler $fpm = null;
+    private Context $fakeContext;
 
     public function setUp(): void
     {

@@ -5,6 +5,8 @@ namespace Bref\Event\Http;
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
 
+use function str_starts_with;
+
 /**
  * Represents a Lambda event that comes from a HTTP request.
  *
@@ -15,21 +17,13 @@ use Bref\Event\LambdaEvent;
  */
 final class HttpRequestEvent implements LambdaEvent
 {
-    /** @var array */
-    private $event;
-    /** @var string */
-    private $method;
-    /** @var array */
-    private $headers;
-    /** @var string */
-    private $queryString;
-    /** @var float */
-    private $payloadVersion;
+    private array $event;
+    private string $method;
+    private array $headers;
+    private string $queryString;
+    private float $payloadVersion;
 
-    /**
-     * @param mixed $event
-     */
-    public function __construct($event)
+    public function __construct(mixed $event)
     {
         // version 1.0 of the HTTP payload
         if (isset($event['httpMethod'])) {
@@ -107,7 +101,7 @@ final class HttpRequestEvent implements LambdaEvent
     {
         $authorizationHeader = trim($this->headers['authorization'][0] ?? '');
 
-        if (\strpos($authorizationHeader, 'Basic ') !== 0) {
+        if (! str_starts_with($authorizationHeader, 'Basic ')) {
             return [null, null];
         }
 
@@ -233,14 +227,10 @@ final class HttpRequestEvent implements LambdaEvent
         // it would lead to a breaking change since the current implementation for API Gateway does not
         // support MultiValue query string. This way, the code is fully backward-compatible while
         // offering complete support for multi value query parameters on ALB. Later on there can
-        // be a feature flag that allows API Gateway users to opt-in to complete support as well.
-        if (isset($this->event['requestContext']) && isset($this->event['requestContext']['elb'])) {
+        // be a feature flag that allows API Gateway users to opt in to complete support as well.
+        if (isset($this->event['requestContext']['elb'])) {
             // AWS differs between ALB with multiValue enabled or not (docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/lambda-functions.html#multi-value-headers)
-            if (isset($this->event['multiValueQueryStringParameters'])) {
-                $queryParameters = $this->event['multiValueQueryStringParameters'];
-            } else {
-                $queryParameters = $this->event['queryStringParameters'] ?? [];
-            }
+            $queryParameters = $this->event['multiValueQueryStringParameters'] ?? $this->event['queryStringParameters'] ?? [];
 
             $queryString = '';
 
