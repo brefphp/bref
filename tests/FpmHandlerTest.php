@@ -402,6 +402,48 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with form data and content type(int $version)
+    {
+        $event = [
+            'version' => '1.0',
+            'httpMethod' => 'POST',
+            'body' => 'foo=bar&bim=baz',
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded;charset=UTF-8',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [
+                'foo' => 'bar',
+                'bim' => 'baz',
+            ],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'foo' => 'bar',
+                'bim' => 'baz',
+            ],
+            '$_SERVER' => [
+                'CONTENT_LENGTH' => '15',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded;charset=UTF-8',
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'POST',
+                'QUERY_STRING' => '',
+                'HTTP_CONTENT_TYPE' => 'application/x-www-form-urlencoded;charset=UTF-8',
+                'HTTP_CONTENT_LENGTH' => '15',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => 'foo=bar&bim=baz',
+        ]);
+    }
+
     public function provideHttpMethodsWithRequestBodySupport(): array
     {
         return [
@@ -967,6 +1009,43 @@ Year,Make,Model
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
                 'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with basic auth(int $version)
+    {
+        $event = [
+            'version' => '1.0',
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ZmFrZTpzZWNyZXQ=',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => '',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+                'HTTP_AUTHORIZATION' => 'Basic ZmFrZTpzZWNyZXQ=',
+                // PHP-FPM automatically adds these variables
+                'PHP_AUTH_USER' => 'fake',
+                'PHP_AUTH_PW' => 'secret',
             ],
             'HTTP_RAW_BODY' => '',
         ]);
