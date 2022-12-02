@@ -7,8 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class HttpApiTest extends TestCase
 {
-    /** @var Client */
-    private $http;
+    private Client $http;
 
     public function setUp(): void
     {

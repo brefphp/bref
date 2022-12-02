@@ -11,8 +11,7 @@ class FpmRuntimeTest extends TestCase
 {
     use ArraySubsetAsserts;
 
-    /** @var Client */
-    private $http;
+    private Client $http;
 
     public function setUp(): void
     {

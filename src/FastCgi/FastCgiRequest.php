@@ -6,10 +6,11 @@ use hollodotme\FastCGI\Requests\AbstractRequest;
 
 final class FastCgiRequest extends AbstractRequest
 {
-    private string $method;
-
-    public function __construct(string $method, string $scriptFilename, string $content)
-    {
+    public function __construct(
+        private string $method,
+        string $scriptFilename,
+        string $content
+    ) {
         $this->method = $method;
         parent::__construct($scriptFilename, $content);
     }

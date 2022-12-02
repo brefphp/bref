@@ -164,12 +164,4 @@
         <exclude-pattern type="relative">tests/*</exclude-pattern>
     </rule>
 
-
-    <!-- ########################-->
-    <!-- For PHP 7.4+ only       -->
-    <!-- ########################-->
-    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint">
-        <severity>0</severity>
-    </rule>
-
 </ruleset>

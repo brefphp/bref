@@ -12,10 +12,8 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
 {
     use ArraySubsetAsserts;
 
-    /** @var FpmHandler|null */
-    private $fpm;
-    /** @var Context */
-    private $fakeContext;
+    private ?FpmHandler $fpm = null;
+    private Context $fakeContext;
 
     public function setUp(): void
     {
