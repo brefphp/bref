@@ -15,9 +15,6 @@ final class S3Event implements LambdaEvent
 {
     private array $event;
 
-    /**
-     * @internal
-     */
     public function __construct(mixed $event)
     {
         if (! is_array($event) || ! isset($event['Records'])) {

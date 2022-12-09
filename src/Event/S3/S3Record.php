@@ -12,9 +12,6 @@ final class S3Record
 {
     private array $record;
 
-    /**
-     * @internal
-     */
     public function __construct(mixed $record)
     {
         if (! is_array($record) || ! isset($record['eventSource']) || $record['eventSource'] !== 'aws:s3') {

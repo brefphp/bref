@@ -11,9 +11,6 @@ final class BucketObject
     private int $size;
     private ?string $versionId;
 
-    /**
-     * @internal
-     */
     public function __construct(string $key, int $size, ?string $versionId = null)
     {
         $this->key = $key;

@@ -15,8 +15,6 @@ use function str_starts_with;
 
 /**
  * Bridges PSR-7 requests and responses with API Gateway or ALB event/response formats.
- *
- * @internal
  */
 final class Psr7Bridge
 {

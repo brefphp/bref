@@ -11,7 +11,6 @@ use Psr\Container\ContainerInterface;
  * Whenever a Lambda function executes, this class will `require` that PHP file
  * and return what the file returns.
  *
- * @internal
  * @see \Bref\Bref::setContainer()
  */
 class FileHandlerLocator implements ContainerInterface
