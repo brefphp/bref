@@ -1,7 +1,11 @@
 ARG PHP_VERSION
 FROM bref/build-php-$PHP_VERSION as build_extensions
 
-RUN pecl install xdebug
+# Re-expose the arg again inside this "FROM" block
+ARG PHP_VERSION
+
+RUN if [ "$PHP_VERSION" -ne "73" ]; then pecl install xdebug; fi
+RUN if [ "$PHP_VERSION" -eq "73" ]; then pecl install xdebug-3.1.6; fi
 RUN cp $(php -r "echo ini_get('extension_dir');")/xdebug.so /tmp
 
 RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
