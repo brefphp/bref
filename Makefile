@@ -25,7 +25,7 @@ publish-docker-images: docker-images
 	  "bref/php-74" "bref/php-74-fpm" "bref/php-74-console" "bref/php-74-fpm-dev" \
 	  "bref/php-80" "bref/php-80-fpm" "bref/php-80-console" "bref/php-80-fpm-dev" \
 	  "bref/php-81" "bref/php-81-fpm" "bref/php-81-console" "bref/php-81-fpm-dev" \
-	  "bref/php-82" "bref/php-82-fpm" "bref/php-82-console" \
+	  "bref/php-82" "bref/php-82-fpm" "bref/php-82-console" "bref/php-82-fpm-dev" \
 	  "bref/build-php-73" \
 	  "bref/build-php-74" \
 	  "bref/build-php-80" \
