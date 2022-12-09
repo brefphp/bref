@@ -2,9 +2,6 @@
 
 namespace Bref\Context;
 
-/**
- * @internal
- */
 final class ContextBuilder
 {
     private string $awsRequestId;

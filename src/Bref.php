@@ -23,7 +23,7 @@ class Bref
     }
 
     /**
-     * @internal
+     * @internal Used by the Bref runtime
      */
     public static function getContainer(): ContainerInterface
     {
