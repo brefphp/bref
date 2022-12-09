@@ -68,7 +68,7 @@ docker-images:
 	cd layers/fpm-dev ; docker build -t bref/php-74-fpm-dev --build-arg PHP_VERSION=74 .
 	cd layers/fpm-dev ; docker build -t bref/php-80-fpm-dev --build-arg PHP_VERSION=80 .
 	cd layers/fpm-dev ; docker build -t bref/php-81-fpm-dev --build-arg PHP_VERSION=81 .
-	# cd layers/fpm-dev ; docker build -t bref/php-82-fpm-dev --build-arg PHP_VERSION=82 .
+	cd layers/fpm-dev ; docker build -t bref/php-82-fpm-dev --build-arg PHP_VERSION=82 .
 	cd layers/web; docker build -t bref/fpm-dev-gateway .
 	# Run tests
 	php layers/tests.php
