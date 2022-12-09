@@ -1110,7 +1110,12 @@ Year,Make,Model
     {
         $cookieHeader = $this->get('cookies.php')['headers']['Set-Cookie'];
 
-        self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
+        // If PHP 8.2 or greater, the formatting is slightly different for some reason
+        if (PHP_VERSION_ID >= 80200) {
+            self::assertEquals('MyCookie=MyValue; expires=Fri, 12 Jan 2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
+        } else {
+            self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
+        }
     }
 
     public function test response with multiple cookies with multiheader()
@@ -1121,8 +1126,14 @@ Year,Make,Model
             'multiValueHeaders' => [],
         ])['multiValueHeaders']['Set-Cookie'];
 
-        self::assertEquals('MyCookie=FirstValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
-        self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
+        // If PHP 8.2 or greater, the formatting is slightly different for some reason
+        if (PHP_VERSION_ID >= 80200) {
+            self::assertEquals('MyCookie=FirstValue; expires=Fri, 12 Jan 2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
+            self::assertEquals('MyCookie=MyValue; expires=Fri, 12 Jan 2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
+        } else {
+            self::assertEquals('MyCookie=FirstValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
+            self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
+        }
     }
 
     public function test response with error_log()
