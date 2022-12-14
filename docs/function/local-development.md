@@ -81,7 +81,30 @@ Hello world
 # With JSON event data
 $ vendor/bin/bref-local my-function.php '{"name": "Jane"}'
 Hello Jane
+```
 
-# Run in Docker
-$ docker run --rm -it --entrypoint= -v $(PWD):/var/task:ro bref/php-81 vendor/bin/bref-local my-function.php
+If you want to run your function in Docker:
+
+```bash
+$ docker run --rm -it --entrypoint= -v $(PWD):/var/task:ro bref/php-81:2 vendor/bin/bref-local my-function.php
+
+# You can also use the `dev` images for a simpler command (and Xdebug and Blackfire in the image):
+$ docker run --rm -it -v $(PWD):/var/task:ro bref/php-81-fpm-dev:2 vendor/bin/bref-local my-function.php
+```
+
+You can also use Docker Compose:
+
+```yaml
+version: "3.5"
+services:
+    app:
+        image: bref/php-81-fpm-dev:2
+        volumes:
+            - .:/var/task
+```
+
+Then run functions:
+
+```bash
+$ docker-compose run app vendor/bin/bref-local my-function.php
 ```
