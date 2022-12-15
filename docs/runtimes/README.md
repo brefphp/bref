@@ -82,18 +82,43 @@ The `${...}` notation is the [syntax to use variables](https://serverless.com/fr
 - `${bref:layer.php-82}`
 - `${bref:layer.php-81}`
 - `${bref:layer.php-80}`
-- `${bref:layer.php-74}`
-- `${bref:layer.php-73}`
 - `${bref:layer.php-82-fpm}`
 - `${bref:layer.php-81-fpm}`
 - `${bref:layer.php-80-fpm}`
-- `${bref:layer.php-74-fpm}`
-- `${bref:layer.php-73-fpm}`
 - `${bref:layer.console}`
 
 Bref currently provides runtimes for PHP 8.0, 8.1 and 8.2.
 
 > `php-80` means PHP 8.0.\*. It is not possible to require a specific "patch" version.
+
+### ARM runtimes
+
+> **Note**
+> ARM runtimes are currently in beta.
+
+Since 2021, it is possible to run AWS Lambda functions on [ARM-based AWS Graviton processors](https://aws.amazon.com/blogs/aws/aws-lambda-functions-powered-by-aws-graviton2-processor-run-your-functions-on-arm-and-get-up-to-34-better-price-performance/). This is usually considered a way to reduce costs and improve performance.
+
+You can deploy to ARM by using the `arm64` runtime and switching to ARM Bref layers in `serverless.yml`:
+
+```diff
+functions:
+    api:
+        handler: public/index.php
++        architecture: arm64
+        layers:
+-            - ${bref:layer.php-80-fpm}
++            - ${bref:layer.arm-php-80-fpm}
+        // ...
+```
+
+Bref ARM layers are the same as the x86 layers, but the `arm-` prefix in their name:
+
+- `${bref:layer.arm-php-80}`
+- `${bref:layer.arm-php-80-fpm}`
+- `${bref:layer.console}` (this is the same layer for both x86 and ARM)
+
+> **Warning**
+> ARM runtimes are built from Amazon Linux Extra. **Only PHP 8.0 is available** for now.
 
 ## Lambda layers in details
 
