@@ -106,19 +106,21 @@ functions:
         handler: public/index.php
 +        architecture: arm64
         layers:
--            - ${bref:layer.php-80-fpm}
-+            - ${bref:layer.arm-php-80-fpm}
+-            - ${bref:layer.php-81-fpm}
++            - ${bref:layer.arm-php-81-fpm}
         // ...
 ```
 
 Bref ARM layers are the same as the x86 layers, but the `arm-` prefix in their name:
 
+- `${bref:layer.arm-php-81}`
 - `${bref:layer.arm-php-80}`
+- `${bref:layer.arm-php-81-fpm}`
 - `${bref:layer.arm-php-80-fpm}`
 - `${bref:layer.console}` (this is the same layer for both x86 and ARM)
 
 > **Warning**
-> ARM runtimes are built from Amazon Linux Extra. **Only PHP 8.0 is available** for now.
+> ARM runtimes are built from Amazon Linux Extras packages, which only provides **PHP 8.1 and 8.0** for now.
 
 ## Lambda layers in details
 

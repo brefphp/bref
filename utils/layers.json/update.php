@@ -21,6 +21,8 @@ const LAYER_NAMES = [
     'php-80-fpm',
     'arm-php-80',
     'arm-php-80-fpm',
+    'arm-php-81',
+    'arm-php-81-fpm',
     'console',
 ];
 
@@ -50,7 +52,7 @@ function lambdaClient(string $region): LambdaClient
         $stsClient = new StsClient([
             'sts_regional_endpoints' => 'regional',
             'region' => $region,
-            'version' => '2011-06-15'
+            'version' => '2011-06-15',
         ]);
 
         $credentials = $stsClient->AssumeRole([
