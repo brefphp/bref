@@ -64,7 +64,7 @@ class ServerlessPlugin {
                 lifecycleEvents: ['run'],
                 options: {
                     // Define the '--args' option with the '-a' shortcut
-                    command: {
+                    args: {
                         usage: 'Specify the arguments/options of the command to run on AWS Lambda',
                         shortcut: 'a',
                         type: 'string',
