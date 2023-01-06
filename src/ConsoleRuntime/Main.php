@@ -4,6 +4,7 @@ namespace Bref\ConsoleRuntime;
 
 use Bref\Context\Context;
 use Bref\Runtime\LambdaRuntime;
+use Bref\Secrets\Secrets;
 use Exception;
 use Symfony\Component\Process\Process;
 
@@ -11,6 +12,8 @@ class Main
 {
     public static function run(): void
     {
+        Secrets::decryptSecretEnvironmentVariables();
+
         $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('console');
 
         $appRoot = getenv('LAMBDA_TASK_ROOT');
