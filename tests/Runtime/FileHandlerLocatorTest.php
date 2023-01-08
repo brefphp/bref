@@ -27,4 +27,11 @@ class FileHandlerLocatorTest extends TestCase
 
         $locator->get('broken.php');
     }
+
+    public function test accepts empty directory()
+    {
+        $locator = new FileHandlerLocator;
+
+        $this->assertTrue($locator->has('tests/BrefTest.php'));
+    }
 }
