@@ -3,6 +3,8 @@
 namespace Bref\Secrets;
 
 use AsyncAws\Ssm\SsmClient;
+use AsyncAws\Ssm\ValueObject\Parameter;
+use RuntimeException;
 
 class Secrets
 {
@@ -37,10 +39,21 @@ class Secrets
             'region' => $_ENV['AWS_REGION'] ?? $_ENV['AWS_DEFAULT_REGION'],
         ]);
 
-        $parameters = $ssm->getParameters([
-            'Names' => array_values($ssmNames),
-            'WithDecryption' => true,
-        ])->getParameters();
+        /** @var Parameter[] $parameters */
+        $parameters = [];
+        $parametersNotFound = [];
+        // The API only accepts up to 10 parameters at a time, so we batch the calls
+        foreach (array_chunk(array_values($ssmNames), 10) as $batchOfSsmNames) {
+            $result = $ssm->getParameters([
+                'Names' => $batchOfSsmNames,
+                'WithDecryption' => true,
+            ]);
+            $parameters = array_merge($parameters, $result->getParameters());
+            $parametersNotFound = array_merge($parametersNotFound, $result->getInvalidParameters());
+        }
+        if (count($parametersNotFound) > 0) {
+            throw new RuntimeException('The following SSM parameters could not be found: ' . implode(', ', $parametersNotFound));
+        }
 
         foreach ($parameters as $parameter) {
             $envVar = array_search($parameter->getName(), $ssmNames, true);
