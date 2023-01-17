@@ -178,5 +178,5 @@ services:
 Then commands can be run via:
 
 ```bash
-docker-compose run console php bin/console <your-command>
+docker-compose run console bin/console <your-command>
 ```
