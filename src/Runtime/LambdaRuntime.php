@@ -251,7 +251,7 @@ final class LambdaRuntime
      */
 	public function buildErrorFormatted($error, $message = null): array
     {
-		$actual_link = "$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+		$actual_link = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         if( $message ){
             $message = $message . ' ' . ($error ? $error->getMessage() : '');
         } else {
