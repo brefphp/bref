@@ -7,6 +7,7 @@ use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
 use Exception;
 use Psr\Http\Server\RequestHandlerInterface;
+use Utils\Lambda\NotifyAlarm;
 
 /**
  * Client for the AWS Lambda runtime API.
@@ -190,6 +191,7 @@ final class LambdaRuntime
     {
         $stackTraceAsArray = explode(PHP_EOL, $error->getTraceAsString());
         $errorFormatted = [
+            'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
             'errorType' => get_class($error),
             'errorMessage' => $error->getMessage(),
             'stack' => $stackTraceAsArray,
@@ -201,6 +203,7 @@ final class LambdaRuntime
             do {
                 $previousError = $previousError->getPrevious();
                 $previousErrors[] = [
+                    'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
                     'errorType' => get_class($previousError),
                     'errorMessage' => $previousError->getMessage(),
                     'stack' => explode(PHP_EOL, $previousError->getTraceAsString()),
@@ -209,6 +212,7 @@ final class LambdaRuntime
 
             $errorFormatted['previous'] = $previousErrors;
         }
+        NotifyAlarm::redisSave($errorFormatted);
 
         // Log the exception in CloudWatch
         // We aim to use the same log format as what we can see when throwing an exception in the NodeJS runtime
@@ -218,6 +222,7 @@ final class LambdaRuntime
         // Send an "error" Lambda response
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
         $this->postJson($url, [
+            'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
             'errorType' => get_class($error),
             'errorMessage' => $error->getMessage(),
             'stackTrace' => $stackTraceAsArray,
@@ -247,13 +252,15 @@ final class LambdaRuntime
                 $error->getTraceAsString()
             );
         }
-
-        $url = "http://{$this->apiUrl}/2018-06-01/runtime/init/error";
-        $this->postJson($url, [
+        $errorFormatted = [
+            'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
             'errorMessage' => $message . ' ' . ($error ? $error->getMessage() : ''),
             'errorType' => $error ? get_class($error) : 'Internal',
             'stackTrace' => $error ? explode(PHP_EOL, $error->getTraceAsString()) : [],
-        ]);
+        ];
+        NotifyAlarm::redisSave($errorFormatted);
+        $url = "http://{$this->apiUrl}/2018-06-01/runtime/init/error";
+        $this->postJson($url, $errorFormatted);
 
         exit(1);
     }
@@ -265,10 +272,17 @@ final class LambdaRuntime
     {
         $jsonData = json_encode($data);
         if ($jsonData === false) {
-            throw new Exception(sprintf(
-                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-requests-and-responses\nHere is the original JSON error: '%s'",
-                json_last_error_msg()
-            ));
+            if (is_array($data) && array_key_exists('body',$data)) {
+                $data['body'] = mb_convert_encoding($data['body'], 'UTF-8', 'UTF-8');
+                $jsonData = json_encode($data);
+            }
+            if ($jsonData === false) {
+                printf("body=%s", $data['body']);
+	            throw new Exception(sprintf(
+	                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-requests-and-responses\nHere is the original JSON error: '%s'",
+	                json_last_error_msg()
+	            ));
+            }
         }
 
         if ($this->curlHandleResult === null) {
