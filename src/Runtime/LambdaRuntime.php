@@ -281,7 +281,7 @@ final class LambdaRuntime
                 $jsonData = json_encode($data);
             }
             if ($jsonData === false) {
-                printf("body=%s", $data['body']);
+                //printf("body=%s", $data['body']);
 	            throw new Exception(sprintf(
 	                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-requests-and-responses\nHere is the original JSON error: '%s'",
 	                json_last_error_msg()
