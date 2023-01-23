@@ -259,6 +259,7 @@ final class LambdaRuntime
         }
         return [
             'url' => $actual_link,
+            'datetime' => date('Y-m-d H:i:s'),
             'alarm_type' => 45,
             'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
             'errorMessage' => $message,
