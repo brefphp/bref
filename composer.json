@@ -72,6 +72,6 @@
         }
     },
 	"archive": {
-		"exclude": ["/test", "/demo","/test","/runtime","/website", "docs"]
+		"exclude": ["/test", "/demo","/test","/runtime","/website", "/docs"]
 	}
 }

@@ -203,6 +203,7 @@ final class LambdaRuntime
             do {
                 $previousError = $previousError->getPrevious();
                 $previousErrors[] = [
+                    'alarm_type' => 45,
                     'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
                     'errorType' => get_class($previousError),
                     'errorMessage' => $previousError->getMessage(),
@@ -222,6 +223,7 @@ final class LambdaRuntime
         // Send an "error" Lambda response
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
         $this->postJson($url, [
+			'alarm_type' => 45,
             'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
             'errorType' => get_class($error),
             'errorMessage' => $error->getMessage(),
@@ -253,6 +255,7 @@ final class LambdaRuntime
             );
         }
         $errorFormatted = [
+			'alarm_type' => 45,
             'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
             'errorMessage' => $message . ' ' . ($error ? $error->getMessage() : ''),
             'errorType' => $error ? get_class($error) : 'Internal',
