@@ -188,28 +188,15 @@ final class LambdaRuntime
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-invokeerror
      */
     private function signalFailure(string $invocationId, \Throwable $error): void
-    {
-        $stackTraceAsArray = explode(PHP_EOL, $error->getTraceAsString());
-        $errorFormatted = [
-			'alarm_type' => 45,
-            'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
-            'errorType' => get_class($error),
-            'errorMessage' => $error->getMessage(),
-            'stack' => $stackTraceAsArray,
-        ];
+    {        
+        $errorFormatted = self::buildErrorFormatted($error);
 
         if ($error->getPrevious() !== null) {
             $previousError = $error;
             $previousErrors = [];
             do {
                 $previousError = $previousError->getPrevious();
-                $previousErrors[] = [
-                    'alarm_type' => 45,
-                    'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
-                    'errorType' => get_class($previousError),
-                    'errorMessage' => $previousError->getMessage(),
-                    'stack' => explode(PHP_EOL, $previousError->getTraceAsString()),
-                ];
+                $previousErrors[] = self::buildErrorFormatted($previousError);
             } while ($previousError->getPrevious() !== null);
 
             $errorFormatted['previous'] = $previousErrors;
@@ -223,13 +210,7 @@ final class LambdaRuntime
 
         // Send an "error" Lambda response
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
-        $this->postJson($url, [
-			'alarm_type' => 45,
-            'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
-            'errorType' => get_class($error),
-            'errorMessage' => $error->getMessage(),
-            'stackTrace' => $stackTraceAsArray,
-        ]);
+        $this->postJson($url, $errorFormatted);
     }
 
     /**
@@ -255,19 +236,36 @@ final class LambdaRuntime
                 $error->getTraceAsString()
             );
         }
-        $errorFormatted = [
-			'alarm_type' => 45,
-            'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
-            'errorMessage' => $message . ' ' . ($error ? $error->getMessage() : ''),
-            'errorType' => $error ? get_class($error) : 'Internal',
-            'stackTrace' => $error ? explode(PHP_EOL, $error->getTraceAsString()) : [],
-        ];
+        $errorFormatted = self::buildErrorFormatted($error);
         NotifyAlarm::redisSave($errorFormatted);
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/init/error";
         $this->postJson($url, $errorFormatted);
 
         exit(1);
     }
+
+    /**
+     * @param $error
+     * @param $message
+     * @return array
+     */
+	public function buildErrorFormatted($error, $message = null): array
+    {
+		$actual_link = "$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        if( $message ){
+            $message = $message . ' ' . ($error ? $error->getMessage() : '');
+        } else {
+            $message = ($error ? $error->getMessage() : '');
+        }
+        return [
+            'url' => $actual_link,
+            'alarm_type' => 45,
+            'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
+            'errorMessage' => $message,
+            'errorType' => $error ? get_class($error) : 'Internal',
+            'stackTrace' => $error ? explode(PHP_EOL, $error->getTraceAsString()) : [],
+            ];
+	}
 
     /**
      * @param mixed $data
