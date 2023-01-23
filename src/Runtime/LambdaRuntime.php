@@ -191,6 +191,7 @@ final class LambdaRuntime
     {
         $stackTraceAsArray = explode(PHP_EOL, $error->getTraceAsString());
         $errorFormatted = [
+			'alarm_type' => 45,
             'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
             'errorType' => get_class($error),
             'errorMessage' => $error->getMessage(),
