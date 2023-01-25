@@ -189,14 +189,14 @@ final class LambdaRuntime
      */
     private function signalFailure(string $invocationId, \Throwable $error, $event): void
     {
-        $errorFormatted = self::buildErrorFormatted($error, $invocationId, $event);
+        $errorFormatted = NotifyAlarm::buildErrorFormatted($error, $invocationId, $event);
 
         if ($error->getPrevious() !== null) {
             $previousError = $error;
             $previousErrors = [];
             do {
                 $previousError = $previousError->getPrevious();
-                $previousErrors[] = self::buildErrorFormatted($previousError);
+                $previousErrors[] = NotifyAlarm::buildErrorFormatted($previousError);
             } while ($previousError->getPrevious() !== null);
 
             $errorFormatted['previous'] = $previousErrors;
@@ -236,42 +236,12 @@ final class LambdaRuntime
                 $error->getTraceAsString()
             );
         }
-        $errorFormatted = self::buildErrorFormatted($error, $message);
+        $errorFormatted = NotifyAlarm::buildErrorFormatted($error, $message);
         NotifyAlarm::redisSave($errorFormatted);
         $url = "http://{$this->apiUrl}/2018-06-01/runtime/init/error";
         $this->postJson($url, $errorFormatted);
 
         exit(1);
-    }
-
-    /**
-     * @param $error
-     * @param $message
-     * @return array
-     */
-    public function buildErrorFormatted($error, $message = null, $event = null): array
-    {
-        if( $message ){
-            $message = $message . ' ' . ($error ? $error->getMessage() : '');
-        } else {
-            $message = ($error ? $error->getMessage() : '');
-        }
-        $errorFormatted = [
-            'datetime' => date('Y-m-d H:i:s'),
-            'alarm_type' => 45,
-            'LAMBDA' => getenv('AWS_LAMBDA_FUNCTION_NAME'),
-            'errorMessage' => $message,
-            'errorType' => $error ? get_class($error) : 'Internal',
-            'stackTrace' => $error ? explode(PHP_EOL, $error->getTraceAsString()) : [],
-        ];
-        if( $event ){
-            echo "event=" . json_encode($event);
-            if( array_key_exists('rawPath', $event )) {
-                $actual_link = $event['rawPath'];
-                $errorFormatted['url'] = $actual_link;
-            }
-        }
-        return $errorFormatted;
     }
 
     /**
