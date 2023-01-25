@@ -14,6 +14,7 @@ use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Symfony\Component\Process\Process;
 use Throwable;
+use Utils\Lambda\NotifyAlarm;
 
 /**
  * Handles HTTP events coming from API Gateway/ALB by proxying them to PHP-FPM via FastCGI.
