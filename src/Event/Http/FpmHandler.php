@@ -143,7 +143,7 @@ final class FpmHandler extends HttpHandler
              *   "file_get_contents()", ...) and continues to the next line. That's super weird!
              *   So SIGUSR2 isn't a great solution in the end.
              */
-            echo "Timeout fpm stop\n";
+            echo "Timeout fpm stop\n" . json_encode($errorFormatted) . "\n";
             $this->stop();
             echo "Timeout fpm start\n";
             $this->start();
