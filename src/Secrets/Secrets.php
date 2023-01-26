@@ -35,7 +35,6 @@ class Secrets
         }, $envVarsToDecrypt);
 
         $ssm = $ssmClient ?? new SsmClient([
-            'version' => 'latest',
             'region' => $_ENV['AWS_REGION'] ?? $_ENV['AWS_DEFAULT_REGION'],
         ]);
 
