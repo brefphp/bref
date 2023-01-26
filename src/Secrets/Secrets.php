@@ -43,10 +43,18 @@ class Secrets
         $parametersNotFound = [];
         // The API only accepts up to 10 parameters at a time, so we batch the calls
         foreach (array_chunk(array_values($ssmNames), 10) as $batchOfSsmNames) {
-            $result = $ssm->getParameters([
-                'Names' => $batchOfSsmNames,
-                'WithDecryption' => true,
-            ]);
+            try {
+                $result = $ssm->getParameters([
+                    'Names' => $batchOfSsmNames,
+                    'WithDecryption' => true,
+                ]);
+            } catch (RuntimeException $e) {
+                if ($e->getCode() === 400) {
+                    // Extra descriptive error message for the most common error
+                    throw new RuntimeException("Bref was not able to resolve secrets contained in environment variables from SSM because of a permissions issue with the SSM API. Did you add IAM permissions in serverless.yml to allow Lambda to access SSM? (docs: https://bref.sh/docs/environment/variables.html#at-deployment-time).\nFull exception message: {$e->getMessage()}");
+                }
+                throw $e;
+            }
             $parameters = array_merge($parameters, $result->getParameters());
             $parametersNotFound = array_merge($parametersNotFound, $result->getInvalidParameters());
         }
