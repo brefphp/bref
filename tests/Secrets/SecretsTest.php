@@ -8,7 +8,6 @@ use AsyncAws\Ssm\SsmClient;
 use AsyncAws\Ssm\ValueObject\Parameter;
 use Bref\Secrets\Secrets;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 
 class SecretsTest extends TestCase
 {
