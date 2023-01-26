@@ -32,15 +32,17 @@ class SecretsTest extends TestCase
 
     public function test throws a clear error message on missing permissions(): void
     {
-        putenv('SOME_VARIABLE=bref-ssm:/some/parameter');
+        putenv('SOME_VARIABLE=bref-ssm:/app/test');
 
         $ssmClient = $this->getMockBuilder(SsmClient::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $result = ResultMockFactory::createFailing(GetParametersResult::class, 400, 'User: arn:aws:sts::123456:assumed-role/app-dev-us-east-1-lambdaRole/app-dev-hello is not authorized to perform: ssm:GetParameters on resource: arn:aws:ssm:us-east-1:123456:parameter/app/test because no identity-based policy allows the ssm:GetParameters action');
         $ssmClient->method('getParameters')
-            ->willThrowException(new RuntimeException('<original message>', 400));
+            ->willReturn($result);
 
-        $this->expectExceptionMessage("Bref was not able to resolve secrets contained in environment variables from SSM because of a permissions issue with the SSM API. Did you add IAM permissions in serverless.yml to allow Lambda to access SSM? (docs: https://bref.sh/docs/environment/variables.html#at-deployment-time).\nFull exception message: <original message>");
+        $expected = preg_quote("Bref was not able to resolve secrets contained in environment variables from SSM because of a permissions issue with the SSM API. Did you add IAM permissions in serverless.yml to allow Lambda to access SSM? (docs: https://bref.sh/docs/environment/variables.html#at-deployment-time).\nFull exception message:", '/');
+        $this->expectExceptionMessageMatches("/$expected .+/");
         Secrets::decryptSecretEnvironmentVariables($ssmClient);
     }
 

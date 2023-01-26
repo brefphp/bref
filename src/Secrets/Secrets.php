@@ -48,6 +48,7 @@ class Secrets
                     'Names' => $batchOfSsmNames,
                     'WithDecryption' => true,
                 ]);
+                $parameters = array_merge($parameters, $result->getParameters());
             } catch (RuntimeException $e) {
                 if ($e->getCode() === 400) {
                     // Extra descriptive error message for the most common error
@@ -55,7 +56,6 @@ class Secrets
                 }
                 throw $e;
             }
-            $parameters = array_merge($parameters, $result->getParameters());
             $parametersNotFound = array_merge($parametersNotFound, $result->getInvalidParameters());
         }
         if (count($parametersNotFound) > 0) {
