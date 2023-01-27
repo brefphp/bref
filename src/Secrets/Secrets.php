@@ -52,7 +52,11 @@ class Secrets
             } catch (RuntimeException $e) {
                 if ($e->getCode() === 400) {
                     // Extra descriptive error message for the most common error
-                    throw new RuntimeException("Bref was not able to resolve secrets contained in environment variables from SSM because of a permissions issue with the SSM API. Did you add IAM permissions in serverless.yml to allow Lambda to access SSM? (docs: https://bref.sh/docs/environment/variables.html#at-deployment-time).\nFull exception message: {$e->getMessage()}");
+                    throw new RuntimeException(
+                        "Bref was not able to resolve secrets contained in environment variables from SSM because of a permissions issue with the SSM API. Did you add IAM permissions in serverless.yml to allow Lambda to access SSM? (docs: https://bref.sh/docs/environment/variables.html#at-deployment-time).\nFull exception message: {$e->getMessage()}",
+                        $e->getCode(),
+                        $e,
+                    );
                 }
                 throw $e;
             }
