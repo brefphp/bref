@@ -3,7 +3,7 @@
 namespace Bref\Secrets;
 
 use AsyncAws\Ssm\SsmClient;
-use AsyncAws\Ssm\ValueObject\Parameter;
+use Closure;
 use RuntimeException;
 
 class Secrets
@@ -34,21 +34,79 @@ class Secrets
             return substr($value, strlen('bref-ssm:'));
         }, $envVarsToDecrypt);
 
+        $actuallyCalledSsm = false;
+        $parameters = self::readParametersFromCacheOr(function () use ($ssmClient, $ssmNames, &$actuallyCalledSsm) {
+            $actuallyCalledSsm = true;
+            return self::retrieveParametersfromSsm($ssmClient, array_values($ssmNames));
+        });
+
+        foreach ($parameters as $parameterName => $parameterValue) {
+            $envVar = array_search($parameterName, $ssmNames, true);
+            $_SERVER[$envVar] = $_ENV[$envVar] = $parameterValue;
+            putenv("$envVar=$parameterValue");
+        }
+
+        // Only log once (when the cache was empty) else it might spam the logs in the function runtime
+        // (where the process restarts on every invocation)
+        if ($actuallyCalledSsm) {
+            $stderr = fopen('php://stderr', 'ab');
+            fwrite($stderr, '[Bref] Loaded these environment variables from SSM: ' . implode(', ', array_keys($envVarsToDecrypt)) . PHP_EOL);
+        }
+    }
+
+    /**
+     * Cache the parameters in a temp file.
+     * Why? Because on the function runtime, the PHP process might
+     * restart on every invocation (or on error), so we don't want to
+     * call SSM every time.
+     *
+     * @param Closure(): array<string, string> $paramResolver
+     * @return array<string, string> Map of parameter name -> value
+     */
+    private static function readParametersFromCacheOr(Closure $paramResolver): array
+    {
+        // Check in cache first
+        $cacheFile = sys_get_temp_dir() . '/bref-ssm-parameters.php';
+        if (file_exists($cacheFile)) {
+            $parameters = require $cacheFile;
+            if (is_array($parameters)) {
+                return $parameters;
+            }
+        }
+
+        // Not in cache yet: we resolve it
+        $parameters = $paramResolver();
+
+        // Use var_export() because it is faster than json_encode()
+        file_put_contents($cacheFile, '<?php return ' . var_export($parameters, true) . ';');
+
+        return $parameters;
+    }
+
+    /**
+     * @param string[] $ssmNames
+     * @return array<string, string> Map of parameter name -> value
+     */
+    private static function retrieveParametersfromSsm(?SsmClient $ssmClient, array $ssmNames): array
+    {
         $ssm = $ssmClient ?? new SsmClient([
             'region' => $_ENV['AWS_REGION'] ?? $_ENV['AWS_DEFAULT_REGION'],
         ]);
 
-        /** @var Parameter[] $parameters */
+        /** @var array<string, string> $parameters Map of parameter name -> value */
         $parameters = [];
         $parametersNotFound = [];
+
         // The API only accepts up to 10 parameters at a time, so we batch the calls
-        foreach (array_chunk(array_values($ssmNames), 10) as $batchOfSsmNames) {
+        foreach (array_chunk($ssmNames, 10) as $batchOfSsmNames) {
             try {
                 $result = $ssm->getParameters([
                     'Names' => $batchOfSsmNames,
                     'WithDecryption' => true,
                 ]);
-                $parameters = array_merge($parameters, $result->getParameters());
+                foreach ($result->getParameters() as $parameter) {
+                    $parameters[$parameter->getName()] = $parameter->getValue();
+                }
             } catch (RuntimeException $e) {
                 if ($e->getCode() === 400) {
                     // Extra descriptive error message for the most common error
@@ -62,18 +120,11 @@ class Secrets
             }
             $parametersNotFound = array_merge($parametersNotFound, $result->getInvalidParameters());
         }
+
         if (count($parametersNotFound) > 0) {
             throw new RuntimeException('The following SSM parameters could not be found: ' . implode(', ', $parametersNotFound));
         }
 
-        foreach ($parameters as $parameter) {
-            $envVar = array_search($parameter->getName(), $ssmNames, true);
-            $decryptedValue = $parameter->getValue();
-            $_SERVER[$envVar] = $_ENV[$envVar] = $decryptedValue;
-            putenv("$envVar=$decryptedValue");
-        }
-
-        $stderr = fopen('php://stderr', 'ab');
-        fwrite($stderr, '[Bref] Loaded these environment variables from SSM: ' . implode(', ', array_keys($envVarsToDecrypt)) . PHP_EOL);
+        return $parameters;
     }
 }

@@ -11,6 +11,13 @@ use PHPUnit\Framework\TestCase;
 
 class SecretsTest extends TestCase
 {
+    public function setUp(): void
+    {
+        if (file_exists(sys_get_temp_dir() . '/bref-ssm-parameters.php')) {
+            unlink(sys_get_temp_dir() . '/bref-ssm-parameters.php');
+        }
+    }
+
     public function test decrypts env variables(): void
     {
         putenv('SOME_VARIABLE=bref-ssm:/some/parameter');
@@ -27,6 +34,18 @@ class SecretsTest extends TestCase
         $this->assertSame('foobar', $_ENV['SOME_VARIABLE']);
         // Check that the other variable was not modified
         $this->assertSame('helloworld', getenv('SOME_OTHER_VARIABLE'));
+    }
+
+    public function test caches parameters to call SSM only once(): void
+    {
+        putenv('SOME_VARIABLE=bref-ssm:/some/parameter');
+
+        // Call twice, the mock will assert that SSM was only called once
+        $ssmClient = $this->mockSsmClient();
+        Secrets::decryptSecretEnvironmentVariables($ssmClient);
+        Secrets::decryptSecretEnvironmentVariables($ssmClient);
+
+        $this->assertSame('foobar', getenv('SOME_VARIABLE'));
     }
 
     public function test throws a clear error message on missing permissions(): void
