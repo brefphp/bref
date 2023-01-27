@@ -151,4 +151,55 @@ class HttpRequestEventTest extends CommonHttpTest
 
         new HttpRequestEvent(null);
     }
+
+    /**
+     * @dataProvider queryStringProvider
+     */
+    public function testQueryStringToArray(string $query, array $expectedOutput)
+    {
+        $reflection = new \ReflectionClass(HttpRequestEvent::class);
+        $method = $reflection->getMethod('queryStringToArray');
+        $method->setAccessible(true);
+        $result = $method->invokeArgs($reflection->newInstanceWithoutConstructor(), [$query]);
+
+        $this->assertEquals($expectedOutput, $result);
+    }
+
+    public function queryStringProvider()
+    {
+        yield ['foo_bar=v1&foo.bar=v2',  [
+            'foo_bar' => 'v1',
+            'foo.bar' => 'v2',
+        ]];
+        yield ['foo_bar=v1&foo.bar=v2&foo.bar_extra=v3&foo_bar3=v4',  [
+            'foo_bar' => 'v1',
+            'foo.bar' => 'v2',
+            'foo.bar_extra' => 'v3',
+            'foo_bar3' => 'v4',
+        ]];
+       yield ['foo_bar.baz=v1',  [
+            'foo_bar.baz' => 'v1',
+        ]];
+        yield ['foo_bar=v1&k[foo.bar]=v2',  [
+            'foo_bar' => 'v1',
+            'k' => ['foo.bar' => 'v2'],
+        ]];
+        yield ['', []];
+        yield ['foo_bar=2',  [
+            'foo_bar' => '2',
+        ]];
+
+        yield ['k.1=v.1&k.2[s.k1]=v.2&k.2[s.k2]=v.3',  [
+            'k.1' => 'v.1',
+            'k.2' => [
+                's.k1' => 'v.2',
+                's.k2' => 'v.3',
+            ]
+        ]];
+        yield ['foo.bar%5B0%5D=v1&foo.bar_extra%5B0%5D=v2&foo.bar.extra%5B0%5D=v3',  [
+            'foo.bar' => ['v1'],
+            'foo.bar_extra' => ['v2'],
+            'foo.bar.extra' => ['v3'],
+        ]];
+    }
 }

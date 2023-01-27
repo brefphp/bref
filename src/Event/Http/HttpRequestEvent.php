@@ -218,8 +218,7 @@ final class HttpRequestEvent implements LambdaEvent
             $queryString = $this->event['rawQueryString'] ?? '';
             // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
-            $queryParameters = $this->queryStringToArray($queryString);
-            return http_build_query($queryParameters);
+            return http_build_query($this->queryStringToArray($queryString));
         }
 
         // It is likely that we do not need to differentiate between API Gateway (Version 1) and ALB. However,
@@ -253,10 +252,10 @@ final class HttpRequestEvent implements LambdaEvent
                 }
             }
 
-            // This will allow parameters like `?my_param[bref][]=first&my_param[bref][]=second` to properly work.
-            // `$decodedQueryParameters` will be an array with parameter names as keys.
-            $decodedQueryParameters = $this->queryStringToArray($queryString);
-            return http_build_query($decodedQueryParameters);
+            // queryStringToArray() will automatically `urldecode` any value that needs decoding. This will allow parameters
+            // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work. `$decodedQueryParameters`
+            // will be an array with parameter names as keys.
+            return http_build_query($this->queryStringToArray($queryString));
         }
 
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
@@ -332,5 +331,81 @@ final class HttpRequestEvent implements LambdaEvent
     public function isFormatV2(): bool
     {
         return $this->payloadVersion === 2.0;
+    }
+
+    /**
+     * When keys within a URL query string contain dots, PHP's parse_str() method
+     * converts them to underscores. This method works around this issue so the
+     * requested query array returns the proper keys with dots.
+     *
+     * This method is heavily inspired from https://github.com/crwlrsoft/url.
+     *
+     * Copyright (c) 2023 Christian Olear
+     *
+     * Permission is hereby granted, free of charge, to any person obtaining
+     *  a copy of this software and associated documentation files (the
+     *  "Software"), to deal in the Software without restriction, including
+     *  without limitation the rights to use, copy, modify, merge, publish,
+     *  distribute, sublicense, and/or sell copies of the Software, and to
+     *  permit persons to whom the Software is furnished to do so, subject
+     *  to the following conditions:
+     *
+     *  The above copyright notice and this permission notice shall be
+     *  included in all copies or substantial portions of the Software.
+     *
+     *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+     *  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+     *  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+     *  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+     *  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+     *  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+     *  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+     *
+     * @param string $query
+     * @return array<string, string>
+     */
+    private function queryStringToArray(string $query): array
+    {
+        parse_str($query, $array);
+        // Matches keys in the query that contain a dot
+        if (!preg_match('/(?:^|&)([^\[=&]*\.)/', $query)) {
+            return $array;
+        }
+
+        // Regex to find keys in query string.
+        $keyRegex = '/(?:^|&)([^=&\[]+)(?:[=&\[]|$)/';
+        $encodedQuery = urldecode($query);
+        preg_match_all($keyRegex, $encodedQuery, $matches);
+        $brokenKeys = $fixedArray = [];
+
+        // Create mapping of broken keys to original proper keys.
+        foreach ($matches[1] as $value) {
+            if (false !== strpos($value, '.')) {
+                $random = bin2hex(random_bytes(10));
+                $brokenKeys[$random] = $value;
+            }
+        }
+
+        if ([] !== $brokenKeys) {
+            $placeholder = array_flip($brokenKeys);
+            $modifiedQuery = preg_replace_callback($keyRegex, function($matches) use ($placeholder) {
+                if (!isset($placeholder[$matches[1]])) {
+                    return $matches[0];
+                }
+                return str_replace($matches[1], $placeholder[$matches[1]], $matches[0]);
+            }, $encodedQuery);
+            parse_str($modifiedQuery, $array);
+        }
+
+        // Recreate the array with the proper keys.
+        foreach ($array as $key => $value) {
+            if (isset($brokenKeys[$key])) {
+                $fixedArray[$brokenKeys[$key]] = $value;
+            } else {
+                $fixedArray[$key] = $value;
+            }
+        }
+
+        return $fixedArray;
     }
 }
