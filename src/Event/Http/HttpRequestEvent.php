@@ -361,14 +361,13 @@ final class HttpRequestEvent implements LambdaEvent
      * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
      * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
      *
-     * @param string $query
      * @return array<string, string>
      */
     private function queryStringToArray(string $query): array
     {
         parse_str($query, $array);
         // Matches keys in the query that contain a dot
-        if (!preg_match('/(?:^|&)([^\[=&]*\.)/', $query)) {
+        if (! preg_match('/(?:^|&)([^\[=&]*\.)/', $query)) {
             return $array;
         }
 
@@ -380,16 +379,16 @@ final class HttpRequestEvent implements LambdaEvent
 
         // Create mapping of broken keys to original proper keys.
         foreach ($matches[1] as $value) {
-            if (false !== strpos($value, '.')) {
+            if (strpos($value, '.') !== false) {
                 $random = bin2hex(random_bytes(10));
                 $brokenKeys[$random] = $value;
             }
         }
 
-        if ([] !== $brokenKeys) {
+        if ($brokenKeys !== []) {
             $placeholder = array_flip($brokenKeys);
-            $modifiedQuery = preg_replace_callback($keyRegex, function($matches) use ($placeholder) {
-                if (!isset($placeholder[$matches[1]])) {
+            $modifiedQuery = preg_replace_callback($keyRegex, function ($matches) use ($placeholder) {
+                if (! isset($placeholder[$matches[1]])) {
                     return $matches[0];
                 }
                 return str_replace($matches[1], $placeholder[$matches[1]], $matches[0]);
