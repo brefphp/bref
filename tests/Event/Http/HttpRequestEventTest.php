@@ -167,6 +167,10 @@ class HttpRequestEventTest extends CommonHttpTest
 
     public function queryStringProvider()
     {
+        yield ['', []];
+        yield ['foo_bar=2',  [
+            'foo_bar' => '2',
+        ]];
         yield ['foo_bar=v1&foo.bar=v2',  [
             'foo_bar' => 'v1',
             'foo.bar' => 'v2',
@@ -184,11 +188,6 @@ class HttpRequestEventTest extends CommonHttpTest
             'foo_bar' => 'v1',
             'k' => ['foo.bar' => 'v2'],
         ]];
-        yield ['', []];
-        yield ['foo_bar=2',  [
-            'foo_bar' => '2',
-        ]];
-
         yield ['k.1=v.1&k.2[s.k1]=v.2&k.2[s.k2]=v.3',  [
             'k.1' => 'v.1',
             'k.2' => [
