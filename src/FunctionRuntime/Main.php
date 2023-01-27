@@ -4,12 +4,15 @@ namespace Bref\FunctionRuntime;
 
 use Bref\Bref;
 use Bref\Runtime\LambdaRuntime;
+use Bref\Secrets\Secrets;
 use Throwable;
 
 class Main
 {
     public static function run(): void
     {
+        Secrets::decryptSecretEnvironmentVariables();
+
         $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('function');
 
         $container = Bref::getContainer();
