@@ -249,8 +249,8 @@ class HttpRequestEventTest extends CommonHttpTest
     {
         return [
             [['foo' => 'bar'], 'foo=bar', 'foo=bar'],
-            [['foo' => 'bar'], 'foo=bar', '   foo=bar  '],
-            [['foo' => 'bar'], '?foo=bar', '?foo=bar'],
+            [['foo' => 'bar  '], 'foo=bar++', '   foo=bar  '],
+            [['?foo' => 'bar'], '%3Ffoo=bar', '?foo=bar'],
             [['#foo' => 'bar'], '%23foo=bar', '#foo=bar'],
             [['foo' => 'bar'], 'foo=bar', '&foo=bar'],
             [['foo' => 'bar', 'bar' => 'foo'], 'foo=bar&bar=foo', 'foo=bar&bar=foo'],
@@ -286,7 +286,7 @@ class HttpRequestEventTest extends CommonHttpTest
                     'arr_1' => 'sid',
                     'arr' => ['4' => 'fred'],
                 ],
-                'arr%5B1=sid&arr%5B4%5D=fred',
+                'arr_1=sid&arr%5B4%5D=fred',
                 'arr[1=sid&arr[4][2=fred',
             ],
             [
@@ -294,7 +294,7 @@ class HttpRequestEventTest extends CommonHttpTest
                     'arr_1' => 'sid',
                     'arr' => ['4' => ['[2' => 'fred']],
                 ],
-                'arr%5B1=sid&arr%5B4%5D%5B%5B2%5D=fred',
+                'arr_1=sid&arr%5B4%5D%5B%5B2%5D=fred',
                 'arr[1=sid&arr[4][[2][3[=fred',
             ],
         ];
