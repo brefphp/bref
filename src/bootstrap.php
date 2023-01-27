@@ -2,6 +2,7 @@
 
 use Bref\FpmRuntime\FpmHandler;
 use Bref\Runtime\LambdaRuntime;
+use Bref\Secrets\Secrets;
 
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
@@ -20,6 +21,8 @@ if (getenv('EXPERIMENTAL_AWS_LAMBDA_EXEC_WRAPPER')) {
 
 /** @noinspection PhpIncludeInspection */
 require_once __DIR__ . '/../../../autoload.php';
+
+Secrets::decryptSecretEnvironmentVariables();
 
 $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('fpm');
 
