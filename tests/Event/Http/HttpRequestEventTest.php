@@ -153,9 +153,9 @@ class HttpRequestEventTest extends CommonHttpTest
     }
 
     /**
-     * @dataProvider queryStringProvider
+     * @dataProvider provide query strings
      */
-    public function testQueryStringToArray(string $query, array $expectedOutput)
+    public function test query string to array(string $query, array $expectedOutput)
     {
         $reflection = new \ReflectionClass(HttpRequestEvent::class);
         $method = $reflection->getMethod('queryStringToArray');
@@ -165,7 +165,7 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertEquals($expectedOutput, $result);
     }
 
-    public function queryStringProvider(): iterable
+    public function provide query strings(): iterable
     {
         yield ['', []];
 
@@ -231,9 +231,9 @@ class HttpRequestEventTest extends CommonHttpTest
     }
 
     /**
-     * @dataProvider provide Querystrings
+     * @dataProvider provide query strings for event
      */
-    public function test querystring will be parsed correctly(array $expected, string $normalizedQs, string $queryString)
+    public function test query string will be parsed correctly(array $expected, string $normalizedQs, string $queryString)
     {
         $event = new HttpRequestEvent([
             'httpMethod' => 'GET',
@@ -245,7 +245,7 @@ class HttpRequestEventTest extends CommonHttpTest
         self::assertSame($normalizedQs, $event->getQueryString());
     }
 
-    public function provide Querystrings()
+    public function provide query strings for event(): array
     {
         return [
             [['foo' => 'bar'], 'foo=bar', 'foo=bar'],

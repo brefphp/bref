@@ -1283,7 +1283,6 @@ Year,Make,Model
         $this->fpm->start();
     }
 
-
     public function test request with encoded data()
     {
         $event = [
