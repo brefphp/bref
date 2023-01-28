@@ -67,8 +67,8 @@ class Secrets
     {
         // Check in cache first
         $cacheFile = sys_get_temp_dir() . '/bref-ssm-parameters.php';
-        if (file_exists($cacheFile)) {
-            $parameters = require $cacheFile;
+        if (is_file($cacheFile)) {
+            $parameters = json_decode(file_get_contents($cacheFile), true);
             if (is_array($parameters)) {
                 return $parameters;
             }
@@ -77,8 +77,8 @@ class Secrets
         // Not in cache yet: we resolve it
         $parameters = $paramResolver();
 
-        // Use var_export() because it is faster than json_encode()
-        file_put_contents($cacheFile, '<?php return ' . var_export($parameters, true) . ';');
+        // Using json_encode instead of var_export due to possible security issues
+        file_put_contents($cacheFile, json_encode($parameters));
 
         return $parameters;
     }
