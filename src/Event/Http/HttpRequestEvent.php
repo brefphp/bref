@@ -263,8 +263,7 @@ final class HttpRequestEvent implements LambdaEvent
             }
 
             // queryStringToArray() will automatically `urldecode` any value that needs decoding. This will allow parameters
-            // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work. `$decodedQueryParameters`
-            // will be an array with parameter names as keys.
+            // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work.
             return http_build_query($this->queryStringToArray($queryString));
         }
 
@@ -348,7 +347,7 @@ final class HttpRequestEvent implements LambdaEvent
      * converts them to underscores. This method works around this issue so the
      * requested query array returns the proper keys with dots.
      *
-     * This method is heavily inspired from https://github.com/crwlrsoft/url.
+     * This method is heavily inspired by https://github.com/crwlrsoft/url.
      *
      * @return array<string, string>
      */
@@ -364,7 +363,7 @@ final class HttpRequestEvent implements LambdaEvent
         $keyRegex = '/(?:^|&)([^=&\[]+)(?:[=&\[]|$)/';
         $encodedQuery = urldecode($query);
         preg_match_all($keyRegex, $encodedQuery, $matches);
-        $brokenKeys = $fixedArray = [];
+        $brokenKeys = [];
 
         // Create mapping of broken keys to original proper keys.
         foreach ($matches[1] as $value) {
@@ -374,26 +373,23 @@ final class HttpRequestEvent implements LambdaEvent
             }
         }
 
-        if ($brokenKeys !== []) {
-            $placeholder = array_flip($brokenKeys);
-            $modifiedQuery = preg_replace_callback($keyRegex, function ($matches) use ($placeholder) {
-                if (! isset($placeholder[$matches[1]])) {
-                    return $matches[0];
-                }
-                return str_replace($matches[1], $placeholder[$matches[1]], $matches[0]);
-            }, $encodedQuery);
-            parse_str($modifiedQuery, $array);
-        }
+        // Modify the $query to be able to parse string again.
+        $placeholder = array_flip($brokenKeys);
+        $modifiedQuery = preg_replace_callback($keyRegex, function ($matches) use ($placeholder) {
+            if (! isset($placeholder[$matches[1]])) {
+                return $matches[0];
+            }
+            return str_replace($matches[1], $placeholder[$matches[1]], $matches[0]);
+        }, $encodedQuery);
+
+        $output = [];
+        parse_str($modifiedQuery, $array);
 
         // Recreate the array with the proper keys.
         foreach ($array as $key => $value) {
-            if (isset($brokenKeys[$key])) {
-                $fixedArray[$brokenKeys[$key]] = $value;
-            } else {
-                $fixedArray[$key] = $value;
-            }
+            $output[$brokenKeys[$key] ?? $key] = $value;
         }
 
-        return $fixedArray;
+        return $output;
     }
 }
