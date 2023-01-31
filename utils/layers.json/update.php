@@ -6,9 +6,9 @@
  * `layers.json` contains the layer versions that Bref should use.
  */
 
-use Aws\Sts\StsClient; # AsyncAWS doesn't support regional endpoints: https://github.com/async-aws/aws/issues/1061
 use AsyncAws\Lambda\LambdaClient;
 use AsyncAws\Lambda\ValueObject\LayerVersionsListItem;
+use Aws\Sts\StsClient; // AsyncAWS doesn't support regional endpoints: https://github.com/async-aws/aws/issues/1061
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
@@ -19,10 +19,12 @@ const LAYER_NAMES = [
     'php-81-fpm',
     'php-80',
     'php-80-fpm',
-    'arm-php-80',
-    'arm-php-80-fpm',
+    'arm-php-82',
+    'arm-php-82-fpm',
     'arm-php-81',
     'arm-php-81-fpm',
+    'arm-php-80',
+    'arm-php-80-fpm',
     'console',
 ];
 
