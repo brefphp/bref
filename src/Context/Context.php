@@ -23,6 +23,19 @@ final class Context implements JsonSerializable
     }
 
     /**
+     * Test helper to create a fake context in one line.
+     */
+    public static function fake(): self
+    {
+        return new self(
+            'fake-aws-request-id',
+            time() + 1000 * 60 * 5, // 5 minutes from now (in milliseconds)
+            'fake-invoked-function-arn',
+            'fake-trace-id'
+        );
+    }
+
+    /**
      * Returns the identifier of the invocation request.
      */
     public function getAwsRequestId(): string
