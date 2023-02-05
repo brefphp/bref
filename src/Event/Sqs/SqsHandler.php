@@ -10,6 +10,16 @@ use Bref\Event\Handler;
  */
 abstract class SqsHandler implements Handler
 {
+    private SqsEventFactoryInterface $eventFactory;
+
+    public function __construct(?SqsEventFactoryInterface $eventFactory = null)
+    {
+        if (! $eventFactory) {
+            $eventFactory = new SqsEventFactory;
+        }
+        $this->eventFactory = $eventFactory;
+    }
+
     /** @var SqsRecord[] */
     private array $failedRecords = [];
 
@@ -21,7 +31,7 @@ abstract class SqsHandler implements Handler
         // Reset the failed records to clear the internal state when using BREF_LOOP_MAX
         $this->failedRecords = [];
 
-        $this->handleSqs(new SqsEvent($event), $context);
+        $this->handleSqs($this->eventFactory->createFromPayload($event), $context);
 
         if (count($this->failedRecords) === 0) {
             return [];

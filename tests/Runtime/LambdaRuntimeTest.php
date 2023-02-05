@@ -12,6 +12,7 @@ use Bref\Event\S3\S3Handler;
 use Bref\Event\Sns\SnsEvent;
 use Bref\Event\Sns\SnsHandler;
 use Bref\Event\Sqs\SqsEvent;
+use Bref\Event\Sqs\SqsEventFactory;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
@@ -231,7 +232,7 @@ ERROR;
 
         $this->runtime->processNextEvent($handler);
 
-        $this->assertEquals(new SqsEvent($eventData), $handler->event);
+        $this->assertEquals((new SqsEventFactory)->createFromPayload($eventData), $handler->event);
     }
 
     public function test SNS event handler()

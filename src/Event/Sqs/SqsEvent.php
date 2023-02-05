@@ -2,9 +2,7 @@
 
 namespace Bref\Event\Sqs;
 
-use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
-use InvalidArgumentException;
 
 /**
  * Represents a Lambda event when Lambda is invoked by SQS.
@@ -12,13 +10,12 @@ use InvalidArgumentException;
 final class SqsEvent implements LambdaEvent
 {
     private array $event;
+    private array $records;
 
-    public function __construct(mixed $event)
+    public function __construct(array $records, mixed $event)
     {
-        if (! is_array($event) || ! isset($event['Records'])) {
-            throw new InvalidLambdaEvent('SQS', $event);
-        }
         $this->event = $event;
+        $this->records = $records;
     }
 
     /**
@@ -26,13 +23,7 @@ final class SqsEvent implements LambdaEvent
      */
     public function getRecords(): array
     {
-        return array_map(function ($record): SqsRecord {
-            try {
-                return new SqsRecord($record);
-            } catch (InvalidArgumentException) {
-                throw new InvalidLambdaEvent('SQS', $this->event);
-            }
-        }, $this->event['Records']);
+        return $this->records;
     }
 
     public function toArray(): array

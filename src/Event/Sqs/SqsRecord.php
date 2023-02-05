@@ -2,23 +2,34 @@
 
 namespace Bref\Event\Sqs;
 
-use InvalidArgumentException;
-
 final class SqsRecord
 {
+    private string $messageId;
+    private string $body;
+    private array $messageAttributes;
+    private int $approximateReceiveCount;
+    private string $receiptHandle;
     private array $record;
 
-    public function __construct(mixed $record)
-    {
-        if (! is_array($record) || ! isset($record['eventSource']) || $record['eventSource'] !== 'aws:sqs') {
-            throw new InvalidArgumentException;
-        }
-        $this->record = $record;
+    public function __construct(
+        string $messageId,
+        string $body,
+        array $messageAttributes,
+        int $approximateReceiveCount,
+        string $receiptHandle,
+        array $rawRecord,
+    ) {
+        $this->messageId = $messageId;
+        $this->body = $body;
+        $this->messageAttributes = $messageAttributes;
+        $this->approximateReceiveCount = $approximateReceiveCount;
+        $this->receiptHandle = $receiptHandle;
+        $this->record = $rawRecord;
     }
 
     public function getMessageId(): string
     {
-        return $this->record['messageId'];
+        return $this->messageId;
     }
 
     /**
@@ -27,7 +38,7 @@ final class SqsRecord
      */
     public function getBody(): string
     {
-        return $this->record['body'];
+        return $this->body;
     }
 
     /**
@@ -35,7 +46,7 @@ final class SqsRecord
      */
     public function getMessageAttributes(): array
     {
-        return $this->record['messageAttributes'];
+        return $this->messageAttributes;
     }
 
     /**
@@ -43,7 +54,7 @@ final class SqsRecord
      */
     public function getApproximateReceiveCount(): int
     {
-        return (int) $this->record['attributes']['ApproximateReceiveCount'];
+        return $this->approximateReceiveCount;
     }
 
     /**
@@ -51,7 +62,7 @@ final class SqsRecord
      */
     public function getReceiptHandle(): string
     {
-        return $this->record['receiptHandle'];
+        return $this->receiptHandle;
     }
 
     /**
