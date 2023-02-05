@@ -75,7 +75,7 @@ functions:
             - httpApi: '*'
 ```
 
-Instead of having a `handler` and a `layer`, we'll declare an
+Instead of having a `handler` and a `runtime`, we'll declare an
 `image`. In the `provider` block, we'll declare Docker images
 that we want to build and deploy.
 

@@ -88,11 +88,10 @@ plugins:
 functions:
     hello:
         handler: my-function.php
-        layers:
-            - ${bref:layer.php-74}
+        runtime: php-81
 ```
 
-The runtime (aka layer) to use is `php-XX`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
+The runtime to use is `php-XX`. To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
 
 ## Invocation
 

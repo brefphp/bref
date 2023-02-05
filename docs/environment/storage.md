@@ -8,7 +8,7 @@ Here is a simplified overview of the filesystem on AWS Lambda:
 
 ```bash
 /opt/
-    # Where Lambda layers (like Bref) are unzipped
+    # Where Lambda runtimes and layers (like Bref) are unzipped
 /var/task/
     # Where your application code is unzipped
 /tmp/

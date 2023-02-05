@@ -16,9 +16,7 @@ AWS Lambda lets us run [console commands](/docs/runtimes/console.md) as cron tas
 functions:
     cron:
         handler: bin/console # or 'artisan' for Laravel
-        layers:
-            - ${bref:layer.php-74} # PHP runtime
-            - ${bref:layer.console} # Console layer
+        runtime: php-81-console
         events:
             - schedule:
                   rate: rate(1 hour)

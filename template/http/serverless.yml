@@ -3,7 +3,6 @@ service: app
 provider:
     name: aws
     region: us-east-1
-    runtime: provided.al2
 
 plugins:
     - ./vendor/bref/bref
@@ -12,9 +11,8 @@ functions:
     api:
         handler: index.php
         description: ''
+        runtime: php-PHP_VERSION-fpm
         timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
-        layers:
-            - ${bref:layer.php-PHP_VERSION-fpm}
         events:
             -   httpApi: '*'
 

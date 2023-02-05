@@ -35,8 +35,7 @@ return function (array $event) {
 functions:
     hello:
         handler: my-function.php
-        layers:
-            - ${bref:layer.php-81}
+        runtime: php-81
 ```
 
 You can invoke it with or without event data:
