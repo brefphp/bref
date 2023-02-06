@@ -21,6 +21,12 @@ class ServerlessPlugin {
             throw new serverless.classes.Error('Bref requires Serverless Framework v3, but an older v2 version is running.\nPlease upgrade to Serverless Framework v3.');
         }
 
+        // Automatically enable faster deployments (unless a value is already set)
+        // https://www.serverless.com/framework/docs/providers/aws/guide/deploying#deployment-method
+        if (! serverless.service.provider.deploymentMethod) {
+            serverless.service.provider.deploymentMethod = 'direct';
+        }
+
         const filename = path.resolve(__dirname, 'layers.json');
         this.layers = JSON.parse(fs.readFileSync(filename).toString());
 
