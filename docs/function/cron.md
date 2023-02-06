@@ -13,8 +13,7 @@ AWS Lambda lets us run [PHP functions](/docs/runtimes/function.md) as cron tasks
 functions:
     console:
         handler: function.php
-        layers:
-            - ${bref:layer.php-74}
+        runtime: php-81
         events:
             - schedule: rate(1 hour)
 ```

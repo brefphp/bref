@@ -34,8 +34,7 @@ plugins:
 functions:
     app:
         handler: index.php
-        layers:
-            - ${bref:layer.php-74-fpm}
+        runtime: php-81-fpm
         events:
             - httpApi: '*'
 ```
@@ -56,13 +55,12 @@ functions:
 
 ## Runtime
 
-For web apps, the runtime (aka layer) to use is the **FPM** runtime (`php-74-fpm`):
+For web apps, the runtime to use is the **FPM** runtime (`php-81-fpm`):
 
 ```yaml
 functions:
     app:
-        layers:
-            - ${bref:layer.php-74-fpm}
+        runtime: php-81-fpm
 ```
 
 To learn more check out [the runtimes documentation](/docs/runtimes/README.md).

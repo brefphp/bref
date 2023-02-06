@@ -119,10 +119,7 @@ extension=pdo_pgsql
 
 ### Extra extensions
 
-Due to space limitations in AWS Lambda, Bref cannot provide every possible extension.
-There are a list of additional PHP extensions that can be installed as a separate
-layer. They are less common extensions or extensions that for some reasons should
-not be in the normal Bref layer.
+Due to space limitations in AWS Lambda, Bref runtimes cannot include every possible PHP extensions. These additional PHP extensions can be included as separate AWS Lambda layers.
 
 All extra PHP extensions are found in [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions).
 
@@ -139,13 +136,13 @@ To create your custom layer, you will need to:
 - compile the extension (and any required libraries) in the same environment as AWS Lambda and Bref
 - include the compiled extension (and required libraries) in a layer
 - upload the layer to AWS Lambda
-- include it in your project **after the Bref layer**
+- include the in your project
 - enable the extension in a custom `php.ini`
 
 To compile the extension, Bref provides the `bref/build-php-*` Docker images. Here is an example with Blackfire:
 
 ```dockerfile
-FROM bref/build-php-74
+FROM bref/build-php-80
 
 RUN curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-74.so"
 

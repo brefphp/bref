@@ -16,27 +16,21 @@ This can be used to run PHP scripts, the [Symfony Console](https://symfony.com/d
 
 ## Configuration
 
-The lambda function used for running console applications must use two Lambda layers:
-
-- the base PHP layer that provides the `php` binary,
-- the `console` layer that overrides the base runtime to execute our console commands.
-
-Below is a minimal `serverless.yml`.
+The lambda function used for running console applications must use the `php-xx-console` runtime. Here is an example `serverless.yml`:
 
 ```yaml
 service: app
 provider:
     name: aws
-    runtime: provided.al2
 plugins:
     - ./vendor/bref/bref
 functions:
     hello:
         handler: bin/console # or 'artisan' for Laravel
-        layers:
-            - ${bref:layer.php-74} # PHP runtime
-            - ${bref:layer.console} # Console layer
+        runtime: php-81-console
 ```
+
+Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-81` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](./README.md)).
 
 ## Usage
 
@@ -46,7 +40,7 @@ To run a console command on AWS Lambda, run `serverless bref:cli` on your comput
 serverless bref:cli --args="<command to run in lambda>"
 ```
 
-The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` layer and will run the command on that function.
+The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` runtime and will run the command on that function.
 
 Pass your command arguments and options in the `--args` flag (shortcut: `-a`). Remember to escape quotes properly. Some examples:
 

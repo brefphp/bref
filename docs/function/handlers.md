@@ -239,14 +239,12 @@ Since a handler is a controller for a specific route, we can use API Gateway's r
 functions:
     create-article:
         handler: create-article-handler.php
-        layers:
-            - ${bref:layer.php-74}
+        runtime: php-81
         events:
             - httpApi: 'POST /articles'
     get-article:
         handler: get-article-handler.php
-        layers:
-            - ${bref:layer.php-74}
+        runtime: php-81
         events:
             - httpApi: 'GET /articles/{id}'
 ```

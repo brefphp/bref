@@ -22,16 +22,24 @@ class ServerlessPlugin {
         }
 
         const filename = path.resolve(__dirname, 'layers.json');
-        const layers = JSON.parse(fs.readFileSync(filename).toString());
+        this.layers = JSON.parse(fs.readFileSync(filename).toString());
+
+        this.runtimes = Object.keys(this.layers)
+            .filter(name => !name.startsWith('arm-'));
+        // Console runtimes must have a PHP version provided
+        this.runtimes = this.runtimes.filter(name => name !== 'console');
+        this.runtimes.push('php-80-console', 'php-81-console', 'php-82-console');
 
         this.checkCompatibleRuntime();
+
+        serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(...this.runtimes);
 
         // Declare `${bref:xxx}` variables
         // See https://www.serverless.com/framework/docs/guides/plugins/custom-variables
         // noinspection JSUnusedGlobalSymbols
         this.configurationVariablesSources = {
             bref: {
-                async resolve({address, resolveConfigurationProperty, options}) {
+                resolve: async ({address, resolveConfigurationProperty, options}) => {
                     // `address` and `params` reflect values configured with a variable: ${bref(param1, param2):address}
 
                     // `options` is CLI options
@@ -44,15 +52,8 @@ class ServerlessPlugin {
                     }
 
                     const layerName = address.substring('layer.'.length);
-                    if (! (layerName in layers)) {
-                        throw new serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
-                    }
-                    if (! (region in layers[layerName])) {
-                        throw new serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
-                    }
-                    const version = layers[layerName][region];
                     return {
-                        value: `arn:aws:lambda:${region}:534081306603:layer:${layerName}:${version}`,
+                        value: this.getLayerArn(layerName, region),
                     }
                 }
             }
@@ -101,6 +102,28 @@ class ServerlessPlugin {
 
         // noinspection JSUnusedGlobalSymbols
         this.hooks = {
+            'initialize': () => {
+                for (const [, f] of Object.entries(this.serverless.service.functions)) {
+                    if (this.runtimes.includes(f.runtime)) {
+                        let layerName = f.runtime;
+                        f.runtime = 'provided.al2';
+                        f.layers = f.layers || []; // make sure it's an array
+
+                        // Automatically use ARM layers if the function is deployed to an ARM architecture
+                        if (f.architecture === 'arm64' || (this.serverless.service.provider.architecture === 'arm64' && !f.architecture)) {
+                            layerName = 'arm-' + layerName;
+                        }
+
+                        if (layerName.endsWith('-console')) {
+                            layerName = layerName.substring(0, layerName.length - '-console'.length);
+                            f.layers.unshift(this.getLayerArn('console', this.provider.getRegion()));
+                            f.layers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
+                        } else {
+                            f.layers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
+                        }
+                    }
+                }
+            },
             // Custom commands
             'bref:cli:run': () => runConsole(this.serverless, options),
             'bref:local:run': () => runLocal(this.serverless, options),
@@ -118,6 +141,17 @@ class ServerlessPlugin {
                 throw new this.serverless.classes.Error(errorMessage);
             }
         }
+    }
+
+    getLayerArn(layerName, region) {
+        if (! (layerName in this.layers)) {
+            throw new this.serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
+        }
+        if (! (region in this.layers[layerName])) {
+            throw new this.serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
+        }
+        const version = this.layers[layerName][region];
+        return `arn:aws:lambda:${region}:534081306603:layer:${layerName}:${version}`;
     }
 }
 
