@@ -16,7 +16,7 @@
     "require": {
         "php": ">=8.0.0",
         "ext-posix": "*",
-        "bref/bref": "^2.0@beta",
+        "bref/bref": "^2.0.0-beta-12",
         "symfony/process": "^4.2|^5.0|^6.0",
         "hollodotme/fast-cgi-client": "^3.0"
     },
