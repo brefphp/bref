@@ -35,8 +35,7 @@ class Psr7BridgeTest extends CommonHttpTest
     protected function fromFixture(string $file): void
     {
         $event = new HttpRequestEvent(json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR));
-        $context = new Context('', 0, '', '');
-        $this->request = Psr7Bridge::convertRequest($event, $context);
+        $this->request = Psr7Bridge::convertRequest($event, Context::fake());
     }
 
     protected function assertBody(string $expected): void

@@ -2,7 +2,7 @@
 
 namespace Bref\Test\Event\Sqs;
 
-use Bref\Context\ContextBuilder;
+use Bref\Context\Context;
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Test\Fixture\SqsFakeHandler;
@@ -47,7 +47,7 @@ class SqsEventTest extends TestCase
     public function test partial failure()
     {
         $event = json_decode(file_get_contents(__DIR__ . '/handler.json'), true);
-        $result = (new SqsFakeHandler)->handle($event, (new ContextBuilder)->buildContext());
+        $result = (new SqsFakeHandler)->handle($event, Context::fake());
 
         self::assertSame($result, [
             'batchItemFailures' => [
