@@ -1,5 +1,6 @@
 <?php declare(strict_types=1);
 
+use Bref\Bref;
 use Bref\FpmRuntime\FpmHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Secrets\Secrets;
@@ -23,6 +24,8 @@ if (getenv('EXPERIMENTAL_AWS_LAMBDA_EXEC_WRAPPER')) {
 require_once __DIR__ . '/../../../autoload.php';
 
 Secrets::decryptSecretEnvironmentVariables();
+
+Bref::triggerHooks('beforeStartup');
 
 $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('fpm');
 
