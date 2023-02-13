@@ -13,6 +13,8 @@ class Main
     {
         Secrets::decryptSecretEnvironmentVariables();
 
+        Bref::triggerHooks('beforeStartup');
+
         $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('function');
 
         $container = Bref::getContainer();

@@ -11,6 +11,10 @@ class Bref
 {
     private static ?Closure $containerProvider = null;
     private static ?ContainerInterface $container = null;
+    private static array $hooks = [
+        'beforeStartup' => [],
+        'beforeInvoke' => [],
+    ];
 
     /**
      * Configure the container that provides Lambda handlers.
@@ -20,6 +24,42 @@ class Bref
     public static function setContainer(Closure $containerProvider): void
     {
         self::$containerProvider = $containerProvider;
+    }
+
+    /**
+     * Register a hook to be executed before the runtime starts.
+     *
+     * Warning: hooks are low-level extension points to be used by framework
+     * integrations. For user code, it is not recommended to use them. Use your
+     * framework's extension points instead.
+     */
+    public static function beforeStartup(Closure $hook): void
+    {
+        self::$hooks['beforeStartup'][] = $hook;
+    }
+
+    /**
+     * Register a hook to be executed before any Lambda invocation.
+     *
+     * Warning: hooks are low-level extension points to be used by framework
+     * integrations. For user code, it is not recommended to use them. Use your
+     * framework's extension points instead.
+     */
+    public static function beforeInvoke(Closure $hook): void
+    {
+        self::$hooks['beforeInvoke'][] = $hook;
+    }
+
+    /**
+     * @param 'beforeStartup'|'beforeInvoke' $hookName
+     *
+     * @internal Used by the Bref runtime
+     */
+    public static function triggerHooks(string $hookName): void
+    {
+        foreach (self::$hooks[$hookName] as $hook) {
+            $hook();
+        }
     }
 
     /**
