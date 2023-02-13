@@ -2,6 +2,7 @@
 
 namespace Bref\ConsoleRuntime;
 
+use Bref\Bref;
 use Bref\Context\Context;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Secrets\Secrets;
@@ -13,6 +14,8 @@ class Main
     public static function run(): void
     {
         Secrets::decryptSecretEnvironmentVariables();
+
+        Bref::triggerHooks('beforeStartup');
 
         $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('console');
 

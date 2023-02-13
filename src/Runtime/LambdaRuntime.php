@@ -2,6 +2,7 @@
 
 namespace Bref\Runtime;
 
+use Bref\Bref;
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
@@ -79,7 +80,7 @@ final class LambdaRuntime
     {
         [$event, $context] = $this->waitNextInvocation();
 
-        $this->hook();
+        Bref::triggerHooks('beforeInvoke');
 
         $this->ping();
 
@@ -302,16 +303,6 @@ final class LambdaRuntime
         if ($this->curlHandleResult !== null) {
             curl_close($this->curlHandleResult);
             $this->curlHandleResult = null;
-        }
-    }
-
-    private function hook(): void
-    {
-        /**
-         * This is completely experimental, do not use
-         */
-        if (isset($_SERVER['BREF_HOOK_BEFORE_INVOKE'])) {
-            system($_SERVER['BREF_HOOK_BEFORE_INVOKE']);
         }
     }
 
