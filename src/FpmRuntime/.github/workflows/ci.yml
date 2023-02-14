@@ -1,0 +1,88 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: ['*']
+    schedule:
+        -   cron: '0 0 * * *'
+
+jobs:
+
+    php-tests:
+        name: Tests - PHP ${{ matrix.php }} ${{ matrix.dependency-version }}
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        strategy:
+            matrix:
+                php: [ '8.1', '8.0' ]
+                dependency-version: [ '' ]
+                platform-reqs: [ '' ]
+                include:
+                    -   php: '8.0'
+                        dependency-version: '--prefer-lowest'
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v2
+            # Node is required by some tests
+            -   uses: actions/setup-node@v1
+                with:
+                    node-version: 12
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php }}
+                    tools: composer:v2
+                    coverage: none
+                    ini-values: expose_php=1
+            -   name: Install dependencies
+                run: 'composer update ${{ matrix.dependency-version }} --no-interaction --prefer-dist --no-progress ${{ matrix.platform-reqs }}'
+            -   name: Execute Unit Tests
+                run: 'vendor/bin/phpunit --testsuite small'
+
+    phpstan:
+        runs-on: ubuntu-latest
+        name: PHPStan
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v2
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.1
+                    tools: composer:v2, cs2pr
+                    coverage: none
+            -   name: Cache Composer dependencies
+                uses: actions/cache@v2
+                with:
+                    path: ~/.composer/cache
+                    key: php-composer-locked-${{ hashFiles('composer.lock') }}
+                    restore-keys: php-composer-locked-
+            -   name: Install dependencies
+                run: composer install --no-interaction --prefer-dist --no-progress
+            -   name: PHPStan
+                run: vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr
+
+    phpcs:
+        runs-on: ubuntu-latest
+        name: PHP CodeSniffer
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v2
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.0
+                    tools: composer:v2, cs2pr
+                    coverage: none
+            -   name: Cache Composer dependencies
+                uses: actions/cache@v2
+                with:
+                    path: ~/.composer/cache
+                    key: php-composer-locked-${{ hashFiles('composer.lock') }}
+                    restore-keys: php-composer-locked-
+            -   name: Install dependencies
+                run: composer install --no-interaction --prefer-dist --no-progress
+            -   name: PHP CS
+                run: vendor/bin/phpcs -q --no-colors --report=checkstyle | cs2pr
