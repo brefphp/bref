@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Bref\FpmRuntime\Test;
+namespace Bref\Test\FpmRuntime;
 
 use Bref\Context\Context;
 use Bref\FpmRuntime\FastCgi\Timeout;
 use Bref\FpmRuntime\FpmHandler;
+use Bref\Test\HttpRequestProxyTest;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 

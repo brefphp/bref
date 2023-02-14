@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\FpmRuntime\Test\Functional;
+namespace Bref\Test\FpmRuntime\Functional;
 
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;

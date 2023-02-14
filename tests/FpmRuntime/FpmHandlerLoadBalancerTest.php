@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Bref\FpmRuntime\Test;
+namespace Bref\Test\FpmRuntime;
 
 use Bref\Context\Context;
 use Bref\FpmRuntime\FpmHandler;
