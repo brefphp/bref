@@ -1108,6 +1108,9 @@ Year,Make,Model
     {
         $cookieHeader = $this->get('cookies.php')['headers']['Set-Cookie'];
 
+        // Dependending on the PHP version the date formatting is slightly different
+        $cookieHeader = str_replace('12 Jan 2018', '12-Jan-2018', $cookieHeader);
+
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
     }
 
@@ -1118,6 +1121,10 @@ Year,Make,Model
             'httpMethod' => 'GET',
             'multiValueHeaders' => [],
         ])['multiValueHeaders']['Set-Cookie'];
+
+        // Dependending on the PHP version the date formatting is slightly different
+        $cookieHeader[0] = str_replace('12 Jan 2018', '12-Jan-2018', $cookieHeader[0]);
+        $cookieHeader[1] = str_replace('12 Jan 2018', '12-Jan-2018', $cookieHeader[1]);
 
         self::assertEquals('MyCookie=FirstValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[0]);
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader[1]);
