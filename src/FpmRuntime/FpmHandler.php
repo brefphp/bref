@@ -29,6 +29,8 @@ use Throwable;
  *     $lambdaResponse = $phpFpm->handle($event);
  *     $phpFpm->stop();
  *     [send the $lambdaResponse];
+ *
+ * @internal
  */
 final class FpmHandler extends HttpHandler
 {

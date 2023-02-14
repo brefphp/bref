@@ -4,6 +4,9 @@ namespace Bref\FpmRuntime\FastCgi;
 
 use hollodotme\FastCGI\Requests\AbstractRequest;
 
+/**
+ * @internal
+ */
 final class FastCgiRequest extends AbstractRequest
 {
     public function __construct(

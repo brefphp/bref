@@ -7,6 +7,9 @@ use Bref\Runtime\LambdaRuntime;
 use Bref\Secrets\Secrets;
 use Throwable;
 
+/**
+ * @internal
+ */
 class Main
 {
     public static function run(): void

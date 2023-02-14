@@ -4,6 +4,8 @@ namespace Bref\FpmRuntime\FastCgi;
 
 /**
  * There was a timeout while processing the PHP request
+ *
+ * @internal
  */
 final class Timeout extends \Exception
 {
