@@ -9,6 +9,9 @@ use Bref\Secrets\Secrets;
 use Exception;
 use Symfony\Component\Process\Process;
 
+/**
+ * @internal
+ */
 class Main
 {
     public static function run(): void

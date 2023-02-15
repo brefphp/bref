@@ -7,4 +7,4 @@ parameters:
   excludePaths:
     - %rootDir%/../../../tests/Sam/Php/*
     - %rootDir%/../../../tests/Sam/PhpFpm/*
-    - %rootDir%/../../../tests/Functional/fpm/*
+    - %rootDir%/../../../tests/FpmRuntime/Functional/fpm/*
