@@ -26,4 +26,56 @@ $app->add(new Local());
 $app->add(new Dashboard());
 $app->add(new Layers());
 
+telemetry();
+
 $app->run();
+
+/**
+ * Bref telemetry to estimate the number of users and which commands are most used.
+ *
+ * The data sent is anonymous, and sent over UDP.
+ * Unlike TCP, UDP does not check that the message correctly arrived to the server.
+ * It doesn't even establish a connection: the data is sent over the network and the code moves on to the next line.
+ * That means that UDP is extremely fast (150 micro-seconds) and will not impact the CLI.
+ * It can be disabled by setting the `SLS_TELEMETRY_DISABLED` environment variable to `1`.
+ *
+ * About UDP: https://en.wikipedia.org/wiki/User_Datagram_Protocol
+ */
+function telemetry() {
+    global $argv;
+    // Respect the serverless framework env variable
+    if ($_SERVER['SLS_TELEMETRY_DISABLED'] ?? false) {
+        return;
+    }
+    // Support cases where the sockets extension is not installed
+    if (! function_exists('socket_create')) {
+        return;
+    }
+
+    // Read `~/.serverlessrc` if it exists
+    $userConfigPath = $_SERVER['HOME'] . '/.serverlessrc';
+    if (file_exists($userConfigPath)) {
+        $userConfig = json_decode(file_get_contents($userConfigPath), true, 512, JSON_THROW_ON_ERROR);
+    } else {
+        $userConfig = [];
+    }
+
+    // Check if we are running in CI
+    $ci = $_SERVER['CI'] || $_SERVER['CONTINUOUS_INTEGRATION'] || $_SERVER['BUILD_NUMBER'] || $_SERVER['CI_APP_ID'] || $_SERVER['CI_NAME'] || $_SERVER['RUN_ID'] || $_SERVER['BUILD_ID'];
+
+    $message = json_encode([
+        'cli' => 'vendor/bin/bref',
+        'v' => 1, // Bref version
+        'c' => $argv[1] ?? '',
+        'ci' => $ci,
+        // anonymous user ID created by the Serverless Framework
+        'uid' => $userConfig['frameworkId'] ?? '',
+    ], JSON_THROW_ON_ERROR);
+
+    $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+    // This IP address is the Bref server.
+    // If this server is down or unreachable, there should be no difference in overhead
+    // or execution time.
+    socket_sendto($sock, $message, strlen($message), 0, '108.128.197.71', 8888);
+    socket_close($sock);
+}

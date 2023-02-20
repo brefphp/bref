@@ -76,7 +76,15 @@ class ServerlessPlugin {
         }
 
         this.hooks = {
-            'initialize': this.addCustomIamRoleForVendorArchiveDownload.bind(this),
+            'initialize': () => {
+                this.addCustomIamRoleForVendorArchiveDownload();
+                try {
+                    this.telemetry();
+                } catch (e) {
+                    // These errors should not stop the execution
+                    this.logVerbose(`Could not send telemetry: ${e}`);
+                }
+            },
 
             // Separate vendor for `sls deploy` command
             'package:setupProviderConfiguration': this.createVendorZip.bind(this),
@@ -338,6 +346,63 @@ class ServerlessPlugin {
             // Serverless v2
             console.warn(`Bref: ${message}`);
         }
+    }
+
+    /**
+     * Bref telemetry to estimate the number of users and which commands are most used.
+     *
+     * The data sent is anonymous, and sent over UDP.
+     * Unlike TCP, UDP does not check that the message correctly arrived to the server.
+     * It doesn't even establish a connection: the data is sent over the network and the code moves on to the next line.
+     * That means that UDP is extremely fast (150 micro-seconds) and will not impact the CLI.
+     * It can be disabled by setting the `SLS_TELEMETRY_DISABLED` environment variable to `1`.
+     *
+     * About UDP: https://en.wikipedia.org/wiki/User_Datagram_Protocol
+     */
+    telemetry() {
+        // Respect the native env variable
+        if (process.env.SLS_TELEMETRY_DISABLED) {
+            return;
+        }
+
+        const userConfig = require(process.mainModule.path + '/../node_modules/@serverless/utils/config');
+        const ci = require(process.mainModule.path + '/../node_modules/ci-info');
+
+        let command = 'unknown';
+        if (this.serverless.processedInput && this.serverless.processedInput.commands) {
+            command = this.serverless.processedInput.commands.join(' ');
+        }
+
+        const payload = {
+            cli: 'sls',
+            v: 1, // Bref version
+            c: command,
+            ci: ci.isCI,
+            install: userConfig.get('meta.created_at'),
+            uid: userConfig.get('frameworkId'), // anonymous user ID created by the Serverless Framework
+        };
+        /** @type {Record<string, any>} */
+        const config = this.serverless.service;
+        const plugins = config.plugins ? config.plugins.modules || config.plugins : [];
+        // Lift construct types
+        if (plugins.includes('serverless-lift') && typeof config.constructs === 'object') {
+            payload.constructs = Object.values(config.constructs)
+                .map((construct) => (typeof construct === 'object' && construct.type) ? construct.type : null)
+                .filter(Boolean);
+        }
+
+        // Send as a UDP packet to 108.128.197.71:8888
+        const dgram = require('dgram');
+        const client = dgram.createSocket('udp4');
+        // This IP address is the Bref server.
+        // If this server is down or unreachable, there should be no difference in overhead
+        // or execution time.
+        client.send(JSON.stringify(payload), 8888, '108.128.197.71', (err) => {
+            if (err) {
+                this.logVerbose(`Could not send telemetry: ${err.message}`);
+            }
+            client.close();
+        });
     }
 }
 
