@@ -88,9 +88,13 @@ Disadvantages:
 
 #### At runtime
 
-Alternatively, Bref can fetch the secret values at runtime when the Lambda function starts (aka the "cold start").
+Alternatively, Bref can fetch the secret values at runtime when the Lambda function starts (aka the "cold start"). To use that feature, we **must install** the `bref/secrets-loader` package:
 
-To do so, the environment variable should contain the path to the SSM parameter prefixed with `bref-ssm:`. We also need to authorize Lambda to retrieve the parameter. For example:
+```
+composer require bref/secrets-loader
+```
+
+To use it, the environment variable should contain the path to the SSM parameter prefixed with `bref-ssm:`. We also need to authorize Lambda to retrieve the parameter. For example:
 
 ```yaml
 provider:
