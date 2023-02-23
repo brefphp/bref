@@ -382,8 +382,8 @@ class ServerlessPlugin {
             uid: userConfig.get('frameworkId'), // anonymous user ID created by the Serverless Framework
         };
         /** @type {Record<string, any>} */
-        const config = this.serverless.service;
-        const plugins = config.plugins ? config.plugins.modules || config.plugins : [];
+        const config = this.serverless.configurationInput;
+        const plugins = this.serverless.service.plugins ? this.serverless.service.plugins.modules || this.serverless.service.plugins : [];
         // Lift construct types
         if (plugins.includes('serverless-lift') && typeof config.constructs === 'object') {
             payload.constructs = Object.values(config.constructs)
