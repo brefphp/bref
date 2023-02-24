@@ -3,7 +3,6 @@ service: bref-demo
 provider:
     name: aws
     region: us-east-2
-    runtime: php-81
     logs:
         restApi: true
     apiGateway:
@@ -23,6 +22,7 @@ package:
 functions:
     function:
         handler: demo/function.php
+        runtime: php-81
         description: 'Bref function demo'
         environment:
             BREF_LOOP_MAX: 100
@@ -38,6 +38,7 @@ functions:
 
     psr7:
         handler: demo/psr7.php
+        runtime: php-81
         description: 'Bref HTTP demo with a PSR-7 handler'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
         events:
