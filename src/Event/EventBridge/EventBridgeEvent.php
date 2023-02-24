@@ -8,8 +8,10 @@ use DateTimeImmutable;
 
 /**
  * Represents a Lambda event when Lambda is invoked by EventBridge.
+ *
+ * @final
  */
-final class EventBridgeEvent implements LambdaEvent
+class EventBridgeEvent implements LambdaEvent
 {
     private array $event;
 

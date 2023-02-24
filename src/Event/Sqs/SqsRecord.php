@@ -4,7 +4,10 @@ namespace Bref\Event\Sqs;
 
 use InvalidArgumentException;
 
-final class SqsRecord
+/**
+ * @final
+ */
+class SqsRecord
 {
     private array $record;
 

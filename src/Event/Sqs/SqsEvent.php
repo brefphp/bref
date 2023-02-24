@@ -8,8 +8,10 @@ use InvalidArgumentException;
 
 /**
  * Represents a Lambda event when Lambda is invoked by SQS.
+ *
+ * @final
  */
-final class SqsEvent implements LambdaEvent
+class SqsEvent implements LambdaEvent
 {
     private array $event;
 

@@ -8,8 +8,10 @@ use InvalidArgumentException;
 
 /**
  * Represents a Lambda event when Lambda is invoked by SNS.
+ *
+ * @final
  */
-final class SnsEvent implements LambdaEvent
+class SnsEvent implements LambdaEvent
 {
     private array $event;
 

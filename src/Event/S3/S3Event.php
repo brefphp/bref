@@ -10,8 +10,10 @@ use InvalidArgumentException;
  * Represents an event when Lambda is invoked by S3.
  *
  * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
+ *
+ * @final
  */
-final class S3Event implements LambdaEvent
+class S3Event implements LambdaEvent
 {
     private array $event;
 

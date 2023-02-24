@@ -8,8 +8,10 @@ use InvalidArgumentException;
 
 /**
  * Represents a Lambda event when Lambda is invoked by DynamoDB Streams.
+ *
+ * @final
  */
-final class DynamoDbEvent implements LambdaEvent
+class DynamoDbEvent implements LambdaEvent
 {
     private array $event;
 

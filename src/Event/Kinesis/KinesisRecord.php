@@ -5,7 +5,10 @@ namespace Bref\Event\Kinesis;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
-final class KinesisRecord
+/**
+ * @final
+ */
+class KinesisRecord
 {
     private array $record;
 
