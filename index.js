@@ -109,26 +109,7 @@ class ServerlessPlugin {
         // noinspection JSUnusedGlobalSymbols
         this.hooks = {
             'initialize': () => {
-                for (const [, f] of Object.entries(this.serverless.service.functions)) {
-                    if (this.runtimes.includes(f.runtime)) {
-                        let layerName = f.runtime;
-                        f.runtime = 'provided.al2';
-                        f.layers = f.layers || []; // make sure it's an array
-
-                        // Automatically use ARM layers if the function is deployed to an ARM architecture
-                        if (f.architecture === 'arm64' || (this.serverless.service.provider.architecture === 'arm64' && !f.architecture)) {
-                            layerName = 'arm-' + layerName;
-                        }
-
-                        if (layerName.endsWith('-console')) {
-                            layerName = layerName.substring(0, layerName.length - '-console'.length);
-                            f.layers.unshift(this.getLayerArn('console', this.provider.getRegion()));
-                            f.layers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
-                        } else {
-                            f.layers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
-                        }
-                    }
-                }
+                this.processPhpRuntimes();
                 try {
                     this.telemetry();
                 } catch (e) {
@@ -141,6 +122,52 @@ class ServerlessPlugin {
             'bref:local:run': () => runLocal(this.serverless, options),
             'bref:layers:show': () => listLayers(this.serverless, utils.log),
         };
+    }
+
+    /**
+     * Process the `php-xx` runtimes to turn them into `provided.al2` runtimes + Bref layers.
+     */
+    processPhpRuntimes() {
+        const includeBrefLayers = (runtime, existingLayers, isArm) => {
+            let layerName = runtime;
+            // Automatically use ARM layers if the function is deployed to an ARM architecture
+            if (isArm) {
+                layerName = 'arm-' + layerName;
+            }
+            if (layerName.endsWith('-console')) {
+                layerName = layerName.substring(0, layerName.length - '-console'.length);
+                existingLayers.unshift(this.getLayerArn('console', this.provider.getRegion()));
+                existingLayers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
+            } else {
+                existingLayers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
+            }
+            return existingLayers;
+        }
+
+        const config = this.serverless.service;
+        const isArmGlobally = config.provider.architecture === 'arm64';
+
+        // Check provider config
+        if (this.runtimes.includes(config.provider.runtime ?? '')) {
+            config.provider.layers = includeBrefLayers(
+                config.provider.runtime,
+                config.provider.layers || [], // make sure it's an array
+                isArmGlobally,
+            );
+            config.provider.runtime = 'provided.al2';
+        }
+
+        // Check functions config
+        for (const [, f] of Object.entries(config.functions)) {
+            if (this.runtimes.includes(f.runtime)) {
+                f.layers = includeBrefLayers(
+                    f.runtime,
+                    f.layers || [], // make sure it's an array
+                    f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
+                );
+                f.runtime = 'provided.al2';
+            }
+        }
     }
 
     checkCompatibleRuntime() {
