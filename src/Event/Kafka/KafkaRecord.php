@@ -4,7 +4,10 @@ namespace Bref\Event\Kafka;
 
 use InvalidArgumentException;
 
-final class KafkaRecord
+/**
+ * @final
+ */
+class KafkaRecord
 {
     private array $record;
 

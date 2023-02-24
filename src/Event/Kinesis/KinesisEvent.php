@@ -6,7 +6,10 @@ use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
 use InvalidArgumentException;
 
-final class KinesisEvent implements LambdaEvent
+/**
+ * @final
+ */
+class KinesisEvent implements LambdaEvent
 {
     private array $event;
 

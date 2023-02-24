@@ -4,7 +4,10 @@ namespace Bref\Event\DynamoDb;
 
 use InvalidArgumentException;
 
-final class DynamoDbRecord
+/**
+ * @final
+ */
+class DynamoDbRecord
 {
     private array $record;
 

@@ -9,8 +9,10 @@ use InvalidArgumentException;
  * Represents a SNS message record.
  *
  * For more information about each field, see https://docs.aws.amazon.com/sns/latest/api/API_Publish.html
+ *
+ * @final
  */
-final class SnsRecord
+class SnsRecord
 {
     private array $record;
 
