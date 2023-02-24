@@ -110,7 +110,10 @@ function telemetry(): void
     }
 
     // Check if we are running in CI
-    $ci = $_SERVER['CI'] || $_SERVER['CONTINUOUS_INTEGRATION'] || $_SERVER['BUILD_NUMBER'] || $_SERVER['CI_APP_ID'] || $_SERVER['CI_NAME'] || $_SERVER['RUN_ID'] || $_SERVER['BUILD_ID'];
+    $ciVars = ['CI', 'CONTINUOUS_INTEGRATION', 'BUILD_NUMBER', 'CI_APP_ID', 'CI_NAME', 'RUN_ID', 'BUILD_ID'];
+    $ci = array_reduce($ciVars, function ($carry, $item) {
+        return $carry || (isset($_SERVER[$item]) && $_SERVER[$item]);
+    }, false);
 
     $message = json_encode([
         'cli' => 'vendor/bin/bref',

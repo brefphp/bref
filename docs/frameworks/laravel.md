@@ -164,26 +164,7 @@ constructs:
       '/favicon.ico': public/favicon.ico
       '/robots.txt': public/robots.txt
       # add here any file or directory that needs to be served from S3
-    # Laravel uses some headers that are not in CloudFront's default whitelist.
-    # To add any, we need to list all accepted headers to pass through.
-    # https://github.com/getlift/lift/blob/master/docs/server-side-website.md#forwarded-headers
-    forwardedHeaders:
-      - Accept
-      - Accept-Language
-      - Content-Type
-      - Origin
-      - Referer
-      - User-Agent
-      - X-Forwarded-Host
-      - X-Requested-With
-      # Laravel Framework Headers
-      - X-Csrf-Token
-      # Other Headers (e.g. Livewire, Laravel Nova), uncomment based on your needs
-      # - X-Livewire
-      # - X-Inertia
 ```
-
-> Note: the limit of forwardedHeaders for AWS is set to 10 
 
 Before deploying, compile your assets using Laravel Mix.
 
