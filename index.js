@@ -114,7 +114,6 @@ class ServerlessPlugin {
                     this.telemetry();
                 } catch (e) {
                     // These errors should not stop the execution
-                    this.logVerbose(`Could not send telemetry: ${e}`);
                 }
             },
             // Custom commands
@@ -244,9 +243,13 @@ class ServerlessPlugin {
         // or execution time.
         client.send(JSON.stringify(payload), 8888, '108.128.197.71', (err) => {
             if (err) {
-                this.logVerbose(`Could not send telemetry: ${err.message}`);
+                // These errors should not stop the execution
             }
-            client.close();
+            try {
+                client.close();
+            } catch (e) {
+                // These errors should not stop the execution
+            }
         });
     }
 }
