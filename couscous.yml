@@ -91,6 +91,9 @@ menu:
                 deploy:
                     text: Deployment
                     url: /docs/deploy.html
+                monitoring:
+                    text: Monitoring
+                    url: /docs/monitoring.html
         -   section: Environment
             items:
                 serverless-yml:
