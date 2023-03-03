@@ -43,7 +43,7 @@ The connexion between the PHP extension and the daemon needs to be secured. This
 
 The sections below describe how to set up the daemon and PHP extension manually.
 
-Alernatively, you can have a look at a complete and deployable example: [github.com/tideways/bref-example](https://github.com/tideways/bref-example). In this example, we deploy the PHP application, the VPC and the daemon in one command via `serverless.yml`.
+Alernatively, you can have a look at a complete and deployable example: [github.com/tideways/bref-tideways-example](https://github.com/tideways/bref-tideways-example). In this example, we deploy the PHP application, the VPC and the daemon in one command via `serverless.yml`.
 
 ### Setting up the daemon
 
