@@ -4,6 +4,7 @@ namespace Bref\Event\Http;
 
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
+use Crwlr\QueryString\Query;
 
 use function str_starts_with;
 
@@ -337,49 +338,11 @@ final class HttpRequestEvent implements LambdaEvent
      * converts them to underscores. This method works around this issue so the
      * requested query array returns the proper keys with dots.
      *
-     * This method is heavily inspired by https://github.com/crwlrsoft/url.
-     *
      * @return array<string, string>
      */
     private function queryStringToArray(string $query): array
     {
-        parse_str($query, $array);
-        // Matches keys in the query that contain a dot
-        if (! preg_match('/(?:^|&)([^\[=&]*\.)/', $query)) {
-            return $array;
-        }
-
-        // Regex to find keys in query string.
-        $keyRegex = '/(?:^|&)([^=&\[]+)(?:[=&\[]|$)/';
-        $encodedQuery = urldecode($query);
-        preg_match_all($keyRegex, $encodedQuery, $matches);
-        $brokenKeys = [];
-
-        // Create mapping of broken keys to original proper keys.
-        foreach ($matches[1] as $value) {
-            if (strpos($value, '.') !== false) {
-                $random = bin2hex(random_bytes(10));
-                $brokenKeys[$random] = $value;
-            }
-        }
-
-        // Modify the $query to be able to parse string again.
-        $placeholder = array_flip($brokenKeys);
-        $modifiedQuery = preg_replace_callback($keyRegex, function ($matches) use ($placeholder) {
-            if (! isset($placeholder[$matches[1]])) {
-                return $matches[0];
-            }
-            return str_replace($matches[1], $placeholder[$matches[1]], $matches[0]);
-        }, $encodedQuery);
-
-        $output = [];
-        parse_str($modifiedQuery, $array);
-
-        // Recreate the array with the proper keys.
-        foreach ($array as $key => $value) {
-            $output[$brokenKeys[$key] ?? $key] = $value;
-        }
-
-        return $output;
+        $queryString = Query::fromString($query);
+        return $queryString->toArray();
     }
 }
