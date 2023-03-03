@@ -342,7 +342,6 @@ final class HttpRequestEvent implements LambdaEvent
      */
     private function queryStringToArray(string $query): array
     {
-        $queryString = Query::fromString($query);
-        return $queryString->toArray();
+        return Query::fromString($query)->toArray();
     }
 }

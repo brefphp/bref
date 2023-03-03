@@ -59,7 +59,7 @@
         "static-analysis": [
             "vendor/bin/phpstan analyse"
         ],
-        "unit-tests": [
+        "tests": [
             "vendor/bin/phpunit --testsuite small"
         ]
     },
