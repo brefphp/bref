@@ -3,8 +3,8 @@
 namespace Bref\FpmRuntime;
 
 use Bref\Bref;
+use Bref\LazySecretsLoader;
 use Bref\Runtime\LambdaRuntime;
-use Bref\Secrets\Secrets;
 use Throwable;
 
 /**
@@ -18,7 +18,7 @@ class Main
         ini_set('display_errors', '1');
         error_reporting(E_ALL);
 
-        Secrets::decryptSecretEnvironmentVariables();
+        LazySecretsLoader::loadSecretEnvironmentVariables();
 
         Bref::triggerHooks('beforeStartup');
 

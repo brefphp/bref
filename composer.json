@@ -29,13 +29,13 @@
         "riverline/multipart-parser": "^2.0.6",
         "psr/http-server-handler": "^1.0",
         "nyholm/psr7": "^1.2",
-        "psr/container": "^1.0|^2.0",
-        "async-aws/ssm": "^1.3"
+        "psr/container": "^1.0|^2.0"
     },
     "require-dev": {
         "aws/aws-sdk-php": "^3.172",
         "async-aws/core": "^1.0",
         "async-aws/lambda": "^1.0",
+        "bref/secrets-loader": "^1.0",
         "phpunit/phpunit": "^9.0",
         "dms/phpunit-arraysubset-asserts": "^0.2.0",
         "doctrine/coding-standard": "^8.0",

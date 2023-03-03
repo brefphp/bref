@@ -3,6 +3,7 @@
 const {listLayers} = require('./plugin/layers');
 const {runConsole} = require('./plugin/run-console');
 const {runLocal} = require('./plugin/local');
+const {warnIfUsingSecretsWithoutTheBrefDependency} = require('./plugin/secrets');
 const fs = require('fs');
 const path = require('path');
 
@@ -20,6 +21,7 @@ class ServerlessPlugin {
         if (!utils) {
             throw new serverless.classes.Error('Bref requires Serverless Framework v3, but an older v2 version is running.\nPlease upgrade to Serverless Framework v3.');
         }
+        this.utils = utils;
 
         // Automatically enable faster deployments (unless a value is already set)
         // https://www.serverless.com/framework/docs/providers/aws/guide/deploying#deployment-method
@@ -110,6 +112,7 @@ class ServerlessPlugin {
         this.hooks = {
             'initialize': () => {
                 this.processPhpRuntimes();
+                warnIfUsingSecretsWithoutTheBrefDependency(this.serverless, utils.log);
                 try {
                     this.telemetry();
                 } catch (e) {
