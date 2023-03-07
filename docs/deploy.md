@@ -15,7 +15,7 @@ serverless deploy
 
 > A `.serverless/` directory will be created. You can add it to `.gitignore`.
 >
-> Want to get an overview of your deployed application? Check out the [Bref Dashboard](https://dashboard.bref.sh/).
+> Want to get an overview of your deployed application? Check out the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref).
 
 ## Deploying for production
 
