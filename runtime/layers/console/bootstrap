@@ -58,7 +58,11 @@ while (true) {
 
         $timeout = max(1, $context->getRemainingTimeInMillis() / 1000 - 1);
         $command = sprintf('/opt/bin/php %s %s 2>&1', $handlerFile, $cliOptions);
-        $process = Process::fromShellCommandline($command, null, ['LAMBDA_INVOCATION_CONTEXT' => json_encode($context)], null, $timeout);
+        if (\method_exists(Process::class, 'fromShellCommandline')) {
+            $process = Process::fromShellCommandline($command, null, ['LAMBDA_INVOCATION_CONTEXT' => json_encode($context)], null, $timeout);
+        } else {
+            $process = new Process($command, null, ['LAMBDA_INVOCATION_CONTEXT' => json_encode($context)], null, $timeout);
+        }
 
         $process->run(function ($type, $buffer) {
             echo $buffer;
