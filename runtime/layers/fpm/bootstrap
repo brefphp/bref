@@ -34,7 +34,11 @@ if (getenv('BREF_DOWNLOAD_VENDOR')) {
     require getenv('BREF_AUTOLOAD_PATH');
 } else {
     /** @noinspection PhpIncludeInspection */
-    require $appRoot . '/vendor/autoload.php';
+    try {
+        require $appRoot . '/vendor/autoload.php';
+    } catch (\Throwable $e) {
+        echo "check documentation https://bref.sh/docs/environment/php.html#custom-vendor-path\n";
+    }
 }
 
 $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('fpm');
