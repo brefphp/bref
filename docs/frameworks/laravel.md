@@ -262,7 +262,7 @@ First install the Lift plugin:
 serverless plugin install -n serverless-lift
 ```
 
-Then use [the Queue construct](https://github.com/getlift/lift/blob/master/docs/queue.md) in `serverless.yml`:
+Then use <a href="https://github.com/getlift/lift/blob/master/docs/queue.md">the Queue construct</a> in `serverless.yml`:
 
 ```yml
 provider:
@@ -281,6 +281,7 @@ constructs:
         worker:
             handler: Bref\LaravelBridge\Queue\QueueHandler
             runtime: php-81
+            timeout: 60 # seconds
 ```
 
 We define Laravel environment variables in `provider.environment` (this could also be done in the deployed `.env` file):
