@@ -31,10 +31,8 @@ By default, the Laravel-Bref package will automatically configure Laravel to wor
 If you are curious, the package will automatically:
 
 - enable the `stderr` log driver, to send logs to CloudWatch ([read more about logs](../environment/logs.md))
-- enable the [`cookie` session driver](https://laravel.com/docs/session#configuration)
-    - if you don't need sessions (e.g. for an API), you can manually set `SESSION_DRIVER=array` in `.env`
-    - if you prefer, you can configure sessions to be stored in database or Redis
-- move the cache directory to `/tmp` (because the default storage directory is read-only on Lambda)
+- enable the [`cookie` session driver](https://laravel.com/docs/session#configuration) (if you prefer, you can configure sessions to be stored in database, DynamoDB or Redis)
+- move the storage directory to `/tmp` (because the default storage directory is read-only on Lambda)
 - adjust a few more settings ([have a look at the `BrefServiceProvider` for details](https://github.com/brefphp/laravel-bridge/blob/master/src/BrefServiceProvider.php))
 
 ## Deployment
