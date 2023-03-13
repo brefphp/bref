@@ -67,38 +67,6 @@ Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
 
-## Caching
-
-By default, the Bref bridge will move Laravel's storage and cache directories to `/tmp`. This is because all the filesystem except `/tmp` is read-only.
-
-Note that the `/tmp` directory isn't shared across Lambda instances. If you Lambda function scales up, the cache will be empty in new instances (or after a deployment).
-
-If you want the cache to be shared across all Lambda instances, for example if your application caches a lot of data or if you use it for locking mechanisms (like API rate limiting), you can instead use Redis or DynamoDB.
-
-DynamoDB is the easiest to set up and is "pay per use". Redis is a bit more complex as it requires a VPC and managing instances, but offers slightly faster response times.
-
-### Using DynamoDB
-
-To use DynamoDB as a cache store, change this configuration in `config/cache.php`:
-
-```diff
-    # config/cache.php
-    'dynamodb' => [
-        'driver' => 'dynamodb',
-        'key' => env('AWS_ACCESS_KEY_ID'),
-        'secret' => env('AWS_SECRET_ACCESS_KEY'),
-        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
-        'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
-        'endpoint' => env('DYNAMODB_ENDPOINT'),
-+       'attributes' => [
-+           'key' => 'id',
-+           'expiration' => 'ttl',
-+       ]
-    ],
-```
-
-Then follow [this section of the documentation](/docs/environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework.
-
 ## Laravel Artisan
 
 As you may have noticed, we define a function named "artisan" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md), which lets us run Laravel Artisan on AWS Lambda.
@@ -333,6 +301,38 @@ When integrated with AWS Lambda, SQS has a built-in retry mechanism and storage 
 Instead, "Bref for Laravel" makes all the feature of Laravel Queues work out of the box, just like on any server. Read more in [the Laravel Queues documentation](https://laravel.com/docs/latest/queues).
 
 > **Note:** the "Bref-Laravel bridge" v1 used to do the opposite. We changed that behavior in Bref v2 in order to make the experience smoother for Laravel users.
+
+## Caching
+
+By default, the Bref bridge will move Laravel's storage and cache directories to `/tmp`. This is because all the filesystem except `/tmp` is read-only.
+
+Note that the `/tmp` directory isn't shared across Lambda instances. If you Lambda function scales up, the cache will be empty in new instances (or after a deployment).
+
+If you want the cache to be shared across all Lambda instances, for example if your application caches a lot of data or if you use it for locking mechanisms (like API rate limiting), you can instead use Redis or DynamoDB.
+
+DynamoDB is the easiest to set up and is "pay per use". Redis is a bit more complex as it requires a VPC and managing instances, but offers slightly faster response times.
+
+### Using DynamoDB
+
+To use DynamoDB as a cache store, change this configuration in `config/cache.php`:
+
+```diff
+    # config/cache.php
+    'dynamodb' => [
+        'driver' => 'dynamodb',
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
+        'endpoint' => env('DYNAMODB_ENDPOINT'),
++       'attributes' => [
++           'key' => 'id',
++           'expiration' => 'ttl',
++       ]
+    ],
+```
+
+Then follow [this section of the documentation](/docs/environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework.
 
 ## Maintenance mode
 
