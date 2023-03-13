@@ -7,8 +7,10 @@ use InvalidArgumentException;
 
 /**
  * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
+ *
+ * @final
  */
-final class S3Record
+class S3Record
 {
     private array $record;
 

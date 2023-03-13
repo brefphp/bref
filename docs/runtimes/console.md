@@ -94,6 +94,12 @@ aws lambda invoke \
     response.json && jq -r .output response.json
 ```
 
+The [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) also provides a convenient way to run commands via a terminal:
+
+[![Bref Dashboard terminal for Laravel](./dashboard-terminal.png)](https://dashboard.bref.sh/?ref=bref)
+
+Functions using the "console" runtime are automatically detected, and colors are enabled by default for Laravel Artisan and Symfony Console.
+
 ## Lambda context
 
 Lambda provides information about the invocation, function, and execution environment via the *lambda context*.

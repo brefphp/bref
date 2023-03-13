@@ -3,8 +3,8 @@
 namespace Bref\FunctionRuntime;
 
 use Bref\Bref;
+use Bref\LazySecretsLoader;
 use Bref\Runtime\LambdaRuntime;
-use Bref\Secrets\Secrets;
 use Throwable;
 
 /**
@@ -14,7 +14,7 @@ class Main
 {
     public static function run(): void
     {
-        Secrets::decryptSecretEnvironmentVariables();
+        LazySecretsLoader::loadSecretEnvironmentVariables();
 
         Bref::triggerHooks('beforeStartup');
 

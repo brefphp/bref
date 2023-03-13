@@ -91,6 +91,9 @@ menu:
                 deploy:
                     text: Deployment
                     url: /docs/deploy.html
+                monitoring:
+                    text: Monitoring
+                    url: /docs/monitoring.html
         -   section: Environment
             items:
                 serverless-yml:
@@ -149,6 +152,10 @@ menu:
                     text: Twitter
                     url: https://twitter.com/brefphp
                     title: Bref on Twitter
+                slack:
+                    text: Slack
+                    url: https://join.slack.com/t/brefworkspace/shared_invite/enQtNTcwMjU2NTcxNjAxLTIxYmM2MmRjMDkzYjdjYTNkMmE5NGI3YTcyZjc2ZGRjNTFmNjFmYzk5NWQ1YmVhMDkwNzExNzhjZThkZWM0ODE
+                    title: Join the Slack community
                 dashboard:
                     text: Bref Dashboard
                     url: https://dashboard.bref.sh/?ref=bref

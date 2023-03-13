@@ -7,8 +7,10 @@ use Bref\Event\LambdaEvent;
 
 /**
  * Represents a Lambda event when Lambda is invoked by ApiGateway websocket route.
+ *
+ * @final
  */
-final class WebsocketEvent implements LambdaEvent
+class WebsocketEvent implements LambdaEvent
 {
     private array $event;
     private string $routeKey;

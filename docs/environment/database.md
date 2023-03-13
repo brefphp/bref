@@ -70,7 +70,7 @@ Tips to better control costs:
 
 ## Accessing the database from PHP
 
-To retrieve the information needed to let AWS Lambda access the database go into [the RDS dashboard](https://console.aws.amazon.com/rds/home#databases:) (or the [Bref Dashboard](https://dashboard.bref.sh/)) and open the database you created.
+To retrieve the information needed to let AWS Lambda access the database go into [the RDS dashboard](https://console.aws.amazon.com/rds/home#databases:) (or the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref)) and open the database you created.
 
 > It may take some minutes for the database to be created.
 

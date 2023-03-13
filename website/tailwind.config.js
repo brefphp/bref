@@ -5,6 +5,7 @@ module.exports = {
         './template/**/*.twig',
         './template/**/*.css',
         './template/**/*.js',
+        '../docs/**/*.md',
     ],
     theme: {
         fontFamily: {
