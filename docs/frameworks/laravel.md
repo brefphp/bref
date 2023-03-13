@@ -302,6 +302,26 @@ Instead, "Bref for Laravel" makes all the feature of Laravel Queues work out of 
 
 > **Note:** the "Bref-Laravel bridge" v1 used to do the opposite. We changed that behavior in Bref v2 in order to make the experience smoother for Laravel users.
 
+## Octane
+
+To run the HTTP application with [Laravel Octane](https://laravel.com/docs/10.x/octane) instead of PHP-FPM, change the following options in the `web` function:
+
+```yml
+functions:
+    web:
+        handler: Bref\LaravelBridge\Http\OctaneHandler
+        runtime: php-81
+        environment:
+            BREF_LOOP_MAX: 250
+        # ...
+```
+
+Keep the following details in mind:
+
+- Laravel Octane does not need Swoole or RoadRunner on AWS Lambda, so it is not possible to use Swoole-specific features.
+- Octane keeps Laravel booted in a long-running process, [beware of memory leaks](https://laravel.com/docs/10.x/octane#managing-memory-leaks).
+- `BREF_LOOP_MAX` specifies the number of HTTP requests handled before the PHP process is restarted (and the memory is cleared).
+
 ## Caching
 
 By default, the Bref bridge will move Laravel's storage and cache directories to `/tmp`. This is because all the filesystem except `/tmp` is read-only.
