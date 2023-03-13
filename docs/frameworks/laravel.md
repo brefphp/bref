@@ -43,6 +43,8 @@ We do not want to deploy "dev" caches that were generated on our machine (becaus
 php artisan config:clear
 ```
 
+When running in AWS Lambda, the Laravel application will automatically cache its configuration when booting. You don't need to run `php artisan config:cache` before deploying.
+
 Let's deploy now:
 
 ```bash
@@ -64,21 +66,6 @@ Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more
 ## Troubleshooting
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
-
-## Trusted proxies
-
-Because Laravel is executed through API Gateway, the `Host` header is set to the API Gateway host name. Helper functions such as `redirect()` will use this incorrect domain name. The correct domain name is set on the `X-Forwarded-Host` header.
-
-To get Laravel to use `X-Forwarded-Host` instead, edit the `App\Http\Middleware\TrustProxies` middleware and set `$proxies` to the `*` wildcard:
-
-```php
-class TrustProxies extends Middleware
-{
-    // ...
-    protected $proxies = '*';
-```
-
-Read more [in the official Laravel documentation](https://laravel.com/docs/8.x/requests#configuring-trusted-proxies).
 
 ## Caching
 
