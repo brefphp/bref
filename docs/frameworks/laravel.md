@@ -291,9 +291,13 @@ We define Laravel environment variables in `provider.environment` (this could al
 
 If you want to create the SQS queue manually, you will need to set these variables. AWS credentials (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) are automatically set up with the appropriate permissions for Laravel to use the SQS queue.
 
-> **Note**: in the example above, we set the full SQS queue URL in the `SQS_QUEUE` variable. If you set only the queue name (which is also valid), you will need to set the `SQS_PREFIX` environment variable too.
-
 That's it! Anytime a job is pushed to Laravel Queues, it will be sent to SQS, and SQS will invoke our "worker" function so that it is processed.
+
+> **Note**:
+> 
+> In the example above, we set the full SQS queue URL in the `SQS_QUEUE` variable.
+> 
+If you only set the queue name (which is also valid), you need to set the `SQS_PREFIX` environment variable too. For example: `SQS_PREFIX: "https://sqs.${aws:region}.amazonaws.com/${aws:accountId}"`.
 
 ### How it works
 
