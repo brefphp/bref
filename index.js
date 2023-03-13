@@ -160,8 +160,22 @@ class ServerlessPlugin {
         }
 
         // Check functions config
-        for (const [, f] of Object.entries(config.functions)) {
+        for (const f of Object.values(config.functions ?? {})) {
             if (this.runtimes.includes(f.runtime)) {
+                f.layers = includeBrefLayers(
+                    f.runtime,
+                    f.layers || [], // make sure it's an array
+                    f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
+                );
+                f.runtime = 'provided.al2';
+            }
+        }
+
+        // Check Lift constructs config
+        for (const construct of Object.values(this.serverless.configurationInput.constructs ?? {})) {
+            if (construct.type !== 'queue' && construct.type !== 'webhook') continue;
+            const f = construct.type === 'queue' ? construct.worker : construct.authorizer;
+            if (f && this.runtimes.includes(f.runtime)) {
                 f.layers = includeBrefLayers(
                     f.runtime,
                     f.layers || [], // make sure it's an array
