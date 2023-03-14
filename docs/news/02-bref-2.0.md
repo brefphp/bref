@@ -108,7 +108,7 @@ The Bref documentation has been updated to reflect these changes.
 
 Bref provides the [Laravel bridge](https://github.com/brefphp/laravel-bridge) to easily deploy Laravel applications to AWS Lambda.
 
-However, that bridge was lagging behind and was limited on some features. The community ([CacheWerk](https://cachewerk.com/), [Till Kruss](https://github.com/tillkruss), and [George Boot](https://github.com/georgeboot)) maintained a better alternative at [cachewerk/bref-laravel-bridge](https://github.com/cachewerk/bref-laravel-bridge).
+However, that bridge was lagging behind and was limited in some features. The community ([CacheWerk](https://cachewerk.com/), [Till Kruss](https://github.com/tillkruss), and [George Boot](https://github.com/georgeboot)) maintained a better alternative at [cachewerk/bref-laravel-bridge](https://github.com/cachewerk/bref-laravel-bridge).
 
 With Bref 2.0, we are joining forces and their bridge will become the new Bref Laravel bridge ([#94](https://github.com/brefphp/laravel-bridge/pull/94))!
 
