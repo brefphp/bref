@@ -388,6 +388,10 @@ Head to the docs to [**get started with Bref**](../), or check out the documenta
 
 You can also join the community [in Slack](/docs/community.md), post details about your project in [Built with Bref](https://github.com/brefphp/bref/issues/267), or share your experience online and mention [@brefphp](https://twitter.com/brefphp) on Twitter.
 
+If you enjoy teasers, here is a preview of a redesign coming soon to Bref:
+
+<div class="flex justify-center"><img src="./02/logo.png" class="h-48"></div>
+
 ## One more thing
 
 I launched the [**Bref Dashboard**](https://dashboard.bref.sh/) ✨ in January. It helps you monitor and debug Bref applications:
