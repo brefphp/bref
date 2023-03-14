@@ -152,7 +152,7 @@ functions:
 
 The `architecture: arm64` field can also be set [in each function individually](https://www.serverless.com/framework/docs/providers/aws/guide/functions#instruction-set-architecture).
 
-**Warning:** the example above uses the new `runtime: php-xx` syntax introduced above. If you set `layers` instead, you will need to update them to reference ARM layers:
+**Warning:** the example above uses the new `runtime: php-xx` syntax introduced above. If you set `layers` instead, you will need to set `architecture: arm64` **and** update layers to reference ARM layers:
 
 ```yaml
 provider:
