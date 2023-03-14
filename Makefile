@@ -33,7 +33,7 @@ publish-docker-images: docker-images
 	  "bref/build-php-82" \
 	  "bref/fpm-dev-gateway"; \
 	do \
-		docker image tag $$image:latest $$image:${DOCKER_TAG} ; \
+		docker image tag $$image:1 $$image:${DOCKER_TAG} ; \
 		docker image push --all-tags $$image ; \
 	done
 
