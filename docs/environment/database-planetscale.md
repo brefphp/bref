@@ -45,3 +45,36 @@ var_dump($pdo->query('SELECT * FROM test')->fetchAll());
 ```
 
 Note the `PDO::MYSQL_ATTR_SSL_CA` flag: while we connect via a username and password, [the connection happens over SSL](https://planetscale.com/docs/concepts/secure-connections) to prevent man-in-the-middle attacks. To avoid hardcoding the location of the file containing SSL certificates, we retrieve its path via `openssl_get_cert_locations()['default_cert_file']`.
+
+Alternatively, we can hardcode the location of the certificate file: `/opt/bref/ssl/cert.pem`.
+
+## Laravel
+
+To configure Laravel to use the PlanetScale database, we need to set it up via environment variables.
+
+If you deploy a `.env` file, set up the following variables:
+
+```bash
+DB_CONNECTION=mysql
+DB_HOST=<host url>
+DB_PORT=3306
+DB_DATABASE=<database name>
+DB_USERNAME=<user>
+DB_PASSWORD=<password>
+MYSQL_ATTR_SSL_CA=/opt/bref/ssl/cert.pem
+```
+
+If you don't deploy `.env`, you can configure these variables in `serverless.yml`:
+
+```yaml
+provider:
+    # ...
+    environment:
+        DB_HOST: <host url>
+        DB_DATABASE: <database name>
+        DB_USERNAME: <user>
+        DB_PASSWORD: ${ssm:/my-app/database-password}
+        MYSQL_ATTR_SSL_CA: /opt/bref/ssl/cert.pem
+```
+
+Note that the `DB_PASSWORD` value is sensitive and can be set up as a secret via SSM. Read about [Secret variables](./variables.md#secrets) to learn more.
