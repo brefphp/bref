@@ -219,7 +219,7 @@ Here are the commands that have changed:
 
 These changes allowed us to simplify the commands (automatically use the AWS region, credentials and stage from the `serverless` CLI). It also allowed us to remove the biggest `bref/bref` Composer dependencies and make the package much lighter.
 
-## Automatically load secrets at runtime
+## Automatically load secrets in Lambda
 
 Bref v1 lets you inject secrets (API keys, DB passwords, etc.) stored in SSM into environment variables **at deployment time**:
 
@@ -230,12 +230,12 @@ provider:
         GITHUB_TOKEN: ${ssm:/my-app/github-token}
 ```
 
-This solution relies on `serverless.yml` variables ([`${ssm:xxx}`](https://www.serverless.com/framework/docs/providers/aws/guide/variables#reference-variables-using-the-ssm-parameter-store)) and works well, however the drawbacks are:
+This relies on `serverless.yml` variables ([`${ssm:xxx}`](https://www.serverless.com/framework/docs/providers/aws/guide/variables#reference-variables-using-the-ssm-parameter-store)) and works well, however the drawbacks are:
 
 - The secret value is retrieved on `serverless deploy` and set in plain text in the environment variable.
 - The user that runs `serverless deploy` must have permissions to retrieve the secret value.
 
-In Bref v2, you can have these secrets injected **at runtime** via a new syntax ([#1376](https://github.com/brefphp/bref/pull/1376)):
+In Bref v2, you can have these secrets injected **at runtime** (when your code boots in Lambda) via a new syntax ([#1376](https://github.com/brefphp/bref/pull/1376)):
 
 ```yaml
 provider:
@@ -330,22 +330,70 @@ I know this isn't _that_ exciting, but I had to mention it given the incredible 
 
 ## Thanks
 
-A huge thanks to the [136 Bref contributors](https://github.com/brefphp/bref/graphs/contributors), to the community for supporting the project, and to those sponsoring the development:
+A huge thanks to the [136 Bref contributors](https://github.com/brefphp/bref/graphs/contributors), to the community for supporting the project, and to the open-source sponsors:
 
-- [Null](https://null.tc/)
-- [CraftCMS](https://laravel.com/)
-- [Laravel](https://laravel.com/)
-- [JetBrains](https://www.jetbrains.com/)
+<div class="mt-8 mb-4 pt-8 pb-6 border-t border-gray-300 flex-grow grid grid-cols-3 md:grid-cols-5 gap-x-8 gap-y-12">
+    <a class="flex justify-center items-center" href="https://aws.amazon.com" title="AWS">
+        <img class="h-8" src="/img/aws.svg" alt="AWS">
+    </a>
+    <a class="flex justify-center items-start" href="https://craftcms.com/?ref=bref.sh" title="Craft CMS">
+        <img class="w-32" src="/img/logo-craft-cms.png" alt="Craft CMS">
+    </a>
+    <a class="flex justify-center" href="https://tideways.com/?ref=bref" title="Tideways">
+        <img class="w-28" src="/img/logo-tideways.svg" alt="Tideways">
+    </a>
+    <a class="flex justify-center items-center" href="https://www.mybuilder.com/?ref=bref.sh" title="MyBuilder">
+        <img class="h-5" src="/img/logo-mybuilder.svg" alt="MyBuilder">
+    </a>
+    <a class="-mt-3 flex justify-center" href="https://null.tc/?ref=bref" title="Serverless consulting company">
+        <img class="h-10" src="/img/logo-null.png" alt="Null">
+    </a>
+</div>
+<div class="my-4 py-8 border-t border-b border-gray-300 flex-grow grid grid-cols-3 md:grid-cols-5 gap-x-8 gap-y-12">
+    <a class="flex justify-center -mt-2 -mb-4" href="https://www.jetbrains.com/?ref=bref.sh" title="JetBrains - Makers of PhpStorm">
+        <img class="h-16" src="/img/logo-jetbrains.svg" alt="JetBrains">
+    </a>
+    <a class="flex justify-center items-center" href="https://laravel.com/?ref=bref.sh" title="Laravel">
+        <img class="h-10" src="/img/logo-laravel.svg" alt="Laravel">
+    </a>
+    <a class="flex justify-center items-center" href="https://depot.dev/?ref=bref.sh" title="Depot">
+        <img class="h-8" src="/img/logo-depot.png" alt="Depot">
+    </a>
+    <a class="flex justify-center items-center" href="https://secumailer.com/?ref=bref.sh" title="SecuMailer">
+        <img class="w-20" src="/img/logo-secumailer.svg" alt="SecuMailer">
+    </a>
+    <a class="flex justify-center items-center" href="https://www.kartenmacherei.de/?ref=bref.sh" title="Karten Macherei">
+        <img class="w-16" src="/img/logo-kartenmacherei.svg" alt="Karten Macherei">
+    </a>
+    <a class="flex justify-center items-center" href="https://ecomail.cz/?ref=bref.sh" title="Ecomail.cz">
+        <img class="h-5" src="/img/logo-ecomail.png" alt="Ecomail.cz">
+    </a>
+    <a class="flex justify-center items-center" href="https://akaunting.com/?ref=bref.sh" title="Akaunting - Free Accounting Software">
+        <img class="w-20" src="/img/logo-akaunting.svg" alt="Akaunting">
+    </a>
+</div>
 
-And a huge thanks to AWS for sponsoring work on this v2 release!
+and [many others](https://github.com/sponsors/mnapoli#sponsors) (shout out to [@GensDeConfiance](https://twitter.com/GensDeConfiance) for the one-time sponsorship today).
 
-and [many others](https://github.com/sponsors/mnapoli#sponsors). Thank you all!
+Thank you all!
 
 ## That's it!
 
-Hope you enjoy it!
+Hope you enjoy Bref v2!
 
-You can also join the community [in Slack](/docs/community.md), post details about your project in [Built with Bref](https://github.com/brefphp/bref/issues/267), or share your experience online.
+There is a complete [**v2 Upgrade Guide**](../upgrading/v2.md) that you can follow.
+
+Head to the docs to [**get started with Bref**](../), or check out the documentation for [Laravel](../frameworks/laravel.md) or [Symfony](../frameworks/symfony.md).
+
+You can also join the community [in Slack](/docs/community.md), post details about your project in [Built with Bref](https://github.com/brefphp/bref/issues/267), or share your experience online and mention [@brefphp](https://twitter.com/brefphp) on Twitter.
+
+## One more thing
+
+I launched the [**Bref Dashboard**](https://dashboard.bref.sh/) ✨ in January. It helps you monitor and debug Bref applications:
+
+[![Bref Dashboard](../monitoring/bref-dashboard.png)](https://dashboard.bref.sh/?ref=bref)
+
+And if you need support or help going serverless, check out the [Support Plans](/#ecosystem).
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
     <a href="/docs/" class="rounded-md shadow px-8 py-8 border text-center font-bold hover:bg-gray-100">What is Bref and serverless?</a>
