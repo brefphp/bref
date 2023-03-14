@@ -107,7 +107,7 @@ class LambdaRuntimeTest extends TestCase
             new Response( // lambda event
                 404, // 404 instead of 200
                 [
-                    'lambda-runtime-aws-request-id' => 1,
+                    'lambda-runtime-aws-request-id' => '1',
                 ],
                 '{ "Hello": "world!"}'
             ),
@@ -139,7 +139,7 @@ class LambdaRuntimeTest extends TestCase
             new Response( // lambda event
                 200,
                 [
-                    'lambda-runtime-aws-request-id' => 1,
+                    'lambda-runtime-aws-request-id' => '1',
                 ]
             ),
         ]);
@@ -154,7 +154,7 @@ class LambdaRuntimeTest extends TestCase
             new Response( // lambda event
                 200,
                 [
-                    'lambda-runtime-aws-request-id' => 1,
+                    'lambda-runtime-aws-request-id' => '1',
                 ],
                 '{ "Hello": "world!"}'
             ),
