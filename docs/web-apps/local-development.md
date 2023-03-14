@@ -32,44 +32,39 @@ In order to run the application locally in an environment closer to production, 
 version: "3.5"
 
 services:
-    web:
-        image: bref/fpm-dev-gateway
-        ports:
-            - '8000:80'
+    app:
+        image: bref/php-81-fpm-dev:2
+        ports: [ '8000:8000' ]
         volumes:
             - .:/var/task
-        depends_on:
-            - php
         environment:
-            HANDLER: index.php
-    php:
-        image: bref/php-74-fpm-dev
-        volumes:
-            - .:/var/task:ro
+            HANDLER: public/index.php
 ```
 
 After running `docker-compose up`, the application will be available at [http://localhost:8000/](http://localhost:8000/).
 
 The `HANDLER` environment variable lets you define which PHP file will be handling all HTTP requests. This should be the same handler that you have defined in `serverless.yml` for your HTTP function.
 
-> Currently the Docker image support only one PHP handler. If you have multiple HTTP functions in `serverless.yml`, you can duplicate the service in `docker-compose.yml` to have one container per lambda function.
+> Currently, the Docker image support only one PHP handler. If you have multiple HTTP functions in `serverless.yml`, you can duplicate the service in `docker-compose.yml` to have one container per lambda function.
 
 ### Read-only filesystem
 
-The code will be mounted as read-only in `/var/task`, just like in Lambda. However when developing locally, it is common to regenerate cache files on the fly (for example Symfony or Laravel cache). You have 2 options:
+The code will be mounted in `/var/task`, just like in Lambda. But in Lambda, `/var/task` is read-only.
+
+When developing locally, it is common to regenerate cache files on the fly (for example Symfony or Laravel cache). You have 2 options:
 
 - mount the whole codebase as writable:
 
     ```yaml
-        volumes:
-            - .:/var/task
+            volumes:
+                - .:/var/task
     ```
 - mount a specific cache directory as writable (better):
 
     ```yaml
-        volumes:
-            - .:/var/task:ro
-            - ./cache:/var/task/cache
+            volumes:
+                - .:/var/task:ro
+                - ./storage:/var/task/storage
     ```
 
 ### Assets
@@ -80,21 +75,14 @@ If you want to serve assets locally, you can define a `DOCUMENT_ROOT` environmen
 version: "3.5"
 
 services:
-    web:
-        image: bref/fpm-dev-gateway
-        ports:
-            - '8000:80'
+    app:
+        image: bref/php-81-fpm-dev:2
+        ports: [ '8000:8000' ]
         volumes:
             - .:/var/task
-        links:
-            - php
         environment:
             HANDLER: public/index.php
             DOCUMENT_ROOT: public
-    php:
-        image: bref/php-74-fpm-dev
-        volumes:
-            - .:/var/task:ro
 ```
 
 In the example above, a `public/assets/style.css` file will be accessible at `http://localhost:8000/assets/style.css`.
@@ -103,7 +91,7 @@ In the example above, a `public/assets/style.css` file will be accessible at `ht
 
 ### Xdebug
 
-The docker container `bref/php-<version>-fpm-dev` comes with Xdebug pre-installed.
+The development container (`bref/php-<version>-fpm-dev`) comes with Xdebug pre-installed.
 
 To enable it, create a `php/conf.dev.d/php.ini` file in your project containing:
 
@@ -115,13 +103,7 @@ Now start the debug session by issuing a request to your application [in the bro
 
 #### Xdebug and MacOS
 
-Docker for Mac uses a virtual machine for running docker. That means you need to use a special host name that is mapped to the host machine's IP address.
-
-The host name to use depends on your version of Docker for Mac:
-
-- v18.03.0-ce-mac59+ uses `host.docker.internal`
-- v17.12.0-ce-mac46+ uses `docker.for.mac.host.internal`
-- v17.06.0+ uses `docker.for.mac.localhost`
+Docker for Mac uses a virtual machine for running docker. That means you need to use a special host name (`host.docker.internal`) that is mapped to the host machine's IP address.
 
 Edit the `php/conf.dev.d/php.ini` file:
 
@@ -136,15 +118,15 @@ xdebug.remote_host = 'host.docker.internal'
 
 ### Blackfire
 
-The development FPM container comes with the blackfire extension. When using docker compose you can add following service configuration for the blackfire agent:
+The development container (`bref/php-<version>-fpm-dev`) comes with the [blackfire](https://www.blackfire.io/) extension. When using docker compose, you can add the following service for the blackfire agent:
 
 ```yaml
 services:
-  blackfire:
-    image: blackfire/blackfire
-    environment:
-      BLACKFIRE_SERVER_ID: server-id
-      BLACKFIRE_SERVER_TOKEN: server-token
+    blackfire:
+        image: blackfire/blackfire
+        environment:
+            BLACKFIRE_SERVER_ID: server-id
+            BLACKFIRE_SERVER_TOKEN: server-token
 ```
 
 In order to enable the probe you can create a folder `php/conf.dev.d` in your project and include an ini file enabling blackfire:
@@ -162,21 +144,27 @@ Console applications can be tested just like before: by running the command in y
 
 For example with Symfony you can run `bin/console <your-command>` , or with Laravel run `php artisan <your-command>`.
 
-If you want to run your console in an environment close to production, you can use the Bref Docker images. Here is an example of a `docker-compose.yml` file:
+If you want to run your console in an environment close to production, you can use the Bref Docker dev images documented above. For example, if you have a `docker-compose.yml` file like this:
 
 ```yaml
 version: "3.5"
 
 services:
-    console:
-        image: bref/php-74
+    app:
+        image: bref/php-81-fpm-dev:2
+        ports: [ '8000:8000' ]
         volumes:
-            - .:/var/task:ro
-        entrypoint: php
+            - .:/var/task
+        environment:
+            HANDLER: public/index.php
 ```
 
-Then commands can be run via:
+Then CLI commands can be run in Docker via:
 
 ```bash
-docker-compose run console bin/console <your-command>
+# Symfony (bin/console)
+docker-compose run app php bin/console <your-command>
+
+# Laravel (artisan)
+docker-compose run app php artisan <your-command>
 ```

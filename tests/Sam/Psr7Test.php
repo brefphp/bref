@@ -9,8 +9,7 @@ use Symfony\Component\Process\Process;
 
 class Psr7Test extends TestCase
 {
-    /** @var string */
-    private $logs;
+    private string $logs;
 
     public function setUp(): void
     {

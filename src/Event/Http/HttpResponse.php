@@ -7,14 +7,9 @@ namespace Bref\Event\Http;
  */
 final class HttpResponse
 {
-    /** @var int */
-    private $statusCode;
-
-    /** @var array */
-    private $headers;
-
-    /** @var string */
-    private $body;
+    private int $statusCode;
+    private array $headers;
+    private string $body;
 
     /**
      * @param array<string|string[]> $headers

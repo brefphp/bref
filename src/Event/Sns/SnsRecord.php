@@ -9,16 +9,14 @@ use InvalidArgumentException;
  * Represents a SNS message record.
  *
  * For more information about each field, see https://docs.aws.amazon.com/sns/latest/api/API_Publish.html
+ *
+ * @final
  */
-final class SnsRecord
+class SnsRecord
 {
-    /** @var array */
-    private $record;
+    private array $record;
 
-    /**
-     * @param mixed $record
-     */
-    public function __construct($record)
+    public function __construct(mixed $record)
     {
         if (! is_array($record) || ! isset($record['EventSource']) || $record['EventSource'] !== 'aws:sns') {
             throw new InvalidArgumentException;

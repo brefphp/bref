@@ -3,8 +3,6 @@ service: app
 provider:
     name: aws
     region: us-east-1
-    runtime: provided.al2
-    deploymentMethod: direct # fastest deployment method
 
 plugins:
     - ./vendor/bref/bref
@@ -13,8 +11,7 @@ functions:
     hello:
         handler: index.php
         description: ''
-        layers:
-            - ${bref:layer.php-PHP_VERSION}
+        runtime: php-PHP_VERSION
 
 # Exclude files from deployment
 package:

@@ -9,16 +9,17 @@ use Nyholm\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
+use function assert;
+
 class Psr7BridgeTest extends CommonHttpTest
 {
-    /** @var ServerRequestInterface */
-    private $request;
+    private ServerRequestInterface $request;
 
     public function test I can create a response from a PSR7 response()
     {
         $psr7Response = new Response(404, [
             'Content-Type' => 'application/json',
-        ], json_encode(['foo' => 'bar']));
+        ], json_encode(['foo' => 'bar'], JSON_THROW_ON_ERROR));
 
         $response = Psr7Bridge::convertResponse($psr7Response);
         self::assertSame([
@@ -27,15 +28,14 @@ class Psr7BridgeTest extends CommonHttpTest
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
-            'body' => json_encode(['foo' => 'bar']),
+            'body' => json_encode(['foo' => 'bar'], JSON_THROW_ON_ERROR),
         ], $response->toApiGatewayFormat());
     }
 
     protected function fromFixture(string $file): void
     {
-        $event = new HttpRequestEvent(json_decode(file_get_contents($file), true));
-        $context = new Context('', 0, '', '');
-        $this->request = Psr7Bridge::convertRequest($event, $context);
+        $event = new HttpRequestEvent(json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR));
+        $this->request = Psr7Bridge::convertRequest($event, Context::fake());
     }
 
     protected function assertBody(string $expected): void
@@ -138,7 +138,7 @@ class Psr7BridgeTest extends CommonHttpTest
     ): void {
         $uploadedFiles = $this->request->getUploadedFiles();
         $uploadedFile = $uploadedFiles[$key];
-        \assert($uploadedFile instanceof UploadedFileInterface);
+        assert($uploadedFile instanceof UploadedFileInterface);
         $this->assertEquals($filename, $uploadedFile->getClientFilename());
         $this->assertEquals($mimeType, $uploadedFile->getClientMediaType());
         $this->assertEquals($error, $uploadedFile->getError());

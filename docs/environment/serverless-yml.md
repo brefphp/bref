@@ -15,7 +15,6 @@ service: app
 
 provider:
     name: aws
-    runtime: provided.al2
 
 plugins:
     - ./vendor/bref/bref
@@ -23,8 +22,7 @@ plugins:
 functions:
     foo:
         handler: index.php
-        layers:
-            - ${bref:layer.php-74} # PHP
+        runtime: php-81
 
 resources:
     Resources:
@@ -67,18 +65,14 @@ The `provider` section also lets us configure global options on all functions:
 ```yaml
 provider:
     name: aws
+    runtime: php-81
     timeout: 10
-    runtime: provided.al2
 
 functions:
     foo:
         handler: foo.php
-        layers:
-            - ${bref:layer.php-74}
     bar:
         handler: bar.php
-        layers:
-            - ${bref:layer.php-74}
 
 # ...
 ```
@@ -92,16 +86,12 @@ provider:
 functions:
     foo:
         handler: foo.php
+        runtime: php-81
         timeout: 10
-        runtime: provided.al2
-        layers:
-            - ${bref:layer.php-74}
     bar:
         handler: bar.php
+        runtime: php-81
         timeout: 10
-        runtime: provided.al2
-        layers:
-            - ${bref:layer.php-74}
 
 # ...
 ```
@@ -115,7 +105,7 @@ plugins:
 
 [Serverless plugins](https://serverless.com/framework/docs/providers/aws/guide/plugins/) are JavaScript plugins that extend the behavior of the Serverless framework.
 
-Bref provides a plugin via the Composer package, which explains why the path is a relative path into the `vendor` directory. This plugin provides [variables to easily use Bref layers](../runtimes/#usage), it is necessary to include it for the `${bref:layer.xxx}` variables to work.
+Bref provides a plugin via the Composer package, which explains why the path is a relative path into the `vendor` directory. This plugin provides [support for the Bref runtimes and layers](../runtimes/#usage), it is necessary to include it.
 
 Most other Serverless plugins [are installed via `npm`](https://serverless.com/framework/docs/providers/aws/guide/plugins/).
 
@@ -146,17 +136,15 @@ Read more about the `package` configuration [in the serverless.yml documentation
 functions:
     foo:
         handler: foo.php
-        layers:
-            - ${bref:layer.php-74}
+        runtime: php-81
     bar:
         handler: bar.php
-        layers:
-            - ${bref:layer.php-74}
+        runtime: php-81
 ```
 
 Functions are AWS Lambda functions. You can find all options available [in this Serverless documentation page](https://serverless.com/framework/docs/providers/aws/guide/functions/).
 
-Note that it is possible to mix PHP functions with functions written in other languages. The PHP support provided by Bref works via the AWS Lambda layers.
+Note that it is possible to mix PHP functions with functions written in other languages in the same `serverless.yml` config.
 
 ### Permissions
 
@@ -187,8 +175,6 @@ provider:
 ```
 
 If you only want to define some permissions **per function**, instead of globally (ie: in the provider), you should install and enable the Serverless plugin [`serverless-iam-roles-per-function`](https://github.com/functionalone/serverless-iam-roles-per-function) and then use the `iamRoleStatements` at the function definition block.
-
-If you are using the custom parameter `separateVendor: true` with **per function** permissions, you should also add the `iamRoleStatementsInherit: true` parameter at the function definition block otherwise the Lambda won't have permissions to retrieve the vendor directory in the S3 bucket anymore.
 
 ## Resources
 

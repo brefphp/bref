@@ -1,5 +1,12 @@
 'use strict';
 
+const {listLayers} = require('./plugin/layers');
+const {runConsole} = require('./plugin/run-console');
+const {runLocal} = require('./plugin/local');
+const {warnIfUsingSecretsWithoutTheBrefDependency} = require('./plugin/secrets');
+const fs = require('fs');
+const path = require('path');
+
 /**
  * This file declares a plugin for the Serverless framework.
  *
@@ -9,22 +16,38 @@
 class ServerlessPlugin {
     constructor(serverless, options, utils) {
         this.serverless = serverless;
-        this.options = options;
-        this.utils = utils;
         this.provider = this.serverless.getProvider('aws');
 
-        this.fs = require('fs');
-        this.path = require('path');
-        const filename = this.path.resolve(__dirname, 'layers.json');
-        const layers = JSON.parse(this.fs.readFileSync(filename));
+        if (!utils) {
+            throw new serverless.classes.Error('Bref requires Serverless Framework v3, but an older v2 version is running.\nPlease upgrade to Serverless Framework v3.');
+        }
+        this.utils = utils;
+
+        // Automatically enable faster deployments (unless a value is already set)
+        // https://www.serverless.com/framework/docs/providers/aws/guide/deploying#deployment-method
+        if (! serverless.service.provider.deploymentMethod) {
+            serverless.service.provider.deploymentMethod = 'direct';
+        }
+
+        const filename = path.resolve(__dirname, 'layers.json');
+        this.layers = JSON.parse(fs.readFileSync(filename).toString());
+
+        this.runtimes = Object.keys(this.layers)
+            .filter(name => !name.startsWith('arm-'));
+        // Console runtimes must have a PHP version provided
+        this.runtimes = this.runtimes.filter(name => name !== 'console');
+        this.runtimes.push('php-80-console', 'php-81-console', 'php-82-console');
 
         this.checkCompatibleRuntime();
 
+        serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(...this.runtimes);
+
         // Declare `${bref:xxx}` variables
         // See https://www.serverless.com/framework/docs/guides/plugins/custom-variables
+        // noinspection JSUnusedGlobalSymbols
         this.configurationVariablesSources = {
             bref: {
-                async resolve({address, params, resolveConfigurationProperty, options}) {
+                resolve: async ({address, resolveConfigurationProperty, options}) => {
                     // `address` and `params` reflect values configured with a variable: ${bref(param1, param2):address}
 
                     // `options` is CLI options
@@ -36,316 +59,154 @@ class ServerlessPlugin {
                         throw new serverless.classes.Error(`Unknown Bref variable \${bref:${address}}, the only supported syntax right now is \${bref:layer.XXX}`);
                     }
 
-                    const layerName = address.substr('layer.'.length);
-                    if (! (layerName in layers)) {
-                        throw new serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
-                    }
-                    if (! (region in layers[layerName])) {
-                        throw new serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
-                    }
-                    const version = layers[layerName][region];
+                    const layerName = address.substring('layer.'.length);
                     return {
-                        value: `arn:aws:lambda:${region}:209497400698:layer:${layerName}:${version}`,
+                        value: this.getLayerArn(layerName, region),
                     }
                 }
             }
         };
 
-        // If we are on Serverless Framework v2, set up the legacy variable resolver
-        if (!this.utils) {
-            // This is the legacy way of declaring `${bref:xxx}` variables. This has been deprecated in 20210326.
-            // Override the variable resolver to declare our own variables
-            const delegate = this.serverless.variables
-                .getValueFromSource.bind(this.serverless.variables);
-            this.serverless.variables.getValueFromSource = (variableString) => {
-                if (variableString.startsWith('bref:layer.')) {
-                    const region = this.provider.getRegion();
-                    const layerName = variableString.substr('bref:layer.'.length);
-                    if (!(layerName in layers)) {
-                        throw new serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
-                    }
-                    if (!(region in layers[layerName])) {
-                        throw new serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
-                    }
-                    const version = layers[layerName][region];
-                    return `arn:aws:lambda:${region}:209497400698:layer:${layerName}:${version}`;
-                }
+        this.commands = {
+            'bref:cli': {
+                usage: 'Runs a CLI command in AWS Lambda',
+                lifecycleEvents: ['run'],
+                options: {
+                    // Define the '--args' option with the '-a' shortcut
+                    args: {
+                        usage: 'Specify the arguments/options of the command to run on AWS Lambda',
+                        shortcut: 'a',
+                        type: 'string',
+                    },
+                },
+            },
+            'bref:local': {
+                usage: 'Runs a PHP Lambda function locally (better alternative to "serverless local")',
+                lifecycleEvents: ['run'],
+                options: {
+                    function: {
+                        usage: 'The name of the function to invoke',
+                        shortcut: 'f',
+                        required: true,
+                        type: 'string',
+                    },
+                    data: {
+                        usage: 'The data (as a JSON string) to pass to the handler',
+                        shortcut: 'd',
+                        type: 'string',
+                    },
+                    path: {
+                        usage: 'Path to JSON or YAML file holding input data (use either this or --data)',
+                        shortcut: 'p',
+                        type: 'string',
+                    },
+                },
+            },
+            'bref:layers': {
+                usage: 'Displays the versions of the Bref layers',
+                lifecycleEvents: ['show'],
+            },
+        };
 
-                return delegate(variableString);
-            }
-        }
-
+        // noinspection JSUnusedGlobalSymbols
         this.hooks = {
             'initialize': () => {
-                this.addCustomIamRoleForVendorArchiveDownload();
+                this.processPhpRuntimes();
+                warnIfUsingSecretsWithoutTheBrefDependency(this.serverless, utils.log);
                 try {
                     this.telemetry();
                 } catch (e) {
                     // These errors should not stop the execution
-                    this.logVerbose(`Could not send telemetry: ${e}`);
                 }
             },
-
-            // Separate vendor for `sls deploy` command
-            'package:setupProviderConfiguration': this.createVendorZip.bind(this),
-            'after:aws:deploy:deploy:createStack': this.uploadVendorZip.bind(this),
-            // Separate vendor for `sls deploy function` command
-            'before:deploy:function:initialize': this.createVendorZip.bind(this),
-            'after:deploy:function:initialize': this.uploadVendorZip.bind(this),
-
-            'before:remove:remove': this.removeVendorArchives.bind(this)
+            // Custom commands
+            'bref:cli:run': () => runConsole(this.serverless, options),
+            'bref:local:run': () => runLocal(this.serverless, options),
+            'bref:layers:show': () => listLayers(this.serverless, utils.log),
         };
-    }
-
-    checkCompatibleRuntime() {
-        if (this.serverless.service.provider.runtime === 'provided') {
-            throw new this.serverless.classes.Error('Bref 1.0 layers are not compatible with the "provided" runtime.\nTo upgrade to Bref 1.0, you have to switch to "provided.al2" in serverless.yml.\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2');
-        }
-        for (const [name, f] of Object.entries(this.serverless.service.functions)) {
-            if (f.runtime === 'provided') {
-                throw new this.serverless.classes.Error(`Bref 1.0 layers are not compatible with the "provided" runtime.\nTo upgrade to Bref 1.0, you have to switch to "provided.al2" in serverless.yml for the function "${name}".\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2`);
-            }
-        }
-    }
-
-    addCustomIamRoleForVendorArchiveDownload() {
-        this.serverless.service.custom = this.serverless.service.custom ? this.serverless.service.custom : {};
-        this.serverless.service.custom.bref = this.serverless.service.custom.bref ? this.serverless.service.custom.bref : {};
-        if (! this.serverless.service.custom.bref.separateVendor) {
-            return;
-        }
-
-        this.logVerbose("Adding custom IAM role for vendor archive");
-
-        // If the serverless config does not yet contain an exclude for the vendor folder
-        // we will add it here as we do not want the vendor folder in our
-        // lambda archive file.
-        let excludes = this.serverless.service.package.exclude;
-        if(excludes && excludes.indexOf('vendor/**') === -1) {
-            excludes.push('vendor/**');
-        }
-        let patterns = this.serverless.service.package.patterns;
-        if(patterns && patterns.indexOf('!vendor/**') === -1) {
-            patterns.push('!vendor/**');
-        }
-
-        // This defines the access rights for Lambda, so it can download the
-        // vendor archive file from the vendors subfolder.
-        this.serverless.service.provider.iamRoleStatements = this.serverless.service.provider.iamRoleStatements ? this.serverless.service.provider.iamRoleStatements : [];
-
-        this.serverless.service.provider.iamRoleStatements.push({
-            Effect: 'Allow',
-            Action: [
-                's3:GetObject',
-            ],
-            Resource: [
-                {
-                    'Fn::Join': [
-                        '',
-                        [
-                            'arn:aws:s3:::',
-                            {
-                                'Ref': 'ServerlessDeploymentBucket'
-                            },
-                            '/',
-                            this.stripSlashes(this.provider.getDeploymentPrefix() + '/vendors/*')
-                        ]
-                    ]
-                }
-            ]
-        });
-    }
-
-    async createVendorZip() {
-        this.serverless.service.custom = this.serverless.service.custom ? this.serverless.service.custom : {};
-        this.serverless.service.custom.bref = this.serverless.service.custom.bref ? this.serverless.service.custom.bref : {};
-        if(! this.serverless.service.custom.bref.separateVendor) {
-            return;
-        }
-
-        this.logVerbose("Creating vendor zip file");
-
-        const vendorZipHash = await this.createZipFile();
-        this.newVendorZipName = vendorZipHash + '.zip';
-
-        this.logVerbose('Setting environment variables');
-
-        if (! this.serverless.service.provider.environment) {
-            this.serverless.service.provider.environment = [];
-        }
-
-        // This environment variable will trigger Bref to download the zip on cold start
-        this.serverless.service.provider.environment.BREF_DOWNLOAD_VENDOR = {
-            'Fn::Join': [
-                '',
-                [
-                    's3://',
-                    {
-                        'Ref': 'ServerlessDeploymentBucket'
-                    },
-                    '/',
-                    this.stripSlashes(this.provider.getDeploymentPrefix() + '/vendors/' + this.newVendorZipName)
-                ]
-            ]
-        };
-    }
-
-    async createZipFile() {
-        const vendorDir = '.serverless';
-        if (!this.fs.existsSync(vendorDir)){
-            this.fs.mkdirSync(vendorDir);
-        }
-        this.filePath = `${vendorDir}/vendor.zip`;
-
-        return await new Promise((resolve, reject) => {
-            const archiver = require(process.mainModule.path + '/../node_modules/archiver');
-            const output = this.fs.createWriteStream(this.filePath);
-            const archive = archiver('zip', {
-                zlib: { level: 9 } // Highest compression level.
-            });
-
-            this.logVerbose(`Packaging the Composer vendor directory in ${this.filePath}`);
-
-            archive.pipe(output);
-            archive.directory('vendor/', false);
-            archive.finalize();
-
-            output.on('close', () => {
-                this.logVerbose(`Created vendor.zip with ${archive.pointer()} total bytes.`);
-                resolve();
-            });
-
-            archive.on('warning', err => {
-                if (err.code === 'ENOENT') {
-                    this.logWarning('Archiver warning', err);
-                } else {
-                    throw new Error(err);
-                }
-            });
-
-            archive.on('error', err => {
-                throw new Error(err);
-            });
-        })
-            .then(() => {
-                // We will rename vendor.zip to a unique name to:
-                // - avoid overwriting zips from previous deployments running in production
-                // - avoid deploying vendor.zip with exactly the same contents
-                const crypto = require('crypto');
-
-                return new Promise(resolve => {
-                    const hash = crypto.createHash('md5');
-                    this.fs.createReadStream(this.filePath).on('data', data => hash.update(data)).on('end', () => resolve(hash.digest('hex')));
-                });
-            })
-            .catch(err => {
-                throw new Error(`Failed to create zip file vendor.zip: ${err.message}`);
-            });
-    }
-
-    async uploadVendorZip() {
-        this.serverless.service.custom = this.serverless.service.custom ? this.serverless.service.custom : {};
-        this.serverless.service.custom.bref = this.serverless.service.custom.bref ? this.serverless.service.custom.bref : {};
-        if(! this.serverless.service.custom.bref.separateVendor) {
-            return;
-        }
-
-        this.logVerbose("Uploading vendor zip file...");
-
-        await this.uploadZipToS3(this.filePath);
-
-        this.logVerbose('Vendor separation done');
-    }
-
-    async uploadZipToS3(zipFile) {
-        const bucketName = await this.provider.getServerlessDeploymentBucketName();
-        const deploymentPrefix = await this.provider.getDeploymentPrefix();
-
-        this.logVerbose('Checking vendor file on bucket...');
-
-        try {
-            await this.provider.request('S3', 'headObject', {
-                Bucket: bucketName,
-                Key: this.stripSlashes(deploymentPrefix + '/vendors/' + this.newVendorZipName)
-            });
-
-            this.logVerbose('Vendor file already exists on bucket. Not uploading again.');
-            return;
-        } catch(e) {
-            // The vendor file needs to be uploaded
-            this.logVerbose('Vendor file not found. Uploading...');
-        }
-
-        const readStream = this.fs.createReadStream(zipFile);
-        const details = {
-            ACL: 'private',
-            Body: readStream,
-            Bucket: bucketName,
-            ContentType: 'application/zip',
-            Key: this.stripSlashes(deploymentPrefix + '/vendors/' + this.newVendorZipName),
-        };
-
-        return await this.provider.request('S3', 'putObject', details);
-    }
-
-    stripSlashes(path) {
-        return path.replace(/^\/+/g, '');
     }
 
     /**
-     * CloudFormation cannot delete a bucket that contains files.
-     * That's why we clean up the vendor zip files when `serverless remove` is being run.
+     * Process the `php-xx` runtimes to turn them into `provided.al2` runtimes + Bref layers.
      */
-    async removeVendorArchives() {
-        const bucketName = await this.provider.getServerlessDeploymentBucketName();
-        const deploymentPrefix = await this.provider.getDeploymentPrefix();
-
-        const bucketObjects = await this.provider.request('S3', 'listObjectsV2', {
-            Bucket: bucketName,
-            Prefix: this.stripSlashes(deploymentPrefix + '/vendors/')
-        });
-        if (bucketObjects.Contents.length === 0) {
-            return;
-        }
-
-        this.logVerbose('Removing Composer `vendor` archives from the S3 bucket.');
-
-        let details = {
-            Bucket: bucketName,
-            Delete: {
-                Objects: []
+    processPhpRuntimes() {
+        const includeBrefLayers = (runtime, existingLayers, isArm) => {
+            let layerName = runtime;
+            // Automatically use ARM layers if the function is deployed to an ARM architecture
+            if (isArm) {
+                layerName = 'arm-' + layerName;
             }
-        };
+            if (layerName.endsWith('-console')) {
+                layerName = layerName.substring(0, layerName.length - '-console'.length);
+                existingLayers.unshift(this.getLayerArn('console', this.provider.getRegion()));
+                existingLayers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
+            } else {
+                existingLayers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
+            }
+            return existingLayers;
+        }
 
-        bucketObjects.Contents.forEach(content => {
-            details.Delete.Objects.push({
-                Key: content.Key
-            });
-        });
+        const config = this.serverless.service;
+        const isArmGlobally = config.provider.architecture === 'arm64';
 
-        this.logVerbose(`Found ${details.Delete.Objects.length} vendor archives. Removing them from Bucket now.`);
+        // Check provider config
+        if (this.runtimes.includes(config.provider.runtime ?? '')) {
+            config.provider.layers = includeBrefLayers(
+                config.provider.runtime,
+                config.provider.layers || [], // make sure it's an array
+                isArmGlobally,
+            );
+            config.provider.runtime = 'provided.al2';
+        }
 
-        return await this.provider.request('S3', 'deleteObjects', details);
-    }
+        // Check functions config
+        for (const f of Object.values(config.functions ?? {})) {
+            if (this.runtimes.includes(f.runtime)) {
+                f.layers = includeBrefLayers(
+                    f.runtime,
+                    f.layers || [], // make sure it's an array
+                    f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
+                );
+                f.runtime = 'provided.al2';
+            }
+        }
 
-    logVerbose(message) {
-        if (this.utils) {
-            // Serverless v3
-            this.utils.log.verbose(`Bref: ${message}`);
-        } else {
-            // Serverless v2
-            this.serverless.cli.log(`Bref: ${message}`);
+        // Check Lift constructs config
+        for (const construct of Object.values(this.serverless.configurationInput.constructs ?? {})) {
+            if (construct.type !== 'queue' && construct.type !== 'webhook') continue;
+            const f = construct.type === 'queue' ? construct.worker : construct.authorizer;
+            if (f && this.runtimes.includes(f.runtime)) {
+                f.layers = includeBrefLayers(
+                    f.runtime,
+                    f.layers || [], // make sure it's an array
+                    f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
+                );
+                f.runtime = 'provided.al2';
+            }
         }
     }
 
-    logWarning(message) {
-        if (this.utils) {
-            // Serverless v3
-            this.utils.log.warning(`Bref: ${message}`);
-        } else {
-            // Serverless v2
-            console.warn(`Bref: ${message}`);
+    checkCompatibleRuntime() {
+        const errorMessage = 'Bref layers are not compatible with the "provided" runtime.\nYou have to use the "provided.al2" runtime instead in serverless.yml.\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2';
+        if (this.serverless.service.provider.runtime === 'provided') {
+            throw new this.serverless.classes.Error(errorMessage);
         }
+        for (const [, f] of Object.entries(this.serverless.service.functions)) {
+            if (f.runtime === 'provided') {
+                throw new this.serverless.classes.Error(errorMessage);
+            }
+        }
+    }
+
+    getLayerArn(layerName, region) {
+        if (! (layerName in this.layers)) {
+            throw new this.serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
+        }
+        if (! (region in this.layers[layerName])) {
+            throw new this.serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
+        }
+        const version = this.layers[layerName][region];
+        return `arn:aws:lambda:${region}:534081306603:layer:${layerName}:${version}`;
     }
 
     /**
@@ -375,7 +236,7 @@ class ServerlessPlugin {
 
         const payload = {
             cli: 'sls',
-            v: 1, // Bref version
+            v: 2, // Bref version
             c: command,
             ci: ci.isCI,
             install: userConfig.get('meta.created_at'),
@@ -399,9 +260,13 @@ class ServerlessPlugin {
         // or execution time.
         client.send(JSON.stringify(payload), 8888, '108.128.197.71', (err) => {
             if (err) {
-                this.logVerbose(`Could not send telemetry: ${err.message}`);
+                // These errors should not stop the execution
             }
-            client.close();
+            try {
+                client.close();
+            } catch (e) {
+                // These errors should not stop the execution
+            }
         });
     }
 }

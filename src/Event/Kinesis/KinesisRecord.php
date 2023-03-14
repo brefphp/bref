@@ -3,19 +3,19 @@
 namespace Bref\Event\Kinesis;
 
 use DateTimeImmutable;
+use InvalidArgumentException;
 
-final class KinesisRecord
+/**
+ * @final
+ */
+class KinesisRecord
 {
-    /** @var array */
-    private $record;
+    private array $record;
 
-    /**
-     * @param mixed $record
-     */
-    public function __construct($record)
+    public function __construct(mixed $record)
     {
         if (! is_array($record) || ! isset($record['eventSource']) || $record['eventSource'] !== 'aws:kinesis') {
-            throw new \InvalidArgumentException('Event source must come from Kinesis');
+            throw new InvalidArgumentException('Event source must come from Kinesis');
         }
 
         $this->record = $record;
@@ -28,7 +28,7 @@ final class KinesisRecord
 
     public function getData(): array
     {
-        return json_decode(base64_decode($this->getRawData()), true);
+        return json_decode(base64_decode($this->getRawData()), true, 512, JSON_THROW_ON_ERROR);
     }
 
     public function getEventName(): string

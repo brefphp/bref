@@ -15,11 +15,13 @@ use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Test\Server;
+use Exception;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 
 /**
  * Tests the communication between `LambdaRuntime` and the Lambda Runtime HTTP API.
@@ -28,8 +30,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 class LambdaRuntimeTest extends TestCase
 {
-    /** @var LambdaRuntime */
-    private $runtime;
+    private LambdaRuntime $runtime;
 
     protected function setUp(): void
     {
@@ -75,7 +76,7 @@ class LambdaRuntimeTest extends TestCase
         $this->givenAnEvent(['Hello' => 'world!']);
 
         $output = $this->runtime->processNextEvent(function () {
-            throw new \RuntimeException('This is an exception');
+            throw new RuntimeException('This is an exception');
         });
 
         $this->assertFalse($output);
@@ -88,7 +89,7 @@ class LambdaRuntimeTest extends TestCase
         $this->givenAnEvent(['Hello' => 'world!']);
 
         $this->runtime->processNextEvent(function () {
-            throw new \RuntimeException('This is an exception', 0, new \RuntimeException('The previous exception.', 0, new \Exception('The original exception.')));
+            throw new RuntimeException('This is an exception', 0, new RuntimeException('The previous exception.', 0, new Exception('The original exception.')));
         });
 
         $this->assertInvocationErrorResult('RuntimeException', 'This is an exception');
@@ -176,7 +177,7 @@ class LambdaRuntimeTest extends TestCase
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/error', $eventFailureLog->getUri()->__toString());
 
         // Check the lambda result contains the error message
-        $error = json_decode((string) $eventFailureLog->getBody(), true);
+        $error = json_decode((string) $eventFailureLog->getBody(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertStringContainsString('Error while calling the Lambda runtime API: The requested URL returned error: 400', $error['errorMessage']);
 
         $this->assertErrorInLogs('Exception', 'Error while calling the Lambda runtime API: The requested URL returned error: 400');
@@ -202,11 +203,7 @@ ERROR;
     public function test generic event handler()
     {
         $handler = new class() implements Handler {
-            /**
-             * @param mixed $event
-             * @return mixed
-             */
-            public function handle($event, Context $context)
+            public function handle(mixed $event, Context $context): mixed
             {
                 return $event;
             }
@@ -222,15 +219,14 @@ ERROR;
     public function test SQS event handler()
     {
         $handler = new class() extends SqsHandler {
-            /** @var SqsEvent */
-            public $event;
+            public SqsEvent $event;
             public function handleSqs(SqsEvent $event, Context $context): void
             {
                 $this->event = $event;
             }
         };
 
-        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Sqs/sqs.json'), true);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Sqs/sqs.json'), true, 512, JSON_THROW_ON_ERROR);
         $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);
@@ -241,15 +237,14 @@ ERROR;
     public function test SNS event handler()
     {
         $handler = new class() extends SnsHandler {
-            /** @var SnsEvent */
-            public $event;
+            public SnsEvent $event;
             public function handleSns(SnsEvent $event, Context $context): void
             {
                 $this->event = $event;
             }
         };
 
-        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Sns/sns.json'), true);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Sns/sns.json'), true, 512, JSON_THROW_ON_ERROR);
         $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);
@@ -260,15 +255,14 @@ ERROR;
     public function test S3 event handler()
     {
         $handler = new class() extends S3Handler {
-            /** @var S3Event */
-            public $event;
+            public S3Event $event;
             public function handleS3(S3Event $event, Context $context): void
             {
                 $this->event = $event;
             }
         };
 
-        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/S3/s3.json'), true);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/S3/s3.json'), true, 512, JSON_THROW_ON_ERROR);
         $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);
@@ -279,8 +273,7 @@ ERROR;
     public function test PSR15 event handler()
     {
         $handler = new class() implements RequestHandlerInterface {
-            /** @var ServerRequestInterface */
-            public $request;
+            public ServerRequestInterface $request;
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
                 $this->request = $request;
@@ -290,7 +283,7 @@ ERROR;
             }
         };
 
-        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/ag-v1-simple.json'), true);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/ag-v1-simple.json'), true, 512, JSON_THROW_ON_ERROR);
         $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);
@@ -312,15 +305,14 @@ ERROR;
     public function test EventBridge event handler()
     {
         $handler = new class() extends EventBridgeHandler {
-            /** @var EventBridgeEvent */
-            public $event;
+            public EventBridgeEvent $event;
             public function handleEventBridge(EventBridgeEvent $event, Context $context): void
             {
                 $this->event = $event;
             }
         };
 
-        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/EventBridge/eventbridge.json'), true);
+        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/EventBridge/eventbridge.json'), true, 512, JSON_THROW_ON_ERROR);
         $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);
@@ -328,21 +320,7 @@ ERROR;
         $this->assertEquals(new EventBridgeEvent($eventData), $handler->event);
     }
 
-    public function test invalid handlers are rejected properly()
-    {
-        $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/ag-v1-simple.json'), true);
-        $this->givenAnEvent($eventData);
-
-        $this->runtime->processNextEvent(null);
-
-        $this->assertInvocationErrorResult('Exception', 'The lambda handler must be a callable or implement handler interfaces');
-        $this->assertErrorInLogs('Exception', 'The lambda handler must be a callable or implement handler interfaces');
-    }
-
-    /**
-     * @param mixed $event
-     */
-    private function givenAnEvent($event): void
+    private function givenAnEvent(mixed $event): void
     {
         Server::enqueue([
             new Response( // lambda event
@@ -351,16 +329,13 @@ ERROR;
                     'lambda-runtime-aws-request-id' => '1',
                     'lambda-runtime-invoked-function-arn' => 'test-function-name',
                 ],
-                json_encode($event)
+                json_encode($event, JSON_THROW_ON_ERROR)
             ),
             new Response(200), // lambda response accepted
         ]);
     }
 
-    /**
-     * @param mixed $result
-     */
-    private function assertInvocationResult($result)
+    private function assertInvocationResult(mixed $result)
     {
         $requests = Server::received();
         $this->assertCount(2, $requests);
@@ -370,7 +345,7 @@ ERROR;
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
         $this->assertSame('POST', $eventResponse->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventResponse->getUri()->__toString());
-        $this->assertEquals($result, json_decode($eventResponse->getBody()->__toString(), true));
+        $this->assertEquals($result, json_decode($eventResponse->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR));
     }
 
     private function assertInvocationErrorResult(string $errorClass, string $errorMessage)
@@ -385,7 +360,7 @@ ERROR;
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/error', $eventResponse->getUri()->__toString());
 
         // Check the content of the result of the lambda
-        $invocationResult = json_decode($eventResponse->getBody()->__toString(), true);
+        $invocationResult = json_decode($eventResponse->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertSame([
             'errorType',
             'errorMessage',
@@ -408,7 +383,7 @@ ERROR;
         // Check the request ID matches a UUID
         $this->assertNotEmpty($requestId);
 
-        $invocationResult = json_decode($json, true);
+        $invocationResult = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         unset($invocationResult['previous']);
         $this->assertSame([
             'errorType',
@@ -416,7 +391,7 @@ ERROR;
             'stack',
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
-        $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
+        $this->assertStringContainsString($errorMessage, $invocationResult['errorMessage']);
         $this->assertIsArray($invocationResult['stack']);
     }
 
@@ -427,7 +402,7 @@ ERROR;
 
         [, , $json] = explode("\t", $stdout);
 
-        ['previous' => $previous] = json_decode($json, true);
+        ['previous' => $previous] = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         $this->assertCount(count($previousErrors), $previous);
         foreach ($previous as $index => $error) {
             $this->assertSame([

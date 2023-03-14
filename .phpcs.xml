@@ -10,10 +10,6 @@
     <file>bref</file>
     <file>src</file>
     <file>tests</file>
-    <exclude-pattern>tests/Bridge/Symfony/var</exclude-pattern>
-    <exclude-pattern>tests/Bridge/Symfony/cache</exclude-pattern>
-    <exclude-pattern>tests/Bridge/Symfony/logs</exclude-pattern>
-    <exclude-pattern>tests/Bridge/Laravel/bootstrap/cache</exclude-pattern>
 
     <!-- Import the Doctrine coding standard -->
     <rule ref="Doctrine"/>
@@ -169,11 +165,8 @@
         <exclude-pattern type="relative">tests/*</exclude-pattern>
     </rule>
 
-
-    <!-- ########################-->
-    <!-- For PHP 7.4+ only       -->
-    <!-- ########################-->
-    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint">
+    <!-- Bref contains self-contained PHP files mixing code and functions -->
+    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
         <severity>0</severity>
     </rule>
 

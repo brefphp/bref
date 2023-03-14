@@ -7,18 +7,14 @@ use InvalidArgumentException;
 
 /**
  * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
+ *
+ * @final
  */
-final class S3Record
+class S3Record
 {
-    /** @var array */
-    private $record;
+    private array $record;
 
-    /**
-     * @param mixed $record
-     *
-     * @internal
-     */
-    public function __construct($record)
+    public function __construct(mixed $record)
     {
         if (! is_array($record) || ! isset($record['eventSource']) || $record['eventSource'] !== 'aws:s3') {
             throw new InvalidArgumentException;

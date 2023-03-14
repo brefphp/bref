@@ -8,16 +8,14 @@ use DateTimeImmutable;
 
 /**
  * Represents a Lambda event when Lambda is invoked by EventBridge.
+ *
+ * @final
  */
-final class EventBridgeEvent implements LambdaEvent
+class EventBridgeEvent implements LambdaEvent
 {
-    /** @var array */
-    private $event;
+    private array $event;
 
-    /**
-     * @param mixed $event
-     */
-    public function __construct($event)
+    public function __construct(mixed $event)
     {
         if (! is_array($event) || ! isset($event['detail-type'])) {
             throw new InvalidLambdaEvent('EventBridge', $event);
@@ -68,10 +66,8 @@ final class EventBridgeEvent implements LambdaEvent
      * However, this method will not return a JSON string: it will return the decoded content.
      * This is how EventBridge works: we publish a message with JSON-encoded data. EventBridge decodes it
      * and triggers listeners with the decoded data.
-     *
-     * @return mixed
      */
-    public function getDetail()
+    public function getDetail(): mixed
     {
         return $this->event['detail'];
     }

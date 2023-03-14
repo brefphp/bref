@@ -7,16 +7,10 @@ namespace Bref\Event\S3;
  */
 final class BucketObject
 {
-    /** @var string */
-    private $key;
-    /** @var int */
-    private $size;
-    /** @var string|null */
-    private $versionId;
+    private string $key;
+    private int $size;
+    private ?string $versionId;
 
-    /**
-     * @internal
-     */
     public function __construct(string $key, int $size, ?string $versionId = null)
     {
         $this->key = $key;

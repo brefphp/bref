@@ -14,8 +14,7 @@ use Symfony\Component\Process\Process;
  */
 class PhpFpmRuntimeTest extends TestCase
 {
-    /** @var string */
-    private $logs;
+    private string $logs;
 
     public function setUp(): void
     {
