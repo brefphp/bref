@@ -37,7 +37,7 @@
         "async-aws/lambda": "^1.0",
         "bref/secrets-loader": "^1.0",
         "phpunit/phpunit": "^9.0",
-        "dms/phpunit-arraysubset-asserts": "^0.2.0",
+        "dms/phpunit-arraysubset-asserts": "^0.4",
         "doctrine/coding-standard": "^8.0",
         "phpstan/phpstan": "^1.0",
         "guzzlehttp/guzzle": "^7.5",
