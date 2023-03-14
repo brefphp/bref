@@ -4,7 +4,7 @@ const path = require('path');
 async function runConsole(serverless, options) {
     const region = serverless.getProvider('aws').getRegion();
     // Override CLI options for `sls invoke`
-    options.function = getConsoleFunction(serverless, region);
+    options.function = options.function ?? getConsoleFunction(serverless, region);
     options.type = 'RequestResponse';
     options.data = options.args;
     options.log = true;
@@ -26,7 +26,7 @@ function getConsoleFunction(serverless, region) {
         throw new serverless.classes.Error('This command invokes the Lambda "console" function, but no function was found with the "console" layer');
     }
     if (consoleFunctions.length > 1) {
-        throw new serverless.classes.Error('More than one function contains the console layer: cannot automatically run it');
+        throw new serverless.classes.Error('More than one function contains the console layer: cannot automatically run it. Please provide a function name using the --function option.');
     }
     return consoleFunctions[0];
 }

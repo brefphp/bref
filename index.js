@@ -78,6 +78,12 @@ class ServerlessPlugin {
                         shortcut: 'a',
                         type: 'string',
                     },
+                    function: {
+                        usage: 'The name of the function to invoke',
+                        shortcut: 'f',
+                        required: false,
+                        type: 'string',
+                    },
                 },
             },
             'bref:local': {
