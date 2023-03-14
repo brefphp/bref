@@ -377,6 +377,8 @@ A huge thanks to the [136 Bref contributors](https://github.com/brefphp/bref/gra
 
 and [many others](https://github.com/sponsors/mnapoli#sponsors) (shout out to [@GensDeConfiance](https://twitter.com/GensDeConfiance) for the one-time sponsorship today).
 
+A huge thank you to all contributors that have helped to maintain v1 and/or with this huge upcoming release, including [@deleugpn](https://github.com/deleugpn) who rewrote most of the Lambda runtimes, [@GrahamCampbell](https://github.com/GrahamCampbell) who is helping to keep the runtimes up to date, [@t-richard](https://github.com/t-richard) and [@afu-dev](https://github.com/afu-dev) who have been extremely helpful on the Symfony integration and in the community, [@Nyholm](https://github.com/Nyholm) who has been maintaining flawlessly the Bref Extra extensions, [@mykiwi](https://github.com/mykiwi) for keeping PHP up to date, [@shouze](https://github.com/shouze) who is helping on layers and extra extensions, [@georgeboot](https://github.com/georgeboot) who is contributing amazing ideas on the Laravel integrations, [@tillkruss](https://github.com/tillkruss) who is pushing what Bref could be for Laravel users, and so many more ([@shadowhand](https://github.com/shadowhand), [@kevincerro](https://github.com/kevincerro)…).
+
 Thank you all!
 
 ## That's it!
