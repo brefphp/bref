@@ -9,13 +9,15 @@ authorGithub: mnapoli
 
 The work on what would be Bref 2.0 started in October 2021, about 1.5 year ago. We went through many different strategies, experiments, rewrites, over **700 commits** to finally land with the stable release.
 
-So far, Bref has been installed more than 2 million times and powers more than **10 billion Lambda executions** (aka requests) every month.
+So far, Bref has been installed more than 2 million times and powers more than **10 billion Lambda executions** (aka requests) every month[*](https://bref.sh/docs/runtimes/#bref-ping).
 
 That's [1 in every 1000 AWS Lambda executions](https://twitter.com/matthieunapoli/status/1603032544424894464)!
 
-Today, we celebrate these achievements, the ongoing work and **the release of Bref 2.0** 🎉
+![](02/executions.png)
 
-Let's dive in what's new in v2.
+Today, we celebrate these achievements, the ongoing work, and **the release of Bref 2.0** 🎉
+
+Let's check out what's new in v2.
 
 ## Bref 2.0
 
@@ -26,8 +28,8 @@ Here's a summary, we'll dive in the details below:
 - Faster deployments by default.
 - `vendor/bin/bref cli` becomes much simpler.
 - Automatically load secrets in environment variables at runtime.
-- Simpler `docker-compose.yml` for local development ([brefphp/aws-lambda-layers#38](https://github.com/brefphp/aws-lambda-layers/pull/38)).
-- [PHP constructs for AWS CDK support](https://github.com/brefphp/constructs).
+- Simpler `docker-compose.yml` for local development.
+- PHP constructs for AWS CDK support.
 - The internals (the scripts that build the runtime) have been rewritten at least 4 times ([just look at the number of commits on the v2 runtimes…](https://github.com/brefphp/aws-lambda-layers)) but they are much better now: they are now tested, we understand all the code, we optimized their size, we've made the builds as fast as possible, and contributions and maintenance as easy as possible.
 
 What did we break? **Nothing major**, the upgrade should be smooth. Here are the details:
@@ -35,12 +37,13 @@ What did we break? **Nothing major**, the upgrade should be smooth. Here are the
 - PHP 8.0+ is now required (7.4 support is dropped).
 - Serverless Framework v3 is now required (2.x is obsolete). Run `serverless --version` to check.
 - The `vendor/bin/bref` commands have been moved to the `serverless` CLI (detailed below).
+- If you have a `docker-compose.yml` for local development, it needs to be adjusted (detailed below).
 
 ## Simpler runtime configuration
 
 Bref 2.0 lets us configure the runtime and PHP version in a much simpler way in `serverless.yml` ([#1394](https://github.com/brefphp/bref/pull/1394)). Here's an example below.
 
-Note: **All of these new changes are optional**, you can keep using the Bref v1 syntax as it still works (no breaking changes).
+Note: **this new feature is optional**, you can keep using the Bref v1 syntax as it still works (this is not a breaking change).
 
 Before (Bref v1 syntax):
 
@@ -68,12 +71,12 @@ functions:
         runtime: php-81-fpm
 ```
 
-As you can see, we no longer have to set `runtime: provided.al2` and add the Bref layers. We can now directly set a PHP runtime (`php-81`, `php-81-fpm`, `php-81-console`) and Bref will turn this runtime configuration into the proper layer configuration.
+As you can see, we no longer have to set `runtime: provided.al2` and add the Bref layers. We can now directly set a PHP runtime (`php-81`, `php-81-fpm`, `php-81-console`) and Bref will transform this into the proper runtime + layers configuration.
 
 This works for all the Bref runtimes ([FPM](https://bref.sh/docs/runtimes/http.html), [function](https://bref.sh/docs/runtimes/function.html) and [console](https://bref.sh/docs/runtimes/console.html)) and all supported PHP versions (`80`, `81`, and `82` at the moment). Here's a recap:
 
 ```yaml
-# FPM runtime (web apps)
+# PHP-FPM runtime (web apps)
 runtime: provided.al2
 layers:
     - ${bref:layer.php-81-fpm}
@@ -96,13 +99,13 @@ layers:
 runtime: php-81-console
 ```
 
-All the Bref documentation has also been updated to reflect these changes.
+The Bref documentation has been updated to reflect these changes.
 
 ## ARM/Graviton support
 
-Since 2021, it is possible to deploy Lambda functions running on ARM processors (called Graviton) instead of Intel x86 processors. However Bref did not support that.
+Since 2021, it is possible to deploy Lambda functions [running on ARM processors](https://aws.amazon.com/blogs/aws/aws-lambda-functions-powered-by-aws-graviton2-processor-run-your-functions-on-arm-and-get-up-to-34-better-price-performance/) (called Graviton) instead of Intel x86 processors. However, Bref did not support that.
 
-These processors usually run applications faster ([here's an example](https://twitter.com/matthieunapoli/status/1605583651659345921)), and ARM functions [cost 20% less](https://aws.amazon.com/lambda/pricing/).
+These processors usually run applications faster ([example here](https://twitter.com/matthieunapoli/status/1605583651659345921)), and ARM functions [cost 20% less](https://aws.amazon.com/lambda/pricing/).
 
 With Bref v2, we can deploy on ARM by setting the `architecture` field to `arm64`:
 
@@ -116,7 +119,7 @@ functions:
 
 The `architecture: arm64` field can also be set [in each function individually](https://www.serverless.com/framework/docs/providers/aws/guide/functions#instruction-set-architecture).
 
-**Warning:** the example above uses the new `runtime` syntax introduced above. If you set `layers` instead, you will need to update them to reference ARM layers:
+**Warning:** the example above uses the new `runtime: php-xx` syntax introduced above. If you set `layers` instead, you will need to update them to reference ARM layers:
 
 ```yaml
 provider:
@@ -140,7 +143,7 @@ provider:
     deploymentMethod: direct
 ```
 
-In Bref v2, this option will be enabled by default ([#1395](https://github.com/brefphp/bref/pull/1395)). If the option was already set in your `serverless.yml`, you can remove it (or leave it). If it wasn't, your deployments should be about twice faster.
+In Bref v2, this option is enabled by default ([#1395](https://github.com/brefphp/bref/pull/1395)). If the option was already set in your `serverless.yml`, you can remove it (or leave it). If it wasn't, your deployments should be about twice faster.
 
 ## Simpler CLI commands
 
@@ -196,9 +199,9 @@ provider:
         GITHUB_TOKEN: ${ssm:/my-app/github-token}
 ```
 
-This solution relies on `serverless.yml` variables (`${ssm:xxx}`) and works well, however the drawbacks are:
+This solution relies on `serverless.yml` variables ([`${ssm:xxx}`](https://www.serverless.com/framework/docs/providers/aws/guide/variables#reference-variables-using-the-ssm-parameter-store)) and works well, however the drawbacks are:
 
-- The secret value will be retrieved on `serverless deploy` and set in plain text in the environment variable.
+- The secret value is retrieved on `serverless deploy` and set in plain text in the environment variable.
 - The user that runs `serverless deploy` must have permissions to retrieve the secret value.
 
 In Bref v2, you can have these secrets injected **at runtime** via a new syntax ([#1376](https://github.com/brefphp/bref/pull/1376)):
@@ -211,19 +214,85 @@ provider:
         GITHUB_TOKEN: bref-ssm:/my-app/github-token
 ```
 
-In the example above, `GITHUB_TOKEN` will be deployed with the string `bref-ssm:/my-app/github-token` (i.e. it doesn't contain the secret). When Lambda starts, Bref will automatically retrieve the secret and **replace** the environment variable value.
+In the example above, `GITHUB_TOKEN` will be deployed with the string `bref-ssm:/my-app/github-token` (i.e. it doesn't contain the secret). When Lambda starts, Bref will automatically retrieve the secret and **replace** the environment variable value. No changes needed in your code.
 
 This offers a more secure solution for teams that prefer to keep secrets as tight as possible.
 
-Read more about this new feature and secrets in general in the [Secrets documentation](../environment/variables.md#secrets).
+Read more about this new feature and secrets in general in the [Secrets documentation](../environment/variables.md#at-runtime).
+
+## Simpler `docker-compose.yml` for local development
+
+Running HTTP applications locally with Bref Docker images got simpler ([#38](https://github.com/brefphp/aws-lambda-layers/pull/38)). If you used them in `docker-compose.yml`, you will need to update it.
+
+Before (Bref v1):
+
+```yaml
+services:
+
+    web:
+        image: bref/fpm-dev-gateway
+        ports:
+            - '8000:80'
+        volumes:
+            - .:/var/task
+        depends_on:
+            - php
+        environment:
+            HANDLER: public/index.php
+            DOCUMENT_ROOT: public
+
+    app:
+        image: bref/php-80-fpm-dev
+        volumes:
+            - .:/var/task
+
+    console:
+        image: bref/php-80
+        volumes:
+            - .:/var/task
+        entrypoint: php
+```
+
+After (Bref v2):
+
+```yaml
+services:
+    app:
+        image: bref/php-80-fpm-dev
+        ports: [ '8000:8000' ]
+        volumes:
+            - .:/var/task
+        environment:
+            HANDLER: public/index.php
+            DOCUMENT_ROOT: public
+```
+
+The `bref/php-XX-fpm-dev` images can now run HTTP applications, console commands as well as event-driven functions too. Read more in [web app local development](../web-apps/local-development.md).
+
+The `bref/fpm-dev-gateway` image is no longer needed, and code running in `bref/php-XX-fpm-dev` now runs in an environment even closer to production.
+
+## PHP constructs for AWS CDK support
+
+[AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.html) is a deployment tool that can be used as an alternative to `serverless.yml`.
+
+Bref 2.0 introduces basic support for the AWS CDK (NodeJS) via [PHP constructs](https://github.com/brefphp/constructs).
+
+In case you are not familiar with it, AWS CDK is bit more complex than `serverless.yml` to deploy serverless apps. These constructs will be useful to those actively looking to use the CDK with Bref.
+
+## Rewritten internals
+
+[just look at the number of commits on the v2 runtimes…](https://github.com/brefphp/aws-lambda-layers)
 
 ## Thanks
 
-A huge thanks to the [134 Bref contributors](https://github.com/brefphp/bref/graphs/contributors), to the community for supporting the project, and to those sponsoring the development:
+A huge thanks to the [136 Bref contributors](https://github.com/brefphp/bref/graphs/contributors), to the community for supporting the project, and to those sponsoring the development:
 
 - [Null](https://null.tc/)
+- [CraftCMS](https://laravel.com/)
 - [Laravel](https://laravel.com/)
 - [JetBrains](https://www.jetbrains.com/)
+
+And a huge thanks to AWS for sponsoring work on this v2 release!
 
 and [many others](https://github.com/sponsors/mnapoli#sponsors). Thank you all!
 
