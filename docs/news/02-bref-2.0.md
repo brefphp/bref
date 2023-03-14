@@ -24,6 +24,7 @@ Let's check out what's new in v2.
 Here's a summary, we'll dive in the details below:
 
 - Simpler `serverless.yml` configuration for setting up PHP.
+- Revamped Laravel integration.
 - ARM/Graviton support (faster processors with lower Lambda costs).
 - Faster deployments by default.
 - `vendor/bin/bref cli` becomes much simpler.
@@ -100,6 +101,36 @@ runtime: php-81-console
 ```
 
 The Bref documentation has been updated to reflect these changes.
+
+## New Laravel integration
+
+Bref provides the [Laravel bridge](https://github.com/brefphp/laravel-bridge) to easily deploy Laravel applications to AWS Lambda.
+
+However, that bridge was lagging behind and was limited on some features. The community ([CacheWerk](https://cachewerk.com/), [Till Kruss](https://github.com/tillkruss), and [George Boot](https://github.com/georgeboot)) maintained a better alternative at [cachewerk/bref-laravel-bridge](https://github.com/cachewerk/bref-laravel-bridge).
+
+With Bref 2.0, we are joining forces and their bridge will become the new Bref Laravel bridge ([#94](https://github.com/brefphp/laravel-bridge/pull/94))!
+
+The package name will stay `bref/laravel-bridge`, but a new major version (2.0) has been published with these improvements:
+
+- Laravel Octane support!
+- Automatic config caching (if not already cached) on Lambda cold start.
+- Maintenance mode.
+- Storage directory moved entirely to `/tmp`.
+- AWS credentials automatically set up for S3 disks, SQS queues, and DynamoDB caches.
+- and more minor changes, see [#94](https://github.com/brefphp/laravel-bridge/pull/94).
+
+More importantly, it **improves how Laravel Queues are supported** (this is the most significant breaking change):
+
+- Laravel bridge 1.x adapted Laravel Queues to SQS: the retry strategy and storing of failed messages was handled by SQS (configured in `serverless.yml`). All SQS features were supported, but only a fraction of Laravel Queues features were supported.
+- Laravel bridge 2.0 follows the official behavior of Laravel Queues instead. Only a fraction of SQS features are supported, but **all** features of Laravel Queues are now supported (e.g. job retry, delay, rate limiting, storing failed messages…).
+
+That should make the experience for Laravel users much simpler, as existing projects can be ported to Lambda with no changes.
+
+_Note that it is possible to stay on the 1.x version of the Laravel bridge._
+
+Let's take the opportunity to send huge thanks to Till and George for building such an excellent integration, and for joining the Bref organization on GitHub 💙
+
+If you want to get started with Laravel on Bref, [check out the documentation](../frameworks/laravel.md).
 
 ## ARM/Graviton support
 
