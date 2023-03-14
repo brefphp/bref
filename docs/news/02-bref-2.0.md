@@ -312,7 +312,21 @@ In case you are not familiar with it, AWS CDK is bit more complex than `serverle
 
 ## Rewritten internals
 
-[just look at the number of commits on the v2 runtimes…](https://github.com/brefphp/aws-lambda-layers)
+The scripts that build the AWS Lambda runtimes and Docker images have been completely rewritten at least 4 times ([just look at the number of commits on the v2 runtimes…](https://github.com/brefphp/aws-lambda-layers)). These scripts have also been moved to a separate repository: [brefphp/aws-lambda-layers](https://github.com/brefphp/aws-lambda-layers).
+
+The internals are in a much better place now:
+
+- We have way more test coverage.
+- We optimized the runtime sizes.
+- We optimized the build speed.
+- We documented as much as possible.
+- We now understand 99% of the build scripts (compared to ~50% before, yes I'm not joking).
+
+Besides making maintenance and contributions much simpler, these changes allowed us to support ARM Lambda functions.
+
+I want to extend a huge thanks to [Depot](https://depot.dev/) for sponsoring the project and [making our Docker builds 10 to 20 times faster](https://twitter.com/matthieunapoli/status/1620090744408244224)!
+
+I know this isn't _that_ exciting, but I had to mention it given the incredible effort put into this over the last 1.5 years.
 
 ## Thanks
 
