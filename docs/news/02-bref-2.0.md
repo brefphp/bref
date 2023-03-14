@@ -40,6 +40,7 @@ What did we break? **Nothing major**, the upgrade should be smooth. Here are the
 - Serverless Framework v3 is now required (2.x is obsolete). Run `serverless --version` to check.
 - The `vendor/bin/bref` commands have been moved to the `serverless` CLI (detailed below).
 - If you have a `docker-compose.yml` for local development, it needs to be adjusted (detailed below).
+- The `separateVendor` option in `serverless.yml` has been removed (unmaintained feature).
 
 ## Simpler runtime configuration
 
