@@ -69,12 +69,9 @@
                 $(this).prepend(' <a class="title-anchor" href="' + url + '">#</a>');
             });
             $('article h2').each(function () {
-                if ($(this).find('a').length) {
-                    return;
-                }
                 var url = '#' + $(this).attr('id');
                 var caption = $(this).text().substr(2);
-                $('#in-page-menu ul').append('<li class="py-2"><a class="text-gray-500" href="' + url + '">' + caption + '</a></li>');
+                $('#in-page-menu ul').append('<li><a class="text-gray-500" href="' + url + '">' + caption + '</a></li>');
             });
         });
     </script>
