@@ -5,6 +5,7 @@ layout: news-article
 articleDate: March 2023
 author: Matthieu Napoli
 authorGithub: mnapoli
+socialCard: https://bref.sh/docs/news/02/social-card.png
 ---
 
 The work on what would be Bref 2.0 started in October 2021, about 1.5 year ago. We went through many different strategies, experiments, rewrites, over **700 commits** to finally land with the stable release.

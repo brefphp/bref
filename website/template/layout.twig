@@ -10,10 +10,17 @@
     <meta property="og:description" content="{{ metaDescription|e('html_attr') }}" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="Bref" />
-    <meta property="og:image" content="https://bref.sh/img/logo-small.png" />
-    <meta name="twitter:card" content="summary" />
+    {% if socialCard|default %}
+        <meta property="og:image" content="{{ socialCard }}" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="{{ socialCard }}">
+    {% else %}
+        <meta property="og:image" content="https://bref.sh/img/logo-small.png" />
+        <meta name="twitter:card" content="summary" />
+    {% endif %}
     <meta name="twitter:title" content="{{ metaTitle|e('html_attr') }}" />
     <meta name="twitter:description" content="{{ metaDescription|e('html_attr') }}" />
+    <meta name="twitter:creator" content="@brefphp">
     <meta name="google-site-verification" content="RRmKDrWI2l69B0nMwv4ndrYOHSuaTBfarvCgtJxMpXA" />
     {#<meta name="twitter:site" content="@brefphp" />#}
     <link rel="icon" type="image/png" href="/img/favicon-32x32.png" sizes="32x32" />
