@@ -63,6 +63,7 @@ DB_PORT=3306
 DB_DATABASE=<database name>
 DB_USERNAME=<user>
 DB_PASSWORD=<password>
+# Connect via SSL (https://planetscale.com/docs/concepts/secure-connections)
 MYSQL_ATTR_SSL_CA=/opt/bref/ssl/cert.pem
 ```
 
@@ -76,6 +77,7 @@ provider:
         DB_DATABASE: <database name>
         DB_USERNAME: <user>
         DB_PASSWORD: ${ssm:/my-app/database-password}
+        # Connect via SSL (https://planetscale.com/docs/concepts/secure-connections)
         MYSQL_ATTR_SSL_CA: /opt/bref/ssl/cert.pem
 ```
 
@@ -91,6 +93,58 @@ Now that Laravel is configured, we can run `php artisan migrate` in AWS Lambda t
 
 ```bash
 serverless bref:cli --args="migrate"
+```
+
+That's it! Our database is ready to use.
+
+## Symfony
+
+_This guide assumes you have already set up a Symfony application by following [the Bref documentation for Symfony](../frameworks/symfony.md)._
+
+First, make sure you have installed Doctrine, or [follow these docs to do so](https://symfony.com/doc/current/doctrine.html#installing-doctrine).
+
+To configure Symfony to use the PlanetScale database, we need to set it up via environment variables.
+
+If you deploy a `.env` file, set up the following variables:
+
+```bash
+DATABASE_URL="mysql://<USERNAME>:<PASSWORD>@<HOST_URL>:3306/<DATABASE_NAME>?serverVersion=8.0"
+```
+
+If you don't deploy the `.env` file, you can configure the variables in `serverless.yml`:
+
+```yaml
+provider:
+    # ...
+    environment:
+        DATABASE_URL: ${ssm:/my-app/database-url}
+```
+
+Note that the `DATABASE_URL` value is sensitive and can be set up as a secret via SSM. Read about [Secret variables](./variables.md#secrets) to learn more.
+
+Finally, edit the `config/packages/doctrine.yaml` configuration file to set up [the SSL connections](https://planetscale.com/docs/concepts/secure-connections):
+
+```yaml
+doctrine:
+    dbal:
+        url: '%env(resolve:DATABASE_URL)%'
+        options:
+            # Connect to the database via SSL
+            !php/const:PDO::MYSQL_ATTR_SSL_CA: /opt/bref/ssl/cert.pem
+
+# ...
+```
+
+Let's deploy the changes:
+
+```bash
+serverless deploy
+```
+
+Now that Symfony is configured, we can run the `bin/console doctrine:migrations:migrate` command in AWS Lambda to set up our tables:
+
+```bash
+serverless bref:cli --args="doctrine:migrations:migrate"
 ```
 
 That's it! Our database is ready to use.
