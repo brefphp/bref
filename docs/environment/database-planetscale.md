@@ -149,3 +149,11 @@ serverless bref:cli --args="doctrine:migrations:migrate"
 ```
 
 That's it! Our database is ready to use.
+
+## Digging deeper
+
+### MySQL compatibility
+
+### Database import
+
+### Schema changes workflow
