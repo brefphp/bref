@@ -1,7 +1,18 @@
 name: Update layer versions (Bref v2)
 
 # Triggered manually or automatically when new Bref layers published
-on: workflow_dispatch
+on:
+    workflow_dispatch:
+        inputs:
+            release_url:
+                required: true
+                type: string
+            release_html_url:
+                required: true
+                type: string
+            release_name:
+                required: true
+                type: string
 
 # Necessary to connect to AWS using OIDC
 # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
@@ -18,9 +29,7 @@ jobs:
         steps:
             -   uses: actions/checkout@v3
                 with:
-                    # Check out the `v2` branch
-                    # TODO Update that to `main` when the v2 is merged and released
-                    ref: v2
+                    ref: master
 
             -   name: Set AWS credentials
                 uses: aws-actions/configure-aws-credentials@v1
@@ -44,9 +53,11 @@ jobs:
                 uses: peter-evans/create-pull-request@v4
                 with:
                     commit-message: Update layer versions
-                    title: Updated AWS Lambda layers (Bref v2)
+                    title: Update Lambda layers [${{ inputs.release_name }}](${{ inputs.release_html_url }})
                     body: |
-                        New AWS Lambda layers [have been released](https://github.com/brefphp/aws-lambda-layers/releases) for Bref v2.
+                        New AWS Lambda layers [have been released](https://github.com/brefphp/aws-lambda-layers/releases):
+                        
+                        [${{ inputs.release_name }}](${{ inputs.release_html_url }})
 
                         This PR was automatically generated to update the layer versions used by Bref.
                         After merging, a new Bref release needs to be created.

@@ -2,11 +2,14 @@
 
 namespace Bref\Runtime;
 
+use Bref\Bref;
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
+use CurlHandle;
 use Exception;
 use Psr\Http\Server\RequestHandlerInterface;
+use Throwable;
 
 /**
  * Client for the AWS Lambda runtime API.
@@ -30,20 +33,13 @@ use Psr\Http\Server\RequestHandlerInterface;
  */
 final class LambdaRuntime
 {
-    /** @var resource|\CurlHandle|null */
+    /** @var resource|CurlHandle|null */
     private $curlHandleNext;
-
-    /** @var resource|\CurlHandle|null */
+    /** @var resource|CurlHandle|null */
     private $curlHandleResult;
-
-    /** @var string */
-    private $apiUrl;
-
-    /** @var Invoker */
-    private $invoker;
-
-    /** @var string */
-    private $layer;
+    private string $apiUrl;
+    private Invoker $invoker;
+    private string $layer;
 
     public static function fromEnvironmentVariable(string $layer): self
     {
@@ -80,10 +76,11 @@ final class LambdaRuntime
      * @return bool true if event was successfully handled
      * @throws Exception
      */
-    public function processNextEvent($handler): bool
+    public function processNextEvent(Handler | RequestHandlerInterface | callable $handler): bool
     {
         [$event, $context] = $this->waitNextInvocation();
-        \assert($context instanceof Context);
+
+        Bref::triggerHooks('beforeInvoke');
 
         $this->ping();
 
@@ -91,7 +88,7 @@ final class LambdaRuntime
             $result = $this->invoker->invoke($handler, $event, $context);
 
             $this->sendResponse($context->getAwsRequestId(), $result);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
 
             return false;
@@ -105,17 +102,19 @@ final class LambdaRuntime
      *
      * This call is blocking because the Lambda runtime API is blocking.
      *
+     * @return array{0: mixed, 1: Context}
+     *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-next
      */
     private function waitNextInvocation(): array
     {
         if ($this->curlHandleNext === null) {
-            $this->curlHandleNext = curl_init("http://{$this->apiUrl}/2018-06-01/runtime/invocation/next");
+            $this->curlHandleNext = curl_init("http://$this->apiUrl/2018-06-01/runtime/invocation/next");
             curl_setopt($this->curlHandleNext, CURLOPT_FOLLOWLOCATION, true);
             curl_setopt($this->curlHandleNext, CURLOPT_FAILONERROR, true);
             // Set a custom user agent so that AWS can estimate Bref usage in custom runtimes
             $phpVersion = substr(PHP_VERSION, 0, strpos(PHP_VERSION, '.', 2));
-            curl_setopt($this->curlHandleNext, CURLOPT_USERAGENT, "bref/{$this->layer}/$phpVersion");
+            curl_setopt($this->curlHandleNext, CURLOPT_USERAGENT, "bref/$this->layer/$phpVersion");
         }
 
         // Retrieve invocation ID
@@ -167,26 +166,24 @@ final class LambdaRuntime
             throw new Exception('Failed to determine the Lambda invocation ID');
         }
 
-        $event = json_decode($body, true);
+        $event = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
 
         return [$event, $context];
     }
 
     /**
-     * @param mixed $responseData
-     *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-response
      */
-    private function sendResponse(string $invocationId, $responseData): void
+    private function sendResponse(string $invocationId, mixed $responseData): void
     {
-        $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/response";
+        $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/response";
         $this->postJson($url, $responseData);
     }
 
     /**
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-invokeerror
      */
-    private function signalFailure(string $invocationId, \Throwable $error): void
+    private function signalFailure(string $invocationId, Throwable $error): void
     {
         $stackTraceAsArray = explode(PHP_EOL, $error->getTraceAsString());
         $errorFormatted = [
@@ -213,10 +210,11 @@ final class LambdaRuntime
         // Log the exception in CloudWatch
         // We aim to use the same log format as what we can see when throwing an exception in the NodeJS runtime
         // See https://github.com/brefphp/bref/pull/579
+        /** @noinspection JsonEncodingApiUsageInspection */
         echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
 
         // Send an "error" Lambda response
-        $url = "http://{$this->apiUrl}/2018-06-01/runtime/invocation/$invocationId/error";
+        $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
         $this->postJson($url, [
             'errorType' => get_class($error),
             'errorMessage' => $error->getMessage(),
@@ -228,8 +226,10 @@ final class LambdaRuntime
      * Abort the lambda and signal to the runtime API that we failed to initialize this instance.
      *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-initerror
+     *
+     * @phpstan-return never-returns
      */
-    public function failInitialization(string $message, ?\Throwable $error = null): void
+    public function failInitialization(string $message, ?Throwable $error = null): void
     {
         // Log the exception in CloudWatch
         echo "$message\n";
@@ -248,7 +248,7 @@ final class LambdaRuntime
             );
         }
 
-        $url = "http://{$this->apiUrl}/2018-06-01/runtime/init/error";
+        $url = "http://$this->apiUrl/2018-06-01/runtime/init/error";
         $this->postJson($url, [
             'errorMessage' => $message . ' ' . ($error ? $error->getMessage() : ''),
             'errorType' => $error ? get_class($error) : 'Internal',
@@ -258,11 +258,9 @@ final class LambdaRuntime
         exit(1);
     }
 
-    /**
-     * @param mixed $data
-     */
-    private function postJson(string $url, $data): void
+    private function postJson(string $url, mixed $data): void
     {
+        /** @noinspection JsonEncodingApiUsageInspection */
         $jsonData = json_encode($data);
         if ($jsonData === false) {
             throw new Exception(sprintf(
@@ -326,14 +324,14 @@ final class LambdaRuntime
      * HOW?
      * The data is sent via the statsd protocol, over UDP.
      * Unlike TCP, UDP does not check that the message correctly arrived to the server.
-     * It doesn't even establishes a connection. That means that UDP is extremely fast:
+     * It doesn't even establish a connection. That means that UDP is extremely fast:
      * the data is sent over the network and the code moves on to the next line.
      * When actually sending data, the overhead of that ping takes about 150 micro-seconds.
      * However, this function actually sends data every 100 invocation, because we don't
      * need to measure *all* invocations. We only need an approximation.
      * That means that 99% of the time, no data is sent, and the function takes 30 micro-seconds.
      * If we average all executions, the overhead of that ping is about 31 micro-seconds.
-     * Given that it is much much less than even 1 milli-second, we consider that overhead
+     * Given that it is much much less than even 1 millisecond, we consider that overhead
      * negligible.
      *
      * CAN I DISABLE IT?
@@ -355,6 +353,7 @@ final class LambdaRuntime
 
         // Only run the code in 1% of requests
         // We don't need to collect all invocations, only to get an approximation
+        /** @noinspection RandomApiMigrationInspection */
         if (rand(0, 99) > 0) {
             return;
         }

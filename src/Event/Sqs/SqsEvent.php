@@ -8,16 +8,14 @@ use InvalidArgumentException;
 
 /**
  * Represents a Lambda event when Lambda is invoked by SQS.
+ *
+ * @final
  */
-final class SqsEvent implements LambdaEvent
+class SqsEvent implements LambdaEvent
 {
-    /** @var array */
-    private $event;
+    private array $event;
 
-    /**
-     * @param mixed $event
-     */
-    public function __construct($event)
+    public function __construct(mixed $event)
     {
         if (! is_array($event) || ! isset($event['Records'])) {
             throw new InvalidLambdaEvent('SQS', $event);
@@ -33,7 +31,7 @@ final class SqsEvent implements LambdaEvent
         return array_map(function ($record): SqsRecord {
             try {
                 return new SqsRecord($record);
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
                 throw new InvalidLambdaEvent('SQS', $this->event);
             }
         }, $this->event['Records']);

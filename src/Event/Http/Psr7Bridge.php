@@ -11,10 +11,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Riverline\MultiPartParser\Part;
 use RuntimeException;
 
+use function str_starts_with;
+
 /**
  * Bridges PSR-7 requests and responses with API Gateway or ALB event/response formats.
- *
- * @internal
  */
 final class Psr7Bridge
 {
@@ -98,7 +98,7 @@ final class Psr7Bridge
         $parsedBody = null;
         $contentType = $event->getContentType();
         if ($contentType !== null && $event->getMethod() === 'POST') {
-            if (strpos($contentType, 'application/x-www-form-urlencoded') === 0) {
+            if (str_starts_with($contentType, 'application/x-www-form-urlencoded')) {
                 parse_str($bodyString, $parsedBody);
             } else {
                 $document = new Part("Content-type: $contentType\r\n\r\n" . $bodyString);
@@ -126,12 +126,10 @@ final class Psr7Bridge
 
     /**
      * Parse a string key like "files[id_cards][jpg][]" and do $array['files']['id_cards']['jpg'][] = $value
-     *
-     * @param mixed $value
      */
-    private static function parseKeyAndInsertValueInArray(array &$array, string $key, $value): void
+    private static function parseKeyAndInsertValueInArray(array &$array, string $key, mixed $value): void
     {
-        if (strpos($key, '[') === false) {
+        if (! str_contains($key, '[')) {
             $array[$key] = $value;
 
             return;
@@ -150,7 +148,7 @@ final class Psr7Bridge
             // Skip two special cases:
             // [[ in the key produces empty string
             // [test : starts with [ but does not end with ]
-            if ($part === '' || substr($part, -1) !== ']') {
+            if ($part === '' || ! str_ends_with($part, ']')) {
                 // Malformed key, we use it "as is"
                 $array[$key] = $value;
 

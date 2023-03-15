@@ -4,6 +4,20 @@ current_menu: storage
 introduction: Learn how to store data and files in serverless PHP applications running on AWS Lambda.
 ---
 
+Here is a simplified overview of the filesystem on AWS Lambda:
+
+```bash
+/opt/
+    # Where Lambda runtimes and layers (like Bref) are unzipped
+/var/task/
+    # Where your application code is unzipped
+/tmp/
+    # Temporary files
+...
+```
+
+The `/var/task` directory is [limited to 250MB](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html#function-configuration-deployment-and-execution). If you hit that limit, you can deploy [via Docker images instead](../web-apps/docker.md).
+
 The filesystem on AWS Lambda **is read-only**, except for the `/tmp` directory.
 
 On top of that, the filesystem is not shared between instances of a lambda when it scales up. For example a file `/tmp/foo.json` will not be shared across instances of the same lambda. Since a lambda can scale up or down at any time, data in the `/tmp` directory can be lost.

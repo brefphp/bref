@@ -4,20 +4,21 @@ namespace Bref\Event\DynamoDb;
 
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
+use InvalidArgumentException;
 
 /**
  * Represents a Lambda event when Lambda is invoked by DynamoDB Streams.
+ *
+ * @final
  */
-final class DynamoDbEvent implements LambdaEvent
+class DynamoDbEvent implements LambdaEvent
 {
-    /** @var array */
-    private $event;
+    private array $event;
 
     /**
-     * @param mixed $event
      * @throws InvalidLambdaEvent
      */
-    public function __construct($event)
+    public function __construct(mixed $event)
     {
         if (! is_array($event) || ! isset($event['Records'])) {
             throw new InvalidLambdaEvent('DynamoDB', $event);
@@ -35,7 +36,7 @@ final class DynamoDbEvent implements LambdaEvent
             function ($record): DynamoDbRecord {
                 try {
                     return new DynamoDbRecord($record);
-                } catch (\InvalidArgumentException $e) {
+                } catch (InvalidArgumentException) {
                     throw new InvalidLambdaEvent('DynamoDb', $this->event);
                 }
             },

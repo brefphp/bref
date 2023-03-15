@@ -6,10 +6,7 @@ use Exception;
 
 final class InvalidLambdaEvent extends Exception
 {
-    /**
-     * @param mixed $event
-     */
-    public function __construct(string $expectedEventType, $event)
+    public function __construct(string $expectedEventType, mixed $event)
     {
         if (! $event) {
             $eventData = 'null';

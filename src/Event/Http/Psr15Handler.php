@@ -7,8 +7,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class Psr15Handler extends HttpHandler
 {
-    /** @var RequestHandlerInterface */
-    private $psr15Handler;
+    private RequestHandlerInterface $psr15Handler;
 
     public function __construct(RequestHandlerInterface $psr15Handler)
     {

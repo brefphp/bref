@@ -10,7 +10,7 @@ abstract class KafkaHandler implements Handler
     abstract public function handleKafka(KafkaEvent $event, Context $context): void;
 
     /** {@inheritDoc} */
-    final public function handle($event, Context $context)
+    public function handle($event, Context $context)
     {
         $this->handleKafka(new KafkaEvent($event), $context);
     }

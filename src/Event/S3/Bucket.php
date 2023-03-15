@@ -7,14 +7,9 @@ namespace Bref\Event\S3;
  */
 final class Bucket
 {
-    /** @var string */
-    private $name;
-    /** @var string */
-    private $arn;
+    private string $name;
+    private string $arn;
 
-    /**
-     * @internal
-     */
     public function __construct(string $name, string $arn)
     {
         $this->name = $name;

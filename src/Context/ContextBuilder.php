@@ -2,22 +2,12 @@
 
 namespace Bref\Context;
 
-/**
- * @internal
- */
 final class ContextBuilder
 {
-    /** @var string */
-    private $awsRequestId;
-
-    /** @var int */
-    private $deadlineMs;
-
-    /** @var string */
-    private $invokedFunctionArn;
-
-    /** @var string */
-    private $traceId;
+    private string $awsRequestId;
+    private int $deadlineMs;
+    private string $invokedFunctionArn;
+    private string $traceId;
 
     public function __construct()
     {

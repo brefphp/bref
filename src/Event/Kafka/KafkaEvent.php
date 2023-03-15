@@ -6,10 +6,12 @@ use Bref\Event;
 use Bref\Event\InvalidLambdaEvent;
 use InvalidArgumentException;
 
-final class KafkaEvent implements Event\LambdaEvent
+/**
+ * @final
+ */
+class KafkaEvent implements Event\LambdaEvent
 {
-    /** @var array */
-    private $event;
+    private array $event;
 
     /**
      * Represents a Lambda event when Lambda is invoked by Kafka.

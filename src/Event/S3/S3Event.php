@@ -10,18 +10,14 @@ use InvalidArgumentException;
  * Represents an event when Lambda is invoked by S3.
  *
  * @see https://docs.aws.amazon.com/AmazonS3/latest/dev/notification-content-structure.html
+ *
+ * @final
  */
-final class S3Event implements LambdaEvent
+class S3Event implements LambdaEvent
 {
-    /** @var array */
-    private $event;
+    private array $event;
 
-    /**
-     * @param mixed $event
-     *
-     * @internal
-     */
-    public function __construct($event)
+    public function __construct(mixed $event)
     {
         if (! is_array($event) || ! isset($event['Records'])) {
             throw new InvalidLambdaEvent('S3', $event);
@@ -37,7 +33,7 @@ final class S3Event implements LambdaEvent
         return array_map(function ($record): S3Record {
             try {
                 return new S3Record($record);
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
                 throw new InvalidLambdaEvent('S3', $this->event);
             }
         }, $this->event['Records']);

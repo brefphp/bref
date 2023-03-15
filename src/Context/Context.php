@@ -2,31 +2,37 @@
 
 namespace Bref\Context;
 
+use JsonSerializable;
+
 /**
  * The execution context of a Lambda.
  *
  * @see https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html
  */
-final class Context implements \JsonSerializable
+final class Context implements JsonSerializable
 {
-    /** @var string */
-    private $awsRequestId;
+    /**
+     * @param int $deadlineMs Holds the deadline Unix timestamp in millis
+     */
+    public function __construct(
+        private string $awsRequestId,
+        private int $deadlineMs,
+        private string $invokedFunctionArn,
+        private string $traceId
+    ) {
+    }
 
-    /** @var int Holds the deadline Unix timestamp in millis */
-    private $deadlineMs;
-
-    /** @var string */
-    private $invokedFunctionArn;
-
-    /** @var string */
-    private $traceId;
-
-    public function __construct(string $awsRequestId, int $deadlineMs, string $invokedFunctionArn, string $traceId)
+    /**
+     * Test helper to create a fake context in one line.
+     */
+    public static function fake(): self
     {
-        $this->awsRequestId = $awsRequestId;
-        $this->deadlineMs = $deadlineMs;
-        $this->invokedFunctionArn = $invokedFunctionArn;
-        $this->traceId = $traceId;
+        return new self(
+            'fake-aws-request-id',
+            time() + 1000 * 60 * 5, // 5 minutes from now (in milliseconds)
+            'fake-invoked-function-arn',
+            'fake-trace-id'
+        );
     }
 
     /**

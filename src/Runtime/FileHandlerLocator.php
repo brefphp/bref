@@ -11,22 +11,18 @@ use Psr\Container\ContainerInterface;
  * Whenever a Lambda function executes, this class will `require` that PHP file
  * and return what the file returns.
  *
- * @internal
  * @see \Bref\Bref::setContainer()
  */
 class FileHandlerLocator implements ContainerInterface
 {
-    /** @var string */
-    private $directory;
+    private string $directory;
 
     public function __construct(?string $directory = null)
     {
-        $this->directory = $directory ?: ($_SERVER['LAMBDA_TASK_ROOT'] ?? null);
+        $directory = $directory ?: ($_SERVER['LAMBDA_TASK_ROOT'] ?? null);
 
-        // When running locally (`bref local` CLI command) `LAMBDA_TASK_ROOT` is undefined
-        if (! $this->directory) {
-            $this->directory = getcwd();
-        }
+        // When running locally (`serverless bref:local` CLI command) `LAMBDA_TASK_ROOT` is undefined
+        $this->directory = $directory ?: getcwd();
     }
 
     /**
@@ -39,7 +35,6 @@ class FileHandlerLocator implements ContainerInterface
             throw new HandlerNotFound("Handler `$handlerFile` doesn't exist");
         }
 
-        /** @noinspection PhpIncludeInspection */
         $handler = require $handlerFile;
 
         if (! (is_object($handler) || is_array($handler))) {

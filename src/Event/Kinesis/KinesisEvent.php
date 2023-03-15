@@ -4,17 +4,19 @@ namespace Bref\Event\Kinesis;
 
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
+use InvalidArgumentException;
 
-final class KinesisEvent implements LambdaEvent
+/**
+ * @final
+ */
+class KinesisEvent implements LambdaEvent
 {
-    /** @var array */
-    private $event;
+    private array $event;
 
     /**
-     * @param mixed $event
      * @throws InvalidLambdaEvent
      */
-    public function __construct($event)
+    public function __construct(mixed $event)
     {
         if (! is_array($event) || ! isset($event['Records'])) {
             throw new InvalidLambdaEvent('Kinesis', $event);
@@ -32,7 +34,7 @@ final class KinesisEvent implements LambdaEvent
             function ($record): KinesisRecord {
                 try {
                     return new KinesisRecord($record);
-                } catch (\InvalidArgumentException $e) {
+                } catch (InvalidArgumentException) {
                     throw new InvalidLambdaEvent('Kinesis', $this->event);
                 }
             },

@@ -16,61 +16,82 @@ This can be used to run PHP scripts, the [Symfony Console](https://symfony.com/d
 
 ## Configuration
 
-The lambda function used for running console applications must use two Lambda layers:
-
-- the base PHP layer that provides the `php` binary,
-- the `console` layer that overrides the base runtime to execute our console commands.
-
-Below is a minimal `serverless.yml`.
+The lambda function used for running console applications must use the `php-xx-console` runtime. Here is an example `serverless.yml`:
 
 ```yaml
 service: app
 provider:
     name: aws
-    runtime: provided.al2
 plugins:
     - ./vendor/bref/bref
 functions:
     hello:
         handler: bin/console # or 'artisan' for Laravel
-        layers:
-            - ${bref:layer.php-74} # PHP runtime
-            - ${bref:layer.console} # Console layer
+        runtime: php-81-console
 ```
+
+Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-81` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](./README.md)).
 
 ## Usage
 
-To run a console command on AWS Lambda, run `bref cli` on your computer:
+To run a console command on AWS Lambda, run `serverless bref:cli` on your computer:
 
 ```bash
-vendor/bin/bref cli <function-name> -- <command>
+serverless bref:cli --args="<command to run in lambda>"
 ```
 
-`<function-name>` is the name of the function that was deployed on AWS. In our example above that would be `hello-dev` because Serverless adds the stage (by default `dev`) as a suffix.
+The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` runtime and will run the command on that function.
 
-Pass your command, arguments and options by putting them after `--`. The `--` delimiter separates between options for the `bref cli` command (before `--`) and your command (after `--`).
-
-```bash
-vendor/bin/bref cli hello-dev <bref options> -- <your command, your options>
-```
-
-For example:
+Pass your command arguments and options in the `--args` flag (shortcut: `-a`). Remember to escape quotes properly. Some examples:
 
 ```bash
 # Runs the CLI application without arguments and displays the help
-$ vendor/bin/bref cli hello-dev
+$ serverless bref:cli
 # ...
 
-$ vendor/bin/bref cli hello-dev -- doctrine:migrations:migrate
+$ serverless bref:cli --args="doctrine:migrations:migrate"
 Your database will be migrated.
 To execute the SQL queries run the command with the `--force` option.
 
-$ vendor/bin/bref cli hello-dev -- doctrine:migrations:migrate --force
+$ serverless bref:cli -a "doctrine:migrations:migrate --force"
 Your database has been migrated.
 
-# Use environment variables to configure your AWS credentials
-$ AWS_DEFAULT_REGION=eu-central-1 AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar vendor/bin/bref cli my-function
+$ serverless bref:cli --stage=prod -a "db:dump --file='/tmp/dump.sql' --verbose"
 # ...
+
+# You can use environment variables to configure AWS credentials (e.g. in CI)
+$ AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar serverless bref:cli
+# ...
+```
+
+### Usage without Serverless Framework
+
+If you do not use `serverless.yml` but something else, like SAM/AWS CDK/Terraform, you can invoke your console function via the AWS CLI. For example:
+
+```bash
+aws lambda invoke \
+    --function-name <console function name> \
+    --region <region> \
+    --cli-binary-format raw-in-base64-out \
+    --payload "<command arguments and options>" \
+    <file to store the output>.json
+
+# For example:
+aws lambda invoke \
+    --function-name myapp-dev-myfunction \
+    --region us-east-1 \
+    --cli-binary-format raw-in-base64-out \
+    --payload "doctrine:migrations:migrate --force" \
+    response.json
+
+# To extract the command output from the response.json file using jq
+# https://stedolan.github.io/jq/
+aws lambda invoke \
+    --function-name myapp-dev-myfunction \
+    --region us-east-1 \
+    --cli-binary-format raw-in-base64-out \
+    --payload "doctrine:migrations:migrate --force" \
+    response.json && jq -r .output response.json
 ```
 
 The [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) also provides a convenient way to run commands via a terminal:

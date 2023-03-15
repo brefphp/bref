@@ -10,8 +10,7 @@ namespace Bref\Event\Sns;
  */
 class MessageAttribute
 {
-    /** @var array */
-    private $attribute;
+    private array $attribute;
 
     public function __construct(array $attribute)
     {

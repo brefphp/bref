@@ -5,16 +5,6 @@ parameters:
     - src
     - tests
   excludePaths:
-    - %rootDir%/../../../tests/Bridge/Laravel/bootstrap/cache/*
-    - %rootDir%/../../../tests/Bridge/Laravel/storage/*
-    - %rootDir%/../../../tests/Bridge/Symfony/var/*
-    - %rootDir%/../../../tests/Bridge/Symfony/cache/*
-    - %rootDir%/../../../tests/Bridge/Symfony/logs/*
     - %rootDir%/../../../tests/Sam/Php/*
     - %rootDir%/../../../tests/Sam/PhpFpm/*
-    - %rootDir%/../../../tests/Functional/fpm/*
-
-  ignoreErrors:
-    -
-      message: '#Parameter \#1 \$handler of method Bref\\Runtime\\LambdaRuntime::processNextEvent\(\).*#'
-      path: tests/Runtime/LambdaRuntimeTest.php
+    - %rootDir%/../../../tests/FpmRuntime/Functional/fpm/*

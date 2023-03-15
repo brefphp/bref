@@ -13,5 +13,5 @@ interface Handler
      * @param mixed $event The raw event data.
      * @return mixed|void
      */
-    public function handle($event, Context $context);
+    public function handle(mixed $event, Context $context);
 }

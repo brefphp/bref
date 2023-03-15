@@ -4,15 +4,14 @@ namespace Bref\Event\Kafka;
 
 use InvalidArgumentException;
 
-final class KafkaRecord
+/**
+ * @final
+ */
+class KafkaRecord
 {
-    /** @var array */
-    private $record;
+    private array $record;
 
-    /**
-     * @param mixed $record
-     */
-    public function __construct($record)
+    public function __construct(mixed $record)
     {
         if (! is_array($record)) {
             throw new InvalidArgumentException;
@@ -40,16 +39,13 @@ final class KafkaRecord
         return $this->record['timestamp'];
     }
 
-    /**
-     * @return mixed
-     */
-    public function getValue()
+    public function getValue(): mixed
     {
         return base64_decode($this->record['value']);
     }
 
     /**
-     * A header in Kafka is an objects, with a single property. The name of the property is the name of the header. It's value is a
+     * A header in Kafka is an objects, with a single property. The name of the property is the name of the header. Its value is a
      * byte-array, representing a string. We'll normalize it to a hashmap with key and value being strings.
      *
      * @return array<string, string>
