@@ -16,7 +16,7 @@ abstract class SqsHandler implements Handler
     abstract public function handleSqs(SqsEvent $event, Context $context): void;
 
     /** {@inheritDoc} */
-    public function handle($event, Context $context): array
+    public function handle($event, Context $context): array | null
     {
         // Reset the failed records to clear the internal state when using BREF_LOOP_MAX
         $this->failedRecords = [];
@@ -24,7 +24,7 @@ abstract class SqsHandler implements Handler
         $this->handleSqs(new SqsEvent($event), $context);
 
         if (count($this->failedRecords) === 0) {
-            return [];
+            return null;
         }
 
         $failures = array_map(
