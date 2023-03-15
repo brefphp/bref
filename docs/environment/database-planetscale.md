@@ -4,19 +4,20 @@ current_menu: database-planetscale
 introduction: Configure Bref to use a PlanetScale database in your PHP application on AWS Lambda.
 ---
 
-[PlanetScale](https://planetscale.com/) is a serverless MySQL database service ([What is PlanetScale?](https://planetscale.com/docs/concepts/what-is-planetscale)).
+[PlanetScale](https://planetscale.com/) is a hosted serverless MySQL database based on the Vitess engine ([learn more](https://planetscale.com/docs/concepts/what-is-planetscale)).
 
 Amongst other features, it offers the following benefits compared to running a database on AWS:
 
 - Simple to set up: no VPC (virtual private network) to set up, no instances to configure.
-- Scales automatically and in real time, up to ?.
-- No limits on [the number of MySQL connections](https://planetscale.com/blog/one-million-connections).
-- Offers a [free database in the Hobby plan](https://planetscale.com/pricing).
-- Since it does not require a VPC, we do not need to pay [for a NAT Gateway](database.md#accessing-the-internet).
+- Runs [the Vitess MySQL engine](https://planetscale.com/blog/vitess-for-the-rest-of-us), which offers better scalability and supports a lot more concurrent connections [via built-in connection pooling](https://planetscale.com/blog/one-million-connections).
+- Offers a [free database in the Hobby plan](https://planetscale.com/pricing), and paid plans are usage-based.
+- Since it does not require a VPC, we do not need to set up and pay [for a NAT Gateway](database.md#accessing-the-internet).
+
+One extra feature worth mentioning is [the branching concept](https://planetscale.com/docs/concepts/branching): it enables testing schema changes before deploying them in production without downtime.
 
 ## Getting started
 
-To use PlaneScale with Bref, start [by creating a free PlanetScale account](https://planetscale.com/).
+To use PlaneScale with Bref, start [by creating a PlanetScale account](https://planetscale.com/).
 
 Then, create a database in the same region as your Bref application.
 
