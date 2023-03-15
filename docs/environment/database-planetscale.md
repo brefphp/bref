@@ -16,7 +16,7 @@ Amongst other features, it offers the following benefits compared to running a d
 
 ## Getting started
 
-To use PlaneScale with Bref, start [by creating a PlanetScale account](https://planetscale.com/).
+To use PlaneScale with Bref, start [by creating a free PlanetScale account](https://planetscale.com/).
 
 Then, create a database in the same region as your Bref application.
 
@@ -44,11 +44,13 @@ $pdo->exec('INSERT INTO test (name) VALUES ("test")');
 var_dump($pdo->query('SELECT * FROM test')->fetchAll());
 ```
 
-Note the `PDO::MYSQL_ATTR_SSL_CA` flag: while we connect via a username and password, [the connection happens over SSL](https://planetscale.com/docs/concepts/secure-connections) to prevent man-in-the-middle attacks. To avoid hardcoding the location of the file containing SSL certificates, we retrieve its path via `openssl_get_cert_locations()['default_cert_file']`.
+Note the `PDO::MYSQL_ATTR_SSL_CA` flag: while we connect via a username and password, [the connection happens over SSL](https://planetscale.com/docs/concepts/secure-connections) to secure against man-in-the-middle attacks. To avoid hardcoding the location of the file containing SSL certificates, we retrieve its path via `openssl_get_cert_locations()['default_cert_file']`.
 
-Alternatively, we can hardcode the location of the certificate file: `/opt/bref/ssl/cert.pem`.
+In Bref, the file is located here: `/opt/bref/ssl/cert.pem`.
 
 ## Laravel
+
+_This guide assumes you have already set up a Laravel application by following [the Bref documentation for Laravel](../frameworks/laravel.md)._
 
 To configure Laravel to use the PlanetScale database, we need to set it up via environment variables.
 
@@ -64,7 +66,7 @@ DB_PASSWORD=<password>
 MYSQL_ATTR_SSL_CA=/opt/bref/ssl/cert.pem
 ```
 
-If you don't deploy `.env`, you can configure these variables in `serverless.yml`:
+If you don't deploy the `.env` file, you can configure the variables in `serverless.yml`:
 
 ```yaml
 provider:
@@ -78,3 +80,17 @@ provider:
 ```
 
 Note that the `DB_PASSWORD` value is sensitive and can be set up as a secret via SSM. Read about [Secret variables](./variables.md#secrets) to learn more.
+
+Don't forget to deploy the changes:
+
+```bash
+serverless deploy
+```
+
+Now that Laravel is configured, we can run `php artisan migrate` in AWS Lambda to set up our tables:
+
+```bash
+serverless bref:cli --args="migrate"
+```
+
+That's it! Our database is ready to use.
