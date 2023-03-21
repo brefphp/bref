@@ -167,4 +167,18 @@ You can read the [complete **MySQL compatibility table** on the PlanetScale webs
 
 ### Database import
 
+PlanetScale provides an automated import tool to import an existing database without downtime. Check out [the documentation](https://planetscale.com/docs/imports/database-imports) to get started.
+
+For simple scenarios, you can also use the [`mysqldump` tool](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-syntax) to export you existing database and import it later in PlanetScale. First, let's export the existing database:
+
+```bash
+mysqldump -u <user> -p<password> -h <hostname> <db-name> > dump.sql
+```
+
+Next, we can import the `dump.sql` file into PlanetScale, **using the PlanetScale settings this time** (user, password, host):
+
+```bash
+mysql -u <user> -p<password> -h <hostname> <db-name> < dump.sql
+```
+
 ### Schema changes workflow
