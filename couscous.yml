@@ -132,6 +132,12 @@ menu:
                     text: Performance
                     url: /docs/environment/performances.html
                     title: Performance tuning and optimizations
+        -   section: Upgrading
+            items:
+                v2:
+                    text: Upgrading to v2
+                    url: /docs/upgrading/v2.html
+                    title: Upgrading Bref applications to Bref v2
         -   section: Learning
             items:
                 course:
