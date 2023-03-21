@@ -9,7 +9,7 @@ introduction: Configure Bref to use a PlanetScale database in your PHP applicati
 Amongst other features, it offers the following benefits compared to running a database on AWS:
 
 - Simple to set up: no VPC (virtual private network) to set up, no instances to configure.
-- Runs [the Vitess MySQL engine](https://planetscale.com/blog/vitess-for-the-rest-of-us), which offers better scalability and supports a lot more concurrent connections [via built-in connection pooling](https://planetscale.com/blog/one-million-connections).
+- Runs [the Vitess clustering system](https://planetscale.com/blog/vitess-for-the-rest-of-us), which offers better scalability and supports a lot more concurrent connections [via built-in connection pooling](https://planetscale.com/blog/one-million-connections).
 - Offers a [free database in the Hobby plan](https://planetscale.com/pricing), and paid plans are usage-based.
 - Since it does not require a VPC, we do not need to set up and pay [for a NAT Gateway](database.md#accessing-the-internet).
 
@@ -153,6 +153,17 @@ That's it! Our database is ready to use.
 ## Digging deeper
 
 ### MySQL compatibility
+
+PlanetScale is based on the Vitess clustering system, which was built for scaling MySQL. Because of that, Vitess doesn't support all the usual MySQL features.
+
+The biggest change is that **foreign key constraints** are not supported. To be clear, foreign keys work (e.g. to reference rows in other tables and perform joins). It is the constraint that is not enforced: foreign keys are no longer validated at the database level.
+
+That means that you should take care of validating references between rows, and you should handle cascade deletions. If you use an ORM, you should be in a good place:
+
+- **Laravel** DB migrations and Eloquent work fine, you can use [the `foreignId()` method](https://laravel.com/docs/migrations#foreign-key-constraints) to create relationships between tables, but you cannot enforce referential integrity with the `constrained()` method (and related methods like `onDelete('cascade')`).
+- [**Doctrine**](https://www.doctrine-project.org/) works fine, but you should not use [`onDelete="CASCADE"` which relies on foreign key constraints](https://www.doctrine-project.org/projects/doctrine-orm/en/2.14/reference/working-with-objects.html#removing-entities) (`cascade=REMOVE` or `cascade=ALL` is fine as the cascade is performed by Doctrine in memory).
+
+You can read the [complete **MySQL compatibility table** on the PlanetScale website](https://planetscale.com/docs/reference/mysql-compatibility).
 
 ### Database import
 
