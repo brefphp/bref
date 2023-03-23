@@ -43,6 +43,6 @@ phases:
       - git remote add github https://brefphp-bot:${GITHUB_TOKEN}@github.com/brefphp-bot/bref.git
       - git push --set-upstream github bref/layers --force
 
-      - gh pr create --title "New PHP Layers" --body "New layers have finished building" --repo "brefphp/bref" --base master --head "brefphp-bot:bref/layers"
+      - gh pr create --title "Update v1 layers" --body "New layers for Bref v1 have finished building." --repo "brefphp/bref" --base 1.x --head "brefphp-bot:bref/layers"
 
 

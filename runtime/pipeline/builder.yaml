@@ -66,7 +66,7 @@ Resources:
               Configuration:
                 ConnectionArn: !Ref GitHubConnection
                 FullRepositoryId: brefphp/bref
-                BranchName: master
+                BranchName: 1.x
                 OutputArtifactFormat: CODEBUILD_CLONE_REF
                 DetectChanges: false
 
