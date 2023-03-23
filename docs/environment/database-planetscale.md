@@ -150,9 +150,7 @@ serverless bref:cli --args="doctrine:migrations:migrate"
 
 That's it! Our database is ready to use.
 
-## Digging deeper
-
-### MySQL compatibility
+## MySQL compatibility
 
 PlanetScale is based on the Vitess clustering system, which was built for scaling MySQL. Because of that, Vitess doesn't support all the usual MySQL features.
 
@@ -165,7 +163,7 @@ That means that you should take care of validating references between rows, and 
 
 You can read the [complete **MySQL compatibility table** on the PlanetScale website](https://planetscale.com/docs/reference/mysql-compatibility).
 
-### Database import
+## Database import
 
 PlanetScale provides an automated import tool to import an existing database without downtime. Check out [the documentation](https://planetscale.com/docs/imports/database-imports) to get started.
 
@@ -181,4 +179,104 @@ Next, we can import the `dump.sql` file into PlanetScale, **using the PlanetScal
 mysql -u <user> -p<password> -h <hostname> <db-name> < dump.sql
 ```
 
-### Schema changes workflow
+## Schema changes workflow
+
+PlanetScale has a concept of [database branches](https://planetscale.com/docs/concepts/branching):
+
+- [**Development** branches](https://planetscale.com/docs/concepts/branching#development-and-production-branches) accept schema changes.
+- [**Production** branches](https://planetscale.com/docs/concepts/branching#development-and-production-branches) are built for scale and high availability. Schema changes are forbidden.
+
+You start with a development branch called `main`, which lets you set up your schema. Once set up, you can [promote](https://planetscale.com/docs/concepts/branching#promote-a-branch-to-production) that branch (or any other branch) to a **production** branch.
+
+Later, you can apply schema changes (aka DB migrations) to the production database **without downtime** via branches and deploy requests.
+
+Here is an overview of the workflow:
+
+1. In PlanetScale, create a new development branch off of the production branch. This is an isolated copy of the production schema that you're free to play around with.
+2. Set up a dev environment of your application.
+3. Run the DB migrations in the dev branch.
+4. Test the changes in the dev environment.
+5. In PlanetScale, deploy the DB changes to the production branch via a "deploy request".
+
+Let's dive through these steps in the next section.
+
+### Deploying DB migrations in details
+
+PlanetScale works with **branches**, which matches well the concept of **stages** in Serverless Framework.
+
+To deploy DB migrations in production, we can work with two environments:
+
+- A **production** environment: our application deployed in the `prod` stage and configured to use the `production` PlanetScale branch. 
+- A **dev** environment: our application deployed in the `dev` stage and configured to use the `development` PlanetScale branch. 
+
+We can [deploy our applications to different stages](../deploy.md#stages) via the `--stage` option. Each stage is completely isolated from the others.
+
+```bash
+# Deploy the "dev" environment:
+serverless deploy
+
+# Deploy the "prod" environment:
+serverless deploy --stage=prod
+```
+
+We want each "stage" of our application to connect to a different PlanetScale branch. We can achieve that in `serverless.yml` via [stage parameters](https://www.serverless.com/framework/docs/guides/parameters#stage-parameters):
+
+```yaml
+provider:
+    # ...
+    environment:
+        # ...
+        DB_HOST: <host url>
+        DB_DATABASE: <database name>
+        DB_USERNAME: ${param:db-user}
+        DB_PASSWORD: ${param:db-password}
+
+params:
+    # These values apply for all stages by default
+    default:
+        # Connect to the "development" database in PlanetScale
+        db-user: <user-for-dev-branch>
+        db-password: ${ssm:/my-app/dev/db-password}
+    # These values apply for the `prod` stage only
+    prod:
+        # Connect to the "production" database in PlanetScale
+        db-user: <user-for-prod-branch>
+        db-password: ${ssm:/my-app/prod/db-password}
+```
+
+In the example above, the `DB_USERNAME` and `DB_PASSWORD` environment variables will have different values based on the stage.
+
+The next step is to [create the `development` branch off of the production branch](https://planetscale.com/docs/concepts/branching#create-a-development-branch). This branch will be an isolated copy of the production schema that you're free to play around with.
+
+Now that the environments are set up, you can apply the following workflow for DB migrations:
+
+1. Deploy your code changes and migrations in the development stage.
+1. Apply DB migrations in the **development** environment (drop a column, add a table, etc.):
+   - If you use Laravel, run DB migrations [via the `artisan` function](../frameworks/laravel.md#laravel-artisan): `serverless bref:cli --stage=dev --args="migrate"`
+   - If you use Symfony, run DB migrations [via the `console` function](../frameworks/symfony.md#console): `serverless bref:cli --stage=dev --args="doctrine:migrations:migrate"`
+   - If you don't use any framework, run DB queries [via the `pscale` CLI](https://planetscale.com/docs/reference/planetscale-cli).
+1. Test changes in the development environment to make sure everything works correctly.
+1. Create a deploy request.
+
+    PlanetScale will create a schema diff that you can review before applying. It will also validate the diff and detect schema issues like missing unique keys, etc.
+
+    Once reviewed and approved, you can add it to the deploy queue and PlanetScale will begin the deployment.
+
+    The schema changes are deployed without downtime: no table gets locked, and production is not slowed down during the migration. This is what we call non-blocking schema changes. You can learn more about this process in our Non-blocking schema changes documentation.
+
+The migrations are now applied to production.
+
+### When to apply migrations?
+
+Depending on the schema change, you might want to apply DB migrations _before_ or _after_ a code deployment:
+
+- **Add a column/table:** apply the migration _before_ deploying the code.
+- **Remove a column/table:** apply the migration _after_ deploying the code.
+- **Rename a column/table:** this scenario is more complex and needs to be addressed in two steps:
+  - Apply migrations that **add** the column/table (it will be duplicated).
+  - Deploy code changes to write new data to the new column/table, and read from both.
+  - Run a script that copies the old data to the new column/table.
+  - Deploy code changes to only read and write to the new column/table.
+  - Apply migrations that **remove** the old column/table.
+
+If you use Laravel, you can read a complete blog post about this topic: [Zero downtime Laravel migrations](https://planetscale.com/blog/zero-downtime-laravel-migrations#when-to-run-migrations).
