@@ -18,7 +18,7 @@ phases:
       # Configure GitHub User & Branch
       - git config --global user.email "deleugyn+bref@gmail.com"
       - git config --global user.name "Brefphp Bot by @deleugyn"
-      - git checkout master
+      - git checkout 1.x
       - git checkout -b bref/layers
 
       # Login to Docker Hub to avoid rate limit
