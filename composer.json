@@ -30,7 +30,7 @@
         "psr/http-server-handler": "^1.0",
         "nyholm/psr7": "^1.4.1",
         "psr/container": "^1.0|^2.0",
-        "crwlr/query-string": "^1.0"
+        "crwlr/query-string": "^1.0.1"
     },
     "require-dev": {
         "aws/aws-sdk-php": "^3.172",
