@@ -31,7 +31,7 @@ final class KafkaEventTest extends TestCase
     public function test invalid event()
     {
         $this->expectException(InvalidLambdaEvent::class);
-        $this->expectExceptionMessage('This handler expected to be invoked with a Kafka event. Instead, the handler was invoked with invalid event data');
+        $this->expectExceptionMessage("This handler expected to be invoked with a Kafka event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data");
         new KafkaEvent([]);
     }
 }

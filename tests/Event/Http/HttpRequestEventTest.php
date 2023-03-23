@@ -144,7 +144,7 @@ class HttpRequestEventTest extends CommonHttpTest
 
     public function test empty invocation will have friendly error message()
     {
-        $message = 'This handler expected to be invoked with a API Gateway or ALB event. Instead, the handler was invoked with invalid event data: null';
+        $message = "This handler expected to be invoked with a API Gateway or ALB event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data: null";
 
         $this->expectException(InvalidLambdaEvent::class);
         $this->expectExceptionMessage($message);
