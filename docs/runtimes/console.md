@@ -73,7 +73,7 @@ aws lambda invoke \
     --function-name <console function name> \
     --region <region> \
     --cli-binary-format raw-in-base64-out \
-    --payload "<command arguments and options>" \
+    --payload '"<command arguments and options>"' \
     <file to store the output>.json
 
 # For example:
@@ -81,7 +81,7 @@ aws lambda invoke \
     --function-name myapp-dev-myfunction \
     --region us-east-1 \
     --cli-binary-format raw-in-base64-out \
-    --payload "doctrine:migrations:migrate --force" \
+    --payload '"doctrine:migrations:migrate --force"' \
     response.json
 
 # To extract the command output from the response.json file using jq
@@ -90,9 +90,12 @@ aws lambda invoke \
     --function-name myapp-dev-myfunction \
     --region us-east-1 \
     --cli-binary-format raw-in-base64-out \
-    --payload "doctrine:migrations:migrate --force" \
+    --payload '"doctrine:migrations:migrate --force"' \
     response.json && jq -r .output response.json
 ```
+
+> **Note:**
+> The `--payload` needs to contain a JSON string, that is why it is quoted twice: `'"..."'`. This is intentional.
 
 The [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) also provides a convenient way to run commands via a terminal:
 
