@@ -441,7 +441,7 @@ ERROR;
         try {
             $invocationResult = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         } catch (JsonException $e) {
-            $this->fail("Could not decode JSON from logs ({$e->getMessage()}): {$json}");
+            $this->fail("Could not decode JSON from logs ({$e->getMessage()}): $json");
         }
         unset($invocationResult['previous']);
         $this->assertSame([
