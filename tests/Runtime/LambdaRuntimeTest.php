@@ -14,6 +14,7 @@ use Bref\Event\Sns\SnsHandler;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
+use Bref\Runtime\ResponseTooBig;
 use Bref\Test\Server;
 use Exception;
 use GuzzleHttp\Psr7\Response;
@@ -181,6 +182,48 @@ class LambdaRuntimeTest extends TestCase
         $this->assertStringContainsString('Error while calling the Lambda runtime API: The requested URL returned error: 400', $error['errorMessage']);
 
         $this->assertErrorInLogs('Exception', 'Error while calling the Lambda runtime API: The requested URL returned error: 400');
+    }
+
+    /**
+     * Special test for 413 because we want to show a specific error message (it might be hitting the 6MB limit).
+     */
+    public function test a 413 response from the runtime API throws a clear error()
+    {
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => '1',
+                ],
+                '{ "Hello": "world!"}'
+            ),
+            new Response(
+                413, // The Lambda API returns a 403 instead of a 200
+                [],
+                '{ "Hello": "world!"}',
+            ),
+            new Response(200),
+        ]);
+
+        $this->runtime->processNextEvent(function ($event) {
+            return $event;
+        });
+        $requests = Server::received();
+        $this->assertCount(3, $requests);
+
+        [$eventRequest, $eventFailureResponse, $eventFailureLog] = $requests;
+        $this->assertSame('GET', $eventRequest->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
+        $this->assertSame('POST', $eventFailureResponse->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventFailureResponse->getUri()->__toString());
+        $this->assertSame('POST', $eventFailureLog->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/error', $eventFailureLog->getUri()->__toString());
+
+        // Check the lambda result contains the error message
+        $error = json_decode((string) $eventFailureLog->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertStringContainsString('The Lambda response is too big and above the limit', $error['errorMessage']);
+
+        $this->assertErrorInLogs(ResponseTooBig::class, 'The Lambda response is too big and above the limit');
     }
 
     public function test function results that cannot be encoded are reported as invocation errors()

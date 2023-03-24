@@ -283,9 +283,14 @@ final class LambdaRuntime
             'Content-Length: ' . strlen($jsonData),
         ]);
         curl_exec($this->curlHandleResult);
+
         if (curl_errno($this->curlHandleResult) > 0) {
             $errorMessage = curl_error($this->curlHandleResult);
+            $statusCode = curl_getinfo($this->curlHandleResult, CURLINFO_HTTP_CODE);
             $this->closeCurlHandleResult();
+            if ($statusCode === 413) {
+                throw new ResponseTooBig;
+            }
             throw new Exception('Error while calling the Lambda runtime API: ' . $errorMessage);
         }
     }

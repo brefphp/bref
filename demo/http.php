@@ -32,4 +32,10 @@ if (isset($_GET['tmp'])) {
     exit(0);
 }
 
+if (isset($_GET['huge'])) {
+    // Create a 7MB response
+    echo str_repeat('a', 1024 * 1024 * 7);
+    exit(0);
+}
+
 echo 'Hello world!';
