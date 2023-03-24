@@ -18,6 +18,7 @@ use Bref\Runtime\ResponseTooBig;
 use Bref\Test\Server;
 use Exception;
 use GuzzleHttp\Psr7\Response;
+use JsonException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -159,7 +160,15 @@ class LambdaRuntimeTest extends TestCase
                 ],
                 '{ "Hello": "world!"}'
             ),
-            new Response(400), // The Lambda API returns a 400 instead of a 200
+            new Response(
+                400, // The Lambda API returns a 400 instead of a 200
+                [],
+                // The Lambda API returns a JSON response with "errorMessage" and "errorType"
+                '{
+                    "errorMessage": "Fake exception message.",
+                    "errorType": "FakeException"
+                }',
+            ),
             new Response(200),
         ]);
 
@@ -179,9 +188,9 @@ class LambdaRuntimeTest extends TestCase
 
         // Check the lambda result contains the error message
         $error = json_decode((string) $eventFailureLog->getBody(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertStringContainsString('Error while calling the Lambda runtime API: The requested URL returned error: 400', $error['errorMessage']);
+        $this->assertStringContainsString('Error 400 while calling the Lambda runtime API: FakeException: Fake exception message.', $error['errorMessage']);
 
-        $this->assertErrorInLogs('Exception', 'Error while calling the Lambda runtime API: The requested URL returned error: 400');
+        $this->assertErrorInLogs('Exception', 'Error 400 while calling the Lambda runtime API: FakeException: Fake exception message.');
     }
 
     /**
@@ -200,7 +209,10 @@ class LambdaRuntimeTest extends TestCase
             new Response(
                 413, // The Lambda API returns a 403 instead of a 200
                 [],
-                '{ "Hello": "world!"}',
+                '{
+                    "errorMessage": "Exceeded maximum allowed payload size (6291556 bytes).",
+                    "errorType": "RequestEntityTooLarge"
+                }',
             ),
             new Response(200),
         ]);
@@ -426,7 +438,11 @@ ERROR;
         // Check the request ID matches a UUID
         $this->assertNotEmpty($requestId);
 
-        $invocationResult = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $invocationResult = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            $this->fail("Could not decode JSON from logs ({$e->getMessage()}): {$json}");
+        }
         unset($invocationResult['previous']);
         $this->assertSame([
             'errorType',

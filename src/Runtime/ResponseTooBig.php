@@ -4,6 +4,9 @@ namespace Bref\Runtime;
 
 use Exception;
 
+/**
+ * @internal
+ */
 class ResponseTooBig extends Exception
 {
     public function __construct()

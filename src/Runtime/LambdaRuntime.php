@@ -8,6 +8,7 @@ use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
 use CurlHandle;
 use Exception;
+use JsonException;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
@@ -214,12 +215,16 @@ final class LambdaRuntime
         echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
 
         // Send an "error" Lambda response
-        $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
-        $this->postJson($url, [
-            'errorType' => get_class($error),
-            'errorMessage' => $error->getMessage(),
-            'stackTrace' => $stackTraceAsArray,
-        ]);
+        // except if the error is a ResponseTooBig: in that case the Runtime API rejects our
+        // "signal error" call (likely because it already marked the execution as failed)
+//        if (! $error instanceof ResponseTooBig) {
+            $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
+            $this->postJson($url, [
+                'errorType' => get_class($error),
+                'errorMessage' => $error->getMessage(),
+                'stackTrace' => $stackTraceAsArray,
+            ]);
+//        }
     }
 
     /**
@@ -273,7 +278,6 @@ final class LambdaRuntime
             $this->curlHandleResult = curl_init();
             curl_setopt($this->curlHandleResult, CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($this->curlHandleResult, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($this->curlHandleResult, CURLOPT_FAILONERROR, true);
         }
 
         curl_setopt($this->curlHandleResult, CURLOPT_URL, $url);
@@ -282,16 +286,24 @@ final class LambdaRuntime
             'Content-Type: application/json',
             'Content-Length: ' . strlen($jsonData),
         ]);
-        curl_exec($this->curlHandleResult);
 
-        if (curl_errno($this->curlHandleResult) > 0) {
-            $errorMessage = curl_error($this->curlHandleResult);
-            $statusCode = curl_getinfo($this->curlHandleResult, CURLINFO_HTTP_CODE);
+        $body = curl_exec($this->curlHandleResult);
+
+        $statusCode = curl_getinfo($this->curlHandleResult, CURLINFO_HTTP_CODE);
+        if ($statusCode >= 400) {
             $this->closeCurlHandleResult();
+            try {
+                $error = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+                $errorMessage = "{$error['errorType']}: {$error['errorMessage']}";
+            } catch (JsonException) {
+                // In case we didn't get any JSON
+                $errorMessage = 'unknown error';
+            }
+
             if ($statusCode === 413) {
                 throw new ResponseTooBig;
             }
-            throw new Exception('Error while calling the Lambda runtime API: ' . $errorMessage);
+            throw new Exception("Error $statusCode while calling the Lambda runtime API: $errorMessage");
         }
     }
 
