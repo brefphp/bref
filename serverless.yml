@@ -18,6 +18,9 @@ package:
         - 'demo/**'
         - 'src/**'
         - 'vendor/**'
+        - '!vendor/squizlabs/**'
+        - '!vendor/slevomat/**'
+        - '!vendor/nikic/**'
 
 functions:
     function:

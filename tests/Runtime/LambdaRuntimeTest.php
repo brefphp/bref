@@ -14,9 +14,11 @@ use Bref\Event\Sns\SnsHandler;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Runtime\LambdaRuntime;
+use Bref\Runtime\ResponseTooBig;
 use Bref\Test\Server;
 use Exception;
 use GuzzleHttp\Psr7\Response;
+use JsonException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -158,7 +160,15 @@ class LambdaRuntimeTest extends TestCase
                 ],
                 '{ "Hello": "world!"}'
             ),
-            new Response(400), // The Lambda API returns a 400 instead of a 200
+            new Response(
+                400, // The Lambda API returns a 400 instead of a 200
+                [],
+                // The Lambda API returns a JSON response with "errorMessage" and "errorType"
+                '{
+                    "errorMessage": "Fake exception message.",
+                    "errorType": "FakeException"
+                }',
+            ),
             new Response(200),
         ]);
 
@@ -178,9 +188,48 @@ class LambdaRuntimeTest extends TestCase
 
         // Check the lambda result contains the error message
         $error = json_decode((string) $eventFailureLog->getBody(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertStringContainsString('Error while calling the Lambda runtime API: The requested URL returned error: 400', $error['errorMessage']);
+        $this->assertStringContainsString('Error 400 while calling the Lambda runtime API: FakeException: Fake exception message.', $error['errorMessage']);
 
-        $this->assertErrorInLogs('Exception', 'Error while calling the Lambda runtime API: The requested URL returned error: 400');
+        $this->assertErrorInLogs('Exception', 'Error 400 while calling the Lambda runtime API: FakeException: Fake exception message.');
+    }
+
+    /**
+     * Special test for 413 because we want to show a specific error message (it might be hitting the 6MB limit)
+     * and we want to skip reporting the error to the Lambda API.
+     */
+    public function test a 413 response from the runtime API throws a clear error()
+    {
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => '1',
+                ],
+                '{ "Hello": "world!"}'
+            ),
+            new Response(
+                413, // The Lambda API returns a 403 instead of a 200
+                [],
+                '{
+                    "errorMessage": "Exceeded maximum allowed payload size (6291556 bytes).",
+                    "errorType": "RequestEntityTooLarge"
+                }',
+            ),
+        ]);
+
+        $this->runtime->processNextEvent(function ($event) {
+            return $event;
+        });
+        $requests = Server::received();
+        $this->assertCount(2, $requests);
+
+        [$eventRequest, $eventFailureResponse] = $requests;
+        $this->assertSame('GET', $eventRequest->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
+        $this->assertSame('POST', $eventFailureResponse->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventFailureResponse->getUri()->__toString());
+
+        $this->assertErrorInLogs(ResponseTooBig::class, 'The Lambda response is too big and above the limit');
     }
 
     public function test function results that cannot be encoded are reported as invocation errors()
@@ -383,7 +432,11 @@ ERROR;
         // Check the request ID matches a UUID
         $this->assertNotEmpty($requestId);
 
-        $invocationResult = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $invocationResult = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            $this->fail("Could not decode JSON from logs ({$e->getMessage()}): $json");
+        }
         unset($invocationResult['previous']);
         $this->assertSame([
             'errorType',

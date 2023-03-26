@@ -8,6 +8,7 @@ use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
 use CurlHandle;
 use Exception;
+use JsonException;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
@@ -213,13 +214,24 @@ final class LambdaRuntime
         /** @noinspection JsonEncodingApiUsageInspection */
         echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
 
-        // Send an "error" Lambda response
-        $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
-        $this->postJson($url, [
-            'errorType' => get_class($error),
-            'errorMessage' => $error->getMessage(),
-            'stackTrace' => $stackTraceAsArray,
-        ]);
+        /**
+         * Send an "error" Lambda response (see https://github.com/brefphp/bref/pull/1483).
+         *
+         * Unless the error was ResponseTooBig, in that case we would get the following error:
+         *
+         *     InvalidStateTransition: State transition from RuntimeResponseSentState to InvocationErrorResponse failed for runtime. Error: State transition is not allowed
+         *
+         * It seems like once the response is sent, we can't signal an execution failure.
+         * This is the same behavior in other runtimes like Node (the execution is successful despite the error).
+         */
+        if (! $error instanceof ResponseTooBig) {
+            $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
+            $this->postJson($url, [
+                'errorType' => get_class($error),
+                'errorMessage' => $error->getMessage(),
+                'stackTrace' => $stackTraceAsArray,
+            ]);
+        }
     }
 
     /**
@@ -258,6 +270,10 @@ final class LambdaRuntime
         exit(1);
     }
 
+    /**
+     * @throws ResponseTooBig
+     * @throws Exception
+     */
     private function postJson(string $url, mixed $data): void
     {
         /** @noinspection JsonEncodingApiUsageInspection */
@@ -273,7 +289,6 @@ final class LambdaRuntime
             $this->curlHandleResult = curl_init();
             curl_setopt($this->curlHandleResult, CURLOPT_CUSTOMREQUEST, 'POST');
             curl_setopt($this->curlHandleResult, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($this->curlHandleResult, CURLOPT_FAILONERROR, true);
         }
 
         curl_setopt($this->curlHandleResult, CURLOPT_URL, $url);
@@ -282,11 +297,27 @@ final class LambdaRuntime
             'Content-Type: application/json',
             'Content-Length: ' . strlen($jsonData),
         ]);
-        curl_exec($this->curlHandleResult);
-        if (curl_errno($this->curlHandleResult) > 0) {
-            $errorMessage = curl_error($this->curlHandleResult);
+
+        $body = curl_exec($this->curlHandleResult);
+
+        $statusCode = curl_getinfo($this->curlHandleResult, CURLINFO_HTTP_CODE);
+        if ($statusCode >= 400) {
+            // Re-open the connection in case of failure to start from a clean state
             $this->closeCurlHandleResult();
-            throw new Exception('Error while calling the Lambda runtime API: ' . $errorMessage);
+
+            if ($statusCode === 413) {
+                throw new ResponseTooBig;
+            }
+
+            try {
+                $error = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+                $errorMessage = "{$error['errorType']}: {$error['errorMessage']}";
+            } catch (JsonException) {
+                // In case we didn't get any JSON
+                $errorMessage = 'unknown error';
+            }
+
+            throw new Exception("Error $statusCode while calling the Lambda runtime API: $errorMessage");
         }
     }
 
