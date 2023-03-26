@@ -215,31 +215,23 @@ final class LambdaRuntime
         echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
 
         // Send an "error" Lambda response
-        try {
+        /**
+         * Send an "error" Lambda response (see https://github.com/brefphp/bref/pull/1483).
+         *
+         * Unless the error was ResponseTooBig, in that case we would get the following error:
+         *
+         *     InvalidStateTransition: State transition from RuntimeResponseSentState to InvocationErrorResponse failed for runtime. Error: State transition is not allowed
+         *
+         * It seems like once the response is sent, we can't signal an execution failure.
+         * This is the same behavior in other runtimes like Node (the execution is successful despite the error).
+         */
+        if (! $error instanceof ResponseTooBig) {
             $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
             $this->postJson($url, [
                 'errorType' => get_class($error),
                 'errorMessage' => $error->getMessage(),
                 'stackTrace' => $stackTraceAsArray,
             ]);
-        } catch (InvalidStateTransition $e) {
-            // phpcs:ignore
-            if ($error instanceof ResponseTooBig) {
-                /**
-                 * If the original error was ResponseTooBig, we know that we will get the following error:
-                 *
-                 *     InvalidStateTransition: State transition from RuntimeResponseSentState to InvocationErrorResponse failed for runtime. Error: State transition is not allowed
-                 *
-                 * We can ignore this error, BUT we need to have this error to happen.
-                 * Indeed, if we didn't call the /runtime/invocation/$invocationId/error endpoint then
-                 * the Lambda invocation would be marked as "success" and the error would be lost.
-                 * So we need to make the HTTP call, knowing it is going to fail.
-                 *
-                 * I (Matthieu) have asked the AWS support about this, still waiting on more info.
-                 */
-            } else {
-                throw $e;
-            }
         }
     }
 
@@ -281,7 +273,6 @@ final class LambdaRuntime
 
     /**
      * @throws ResponseTooBig
-     * @throws InvalidStateTransition
      * @throws Exception
      */
     private function postJson(string $url, mixed $data): void
@@ -322,11 +313,6 @@ final class LambdaRuntime
             try {
                 $error = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
                 $errorMessage = "{$error['errorType']}: {$error['errorMessage']}";
-
-                // Special handling for this error
-                if ($statusCode === 403 && $error['errorType'] === 'InvalidStateTransition') {
-                    throw new InvalidStateTransition($error['errorMessage']);
-                }
             } catch (JsonException) {
                 // In case we didn't get any JSON
                 $errorMessage = 'unknown error';

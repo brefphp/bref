@@ -194,7 +194,8 @@ class LambdaRuntimeTest extends TestCase
     }
 
     /**
-     * Special test for 413 because we want to show a specific error message (it might be hitting the 6MB limit).
+     * Special test for 413 because we want to show a specific error message (it might be hitting the 6MB limit)
+     * and we want to skip reporting the error to the Lambda API.
      */
     public function test a 413 response from the runtime API throws a clear error()
     {
@@ -214,26 +215,19 @@ class LambdaRuntimeTest extends TestCase
                     "errorType": "RequestEntityTooLarge"
                 }',
             ),
-            new Response(200),
         ]);
 
         $this->runtime->processNextEvent(function ($event) {
             return $event;
         });
         $requests = Server::received();
-        $this->assertCount(3, $requests);
+        $this->assertCount(2, $requests);
 
-        [$eventRequest, $eventFailureResponse, $eventFailureLog] = $requests;
+        [$eventRequest, $eventFailureResponse] = $requests;
         $this->assertSame('GET', $eventRequest->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
         $this->assertSame('POST', $eventFailureResponse->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventFailureResponse->getUri()->__toString());
-        $this->assertSame('POST', $eventFailureLog->getMethod());
-        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/error', $eventFailureLog->getUri()->__toString());
-
-        // Check the lambda result contains the error message
-        $error = json_decode((string) $eventFailureLog->getBody(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertStringContainsString('The Lambda response is too big and above the limit', $error['errorMessage']);
 
         $this->assertErrorInLogs(ResponseTooBig::class, 'The Lambda response is too big and above the limit');
     }
