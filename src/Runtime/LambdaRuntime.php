@@ -214,7 +214,6 @@ final class LambdaRuntime
         /** @noinspection JsonEncodingApiUsageInspection */
         echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
 
-        // Send an "error" Lambda response
         /**
          * Send an "error" Lambda response (see https://github.com/brefphp/bref/pull/1483).
          *
