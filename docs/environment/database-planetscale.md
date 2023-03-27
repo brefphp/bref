@@ -281,7 +281,7 @@ Now that the environments are set up, you can apply the following workflow for D
 
     Once reviewed and approved, you can add it to the deploy queue and PlanetScale will begin the deployment.
 
-    The schema changes are deployed without downtime: no table gets locked, and production is not slowed down during the migration. This is what we call non-blocking schema changes. You can learn more about this process in our Non-blocking schema changes documentation.
+    The schema changes are deployed without downtime: no table gets locked, and production is not slowed down during the migration. This is what is called "[non-blocking schema changes](https://planetscale.com/docs/concepts/nonblocking-schema-changes)".
 
 The migrations are now applied to production.
 
