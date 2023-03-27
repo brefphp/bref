@@ -152,14 +152,14 @@ That's it! Our database is ready to use.
 
 ## MySQL compatibility
 
-PlanetScale is based on the Vitess clustering system, which was built for scaling MySQL. Because of that, Vitess doesn't support all the usual MySQL features.
+PlanetScale is based on the Vitess clustering system, which was built for scaling MySQL. Because of that, Vitess only supports some of the usual MySQL features.
 
-The biggest change is that **foreign key constraints** are not supported. To be clear, foreign keys work (e.g. to reference rows in other tables and perform joins). It is the constraint that is not enforced: foreign keys are no longer validated at the database level.
+The biggest change is that **foreign key constraints** are not supported. To be clear, it is possible to have references between rows of different tables and perform joins. But constraints are not enforced: foreign keys are no longer validated at the database level, and you cannot use `ON DELETE ...` statements.
 
-That means that you should take care of validating references between rows, and you should handle cascade deletions. If you use an ORM, you should be in a good place:
+That means that you should take care of validating references between rows and handle cascade deletions. If you use an ORM, you should be in a good place:
 
-- **Laravel** DB migrations and Eloquent work fine, you can use [the `foreignId()` method](https://laravel.com/docs/migrations#foreign-key-constraints) to create relationships between tables, but you cannot enforce referential integrity with the `constrained()` method (and related methods like `onDelete('cascade')`).
-- [**Doctrine**](https://www.doctrine-project.org/) works fine, but you should not use [`onDelete="CASCADE"` which relies on foreign key constraints](https://www.doctrine-project.org/projects/doctrine-orm/en/2.14/reference/working-with-objects.html#removing-entities) (`cascade=REMOVE` or `cascade=ALL` is fine as the cascade is performed by Doctrine in memory).
+- **Laravel** DB migrations and Eloquent work fine. You can use [the `foreignId()` method](https://laravel.com/docs/migrations#foreign-key-constraints) to create relationships between tables, but you cannot enforce referential integrity with the `constrained()` method (and related methods like `onDelete('cascade')`).
+- [**Doctrine**](https://www.doctrine-project.org/) works fine, but you should not use [`onDelete="CASCADE"` which relies on foreign key constraints](https://www.doctrine-project.org/projects/doctrine-orm/en/2.14/reference/working-with-objects.html#removing-entities) (`cascade=REMOVE` or `cascade=ALL` is fine Doctrine performs the cascade in memory via PHP).
 
 You can read the [complete **MySQL compatibility table** on the PlanetScale website](https://planetscale.com/docs/reference/mysql-compatibility).
 
@@ -167,7 +167,7 @@ You can read the [complete **MySQL compatibility table** on the PlanetScale webs
 
 PlanetScale provides an automated import tool to import an existing database without downtime. Check out [the documentation](https://planetscale.com/docs/imports/database-imports) to get started.
 
-For simple scenarios, you can also use the [`mysqldump` tool](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-syntax) to export your existing database and import it later in PlanetScale. Note that there are [specific options you need to use for Vitess](https://vitess.io/docs/15.0/user-guides/configuration-basic/exporting-data/#mysqldump). You also need to export separately the schema and the data, because you will need to remove foreign key constraints from the schema.
+For simple scenarios, you can also use the [`mysqldump` tool](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-syntax) to export your existing database and import it later in PlanetScale. Note that there are [specific options you need to use for Vitess](https://vitess.io/docs/15.0/user-guides/configuration-basic/exporting-data/#mysqldump). You also need to export the schema and the data separately because you will need to remove foreign key constraints from the schema.
 
 Let's first export the schema and the data:
 
@@ -211,7 +211,7 @@ Later, you can apply schema changes (aka DB migrations) to the production databa
 
 Here is an overview of the workflow:
 
-1. In PlanetScale, create a new development branch off of the production branch. This is an isolated copy of the production schema that you're free to play around with.
+1. In PlanetScale, create a new development branch off of the production branch. This is an isolated copy of the production schema that you can freely play around with.
 2. Set up a dev environment of your application.
 3. Run the DB migrations in the dev branch.
 4. Test the changes in the dev environment.
@@ -219,9 +219,9 @@ Here is an overview of the workflow:
 
 Let's dive through these steps in the next section.
 
-### Deploying DB migrations in details
+### Deploying DB migrations in detail
 
-PlanetScale works with **branches**, which matches well the concept of **stages** in Serverless Framework.
+PlanetScale works with **branches**, which matches with the concept of **stages** in Serverless Framework.
 
 To deploy DB migrations in production, you can work with two environments:
 
@@ -265,7 +265,7 @@ params:
 
 In the example above, the `DB_USERNAME` and `DB_PASSWORD` environment variables will have different values based on the stage.
 
-The next step is to [create the `development` branch off of the production branch](https://planetscale.com/docs/concepts/branching#create-a-development-branch). This branch will be an isolated copy of the production schema that you're free to play around with.
+The next step is to [create the `development` branch off of the production branch](https://planetscale.com/docs/concepts/branching#create-a-development-branch). This branch will be an isolated copy of the production schema.
 
 Now that the environments are set up, you can apply the following workflow for DB migrations:
 
