@@ -151,4 +151,152 @@ class HttpRequestEventTest extends CommonHttpTest
 
         new HttpRequestEvent(null);
     }
+
+    /**
+     * @dataProvider provide query strings
+     */
+    public function test query string to array(string $query, array $expectedOutput)
+    {
+        $reflection = new \ReflectionClass(HttpRequestEvent::class);
+        $method = $reflection->getMethod('queryStringToArray');
+        $method->setAccessible(true);
+        $result = $method->invokeArgs($reflection->newInstanceWithoutConstructor(), [$query]);
+
+        $this->assertEquals($expectedOutput, $result);
+    }
+
+    public function provide query strings(): iterable
+    {
+        yield ['', []];
+
+        yield [
+            'foo_bar=2',
+            [
+                'foo_bar' => '2',
+            ],
+        ];
+
+        yield [
+            'foo_bar=v1&foo.bar=v2',
+            [
+                'foo_bar' => 'v1',
+                'foo.bar' => 'v2',
+            ],
+        ];
+
+        yield [
+            'foo_bar=v1&foo.bar=v2&foo.bar_extra=v3&foo_bar3=v4',
+            [
+                'foo_bar' => 'v1',
+                'foo.bar' => 'v2',
+                'foo.bar_extra' => 'v3',
+                'foo_bar3' => 'v4',
+            ],
+        ];
+
+        yield [
+            'foo_bar.baz=v1',
+            [
+                'foo_bar.baz' => 'v1',
+            ],
+        ];
+
+        yield [
+            'foo_bar=v1&k[foo.bar]=v2',
+            [
+                'foo_bar' => 'v1',
+                'k' => ['foo.bar' => 'v2'],
+            ],
+        ];
+
+        yield [
+            'k.1=v.1&k.2[s.k1]=v.2&k.2[s.k2]=v.3',
+            [
+                'k.1' => 'v.1',
+                'k.2' => [
+                    's.k1' => 'v.2',
+                    's.k2' => 'v.3',
+                ],
+            ],
+        ];
+
+        yield [
+            'foo.bar%5B0%5D=v1&foo.bar_extra%5B0%5D=v2&foo.bar.extra%5B0%5D=v3',
+            [
+                'foo.bar' => ['v1'],
+                'foo.bar_extra' => ['v2'],
+                'foo.bar.extra' => ['v3'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provide query strings for event
+     */
+    public function test query string will be parsed correctly(array $expected, string $normalizedQs, string $queryString)
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'version' => '2.0',
+            'rawQueryString' => $queryString,
+        ]);
+
+        self::assertSame($expected, $event->getQueryParameters());
+        self::assertSame($normalizedQs, $event->getQueryString());
+    }
+
+    public function provide query strings for event(): array
+    {
+        return [
+            [['foo' => 'bar'], 'foo=bar', 'foo=bar'],
+            [['foo' => 'bar  '], 'foo=bar++', '   foo=bar  '],
+            [['?foo' => 'bar'], '%3Ffoo=bar', '?foo=bar'],
+            [['#foo' => 'bar'], '%23foo=bar', '#foo=bar'],
+            [['foo' => 'bar'], 'foo=bar', '&foo=bar'],
+            [['foo' => 'bar', 'bar' => 'foo'], 'foo=bar&bar=foo', 'foo=bar&bar=foo'],
+            [['foo' => 'bar', 'bar' => 'foo'], 'foo=bar&bar=foo', 'foo=bar&&bar=foo'],
+            [['foo' => ['bar' => ['baz' => ['bax' => 'bar']]]], 'foo%5Bbar%5D%5Bbaz%5D%5Bbax%5D=bar', 'foo[bar][baz][bax]=bar'],
+            [['foo' => ['bar' => 'bar']], 'foo%5Bbar%5D=bar', 'foo[bar] [baz]=bar'],
+            [['foo' => ['bar' => ['baz' => ['bar', 'foo']]]], 'foo%5Bbar%5D%5Bbaz%5D%5B0%5D=bar&foo%5Bbar%5D%5Bbaz%5D%5B1%5D=foo', 'foo[bar][baz][]=bar&foo[bar][baz][]=foo'],
+            [['foo' => ['bar' => [['bar'], ['foo']]]], 'foo%5Bbar%5D%5B0%5D%5B0%5D=bar&foo%5Bbar%5D%5B1%5D%5B0%5D=foo', 'foo[bar][][]=bar&foo[bar][][]=foo'],
+            [['option' => ''], 'option=', 'option'],
+            [['option' => '0'], 'option=0', 'option=0'],
+            [['option' => '1'], 'option=1', 'option=1'],
+            [['foo' => 'bar=bar=='], 'foo=bar%3Dbar%3D%3D', 'foo=bar=bar=='],
+            [['options' => ['option' => '0']], 'options%5Boption%5D=0', 'options[option]=0'],
+            [['options' => ['option' => 'foobar']], 'options%5Boption%5D=foobar', 'options[option]=foobar'],
+            [['sum' => '10\\2=5'], 'sum=10%5C2%3D5', 'sum=10%5c2%3d5'],
+
+            // Special cases
+            [
+                [
+                    'a' => '<==  foo bar  ==>',
+                    'b' => '###Hello World###',
+                ],
+                'a=%3C%3D%3D++foo+bar++%3D%3D%3E&b=%23%23%23Hello+World%23%23%23',
+                'a=%3c%3d%3d%20%20foo+bar++%3d%3d%3e&b=%23%23%23Hello+World%23%23%23',
+            ],
+            [
+                ['str' => "A string with containing \0\0\0 nulls"],
+                'str=A+string+with+containing+%00%00%00+nulls',
+                'str=A%20string%20with%20containing%20%00%00%00%20nulls',
+            ],
+            [
+                [
+                    'arr_1' => 'sid',
+                    'arr' => ['4' => 'fred'],
+                ],
+                'arr_1=sid&arr%5B4%5D=fred',
+                'arr[1=sid&arr[4][2=fred',
+            ],
+            [
+                [
+                    'arr_1' => 'sid',
+                    'arr' => ['4' => ['[2' => 'fred']],
+                ],
+                'arr_1=sid&arr%5B4%5D%5B%5B2%5D=fred',
+                'arr[1=sid&arr[4][[2][3[=fred',
+            ],
+        ];
+    }
 }

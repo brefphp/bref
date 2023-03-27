@@ -16,7 +16,8 @@
     },
     "queryStringParameters": {
         "vars[val1]": "foo",
-        "vars[val2][]": "bar"
+        "vars[val2][]": "bar",
+        "foo.bar[]": "baz"
     },
     "pathParameters": null,
     "stageVariables": null,

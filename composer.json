@@ -4,7 +4,7 @@
     "type": "project",
     "description": "Bref is a framework to write and deploy serverless PHP applications on AWS Lambda.",
     "homepage": "https://bref.sh",
-    "keywords": ["bref", "serverless", "aws", "lambda", "faas"],
+    "keywords": [ "bref", "serverless", "aws", "lambda", "faas" ],
     "autoload": {
         "psr-4": {
             "Bref\\": "src"
@@ -29,7 +29,8 @@
         "riverline/multipart-parser": "^2.0.6",
         "psr/http-server-handler": "^1.0",
         "nyholm/psr7": "^1.4.1",
-        "psr/container": "^1.0|^2.0"
+        "psr/container": "^1.0|^2.0",
+        "crwlr/query-string": "^1.0.1"
     },
     "require-dev": {
         "aws/aws-sdk-php": "^3.172",

@@ -4,6 +4,7 @@ namespace Bref\Event\Http;
 
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
+use Crwlr\QueryString\Query;
 
 use function str_starts_with;
 
@@ -165,8 +166,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getQueryParameters(): array
     {
-        parse_str($this->queryString, $query);
-        return $query;
+        return $this->queryStringToArray($this->queryString);
     }
 
     public function getRequestContext(): array
@@ -219,8 +219,7 @@ final class HttpRequestEvent implements LambdaEvent
             $queryString = $this->event['rawQueryString'] ?? '';
             // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
-            parse_str($queryString, $queryParameters);
-            return http_build_query($queryParameters);
+            return http_build_query($this->queryStringToArray($queryString));
         }
 
         // It is likely that we do not need to differentiate between API Gateway (Version 1) and ALB. However,
@@ -254,12 +253,9 @@ final class HttpRequestEvent implements LambdaEvent
                 }
             }
 
-            // parse_str will automatically `urldecode` any value that needs decoding. This will allow parameters
-            // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work. `$decodedQueryParameters`
-            // will be an array with parameter names as keys.
-            parse_str($queryString, $decodedQueryParameters);
-
-            return http_build_query($decodedQueryParameters);
+            // queryStringToArray() will automatically `urldecode` any value that needs decoding. This will allow parameters
+            // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work.
+            return http_build_query($this->queryStringToArray($queryString));
         }
 
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
@@ -273,7 +269,7 @@ final class HttpRequestEvent implements LambdaEvent
 
             // re-parse the query-string so it matches the format used when using PHP outside of Lambda
             // this is particularly important when using multi-value params - eg. myvar[]=2&myvar=3 ... = [2, 3]
-            parse_str(implode('&', $queryParameterStr), $queryParameters);
+            $queryParameters = $this->queryStringToArray(implode('&', $queryParameterStr));
             return http_build_query($queryParameters);
         }
 
@@ -335,5 +331,17 @@ final class HttpRequestEvent implements LambdaEvent
     public function isFormatV2(): bool
     {
         return $this->payloadVersion === 2.0;
+    }
+
+    /**
+     * When keys within a URL query string contain dots, PHP's parse_str() method
+     * converts them to underscores. This method works around this issue so the
+     * requested query array returns the proper keys with dots.
+     *
+     * @return array<string, string>
+     */
+    private function queryStringToArray(string $query): array
+    {
+        return Query::fromString($query)->toArray();
     }
 }

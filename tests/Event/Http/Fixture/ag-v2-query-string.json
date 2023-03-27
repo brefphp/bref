@@ -2,7 +2,7 @@
     "version": "2.0",
     "routeKey": "ANY /path",
     "rawPath": "/path",
-    "rawQueryString": "foo=bar",
+    "rawQueryString": "foo=bar&baz.bar=foo",
     "cookies": [],
     "headers": {
         "accept": "*/*",
@@ -16,7 +16,8 @@
         "x-forwarded-proto": "https"
     },
     "queryStringParameters": {
-        "foo": "bar"
+        "foo": "bar",
+        "baz.bar": "foo"
     },
     "requestContext": {
         "accountId": "123400000000",
