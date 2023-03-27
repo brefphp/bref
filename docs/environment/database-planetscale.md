@@ -53,7 +53,7 @@ In Bref, the file is located here: `/opt/bref/ssl/cert.pem`.
 
 _This guide assumes you have already set up a Laravel application by following [the Bref documentation for Laravel](../frameworks/laravel.md)._
 
-To configure Laravel to use the PlanetScale database, we need to set it up via environment variables.
+To configure Laravel to use the PlanetScale database, you need to set it up via environment variables.
 
 If you deploy a `.env` file, set up the following variables:
 
@@ -90,7 +90,7 @@ Don't forget to deploy the changes:
 serverless deploy
 ```
 
-Now that Laravel is configured, we can run `php artisan migrate` in AWS Lambda to set up our tables:
+Now that Laravel is configured, you can run `php artisan migrate` in AWS Lambda to set up our tables:
 
 ```bash
 serverless bref:cli --args="migrate"
@@ -104,7 +104,7 @@ _This guide assumes you have already set up a Symfony application by following [
 
 First, make sure you have installed Doctrine, or [follow these docs to do so](https://symfony.com/doc/current/doctrine.html#installing-doctrine).
 
-To configure Symfony to use the PlanetScale database, we need to set it up via environment variables.
+To configure Symfony to use the PlanetScale database, you need to set it up via environment variables.
 
 If you deploy a `.env` file, set up the following variables:
 
@@ -142,7 +142,7 @@ Let's deploy the changes:
 serverless deploy
 ```
 
-Now that Symfony is configured, we can run the `bin/console doctrine:migrations:migrate` command in AWS Lambda to set up our tables:
+Now that Symfony is configured, you can run the `bin/console doctrine:migrations:migrate` command in AWS Lambda to set up our tables:
 
 ```bash
 serverless bref:cli --args="doctrine:migrations:migrate"
@@ -167,7 +167,7 @@ You can read the [complete **MySQL compatibility table** on the PlanetScale webs
 
 PlanetScale provides an automated import tool to import an existing database without downtime. Check out [the documentation](https://planetscale.com/docs/imports/database-imports) to get started.
 
-For simple scenarios, you can also use the [`mysqldump` tool](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-syntax) to export your existing database and import it later in PlanetScale. Note that there are [specific options we need to use for Vitess](https://vitess.io/docs/15.0/user-guides/configuration-basic/exporting-data/#mysqldump). We also need to export separately the schema and the data, because we will need to remove foreign key constraints from the schema.
+For simple scenarios, you can also use the [`mysqldump` tool](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-syntax) to export your existing database and import it later in PlanetScale. Note that there are [specific options you need to use for Vitess](https://vitess.io/docs/15.0/user-guides/configuration-basic/exporting-data/#mysqldump). You also need to export separately the schema and the data, because you will need to remove foreign key constraints from the schema.
 
 Let's first export the schema and the data:
 
@@ -191,7 +191,7 @@ CREATE TABLE products (
 
 (watch out for the trailing comma, else you might get errors like "You have an error in your SQL syntax")
 
-Finally, we can import the `schema.sql` and `data.sql` into PlanetScale, **using the PlanetScale settings this time** (user, password, host):
+Finally, you can import the `schema.sql` and `data.sql` into PlanetScale, **using the PlanetScale settings this time** (user, password, host):
 
 ```bash
 mysql -u <user> -p<password> -h <hostname> <db-name> < schema.sql
@@ -223,12 +223,12 @@ Let's dive through these steps in the next section.
 
 PlanetScale works with **branches**, which matches well the concept of **stages** in Serverless Framework.
 
-To deploy DB migrations in production, we can work with two environments:
+To deploy DB migrations in production, you can work with two environments:
 
 - A **production** environment: our application deployed in the `prod` stage and configured to use the `production` PlanetScale branch. 
 - A **dev** environment: our application deployed in the `dev` stage and configured to use the `development` PlanetScale branch. 
 
-We can [deploy our applications to different stages](../deploy.md#stages) via the `--stage` option. Each stage is completely isolated from the others.
+You can [deploy our applications to different stages](../deploy.md#stages) via the `--stage` option. Each stage is completely isolated from the others.
 
 ```bash
 # Deploy the "dev" environment:
@@ -238,7 +238,7 @@ serverless deploy
 serverless deploy --stage=prod
 ```
 
-We want each "stage" of our application to connect to a different PlanetScale branch. We can achieve that in `serverless.yml` via [stage parameters](https://www.serverless.com/framework/docs/guides/parameters#stage-parameters):
+You want each "stage" of our application to connect to a different PlanetScale branch. You can achieve that in `serverless.yml` via [stage parameters](https://www.serverless.com/framework/docs/guides/parameters#stage-parameters):
 
 ```yaml
 provider:
