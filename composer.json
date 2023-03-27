@@ -4,7 +4,7 @@
     "type": "project",
     "description": "Bref is a framework to write and deploy serverless PHP applications on AWS Lambda.",
     "homepage": "https://bref.sh",
-    "keywords": [ "bref", "serverless", "aws", "lambda", "faas" ],
+    "keywords": ["bref", "serverless", "aws", "lambda", "faas"],
     "autoload": {
         "psr-4": {
             "Bref\\": "src"
@@ -23,25 +23,25 @@
         "php": ">=8.0",
         "ext-curl": "*",
         "ext-json": "*",
-        "symfony/process": "^4.4|^5.0|^6.0",
-        "psr/http-message": "^1.0",
+        "crwlr/query-string": "^1.0.1",
         "hollodotme/fast-cgi-client": "^3.0.1",
-        "riverline/multipart-parser": "^2.0.6",
-        "psr/http-server-handler": "^1.0",
         "nyholm/psr7": "^1.4.1",
         "psr/container": "^1.0|^2.0",
-        "crwlr/query-string": "^1.0.1"
+        "psr/http-message": "^1.0",
+        "psr/http-server-handler": "^1.0",
+        "riverline/multipart-parser": "^2.0.6",
+        "symfony/process": "^4.4|^5.0|^6.0"
     },
     "require-dev": {
-        "aws/aws-sdk-php": "^3.172",
         "async-aws/core": "^1.0",
         "async-aws/lambda": "^1.0",
+        "aws/aws-sdk-php": "^3.172",
         "bref/secrets-loader": "^1.0",
-        "phpunit/phpunit": "^9.0",
         "dms/phpunit-arraysubset-asserts": "^0.4",
         "doctrine/coding-standard": "^8.0",
-        "phpstan/phpstan": "^1.0",
         "guzzlehttp/guzzle": "^7.5",
+        "phpstan/phpstan": "^1.0",
+        "phpunit/phpunit": "^9.0",
         "symfony/console": "^4.4|^5.0|^6.0"
     },
     "scripts": {
