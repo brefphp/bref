@@ -339,6 +339,9 @@ final class HttpRequestEvent implements LambdaEvent
      * requested query array returns the proper keys with dots.
      *
      * @return array<string, string>
+     *
+     * @see https://github.com/brefphp/bref/issues/756
+     * @see https://github.com/brefphp/bref/pull/1437
      */
     private function queryStringToArray(string $query): array
     {
