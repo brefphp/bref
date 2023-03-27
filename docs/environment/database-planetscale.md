@@ -167,16 +167,35 @@ You can read the [complete **MySQL compatibility table** on the PlanetScale webs
 
 PlanetScale provides an automated import tool to import an existing database without downtime. Check out [the documentation](https://planetscale.com/docs/imports/database-imports) to get started.
 
-For simple scenarios, you can also use the [`mysqldump` tool](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-syntax) to export you existing database and import it later in PlanetScale. Note that there are [specific options we need to use for Vitess](https://vitess.io/docs/15.0/user-guides/configuration-basic/exporting-data/#mysqldump). First, let's export the existing database:
+For simple scenarios, you can also use the [`mysqldump` tool](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-syntax) to export your existing database and import it later in PlanetScale. Note that there are [specific options we need to use for Vitess](https://vitess.io/docs/15.0/user-guides/configuration-basic/exporting-data/#mysqldump). We also need to export separately the schema and the data, because we will need to remove foreign key constraints from the schema.
+
+Let's first export the schema and the data:
 
 ```bash
-mysqldump -u <user> -p<password> -h <hostname> --set-gtid-purged=OFF --no-tablespaces <db-name> > dump.sql
+mysqldump -u <user> -p<password> -h <hostname> --set-gtid-purged=OFF --no-tablespaces --no-data <db-name> > schema.sql
+mysqldump -u <user> -p<password> -h <hostname> --set-gtid-purged=OFF --no-tablespaces --no-create-info <db-name> > data.sql
 ```
 
-Next, we can import the `dump.sql` file into PlanetScale, **using the PlanetScale settings this time** (user, password, host):
+Next, edit `schema.sql` to remove all foreign key constraints ([learn more](https://planetscale.com/docs/learn/operating-without-foreign-key-constraints)), for example:
+
+```diff
+CREATE TABLE products (
+  id INT NOT NULL,
+  category_id INT,
+  PRIMARY KEY (id),
++ KEY category_id_idx (category_id)
+- KEY category_id_idx (category_id),
+- CONSTRAINT `category_fk` FOREIGN KEY (category_id) REFERENCES category(id)
+);
+```
+
+(watch out for the trailing comma, else you might get errors like "You have an error in your SQL syntax")
+
+Finally, we can import the `schema.sql` and `data.sql` into PlanetScale, **using the PlanetScale settings this time** (user, password, host):
 
 ```bash
-mysql -u <user> -p<password> -h <hostname> <db-name> < dump.sql
+mysql -u <user> -p<password> -h <hostname> <db-name> < schema.sql
+mysql -u <user> -p<password> -h <hostname> <db-name> < data.sql
 ```
 
 ## Schema changes workflow
