@@ -36,14 +36,6 @@ jobs:
                     tools: composer:v2
                     coverage: none
                     ini-values: expose_php=1
-            # See https://github.com/shivammathur/setup-php/issues/280
-            -   name: Setup php-fpm
-                env:
-                    version: ${{ matrix.php }}
-                run: |
-                    sudo apt-get install -y php$version-fpm
-                    sudo cp /usr/sbin/php-fpm$version /usr/bin/php-fpm # copy to /usr/bin
-                    echo 'expose_php=1' | sudo tee -a /etc/php/$version/fpm/php.ini
             -   name: Install dependencies
                 run: 'composer update ${{ matrix.dependency-version }} --no-interaction --prefer-dist --no-progress ${{ matrix.platform-reqs }}'
             -   name: Execute Unit Tests
