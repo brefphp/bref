@@ -123,6 +123,7 @@ class ServerlessPlugin {
                     this.telemetry();
                 } catch (e) {
                     // These errors should not stop the execution
+                    this.utils.log.verbose(`Could not send telemetry: ${e}`);
                 }
             },
             // Custom commands
@@ -232,8 +233,8 @@ class ServerlessPlugin {
             return;
         }
 
-        const userConfig = require(process.mainModule.path + '/../node_modules/@serverless/utils/config');
-        const ci = require(process.mainModule.path + '/../node_modules/ci-info');
+        const userConfig = require.main.require('@serverless/utils/config');
+        const ci = require.main.require('ci-info');
 
         let command = 'unknown';
         if (this.serverless.processedInput && this.serverless.processedInput.commands) {
@@ -267,6 +268,7 @@ class ServerlessPlugin {
         client.send(JSON.stringify(payload), 8888, '108.128.197.71', (err) => {
             if (err) {
                 // These errors should not stop the execution
+                this.utils.log.verbose(`Could not send telemetry: ${err.message}`);
             }
             try {
                 client.close();
