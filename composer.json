@@ -56,7 +56,7 @@
         "static-analysis": [
             "vendor/bin/phpstan analyse"
         ],
-        "tests": [
+        "unit-tests": [
             "vendor/bin/phpunit --testsuite small"
         ]
     },
