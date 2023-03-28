@@ -166,7 +166,7 @@ final class HttpRequestEvent implements LambdaEvent
 
     public function getQueryParameters(): array
     {
-        return $this->queryStringToArray($this->queryString);
+        return self::queryStringToArray($this->queryString);
     }
 
     public function getRequestContext(): array
@@ -219,7 +219,7 @@ final class HttpRequestEvent implements LambdaEvent
             $queryString = $this->event['rawQueryString'] ?? '';
             // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
-            return http_build_query($this->queryStringToArray($queryString));
+            return http_build_query(self::queryStringToArray($queryString));
         }
 
         // It is likely that we do not need to differentiate between API Gateway (Version 1) and ALB. However,
@@ -255,7 +255,7 @@ final class HttpRequestEvent implements LambdaEvent
 
             // queryStringToArray() will automatically `urldecode` any value that needs decoding. This will allow parameters
             // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work.
-            return http_build_query($this->queryStringToArray($queryString));
+            return http_build_query(self::queryStringToArray($queryString));
         }
 
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
@@ -269,7 +269,7 @@ final class HttpRequestEvent implements LambdaEvent
 
             // re-parse the query-string so it matches the format used when using PHP outside of Lambda
             // this is particularly important when using multi-value params - eg. myvar[]=2&myvar=3 ... = [2, 3]
-            $queryParameters = $this->queryStringToArray(implode('&', $queryParameterStr));
+            $queryParameters = self::queryStringToArray(implode('&', $queryParameterStr));
             return http_build_query($queryParameters);
         }
 
@@ -343,7 +343,7 @@ final class HttpRequestEvent implements LambdaEvent
      * @see https://github.com/brefphp/bref/issues/756
      * @see https://github.com/brefphp/bref/pull/1437
      */
-    private function queryStringToArray(string $query): array
+    private static function queryStringToArray(string $query): array
     {
         return Query::fromString($query)->toArray();
     }
