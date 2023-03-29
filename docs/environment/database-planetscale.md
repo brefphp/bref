@@ -17,7 +17,7 @@ One extra feature worth mentioning is [the branching concept](https://planetscal
 
 ## Getting started
 
-To use PlaneScale with Bref, start [by creating a PlanetScale account](https://planetscale.com/).
+To use PlanetScale with Bref, start [by creating a PlanetScale account](https://planetscale.com/).
 
 Then, create a database in the same region as your Bref application.
 
@@ -95,6 +95,7 @@ Now that Laravel is configured, you can run `php artisan migrate` in AWS Lambda 
 ```bash
 serverless bref:cli --args="migrate"
 ```
+Note: PlanetScale does not support foreign key constraints. If your application uses foreign key constraints, you will have to remove them before running `php artisan migrate`. See the [MySQL compatibility section](#mysql-compatibility) for more information.
 
 That's it! Our database is ready to use.
 
@@ -147,12 +148,13 @@ Now that Symfony is configured, you can run the `bin/console doctrine:migrations
 ```bash
 serverless bref:cli --args="doctrine:migrations:migrate"
 ```
+Note: PlanetScale does not support foreign key constraints. If your application uses foreign key constraints, you will have to remove them before running your migrations. See the [MySQL compatibility section](#mysql-compatibility) for more information.
 
 That's it! Our database is ready to use.
 
 ## MySQL compatibility
 
-PlanetScale is based on the Vitess clustering system, which was built for scaling MySQL. Because of that, Vitess only supports some of the usual MySQL features.
+PlanetScale is based on the Vitess clustering system, which was built for scaling MySQL. Because of that, Vitess doesn't support all MySQL features.
 
 The biggest change is that **foreign key constraints** are not supported. To be clear, it is possible to have references between rows of different tables and perform joins. But constraints are not enforced: foreign keys are no longer validated at the database level, and you cannot use `ON DELETE ...` statements.
 
@@ -202,8 +204,8 @@ mysql -u <user> -p<password> -h <hostname> <db-name> < data.sql
 
 PlanetScale has a concept of [database branches](https://planetscale.com/docs/concepts/branching):
 
-- [**Development** branches](https://planetscale.com/docs/concepts/branching#development-and-production-branches) accept schema changes.
-- [**Production** branches](https://planetscale.com/docs/concepts/branching#development-and-production-branches) are built for scale and high availability. Schema changes are forbidden.
+- [**Development** branches](https://planetscale.com/docs/concepts/branching#development-and-production-branches) are isolated copies of your production database and are used to test schema changes in development.
+- [**Production** branches](https://planetscale.com/docs/concepts/branching#development-and-production-branches) are high availability branches intended for production traffic. They are protected from direct DDL, so you cannot perform direct schema changes on production branches.
 
 You start with a development branch called `main`, which lets you set up your schema. Once set up, you can [promote](https://planetscale.com/docs/concepts/branching#promote-a-branch-to-production) that branch (or any other branch) to a **production** branch.
 
