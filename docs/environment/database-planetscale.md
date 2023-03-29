@@ -93,8 +93,9 @@ serverless deploy
 Now that Laravel is configured, you can run `php artisan migrate` in AWS Lambda to set up our tables:
 
 ```bash
-serverless bref:cli --args="migrate"
+serverless bref:cli --args="migrate --force"
 ```
+
 Note: PlanetScale does not support foreign key constraints. If your application uses foreign key constraints, you will have to remove them before running `php artisan migrate`. See the [MySQL compatibility section](#mysql-compatibility) for more information.
 
 That's it! Our database is ready to use.
@@ -148,6 +149,7 @@ Now that Symfony is configured, you can run the `bin/console doctrine:migrations
 ```bash
 serverless bref:cli --args="doctrine:migrations:migrate"
 ```
+
 Note: PlanetScale does not support foreign key constraints. If your application uses foreign key constraints, you will have to remove them before running your migrations. See the [MySQL compatibility section](#mysql-compatibility) for more information.
 
 That's it! Our database is ready to use.
