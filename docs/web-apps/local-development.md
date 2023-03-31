@@ -4,6 +4,9 @@ current_menu: web-local-development
 previous:
     link: /docs/web-apps/cron.html
     title: Cron commands
+next:
+    link: /docs/web-apps/docker.html
+    title: Docker
 ---
 
 It is possible to run **web applications** locally.
