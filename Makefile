@@ -33,8 +33,10 @@ publish-docker-images: docker-images
 	  "bref/build-php-82" \
 	  "bref/fpm-dev-gateway"; \
 	do \
-		docker image tag $$image:1 $$image:${DOCKER_TAG} ; \
-		docker image push --all-tags $$image ; \
+		docker image tag $$image $$image:1 ; \
+		docker image tag $$image $$image:${DOCKER_TAG} ; \
+		docker image push $$image:1 ; \
+		docker image push $$image:${DOCKER_TAG} ; \
 	done
 
 # Generate and deploy the production version of the website using http://couscous.io
