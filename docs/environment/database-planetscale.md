@@ -209,11 +209,29 @@ PlanetScale has a concept of [database branches](https://planetscale.com/docs/co
 - [**Development** branches](https://planetscale.com/docs/concepts/branching#development-and-production-branches) are isolated copies of your production database and are used to test schema changes in development.
 - [**Production** branches](https://planetscale.com/docs/concepts/branching#development-and-production-branches) are high availability branches intended for production traffic. They are protected from direct DDL, so you cannot perform direct schema changes on production branches.
 
-You start with a development branch called `main`, which lets you set up your schema. Once set up, you can [promote](https://planetscale.com/docs/concepts/branching#promote-a-branch-to-production) that branch (or any other branch) to a **production** branch.
+You can set up production branches in two ways:
 
-Later, you can apply schema changes (aka DB migrations) to the production database **without downtime** via branches and deploy requests.
+- either **allow** running DB migrations in production,
+- or **forbid** direct schema changes in production by enabling [_Safe Migrations_](https://planetscale.com/docs/concepts/safe-migrations).
 
-Here is an overview of the workflow:
+### Without "Safe Migrations"
+
+If the production branch has the "Safe Migrations" feature **disabled**, you can run DB migrations on the production database as part of your deployment.
+
+This strategy implies either:
+
+- accepting downtime on deployment, for example by using [Laravel's maintenance mode](../frameworks/laravel.md#maintenance-mode) (put the app offline, deploy, run migrations, then put the app back online)
+- or always writing backward-compatible DB migrations
+
+This option works well for applications with low traffic or in early development. For high-traffic applications, using "Safe Migrations" is recommended instead.
+
+### With "Safe Migrations"
+
+If the production branch has the "Safe Migrations" feature **enabled**, you need to use development branches and deploy requests. Below is an introduction to these features.
+
+You start with a development branch called `main`, which lets you set up your schema. Once set up, you can [promote](https://planetscale.com/docs/concepts/branching#promote-a-branch-to-production) that branch (or any other branch) to a production branch with "Safe Migrations" enabled.
+
+Later, you can apply schema changes (aka DB migrations) to the production database **without downtime**:
 
 1. In PlanetScale, create a new development branch off of the production branch. This is an isolated copy of the production schema that you can freely play around with.
 2. Set up a dev environment of your application.
@@ -223,7 +241,7 @@ Here is an overview of the workflow:
 
 Let's dive through these steps in the next section.
 
-### Deploying DB migrations in detail
+#### Deploying DB migrations in detail
 
 PlanetScale works with **branches**, which matches with the concept of **stages** in Serverless Framework.
 
