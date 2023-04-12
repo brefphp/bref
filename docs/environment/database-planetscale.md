@@ -211,7 +211,7 @@ PlanetScale has a concept of [database branches](https://planetscale.com/docs/co
 
 You can set up production branches in two ways:
 
-- either **allow** running DB migrations in production,
+- either **allow** running DB migrations directly on your production database,
 - or **forbid** direct schema changes in production by enabling [_Safe Migrations_](https://planetscale.com/docs/concepts/safe-migrations).
 
 ### Without "Safe Migrations"
