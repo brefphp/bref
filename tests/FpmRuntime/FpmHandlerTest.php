@@ -129,6 +129,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'colors[][]' => ['red', 'blue'],
                 'shapes[a][]' => ['square', 'triangle'],
                 'myvar' => ['abc'],
+                'multi-value' => ['a', 'b'],
             ],
             'queryStringParameters' => [
                 'foo[]' => 'baz', // the 2nd value is preserved only by API Gateway
@@ -136,6 +137,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'colors[][]' => 'red',
                 'shapes[a][]' => 'square',
                 'myvar' => 'abc',
+                'multi-value' => 'b',
             ],
         ];
         $this->assertGlobalVariables($event, [
@@ -145,6 +147,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'colors' => [['red'], ['blue']],
                 'shapes' => ['a' => ['square', 'triangle']],
                 'myvar' => 'abc',
+                'multi-value' => ['a', 'b'],
             ],
             '$_POST' => [],
             '$_FILES' => [],
@@ -155,6 +158,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'colors' => [['red'], ['blue']],
                 'shapes' => ['a' => ['square', 'triangle']],
                 'myvar' => 'abc',
+                'multi-value' => ['a', 'b'],
             ],
             '$_SERVER' => [
                 'REQUEST_URI' => '/hello?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc',
