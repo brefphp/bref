@@ -215,19 +215,11 @@ final class HttpRequestEvent implements LambdaEvent
 
     private function rebuildQueryString(): string
     {
-        if ($this->isFormatV2()) {
-            $queryString = $this->event['rawQueryString'] ?? '';
-            // We re-parse the query string to make sure it is URL-encoded
-            // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
-            return http_build_query(self::queryStringToArray($queryString));
-        }
-
         // It is likely that we do not need to differentiate between API Gateway (Version 1) and ALB. However,
         // it would lead to a breaking change since the current implementation for API Gateway does not
         // support MultiValue query string. This way, the code is fully backward-compatible while
-        // offering complete support for multi value query parameters on ALB. Later on there can
-        // be a feature flag that allows API Gateway users to opt in to complete support as well.
-        if (isset($this->event['requestContext']['elb'])) {
+        // offering complete support for multi value query parameters on ALB.
+        if ($this->isFormatV2() || isset($this->event['requestContext']['elb'])) {
             // AWS differs between ALB with multiValue enabled or not (docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/lambda-functions.html#multi-value-headers)
             $queryParameters = $this->event['multiValueQueryStringParameters'] ?? $this->event['queryStringParameters'] ?? [];
 
