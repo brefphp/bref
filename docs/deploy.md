@@ -41,6 +41,20 @@ Once your project is ready, you can deploy via the following command:
 serverless deploy
 ```
 
+## Stages
+
+Serverless Framework has a concept of "stages", another name for "environments". We can deploy the same application multiple times in completely separated environments:
+
+```bash
+serverless deploy --stage=prod
+```
+
+The default stage is `dev`. The example above deploys a `prod` stage.
+
+Each stage is a separate CloudFormation stack, with completely separate AWS resources (Lambda functions, logs, permissions, etc.). All AWS resources are prefixed with the `service` and stage name (for example `myapp-dev-api`), which avoids any collision between stages.
+
+It is possible to deploy different stages in different AWS accounts (to lock down permissions), and to deploy one stage per git branch, pull request, or even developer in the team.
+
 ## Automating deployments
 
 If you are using Gitlab CI, Travis CI, CircleCI or any tool of the sort you will want to automate the deployment to something like this:

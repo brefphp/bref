@@ -40,7 +40,7 @@ service: app
 
 The [service](https://serverless.com/framework/docs/providers/aws/guide/services/) is simply the name of your project.
 
-Since Serverless lets us deploy a project in multiple stages (prod, dev, staging…), CloudFormation stacks will contain both the service name and the stage: `app-prod`, `app-dev`, etc.
+Since Serverless lets us deploy a project in [multiple stages](../deploy.md#stages) (prod, dev, staging…), CloudFormation stacks will contain both the service name and the stage: `app-prod`, `app-dev`, etc.
 
 ## Provider
 

@@ -120,6 +120,10 @@ menu:
                     text: Databases
                     url: /docs/environment/database.html
                     title: Using a database from AWS Lambda
+                database-planetscale:
+                    text: Databases - PlanetScale
+                    url: /docs/environment/database-planetscale.html
+                    title: Using PlanetScale from AWS Lambda
                 custom-domains:
                     text: Custom domains
                     url: /docs/environment/custom-domains.html
