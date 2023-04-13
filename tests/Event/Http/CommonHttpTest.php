@@ -107,9 +107,10 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
             'shapes' => ['a' => ['square', 'triangle']],
             'myvar' => 'abc',
             'foo.bar' => ['baz'],
+            'array' => ['one', 'two'],
         ]);
-        $this->assertQueryString('foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz');
-        $this->assertUri('/path?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz');
+        $this->assertQueryString('foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz&array%5B0%5D=one&array%5B1%5D=two');
+        $this->assertUri('/path?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz&array%5B0%5D=one&array%5B1%5D=two');
     }
 
     /**

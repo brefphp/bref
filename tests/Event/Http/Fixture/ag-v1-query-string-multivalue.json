@@ -23,7 +23,8 @@
         "colors[][]": ["red", "blue"],
         "shapes[a][]": ["square", "triangle"],
         "myvar": ["abc"],
-        "foo.bar[]": ["baz"]
+        "foo.bar[]": ["baz"],
+        "array": ["one", "two"]
     },
     "pathParameters": null,
     "stageVariables": null,
