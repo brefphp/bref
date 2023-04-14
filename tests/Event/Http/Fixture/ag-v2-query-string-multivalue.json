@@ -2,7 +2,7 @@
     "version": "2.0",
     "routeKey": "ANY /path",
     "rawPath": "/path",
-    "rawQueryString": "foo[]=bar&foo[]=baz&cards[]=birthday&colors[][]=red&colors[][]=blue&shapes[a][]=square&shapes[a][]=triangle&myvar=abc&foo.bar[]=baz",
+    "rawQueryString": "foo[]=bar&foo[]=baz&cards[]=birthday&colors[][]=red&colors[][]=blue&shapes[a][]=square&shapes[a][]=triangle&myvar=abc&foo.bar[]=baz&array=one&array=two",
     "headers": {
         "Accept": "*/*",
         "Accept-Encoding": "gzip, deflate",
