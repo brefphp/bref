@@ -23,7 +23,7 @@ out-of-the-box base images that are package for the Lambda environment.
 Here is an example of a Docker image
 
 ```Dockerfile
-FROM bref/php-80-fpm
+FROM bref/php-80-fpm:2
 
 COPY . /var/task
 
@@ -41,12 +41,10 @@ You may also enable PHP extensions by pulling them from
 [Bref Extensions](https://github.com/brefphp/extra-php-extensions)
 
 ```Dockerfile
-FROM bref/php-80-fpm
+FROM bref/php-80-fpm:2
 
-COPY --from=bref/extra-redis-php-80:0.10 /opt/bref-extra /opt/bref-extra
-
-COPY --from=bref/extra-gmp-php-80:0.10 /opt/bref-extra /opt/bref-extra
-COPY --from=bref/extra-gmp-php-80:0.10 /opt/bref/ /opt/bref
+COPY --from=bref/extra-redis-php-80:1 /opt /opt
+COPY --from=bref/extra-gmp-php-80:1 /opt /opt
 
 COPY . /var/task
 
