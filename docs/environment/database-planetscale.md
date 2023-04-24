@@ -133,7 +133,7 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
         options:
             # Connect to the database via SSL
-            !php/const:PDO::MYSQL_ATTR_SSL_CA: /opt/bref/ssl/cert.pem
+            !php/const PDO::MYSQL_ATTR_SSL_CA: /opt/bref/ssl/cert.pem
 
 # ...
 ```
