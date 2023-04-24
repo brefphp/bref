@@ -4,7 +4,7 @@ const path = require('path');
 async function runConsole(serverless, options) {
     const region = serverless.getProvider('aws').getRegion();
     // Override CLI options for `sls invoke`
-    options.function = options.function ?? getConsoleFunction(serverless, region);
+    options.function = options.function || getConsoleFunction(serverless, region);
     options.type = 'RequestResponse';
     options.data = options.args;
     options.log = true;

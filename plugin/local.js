@@ -17,7 +17,7 @@ function runLocal(serverless, options) {
     const args = [
         path.join(__dirname, '../src/bref-local'),
         fn.handler,
-        data ?? '',
+        data || '',
     ];
     spawnSync('php', args, {
         stdio: 'inherit',

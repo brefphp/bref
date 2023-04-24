@@ -157,7 +157,7 @@ class ServerlessPlugin {
         const isArmGlobally = config.provider.architecture === 'arm64';
 
         // Check provider config
-        if (this.runtimes.includes(config.provider.runtime ?? '')) {
+        if (this.runtimes.includes(config.provider.runtime || '')) {
             config.provider.layers = includeBrefLayers(
                 config.provider.runtime,
                 config.provider.layers || [], // make sure it's an array
@@ -167,7 +167,7 @@ class ServerlessPlugin {
         }
 
         // Check functions config
-        for (const f of Object.values(config.functions ?? {})) {
+        for (const f of Object.values(config.functions || {})) {
             if (this.runtimes.includes(f.runtime)) {
                 f.layers = includeBrefLayers(
                     f.runtime,
@@ -179,7 +179,7 @@ class ServerlessPlugin {
         }
 
         // Check Lift constructs config
-        for (const construct of Object.values(this.serverless.configurationInput.constructs ?? {})) {
+        for (const construct of Object.values(this.serverless.configurationInput.constructs || {})) {
             if (construct.type !== 'queue' && construct.type !== 'webhook') continue;
             const f = construct.type === 'queue' ? construct.worker : construct.authorizer;
             if (f && this.runtimes.includes(f.runtime)) {
