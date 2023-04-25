@@ -26,7 +26,7 @@
                 <span class="hidden sm:block">GitHub</span>
             </a>
             <div class="hidden md:inline-block px-4 py-2 sm:mr-4">
-                <input type="search" placeholder="Search" class="search-input w-48 lg:w-64 rounded px-4 lg:px-6 py-2 bg-blue-800 focus:outline-none focus:bg-blue-700 text-white shadow-inner placeholder-blue-300 cursor-pointer" />
+                <div id="search-container"></div>
             </div>
         </div>
         <button class="block lg:hidden flex items-center px-3 py-2 border rounded text-blue-100 text-blue-400 bg-blue-700" onclick="toggleMenu()">
@@ -165,12 +165,14 @@
             });
         });
     </script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
-    <script type="text/javascript"> docsearch({
-            apiKey: 'ab85f420c1da297f9d9916e57fe81f7d',
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
+    <script src="https://cdn.jsdelivr.net/npm/@docsearch/js@3"></script>
+    <script>
+        docsearch({
+            apiKey: '0d252e6edd70998021bc0044444c42c4',
+            appId: '7J23TEKSTT',
             indexName: 'bref',
-            inputSelector: '.search-input',
+            container: '#search-container',
             debug: false, // Set debug to true if you want to inspect the dropdown
         });
     </script>

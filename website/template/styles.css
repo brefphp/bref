@@ -202,6 +202,20 @@ article table td {
     @apply text-blue-600 underline;
 }
 
+/* Algolia */
+.DocSearch.DocSearch-Button {
+    @apply w-48 lg:w-64 rounded m-0 px-3 lg:px-4 py-2 bg-blue-800 focus:outline-none focus:bg-blue-700 shadow-inner cursor-pointer !important;
+}
+#search-container-home .DocSearch.DocSearch-Button {
+    @apply w-48 lg:w-64 rounded-md m-0 px-3 lg:px-4 py-2 bg-transparent transition-all duration-200 bg-blue-700 outline-none focus:outline-none shadow-md focus:shadow-2xl transform focus:scale-125 cursor-pointer !important;
+}
+.DocSearch .DocSearch-Button-Placeholder {
+    @apply text-blue-300 !important;
+}
+.DocSearch-Search-Icon, .DocSearch-Button-Keys {
+    display: none !important;
+}
+
 @tailwind components;
 
 @tailwind utilities;
