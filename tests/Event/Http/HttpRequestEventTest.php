@@ -249,7 +249,7 @@ class HttpRequestEventTest extends CommonHttpTest
     {
         return [
             [['foo' => 'bar'], 'foo=bar', 'foo=bar'],
-            [['foo' => 'bar  '], 'foo=bar++', '   foo=bar  '],
+            [['foo' => 'bar  '], 'foo=bar%20%20', '   foo=bar  '],
             [['?foo' => 'bar'], '%3Ffoo=bar', '?foo=bar'],
             [['#foo' => 'bar'], '%23foo=bar', '#foo=bar'],
             [['foo' => 'bar'], 'foo=bar', '&foo=bar'],
@@ -273,12 +273,20 @@ class HttpRequestEventTest extends CommonHttpTest
                     'a' => '<==  foo bar  ==>',
                     'b' => '###Hello World###',
                 ],
-                'a=%3C%3D%3D++foo+bar++%3D%3D%3E&b=%23%23%23Hello+World%23%23%23',
+                'a=%3C%3D%3D%20%20foo%20bar%20%20%3D%3D%3E&b=%23%23%23Hello%20World%23%23%23',
+                'a=%3c%3d%3d%20%20foo%20bar%20%20%3d%3d%3e&b=%23%23%23Hello%20World%23%23%23',
+            ],
+            [
+                [
+                    'a' => '<==  foo bar  ==>',
+                    'b' => '###Hello World###',
+                ],
+                'a=%3C%3D%3D%20%20foo%20bar%20%20%3D%3D%3E&b=%23%23%23Hello%20World%23%23%23',
                 'a=%3c%3d%3d%20%20foo+bar++%3d%3d%3e&b=%23%23%23Hello+World%23%23%23',
             ],
             [
                 ['str' => "A string with containing \0\0\0 nulls"],
-                'str=A+string+with+containing+%00%00%00+nulls',
+                'str=A%20string%20with%20containing%20%00%00%00%20nulls',
                 'str=A%20string%20with%20containing%20%00%00%00%20nulls',
             ],
             [

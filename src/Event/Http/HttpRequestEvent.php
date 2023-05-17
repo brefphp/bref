@@ -219,7 +219,7 @@ final class HttpRequestEvent implements LambdaEvent
             $queryString = $this->event['rawQueryString'] ?? '';
             // We re-parse the query string to make sure it is URL-encoded
             // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
-            return http_build_query(self::queryStringToArray($queryString));
+            return http_build_query(self::queryStringToArray($queryString), '', '&', \PHP_QUERY_RFC3986);
         }
 
         // It is likely that we do not need to differentiate between API Gateway (Version 1) and ALB. However,
@@ -255,7 +255,7 @@ final class HttpRequestEvent implements LambdaEvent
 
             // queryStringToArray() will automatically `urldecode` any value that needs decoding. This will allow parameters
             // like `?my_param[bref][]=first&my_param[bref][]=second` to properly work.
-            return http_build_query(self::queryStringToArray($queryString));
+            return http_build_query(self::queryStringToArray($queryString), '', '&', \PHP_QUERY_RFC3986);
         }
 
         if (isset($this->event['multiValueQueryStringParameters']) && $this->event['multiValueQueryStringParameters']) {
@@ -270,7 +270,8 @@ final class HttpRequestEvent implements LambdaEvent
             // re-parse the query-string so it matches the format used when using PHP outside of Lambda
             // this is particularly important when using multi-value params - eg. myvar[]=2&myvar=3 ... = [2, 3]
             $queryParameters = self::queryStringToArray(implode('&', $queryParameterStr));
-            return http_build_query($queryParameters);
+
+            return http_build_query($queryParameters, '', '&', \PHP_QUERY_RFC3986);
         }
 
         if (empty($this->event['queryStringParameters'])) {
@@ -286,7 +287,7 @@ final class HttpRequestEvent implements LambdaEvent
          * ?array[key]=value gives ['array[key]' => 'value'] while we want ['array' => ['key' = > 'value']]
          * In that case we should recreate the original query string and use parse_str which handles correctly arrays
          */
-        return http_build_query($this->event['queryStringParameters']);
+        return http_build_query($this->event['queryStringParameters'], '', '&', \PHP_QUERY_RFC3986);
     }
 
     private function extractHeaders(): array
