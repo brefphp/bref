@@ -275,7 +275,7 @@ RUN set -xe; \
 #   - zlib
 # Needed by:
 #   - php
-ENV VERSION_XML2=2.11.2
+ENV VERSION_XML2=2.11.3
 ENV XML2_BUILD_DIR=${BUILD_DIR}/xml2
 
 RUN set -xe; \
