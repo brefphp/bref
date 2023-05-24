@@ -39,6 +39,6 @@ They generated 2,000 PDFs in <2 min for 2$ using Symfony applications shipped in
 
 ## Others
 
-- [Serverless](https://serverless.com/learn/case-studies/)
+- [Serverless](https://www.serverless.com/category/user-stories)
 
-  It isn't exactly about PHP over Serverless, but it gives us a general overview of how hundreds of teams are handling with serverless across a diversity of projects. There are a lot of case studies since from [Us Department of Defense streamlining open source contributions](https://serverless.com/blog/dept-of-defense-doc-bot/) until project which has [reduced back-end costs by 95%](https://serverless.com/blog/abstract-partner-program-announcement/) and much more.
+  It isn't exactly about PHP over Serverless, but it gives us a general overview of how hundreds of teams are handling serverless across a diversity of projects. There are a lot of case studies from [US Department of Defense streamlining open source contributions](https://www.serverless.com/blog/dept-of-defense-doc-bot/) to a project which has [reduced back-end costs by 95%](https://www.serverless.com/blog/abstract-partner-program-announcement/) and much more.
