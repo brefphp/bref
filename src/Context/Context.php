@@ -29,7 +29,7 @@ final class Context implements JsonSerializable
     {
         return new self(
             'fake-aws-request-id',
-            time() + 1000 * 60 * 5, // 5 minutes from now (in milliseconds)
+            (time() + (60 * 5)) * 1000, // 5 minutes from now (in milliseconds)
             'fake-invoked-function-arn',
             'fake-trace-id'
         );
