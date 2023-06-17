@@ -1,7 +1,5 @@
 import type { AWS } from "@serverless/typescript";
 
-export type Hook = () => void | Promise<void>;
-
 export type VariableResolver = {
     /**
      * When using such expression in service file ${foo(param1, param2):address}, resolve will be invoked with the following values:
@@ -75,10 +73,14 @@ export type CommandsDefinition = Record<
                 usage: string;
                 required?: boolean;
                 shortcut?: string;
+                type?: 'string' | 'boolean' | 'multiple';
             };
         };
     }
 >;
+
+export type HooksDefinition = Record<string, Hook>;
+export type Hook = () => void | Promise<void>;
 
 export type CliOptions = Record<string, string | boolean | string[]>;
 
