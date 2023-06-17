@@ -1,6 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * @param {import('./serverless').Serverless} serverless
+ * @param {import('./serverless').Logger} log
+ */
 function listLayers(serverless, log) {
     const region = serverless.getProvider("aws").getRegion();
 

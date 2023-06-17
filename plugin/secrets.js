@@ -1,5 +1,9 @@
 const fs = require('fs');
 
+/**
+ * @param {import('./serverless').Serverless} serverless
+ * @param {import('./serverless').Logger} log
+ */
 function warnIfUsingSecretsWithoutTheBrefDependency(serverless, log) {
     const config = serverless.service;
     const allVariables = [];
@@ -10,7 +14,7 @@ function warnIfUsingSecretsWithoutTheBrefDependency(serverless, log) {
         }
     };
     Object.entries(config.provider.environment || {}).forEach(check);
-    Object.values(config.functions).forEach(f => Object.entries(f.environment || {}).forEach(check));
+    Object.values(config.functions || {}).forEach(f => Object.entries(f.environment || {}).forEach(check));
 
     if (allVariables.length > 0) {
         // Check if the bref/secrets-loader dependency is installed in composer.json
