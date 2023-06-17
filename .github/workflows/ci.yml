@@ -89,7 +89,7 @@ jobs:
 
     js-lint:
         runs-on: ubuntu-latest
-        name: PHP CodeSniffer
+        name: JS type validation and linting
         steps:
             - uses: actions/checkout@v3
             - uses: actions/setup-node@v3
