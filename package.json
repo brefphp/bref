@@ -1,7 +1,7 @@
 {
     "type": "commonjs",
     "scripts": {
-        "lint": "eslint .",
+        "lint": "tsc && eslint .",
         "prettify": "prettier --write --ignore-path .gitignore \"**/*.{css,html,js,json,md,yaml,yml}\""
     },
     "devDependencies": {

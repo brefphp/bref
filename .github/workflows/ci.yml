@@ -86,3 +86,18 @@ jobs:
                 run: composer install --no-interaction --prefer-dist --no-progress
             -   name: PHP CS
                 run: vendor/bin/phpcs -q --no-colors --report=checkstyle | cs2pr
+
+    js-lint:
+        runs-on: ubuntu-latest
+        name: PHP CodeSniffer
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+            - uses: actions/cache@v2
+              with:
+                  path: ~/.npm
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+            - run: npm i
+            - run: npm run lint
