@@ -14,6 +14,10 @@ docker-compose.yml export-ignore
 Makefile export-ignore
 phpstan.neon export-ignore
 phpunit.xml export-ignore
+.eslintrc.js export-ignore
+.prettierrc.yaml export-ignore
+tsconfig.json export-ignore
+plugin/serverless.ts export-ignore
 
 # Auto detect text files and perform LF normalization
 * text=auto
