@@ -18,7 +18,7 @@ function getConsoleFunction(serverless, region) {
     const functions = serverless.service.functions;
     const consoleFunctions = [];
     for (const [functionName, functionDetails] of Object.entries(functions)) {
-        if (functionDetails.layers?.includes(consoleLayerArn)) {
+        if (functionDetails.layers && functionDetails.layers.includes(consoleLayerArn)) {
             consoleFunctions.push(functionName);
         }
     }
