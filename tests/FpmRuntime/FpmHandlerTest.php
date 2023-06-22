@@ -289,6 +289,41 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
     /**
      * @dataProvider provide API Gateway versions
      */
+    public function test request with numeric header(int $version)
+    {
+        $event = [
+            'version' => '1.0',
+            'httpMethod' => 'GET',
+            'path' => '/',
+            'headers' => [
+                '12345' => 'Hello world',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => '',
+                'HTTP_12345' => 'Hello world',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
     public function test request with custom multi header(int $version)
     {
         $event = [

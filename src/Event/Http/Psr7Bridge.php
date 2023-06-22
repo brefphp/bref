@@ -49,7 +49,7 @@ final class Psr7Bridge
         ]);
 
         foreach ($headers as $name => $values) {
-            $server['HTTP_' . strtoupper(str_replace('-', '_', $name))] = $values[0];
+            $server['HTTP_' . strtoupper(str_replace('-', '_', (string) $name))] = $values[0];
         }
 
         /**
