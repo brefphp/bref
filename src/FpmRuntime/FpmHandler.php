@@ -248,7 +248,7 @@ final class FpmHandler extends HttpHandler
         }
         foreach ($event->getHeaders() as $header => $values) {
             foreach ($values as $value) {
-                $key = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+                $key = 'HTTP_' . strtoupper(str_replace('-', '_', (string) $header));
                 $request->setCustomVar($key, $value);
             }
         }

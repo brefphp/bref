@@ -166,6 +166,31 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
     /**
      * @dataProvider provide API Gateway versions
      */
+    public function test request with numeric header(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-header-numeric.json");
+        $this->assertHeader('12345', ['Hello world']);
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with numeric multi header(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-header-numeric-multivalue.json");
+        if ($version === 2) {
+            // In v2, multi-value headers are joined by a comma
+            // See https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html
+            $this->assertHeader('12345', ['Hello world,Hello john']);
+        } else {
+            $this->assertHeader('12345', ['Hello world', 'Hello john']);
+            $this->assertHasMultiHeader(true);
+        }
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
     public function test POST request with raw body(int $version)
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-json.json");
