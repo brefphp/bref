@@ -9,19 +9,34 @@
 
         <nav class="py-5 font-light">
             <div class="container max-w-screen-xl mx-auto px-4 flex items-center justify-between flex-wrap">
-                <div class="flex items-center flex-shrink-0">
+                <div id="menu" class="flex hidden lg:flex fixed lg:relative top-0 inset-0 py-4 lg:py-0 px-2 lg:px-0 flex-col lg:flex-row items-start lg:items-center flex-shrink-0 z-10 bg-blue-700 lg:bg-transparent">
+                    <div class="flex lg:hidden items-center justify-between w-full mb-2 -mt-1">
+                        <a href="/" title="Bref"
+                           class="inline-block text-blue-100 hover:text-white px-2 font-bref text-xl">
+                            bref
+                        </a>
+                        <button type="button" onclick="toggleMenu()"
+                                class="inline-flex lg:hidden text-blue-200 hover:text-white items-center justify-center rounded-md p-2" aria-label="Open main menu">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                        </button>
+                    </div>
                     <a href="/docs/" title="Bref documentation for serverless PHP applications"
                        class="inline-block text-blue-100 hover:text-white px-2 sm:px-4 py-2 mr-2 sm:mr-4">
-                        <span class="sm:hidden">Docs</span>
-                        <span class="hidden sm:inline">Documentation</span>
+                        Docs
                     </a>
                     <a href="/docs/news/" title="Bref news"
                        class="inline-block text-blue-100 hover:text-white px-2 sm:px-4 py-2 mr-2 sm:mr-4">
                         News
                     </a>
-                    <a href="/#ecosystem" title="Bref support plans"
+                    <a href="/#plans" title="Bref support plans"
+                       class="inline-block text-blue-100 hover:text-white px-2 sm:px-4 py-2 mr-2 sm:mr-4">
+                        Support
+                    </a>
+                    <a href="https://dashboard.bref.sh/" title="Bref Dashboard"
                        class="inline-block text-blue-100 hover:text-white px-2 sm:px-4 py-2">
-                        Ecosystem
+                        Dashboard
                     </a>
                 </div>
                 <div class="flex items-center">
@@ -29,7 +44,7 @@
                         <div id="search-container-home"></div>
                     </div>
                     <a href="https://github.com/brefphp/bref" title="Bref on GitHub"
-                       class="inline-block text-blue-200 hover:text-white mr-3 sm:mr-6">
+                       class="inline-block text-blue-200 hover:text-white mr-6">
                         <svg class="fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>GitHub</title><path d="M10 0a10 10 0 0 0-3.16 19.49c.5.1.68-.22.68-.48l-.01-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.1.39-1.99 1.03-2.69a3.6 3.6 0 0 1 .1-2.64s.84-.27 2.75 1.02a9.58 9.58 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.4.1 2.64.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85l-.01 2.75c0 .26.18.58.69.48A10 10 0 0 0 10 0"></path></svg>
                     </a>
                     <a href="https://twitter.com/brefphp" title="Bref on Twitter"
@@ -37,6 +52,12 @@
                         <svg class="fill-current w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><title>Twitter</title><path d="M496 109.5a201.8 201.8 0 01-56.55 15.3 97.51 97.51 0 0043.33-53.6 197.74 197.74 0 01-62.56 23.5A99.14 99.14 0 00348.31 64c-54.42 0-98.46 43.4-98.46 96.9a93.21 93.21 0 002.54 22.1 280.7 280.7 0 01-203-101.3A95.69 95.69 0 0036 130.4c0 33.6 17.53 63.3 44 80.7A97.5 97.5 0 0135.22 199v1.2c0 47 34 86.1 79 95a100.76 100.76 0 01-25.94 3.4 94.38 94.38 0 01-18.51-1.8c12.51 38.5 48.92 66.5 92.05 67.3A199.59 199.59 0 0139.5 405.6a203 203 0 01-23.5-1.4A278.68 278.68 0 00166.74 448c181.36 0 280.44-147.7 280.44-275.8 0-4.2-.11-8.4-.31-12.5A198.48 198.48 0 00496 109.5z"/></svg>
                     </a>
                 </div>
+                <button type="button" onclick="toggleMenu()"
+                        class="inline-flex lg:hidden text-blue-200 hover:text-white -m-2 items-center justify-center rounded-md p-2" aria-label="Open main menu">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
             </div>
         </nav>
 
@@ -238,6 +259,12 @@
     {% include 'enterprise.twig' %}
 
     {% include 'footer.twig' %}
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('menu').classList.toggle('hidden');
+        }
+    </script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@docsearch/css@3" />
     <script src="https://cdn.jsdelivr.net/npm/@docsearch/js@3"></script>
