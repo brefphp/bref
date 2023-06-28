@@ -1,6 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * @param {import('./serverless').Serverless} serverless
+ * @param {import('./serverless').CliOptions} options
+ */
 async function runConsole(serverless, options) {
     const region = serverless.getProvider('aws').getRegion();
     // Override CLI options for `sls invoke`
@@ -12,13 +16,17 @@ async function runConsole(serverless, options) {
     await serverless.pluginManager.spawn('invoke');
 }
 
+/**
+ * @param {import('./serverless').Serverless} serverless
+ * @param {string} region
+ */
 function getConsoleFunction(serverless, region) {
     const consoleLayerArn = getConsoleLayerArn(region);
 
     const functions = serverless.service.functions;
     const consoleFunctions = [];
-    for (const [functionName, functionDetails] of Object.entries(functions)) {
-        if (functionDetails.layers?.includes(consoleLayerArn)) {
+    for (const [functionName, functionDetails] of Object.entries(functions || {})) {
+        if (functionDetails.layers && functionDetails.layers.includes(consoleLayerArn)) {
             consoleFunctions.push(functionName);
         }
     }
@@ -31,6 +39,10 @@ function getConsoleFunction(serverless, region) {
     return consoleFunctions[0];
 }
 
+/**
+ * @param {string} region
+ * @returns {string}
+ */
 function getConsoleLayerArn(region) {
     const json = fs.readFileSync(path.join(__dirname, '../layers.json'));
     const layers = JSON.parse(json.toString());

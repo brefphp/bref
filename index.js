@@ -14,6 +14,11 @@ const path = require('path');
  */
 
 class ServerlessPlugin {
+    /**
+     * @param {import('./plugin/serverless').Serverless} serverless
+     * @param {import('./plugin/serverless').CliOptions} options
+     * @param {import('./plugin/serverless').ServerlessUtils} utils
+     */
     constructor(serverless, options, utils) {
         this.serverless = serverless;
         this.provider = this.serverless.getProvider('aws');
@@ -30,6 +35,7 @@ class ServerlessPlugin {
         }
 
         const filename = path.resolve(__dirname, 'layers.json');
+        /** @type {Record<string, Record<string, string>>} */
         this.layers = JSON.parse(fs.readFileSync(filename).toString());
 
         this.runtimes = Object.keys(this.layers)
@@ -45,6 +51,7 @@ class ServerlessPlugin {
         // Declare `${bref:xxx}` variables
         // See https://www.serverless.com/framework/docs/guides/plugins/custom-variables
         // noinspection JSUnusedGlobalSymbols
+        /** @type {Record<string, import('./plugin/serverless').VariableResolver>} */
         this.configurationVariablesSources = {
             bref: {
                 resolve: async ({address, resolveConfigurationProperty, options}) => {
@@ -53,6 +60,8 @@ class ServerlessPlugin {
                     // `options` is CLI options
                     // `resolveConfigurationProperty` allows to access other configuration properties,
                     // and guarantees to return a fully resolved form (even if property is configured with variables)
+                    /** @type {string} */
+                    // @ts-ignore
                     const region = options.region || await resolveConfigurationProperty(['provider', 'region']);
 
                     if (!address.startsWith('layer.')) {
@@ -67,6 +76,7 @@ class ServerlessPlugin {
             }
         };
 
+        /** @type {import('./plugin/serverless').CommandsDefinition} */
         this.commands = {
             'bref:cli': {
                 usage: 'Runs a CLI command in AWS Lambda',
@@ -115,6 +125,7 @@ class ServerlessPlugin {
         };
 
         // noinspection JSUnusedGlobalSymbols
+        /** @type {import('./plugin/serverless').HooksDefinition} */
         this.hooks = {
             'initialize': () => {
                 this.processPhpRuntimes();
@@ -168,7 +179,7 @@ class ServerlessPlugin {
 
         // Check functions config
         for (const f of Object.values(config.functions || {})) {
-            if (this.runtimes.includes(f.runtime)) {
+            if (f.runtime && this.runtimes.includes(f.runtime)) {
                 f.layers = includeBrefLayers(
                     f.runtime,
                     f.layers || [], // make sure it's an array
@@ -182,7 +193,7 @@ class ServerlessPlugin {
         for (const construct of Object.values(this.serverless.configurationInput.constructs || {})) {
             if (construct.type !== 'queue' && construct.type !== 'webhook') continue;
             const f = construct.type === 'queue' ? construct.worker : construct.authorizer;
-            if (f && this.runtimes.includes(f.runtime)) {
+            if (f && f.runtime && this.runtimes.includes(f.runtime)) {
                 f.layers = includeBrefLayers(
                     f.runtime,
                     f.layers || [], // make sure it's an array
@@ -198,13 +209,18 @@ class ServerlessPlugin {
         if (this.serverless.service.provider.runtime === 'provided') {
             throw new this.serverless.classes.Error(errorMessage);
         }
-        for (const [, f] of Object.entries(this.serverless.service.functions)) {
+        for (const [, f] of Object.entries(this.serverless.service.functions || {})) {
             if (f.runtime === 'provided') {
                 throw new this.serverless.classes.Error(errorMessage);
             }
         }
     }
 
+    /**
+     * @param {string} layerName
+     * @param {string} region
+     * @returns {string}
+     */
     getLayerArn(layerName, region) {
         if (! (layerName in this.layers)) {
             throw new this.serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
@@ -233,7 +249,11 @@ class ServerlessPlugin {
             return;
         }
 
+        /** @type {{ get: (string) => string }} */
+        // @ts-ignore
         const userConfig = require.main.require('@serverless/utils/config');
+        /** @type {typeof import('ci-info')} */
+        // @ts-ignore
         const ci = require.main.require('ci-info');
 
         let command = 'unknown';
@@ -249,9 +269,14 @@ class ServerlessPlugin {
             install: userConfig.get('meta.created_at'),
             uid: userConfig.get('frameworkId'), // anonymous user ID created by the Serverless Framework
         };
-        /** @type {Record<string, any>} */
         const config = this.serverless.configurationInput;
-        const plugins = this.serverless.service.plugins ? this.serverless.service.plugins.modules || this.serverless.service.plugins : [];
+        /** @type {string[]} */
+        let plugins = [];
+        if (this.serverless.service.plugins && 'modules' in this.serverless.service.plugins) {
+            plugins = this.serverless.service.plugins.modules;
+        } else if (this.serverless.service.plugins) {
+            plugins = this.serverless.service.plugins;
+        }
         // Lift construct types
         if (plugins.includes('serverless-lift') && typeof config.constructs === 'object') {
             payload.constructs = Object.values(config.constructs)

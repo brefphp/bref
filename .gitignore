@@ -13,3 +13,5 @@
 .DS_Store
 /.serverless/
 .phpunit.result.cache
+node_modules/
+package-lock.json
