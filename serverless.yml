@@ -3,8 +3,8 @@ service: bref-demo
 provider:
     name: aws
     region: us-east-2
-    logs:
-        restApi: true
+    logRetentionInDays: 7
+    versionFunctions: false
     apiGateway:
         binaryMediaTypes:
             - '*/*'

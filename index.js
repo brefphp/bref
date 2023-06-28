@@ -7,6 +7,11 @@ const {warnIfUsingSecretsWithoutTheBrefDependency} = require('./plugin/secrets')
 const fs = require('fs');
 const path = require('path');
 
+// Disable `sls` promoting the Serverless Console because it's not compatible with PHP, it's tripping users up
+if (!process.env.SLS_NOTIFICATIONS_MODE) {
+    process.env.SLS_NOTIFICATIONS_MODE = 'upgrades-only';
+}
+
 /**
  * This file declares a plugin for the Serverless framework.
  *
@@ -141,7 +146,33 @@ class ServerlessPlugin {
             'bref:cli:run': () => runConsole(this.serverless, options),
             'bref:local:run': () => runLocal(this.serverless, options),
             'bref:layers:show': () => listLayers(this.serverless, utils.log),
+            'before:logs:logs': () => {
+                /** @type {typeof import('chalk')} */
+                // @ts-ignore
+                const chalk = require.main.require('chalk');
+                utils.log(chalk.gray('View, tail, and search logs from all functions with https://dashboard.bref.sh'));
+                utils.log();
+            },
+            'before:metrics:metrics': () => {
+                /** @type {typeof import('chalk')} */
+                // @ts-ignore
+                const chalk = require.main.require('chalk');
+                utils.log(chalk.gray('View all your application\'s metrics with https://dashboard.bref.sh'));
+                utils.log();
+            },
         };
+
+        process.on('beforeExit', (code) => {
+            const command = serverless.processedInput.commands[0] || '';
+            // On successful deploy
+            if (command.startsWith('deploy') && code === 0) {
+                /** @type {typeof import('chalk')} */
+                // @ts-ignore
+                const chalk = require.main.require('chalk');
+                utils.log();
+                utils.log(chalk.gray('Want a better experience than the AWS console? Try out https://dashboard.bref.sh'));
+            }
+        });
     }
 
     /**
