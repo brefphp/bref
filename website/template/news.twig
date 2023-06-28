@@ -31,25 +31,24 @@
         </div>
     </nav>
 
-    <div class="container flex gap-8 max-w-screen-lg mx-auto mt-16">
-        <div class="flex-1">
-            {% block content %}
-                <article class="w-full px-4 sm:px-8 lg:px-4 py-8 md:py-16">
-                    <h1 class="text-3xl font-bold">{{ title }}</h1>
-                    {% if subTitle %}
-                        <div class="text-xl text-gray-600 -mt-8 mb-8">{{ subTitle }}</div>
-                    {% endif %}
-                    {% block article %}
-                        {{ content|raw }}
-                    {% endblock %}
-                </article>
-            {% endblock %}
-        </div>
+    <div class="container max-w-screen-lg mx-auto mt-16">
         {% if not hideTweets %}
-            <div class="hidden md:block pt-16">
+            <div class="hidden md:block float-right ml-8 pt-16">
                 <a class="twitter-timeline" data-width="400" data-height="1200" data-dnt="true" href="https://twitter.com/brefphp?ref_src=twsrc%5Etfw">Tweets by brefphp</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
             </div>
         {% endif %}
+        {% block content %}
+            <article class="w-full px-4 sm:px-8 lg:px-4 py-8 md:py-16">
+                <h1 class="text-3xl font-bold">{{ title }}</h1>
+                {% if subTitle %}
+                    <div class="text-xl text-gray-600 -mt-8 mb-8">{{ subTitle }}</div>
+                {% endif %}
+                {% block article %}
+                    {{ content|raw }}
+                {% endblock %}
+            </article>
+        {% endblock %}
+        <div class="clear-both"></div>
     </div>
 
     {% include 'footer.twig' %}
