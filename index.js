@@ -292,6 +292,13 @@ class ServerlessPlugin {
             command = this.serverless.processedInput.commands.join(' ');
         }
 
+        let timezone;
+        try {
+            timezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+        } catch {
+            // Pass silently
+        }
+
         const payload = {
             cli: 'sls',
             v: 2, // Bref version
@@ -299,6 +306,7 @@ class ServerlessPlugin {
             ci: ci.isCI,
             install: userConfig.get('meta.created_at'),
             uid: userConfig.get('frameworkId'), // anonymous user ID created by the Serverless Framework
+            tz: timezone,
         };
         const config = this.serverless.configurationInput;
         /** @type {string[]} */
