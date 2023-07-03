@@ -292,6 +292,13 @@ class ServerlessPlugin {
             command = this.serverless.processedInput.commands.join(' ');
         }
 
+        let timezone;
+        try {
+            timezone = new Intl.DateTimeFormat().resolvedOptions().timeZone;
+        } catch {
+            // Pass silently
+        }
+
         const payload = {
             cli: 'sls',
             v: 2, // Bref version
@@ -299,6 +306,7 @@ class ServerlessPlugin {
             ci: ci.isCI,
             install: userConfig.get('meta.created_at'),
             uid: userConfig.get('frameworkId'), // anonymous user ID created by the Serverless Framework
+            tz: timezone,
         };
         const config = this.serverless.configurationInput;
         /** @type {string[]} */
@@ -313,6 +321,39 @@ class ServerlessPlugin {
             payload.constructs = Object.values(config.constructs)
                 .map((construct) => (typeof construct === 'object' && construct.type) ? construct.type : null)
                 .filter(Boolean);
+        }
+
+        // PHP extensions
+        const extensionLayers = [];
+        const allLayers = [];
+        if (config.provider && config.provider.layers && Array.isArray(config.provider.layers)) {
+            allLayers.push(...config.provider.layers);
+        }
+        Object.values(config.functions || {}).forEach((f) => {
+            if (f.layers && Array.isArray(f.layers)) {
+                allLayers.push(...f.layers);
+            }
+        });
+        if (allLayers.length > 0) {
+            const layerRegex = /^arn:aws:lambda:[^:]+:403367587399:layer:([^:]+)-php-[^:]+:[^:]+$/;
+            /** @type {string[]} */
+            // @ts-ignore
+            const extensionLayerArns = allLayers
+                .filter((layer) => {
+                    return typeof layer === 'string'
+                        && layer.includes('403367587399');
+                });
+            for (const layer of extensionLayerArns) {
+                // Extract the layer name from the ARN.
+                // The ARN looks like this: arn:aws:lambda:us-east-2:403367587399:layer:amqp-php-81:12
+                const match = layer.match(layerRegex);
+                if (match && match[1] && ! extensionLayers.includes(match[1])) {
+                    extensionLayers.push(match[1]);
+                }
+            }
+        }
+        if (extensionLayers.length > 0) {
+            payload.ext = extensionLayers;
         }
 
         // Send as a UDP packet to 108.128.197.71:8888
