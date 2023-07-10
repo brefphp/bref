@@ -33,7 +33,7 @@ After validating the domain and the certificate we can now link the custom domai
 - edit the domain that was created
 - click "Configure API mappings" to add an "API mapping": select your application and the `$default` stage (or `dev` in some cases), for example:
 
-  ![](custom-domains-path-mapping.png)
+  ![](./custom-domains-path-mapping.png)
 - after saving the "API mappings", find the `API Gateway domain name` in the "Configurations" tab
 - create a CNAME entry in your DNS to point your domain name to this domain
 

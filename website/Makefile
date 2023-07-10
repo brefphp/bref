@@ -1,14 +1,15 @@
-website-preview: node_modules
-	$(MAKE) website-preview-parallel-jobs -j2
-website-preview-parallel-jobs: website-live-sync-doc-files website-next-dev
-website-live-sync-doc-files:
+preview: node_modules
+	$(MAKE) preview-parallel-jobs -j2
+preview-parallel-jobs: live-sync-doc-files next-dev
+live-sync-doc-files:
 	npx sync-directory ../docs src/pages/docs --deleteOrphaned --watch
-website-next-dev:
+next-dev:
 	npm run dev
 
-# Generate and deploy the production version of the website using http://couscous.io
+# Generate and deploy the production version of the website
 website: node_modules src/pages/docs
 	npm run build
+	vercel deploy --prod
 
 src/pages/docs:
 	cp -r ../docs src/pages/docs
