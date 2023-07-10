@@ -96,13 +96,11 @@ TODO
 
 ## Logs
 
-By default, Symfony logs in `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.md).
+By default, Symfony logs to `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.md).
 
-However, if the application is using Monolog you need to configure it to log into `stderr` as well:
+However, if your application is using Monolog, you need to configure it to log to `stderr` as well:
 
-```yaml
-# config/packages/prod/monolog.yaml
-
+```yml filename="config/packages/prod/monolog.yaml" {6}
 monolog:
   handlers:
     # ...
@@ -111,35 +109,15 @@ monolog:
       path: php://stderr
 ```
 
-## Environment variables
-
-Since Symfony 4, the production parameters are configured through environment variables. You can define them in `serverless.yml`.
-
-```yaml
-# serverless.yml
-
-provider:
-  environment:
-    APP_ENV: prod
-```
-
-The secrets (e.g. database passwords) must however not be committed in this file.
-
-To learn more about all this, read the [environment variables documentation](/docs/environment/variables.md).
-
 ## Trust API Gateway
 
-When hosting your site on Lambda, API Gateway will act as a proxy between the client and your function.
+When hosting a website on Lambda, API Gateway acts as a proxy between the client and your Lambda function.
 
-By default, Symfony doesn't trust proxies for security reasons, but it's safe to do it when using API Gateway and Lambda.
+By default, Symfony doesn't trust proxies for security reasons, but it's safe to do it when using API Gateway and Lambda. This is needed because otherwise, Symfony will not be able to generate URLs properly.
 
-This is needed because otherwise, Symfony will not be able to generate URLs properly.
+Add the following lines to `config/packages/framework.yaml`:
 
-You should add the following lines to `config/packages/framework.yaml`
-
-```yaml
-# config/packages/framework.yaml
-
+```yml filename="config/packages/framework.yaml" {2-5}
 framework:
   # trust the remote address because API Gateway has no fixed IP or CIDR range that we can target
   trusted_proxies: '127.0.0.1'
@@ -149,47 +127,25 @@ framework:
 
 Note that API Gateway doesn't set the `X-Forwarded-Host` header, so we don't trust it by default. You should only whitelist this header if you set it manually,
 for example in your CloudFront configuration (this is done automatically
-in [the Cloudfront distribution deployed by Lift](#assets)).
-
-> Be careful with these settings if your app will not be executed only in a Lambda environment.
+in [the Cloudfront distribution deployed by Lift](./assets.mdx)).
 
 You can get more details in the [Symfony documentation](https://symfony.com/doc/current/deployment/proxies.html).
 
+<Callout>
+    Be careful with these settings if your app is also executed outside a Lambda environment (for example on a public server).
+</Callout>
+
 ### Getting the user IP
 
-**When using CloudFront** on top of API Gateway, you will not be able to retrieve the client IP address, and you will instead get one of Cloudfront's IP when
+**When using CloudFront** on top of API Gateway, you will not be able to retrieve the client IP address, and you will instead get one of CloudFront's IP when
 calling `Request::getClientIp()`. If you really need this, you will need to
 whitelist [every CloudFront IP](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html)
 in `trusted_proxies`.
 
-## Symfony Messenger
-
-It is possible to run Symfony Messenger workers on AWS Lambda.
-
-A dedicated Bref package is available for this: [bref/symfony-messenger](https://github.com/brefphp/symfony-messenger).
-
-## Caching
-
-As mentioned above the filesystem is readonly, so if you need a persistent cache it must be stored somewhere else (such as Redis, an RDBMS, or DynamoDB).
-
-### Using DynamoDB for cache
-
-A Symfony bundle is available to use AWS DynamoDB as cache store: [rikudou/psr6-dynamo-db-bundle](https://github.com/RikudouSage/DynamoDbCachePsr6Bundle)
-
-First install the bundle
-
-```bash
-composer require rikudou/psr6-dynamo-db-bundle
-```
-
-Thanks to Symfony Flex, the bundle comes pre-configured to run in Lambda. 
-
-Now, you can follow [this section of the documentation](/docs/environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework.
-
-## The `kernel.terminate` Event
+## The `kernel.terminate` event
 
 The [`kernel.terminate` event](https://symfony.com/doc/current/components/http_kernel.html#component-http-kernel-kernel-terminate) runs **synchronously** on Lambda.
 
 That means that if you use this event, its listeners will be executed **before** the Lambda function returns its response. That will add latency to your response.
 
-To run asynchronous tasks, use the [Messenger component](#symfony-messenger) instead.
+To run asynchronous tasks, use the [Symfony Messenger](./messenger.mdx) instead.

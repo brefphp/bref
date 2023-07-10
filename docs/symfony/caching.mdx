@@ -1,0 +1,23 @@
+import { Callout } from 'nextra/components';
+
+# Caching
+
+As explained in the [Storage documentation](../environment/storage.md), the filesystem is readonly on AWS Lambda except for `/tmp`.
+
+However, the `/tmp` directory isn't shared across Lambda instances. If you Lambda function scales up or is redeployed, the cache will be empty in new instances.
+
+If you want the cache to be shared across all Lambda instances, for example if your application caches a lot of data or if you use it for locking mechanisms (like API rate limiting), you can instead use Redis or DynamoDB.
+
+DynamoDB is the easiest to set up and is "pay per use". Redis is a bit more complex as it requires a VPC and managing instances, but offers slightly faster response times.
+
+## DynamoDB Cache
+
+A Symfony bundle is available to use AWS DynamoDB as cache store: [rikudou/psr6-dynamo-db-bundle](https://github.com/RikudouSage/DynamoDbCachePsr6Bundle). Install the bundle with:
+
+```bash
+composer require rikudou/psr6-dynamo-db-bundle
+```
+
+Thanks to Symfony Flex, the bundle comes pre-configured to run in Lambda. 
+
+Now, you can follow [this section of the documentation](../environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework.

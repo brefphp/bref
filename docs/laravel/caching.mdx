@@ -2,7 +2,7 @@
 
 By default, the Bref bridge will move Laravel's storage and cache directories to `/tmp`. This is because all the filesystem except `/tmp` is read-only.
 
-Note that the `/tmp` directory isn't shared across Lambda instances. If you Lambda function scales up, the cache will be empty in new instances (or after a deployment).
+However, the `/tmp` directory isn't shared across Lambda instances. If you Lambda function scales up or is redeployed, the cache will be empty in new instances.
 
 If you want the cache to be shared across all Lambda instances, for example if your application caches a lot of data or if you use it for locking mechanisms (like API rate limiting), you can instead use Redis or DynamoDB.
 

@@ -1,6 +1,6 @@
 {
   "getting-started": "Getting started",
   "assets": "Assets",
-  "file-storage": "",
-  "messenger": "Symfony Messenger"
+  "messenger": "Symfony Messenger",
+  "caching": ""
 }
