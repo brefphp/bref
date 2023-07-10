@@ -10,7 +10,7 @@ next:
     title: Local development for web apps
 ---
 
-AWS Lambda lets us run [console commands](/docs/runtimes/console.md) as cron tasks using the `schedule` event:
+AWS Lambda lets us run [console commands](/docs/web-apps/console.md) as cron tasks using the `schedule` event:
 
 ```yaml
 functions:

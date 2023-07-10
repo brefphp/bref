@@ -1,7 +1,8 @@
 ---
-title: Creating AWS access keys
 introduction: How to create AWS access keys for Bref.
 ---
+
+# Creating AWS access keys
 
 To create AWS access key for Bref and the `serverless` CLI tool follow these steps:
 
@@ -9,11 +10,11 @@ To create AWS access key for Bref and the `serverless` CLI tool follow these ste
 
 1. Set a user name (for example "bref-cli") and move to the next screen.
 
-    ![](aws-keys-step-1.png)
+    ![](./aws-keys-step-1.png)
 
 1. Click **Attach policies directly**, search for **AdministratorAccess** and select it.
 
-    ![](aws-keys-step-2.png)
+    ![](./aws-keys-step-2.png)
 
     > **Warning**: the "AdministratorAccess" policy grants full access to your AWS account. This is simpler when starting with AWS and Bref. However, it is recommended to restrict permissions further eventually.
     >
@@ -23,18 +24,18 @@ To create AWS access key for Bref and the `serverless` CLI tool follow these ste
 
 1. Once your user is created, select it and go to **Security credentials**.
 
-   ![](aws-keys-step-3.png)
+   ![](./aws-keys-step-3.png)
 
 1. Scroll down to **Access Keys** and click on **Create access key**.
 
-   ![](aws-keys-step-4.png)
+   ![](./aws-keys-step-4.png)
 
 1. Then select **Command Line Interface**.
 
-   ![](aws-keys-step-5.png)
+   ![](./aws-keys-step-5.png)
 
 1. Add a description to your access keys and click on **Create access key**.
 
-   ![](aws-keys-step-6.png)
+   ![](./aws-keys-step-6.png)
 
-[< Back to the installation guide](/docs/installation.md)
+[< Back to the installation guide](/docs/setup.mdx)

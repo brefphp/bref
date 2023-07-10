@@ -1,0 +1,86 @@
+import { Callout } from 'nextra/components';
+
+export const introduction = 'Run Laravel serverless on AWS Lambda using Bref.';
+
+# Serverless Laravel - Getting started
+
+This guide helps you run Laravel applications on AWS Lambda using Bref. These instructions are kept up to date to target the latest Laravel version.
+
+<Callout>
+    A demo application is available on GitHub at [github.com/brefphp/examples](https://github.com/brefphp/examples).
+</Callout>
+
+## Setup
+
+First, **follow the [Setup guide](../setup.md)** to create an AWS account and install the necessary tools.
+
+Next, in an existing Laravel project, install Bref and the [Laravel-Bref package](https://github.com/brefphp/laravel-bridge).
+
+```bash
+composer require bref/bref bref/laravel-bridge --update-with-dependencies
+```
+
+Then let's create a [`serverless.yml` configuration file](https://bref.sh/docs/environment/serverless-yml.html):
+
+```bash
+php artisan vendor:publish --tag=serverless-config
+```
+
+### How it works
+
+By default, the Laravel-Bref package will automatically configure Laravel to work on AWS Lambda.
+
+If you are curious, the package will automatically:
+
+- enable the `stderr` log driver, to send logs to CloudWatch ([read more about logs](../environment/logs.md))
+- enable the [`cookie` session driver](https://laravel.com/docs/session#configuration) (if you prefer, you can configure sessions to be stored in database, DynamoDB or Redis)
+- move the storage directory to `/tmp` (because the default storage directory is read-only on Lambda)
+- adjust a few more settings ([have a look at the `BrefServiceProvider` for details](https://github.com/brefphp/laravel-bridge/blob/master/src/BrefServiceProvider.php))
+
+## Deployment
+
+We do not want to deploy "dev" caches that were generated on our machine (because paths will be different on AWS Lambda). Let's clear them before deploying:
+
+```bash
+php artisan config:clear
+```
+
+When running in AWS Lambda, the Laravel application will automatically cache its configuration when booting. You don't need to run `php artisan config:cache` before deploying.
+
+Let's deploy now:
+
+```bash
+serverless deploy
+```
+
+When finished, the `deploy` command will show the URL of the application.
+
+### Deploying for production
+
+At the moment, we deployed our local codebase to Lambda. When deploying for production, we probably don't want to deploy:
+
+- development dependencies,
+- our local `.env` file,
+- or any other dev artifact.
+
+Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details.
+
+TODO
+
+## Troubleshooting
+
+In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
+
+## Laravel Artisan
+
+As you may have noticed, we define a function named "artisan" in `serverless.yml`. That function is using the [Console runtime](/docs/web-apps/console.md), which lets us run Laravel Artisan on AWS Lambda.
+
+For example, to execute an `artisan` command on Lambda, run the command below:
+
+```bash
+serverless bref:cli --args="<artisan command and options>"
+```
+
+For more details follow [the "Console" guide](/docs/web-apps/console.md).
+
+TODO

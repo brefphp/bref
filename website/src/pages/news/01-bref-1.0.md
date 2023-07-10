@@ -27,7 +27,7 @@ Thanks to [Bref ping](/docs/runtimes/#bref-ping), we have an anonymous estimate 
 
 It illustrates clearly that Bref is getting traction and is used in production, at scale:
 
-![](01/executions.png)
+![](./01/executions.png)
 
 Since we passed 1 billion monthly invocations, I want to celebrate with you this fantastic milestone and thank you for being a part of Bref's community.
 
@@ -109,7 +109,7 @@ New users now start with the _FPM_ runtime.
 
 Don't worry about FaaS and functions… Start by running **PHP as usual** on a cheap and scalable host. Then, **once you've had your first success**, you can look into the "Function runtime" and its power.
 
-Check out [the "First steps" guide and see how simple it is!](/docs/first-steps.md).
+Check out [the "First steps" guide and see how simple it is!](/docs/default/first-steps.md).
 
 ### Clarity for current users
 
@@ -117,12 +117,12 @@ A common source of errors and confusion was the two runtimes: "FPM" and "Functio
 
 To solve that, we clarified the wording and the structure of the documentation:
 
-- [**Bref for web apps**](/docs/runtimes/http.md) lets you run Laravel, Symfony, etc. on Lambda like on any server, using PHP-FPM (aka the "FPM" runtime),
+- [**Bref for web apps**](/docs/web-apps/index.md) lets you run Laravel, Symfony, etc. on Lambda like on any server, using PHP-FPM (aka the "FPM" runtime),
 - [**Bref for event-driven functions**](/docs/runtimes/function.md) lets you handle native AWS Lambda events (aka the "Function" runtime).
 
 *Bref for web apps* is the default runtime (see the "onboarding" section above), so if you're not sure: go with this one.
 
-[![](01/doc-menu.png)](/docs/runtimes/)
+[![](./01/doc-menu.png)](/docs/runtimes/)
 
 ### More for expert users
 

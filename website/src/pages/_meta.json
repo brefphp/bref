@@ -1,0 +1,26 @@
+{
+  "index": {
+    "type": "page",
+    "title": "Bref",
+    "display": "hidden",
+    "theme": {
+      "layout": "raw"
+    }
+  },
+  "docs": {
+    "type": "page",
+    "title": "Documentation"
+  },
+  "news": {
+    "title": "News",
+    "type": "page",
+    "theme": {
+      "typesetting": "article"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "type": "page",
+    "href": "https://dashboard.bref.sh/"
+  }
+}

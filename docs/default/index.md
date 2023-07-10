@@ -80,7 +80,7 @@ The simplest API Gateway configuration is to send all incoming requests to our a
 
 Lambda and API Gateway are only used for executing code. Serving assets via PHP does not make sense as this would be a waste of resources and money.
 
-Deploying a website and serving assets (e.g. CSS, JavaScript, images) is covered in [the "Website assets" documentation](/docs/websites.md).
+Deploying a website and serving assets (e.g. CSS, JavaScript, images) is covered in [the "Website assets" documentation](/docs/web-apps/website-assets.md).
 
 In some cases however, you will need to serve images (or other assets) via PHP. One example would be if you served generated images via PHP. In those cases, you need to read the [Binary requests and responses](#binary-requests-and-responses) section below.
 

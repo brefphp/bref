@@ -138,7 +138,7 @@ SSM is good enough for most projects.
 
 ## Local development
 
-When [developing locally using `serverless bref:local`](/docs/local-development.md), you can set environment variables using bash:
+When [developing locally using `serverless bref:local`](/docs/local-development.mdx), you can set environment variables using bash:
 
 ```bash
 VAR1=val1 VAR2=val2 serverless bref:local -f <function>

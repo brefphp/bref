@@ -1,0 +1,56 @@
+import { Steps } from 'nextra/components';
+import { Callout } from 'nextra/components';
+import { Cards, Card } from 'nextra/components'
+
+export const introduction = 'Getting ready to use Bref.';
+
+# Setup
+
+To use Bref, you will need an AWS account and the `serverless` CLI. Let's get started:
+
+<Steps>
+
+    ### AWS account
+
+    Bref deploys your applications to your AWS account. To create one, **go to [aws.amazon.com](https://aws.amazon.com/) and click *Sign up***.
+
+    AWS has a generous free tier that will usually allow you to deploy your first serverless applications for free.
+
+    ### Serverless CLI
+
+    Bref relies on the [Serverless framework](https://serverless.com/) and AWS access keys to deploy applications. You will need to:
+
+    - Install the `serverless` command ([more details here](https://serverless.com/framework/docs/providers/aws/guide/quick-start/)):
+
+        ```bash
+        npm install -g serverless
+        ```
+
+        <Callout type="info">Bref is compatible with Serverless Framework v3 (current version).</Callout>
+
+    - [Create AWS access keys](/docs/setup/aws-keys.md)
+
+    - Set up those keys by running:
+
+        ```bash
+        serverless config credentials --provider aws --key "key" --secret "secret"
+        ```
+
+        If you already use the `aws` CLI command, or if you want to use environment variables instead (for example for a shared server like a CI) you can [read the full guide](https://serverless.com/framework/docs/providers/aws/guide/credentials#using-aws-access-keys).
+
+</Steps>
+
+## What's next?
+
+That's it, you're ready to use Bref!
+
+<Cards>
+    <Card icon="🚀 " title="Get started with Laravel" href="/docs/laravel/getting-started" />
+    <Card icon="🚀 " title="Get started with Symfony" href="/docs/symfony/getting-started" />
+    <Card icon="🚀 " title="Get started with other frameworks" href="/docs/default/getting-started" />
+</Cards>
+
+<Callout type="info">
+    Bref is compatible with PHP 8.0 or greater.
+    If you are using PHP 7.4, Bref v1 (previous major version) will be installed instead.
+</Callout>

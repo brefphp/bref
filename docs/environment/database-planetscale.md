@@ -51,7 +51,7 @@ In Bref, the file is located here: `/opt/bref/ssl/cert.pem`.
 
 ## Laravel
 
-_This guide assumes you have already set up a Laravel application by following [the Bref documentation for Laravel](../frameworks/laravel.md)._
+_This guide assumes you have already set up a Laravel application by following [the Bref documentation for Laravel](../laravel/getting-started.mdx)._
 
 To configure Laravel to use the PlanetScale database, you need to set it up via environment variables.
 
@@ -102,7 +102,7 @@ That's it! Our database is ready to use.
 
 ## Symfony
 
-_This guide assumes you have already set up a Symfony application by following [the Bref documentation for Symfony](../frameworks/symfony.md)._
+_This guide assumes you have already set up a Symfony application by following [the Bref documentation for Symfony](../symfony/getting-started.mdx)._
 
 First, make sure you have installed Doctrine, or [follow these docs to do so](https://symfony.com/doc/current/doctrine.html#installing-doctrine).
 
@@ -220,7 +220,7 @@ If the production branch has the "Safe Migrations" feature **disabled**, you can
 
 This strategy implies either:
 
-- accepting downtime on deployment, for example by using [Laravel's maintenance mode](../frameworks/laravel.md#maintenance-mode) (put the app offline, deploy, run migrations, then put the app back online)
+- accepting downtime on deployment, for example by using [Laravel's maintenance mode](../laravel/getting-started.mdx#maintenance-mode) (put the app offline, deploy, run migrations, then put the app back online)
 - or always writing backward-compatible DB migrations
 
 This option works well for applications with low traffic or in early development. For high-traffic applications, using "Safe Migrations" is recommended instead.
@@ -293,8 +293,8 @@ Now that the environments are set up, you can apply the following workflow for D
 
 1. Deploy your code changes and migrations in the development stage.
 1. Apply DB migrations in the **development** environment (drop a column, add a table, etc.):
-   - If you use Laravel, run DB migrations [via the `artisan` function](../frameworks/laravel.md#laravel-artisan): `serverless bref:cli --stage=dev --args="migrate"`
-   - If you use Symfony, run DB migrations [via the `console` function](../frameworks/symfony.md#console): `serverless bref:cli --stage=dev --args="doctrine:migrations:migrate"`
+   - If you use Laravel, run DB migrations [via the `artisan` function](../laravel/getting-started.mdx#laravel-artisan): `serverless bref:cli --stage=dev --args="migrate"`
+   - If you use Symfony, run DB migrations [via the `console` function](../symfony/getting-started.mdx#console): `serverless bref:cli --stage=dev --args="doctrine:migrations:migrate"`
    - If you don't use any framework, run DB queries [via the `pscale` CLI](https://planetscale.com/docs/reference/planetscale-cli).
 1. Test changes in the development environment to make sure everything works correctly.
 1. Create a deploy request.

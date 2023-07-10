@@ -1,0 +1,23 @@
+# Maintenance mode
+
+Similar to the `php artisan down` command, you may put your app into maintenance mode. All that's required is setting the `MAINTENANCE_MODE` environment variable:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        MAINTENANCE_MODE: ${param:maintenance, null}
+```
+
+You can then deploy:
+
+```bash
+# Full deployment (goes through CloudFormation):
+serverless deploy --param="maintenance=1"
+
+# Or quick update of the functions config only:
+serverless deploy function --function=web --update-config --param="maintenance=1"
+serverless deploy function --function=artisan --update-config --param="maintenance=1"
+serverless deploy function --function=<function-name> --update-config --param="maintenance=1"
+```
+
+To take your app out of maintenance mode, redeploy without the `--param="maintenance=1"` option.

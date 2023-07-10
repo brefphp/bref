@@ -47,7 +47,7 @@ After waiting for the DNS change to propagate (sometimes up to several hours) yo
 
 ## Custom domains for static files on S3
 
-Some applications serve static files hosted on AWS S3. You can read the [Websites](/docs/websites.md) documentation to learn more.
+Some applications serve static files hosted on AWS S3. You can read the [Websites](/docs/web-apps/website-assets.md) documentation to learn more.
 
 If you want to host a fully static website with HTML files or a Single Page Application (eg. built with Vue, React or Angular)
 you may be interested in <a href="https://github.com/getlift/lift/blob/master/docs/static-website.md">the Static Website construct of the Lift plugin</a>.

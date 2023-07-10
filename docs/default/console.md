@@ -30,7 +30,7 @@ functions:
         runtime: php-81-console
 ```
 
-Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-81` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](./README.md)).
+Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-81` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](../runtimes/README.md)).
 
 ## Usage
 
@@ -99,7 +99,7 @@ aws lambda invoke \
 
 The [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) also provides a convenient way to run commands via a terminal:
 
-[![Bref Dashboard terminal for Laravel](./dashboard-terminal.png)](https://dashboard.bref.sh/?ref=bref)
+[![Bref Dashboard terminal for Laravel](../runtimes/dashboard-terminal.png)](https://dashboard.bref.sh/?ref=bref)
 
 Functions using the "console" runtime are automatically detected, and colors are enabled by default for Laravel Artisan and Symfony Console.
 

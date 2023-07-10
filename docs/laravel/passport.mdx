@@ -1,0 +1,55 @@
+import { Steps } from 'nextra/components';
+
+export const introduction = 'Laravel Passport on AWS Lambda with Bref';
+
+# Laravel Passport
+
+Laravel Passport has a `passport:install` command. However, this command cannot be run in Lambda because it needs to write files to the `storage/` directory.
+
+Instead, here is what you need to do:
+
+<Steps>
+
+    ### Generate keys locally
+
+    Run the following command on your machine to generate key files:
+
+    ```bash
+    php artisan passport:keys
+    ```
+
+    This will generate the `storage/oauth-private.key` and `storage/oauth-public.key` files, which need to be deployed.
+
+    Depending on how you deploy your application (from your machine, or from CI), you may want to whitelist them in `serverless.yml`:
+
+    ```yaml
+    package:
+        patterns:
+            - ...
+            # Exclude the 'storage' directory
+            - '!storage/**'
+            # Except the public and private keys required by Laravel Passport
+            - 'storage/oauth-private.key'
+            - 'storage/oauth-public.key'
+    ```
+
+    ### Deploy
+
+    You can now redeploy the application:
+
+    ```yaml
+    serverless deploy
+    ```
+
+    ### Create tokens
+
+    Finally, you can create the tokens (which is the second part of the `passport:install` command):
+
+    ```bash
+    serverless bref:cli --args="passport:client --personal --name 'Laravel Personal Access Client'"
+    serverless bref:cli --args="passport:client --password --name 'Laravel Personal Access Client'"
+    ```
+
+</Steps>
+
+All these steps were replacements of running the `passport:install` command [from the Passport documentation](https://laravel.com/docs/passport#installation).

@@ -14,7 +14,7 @@ So far, Bref has been installed more than 2 million times and powers more than *
 
 That's [1 in every 1000 AWS Lambda executions](https://twitter.com/matthieunapoli/status/1603032544424894464)!
 
-![](02/executions.png)
+![](./02/executions.png)
 
 Today, we celebrate these achievements, the ongoing work, and **the release of Bref 2.0** 🎉
 
@@ -132,7 +132,7 @@ _Note that it is possible to stay on the 1.x version of the Laravel bridge._
 
 Let's take the opportunity to send huge thanks to Till and George for building such an excellent integration, and for joining the Bref organization on GitHub 💙
 
-If you want to get started with Laravel on Bref, [check out the documentation](../frameworks/laravel.md).
+If you want to get started with Laravel on Bref, [check out the documentation](../docs/frameworks/laravel.md).
 
 ## ARM/Graviton support
 
@@ -199,7 +199,7 @@ Here are the commands that have changed:
   serverless bref:cli --args="migrate --force"
   ```
   
-  No need to provide the function name or the region anymore. Read [the Console documentation](../runtimes/console.md#usage) to learn more. You will also find alternatives if you don't use the `serverless` CLI.
+  No need to provide the function name or the region anymore. Read [the Console documentation](../docs/runtimes/console.md#usage) to learn more. You will also find alternatives if you don't use the `serverless` CLI.
 
 - `vendor/bin/bref local` is replaced by the simpler `serverless bref:local`.
 
@@ -213,7 +213,7 @@ Here are the commands that have changed:
   
   No need to provide the handler file name anymore, we directly use the function name. The new `serverless bref:local` command has similar arguments as `serverless invoke`.
 
-  Read [the Local Development documentation](../function/local-development.md) to learn more. You will also find alternatives if you don't use the `serverless` CLI.
+  Read [the Local Development documentation](../docs/function/local-development.md) to learn more. You will also find alternatives if you don't use the `serverless` CLI.
 
 - `vendor/bin/bref layers` is replaced by the simpler `serverless layers`.
 
@@ -251,7 +251,7 @@ In the example above, `GITHUB_TOKEN` will be deployed with the string `bref-ssm:
 
 This offers a more secure solution for teams that prefer to keep secrets as tight as possible.
 
-Read more about this new feature and secrets in general in the [Secrets documentation](../environment/variables.md#at-runtime).
+Read more about this new feature and secrets in general in the [Secrets documentation](../docs/environment/variables.md#at-runtime).
 
 ## Simpler `docker-compose.yml` for local development
 
@@ -300,7 +300,7 @@ services:
             DOCUMENT_ROOT: public
 ```
 
-The `bref/php-XX-fpm-dev` images can now run HTTP applications, console commands as well as event-driven functions too. Read more in [web app local development](../web-apps/local-development.md).
+The `bref/php-XX-fpm-dev` images can now run HTTP applications, console commands as well as event-driven functions too. Read more in [web app local development](../docs/web-apps/local-development.md).
 
 The `bref/fpm-dev-gateway` image is no longer needed, and code running in `bref/php-XX-fpm-dev` now runs in an environment even closer to production.
 
@@ -385,25 +385,25 @@ Thank you all!
 
 Hope you enjoy Bref v2!
 
-There is a complete [**v2 Upgrade Guide**](../upgrading/v2.md) that you can follow.
+There is a complete [**v2 Upgrade Guide**](../docs/upgrading/v2.md) that you can follow.
 
-Head to the docs to [**get started with Bref**](../), or check out the documentation for [Laravel](../frameworks/laravel.md) or [Symfony](../frameworks/symfony.md).
+Head to the docs to [**get started with Bref**](../), or check out the documentation for [Laravel](../docs/frameworks/laravel.md) or [Symfony](../docs/frameworks/symfony.md).
 
 You can also join the community [in Slack](/docs/community.md), post details about your project in [Built with Bref](https://github.com/brefphp/bref/issues/267), or share your experience online and mention [@brefphp](https://twitter.com/brefphp) on Twitter.
 
 If you enjoy teasers, here is a preview of a redesign coming soon to Bref:
 
-<div class="flex justify-center"><img src="./02/logo.png" class="h-48"></div>
+<div class="flex justify-center"><img src="02/logo.png" class="h-48"></div>
 
 ## One more thing
 
 I launched the [**Bref Dashboard**](https://dashboard.bref.sh/) ✨ in January. It helps you monitor and debug Bref applications:
 
-[![Bref Dashboard](../monitoring/bref-dashboard.png)](https://dashboard.bref.sh/?ref=bref)
+[![Bref Dashboard](../docs/monitoring/bref-dashboard.png)](https://dashboard.bref.sh/?ref=bref)
 
 And if you need support or help going serverless, check out the [Support Plans](/#ecosystem).
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-    <a href="/docs/" class="rounded-md shadow px-8 py-8 border text-center font-bold hover:bg-gray-100">What is Bref and serverless?</a>
+    <a href="/docs" class="rounded-md shadow px-8 py-8 border text-center font-bold hover:bg-gray-100">What is Bref and serverless?</a>
     <a href="/docs/first-steps.html" class="rounded-md shadow px-8 py-8 border text-center font-bold hover:bg-gray-100">Get started with Bref</a>
 </div>

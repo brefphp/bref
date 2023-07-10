@@ -33,7 +33,7 @@ This runtime uses PHP-FPM to run **web applications** on AWS Lambda.
 
 It's **the easiest to start with**: it works like traditional PHP hosting and is compatible with Symfony and Laravel.
 
-[Get started with the FPM runtime in "Bref for web apps"](/docs/runtimes/http.md).
+[Get started with the FPM runtime in "Bref for web apps"](/docs/web-apps/index.md).
 
 ### Event-driven functions
 
@@ -57,7 +57,7 @@ This runtime lets you run CLI console commands on Lambda.
 
 For example, we can run the [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Laravel Artisan](https://laravel.com/docs/artisan).
 
-[Read more about the `console` runtime here](/docs/runtimes/console.md).
+[Read more about the `console` runtime here](/docs/web-apps/console.md).
 
 ## Usage
 
@@ -186,7 +186,7 @@ Bref ARM layers are the same as the x86 layers, but with the `arm-` prefix in th
 >
 > You can skip it for now if you just want to get started with Bref.
 >
-> ▶ [**Get started with web apps**](/docs/runtimes/http.md).
+> ▶ [**Get started with web apps**](/docs/web-apps/index.md).
 
 Bref runtimes are distributed as [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html). While Bref provides a Serverless plugin to simplify how to use them, you can use the layers directly.
 

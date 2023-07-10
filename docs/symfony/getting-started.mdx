@@ -1,40 +1,38 @@
----
-title: Serverless Symfony applications
-current_menu: symfony
-introduction: Learn how to deploy serverless Symfony applications on AWS Lambda using Bref.
----
+import { Callout } from 'nextra/components';
 
-This guide helps you run Symfony applications on AWS Lambda using Bref. These instructions are kept up-to-date to be compatible with the latest Symfony version.
+export const introduction = 'Run Symfony serverless on AWS Lambda using Bref.';
 
-Multiple demo applications are available on GitHub at [github.com/brefphp/examples/Symfony](https://github.com/brefphp/examples/tree/master/Symfony).
+# Serverless Symfony - Getting started
+
+This guide helps you run Symfony applications on AWS Lambda using Bref. These instructions are kept up to date to target the latest Symfony version.
+
+<Callout>
+    A demo application is available on GitHub at [github.com/brefphp/examples](https://github.com/brefphp/examples).
+</Callout>
 
 ## Setup
 
-First, **follow the [Installation guide](../installation.md)** to create an AWS account and install the necessary tools.
+First, **follow the [Setup guide](../setup.md)** to create an AWS account and install the necessary tools.
 
 Next, in an existing Symfony project, install Bref and the [Symfony Bridge package](https://github.com/brefphp/symfony-bridge).
 
-```
-composer require bref/bref bref/symfony-bridge
+```bash
+composer require bref/bref bref/symfony-bridge --update-with-dependencies
 ```
 
-If you are using [Symfony Flex](https://flex.symfony.com/), it will automatically run
-the [bref/symfony-bridge recipe](https://github.com/symfony/recipes-contrib/tree/master/bref/symfony-bridge/0.1) which will perform the following tasks:
+If you are using [Symfony Flex](https://flex.symfony.com/), it will automatically run the [bref/symfony-bridge recipe](https://github.com/symfony/recipes-contrib/tree/master/bref/symfony-bridge/0.1) which will perform the following tasks:
 
 - Create a `serverless.yml` configuration file optimized for Symfony.
 - Add the `.serverless` folder to the `.gitignore` file.
 
-> Otherwise, you can create the `serverless.yml` file manually at the root of the project. Take a look
-at the [default configuration](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml) provided by the recipe.
+Otherwise, you can create the `serverless.yml` file manually at the root of the project. Take a look at the [default configuration](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml) provided by the recipe.
 
 You still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
 Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and logs are stored in
 the `src/Kernel.php` file. This is automatically done by the bridge, you just need to use the `BrefKernel` class instead of the default `BaseKernel`:
 
-```diff
-// src/Kernel.php
-
+```diff filename="src/Kernel.php"
 namespace App;
 
 + use Bref\SymfonyBridge\BrefKernel;
@@ -51,22 +49,50 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
     // ...
 ```
 
-## Deploy
+## Deployment
 
-The application is now ready to be deployed. Follow [the deployment guide](/docs/deploy.md).
+Let's deploy the application to AWS Lambda:
 
-For better performance in production, warmup the Symfony cache before deploying:
+```bash
+serverless deploy
+```
+
+When finished, the `deploy` command will show the URL of the application.
+
+### Deploying for production
+
+At the moment, we deployed our local codebase to Lambda. When deploying for production, we probably don't want to deploy:
+
+- development dependencies,
+- our local `.env` files,
+- or any other dev artifact.
+
+Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details.
+
+Note as well that for better performance in production, you can warmup the Symfony cache before deploying:
 
 ```bash
 php bin/console cache:warmup --env=prod
 ```
 
-## Console
+## Troubleshooting
 
-As you may have noticed, we define a function of type "console" in `serverless.yml`. That function is using the [Console runtime](/docs/runtimes/console.md),
+In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
+
+## Symfony Console
+
+As you may have noticed, we define a function named "console" in `serverless.yml`. That function is using the [Console runtime](/docs/web-apps/console.md),
 which lets us run the Symfony Console on AWS Lambda.
 
-To use it follow [the "Console" guide](/docs/runtimes/console.md).
+For example, to execute an `bin/console` command on Lambda, run the command below:
+
+```bash
+serverless bref:cli --args="<console command and options>"
+```
+
+For more details follow [the "Console" guide](/docs/web-apps/console.md).
+
+TODO
 
 ## Logs
 
@@ -135,84 +161,6 @@ You can get more details in the [Symfony documentation](https://symfony.com/doc/
 calling `Request::getClientIp()`. If you really need this, you will need to
 whitelist [every CloudFront IP](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html)
 in `trusted_proxies`.
-
-## Assets
-
-To deploy Symfony websites, assets need to be served from AWS S3. The easiest approach is to use the
-<a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md">Server-side website construct of the Lift plugin</a>.
-
-This will deploy a Cloudfront distribution that will act as a proxy: it will serve
-static files directly from S3 and will forward everything else to Lambda. This is very close
-to how traditional web servers like Apache or Nginx work, which means your application doesn't need to change!
-For more details, see <a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md#how-it-works">the official documentation</a>. 
-
-First install the plugin
-
-```bash
-serverless plugin install -n serverless-lift
-```
-
-Then add this configuration to your `serverless.yml` file.
-
-```yaml
-...
-service: symfony
-
-provider:
-  ...
-
-plugins:
-  - ./vendor/bref/bref
-  - serverless-lift
-    
-functions:
-  ...
-
-constructs:
-  website:
-    type: server-side-website
-    assets:
-      '/bundles/*': public/bundles
-      '/build/*': public/build
-      '/favicon.ico': public/favicon.ico
-      '/robots.txt': public/robots.txt
-      # add here any file or directory that needs to be served from S3
-```
-
-Because this construct sets the `X-Forwarded-Host` header by default, you should add it in your `trusted_headers` config, otherwise Symfony
-might generate wrong URLs.
-
-```diff
-# config/packages/framework.yaml
-
--   trusted_headers: [ 'x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port' ]
-+   trusted_headers: [ 'x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-host' ]
-```
-
-Then, you can compile assets for production in the `public` directory
-
-```bash
-php bin/console assets:install --env prod
-# if using Webpack Encore, additionally run
-yarn encore production
-```
-
-Now run `serverless deploy`, Lift will automatically create the S3 bucket, a Cloudfront distribution and
-upload all specified files and directories to the bucket.
-
-> If you are not using Flex, update the `serverless.yml` file to exclude assets from the deployment ([see the recipe](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml#L35))
-
-For more details, see the [Websites section](/docs/websites.md) of this documentation 
-and the official <a href="https://github.com/getlift/lift/blob/master/docs/server-side-website.md">Lift documentation</a>.
-
-### Assets in templates
-
-For the above configuration to work, assets must be referenced in templates via the `asset()` helper as [recommended by Symfony](https://symfony.com/doc/current/templates.html#linking-to-css-javascript-and-image-assets):
-
-```diff
-- <img src="/images/logo.png">
-+ <img src="{{ asset('images/logo.png') }}">
-```
 
 ## Symfony Messenger
 

@@ -1,0 +1,30 @@
+# Caching
+
+By default, the Bref bridge will move Laravel's storage and cache directories to `/tmp`. This is because all the filesystem except `/tmp` is read-only.
+
+Note that the `/tmp` directory isn't shared across Lambda instances. If you Lambda function scales up, the cache will be empty in new instances (or after a deployment).
+
+If you want the cache to be shared across all Lambda instances, for example if your application caches a lot of data or if you use it for locking mechanisms (like API rate limiting), you can instead use Redis or DynamoDB.
+
+DynamoDB is the easiest to set up and is "pay per use". Redis is a bit more complex as it requires a VPC and managing instances, but offers slightly faster response times.
+
+## DynamoDB Cache
+
+To use DynamoDB as a cache store, set the following lines in `config/cache.php`:
+
+```yml filename="config/cache.php" {8-11}
+    'dynamodb' => [
+        'driver' => 'dynamodb',
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+        'table' => env('DYNAMODB_CACHE_TABLE', 'cache'),
+        'endpoint' => env('DYNAMODB_ENDPOINT'),
+        'attributes' => [
+            'key' => 'id',
+            'expiration' => 'ttl',
+        ]
+    ],
+```
+
+Then follow [this section of the documentation](/docs/environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework.

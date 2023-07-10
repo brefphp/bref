@@ -1,0 +1,44 @@
+---
+introduction: Run Laravel with Octane on AWS Lambda using Bref.
+---
+
+# Laravel Octane
+
+To run the HTTP application with [Laravel Octane](https://laravel.com/docs/10.x/octane) instead of PHP-FPM, change the following options in the `web` function:
+
+```yml
+functions:
+    web:
+        handler: Bref\LaravelBridge\Http\OctaneHandler
+        runtime: php-81
+        environment:
+            BREF_LOOP_MAX: 250
+        # ...
+```
+
+Keep the following details in mind:
+
+- Laravel Octane does not need Swoole or RoadRunner on AWS Lambda, so it is not possible to use Swoole-specific features.
+- Octane keeps Laravel booted in a long-running process, [beware of memory leaks](https://laravel.com/docs/10.x/octane#managing-memory-leaks).
+- `BREF_LOOP_MAX` specifies the number of HTTP requests handled before the PHP process is restarted (and the memory is cleared).
+
+### Persistent database connections
+
+You can keep database connections persistent across requests to make your application even faster. To do so, set the `OCTANE_PERSIST_DATABASE_SESSIONS` environment variable:
+
+```yml
+functions:
+    web:
+      handler: Bref\LaravelBridge\Http\OctaneHandler
+      runtime: php-81
+      environment:
+          BREF_LOOP_MAX: 250
+          OCTANE_PERSIST_DATABASE_SESSIONS: 1
+        # ...
+```
+
+Note that if you are using PostgreSQL (9.6 or newer), you need to set [`idle_in_transaction_session_timeout`](https://www.postgresql.org/docs/current/runtime-config-client.html#GUC-IDLE-IN-TRANSACTION-SESSION-TIMEOUT) either in your RDS database's parameter group, or on a specific database itself.
+
+```sql
+ALTER DATABASE SET idle_in_transaction_session_timeout = '10000' -- 10 seconds in ms
+```

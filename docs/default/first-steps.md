@@ -12,7 +12,7 @@ next:
 
 This guide will help you deploy your first PHP application on AWS Lambda. For simplicity, we will not be using a PHP framework yet.
 
-Before getting started make sure you have [installed Bref and the required tools](installation.md) first.
+Before getting started make sure you have [installed Bref and the required tools](../setup.mdx) first.
 
 ## Initializing the project
 
@@ -55,7 +55,7 @@ Open this URL and you should see your application: `index.php` is running on Lam
 
 🎉 congrats on creating your first serverless application!
 
-To learn more about deployments, head over the [Deployment guide](deploy.md).
+To learn more about deployments, head over the [Deployment guide](../deploy.md).
 
 ## What's next?
 

@@ -33,7 +33,7 @@ exports.myHandler = async function (event, context) {
 Writing functions is very useful to process events and data from other AWS services.
 For example, this is perfect to implement **asynchronous workers, event handling, file processing**, etc.
 
-If you are looking to create HTTP applications, have a look at [Bref for web apps](/docs/runtimes/http.md).
+If you are looking to create HTTP applications, have a look at [Bref for web apps](/docs/web-apps/index.md).
 
 ## The function
 
@@ -97,7 +97,7 @@ The runtime to use is `php-XX`. To learn more check out [the runtimes documentat
 
 A PHP function must be invoked via the AWS Lambda API, either manually or by integrating with other AWS services.
 
-> If you instead want to write a classic **HTTP application** read [Bref for web apps](/docs/runtimes/http.md).
+> If you instead want to write a classic **HTTP application** read [Bref for web apps](/docs/web-apps/index.md).
 
 ### CLI
 

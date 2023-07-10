@@ -191,7 +191,7 @@ Read more:
 
 ## API Gateway HTTP events
 
-**Reminder:** to create HTTP applications, it is possible to use the more traditional "[Bref for web apps](/docs/runtimes/http.md)" runtime, which runs with PHP-FPM.
+**Reminder:** to create HTTP applications, it is possible to use the more traditional "[Bref for web apps](/docs/web-apps/index.md)" runtime, which runs with PHP-FPM.
 
 That being said, it is possible to handle HTTP events from API Gateway with a simple PHP class, like other handlers detailed in this page.
 

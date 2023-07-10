@@ -10,16 +10,16 @@ next:
     title: Console commands
 ---
 
-> Before reading this article we assume that you have read [Bref's introduction](/docs/first-steps.md) and that you are familiar with [Bref's HTTP runtime](/docs/runtimes/http.md).
+> Before reading this article we assume that you have read [Bref's introduction](/docs/default/first-steps.md) and that you are familiar with [Bref's HTTP runtime](/docs/web-apps/index.md).
 
 ## Architectures
 
 Websites usually contain 2 parts:
 
-- PHP code, running on [AWS Lambda + API Gateway with the HTTP runtime](/docs/runtimes/http.md)
+- PHP code, running on [AWS Lambda + API Gateway with the HTTP runtime](/docs/web-apps/index.md)
 - static assets (CSS, JS…), [hosted on AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)
 
-![](websites/cloudfront.svg)
+![](../websites/cloudfront.svg)
 
 [CloudFront](https://aws.amazon.com/cloudfront/) (the AWS CDN) serves as an HTTP/HTTPS proxy.
 

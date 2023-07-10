@@ -1,8 +1,8 @@
 ---
-title: Community
-current_menu: community
 introduction: A collection of links to places where to discuss and learn about Bref.
 ---
+
+# Community
 
 To report bugs you can head over to the [GitHub Bref repository](https://github.com/brefphp/bref).
 
