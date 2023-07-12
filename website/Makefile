@@ -9,7 +9,6 @@ next-dev:
 # Generate and deploy the production version of the website
 website: node_modules src/pages/docs
 	npm run build
-	vercel deploy --prod
 
 src/pages/docs:
 	cp -r ../docs src/pages/docs
