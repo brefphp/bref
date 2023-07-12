@@ -55,7 +55,7 @@ Open this URL and you should see your application: `index.php` is running on Lam
 
 🎉 congrats on creating your first serverless application!
 
-To learn more about deployments, head over the [Deployment guide](../deploy.md).
+To learn more about deployments, head over the [Deployment guide](../deploy.mdx).
 
 ## What's next?
 

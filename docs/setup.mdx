@@ -1,6 +1,9 @@
 import { Steps } from 'nextra/components';
 import { Callout } from 'nextra/components';
-import { Cards, Card } from 'nextra/components'
+import { Cards, Card } from 'nextra/components';
+// Path relative to the copy in the `website/` folder
+import { LaravelIcon } from '../../components/icons/LaravelIcon';
+import { SymfonyIcon } from '../../components/icons/SymfonyIcon';
 
 export const introduction = 'Getting ready to use Bref.';
 
@@ -44,10 +47,10 @@ To use Bref, you will need an AWS account and the `serverless` CLI. Let's get st
 
 That's it, you're ready to use Bref!
 
-<Cards>
-    <Card icon="🚀 " title="Get started with Laravel" href="/docs/laravel/getting-started" />
-    <Card icon="🚀 " title="Get started with Symfony" href="/docs/symfony/getting-started" />
-    <Card icon="🚀 " title="Get started with other frameworks" href="/docs/default/getting-started" />
+<Cards num={2}>
+    <Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
+    <Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
+    <Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
 </Cards>
 
 <Callout type="info">

@@ -250,7 +250,7 @@ To deploy DB migrations in production, you can work with two environments:
 - A **production** environment: our application deployed in the `prod` stage and configured to use the `production` PlanetScale branch. 
 - A **dev** environment: our application deployed in the `dev` stage and configured to use the `development` PlanetScale branch. 
 
-You can [deploy our applications to different stages](../deploy.md#stages) via the `--stage` option. Each stage is completely isolated from the others.
+You can [deploy our applications to different stages](../deploy.mdx#stages) via the `--stage` option. Each stage is completely isolated from the others.
 
 ```bash
 # Deploy the "dev" environment:

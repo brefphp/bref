@@ -12,7 +12,7 @@
     "type": "separator",
     "title": "Workflow"
   },
-  "deploy": "",
+  "deploy": "Deployment",
   "local-development": "",
   "monitoring": "",
   "docker": "Deploying with Docker",
