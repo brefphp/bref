@@ -1,11 +1,8 @@
 ---
-title: What is Bref and serverless?
-current_menu: what-is-bref
 introduction: An introduction to what serverless and Bref can offer for PHP applications.
-next:
-    link: /docs/installation.html
-    title: Installation
 ---
+
+# What is Bref and serverless?
 
 Serverless means using cloud services that manage the servers for us.
 
@@ -20,7 +17,7 @@ When running PHP on a server, we must:
 When running PHP serverless:
 
 - We do not need to set up servers, the cloud provider takes care of that.
-- We pay only for what we use.
+- We pay only for what we use (per request).
 - Our application scales automatically.
 
 **Serverless provides more scalable, affordable and reliable architectures for less effort.**
@@ -31,9 +28,7 @@ FaaS is a way to run code where the hosting provider takes care of setting up ev
 
 ## Why Bref?
 
-<p class="text-xl">
 Bref aims to make running PHP applications simple.
-</p>
 
 To reach that goal, Bref takes advantage of serverless technologies. However, while serverless is promising, there are many choices to make, tools to build and best practices to figure out.
 
