@@ -105,7 +105,6 @@ class WebsocketEvent implements LambdaEvent
 
     public function getRegion(): string
     {
-        [, , $region] = explode('.', $this->getDomainName(), 4);
-        return $region;
+        return getenv('AWS_REGION');
     }
 }
