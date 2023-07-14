@@ -2,6 +2,10 @@
 http://bref-website.netlify.com/* http://bref.sh/:splat 301!
 https://bref-website.netlify.com/* https://bref.sh/:splat 301!
 
+# Plausible
+/pl/js/script.js https://plausible.io/js/script.outbound-links.js 200
+/pl/api/event https://plausible.io/api/event 200
+
 # Deleted pages
 /docs/newsletters.html          /docs/community.html
 /docs/cron.html                 /docs/web-apps/cron.html
