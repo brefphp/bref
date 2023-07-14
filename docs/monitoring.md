@@ -1,7 +1,4 @@
----
-title: Monitoring
-current_menu: monitoring
----
+# Monitoring
 
 By default, AWS Lambda publishes all logs and general metrics (HTTP response time, code execution duration, etc.) to AWS CloudWatch.
 
