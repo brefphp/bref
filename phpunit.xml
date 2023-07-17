@@ -15,4 +15,7 @@
       <directory>./tests/Sam</directory>
     </testsuite>
   </testsuites>
+  <php>
+    <env name="AWS_REGION" value="eu-west-1" force="true" />
+  </php>
 </phpunit>
