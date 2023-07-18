@@ -6,6 +6,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.18",
     "next": "^13.4.9",
     "nextra": "^2.8.0",
     "nextra-theme-docs": "^2.8.0",

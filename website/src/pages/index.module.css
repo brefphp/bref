@@ -1,0 +1,13 @@
+.homeCode {
+    --shiki-color-text: theme('colors.gray.200');
+    --shiki-color-background: transparent;
+    --shiki-token-constant: theme('colors.blue.400');
+    --shiki-token-string: theme('colors.blue.400');
+    --shiki-token-comment: theme('colors.gray.300');
+    --shiki-token-keyword: theme('colors.gray.200');
+    --shiki-token-parameter: theme('colors.blue.400');
+    --shiki-token-function: theme('colors.gray.200');
+    --shiki-token-string-expression: theme('colors.blue.400');
+    --shiki-token-punctuation: theme('colors.gray.300');
+    --shiki-token-link: theme('colors.blue.400');
+}
