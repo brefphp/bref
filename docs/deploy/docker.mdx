@@ -1,6 +1,12 @@
 import { Callout } from 'nextra/components';
 
-# Deploying with Docker
+# Deploying Docker images
+
+<Callout>
+    Are you starting with Bref? Deploy **without Docker first**. It's easier and faster. You can always switch to Docker later.
+
+    [Read the "Deployment" guide](../deploy)
+</Callout>
 
 By default, Bref deploys to AWS Lambda using zip archives, which Lambda will run in an Amazon Linux environment. This is how AWS Lambda works out of the box, and it works great.
 
@@ -26,7 +32,7 @@ Bref helps you deploy using Docker images by offering base images that work on A
 FROM bref/php-81-fpm:2
 
 # Copy the source code in the image
-COPY . /var/task
+COPY .. /var/task
 
 # Configure the handler file (the entrypoint that receives all HTTP requests)
 CMD ["public/index.php"]

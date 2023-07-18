@@ -175,7 +175,7 @@ Hello Jane
 
 What's awesome is that you decide if you want to use Docker or not (with the Bref images). You can skip Docker for best performances and ease of use, or use Docker to run in an environment that replicates production.
 
-Read more in the documentation: [Local development for functions](/docs/function/local-development.md).
+Read more in the documentation: [Local development for functions](/docs/local-development/event-driven-functions.mdx).
 
 ## API Gateway v2
 

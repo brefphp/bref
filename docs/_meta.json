@@ -19,9 +19,8 @@
     "title": "Workflow"
   },
   "deploy": "Deployment",
-  "local-development": "",
+  "local-development": "Local development",
   "monitoring": "",
-  "docker": "Deploying with Docker",
   "-- Learn more": {
     "type": "separator",
     "title": "Learn more"
