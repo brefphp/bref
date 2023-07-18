@@ -109,7 +109,7 @@ New users now start with the _FPM_ runtime.
 
 Don't worry about FaaS and functions… Start by running **PHP as usual** on a cheap and scalable host. Then, **once you've had your first success**, you can look into the "Function runtime" and its power.
 
-Check out [the "First steps" guide and see how simple it is!](/docs/default/first-steps.md).
+Check out [the "First steps" guide and see how simple it is!](/docs/default/getting-started.mdx).
 
 ### Clarity for current users
 

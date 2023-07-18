@@ -5,3 +5,23 @@
 body {
     font-family: "Inter var", system-ui, sans-serif;
 }
+
+.mermaidHidden {
+    display: none;
+}
+.mermaidAwsColor span {
+    color: #fff !important;
+}
+.mermaidAwsColor > rect {
+    fill: #FF9900 !important;
+    stroke: #fff !important;
+    stroke-width: 1px !important;
+}
+.mermaidBlack span {
+    color: #fff !important;
+}
+.mermaidBlack > rect {
+    fill: #000 !important;
+    stroke: #fff !important;
+    stroke-width: 1px !important;
+}

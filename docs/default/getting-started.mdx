@@ -1,0 +1,66 @@
+import { Cards, Card } from 'nextra/components';
+// Path relative to the copy in the `website/` folder
+import { LaravelIcon } from '../../../components/icons/LaravelIcon';
+import { SymfonyIcon } from '../../../components/icons/SymfonyIcon';
+
+export const introduction = 'Run PHP serverless on AWS Lambda using Bref.';
+
+# Getting started - Bref with any framework
+
+This guide will help you deploy your first PHP application on AWS Lambda. The instructions below can be adapted to work with any framework.
+
+If you are using Laravel or Symfony, check out the dedicated guides instead:
+
+<Cards num={2}>
+    <Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
+    <Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
+</Cards>
+
+## Setup
+
+First, **follow the [Setup guide](../setup.mdx)** to create an AWS account and install the necessary tools.
+
+Next, in an empty directory, install Bref using Composer:
+
+```bash
+composer require bref/bref
+```
+
+Make sure that the version of Bref that was installed is 1.0 or greater.
+
+Then let's start by initializing a new project by running:
+
+```bash
+vendor/bin/bref init
+```
+
+Accept all the defaults by pressing "Enter". The following files will be created in your project:
+
+- `index.php` contains the code of your application
+- `serverless.yml` contains the configuration for deploying on AWS
+
+You are free to edit the code in `index.php`. If you want to deploy an existing application, you can delete `index.php` and edit `serverless.yml` to point to your existing index file (for example it may be another file like `public/index.php`).
+
+## Deployment
+
+To deploy, let's run:
+
+```bash
+serverless deploy
+```
+
+Once the command finishes, it should print a URL like this one:
+
+```sh
+https://3pjp2yiw97.execute-api.us-east-1.amazonaws.com
+```
+
+Open this URL and you should see your application: `index.php` is running on Lambda!
+
+🎉 congrats on creating your first serverless application!
+
+To learn more about deployments, head over the [Deployment guide](../deploy.mdx).
+
+## Troubleshooting
+
+In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).

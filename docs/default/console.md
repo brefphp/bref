@@ -30,7 +30,7 @@ functions:
         runtime: php-81-console
 ```
 
-Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-81` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](../runtimes/README.md)).
+Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-81` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](../lambda-runtimes.mdx)).
 
 ## Usage
 

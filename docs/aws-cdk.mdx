@@ -1,0 +1,34 @@
+import { RemoteContent } from 'nextra/data'
+import { buildDynamicMDX, buildDynamicMeta } from 'nextra/remote'
+
+export const getStaticProps = async ({ params }) => {
+    const token = process.env.GITHUB_TEST_REMOTE_MDX
+    const res = await fetch(
+        'https://api.github.com/repos/brefphp/constructs/contents/README.md',
+        {
+            headers: {
+                Accept: 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28',
+                ...(token && { Authorization: `Bearer ${token}` })
+            }
+        }
+    )
+    const page = await res.json()
+    if (!page.content) {
+        throw new Error(
+            `Error while fetch data from GitHub.\n${JSON.stringify(page, null, 4)}`
+        )
+    }
+    const content = Buffer.from(page.content, 'base64').toString('utf8');
+    return {
+        props: {
+            ...(await buildDynamicMDX(content, {
+                defaultShowCopyCode: true
+            })),
+            ...(await buildDynamicMeta())
+        },
+        revalidate: 10
+    }
+}
+
+<RemoteContent />

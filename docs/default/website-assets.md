@@ -10,7 +10,7 @@ next:
     title: Console commands
 ---
 
-> Before reading this article we assume that you have read [Bref's introduction](/docs/default/first-steps.md) and that you are familiar with [Bref's HTTP runtime](/docs/web-apps/index.md).
+> Before reading this article we assume that you have read [Bref's introduction](/docs/default/getting-started.mdx) and that you are familiar with [Bref's HTTP runtime](/docs/web-apps/index.md).
 
 ## Architectures
 

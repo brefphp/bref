@@ -1,0 +1,23 @@
+# SNS events
+
+To handle SNS events, extend the `SnsHandler` class:
+
+```php
+use Bref\Context\Context;
+use Bref\Event\Sns\SnsEvent;
+use Bref\Event\Sns\SnsHandler;
+
+class MyHandler extends SnsHandler
+{
+    public function handleSns(SnsEvent $event, Context $context): void
+    {
+        foreach ($event->getRecords() as $record) {
+            $message = $record->getMessage();
+
+            // do something
+        }
+    }
+}
+```
+
+Learn more about using WebSockets in `serverless.yml` [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/sns/).

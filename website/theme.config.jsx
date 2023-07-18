@@ -1,8 +1,18 @@
 // https://nextra.site/docs/docs-theme/theme-configuration
+import { useRouter } from 'next/router';
+
 export default {
     logo: <span>bref</span>,
     project: {
         link: 'https://github.com/brefphp/bref'
+    },
+    useNextSeoProps() {
+        const { asPath } = useRouter()
+        if (asPath !== '/') {
+            return {
+                titleTemplate: '%s – Bref',
+            };
+        }
     },
     chat: {
         link: 'https://twitter.com/brefphp',

@@ -63,7 +63,7 @@ functions:
         runtime: php-81-fpm
 ```
 
-To learn more check out [the runtimes documentation](/docs/runtimes/README.md).
+To learn more check out [the runtimes documentation](/docs/lambda-runtimes.mdx).
 
 ## Routing
 
@@ -83,30 +83,6 @@ Lambda and API Gateway are only used for executing code. Serving assets via PHP 
 Deploying a website and serving assets (e.g. CSS, JavaScript, images) is covered in [the "Website assets" documentation](/docs/web-apps/website-assets.md).
 
 In some cases however, you will need to serve images (or other assets) via PHP. One example would be if you served generated images via PHP. In those cases, you need to read the [Binary requests and responses](#binary-requests-and-responses) section below.
-
-## Binary requests and responses
-
-By default API Gateway **does not support binary HTTP requests or responses** like
-images, PDF, binary files… To achieve this, you need to enable the option for binary
-media types in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment
-variable:
-
-```yaml
-provider:
-    # ...
-    apiGateway:
-        binaryMediaTypes:
-            - '*/*'
-    environment:
-        BREF_BINARY_RESPONSES: '1'
-```
-
-This will make API Gateway support binary file uploads and downloads, and Bref will
-automatically encode responses to base64 (which is what API Gateway now expects).
-
-Be aware that the max upload and download size is 6MB.
-For larger files, use AWS S3.
-An example is available in [Serverless Visually Explained](https://serverless-visually-explained.com/).
 
 ## Context access
 

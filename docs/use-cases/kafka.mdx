@@ -1,0 +1,21 @@
+# Kafka events
+
+To handle [Kafka events](https://docs.aws.amazon.com/lambda/latest/dg/with-kafka.html), extend the `KafkaHandler` class:
+
+```php
+use Bref\Context\Context;
+use Bref\Event\Kafka\KafkaEvent;
+use Bref\Event\Kafka\KafkaEventHandler;
+
+class Handler extends KafkaEvent
+{
+    public function handleKafka(KafkaEvent $event, Context $context): void
+    {
+        foreach ($event->getRecords() as $record) {
+            $data = $record->getValue();
+
+            // do something
+        }
+    }
+}
+```

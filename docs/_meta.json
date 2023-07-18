@@ -8,6 +8,12 @@
   "laravel": "Laravel",
   "symfony": "Symfony",
   "default": "Other frameworks",
+  "-- How it works": {
+    "type": "separator",
+    "title": "How it works"
+  },
+  "lambda-runtimes": "PHP runtimes for AWS Lambda",
+  "runtimes-details": "Runtimes in details",
   "-- Workflow": {
     "type": "separator",
     "title": "Workflow"
@@ -21,6 +27,7 @@
     "title": "Learn more"
   },
   "environment": "Environment",
+  "use-cases": "Use cases",
   "upgrading": "Upgrading",
   "-- Learning": {
     "type": "separator",
