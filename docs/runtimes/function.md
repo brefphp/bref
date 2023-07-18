@@ -91,7 +91,7 @@ functions:
         runtime: php-81
 ```
 
-The runtime to use is `php-XX`. To learn more check out [the runtimes documentation](/docs/lambda-runtimes.mdx).
+The runtime to use is `php-XX`. To learn more check out [the runtimes documentation](/docs/runtimes.mdx).
 
 ## Invocation
 

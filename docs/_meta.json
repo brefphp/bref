@@ -12,8 +12,7 @@
     "type": "separator",
     "title": "How it works"
   },
-  "lambda-runtimes": "PHP runtimes for AWS Lambda",
-  "runtimes-details": "Runtimes in details",
+  "runtimes": "PHP runtimes for AWS Lambda",
   "-- Workflow": {
     "type": "separator",
     "title": "Workflow"
