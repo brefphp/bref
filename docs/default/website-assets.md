@@ -68,9 +68,9 @@ You can access your website using the URL that Lift outputs at the end the deplo
 
 ### Setting up a domain name
 
-Just like in the "[Custom domains](/docs/environment/custom-domains.md)" guide, you need to register your domain in **ACM** (AWS Certificate Manager) to get an HTTPS certificate.
+Just like in the "[Custom domains](/docs/use-cases/http/custom-domains.mdx)" guide, you need to register your domain in **ACM** (AWS Certificate Manager) to get an HTTPS certificate.
 
-> If you have already set up this domain as a custom domain in API Gateway (by following the [Custom domain](/docs/environment/custom-domains.md) guide), you will need to remove it before continuing.
+> If you have already set up this domain as a custom domain in API Gateway (by following the [Custom domain](/docs/use-cases/http/custom-domains.mdx) guide), you will need to remove it before continuing.
 
 - open [this link](https://console.aws.amazon.com/acm/home?region=us-east-1#/wizard/) or manually go in the ACM Console and click "Request a new certificate" **in the `us-east-1` region** (CloudFront requires certificates from `us-east-1`)
 - add your domain name and click "Next"

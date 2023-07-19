@@ -209,7 +209,7 @@ functions:
 ```
 
 **However don't do this blindly:** this will delete your REST API to create a new HTTP API, which will break custom domains you may have set up.
-Instead, you can deploy the same Lambda with both v1 and v2, [set up your domain on v2](/docs/environment/custom-domains.md), and then delete v1:
+Instead, you can deploy the same Lambda with both v1 and v2, [set up your domain on v2](/docs/use-cases/http/custom-domains.mdx), and then delete v1:
 
 ```yaml
 functions:
