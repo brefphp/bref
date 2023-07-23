@@ -3,7 +3,7 @@ import { CheckIcon } from '@heroicons/react/20/solid';
 const features = [
     {
         name: 'Websites',
-        description: 'Rerum repellat labore necessitatibus reprehenderit molestiae praesentium.'
+        description: 'Run PHP websites with your favorite framework (or none), with a CDN and your custom domain.'
     },
     {
         name: 'HTTP APIs',

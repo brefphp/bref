@@ -3,14 +3,20 @@ import { useRouter } from 'next/router';
 
 export default {
     logo: <span>bref</span>,
+    docsRepositoryBase: 'https://github.com/brefphp/bref/blob/main',
     project: {
         link: 'https://github.com/brefphp/bref'
     },
     useNextSeoProps() {
-        const { asPath } = useRouter()
+        const { asPath } = useRouter();
+        console.log(asPath);
         if (asPath !== '/') {
             return {
                 titleTemplate: '%s – Bref',
+            };
+        } else {
+            return {
+                titleTemplate: 'Bref – Simple and scalable PHP with serverless',
             };
         }
     },
@@ -34,6 +40,17 @@ export default {
             <link rel="stylesheet" href="https://rsms.me/inter/inter.css"/>
         </>
     ),
+    footer: {
+        text: (
+            <span>
+                MIT {new Date().getFullYear()} ©{' '}
+                <a href="https://mnapoli.fr">
+                    Matthieu Napoli
+                </a>
+                .
+            </span>
+        )
+    },
     components: {
         // https://github.com/shuding/nextra/blob/main/packages/nextra-theme-docs/src/mdx-components.tsx
         h1: props => (
