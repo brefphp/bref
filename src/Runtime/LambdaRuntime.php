@@ -82,6 +82,7 @@ final class LambdaRuntime
         [$event, $context] = $this->waitNextInvocation();
 
         Bref::triggerHooks('beforeInvoke');
+        Bref::events()->beforeInvoke($handler, $event, $context);
 
         $this->ping();
 
@@ -90,11 +91,11 @@ final class LambdaRuntime
 
             $this->sendResponse($context->getAwsRequestId(), $result);
 
-            Bref::triggerHooks('afterInvoke');
+            Bref::events()->afterInvoke($handler, $event, $context, $result);
         } catch (Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
 
-            Bref::triggerHooks('afterInvoke');
+            Bref::events()->afterInvoke($handler, $event, $context, null, $e);
 
             return false;
         }
