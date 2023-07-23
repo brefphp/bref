@@ -10,7 +10,7 @@ export default function Companies() {
         <div className="bg-white py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <h2 className="text-center text-3xl font-black leading-8 text-gray-900">
-                    Used in production by
+                    Used in production at
                 </h2>
                 <div
                     className="mt-16 -mx-6 grid grid-cols-2 gap-0.5 overflow-hidden sm:mx-0 sm:rounded-2xl md:grid-cols-3">
