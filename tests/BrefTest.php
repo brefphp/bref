@@ -36,6 +36,7 @@ class BrefTest extends TestCase
         $beforeStartup1 = false;
         $beforeStartup2 = false;
         $beforeInvoke = false;
+        $afterInvoke = false;
 
         // Check that we can set multiple handlers
         Bref::beforeStartup(function () use (&$beforeStartup1) {
@@ -47,17 +48,26 @@ class BrefTest extends TestCase
         Bref::beforeInvoke(function () use (&$beforeInvoke) {
             return $beforeInvoke = true;
         });
+        Bref::afterInvoke(function () use (&$afterInvoke) {
+            return $afterInvoke = true;
+        });
 
         $this->assertFalse($beforeStartup1);
         $this->assertFalse($beforeStartup2);
         $this->assertFalse($beforeInvoke);
+        $this->assertFalse($afterInvoke);
 
         Bref::triggerHooks('beforeStartup');
         $this->assertTrue($beforeStartup1);
         $this->assertTrue($beforeStartup2);
         $this->assertFalse($beforeInvoke);
+        $this->assertFalse($afterInvoke);
 
         Bref::triggerHooks('beforeInvoke');
         $this->assertTrue($beforeInvoke);
+        $this->assertFalse($afterInvoke);
+
+        Bref::triggerHooks('afterInvoke');
+        $this->assertTrue($afterInvoke);
     }
 }

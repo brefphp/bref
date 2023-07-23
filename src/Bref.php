@@ -14,6 +14,7 @@ class Bref
     private static array $hooks = [
         'beforeStartup' => [],
         'beforeInvoke' => [],
+        'afterInvoke' => [],
     ];
 
     /**
@@ -51,7 +52,19 @@ class Bref
     }
 
     /**
-     * @param 'beforeStartup'|'beforeInvoke' $hookName
+     * Register a hook to be executed after any Lambda invocation.
+     *
+     * Warning: hooks are low-level extension points to be used by framework
+     * integrations. For user code, it is not recommended to use them. Use your
+     * framework's extension points instead.
+     */
+    public static function afterInvoke(Closure $hook): void
+    {
+        self::$hooks['afterInvoke'][] = $hook;
+    }
+
+    /**
+     * @param 'beforeStartup'|'beforeInvoke'|'afterInvoke' $hookName
      *
      * @internal Used by the Bref runtime
      */

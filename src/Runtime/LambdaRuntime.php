@@ -89,8 +89,12 @@ final class LambdaRuntime
             $result = $this->invoker->invoke($handler, $event, $context);
 
             $this->sendResponse($context->getAwsRequestId(), $result);
+
+            Bref::triggerHooks('afterInvoke');
         } catch (Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
+
+            Bref::triggerHooks('afterInvoke');
 
             return false;
         }
