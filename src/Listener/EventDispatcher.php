@@ -7,7 +7,7 @@ use Bref\Event\Handler;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
-class EventDispatcher extends BrefEventSubscriber
+final class EventDispatcher extends BrefEventSubscriber
 {
     /**
      * @param BrefEventSubscriber[] $subscribers
@@ -18,11 +18,19 @@ class EventDispatcher extends BrefEventSubscriber
     {
     }
 
+    /**
+     * Register an event subscriber class.
+     */
     public function subscribe(BrefEventSubscriber $subscriber): void
     {
         $this->subscribers[] = $subscriber;
     }
 
+    /**
+     * Trigger the `beforeStartup` event.
+     *
+     * @internal This method is called by Bref and should not be called by user code.
+     */
     public function beforeStartup(): void
     {
         foreach ($this->subscribers as $listener) {
@@ -30,6 +38,11 @@ class EventDispatcher extends BrefEventSubscriber
         }
     }
 
+    /**
+     * Trigger the `beforeInvoke` event.
+     *
+     * @internal This method is called by Bref and should not be called by user code.
+     */
     public function beforeInvoke(
         Handler|RequestHandlerInterface|callable $handler,
         mixed $event,
@@ -41,6 +54,11 @@ class EventDispatcher extends BrefEventSubscriber
         }
     }
 
+    /**
+     * Trigger the `afterInvoke` event.
+     *
+     * @internal This method is called by Bref and should not be called by user code.
+     */
     public function afterInvoke(
         Handler|RequestHandlerInterface|callable $handler,
         mixed $event,
