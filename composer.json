@@ -40,8 +40,8 @@
         "dms/phpunit-arraysubset-asserts": "^0.4",
         "doctrine/coding-standard": "^8.0",
         "guzzlehttp/guzzle": "^7.5",
-        "phpstan/phpstan": "^1.0",
-        "phpunit/phpunit": "^9.0",
+        "phpstan/phpstan": "^1.10.26",
+        "phpunit/phpunit": "^9.6.10",
         "symfony/console": "^4.4|^5.0|^6.0"
     },
     "scripts": {
