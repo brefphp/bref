@@ -16,7 +16,7 @@ jobs:
         timeout-minutes: 15
         strategy:
             matrix:
-                php: [ '8.2', '8.1', '8.0' ]
+                php: [ '8.3', '8.2', '8.1', '8.0' ]
                 dependency-version: [ '' ]
                 platform-reqs: [ '' ]
                 include:
@@ -24,9 +24,9 @@ jobs:
                         dependency-version: '--prefer-lowest'
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
             # Node is required by some tests
-            -   uses: actions/setup-node@v1
+            -   uses: actions/setup-node@v3
                 with:
                     node-version: 12
             -   name: Setup PHP
@@ -46,15 +46,15 @@ jobs:
         name: PHPStan
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 8.1
+                    php-version: '8.2'
                     tools: composer:v2, cs2pr
                     coverage: none
             -   name: Cache Composer dependencies
-                uses: actions/cache@v2
+                uses: actions/cache@v3
                 with:
                     path: ~/.composer/cache
                     key: php-composer-locked-${{ hashFiles('composer.lock') }}
@@ -69,15 +69,15 @@ jobs:
         name: PHP CodeSniffer
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v3
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 8.1
+                    php-version: '8.2'
                     tools: composer:v2, cs2pr
                     coverage: none
             -   name: Cache Composer dependencies
-                uses: actions/cache@v2
+                uses: actions/cache@v3
                 with:
                     path: ~/.composer/cache
                     key: php-composer-locked-${{ hashFiles('composer.lock') }}
@@ -95,7 +95,7 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: 18
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3
               with:
                   path: ~/.npm
                   key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}

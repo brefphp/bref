@@ -47,7 +47,7 @@ class ServerlessPlugin {
             .filter(name => !name.startsWith('arm-'));
         // Console runtimes must have a PHP version provided
         this.runtimes = this.runtimes.filter(name => name !== 'console');
-        this.runtimes.push('php-80-console', 'php-81-console', 'php-82-console');
+        this.runtimes.push('php-80-console', 'php-81-console', 'php-82-console', 'php-83-console');
 
         this.checkCompatibleRuntime();
 

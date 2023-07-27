@@ -27,7 +27,7 @@ These runtimes are available as AWS Lambda layers that you can use (explained be
 
 ### Web apps
 
-Name: `php-82-fpm`, `php-81-fpm`, and `php-80-fpm`.
+Name: `php-83-fpm`, `php-82-fpm`, `php-81-fpm`, and `php-80-fpm`.
 
 This runtime uses PHP-FPM to run **web applications** on AWS Lambda.
 
@@ -37,7 +37,7 @@ It's **the easiest to start with**: it works like traditional PHP hosting and is
 
 ### Event-driven functions
 
-Name: `php-82`, `php-81`, and `php-80`.
+Name: `php-83`, `php-82`, `php-81`, and `php-80`.
 
 AWS Lambda was initially created to run _functions_ (yes, functions of code) in the cloud.
 
@@ -51,7 +51,7 @@ _Note: if you are getting started, we highly recommend using the FPM runtime ins
 
 ### Console
 
-Name: `php-82-console`, `php-81-console`, and `php-80-console`.
+Name: `php-83-console`, `php-82-console`, `php-81-console`, and `php-80-console`.
 
 This runtime lets you run CLI console commands on Lambda.
 
@@ -79,14 +79,17 @@ functions:
         runtime: php-81-console
 ```
 
-Bref currently provides runtimes for PHP 8.0, 8.1 and 8.2:
+Bref currently provides runtimes for PHP 8.0, 8.1, 8.2 and 8.3:
 
+- `php-83`
 - `php-82`
 - `php-81`
 - `php-80`
+- `php-83-fpm`
 - `php-82-fpm`
 - `php-81-fpm`
 - `php-80-fpm`
+- `php-83-console`
 - `php-82-console`
 - `php-81-console`
 - `php-80-console`
@@ -168,9 +171,11 @@ functions:
 
 The `${...}` notation is the [syntax to use variables](https://serverless.com/framework/docs/providers/aws/guide/variables/) in `serverless.yml`. The Bref plugin provides the following variables:
 
+- `${bref:layer.php-83}`
 - `${bref:layer.php-82}`
 - `${bref:layer.php-81}`
 - `${bref:layer.php-80}`
+- `${bref:layer.php-83-fpm}`
 - `${bref:layer.php-82-fpm}`
 - `${bref:layer.php-81-fpm}`
 - `${bref:layer.php-80-fpm}`

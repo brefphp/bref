@@ -32,7 +32,7 @@ jobs:
                     ref: master
 
             -   name: Set AWS credentials
-                uses: aws-actions/configure-aws-credentials@v1
+                uses: aws-actions/configure-aws-credentials@v2
                 with:
                     role-to-assume: arn:aws:iam::534081306603:role/bref-github-actions
                     role-session-name: bref-github-actions
@@ -41,7 +41,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 8.1
+                    php-version: '8.2'
                     tools: composer
 
             -   name: Install Composer dependencies
@@ -50,7 +50,7 @@ jobs:
             -   run: make layers.json
 
             -   name: Create Pull Request
-                uses: peter-evans/create-pull-request@v4
+                uses: peter-evans/create-pull-request@v5
                 with:
                     commit-message: Update layer versions
                     title: Update Lambda layers [${{ inputs.release_name }}](${{ inputs.release_html_url }})
