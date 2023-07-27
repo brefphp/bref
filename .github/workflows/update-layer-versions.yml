@@ -5,13 +5,10 @@ on:
     workflow_dispatch:
         inputs:
             release_url:
-                required: true
                 type: string
             release_html_url:
-                required: true
                 type: string
             release_name:
-                required: true
                 type: string
 
 # Necessary to connect to AWS using OIDC
