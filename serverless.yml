@@ -25,14 +25,14 @@ package:
 functions:
     function:
         handler: demo/function.php
-        runtime: php-81
+        runtime: php-83
         description: 'Bref function demo'
         environment:
             BREF_LOOP_MAX: 100
 
     http:
         handler: demo/http.php
-        runtime: php-81-fpm
+        runtime: php-83-fpm
         architecture: arm64
         description: 'Bref HTTP demo'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
@@ -41,7 +41,7 @@ functions:
 
     psr7:
         handler: demo/psr7.php
-        runtime: php-81
+        runtime: php-83
         description: 'Bref HTTP demo with a PSR-7 handler'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
         events:
@@ -52,7 +52,7 @@ functions:
 
     http-api:
         handler: demo/http.php
-        runtime: php-81-fpm
+        runtime: php-83-fpm
         description: 'Bref HTTP demo'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
         events:
@@ -60,6 +60,6 @@ functions:
 
     console:
         handler: demo/console.php
-        runtime: php-81-console
+        runtime: php-83-console
         description: 'Bref console command demo'
         timeout: 5
