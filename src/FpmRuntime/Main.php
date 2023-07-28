@@ -38,6 +38,8 @@ class Main
             $lambdaRuntime->failInitialization('Error while starting PHP-FPM', $e);
         }
 
+        Bref::events()->afterStartup();
+
         /** @phpstan-ignore-next-line */
         while (true) {
             $lambdaRuntime->processNextEvent($phpFpm);

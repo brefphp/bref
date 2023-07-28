@@ -29,6 +29,8 @@ class Main
             $lambdaRuntime->failInitialization($e->getMessage());
         }
 
+        Bref::events()->afterStartup();
+
         $loopMax = getenv('BREF_LOOP_MAX') ?: 1;
         $loops = 0;
         while (true) {

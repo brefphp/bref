@@ -24,6 +24,13 @@ abstract class BrefEventSubscriber
     }
 
     /**
+     * Register a hook to be executed after the runtime starts.
+     */
+    public function afterStartup(): void
+    {
+    }
+
+    /**
      * Register a hook to be executed before any Lambda invocation.
      */
     public function beforeInvoke(

@@ -29,6 +29,8 @@ class Main
             $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist");
         }
 
+        Bref::events()->afterStartup();
+
         /** @phpstan-ignore-next-line */
         while (true) {
             $lambdaRuntime->processNextEvent(function ($event, Context $context) use ($handlerFile): array {

@@ -39,6 +39,18 @@ final class EventDispatcher extends BrefEventSubscriber
     }
 
     /**
+     * Trigger the `afterStartup` event.
+     *
+     * @internal This method is called by Bref and should not be called by user code.
+     */
+    public function afterStartup(): void
+    {
+        foreach ($this->subscribers as $listener) {
+            $listener->afterStartup();
+        }
+    }
+
+    /**
      * Trigger the `beforeInvoke` event.
      *
      * @internal This method is called by Bref and should not be called by user code.
