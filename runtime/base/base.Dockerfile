@@ -374,7 +374,7 @@ RUN set -xe; \
 #   - OpenSSL
 # Needed by:
 #   - php
-ENV VERSION_POSTGRES=15.3
+ENV VERSION_POSTGRES=15.4
 ENV POSTGRES_BUILD_DIR=${BUILD_DIR}/postgres
 
 RUN set -xe; \
