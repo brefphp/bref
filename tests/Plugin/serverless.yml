@@ -1,0 +1,30 @@
+service: bref
+provider:
+    name: aws
+
+plugins:
+    - ../../index.js
+
+functions:
+    function:
+        handler: function.php
+        runtime: php-83
+    fpm:
+        handler: fpm.php
+        runtime: php-83-fpm
+    console:
+        handler: console.php
+        runtime: php-83-console
+
+    function-arm:
+        handler: function.php
+        architecture: arm64
+        runtime: php-83
+    fpm-arm:
+        handler: fpm.php
+        architecture: arm64
+        runtime: php-83-fpm
+    console-arm:
+        handler: console.php
+        architecture: arm64
+        runtime: php-83-console
