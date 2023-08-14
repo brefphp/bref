@@ -197,22 +197,16 @@ class ServerlessPlugin {
 
         const config = this.serverless.service;
         const isArmGlobally = config.provider.architecture === 'arm64';
-
-        // Check provider config
-        if (this.runtimes.includes(config.provider.runtime || '')) {
-            config.provider.layers = includeBrefLayers(
-                config.provider.runtime,
-                config.provider.layers || [], // make sure it's an array
-                isArmGlobally,
-            );
-            config.provider.runtime = 'provided.al2';
-        }
+        const isBrefRuntimeGlobally = this.runtimes.includes(config.provider.runtime || '');
 
         // Check functions config
         for (const f of Object.values(config.functions || {})) {
-            if (f.runtime && this.runtimes.includes(f.runtime)) {
+            if (
+              (f.runtime && this.runtimes.includes(f.runtime)) ||
+              (!f.runtime && isBrefRuntimeGlobally)
+            ) {
                 f.layers = includeBrefLayers(
-                    f.runtime,
+                    f.runtime || config.provider.runtime,
                     f.layers || [], // make sure it's an array
                     f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
                 );
@@ -224,9 +218,9 @@ class ServerlessPlugin {
         for (const construct of Object.values(this.serverless.configurationInput.constructs || {})) {
             if (construct.type !== 'queue' && construct.type !== 'webhook') continue;
             const f = construct.type === 'queue' ? construct.worker : construct.authorizer;
-            if (f && f.runtime && this.runtimes.includes(f.runtime)) {
+            if (f && (f.runtime && this.runtimes.includes(f.runtime) || !f.runtime && isBrefRuntimeGlobally) ) {
                 f.layers = includeBrefLayers(
-                    f.runtime,
+                    f.runtime || config.provider.runtime,
                     f.layers || [], // make sure it's an array
                     f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
                 );

@@ -29,6 +29,9 @@ jobs:
             -   uses: actions/setup-node@v3
                 with:
                     node-version: 12
+            # serverless is required by some tests
+            -   name: Install serverless
+                run: npm i -g serverless
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
