@@ -237,44 +237,52 @@ final class LambdaRuntime
     /**
      * Abort the lambda and signal to the runtime API that we failed to initialize this instance.
      *
+     * @param 'Runtime.NoSuchHandler'|'Runtime.UnknownReason' $lambdaInitializationReason
+     *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-initerror
      *
      * @phpstan-return never-returns
      */
-    public function failInitialization(string $message, ?Throwable $error = null): void
+    public function failInitialization(string|Throwable $error, $lambdaInitializationReason = 'Runtime.UnknownReason'): void
     {
         // Log the exception in CloudWatch
-        echo "$message\n";
-        if ($error) {
-            if ($error instanceof Exception) {
-                $errorMessage = get_class($error) . ': ' . $error->getMessage();
-            } else {
-                $errorMessage = $error->getMessage();
-            }
+        if ($error instanceof Throwable) {
+            $data = [
+                'errorMessage' => $error->getMessage(),
+                'errorType' => get_class($error),
+                'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
+            ];
             printf(
                 "Fatal error: %s in %s:%d\nStack trace:\n%s",
-                $errorMessage,
+                get_class($error) . ': ' . $error->getMessage(),
                 $error->getFile(),
                 $error->getLine(),
                 $error->getTraceAsString()
             );
+        } else {
+            $data = [
+                'errorMessage' => $error,
+                'errorType' => 'Internal',
+                'stackTrace' => [],
+            ];
+            echo "$error\n";
         }
 
         $url = "http://$this->apiUrl/2018-06-01/runtime/init/error";
-        $this->postJson($url, [
-            'errorMessage' => $message . ' ' . ($error ? $error->getMessage() : ''),
-            'errorType' => $error ? get_class($error) : 'Internal',
-            'stackTrace' => $error ? explode(PHP_EOL, $error->getTraceAsString()) : [],
+        $this->postJson($url, $data, [
+            "Lambda-Runtime-Function-Error-Type: $lambdaInitializationReason",
         ]);
 
         exit(1);
     }
 
     /**
+     * @param string[] $headers
+     *
      * @throws ResponseTooBig
      * @throws Exception
      */
-    private function postJson(string $url, mixed $data): void
+    private function postJson(string $url, mixed $data, array $headers = []): void
     {
         /** @noinspection JsonEncodingApiUsageInspection */
         $jsonData = json_encode($data);
@@ -296,6 +304,7 @@ final class LambdaRuntime
         curl_setopt($this->curlHandleResult, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Content-Length: ' . strlen($jsonData),
+            ...$headers
         ]);
 
         $body = curl_exec($this->curlHandleResult);
