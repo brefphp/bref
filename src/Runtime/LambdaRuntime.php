@@ -268,6 +268,8 @@ final class LambdaRuntime
             echo "$error\n";
         }
 
+        echo "The function failed to start. AWS Lambda will restart the process, do not be surprised if you see the error message twice.\n";
+
         $url = "http://$this->apiUrl/2018-06-01/runtime/init/error";
         $this->postJson($url, $data, [
             "Lambda-Runtime-Function-Error-Type: $lambdaInitializationReason",
