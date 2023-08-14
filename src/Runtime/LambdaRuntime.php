@@ -237,10 +237,9 @@ final class LambdaRuntime
     /**
      * Abort the lambda and signal to the runtime API that we failed to initialize this instance.
      *
-     * @param 'Runtime.NoSuchHandler'|'Runtime.UnknownReason' $lambdaInitializationReason
-     *
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-initerror
      *
+     * @phpstan-param 'Runtime.NoSuchHandler'|'Runtime.UnknownReason' $lambdaInitializationReason
      * @phpstan-return never-returns
      */
     public function failInitialization(
@@ -287,9 +286,8 @@ final class LambdaRuntime
 
     /**
      * @param string[] $headers
-     *
-     * @throws ResponseTooBig
      * @throws Exception
+     * @throws ResponseTooBig
      */
     private function postJson(string $url, mixed $data, array $headers = []): void
     {
@@ -313,7 +311,7 @@ final class LambdaRuntime
         curl_setopt($this->curlHandleResult, CURLOPT_HTTPHEADER, [
             'Content-Type: application/json',
             'Content-Length: ' . strlen($jsonData),
-            ...$headers
+            ...$headers,
         ]);
 
         $body = curl_exec($this->curlHandleResult);
