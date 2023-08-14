@@ -243,21 +243,28 @@ final class LambdaRuntime
      *
      * @phpstan-return never-returns
      */
-    public function failInitialization(string|Throwable $error, $lambdaInitializationReason = 'Runtime.UnknownReason'): void
-    {
+    public function failInitialization(
+        string|Throwable $error,
+        string $lambdaInitializationReason = 'Runtime.UnknownReason',
+    ): void {
         // Log the exception in CloudWatch
         if ($error instanceof Throwable) {
+            $traceAsArray = explode(PHP_EOL, $error->getTraceAsString());
             $data = [
                 'errorMessage' => $error->getMessage(),
                 'errorType' => get_class($error),
-                'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
+                'stackTrace' => $traceAsArray,
             ];
             printf(
-                "Fatal error: %s in %s:%d\nStack trace:\n%s",
+                "Fatal error: %s in %s:%d\n %s\n",
                 get_class($error) . ': ' . $error->getMessage(),
                 $error->getFile(),
                 $error->getLine(),
-                $error->getTraceAsString()
+                json_encode([
+                    'message' => $error->getMessage(),
+                    'type' => get_class($error),
+                    'stackTrace' => $traceAsArray,
+                ], JSON_THROW_ON_ERROR),
             );
         } else {
             $data = [
@@ -265,7 +272,7 @@ final class LambdaRuntime
                 'errorType' => 'Internal',
                 'stackTrace' => [],
             ];
-            echo "$error\n";
+            echo "Fatal error: $error\n";
         }
 
         echo "The function failed to start. AWS Lambda will restart the process, do not be surprised if you see the error message twice.\n";
