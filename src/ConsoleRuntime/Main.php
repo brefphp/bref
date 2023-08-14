@@ -25,7 +25,7 @@ class Main
         $appRoot = getenv('LAMBDA_TASK_ROOT');
         $handlerFile = $appRoot . '/' . getenv('_HANDLER');
         if (! is_file($handlerFile)) {
-            $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist");
+            $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist", 'Runtime.NoSuchHandler');
         }
 
         /** @phpstan-ignore-next-line */

@@ -25,7 +25,7 @@ class Main
         try {
             $handler = $container->get(getenv('_HANDLER'));
         } catch (Throwable $e) {
-            $lambdaRuntime->failInitialization($e->getMessage());
+            $lambdaRuntime->failInitialization($e, 'Runtime.NoSuchHandler');
         }
 
         $loopMax = getenv('BREF_LOOP_MAX') ?: 1;
