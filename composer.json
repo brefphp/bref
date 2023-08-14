@@ -43,7 +43,7 @@
         "phpstan/phpstan": "^1.10.26",
         "phpunit/phpunit": "^9.6.10",
         "symfony/console": "^4.4|^5.0|^6.0|^7.0",
-        "symfony/yaml": "^6.3"
+        "symfony/yaml": "^4.4|^5.0|^6.0|^7.0"
     },
     "scripts": {
         "test": [
