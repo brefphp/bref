@@ -1,36 +1,46 @@
-import { CloudArrowUpIcon, LockClosedIcon, ServerIcon } from '@heroicons/react/20/solid'
+import { CloudArrowUpIcon, PresentationChartLineIcon, BanknotesIcon } from '@heroicons/react/20/solid'
 
 const features = [
     {
-        name: 'Push to deploy.',
+        name: 'Simple.',
         description:
-            'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.',
+            'Instead of setting up and maintaining servers, define your application in a simple <code class="inline-code">serverless.yml</code> file. Then deploy to AWS with <code class="inline-code">serverless deploy</code>. Bref integrates with the <a href="https://www.serverless.com/framework" class="link">Serverless Framework</a> for a great developer experience.',
         icon: CloudArrowUpIcon,
     },
     {
-        name: 'SSL certificates.',
-        description: 'Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.',
-        icon: LockClosedIcon,
+        name: 'Scalable.',
+        description: 'Bref provides open-source runtimes to run PHP on AWS Lambda. AWS Lambda runs our code redundantly across data centers and scales in real-time. All automatically. Handle 1 request/second or 1000 with the same code.',
+        icon: PresentationChartLineIcon,
     },
     {
-        name: 'Database backups.',
-        description: 'Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et magna sit morbi lobortis.',
-        icon: ServerIcon,
+        name: 'Cost-efficient.',
+        description: 'Instead of paying for servers that are idle most of the time, pay for the time the code is actually running. The AWS free tier even provides about 1 million free requests per month.',
+        icon: BanknotesIcon,
     },
 ]
 
-export default function HowItWorks() {
+export default function Intro() {
+    const date = new Date();
+    const year = date.getFullYear();
+
     return (
         <div className="overflow-hidden home-container home-section">
             <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:grid-cols-2 lg:items-center">
                 <div className="px-6 lg:px-0 lg:pr-4 lg:pt-4">
                     <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-lg">
                         <h2 className="mt-2 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">
-                            How it works
+                            Why Bref? Why serverless?
                         </h2>
                         <p className="mt-6 text-lg leading-8 text-gray-600">
-                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque,
-                            iste dolor cupiditate blanditiis ratione.
+                            We're in {year}.
+                            Applications should <strong>scale</strong> automatically.
+                            Hosting should be <strong>reliable</strong> and <strong>cost-efficient</strong>.
+                            Infrastructure should accelerate development, not consume our time.
+                        </p>
+                        <p className="mt-6 text-gray-600">
+                            Bref deploys PHP applications to {' '}
+                            <a href="https://aws.amazon.com/lambda/" className="link">AWS Lambda</a> {' '}
+                            and sets up the rest of the infrastructure using serverless services.
                         </p>
                         <dl className="mt-10 max-w-xl space-y-8 text-base leading-7 text-gray-600 lg:max-w-none">
                             {features.map((feature) => (
@@ -39,7 +49,7 @@ export default function HowItWorks() {
                                         <feature.icon className="absolute left-1 top-1 h-5 w-5 text-blue-500" aria-hidden="true" />
                                         {feature.name}
                                     </dt>{' '}
-                                    <dd className="inline">{feature.description}</dd>
+                                    <dd className="inline" dangerouslySetInnerHTML={{ __html: feature.description }}></dd>
                                 </div>
                             ))}
                         </dl>
