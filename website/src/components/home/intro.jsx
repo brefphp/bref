@@ -9,7 +9,7 @@ const features = [
     },
     {
         name: 'Scalable.',
-        description: 'Bref provides open-source runtimes to run PHP on AWS Lambda. AWS Lambda runs our code redundantly across data centers and scales in real-time. All automatically. Handle 1 request/second or 1000 with the same code.',
+        description: 'Bref provides open-source runtimes to run PHP on AWS Lambda. AWS Lambda runs your code redundantly across data centers and scales in real-time. All automatically. Handle 1 request/second or 1000 with the same code.',
         icon: PresentationChartLineIcon,
     },
     {
