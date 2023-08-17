@@ -6,6 +6,13 @@ body {
     font-family: "Inter var", system-ui, sans-serif;
 }
 
+.home-container {
+    @apply mx-auto max-w-7xl px-6 lg:px-8;
+}
+.home-section {
+    @apply py-20 sm:py-28;
+}
+
 .mermaidHidden {
     display: none;
 }

@@ -96,36 +96,34 @@ const testimonials = [
 
 export default function Testimonials() {
     return (
-        <div className="bg-white py-24 sm:py-32">
-            <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                <h2 className="text-center text-3xl font-black leading-8 text-gray-900">
-                    Happy users and community
-                </h2>
-                <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
-                    <div className="-mt-8 sm:-mx-4 sm:columns-2 sm:text-[0] lg:columns-3">
-                        {testimonials.map((testimonial) => (
-                            <div key={testimonial.author.handle} className="pt-8 sm:inline-block sm:w-full sm:px-4">
-                                <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6">
-                                    <blockquote className="text-gray-900">
-                                        <p>{`“${testimonial.body}”`}</p>
-                                    </blockquote>
-                                    <figcaption className="mt-6 flex items-center gap-x-4">
-                                        {testimonial.author.imageUrl ? (
-                                        <img className="h-10 w-10 rounded-full bg-gray-50"
-                                             src={testimonial.author.imageUrl} alt={testimonial.author.name} />
-                                        ) : (
-                                        <Image className="h-10 w-10 rounded-full bg-gray-50"
-                                               src={testimonial.author.image} alt={testimonial.author.name} />
-                                        )}
-                                        <div>
-                                            <div className="font-semibold text-gray-900">{testimonial.author.name}</div>
-                                            <a href={testimonial.author.link} className="text-gray-600">{`@${testimonial.author.handle}`}</a>
-                                        </div>
-                                    </figcaption>
-                                </figure>
-                            </div>
-                        ))}
-                    </div>
+        <div className="home-container home-section">
+            <h2 className="text-center text-3xl font-black leading-8 text-gray-900">
+                Happy users and community
+            </h2>
+            <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
+                <div className="-mt-8 sm:-mx-4 sm:columns-2 sm:text-[0] lg:columns-3">
+                    {testimonials.map((testimonial) => (
+                        <div key={testimonial.author.handle} className="pt-8 sm:inline-block sm:w-full sm:px-4">
+                            <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6">
+                                <blockquote className="text-gray-900">
+                                    <p>{`“${testimonial.body}”`}</p>
+                                </blockquote>
+                                <figcaption className="mt-6 flex items-center gap-x-4">
+                                    {testimonial.author.imageUrl ? (
+                                    <img className="h-10 w-10 rounded-full bg-gray-50"
+                                         src={testimonial.author.imageUrl} alt={testimonial.author.name} />
+                                    ) : (
+                                    <Image className="h-10 w-10 rounded-full bg-gray-50"
+                                           src={testimonial.author.image} alt={testimonial.author.name} />
+                                    )}
+                                    <div>
+                                        <div className="font-semibold text-gray-900">{testimonial.author.name}</div>
+                                        <a href={testimonial.author.link} className="text-gray-600">{`@${testimonial.author.handle}`}</a>
+                                    </div>
+                                </figcaption>
+                            </figure>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

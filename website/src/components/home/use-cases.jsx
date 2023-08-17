@@ -37,40 +37,37 @@ const features = [
 
 export default function UseCases() {
     return (
-        <div className="bg-white py-24 sm:py-32">
-            <div className="mx-auto max-w-7xl px-6 lg:px-8">
-                <div
-                    className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-                    <div>
-                        <h2 className="mt-2 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">Use cases</h2>
-                        <p className="mt-6 text-base leading-7 text-gray-600">
-                            Serverless means whatever you choose it to mean.
-                        </p>
-                        <p className="mt-6 text-base leading-7 text-gray-600">
-                            Run PHP as usual, {' '}<strong>like on any server</strong>.
-                            Except it scales (almost) infinitely and you don't maintain the infrastructure.<br/>
-                            Lift-and-shift existing apps or build new ones with your favorite framework.
-                        </p>
-                        <p className="mt-6 text-base leading-7 text-gray-600">
-                            Or go the extreme opposite: build cloud-native {' '}<strong>event-driven microservices</strong> with infinitely scalable cloud services like SQS and EventBridge.
-                        </p>
-                        <p className="mt-6 text-base leading-7 text-gray-600">
-                            Or anything in between, that works too.
-                        </p>
-                    </div>
-                    <dl className="col-span-2 grid grid-cols-1 gap-x-8 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:gap-y-16">
-                        {features.map((feature) => (
-                            <div key={feature.name} className="relative pl-9">
-                                <dt className="font-semibold text-gray-900">
-                                    <CheckIcon className="absolute left-0 top-1 h-5 w-5 text-blue-500"
-                                               aria-hidden="true" />
-                                    {feature.name}
-                                </dt>
-                                <dd className="mt-2" dangerouslySetInnerHTML={{ __html: feature.description }}></dd>
-                            </div>
-                        ))}
-                    </dl>
+        <div className="home-container home-section">
+            <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+                <div>
+                    <h2 className="mt-2 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">Use cases</h2>
+                    <p className="mt-6 text-base leading-7 text-gray-600">
+                        Serverless means whatever you choose it to mean.
+                    </p>
+                    <p className="mt-6 text-base leading-7 text-gray-600">
+                        Run PHP as usual, {' '}<strong>like on any server</strong>.
+                        Except it scales (almost) infinitely and you don't maintain the infrastructure.<br/>
+                        Lift-and-shift existing apps or build new ones with your favorite framework.
+                    </p>
+                    <p className="mt-6 text-base leading-7 text-gray-600">
+                        Or go the extreme opposite: build cloud-native {' '}<strong>event-driven microservices</strong> with infinitely scalable cloud services like SQS and EventBridge.
+                    </p>
+                    <p className="mt-6 text-base leading-7 text-gray-600">
+                        Or anything in between, that works too.
+                    </p>
                 </div>
+                <dl className="col-span-2 grid grid-cols-1 gap-x-8 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:gap-y-16">
+                    {features.map((feature) => (
+                        <div key={feature.name} className="relative pl-9">
+                            <dt className="font-semibold text-gray-900">
+                                <CheckIcon className="absolute left-0 top-1 h-5 w-5 text-blue-500"
+                                           aria-hidden="true" />
+                                {feature.name}
+                            </dt>
+                            <dd className="mt-2" dangerouslySetInnerHTML={{ __html: feature.description }}></dd>
+                        </div>
+                    ))}
+                </dl>
             </div>
         </div>
     );
