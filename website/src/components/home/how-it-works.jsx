@@ -22,7 +22,7 @@ const features = [
 export default function HowItWorks() {
     return (
         <div className="overflow-hidden home-container home-section">
-            <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:grid-cols-2 lg:items-start">
+            <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:grid-cols-2 lg:items-center">
                 <div className="px-6 lg:px-0 lg:pr-4 lg:pt-4">
                     <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-lg">
                         <h2 className="mt-2 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">
@@ -52,13 +52,23 @@ export default function HowItWorks() {
                             aria-hidden="true"
                         />
                         <div className="mx-auto max-w-2xl sm:mx-0 sm:max-w-none">
-                            <img
-                                src="https://tailwindui.com/img/component-images/project-app-screenshot.png"
-                                alt="Product screenshot"
-                                width={2432}
-                                height={1442}
-                                className="-mb-12 w-[57rem] max-w-none rounded-tl-xl bg-gray-800 ring-1 ring-white/10"
-                            />
+                            <div className="w-screen overflow-hidden rounded-tl-xl bg-gray-900">
+                                <div className=" px-6 pb-14 pt-6 text-gray-200 font-mono text-sm">
+                                    <p><span className="text-gray-400">$</span> serverless deploy</p>
+                                    <p>&nbsp;</p>
+                                    <p>Deploying demo to stage dev <span className="text-gray-500">(us-east-1)</span></p>
+                                    <p>&nbsp;</p>
+                                    <p>
+                                        <span className="text-red-500">✔</span> Service deployed to stack demo-prod <span className="text-gray-500">(31s)</span>
+                                    </p>
+                                    <p>&nbsp;</p>
+                                    <p><span className="text-gray-500">endpoint:</span> https://yti4le2q5.lambda-url.us-east-1.on.aws/</p>
+                                    <p className="text-gray-500">functions:</p>
+                                    <p className="ml-5">api: demo-prod-api <span className="text-gray-500">(750 KB)</span></p>
+                                    <p className="ml-5">cron: demo-prod-cron <span className="text-gray-500">(750 KB)</span></p>
+                                    <p className="ml-5">worker: demo-prod-worker <span className="text-gray-500">(750 KB)</span></p>
+                                </div>
+                            </div>
                         </div>
                         <div
                             className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/10 sm:rounded-3xl"

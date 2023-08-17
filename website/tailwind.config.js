@@ -10,6 +10,7 @@ module.exports = {
     theme: {
         fontFamily: {
             sans: ['"Inter var"', ...defaultTheme.fontFamily.sans],
+            mono: "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace",
         },
         extend: {
             colors: {
