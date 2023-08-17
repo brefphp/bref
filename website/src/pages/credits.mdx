@@ -1,0 +1,133 @@
+import { useData } from 'nextra/data';
+import { graphql } from '@octokit/graphql';
+import { TwitterIcon } from '../components/icons/TwitterIcon';
+import { GitHubIcon } from '../components/icons/GitHubIcon';
+
+export const getStaticProps = async () => {
+    const query = `
+    {
+      viewer {
+        sponsorshipsAsMaintainer(activeOnly: false, first: 100) {
+          totalCount
+          edges {
+            node {
+              isActive
+              isOneTimePayment
+              sponsorEntity {
+                __typename
+                ... on User {
+                  name
+                  login
+                  websiteUrl
+                  twitterUsername
+                }
+                ... on Organization {
+                  name
+                  login
+                  websiteUrl
+                  twitterUsername
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    `;
+    try {
+        const response = await graphql(query, {
+            headers: {
+                authorization: `token ${process.env.GITHUB_TOKEN_REA}`
+            }
+        });
+    } catch (e) {
+        console.error(e);
+        return {
+            props: {
+                ssg: {
+                    sponsors: [],
+                },
+            },
+            // The page will be considered as stale and regenerated every 60 seconds.
+            revalidate: false,
+        };
+    }
+    const sponsors = response.viewer.sponsorshipsAsMaintainer.edges.map(({ node }) => node);
+
+    // See https://nextra.site/docs/guide/ssg
+    return {
+        props: {
+            ssg: {
+                sponsors,
+            },
+        },
+        // The page will be considered as stale and regenerated every 60 seconds.
+        revalidate: false,
+    };
+}
+
+export const SponsorsList = ({ sponsors }) => {
+    const sortedSponsors = sponsors
+        // Fill missing names with the login
+        .map(sponsor => {
+            sponsor.sponsorEntity.name = sponsor.sponsorEntity.name ?? sponsor.sponsorEntity.login;
+            return sponsor;
+        })
+        // Sport organizations first, then alphabetically by name second
+        .sort(({ sponsorEntity: a }, { sponsorEntity: b }) => {
+            // Same type
+            if (a.__typename === b.__typename) {
+                return a.name.localeCompare(b.name);
+            }
+            // Different types
+            return a.__typename === 'Organization' ? -1 : 1;
+        });
+    return <p>
+        {sortedSponsors.map(({ sponsorEntity, isOneTimePayment }) => (
+            <span className="flex justify-between hover:bg-gray-50" key={sponsorEntity.login}>
+                <span>
+                    {sponsorEntity.name}
+                    {isOneTimePayment && ' (one-time sponsor)'}
+                </span>
+                <span>
+                    {sponsorEntity.websiteUrl && (
+                        <a className="mr-2 !no-underline opacity-75 hover:opacity-100"
+                           href={sponsorEntity.websiteUrl}>
+                            🔗
+                        </a>
+                    )}
+                    {sponsorEntity.twitterUsername && (
+                        <a className="mr-2 !no-underline opacity-75 hover:opacity-100" rel="nofollow"
+                           href={`https://twitter.com/${sponsorEntity.twitterUsername}`}>
+                            <TwitterIcon className="inline w-4 h-4" />
+                        </a>
+                    )}
+                    <a className="!text-black !no-underline opacity-75 hover:opacity-100" rel="nofollow"
+                       href={`https://github.com/${sponsorEntity.login}`}>
+                        <GitHubIcon className="inline w-4 h-4" />
+                    </a>
+                </span>
+            </span>
+        ))}
+    </p>;
+};
+
+export const CurrentSponsors = () => {
+    const { sponsors } = useData();
+    return <SponsorsList sponsors={sponsors.filter(({ isActive }) => isActive)} />;
+};
+
+export const PastSponsors = () => {
+    const { sponsors } = useData();
+    return <SponsorsList sponsors={sponsors.filter(({ isActive }) => !isActive)} />;
+};
+
+# Credits
+
+## Current sponsors
+
+<CurrentSponsors />
+
+## Past sponsors
+
+<PastSponsors />

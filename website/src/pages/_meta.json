@@ -22,5 +22,12 @@
     "title": "Dashboard",
     "type": "page",
     "href": "https://dashboard.bref.sh/"
+  },
+  "credits": {
+    "type": "page",
+    "title": "Credits",
+    "display": "hidden",
+    "theme": {
+    }
   }
 }
