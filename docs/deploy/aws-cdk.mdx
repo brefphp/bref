@@ -27,7 +27,8 @@ export const getStaticProps = async ({ params }) => {
             })),
             ...(await buildDynamicMeta())
         },
-        revalidate: 10
+        // Don't update the page dynamically
+        revalidate: false,
     }
 }
 
