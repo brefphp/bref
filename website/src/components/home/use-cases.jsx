@@ -19,7 +19,7 @@ const features = [
     },
     {
         name: 'Job queues',
-        description: 'Run 1000 jobs with 1 worker in 1000 seconds, or with <strong>1000 workers</strong> in 1 second. It\'s just as simple and it costs the same. SQS provides batching, retries, and failure handling.'
+        description: 'Run 1000 jobs with 1 worker in 1000 seconds, or with <strong>1000 workers</strong> in 1 second. It\'s just as simple and it costs the same. SQS invokes your code directly, no long-running process to maintain.'
     },
     {
         name: 'Event-driven microservices',
