@@ -1,8 +1,6 @@
-import { useState } from 'react';
-
-export default function Invocations() {
-    const invocations = 16411284305;
-    const [counter, setCounter] = useState(invocations);
+export default function Invocations({ invocations }) {
+    // const invocations = 16411284305;
+    // const [counter, setCounter] = useState(invocations);
 
     // useEffect(() => {
     //     const timeout = setTimeout(() => {
@@ -17,7 +15,7 @@ export default function Invocations() {
         <div className="home-container home-section !py-12 sm:!py-16">
             <div className="relative isolate overflow-hidden bg-gray-900 px-6 py-16 text-center shadow-2xl sm:rounded-3xl sm:px-16">
                 <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight text-white sm:text-5xl">
-                    {counter.toLocaleString('en-US')}
+                    {invocations?.toLocaleString('en-US')}
                 </h2>
                 <p className="mx-auto mt-2 max-w-xl text-lg leading-8 text-gray-300">
                     requests, jobs, and messages handled with Bref in the <strong>last 30 days</strong>

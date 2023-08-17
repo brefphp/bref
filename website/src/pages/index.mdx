@@ -8,6 +8,28 @@ import Invocations from '../components/home/invocations';
 import UseCases from '../components/home/use-cases';
 import Sponsors from '../components/home/sponsors';
 import Intro from '../components/home/intro';
+import { useData } from 'nextra/data';
+import { getBrefInvocations } from '../aws/invocations';
+
+export async function getStaticProps() {
+    let invocations;
+    try {
+        invocations = await getBrefInvocations();
+    } catch (e) {
+        console.error(e);
+        invocations = 11700607900;
+    }
+    // See https://nextra.site/docs/guide/ssg
+    return {
+        props: {
+            ssg: {
+                invocations: invocations,
+            },
+        },
+        // The page will be considered as stale and regenerated every 60 seconds.
+        revalidate: 60,
+    };
+}
 
 <div className="relative isolate overflow-hidden bg-gradient-to-b from-blue-100/20">
     <div className="mx-auto max-w-7xl pb-24 pt-10 sm:pb-32 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:px-8 lg:py-24">
@@ -95,7 +117,7 @@ import Intro from '../components/home/intro';
     <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-white sm:h-32" />
 </div>
 
-<Invocations />
+<Invocations invocations={useData().invocations} />
 <Intro />
 <UseCases />
 <Sponsors />
