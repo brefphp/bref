@@ -15,7 +15,7 @@ const features = [
     },
     {
         name: 'Cron tasks',
-        description: 'Every day, every hour, every minute… Yes, The Cloud™ can do that.'
+        description: 'Every day, every hour, every minute… Run CLI scripts, Symfony Console commands, or the Laravel Scheduler.'
     },
     {
         name: 'Job queues',
