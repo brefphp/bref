@@ -19,15 +19,15 @@ These runtimes are used by the Laravel & Symfony framework integrations to run w
 
 The runtimes are available as AWS Lambda layers that you can use (explained below). They are also published as Docker images so that you can run your applications locally (more on that later).
 
-### Web apps
+### PHP-FPM runtime for web apps
 
 Name: `php-82-fpm`, `php-81-fpm`, and `php-80-fpm`.
 
 This runtime uses PHP-FPM to run **web applications** on AWS Lambda, like on a traditional server.
 
-It's **the easiest to start with**: it works like traditional PHP hosting and is compatible with Symfony and Laravel.
+It's **the easiest to start with**: it works like traditional PHP hosting and is compatible with Symfony, Laravel, and other frameworks.
 
-[Learn more about the FPM runtime](/docs/web-apps/index.md).
+[Learn more about the PHP-FPM runtime](./runtimes/fpm-runtime.mdx).
 
 ### Event-driven functions
 

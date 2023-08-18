@@ -1,13 +1,31 @@
 # HTTP applications
 
-## Binary requests and responses
+## Routing
 
-By default API Gateway **does not support binary HTTP requests or responses** like
-images, PDF, binary files… To achieve this, you need to enable the option for binary
-media types in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment
-variable:
+On AWS Lambda there is no Apache or Nginx. API Gateway acts as the webserver.
 
-```yaml
+The simplest API Gateway configuration is to send all incoming requests to our application:
+
+```yml filename="serverless.yml"
+        events:
+            - httpApi: '*'
+```
+
+You can look at more advanced API Gateway routing options in the [serverless documentation](https://www.serverless.com/framework/docs/providers/aws/events/http-api).
+
+## Assets
+
+Lambda and API Gateway are only used for executing code. Serving assets via PHP does not make sense as this would be a waste of resources and money.
+
+Deploying a website with assets (e.g. CSS, JavaScript, images) is covered in [the "Websites" documentation](./websites.md).
+
+In some cases however, you want to serve images (or other assets) via PHP. One example would be if you served generated images or PDFs via PHP. In those cases, read the [Binary requests and responses](#binary-requests-and-responses) section below.
+
+### Binary requests and responses
+
+By default, API Gateway **does not support binary HTTP requests or responses** like images, PDF, binary files… To achieve this, you need to enable the option for binary media types in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment variable:
+
+```yml filename="serverless.yml"
 provider:
     # ...
     apiGateway:
@@ -17,7 +35,25 @@ provider:
         BREF_BINARY_RESPONSES: '1'
 ```
 
-This will make API Gateway support binary file uploads and downloads, and Bref will
-automatically encode responses to base64 (which is what API Gateway now expects).
+This will make API Gateway support binary file uploads and downloads, and Bref will automatically encode responses to base64 (which is what API Gateway now expects).
 
-Be aware that the max upload and download size is 6MB. For larger files, use AWS S3. An example is available in [Serverless Visually Explained](https://serverless-visually-explained.com/).
+Be aware that the max upload and download size is **6MB**. For larger files, use AWS S3. An example is available in [Serverless Visually Explained](https://serverless-visually-explained.com/).
+
+## Cold starts
+
+AWS Lambda automatically destroys Lambda containers that have been unused for 10 minutes. Warming up a new container can take 250ms or more, especially if your application is large. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).
+
+To mitigate cold starts for HTTP applications, you can periodically send an event to your Lambda including a `{warmer: true}` payload. This will trigger the Lambda function. Bref recognizes this event and immediately responds with a `Status: 100` without executing your code.
+
+You can set up such events using a schedule ([read this article for more details](https://www.jeremydaly.com/lambda-warmer-optimize-aws-lambda-function-cold-starts/)):
+
+```yml filename="serverless.yml"
+        events:
+            - httpApi: '*'
+            - schedule:
+                rate: rate(5 minutes)
+                input:
+                    warmer: true
+```
+
+You can learn more how AWS Lambda scales and runs in the [Serverless Visually Explained](https://serverless-visually-explained.com/) course.
