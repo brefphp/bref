@@ -1,4 +1,5 @@
 {
+  "websites": "Websites",
   "http": "HTTP",
   "cron": "Cron tasks",
   "s3": "S3 file processing",

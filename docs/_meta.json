@@ -24,8 +24,8 @@
     "type": "separator",
     "title": "Learn more"
   },
-  "environment": "Environment",
   "use-cases": "Use cases",
+  "environment": "Environment",
   "upgrading": "Upgrading",
   "-- Learning": {
     "type": "separator",
