@@ -67,7 +67,7 @@ We can see the same result with a "Hello world" written in Symfony (4ms being th
 
 ### Bref for event-driven functions
 
-The [runtime for event-driven functions](/docs/runtimes/function.md) adds a small overhead:
+The [runtime for event-driven functions](/docs/runtimes/function.mdx) adds a small overhead:
 
 |                  | 128M  | 512M | 1024M | 2048M |
 |------------------|------:|-----:|------:|------:|

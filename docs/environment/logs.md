@@ -27,7 +27,7 @@ That means that you don't have to configure anything to log errors, warnings or 
 Your application can write logs to CloudWatch:
 
 - [Bref for web apps](/docs/web-apps/index.md): write logs to `stderr`
-- [Bref for event-driven functions](/docs/runtimes/function.md): write logs to `stdout` (using `echo` for example) or `stderr`
+- [Bref for event-driven functions](/docs/runtimes/function.mdx): write logs to `stdout` (using `echo` for example) or `stderr`
 
 For example with [Monolog](https://github.com/Seldaek/monolog):
 

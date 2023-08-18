@@ -1,0 +1,275 @@
+import { Callout, Tab, Tabs } from 'nextra/components';
+export const introduction = 'Run serverless event-driven PHP functions on AWS Lambda using Bref.';
+
+# PHP functions on AWS Lambda
+
+Bref's **"Event-driven function" runtime** lets you run PHP functions on AWS Lambda.
+
+Unlike the [PHP-FPM runtime](./fpm-runtime.mdx), the function runtime does not use PHP-FPM. Instead, it invokes your PHP code directly with the AWS Lambda event.
+
+Here is an example of a PHP Lambda function written as an anonymous function:
+
+```php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+return function ($event) {
+    return 'Hello ' . ($event['name'] ?? 'world');
+};
+```
+
+This form is very similar to lambdas written in other languages, [for example JavaScript](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-handler.html):
+
+```javascript
+exports.myHandler = async function (event, context) {
+   return "Hello " + event.name;
+}
+```
+
+Writing functions is very useful to process events and data from other AWS services.
+For example, this is perfect to implement **asynchronous workers, event handling, file processing**, etc. Plenty of examples are available in the "Use cases" section in the menu.
+
+<Callout>
+    If you are creating HTTP applications, the [PHP-FPM runtime](./fpm-runtime.mdx) is a simpler option.
+</Callout>
+
+## Usage
+
+To deploy a PHP function on AWS Lambda, use the `php-xx` runtime:
+
+```yaml
+service: app
+provider:
+    name: aws
+plugins:
+    - ./vendor/bref/bref
+functions:
+    hello:
+        handler: my-function.php
+        runtime: php-81
+```
+
+## PHP functions
+
+Functions that can run on Lambda can be an anonymous function or [any kind of callable supported by PHP](http://php.net/manual/en/language.types.callable.php).
+
+```php
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+return function ($event) {
+    return /* result */;
+};
+```
+
+The function:
+
+- takes an `$event` parameter which contains data from the event that triggered the function ([list of examples here](https://docs.aws.amazon.com/lambda/latest/dg/eventsources.html))
+- can optionally return a result: the result must be serializable to JSON
+
+There can only be one function returned per PHP file.
+
+### Context
+
+The function is invoked with the `$event` parameter as well as a `$context` parameter. This parameter can be optionally declared if you want to use it:
+
+```php
+<?php
+
+use Bref\Context\Context;
+
+require __DIR__ . '/vendor/autoload.php';
+
+return function ($event, Context $context) {
+    return /* result */;
+};
+```
+
+The `Context` object is inspired from the [`context` parameter in other languages](https://docs.aws.amazon.com/lambda/latest/dg/nodejs-prog-model-context.html) and provides information about the current lambda invocation (the request ID, the X-Ray trace ID, etc.).
+
+## PHP classes
+
+As mentioned above, Lambda handlers can be functions or any kind of callable supported by PHP. That means you can write them as PHP classes.
+
+The simplest option is to implement the `Bref\Event\Handler` interface. This is a generic interface to handle any kind of event.
+
+```php
+<?php
+
+use Bref\Context\Context;
+
+require __DIR__ . '/vendor/autoload.php';
+
+class Handler implements \Bref\Event\Handler
+{
+    public function handle($event, Context $context)
+    {
+        return 'Hello ' . $event['name'];
+    }
+}
+
+return new Handler();
+```
+
+Bref also provides more specific abstract classes that you can extend. These let you get type-hinted events with autocompletion and type safety.
+
+Explore the "**Use cases**" section in the left menu to learn more.
+
+### Autoloading
+
+As you can see in the example above, we define the class in the "handler" file, i.e. the same file where we `return new Handler()`.
+
+But we can perfectly move that class to another directory, Composer will autoload it as usual:
+
+```php filename="my-function.php"
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+// The class is stored in `src/` or `app/` and autoloaded by Composer
+return new \MyApp\Handler();
+```
+
+What is important is to configure `serverless.yml` to use the file that returns the handler:
+
+```yml filename="serverless.yml"
+# ...
+
+functions:
+    hello:
+        handler: my-function.php # the file that returns the handler
+```
+
+### DI container integration
+
+It is also possible to directly define PHP classes as AWS Lambda handlers.
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tab>
+        Set the class name as the `handler` and Bref will retrieve that class from Laravel's service container.
+
+        ```yml filename="serverless.yml"
+        functions:
+            hello:
+                handler: MyApp\Handler
+        ```
+    </Tab>
+    <Tab>
+        Set the class name as the `handler` and Bref will retrieve that class from Symfony's service container.
+
+        ```yml filename="serverless.yml"
+        functions:
+            hello:
+                handler: MyApp\Handler
+        ```
+    </Tab>
+    <Tab>
+        To achieve that, you must integrate Bref with your framework's Dependency Injection Container.
+
+        First, create a file (for example `init.php`) that calls `Bref::setContainer()`:
+
+        ```php
+        <?php
+        use Bref\Bref;
+
+        Bref::setContainer(function () {
+            // Retrieve the DI container from your application
+            $container = /* */;
+            // This should be an instance of a PSR-11 container
+            // i.e. it should implement ContainerInterface
+
+            return $container;
+        });
+        ```
+
+        Next, configure Composer to always load this file:
+
+        ```json filename="composer.json"
+        {
+            "autoload": {
+                "psr-4": {
+                    // ...
+                },
+                "files": [
+                    "init.php"
+                ]
+            },
+        }
+        ```
+
+        You can now set class names as the `handler` and Bref will retrieve that class from your service container.
+
+        ```yml filename="serverless.yml"
+        functions:
+            hello:
+                handler: MyApp\Handler
+        ```
+    </Tab>
+</Tabs>
+
+## Invocation
+
+A PHP function must be invoked via the AWS Lambda API, either manually or by integrating with other AWS services.
+
+<Callout>
+    If you instead want to write a classic **HTTP application**, use the [PHP-FPM runtime](./fpm-runtime.mdx) instead.
+</Callout>
+
+### CLI
+
+A PHP function can be triggered manually from the CLI using the [`serverless invoke` command](https://serverless.com/framework/docs/providers/aws/cli-reference/invoke/):
+
+```bash
+$ serverless invoke -f <function-name>
+# The function name is the one in serverless.yml, in our example that would be `hello`:
+$ serverless invoke -f hello
+"Hello world"
+```
+
+To pass event data to the lambda use the `--data` option. For example:
+
+```bash
+serverless invoke -f <function-name> --data='{"name": "John" }'
+```
+
+Run `serverless invoke --help` to learn more about the `invoke` command.
+
+### From PHP applications
+
+A PHP function can be triggered from another PHP application using the AWS PHP SDK:
+
+You first need to install the AWS PHP SDK by running
+
+```bash
+$ composer require aws/aws-sdk-php
+```
+
+```php
+$lambda = new \Aws\Lambda\LambdaClient([
+    'version' => 'latest',
+    'region' => '<region>',
+]);
+
+$result = $lambda->invoke([
+    'FunctionName' => '<function-name>',
+    'InvocationType' => 'RequestResponse',
+    'LogType' => 'None',
+    'Payload' => json_encode(/* event data */),
+]);
+
+$result = json_decode($result->get('Payload')->getContents(), true);
+```
+
+<Callout>
+    A lighter alternative to the official AWS PHP SDK is the [AsyncAws Lambda](https://async-aws.com/clients/lambda.html) package.
+</Callout>
+
+### From other AWS services
+
+Functions are perfect to react to events emitted by other AWS services.
+
+For example, you can write code that processes new SQS events, SNS messages, new uploaded files on S3, DynamoDb insert and update events, etc.
+
+Plenty of examples are available in the "Use cases" section in the menu, get started there!
