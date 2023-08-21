@@ -83,7 +83,7 @@ RUN mkdir -p ${BUILD_DIR}  \
 #   - php
 # Used By:
 #   - xml2
-ENV VERSION_ZLIB=1.2.13
+ENV VERSION_ZLIB=1.3
 ENV ZLIB_BUILD_DIR=${BUILD_DIR}/xml2
 
 RUN set -xe; \
