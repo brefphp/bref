@@ -1,6 +1,7 @@
 {
+  "http": "HTTP applications",
   "websites": "Websites",
-  "http": "HTTP",
+  "static-websites": "Static websites",
   "cron": "Cron tasks",
   "s3": "S3 file processing",
   "sqs": "SQS asynchronous tasks",

@@ -14,7 +14,7 @@ In this guide, you will learn how to set up assets for your serverless PHP websi
 
 Websites usually contain 2 parts:
 
-- PHP code, running on [AWS Lambda + API Gateway](/docs/web-apps/index.md)
+- PHP code, running on AWS Lambda + API Gateway (read the [HTTP applications](./http.mdx) guide)
 - static assets (CSS, JS…), [hosted on AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)
 
 To combine both, we can use [AWS CloudFront](https://aws.amazon.com/cloudfront/). CloudFront acts both as a CDN and as reverse proxy to route requests to PHP or assets on S3.
