@@ -11,7 +11,7 @@ import robmartinson from './testimonials/robmartinson.jpg';
 
 const testimonials = [
     {
-        body: 'Bref is excellent. We\'ve been running a Laravel app with it since 2020 and it\'s currently handling over 160 million requests per month without a hiccup.',
+        body: 'Bref is excellent. We\'ve been running a Laravel app with it since 2020 and it\'s currently handling over <strong>160 million requests</strong> per month without a hiccup.',
         author: {
             name: 'Neil Morgan',
             handle: 'neil-r-morgan',
@@ -29,7 +29,7 @@ const testimonials = [
         },
     },
     {
-        body: 'Bref has been a boon for running our customer\'s applications. We\'ve had a Laravel API on Bref for the last 12 months serve over 25M requests with an average response time of 50ms.',
+        body: 'Bref has been a boon for running our customer\'s applications. We\'ve had a Laravel API on Bref for the last 12 months serve over <strong>25 million requests</strong> with an average response time of 50ms.',
         author: {
             name: 'Paul Giberson',
             handle: 'HalasLabs',
@@ -47,7 +47,7 @@ const testimonials = [
         },
     },
     {
-        body: 'An incredible project and one we\'re very proud to use in production for a recent eCommerce project we launched that saw 32m Lambda invocations last month.',
+        body: 'An incredible project and one we\'re very proud to use in production for a recent eCommerce project we launched that saw <strong>32 million</strong> Lambda invocations last month.',
         author: {
             name: 'Aran Reeks',
             handle: 'AranReeks',
@@ -65,7 +65,7 @@ const testimonials = [
         },
     },
     {
-        body: 'Just finished migrating our production from Heroku to AWS Lambda via Bref. It\'ll save us around $2k a year 🤯',
+        body: 'Just finished migrating our production from Heroku to AWS Lambda via Bref. It\'ll save us around <strong>$2k a year</strong> 🤯',
         author: {
             name: 'Zach Malter',
             handle: 'zmalter99',
@@ -74,7 +74,7 @@ const testimonials = [
         },
     },
     {
-        body: 'When your production website with Symfony, API Platform and Bref handles more than 500 simultaneous connections without flinching…',
+        body: 'When your production website with Symfony, API Platform and Bref handles more than <strong>500 simultaneous connections</strong> without flinching…',
         author: {
             name: '$!m0n',
             handle: '__si_mon',
@@ -106,7 +106,7 @@ export default function Testimonials() {
                         <div key={testimonial.author.handle} className="pt-8 sm:inline-block sm:w-full sm:px-4">
                             <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6">
                                 <blockquote className="text-gray-900">
-                                    <p>{`“${testimonial.body}”`}</p>
+                                    <p dangerouslySetInnerHTML={{__html: `“${testimonial.body}”`}}></p>
                                 </blockquote>
                                 <figcaption className="mt-6 flex items-center gap-x-4">
                                     {testimonial.author.imageUrl ? (
