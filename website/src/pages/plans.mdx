@@ -1,0 +1,81 @@
+import Plans from '../components/plans/plans';
+
+<div className="py-24 sm:py-32">
+    <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <Plans/>
+
+        <div className="mt-12 mb-10 space-y-10 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0 lg:mx-auto lg:max-w-4xl xl:mx-0 xl:max-w-none">
+            <div className="text-gray-600">
+                <div>
+                    Bref Pro and Bref Enterprise are offered by <a className="link" href="https://null.tc">Null</a>, the company created by the author of Bref.
+                </div>
+                <div>
+                    Got any question about these plans?
+                    <a className="link" href="mailto:matthieu@bref.sh">Get in touch</a>.
+                </div>
+            </div>
+
+            <div className="col-span-2">
+
+                <div id="expert-support" className="flex">
+                    <div className="flex-grow-0 pr-6">
+                        <svg viewBox="0 0 24 24" className="w-10 fill-current text-blue-700">
+                            <rect width="24" height="24" fill="none" rx="0" ry="0"/>
+                            <path fillRule="evenodd" clipRule="evenodd" d="M1.99995 5C1.99995 3.89543 2.89538 3 3.99995 3H19.9999C21.1045 3 21.9999 3.89543 21.9999 5V15C21.9999 16.1046 21.1045 17 19.9999 17H14.4563L8.79008 21.0371C8.45908 21.2729 7.99995 21.0362 7.99995 20.6298V16.8C7.99995 16.4686 8.26858 16.2 8.59995 16.2C8.93132 16.2 9.19995 16.4686 9.19995 16.8V19.2563L13.9045 15.9348C13.9798 15.8816 14.0637 15.8483 14.1496 15.834C14.2121 15.812 14.2793 15.8 14.3493 15.8H15.1966H19.7999C20.3522 15.8 20.7999 15.3523 20.7999 14.8V5.2C20.7999 4.64772 20.3522 4.2 19.7999 4.2H4.19995C3.64766 4.2 3.19995 4.64771 3.19995 5.2V14.8C3.19995 15.3523 3.64767 15.8 4.19995 15.8H4.74844H5.39575C5.72712 15.8 5.99575 16.0686 5.99575 16.4C5.99575 16.7314 5.72712 17 5.39575 17H3.99995C2.89538 17 1.99995 16.1046 1.99995 15V5Z"/>
+                            <path fillRule="evenodd" clipRule="evenodd" d="M5 6.90005C5 6.56868 5.26863 6.30005 5.6 6.30005H11.4C11.7314 6.30005 12 6.56868 12 6.90005C12 7.23142 11.7314 7.50005 11.4 7.50005H5.6C5.26863 7.50005 5 7.23142 5 6.90005ZM10 9.90005C10 9.56868 10.2686 9.30005 10.6 9.30005H18.4C18.7314 9.30005 19 9.56868 19 9.90005C19 10.2314 18.7314 10.5 18.4 10.5H10.6C10.2686 10.5 10 10.2314 10 9.90005ZM5.6 9.30005C5.26863 9.30005 5 9.56868 5 9.90005C5 10.2314 5.26863 10.5 5.6 10.5H8.4C8.73137 10.5 9 10.2314 9 9.90005C9 9.56868 8.73137 9.30005 8.4 9.30005H5.6ZM5 12.9C5 12.5687 5.26863 12.3 5.6 12.3H9.4C9.73137 12.3 10 12.5687 10 12.9C10 13.2314 9.73137 13.5 9.4 13.5H5.6C5.26863 13.5 5 13.2314 5 12.9ZM11.6 12.3C11.2686 12.3 11 12.5687 11 12.9C11 13.2314 11.2686 13.5 11.6 13.5H15.4C15.7314 13.5 16 13.2314 16 12.9C16 12.5687 15.7314 12.3 15.4 12.3H11.6Z"/>
+                        </svg>
+                    </div>
+                    <div className="flex-grow mb-6">
+                        <div className="text-lg font-bold mb-1">
+                            Direct support, aka Matthieu-as-a-Service
+                        </div>
+                        <div className="text-gray-600">
+                            Provide your team with direct support from
+                            <a className="link" href="https://mnapoli.fr">Matthieu</a>,
+                            author of Bref,
+                            <a className="link" href="https://aws.amazon.com/developer/community/heroes/matthieu-napoli/">AWS Serverless Hero</a>,
+                            and former
+                            <a className="link" href="https://github.com/serverless/serverless">Serverless Framework product manager</a>.
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex">
+                    <div className="flex-grow-0 pr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-10 text-blue-700">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                        </svg>
+                    </div>
+                    <div className="flex-grow mb-6">
+                        <div className="text-lg font-bold mb-1">
+                            Self-hosted AWS Lambda runtimes
+                        </div>
+                        <div className="text-gray-600">
+                            Runtimes provided by the open-source project are served from the Bref AWS account.
+                            <br/>
+                            It works perfectly, but if your project or company policy requires full ownership of AWS Lambda runtimes, Bref Pro and Bref Enterprise help you publish the runtimes to your own AWS account.
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex">
+                    <div className="flex-grow-0 pr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-10 text-blue-700">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                        </svg>
+                    </div>
+                    <div className="flex-grow mb-6">
+                        <div className="text-lg font-bold mb-1">
+                            Tailored and optimized runtimes
+                        </div>
+                        <div className="text-gray-600">
+                            Bref Enterprise helps you optimize runtimes to your needs and comply with security standards and regulations.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

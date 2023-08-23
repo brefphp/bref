@@ -18,6 +18,13 @@
       "typesetting": "article"
     }
   },
+  "plans": {
+    "type": "page",
+    "title": "Plans",
+    "theme": {
+      "layout": "raw"
+    }
+  },
   "dashboard": {
     "title": "Dashboard",
     "type": "page",
