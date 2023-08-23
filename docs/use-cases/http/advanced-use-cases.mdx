@@ -3,7 +3,7 @@ import { Callout, Tab, Tabs } from 'nextra/components';
 # Advanced HTTP use-cases
 
 <Callout>
-    If you are getting started with Bref, read the guides for **Laravel** ([Get started](../laravel/getting-started.mdx)), **Symfony** ([Get started](../symfony/getting-started.mdx)), or other PHP frameworks ([Get started](../default/getting-started.mdx)).
+    If you are getting started with Bref, read the guides for **Laravel** ([Get started](../../laravel/getting-started.mdx)), **Symfony** ([Get started](../../symfony/getting-started.mdx)), or other PHP frameworks ([Get started](../../default/getting-started.mdx)).
 
     This documentation is for advanced use-cases.
 </Callout>
@@ -59,7 +59,7 @@ functions:
             - httpApi: '*'
 ```
 
-That works well with frameworks like Symfony or Laravel that have a single entrypoint (e.g. `public/index.php`) combined with the [PHP-FPM runtime](../runtimes/fpm-runtime.mdx).
+That works well with frameworks like Symfony or Laravel that have a single entrypoint (e.g. `public/index.php`) combined with the [PHP-FPM runtime](../../runtimes/fpm-runtime.mdx).
 
 You can look at more advanced API Gateway routing options in the [serverless documentation](https://www.serverless.com/framework/docs/providers/aws/events/http-api).
 
@@ -122,8 +122,8 @@ Learn more [in the Serverless Framework documentation](https://www.serverless.co
 
 There are two ways to handle HTTP events with PHP:
 
-- via the [PHP-FPM runtime](../runtimes/fpm-runtime.mdx) (simplest, this is Bref's default)
-- via the [Event-Driven Function runtime](../runtimes/function.mdx) (more advanced)
+- via the [PHP-FPM runtime](../../runtimes/fpm-runtime.mdx) (simplest, this is Bref's default)
+- via the [Event-Driven Function runtime](../../runtimes/function.mdx) (more advanced)
 
 Here is a full comparison between both approaches:
 
@@ -144,7 +144,7 @@ This is perfect for most use-cases: **PHP works like on any server** with PHP-FP
 
 This approach is already covered by most of the Bref documentation, so we won't go into details here.
 
-You can read more about [the PHP-FPM runtime here](../runtimes/fpm-runtime.mdx).
+You can read more about [the PHP-FPM runtime here](../../runtimes/fpm-runtime.mdx).
 
 ### With the Event-Driven Function runtime
 
@@ -153,7 +153,7 @@ This is more advanced, as PHP does not run in a traditional PHP-FPM environment.
 When used with a framework, understand that the whole HTTP stack (like HTTP middlewares) of the framework does not run. You are responsible for invoking the PHP code that should run.
 
 <Callout>
-    Note: this approach is used to run Laravel Octane or Symfony with a keep-alive process (like Roadrunner/Swoole). These use cases are not detailed here, read [about Laravel Octane](../laravel/octane.mdx) or [about Symfony Runtime](../symfony/keep-alive.mdx) instead.
+    Note: this approach is used to run Laravel Octane or Symfony with a keep-alive process (like Roadrunner/Swoole). These use cases are not detailed here, read [about Laravel Octane](../../laravel/octane.mdx) or [about Symfony Runtime](../../symfony/keep-alive.mdx) instead.
 </Callout>
 
 The `handler` must be a PHP function, or a PSR-15 implementation. Indeed, Bref natively supports the [PSR-15](https://www.php-fig.org/psr/psr-15/#2-interfaces) and [PSR-7](https://www.php-fig.org/psr/psr-7/) standards. Here is an example:
@@ -248,7 +248,7 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
 
 Since a handler is a controller for a specific route, we can use the API Gateway routing to deploy multiple functions:
 
-```yaml
+```yml filename="serverless.yml"
 functions:
     create-article:
         handler: App\CreateArticleController

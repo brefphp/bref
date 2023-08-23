@@ -23,7 +23,7 @@ To celebrate, we're finally releasing **Bref 1.0**!
 
 ## 1 billion executions per month
 
-Thanks to [Bref ping](/docs/runtimes/#bref-ping), we have an anonymous estimate of Bref's usage, i.e. the number of monthly invocations (HTTP requests, worker jobs, etc.) across all users.
+Thanks to [Bref ping](/docs/runtimes/runtimes-details#telemetry-ping), we have an anonymous estimate of Bref's usage, i.e. the number of monthly invocations (HTTP requests, worker jobs, etc.) across all users.
 
 It illustrates clearly that Bref is getting traction and is used in production, at scale:
 

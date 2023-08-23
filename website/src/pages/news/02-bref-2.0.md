@@ -10,7 +10,7 @@ socialCard: https://bref.sh/docs/news/02/social-card.png
 
 The work on what would be Bref 2.0 started in October 2021, about 1.5 year ago. We went through many different strategies, experiments, rewrites, over **700 commits** to finally land with the stable release.
 
-So far, Bref has been installed more than 2 million times and powers more than **10 billion Lambda executions** (aka requests) every month[*](https://bref.sh/docs/runtimes/#bref-ping).
+So far, Bref has been installed more than 2 million times and powers more than **10 billion Lambda executions** (aka requests) every month[*](https://bref.sh/docs/runtimes/runtimes-details#telemetry-ping).
 
 That's [1 in every 1000 AWS Lambda executions](https://twitter.com/matthieunapoli/status/1603032544424894464)!
 
@@ -132,7 +132,7 @@ _Note that it is possible to stay on the 1.x version of the Laravel bridge._
 
 Let's take the opportunity to send huge thanks to Till and George for building such an excellent integration, and for joining the Bref organization on GitHub 💙
 
-If you want to get started with Laravel on Bref, [check out the documentation](../docs/frameworks/laravel.md).
+If you want to get started with Laravel on Bref, [check out the documentation](../docs/laravel/getting-started.mdx).
 
 ## ARM/Graviton support
 
@@ -213,7 +213,7 @@ Here are the commands that have changed:
   
   No need to provide the handler file name anymore, we directly use the function name. The new `serverless bref:local` command has similar arguments as `serverless invoke`.
 
-  Read [the Local Development documentation](../docs/function/local-development.md) to learn more. You will also find alternatives if you don't use the `serverless` CLI.
+  Read [the Local Development documentation](../docs/local-development/event-driven-functions.mdx) to learn more. You will also find alternatives if you don't use the `serverless` CLI.
 
 - `vendor/bin/bref layers` is replaced by the simpler `serverless layers`.
 
@@ -251,7 +251,7 @@ In the example above, `GITHUB_TOKEN` will be deployed with the string `bref-ssm:
 
 This offers a more secure solution for teams that prefer to keep secrets as tight as possible.
 
-Read more about this new feature and secrets in general in the [Secrets documentation](../docs/environment/variables.md#at-runtime).
+Read more about this new feature and secrets in general in the [Secrets documentation](../docs/environment/variables.mdx#at-runtime).
 
 ## Simpler `docker-compose.yml` for local development
 
@@ -310,7 +310,7 @@ The `bref/fpm-dev-gateway` image is no longer needed, and code running in `bref/
 
 Bref 2.0 introduces basic support for the AWS CDK (NodeJS) via [PHP constructs](https://github.com/brefphp/constructs).
 
-In case you are not familiar with it, AWS CDK is bit more complex than `serverless.yml` to deploy serverless apps. These constructs will be useful to those actively looking to use the CDK with Bref.
+In case you are not familiar with it, AWS CDK is a bit more complex than `serverless.yml` to deploy serverless apps. These constructs will be useful to those actively looking to use the CDK with Bref.
 
 ## Rewritten internals
 
@@ -387,7 +387,7 @@ Hope you enjoy Bref v2!
 
 There is a complete [**v2 Upgrade Guide**](../docs/upgrading/v2.md) that you can follow.
 
-Head to the docs to [**get started with Bref**](../), or check out the documentation for [Laravel](../docs/frameworks/laravel.md) or [Symfony](../docs/frameworks/symfony.md).
+Head to the docs to [**get started with Bref**](../), or check out the documentation for [Laravel](../docs/laravel/getting-started.mdx) or [Symfony](../docs/symfony/getting-started.mdx).
 
 You can also join the community [in Slack](/docs/community.md), post details about your project in [Built with Bref](https://github.com/brefphp/bref/issues/267), or share your experience online and mention [@brefphp](https://twitter.com/brefphp) on Twitter.
 

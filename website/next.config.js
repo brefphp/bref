@@ -9,6 +9,14 @@ const withNextra = require('nextra')({
 module.exports = withNextra({
     // Redirect old .html links
     async redirects() {
+        const { redirects } = require('./redirects');
+        const redirectList = Object.entries(redirects)
+            .map(([source, destination]) => ({
+                source,
+                destination,
+                // TODO switch to true
+                permanent: false
+            }));
         return [
             {
                 source: '/docs/:path*.html',
@@ -17,6 +25,7 @@ module.exports = withNextra({
                 permanent: false,
                 // permanent: true,
             },
+            ...redirectList,
         ]
     },
 })
