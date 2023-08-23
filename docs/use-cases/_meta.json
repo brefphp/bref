@@ -10,5 +10,6 @@
   "sns": "SNS events",
   "dynamodb": "DynamoDB events",
   "kinesis": "Kinesis stream processing",
-  "kafka": "Kafka events"
+  "kafka": "Kafka events",
+  "custom-architecture": "Custom architecture"
 }
