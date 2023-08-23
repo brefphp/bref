@@ -1,16 +1,14 @@
----
-title: serverless.yml
-current_menu: serverless-yml
-introduction: Configure your application with the serverless.yml file.
----
+export const introduction = 'Configure your application with the serverless.yml file.';
+
+# serverless.yml
 
 Your application is deployed using the Serverless framework based on the `serverless.yml` configuration file.
 
-This page introduces a few advanced concepts of the `serverless.yml` format. You can learn in the [official Serverless documentation](https://serverless.com/framework/docs/providers/aws/).
+This page introduces a few advanced concepts of the `serverless.yml` format. You can learn more in the [official Serverless documentation](https://serverless.com/framework/docs/providers/aws/).
 
 ## Overview
 
-```yaml
+```yml filename="serverless.yml"
 service: app
 
 provider:
@@ -34,7 +32,7 @@ resources:
 
 ## Service
 
-```yaml
+```yml
 service: app
 ```
 
@@ -44,14 +42,14 @@ Since Serverless lets us deploy a project in [multiple stages](../deploy.mdx#sta
 
 ## Provider
 
-```yaml
+```yml
 provider:
     name: aws
 ```
 
 Bref only supports the `aws` provider, even though Serverless can deploy applications on other cloud providers like Google Cloud, Azure, etc.
 
-```yaml
+```yml
 provider:
     name: aws
     # The AWS region in which to deploy (us-east-1 by default)
@@ -199,19 +197,14 @@ resources:
         # ...
 ```
 
-### References
+### CloudFormation functions
 
-The CloudFormation `!Ref` syntax can be used. However the `${MyResource.Arn}` CloudFormation syntax cannot be used.
+The CloudFormation `!Ref`, `!GetAtt` and `!Sub` functions can be used.
 
-To solve this, the [serverless-pseudo-parameters plugin](https://github.com/svdgraaf/serverless-pseudo-parameters) can help. After installing it, you can reference other resources by replacing the `${...}` syntax with `#{...}` (because `${...}` is conflicting with [serverless.yml native variables](https://serverless.com/framework/docs/providers/aws/guide/variables/)).
+Here is an example where we define a S3 bucket and a policy that references it. It uses both the `!Ref MyBucket` and `!Sub '${MyBucket.Arn}'` syntaxes:
 
-Here is an example where we define a S3 bucket and a policy that references it. It uses both the `!Ref MyBucket` and `#{MyBucket.Arn}` syntaxes:
-
-```yaml
+```yml filename="serverless.yml"
 #...
-
-plugins:
-    - serverless-pseudo-parameters
 
 resources:
     Resources:
@@ -227,5 +220,5 @@ resources:
                         -   Effect: Allow
                             Principal: '*' # everyone
                             Action: s3:GetObject
-                            Resource: '#{MyBucket.Arn}/*'
+                            Resource: !Sub '${MyBucket.Arn}/*'
 ```

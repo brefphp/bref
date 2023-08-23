@@ -1,8 +1,6 @@
----
-title: Storage
-current_menu: storage
-introduction: Learn how to store data and files in serverless PHP applications running on AWS Lambda.
----
+export const introduction = 'Learn how to store data and files in serverless PHP applications running on AWS Lambda.';
+
+# Storage on AWS Lambda
 
 Here is a simplified overview of the filesystem on AWS Lambda:
 
@@ -30,13 +28,9 @@ Instead, data can be stored in [databases](/docs/environment/database.md) or in 
 
 ### S3 storage
 
-It is possible to deploy a S3 bucket in `serverless.yml` using the <a href="https://github.com/getlift/lift/blob/master/docs/storage.md">`Storage` feature of the Lift plugin</a>. For example:
+It is possible to deploy a S3 bucket in `serverless.yml` using the [`Storage` feature of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/storage.md). For example:
 
-```yaml
-# serverless.yml
-
-# ...
-
+```yml filename="serverless.yml"
 provider:
     environment:
         BUCKET_NAME: ${construct:reports-bucket.bucketName}
@@ -94,7 +88,7 @@ This solution is ideal for cache data that can change during the life of the app
 
 As any service, DynamoDB tables can be deployed via CloudFormation using the `resources` key in `serverless.yml`:
 
-```yaml
+```yml filename="serverless.yml"
 service: app
 ...
 
@@ -118,13 +112,13 @@ resources:
 We need to allow code in Lambda functions to access DynamoDB.
 We can also pass the table name as an environment variable to the application.
 
-```yaml
+```yml filename="serverless.yml"
 service: app
 provider:
     iam:
         role:
             statements:
-                - Effect: Allow
+                -   Effect: Allow
                     Resource: !GetAtt CacheTable.Arn
                     Action:
                         - dynamodb:DescribeTable

@@ -1,8 +1,8 @@
----
-title: Using PlanetScale with Bref on AWS Lambda
-current_menu: database-planetscale
-introduction: Configure Bref to use a PlanetScale database in your PHP application on AWS Lambda.
----
+import { Callout } from 'nextra/components';
+
+export const introduction = 'Configure Bref to use a PlanetScale database in your PHP application on AWS Lambda.';
+
+# Using PlanetScale with Bref on AWS Lambda
 
 [PlanetScale](https://planetscale.com/) is a hosted serverless MySQL database based on the Vitess engine ([learn more](https://planetscale.com/docs/concepts/what-is-planetscale)).
 
@@ -11,7 +11,7 @@ Amongst other features, it offers the following benefits compared to running a d
 - Simple to set up: no VPC (virtual private network) to set up, no instances to configure.
 - Runs [the Vitess clustering system](https://planetscale.com/blog/vitess-for-the-rest-of-us), which offers better scalability and supports a lot more concurrent connections [via built-in connection pooling](https://planetscale.com/blog/one-million-connections).
 - Offers a [free database in the Hobby plan](https://planetscale.com/pricing), and paid plans are usage-based.
-- Since it does not require a VPC, we do not need to set up and pay [for a NAT Gateway](database.md#accessing-the-internet).
+- Since it does not require a VPC, we do not need to set up and pay [for a NAT Gateway](database.mdx#accessing-the-internet).
 
 One extra feature worth mentioning is [the branching concept](https://planetscale.com/docs/concepts/branching): it enables testing schema changes before deploying them in production without downtime.
 
@@ -23,7 +23,9 @@ Then, create a database in the same region as your Bref application.
 
 ![](./database/planetscale-create.png)
 
-> The database is created with an initial development branch: `main`. PlanetScale [has a branching concept](https://planetscale.com/docs/concepts/branching) that lets you test schema changes in a development branch, then promote it to production, or even create new branches (isolated copies of the production schema) off of production to use for development.
+<Callout>
+    The database is created with an initial development branch: `main`. PlanetScale [has a branching concept](https://planetscale.com/docs/concepts/branching) that lets you test schema changes in a development branch, then promote it to production, or even create new branches (isolated copies of the production schema) off of production to use for development.
+</Callout>
 
 You can now click the **Connect** button and select "Connect with: PHP (PDO)". That will let you retrieve the host, database name, user and password.
 
@@ -51,13 +53,15 @@ In Bref, the file is located here: `/opt/bref/ssl/cert.pem`.
 
 ## Laravel
 
-_This guide assumes you have already set up a Laravel application by following [the Bref documentation for Laravel](../laravel/getting-started.mdx)._
+<Callout>
+    This guide assumes you have already set up a Laravel application by following [the Bref documentation for Laravel](../laravel/getting-started.mdx).
+</Callout>
 
 To configure Laravel to use the PlanetScale database, you need to set it up via environment variables.
 
 If you deploy a `.env` file, set up the following variables:
 
-```bash
+```bash filename=".env"
 DB_CONNECTION=mysql
 DB_HOST=<host url>
 DB_PORT=3306
@@ -70,7 +74,7 @@ MYSQL_ATTR_SSL_CA=/opt/bref/ssl/cert.pem
 
 If you don't deploy the `.env` file, you can configure the variables in `serverless.yml`:
 
-```yaml
+```yml filename="serverless.yml"
 provider:
     # ...
     environment:
@@ -82,7 +86,7 @@ provider:
         MYSQL_ATTR_SSL_CA: /opt/bref/ssl/cert.pem
 ```
 
-Note that the `DB_PASSWORD` value is sensitive and can be set up as a secret via SSM. Read about [Secret variables](./variables.md#secrets) to learn more.
+Note that the `DB_PASSWORD` value is sensitive and can be set up as a secret via SSM. Read about [Secret variables](./variables.mdx#secrets) to learn more.
 
 Don't forget to deploy the changes:
 
@@ -102,7 +106,9 @@ That's it! Our database is ready to use.
 
 ## Symfony
 
-_This guide assumes you have already set up a Symfony application by following [the Bref documentation for Symfony](../symfony/getting-started.mdx)._
+<Callout>
+    This guide assumes you have already set up a Symfony application by following [the Bref documentation for Symfony](../symfony/getting-started.mdx).
+</Callout>
 
 First, make sure you have installed Doctrine, or [follow these docs to do so](https://symfony.com/doc/current/doctrine.html#installing-doctrine).
 
@@ -110,24 +116,24 @@ To configure Symfony to use the PlanetScale database, you need to set it up via 
 
 If you deploy a `.env` file, set up the following variables:
 
-```bash
+```bash filename=".env"
 DATABASE_URL="mysql://<USERNAME>:<PASSWORD>@<HOST_URL>:3306/<DATABASE_NAME>?serverVersion=8.0"
 ```
 
 If you don't deploy the `.env` file, you can configure the variables in `serverless.yml`:
 
-```yaml
+```yml filename="serverless.yml"
 provider:
     # ...
     environment:
         DATABASE_URL: ${ssm:/my-app/database-url}
 ```
 
-Note that the `DATABASE_URL` value is sensitive and can be set up as a secret via SSM. Read about [Secret variables](./variables.md#secrets) to learn more.
+Note that the `DATABASE_URL` value is sensitive and can be set up as a secret via SSM. Read about [Secret variables](./variables.mdx#secrets) to learn more.
 
 Finally, edit the `config/packages/doctrine.yaml` configuration file to set up [the SSL connections](https://planetscale.com/docs/concepts/secure-connections):
 
-```yaml
+```yml filename="config/packages/doctrine.yaml" {6}
 doctrine:
     dbal:
         url: '%env(resolve:DATABASE_URL)%'
@@ -182,14 +188,14 @@ mysqldump -u <user> -p<password> -h <hostname> --set-gtid-purged=OFF --no-tables
 
 Next, edit `schema.sql` to remove all foreign key constraints ([learn more](https://planetscale.com/docs/learn/operating-without-foreign-key-constraints)), for example:
 
-```diff
+```diff filename="schema.sql"
 CREATE TABLE products (
   id INT NOT NULL,
   category_id INT,
   PRIMARY KEY (id),
-+ KEY category_id_idx (category_id)
 - KEY category_id_idx (category_id),
 - CONSTRAINT `category_fk` FOREIGN KEY (category_id) REFERENCES category(id)
++ KEY category_id_idx (category_id)
 );
 ```
 
@@ -262,7 +268,7 @@ serverless deploy --stage=prod
 
 You want each "stage" of our application to connect to a different PlanetScale branch. You can achieve that in `serverless.yml` via [stage parameters](https://www.serverless.com/framework/docs/guides/parameters#stage-parameters):
 
-```yaml
+```yml filename="serverless.yml"
 provider:
     # ...
     environment:

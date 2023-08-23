@@ -1,0 +1,13 @@
+{
+  "serverless-yml": "serverless.yml",
+  "variables": "Environment variables",
+  "php": "",
+  "storage": "",
+  "logs": "",
+  "database": "Databases",
+  "database-planetscale": "Databases - PlanetScale",
+  "database-public": {
+    "display": "hidden"
+  },
+  "performances": "Performance"
+}

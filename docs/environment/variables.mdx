@@ -1,8 +1,8 @@
----
-title: Environment variables
-current_menu: variables
-introduction: Define environment variables for your Bref application.
----
+import { Callout } from 'nextra/components';
+
+export const introduction = 'Define environment variables for your Bref application.';
+
+# Environment variables
 
 Environment variables are the perfect solution to configure the application (as recommended in the [12 factor guide](https://12factor.net/config)).
 
@@ -12,7 +12,7 @@ Environment variables can be defined in `serverless.yml`.
 
 To define an environment variable that will be available in **all functions** declare it in the `provider` section:
 
-```yaml
+```yml filename="serverless.yml"
 provider:
     # ...
     environment:
@@ -21,7 +21,7 @@ provider:
 
 To define an environment variable that will be available in **a specific function** declare it inside the function's properties:
 
-```yaml
+```yml filename="serverless.yml"
 functions:
     foo:
         # ...
@@ -29,7 +29,9 @@ functions:
             MY_VARIABLE: 'my value'
 ```
 
-> Do not store secret values in `serverless.yml` directly. Check out the next section to handle secrets.
+<Callout type="warning">
+    Do not store secret values in `serverless.yml` directly. Check out the next section to handle secrets.
+</Callout>
 
 ## Secrets
 
@@ -49,7 +51,8 @@ You can also do it in the CLI via the following command:
 aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
 ```
 
-For Windows users, the first part of the path needs to be double slashes and all subsequent forward slashes changed to backslashes:
+On Windows, the first part of the path needs to be double slashes and all subsequent forward slashes changed to backslashes:
+
 ```bash
 aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type String --value 'mysecretvalue'
 ```
@@ -67,7 +70,7 @@ You can inject a secret in an environment variable:
 
 Use the [`${ssm:<parameter>}` syntax](https://serverless.com/blog/serverless-secrets-api-keys/) to have the variable be replaced by the secret value on deployment:
 
-```yaml
+```yml filename="serverless.yml"
 provider:
     # ...
     environment:
@@ -90,13 +93,13 @@ Disadvantages:
 
 Alternatively, Bref can fetch the secret values at runtime when the Lambda function starts (aka the "cold start"). To use that feature, we **must install** the `bref/secrets-loader` package:
 
-```
+```bash
 composer require bref/secrets-loader
 ```
 
 To use it, the environment variable should contain the path to the SSM parameter prefixed with `bref-ssm:`. We also need to authorize Lambda to retrieve the parameter. For example:
 
-```yaml
+```yml filename="serverless.yml"
 provider:
     # ...
     environment:

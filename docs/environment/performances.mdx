@@ -1,8 +1,8 @@
----
-title: Performance
-current_menu: performances
-introduction: Performance tuning and optimizations for serverless PHP applications on AWS Lambda.
----
+import { Callout } from 'nextra/components';
+
+export const introduction = 'Performance tuning and optimizations for serverless PHP applications on AWS Lambda.';
+
+# Performance
 
 This article sums up what to expect in terms of performance and how to optimize serverless PHP applications. The benchmarks included in this page can be reproduced via [the code on GitHub](https://github.com/brefphp/benchmarks).
 
@@ -18,7 +18,7 @@ From 64M to 1,792M, applications run with up to one CPU (1,792M gives 1 full CPU
 
 To customize the amount of memory, set the `memorySize` option in `serverless.yml`:
 
-```yaml
+```yml filename="serverless.yml" {5}
 functions:
     foo:
         handler: index.php
@@ -28,7 +28,7 @@ functions:
 
 In the benchmark below, we run [PHP's official `bench.php` script](https://github.com/php/php-src/blob/master/Zend/bench.php). This script is CPU-intensive.
 
-|                  | 128M  | 512M | 1024M | 2048M |
+|                  |  128M | 512M | 1024M | 2048M |
 |------------------|------:|-----:|------:|------:|
 | Execution time   |  5.7s | 1.4s | 0.65s | 0.33s |
 
@@ -53,7 +53,7 @@ The [FPM runtime for web apps](/docs/web-apps/index.md) **does not add overhead 
 
 Here are execution times for an empty PHP application:
 
-|                  | 128M  | 512M | 1024M | 2048M |
+|                  |  128M | 512M | 1024M | 2048M |
 |------------------|------:|-----:|------:|------:|
 | Execution time   |  10ms |  1ms |   1ms |   1ms |
 
@@ -61,7 +61,7 @@ Unless we use a particularly slow lambda (see the previous section, 128M is not 
 
 We can see the same result with a "Hello world" written in Symfony (4ms being the minimum execution time of the framework):
 
-|                  | 128M  | 512M | 1024M | 2048M |
+|                  |  128M | 512M | 1024M | 2048M |
 |------------------|------:|-----:|------:|------:|
 | Execution time   |  58ms |  4ms |   4ms |   4ms |
 
@@ -69,7 +69,7 @@ We can see the same result with a "Hello world" written in Symfony (4ms being th
 
 The [runtime for event-driven functions](/docs/runtimes/function.mdx) adds a small overhead:
 
-|                  | 128M  | 512M | 1024M | 2048M |
+|                  |  128M | 512M | 1024M | 2048M |
 |------------------|------:|-----:|------:|------:|
 | Execution time   | 175ms | 35ms |  16ms |  13ms |
 
@@ -78,7 +78,7 @@ Since this runtime is often used in asynchronous scenarios (for example, process
 This overhead is caused by the PHP executable starting for every new invocation.
 We can skip that overhead by keeping the PHP process alive:
 
-```yaml
+```yml filename="serverless.yml" {5}
 functions:
     hello:
         # ...
@@ -90,7 +90,9 @@ In the example above, the PHP process will restart only every 100 invocations, r
 
 In that case, be careful with clearing in-memory data between every event.
 
-> Note: the PHP process will be restarted in case of a failed invocation (PHP exception thrown in the handler).
+<Callout>
+    Note: the PHP process will be restarted in case of a failed invocation (PHP exception thrown in the handler).
+</Callout>
 
 ## Cold starts
 
@@ -108,7 +110,7 @@ On small websites, cold starts can be avoided by pinging the application regular
 
 While the memory size has no impact, the codebase size can increase the cold start duration. When deploying, remember to exclude assets, images, tests and any extra file in `serverless.yml`:
 
-```yaml
+```yml filename="serverless.yml"
 package:
     patterns:
         - '!assets/**'
@@ -117,8 +119,4 @@ package:
         - ...
 ```
 
-Read more about this [in the serverless.yml documentation](serverless-yml.md#exclusions).
-
-> **A note on VPC cold starts**
->
-> Running a function inside a VPC used to induce a cold start of several seconds. This is no longer the case since October 2019.
+Read more about this [in the serverless.yml documentation](serverless-yml.mdx#exclusions).

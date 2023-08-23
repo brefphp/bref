@@ -1,8 +1,8 @@
----
-title: Using a database
-current_menu: database
-introduction: Configure Bref to use a database in your PHP application on AWS Lambda.
----
+import { Callout } from 'nextra/components';
+
+export const introduction = 'Configure Bref to use a database in your PHP application on AWS Lambda.';
+
+# Using a database
 
 AWS offers the [RDS](https://aws.amazon.com/rds/) service to run MySQL and PostgreSQL databases.
 
@@ -13,28 +13,30 @@ Here are some of the database services offered by RDS:
 - [Aurora MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/): closed-source database with MySQL/PostgreSQL compatibility
 - [Aurora Serverless MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/serverless/): similar to Aurora but scales automatically on-demand
 
-> Aurora Serverless can be configured to scale down to 0 instances when unused (which costs $0), however be careful with this option: the database can take up to 30 seconds to un-pause.
+<Callout>
+    Aurora Serverless v1 can be configured to scale down to 0 instances when unused (which costs $0), however be careful with this option: the database can take up to 30 seconds to un-pause. Aurora Serverless v2 cannot scale down to 0 instances.
+</Callout>
 
 All RDS databases can be setup with Lambda in two ways:
 
 1. the database can be made publicly accessible and protected by a username and password
 2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/vpc/))
 
-> Note that Aurora Serverless [cannot be made publicly accessible](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html), only the second option is possible.
+<Callout>
+    Aurora Serverless [cannot be made publicly accessible](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html), only the second option is possible.
+</Callout>
 
 While the first solution is simpler, the second is more secure. Using a VPC also comes with a few limitations that are detailed below.
 
 This page documents how to create databases using VPC (the reliable and secure solution). If you want to skip using a VPC you can read the instructions in the "Accessing the database from your machine" section.
 
-> If you use Aurora Serverless, you can also use the [RDS Data API](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/data-api.html). SQL queries are executed through an HTTP API instead of the traditional MySQL/PostgreSQL connection. To help you, the [dbal-rds-data](https://github.com/Nemo64/dbal-rds-data) library is a Doctrine DBAL driver. Please note that the library and the API itself are new and experimental.
-
 ## Accessing the internet
 
-> <strong class="text-xl">⚠️ WARNING ⚠️</strong>
->
-> If your Lambda function has **timeouts**, please read this section.
->
-> If you plan on using a database, please read this section.
+<Callout type="warning">
+    If your Lambda function has **timeouts**, please read this section.
+
+    If you plan on using a database, please read this section.
+</Callout>
 
 A database inside a [VPC](https://aws.amazon.com/vpc/) is isolated from the internet. Lambda must run in the VPC to access the database, but it will lose access the internet (for example external APIs, and other AWS services).
 
@@ -46,9 +48,9 @@ Because of that, you may see errors like this:
 
 > Task timed out after 28 seconds
 
-To restore internet access for a lambda you will need to create a NAT Gateway in the VPC: you can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12), use [the serverless VPC plugin](https://github.com/smoketurner/serverless-vpc-plugin), or use the complete example in [Serverless Visually Explained](https://serverless-visually-explained.com/).
+To restore internet access for a lambda you need to create a NAT Gateway in the VPC. This cannot be solved via security group or subnet configuration, only a NAT Gateway can solve this. You can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12), use [the serverless VPC plugin](https://github.com/smoketurner/serverless-vpc-plugin), or use the complete example in [Serverless Visually Explained](https://serverless-visually-explained.com/).
 
-Watch out, a NAT Gateway will increase costs (starts at $27 per month). Note that you can use one VPC and one NAT Gateway for multiple projects.
+Watch out, a NAT Gateway will increase costs (starts at $27 per month). Note that you can use one VPC and one NAT Gateway for multiple projects. To reduce costs, you can also use [a NAT instance](https://fck-nat.dev/) (starts at $3 per month).
 
 When possible, an alternative to NAT Gateways is to split the work done by a lambda in 2 lambdas: one in the VPC that accesses the database and one outside that accesses the external API. But that's often hard to implement in practice.
 
@@ -56,7 +58,7 @@ Finally, another free alternative to NAT Gateway is to access AWS services by cr
 
 ## Creating a database
 
-On the [RDS console](https://console.aws.amazon.com/rds/home):
+In the [RDS console](https://console.aws.amazon.com/rds/home):
 
 - click "Create database"
 - select the type of database you want to create and fill in the form
@@ -72,26 +74,28 @@ Tips to better control costs:
 
 To retrieve the information needed to let AWS Lambda access the database go into [the RDS dashboard](https://console.aws.amazon.com/rds/home#databases:) (or the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref)) and open the database you created.
 
-> It may take some minutes for the database to be created.
+<Callout>
+    It may take a few minutes for the database to be created.
+</Callout>
 
 Find:
 
-- the "endpoint", which is the hostname of the database (this information is available only after the database creation has completed)
+- The "endpoint", which is the hostname of the database (this information is available only after the database creation has completed)
 
     ℹ️ Instead of connecting via a socket, via `localhost` or an IP address, PHP will connect to MySQL via this hostname.
-- the "security group ID" (in the "VPC security groups" section), which looks like `sg-03f68e1100481622b`
+- The "security group ID" (in the "VPC security groups" section), which looks like `sg-03f68e1100481622b`
 
     ℹ️ A [security group](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html) is a firewall that restricts access to/from the VPC using "Inbound rules" and "Outbound rules".
-- the list of "subnets", which look like `subnet-12f4130e` (there are several subnets)
+- The list of "subnets", which look like `subnet-12f4130e` (there are several subnets)
 
     ℹ️ An AWS region is divided in [availability zones](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html) (different data centers): there is usually one subnet per availability zone.
 
 Put these information in `serverless.yml` in your function configuration ([read more about this in the Serverless documentation](https://serverless.com/framework/docs/providers/aws/guide/functions/#vpc-configuration)):
 
-```yaml
+```yml filename="serverless.yml"
 functions:
     hello:
-        ...
+        # ...
         vpc:
             securityGroupIds:
                 - sg-03f68e1100481622b
@@ -117,9 +121,9 @@ For example a PDO connection string could be:
 mysql://user:password@dbname.e2sctvp0nqos.us-east-1.rds.amazonaws.com/dbname
 ```
 
-To learn how to properly store this connection string in your configuration head over to the ["Secrets" section of the Variables documentation](/docs/environment/variables.md#secrets).
+To learn how to properly store this connection string in your configuration head over to the ["Secrets" section of the Variables documentation](/docs/environment/variables.mdx#secrets).
 
-Also refer to the [Extensions](/docs/environment/php.md#extensions) section to see if you need to enable any database-specific extensions.
+Also refer to the [Extensions](/docs/environment/php.mdx#extensions) section to see if you need to enable any database-specific extensions.
 
 ### Learn more
 

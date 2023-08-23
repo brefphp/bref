@@ -1,10 +1,8 @@
----
-title: Logs
-current_menu: logs
-introduction: Learn how to write and read PHP logs on AWS Lambda using Bref.
----
+export const introduction = 'Learn how to write and read PHP logs on AWS Lambda using Bref.';
 
-As explained in the [storage documentation](storage.md), the filesystem on AWS Lambda is:
+# Logs
+
+As explained in the [storage documentation](./storage.mdx), the filesystem on AWS Lambda is:
 
 - read-only, except for `/tmp`
 - not shared between lambda instances
@@ -26,8 +24,8 @@ That means that you don't have to configure anything to log errors, warnings or 
 
 Your application can write logs to CloudWatch:
 
-- [Bref for web apps](/docs/web-apps/index.md): write logs to `stderr`
-- [Bref for event-driven functions](/docs/runtimes/function.mdx): write logs to `stdout` (using `echo` for example) or `stderr`
+- [With the PHP-FPM runtime for web apps](../runtimes/fpm-runtime.mdx): write logs to `stderr`
+- [With the runtime for event-driven functions](../runtimes/function.mdx): write logs to `stdout` (using `echo` for example) or `stderr`
 
 For example with [Monolog](https://github.com/Seldaek/monolog):
 
