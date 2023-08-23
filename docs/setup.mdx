@@ -1,6 +1,4 @@
-import { Steps } from 'nextra/components';
-import { Callout } from 'nextra/components';
-import { Cards, Card } from 'nextra/components';
+import { Callout, Steps, Cards, Card } from 'nextra/components';
 // Path relative to the copy in the `website/` folder
 import { LaravelIcon } from '../../components/icons/LaravelIcon';
 import { SymfonyIcon } from '../../components/icons/SymfonyIcon';
@@ -21,17 +19,23 @@ To use Bref, you will need an AWS account and the `serverless` CLI. Let's get st
 
     ### Serverless CLI
 
-    Bref relies on the [Serverless framework](https://serverless.com/) and AWS access keys to deploy applications. You will need to:
+    Bref relies on the [Serverless framework](https://serverless.com/) and AWS access keys to deploy applications. You will need to install the `serverless` CLI ([more details here](https://serverless.com/framework/docs/providers/aws/guide/quick-start/)):
 
-    - Install the `serverless` command ([more details here](https://serverless.com/framework/docs/providers/aws/guide/quick-start/)):
+    ```bash
+    npm install -g serverless
+    ```
 
-        ```bash
-        npm install -g serverless
-        ```
+    Bref is compatible with Serverless Framework v3 (current version).
 
-        <Callout type="info">Bref is compatible with Serverless Framework v3 (current version).</Callout>
+    ### AWS credentials
 
-    - [Create AWS access keys](/docs/setup/aws-keys.md)
+    Finally, we need AWS credentials so that the `serverless` CLI can deploy to AWS.
+
+    <Callout type="info">
+        If you have already set up AWS credentials on your machine (for example if you use the `aws` CLI), you can skip this step.
+    </Callout>
+
+    - [Create AWS access keys](/docs/setup/aws-keys.mdx)
 
     - Set up those keys by running:
 
@@ -39,7 +43,14 @@ To use Bref, you will need an AWS account and the `serverless` CLI. Let's get st
         serverless config credentials --provider aws --key "key" --secret "secret"
         ```
 
-        If you already use the `aws` CLI command, or if you want to use environment variables instead (for example for a shared server like a CI) you can [read the full guide](https://serverless.com/framework/docs/providers/aws/guide/credentials#using-aws-access-keys).
+        This will store the credentials in `~/.aws/credentials` (the [official file for AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)). This is the same as running the `aws configure` command with the `aws` CLI.
+
+        Alternatively (for example in CI/CD), you can store credentials in environment variables:
+
+        ```bash
+        export AWS_ACCESS_KEY_ID=key
+        export AWS_SECRET_ACCESS_KEY=secret
+        ```
 
 </Steps>
 

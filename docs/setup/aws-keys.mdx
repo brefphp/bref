@@ -1,6 +1,6 @@
----
-introduction: How to create AWS access keys for Bref.
----
+import { Callout } from 'nextra/components';
+
+export const introduction = 'How to create AWS access keys for Bref';
 
 # Creating AWS access keys
 
@@ -16,9 +16,9 @@ To create AWS access key for Bref and the `serverless` CLI tool follow these ste
 
     ![](./aws-keys-step-2.png)
 
-    > **Warning**: the "AdministratorAccess" policy grants full access to your AWS account. This is simpler when starting with AWS and Bref. However, it is recommended to restrict permissions further eventually.
-    >
-    > The Serverless documentation has an example of a configuration with stricter permissions: [read this article to create a more secure policy](https://serverless.com/framework/docs/providers/aws/guide/credentials/#creating-aws-access-keys).
+    <Callout type="warning">
+        The "AdministratorAccess" policy grants full access to your AWS account. This is simpler when starting with AWS and Bref. However, it is recommended to restrict permissions further eventually. Here is an example of an [IAM policy with stricter permissions](./minimal-aws-policy.mdx).
+    </Callout>
 
 1. Finish creating the user.
 
