@@ -1,6 +1,6 @@
 import { CheckIcon } from '@heroicons/react/20/solid';
 
-const features = [
+const simpleUseCases = [
     {
         name: 'Websites',
         description: 'Run PHP websites with your favorite framework (or none), with a worldwide CDN and your custom domain.'
@@ -17,6 +17,9 @@ const features = [
         name: 'Cron tasks',
         description: 'Every day, every hour, every minute… Run CLI scripts, Symfony Console commands, or the Laravel Scheduler.'
     },
+];
+
+const advancedUseCases = [
     {
         name: 'Job queues',
         description: 'Run 1000 jobs with 1 worker in 1000 seconds, or with <strong>1000 workers</strong> in 1 second. It\'s just as simple and it costs the same. SQS invokes your code directly, no long-running process to maintain.'
@@ -49,15 +52,31 @@ export default function UseCases() {
                         Except it scales (almost) infinitely and you don't maintain the infrastructure.<br/>
                         Lift-and-shift existing apps or build new ones with your favorite framework.
                     </p>
-                    <p className="mt-6 text-base leading-7 text-gray-600">
-                        Or go the extreme opposite: build cloud-native {' '}<strong>event-driven microservices</strong> with infinitely scalable cloud services like SQS and EventBridge.
+                </div>
+                <dl className="col-span-2 grid grid-cols-1 gap-x-8 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:gap-y-16">
+                    {simpleUseCases.map((feature) => (
+                        <div key={feature.name} className="relative pl-9">
+                            <dt className="font-semibold text-gray-900">
+                                <CheckIcon className="absolute left-0 top-1 h-5 w-5 text-blue-500"
+                                           aria-hidden="true" />
+                                {feature.name}
+                            </dt>
+                            <dd className="mt-2" dangerouslySetInnerHTML={{ __html: feature.description }}></dd>
+                        </div>
+                    ))}
+                </dl>
+            </div>
+            <div className="mt-16 sm:mt-20 mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+                <div>
+                    <p className="text-base leading-7 text-gray-600">
+                        Or go the extreme opposite: build {' '}<strong>event-driven microservices</strong> with infinitely scalable cloud services like SQS and EventBridge.
                     </p>
                     <p className="mt-6 text-base leading-7 text-gray-600">
                         Or anything in between, that works too.
                     </p>
                 </div>
                 <dl className="col-span-2 grid grid-cols-1 gap-x-8 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:gap-y-16">
-                    {features.map((feature) => (
+                    {advancedUseCases.map((feature) => (
                         <div key={feature.name} className="relative pl-9">
                             <dt className="font-semibold text-gray-900">
                                 <CheckIcon className="absolute left-0 top-1 h-5 w-5 text-blue-500"
