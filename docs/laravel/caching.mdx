@@ -12,7 +12,7 @@ DynamoDB is the easiest to set up and is "pay per use". Redis is a bit more comp
 
 To use DynamoDB as a cache store, set the following lines in `config/cache.php`:
 
-```yml filename="config/cache.php" {8-11}
+```php filename="config/cache.php" {8-11}
     'dynamodb' => [
         'driver' => 'dynamodb',
         'key' => env('AWS_ACCESS_KEY_ID'),
