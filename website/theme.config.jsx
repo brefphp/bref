@@ -1,15 +1,15 @@
 // https://nextra.site/docs/docs-theme/theme-configuration
 import { useRouter } from 'next/router';
+import { AnimatedLogo } from './src/components/AnimatedLogo';
 
 export default {
-    logo: <span>bref</span>,
+    logo: <AnimatedLogo className="h-8" />,
     docsRepositoryBase: 'https://github.com/brefphp/bref/blob/main',
     project: {
         link: 'https://github.com/brefphp/bref'
     },
     useNextSeoProps() {
         const { asPath } = useRouter();
-        console.log(asPath);
         if (asPath !== '/') {
             return {
                 titleTemplate: '%s – Bref',
