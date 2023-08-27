@@ -1,5 +1,6 @@
 {
   "index": "What is Bref and serverless?",
+  "cost-calculator": "Costs calculator",
   "-- Getting started": {
     "type": "separator",
     "title": "Getting started"
