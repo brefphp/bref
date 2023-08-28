@@ -54,7 +54,7 @@ Watch out, a NAT Gateway will increase costs (starts at $27 per month). Note tha
 
 When possible, an alternative to NAT Gateways is to split the work done by a lambda in 2 lambdas: one in the VPC that accesses the database and one outside that accesses the external API. But that's often hard to implement in practice.
 
-Finally, another free alternative to NAT Gateway is to access AWS services by creating "*private VPC endpoints*": this is possible for S3, API Gateway, [and more](https://docs.aws.amazon.com/en_pv/vpc/latest/userguide/vpc-endpoints-access.html).
+Finally, another free alternative to NAT Gateway is to access AWS services by creating "*private VPC endpoints*": this is possible for S3, SQS, [and more](https://docs.aws.amazon.com/en_pv/vpc/latest/userguide/vpc-endpoints-access.html).
 
 ## Creating a database
 

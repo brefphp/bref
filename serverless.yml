@@ -55,8 +55,11 @@ functions:
         runtime: php-81-fpm
         description: 'Bref HTTP demo'
         timeout: 5 # in seconds (API Gateway has a timeout of 29 seconds)
+        url: true
         events:
             -   httpApi: '*'
+        environment:
+            BREF_BINARY_RESPONSES: '1'
 
     console:
         handler: demo/console.php

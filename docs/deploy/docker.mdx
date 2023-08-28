@@ -92,8 +92,7 @@ functions:
     hello:
         image:
             name: hello-world
-        events:
-            - httpApi: '*'
+        url: true
 ```
 
 Instead of having a `handler` and a `runtime`, we'll declare an `image`. In the `provider` block, we'll declare the Docker images that we want to build and deploy.

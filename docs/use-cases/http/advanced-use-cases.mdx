@@ -10,16 +10,16 @@ import { Callout, Tab, Tabs } from 'nextra/components';
 
 ## Alternative AWS architectures
 
-By default, Bref uses API Gateway v2 HTTP APIs to run HTTP applications.
+By default, Bref uses Lambda Function URLs to run HTTP applications.
 
-However, there are other ways to run HTTP applications on AWS Lambda: using [API Gateway](https://aws.amazon.com/api-gateway/), [Lambda Function URLs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html), or [AWS Application Load Balancer (ALB)](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html):
+However, there are multiple ways to run HTTP applications on AWS Lambda: using [API Gateway](https://aws.amazon.com/api-gateway/), [Lambda Function URLs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html), or [AWS Application Load Balancer (ALB)](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html):
 
+- Lambda Function URL
 - API Gateway v1 "REST" + Lambda
 - API Gateway v2 "HTTP" + Lambda
-- Lambda Function URL
 - AWS ALB (Application Load Balancer) + Lambda
 
-Bref supports all 4, but API Gateway v2 "HTTP" is the default because it is the simplest option that supports both HTTP APIs and websites with custom domains.
+Bref supports all 4, but Lambda Function URL is the default because it is the simplest and cheapest option.
 
 <Callout>
     If you are getting started, **stay with the defaults**. The documentation and integrations will be much simpler to follow.
@@ -46,6 +46,18 @@ Here is a summary of the differences between the 4 options:
 
 You can read more details [in the "Choosing between REST APIs and HTTP APIs" AWS documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html).
 
+### Lambda Function URLs
+
+AWS Lambda can respond to HTTP requests via [Lambda Function URLs](https://aws.amazon.com/blogs/aws/announcing-aws-lambda-function-urls-built-in-https-endpoints-for-single-function-microservices/). You can deploy a Lambda Function URL [via the following configuration](https://www.serverless.com/framework/docs/providers/aws/guide/functions#lambda-function-urls):
+
+```yml filename="serverless.yml"
+functions:
+    hello:
+        handler: index.php
+        # ...
+        url: true
+```
+
 ### API Gateway v2 HTTP API
 
 The simplest way to set up API Gateway is to have all incoming requests sent to our application in one Lambda function:
@@ -62,20 +74,6 @@ functions:
 That works well with frameworks like Symfony or Laravel that have a single entrypoint (e.g. `public/index.php`) combined with the [PHP-FPM runtime](../../runtimes/fpm-runtime.mdx).
 
 You can look at more advanced API Gateway routing options in the [serverless documentation](https://www.serverless.com/framework/docs/providers/aws/events/http-api).
-
-### Lambda Function URLs
-
-Since 2022, AWS Lambda can respond to HTTP requests via [Lambda Function URLs](https://aws.amazon.com/blogs/aws/announcing-aws-lambda-function-urls-built-in-https-endpoints-for-single-function-microservices/). This is a new way to invoke Lambda functions via HTTP without using API Gateway.
-
-You can deploy a Lambda Function URL [via the following configuration](https://www.serverless.com/framework/docs/providers/aws/guide/functions#lambda-function-urls):
-
-```yml filename="serverless.yml"
-functions:
-    hello:
-        handler: index.php
-        # ...
-        url: true
-```
 
 ### API Gateway v1 REST API
 
@@ -127,16 +125,16 @@ There are two ways to handle HTTP events with PHP:
 
 Here is a full comparison between both approaches:
 
-|                                                    | PHP-FPM runtime                                                                                                                | Event-Driven Function handler                                                                                           |
-|----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| What are the use cases?                            | To build websites, APIs, etc. This should be the **default approach** as it's compatible with mature PHP frameworks and tools. | Build event-driven microservices, or run Laravel Octane, or Symfony with a keep-alive process (like Roadrunner/Swoole). |
-| Why does that solution exist?                      | For out-of-the-box compatibility with existing applications and frameworks.                                                    | To match how other languages run in AWS Lambda, i.e. to build very specialized HTTP endpoints.                          |
-| How it runs under the hood                         | Using PHP-FPM.                                                                                                                 | Using the PHP CLI.                                                                                                      |
-| What does the routing (i.e. separate pages)?       | Your PHP framework (one Lambda receives all the URLs).                                                                         | API Gateway: we define one Lambda and one handler class per route.                                                      |
-| How to read the request?                           | `$_GET`, `$_POST`, etc.                                                                                                        | The `$request` parameter (PSR-7 request).                                                                               |
-| How to write a response?                           | `echo`, `header()` function, etc.                                                                                              | Returning a PSR-7 response from the handler class.                                                                      |
-| How does it work?                                  | Bref turns an API Gateway event into a FastCGI (PHP-FPM) request.                                                              | Bref turns an API Gateway event into a PSR-7 request.                                                                   |
-| Is each request handled in a separate PHP process? | Yes (that's how PHP-FPM works).                                                                                                | Yes by default (Bref replicates that to avoid surprises) but can be disabled for optimal performances.                  |
+|                                                    | PHP-FPM runtime                                                                                                                | Event-Driven Function handler                                                                                                          |
+|----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
+| What are the use cases?                            | To build websites, APIs, etc. This should be the **default approach** as it's compatible with mature PHP frameworks and tools. | Build event-driven microservices, or run Laravel Octane, or Symfony with a keep-alive process (like Roadrunner/Swoole).                |
+| Why does that solution exist?                      | For out-of-the-box compatibility with existing applications and frameworks.                                                    | To match how other languages run in AWS Lambda, i.e. to build very specialized HTTP endpoints.                                         |
+| How it runs under the hood                         | Using PHP-FPM.                                                                                                                 | Using the PHP CLI.                                                                                                                     |
+| What does the routing (i.e. separate pages)?       | Your PHP framework (one Lambda receives all the URLs).                                                                         | API Gateway: we define one Lambda and one handler class per route.                                                                     |
+| How to read the request?                           | `$_GET`, `$_POST`, etc.                                                                                                        | The `$request` parameter (PSR-7 request).                                                                                              |
+| How to write a response?                           | `echo`, `header()` function, etc.                                                                                              | Returning a PSR-7 response from the handler class.                                                                                     |
+| How does it work?                                  | Bref turns an HTTP Lambda event into a FastCGI (PHP-FPM) request.                                                              | Bref turns an HTTP Lambda event into a PSR-7 request.                                                                                  |
+| Is each request handled in a separate PHP process? | Yes (that's how PHP-FPM works).                                                                                                | Yes by default (Bref replicates that to avoid surprises) but can be disabled for optimal performances.                                 |
 
 ### With the PHP-FPM runtime
 
@@ -272,7 +270,7 @@ $id = $request->getAttribute('id');
 
 #### Lambda event and context
 
-The API Gateway event and Lambda context are available as attributes on the PSR-7 request:
+The HTTP Lambda event and Lambda context are available as attributes on the PSR-7 request:
 
 ```php
 /** @var $event Bref\Event\Http\HttpRequestEvent */

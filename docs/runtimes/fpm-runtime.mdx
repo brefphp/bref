@@ -15,7 +15,7 @@ That's great: we can use our favorite framework as usual, like **Laravel or Symf
 
 ## How it works
 
-AWS Lambda can react to HTTP requests via [API Gateway](https://aws.amazon.com/api-gateway/). On Lambda, the Bref runtime starts PHP-FPM and forwards API Gateway requests to PHP-FPM via the FastCGI protocol.
+AWS Lambda can react to HTTP requests via [Lambda Function URLs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html). On Lambda, the Bref runtime starts PHP-FPM and forwards HTTP Lambda events to PHP-FPM via the FastCGI protocol.
 
 ![](./fpm-runtime.png)
 
@@ -25,7 +25,7 @@ While this may sound like a lot to deploy an entire application inside Lambda, i
 
 ## Usage
 
-To deploy an HTTP application on AWS Lambda, use the `php-xx-fpm` runtime and combine it with the `httpApi` event:
+To deploy an HTTP application on AWS Lambda, use the `php-xx-fpm` runtime and combine it with the `url: true` option:
 
 ```yml filename="serverless.yml" {9-11}
 service: app
@@ -37,11 +37,10 @@ functions:
     app:
         handler: index.php
         runtime: php-81-fpm
-        events:
-            - httpApi: '*'
+        url: true
 ```
 
-The `httpApi` event will deploy an API Gateway HTTP API and the `*` configuration will forward all requests to your PHP application.
+The `url` option will create a public HTTP endpoint that invokes the PHP code on each request.
 
 ### Handler
 
@@ -70,7 +69,7 @@ $lambdaContext = json_decode($_SERVER['LAMBDA_INVOCATION_CONTEXT'], true);
 
 ### Request context
 
-API Gateway integrations can add information to the HTTP request via the *request context*.
+If you use API Gateway, some integrations can add information to the HTTP request via the *request context*.
 This is the case, for example, when using AWS Cognito authentication on API Gateway.
 
 Bref exposes the request context in the `$_SERVER['LAMBDA_REQUEST_CONTEXT']` variable as a JSON-encoded string.

@@ -101,8 +101,8 @@ Then run functions:
 $ docker-compose run app vendor/bin/bref-local my-function.php
 ```
 
-## API Gateway local development
+## HTTP local development
 
-If you build HTTP applications with [API Gateway HTTP events](../function/handlers.md#api-gateway-http-events), `serverless bref:local` is a bit unpractical because you need to manually craft HTTP events in JSON.
+If you build HTTP applications with [Lambda HTTP events](../function/handlers.md#api-gateway-http-events), `serverless bref:local` is a bit unpractical because you need to manually craft HTTP events in JSON.
 
-Instead, you can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate API Gateway locally.
+Instead, you can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate Lambda Function URLs locally.

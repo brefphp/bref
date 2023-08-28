@@ -5,15 +5,9 @@ import { SymfonyIcon } from '../../../components/icons/SymfonyIcon';
 
 # Serverless HTTP applications
 
-Bref deploy HTTP applications that run with AWS Lambda and [API Gateway](https://aws.amazon.com/api-gateway/):
+Bref deploy HTTP applications that run with AWS Lambda and [Lambda Function URLs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html):
 
-```mermaid
-graph LR;
-START:::mermaidHidden -->|HTTP request| APIGateway(API Gateway):::mermaidAwsColor;
-APIGateway -->|invoke| Lambda(Lambda):::mermaidAwsColor;
-```
-
-On AWS Lambda there is no Apache or Nginx, API Gateway acts as the webserver. Our code is invoked only when there is an HTTP request, and we pay only for the request and the execution time of our code.
+On AWS Lambda there is no Apache or Nginx, Lambda Function URL acts as the webserver. Our code is invoked only when there is an HTTP request, and we pay only for the request and the execution time of our code.
 
 Bref takes care of setting up everything so that your code runs the same way as on a traditional server with Apache or Nginx.
 
@@ -31,18 +25,15 @@ Instead, head to the **Getting started** guide for your framework:
 
 ## How it works
 
-Bref sets up API Gateway with AWS Lambda and the [PHP-FPM runtime](../runtimes/fpm-runtime.mdx). This is done via the `php-xx-fpm` runtime and the `httpApi` event:
+Bref sets up AWS Lambda with a "Function URL" and the [PHP-FPM runtime](../runtimes/fpm-runtime.mdx). This is done via the `php-xx-fpm` runtime and the `url: true` option:
 
 ```yml filename="serverless.yml"
 functions:
     web:
         handler: public/index.php
         runtime: php-81-fpm
-        events:
-            - httpApi: '*'
+        url: true
 ```
-
-This configuration deploys an API Gateway that forwards all routes (`*` is a wildcard) to AWS Lambda.
 
 On Lambda, the `php-81-fpm` runtime starts PHP-FPM and forwards all requests to it. PHP-FPM then runs the PHP code.
 

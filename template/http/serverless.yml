@@ -12,9 +12,8 @@ functions:
         handler: index.php
         description: ''
         runtime: php-PHP_VERSION-fpm
-        timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
-        events:
-            -   httpApi: '*'
+        timeout: 30 # in seconds
+        url: true
 
 # Exclude files from deployment
 package:
