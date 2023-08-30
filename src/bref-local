@@ -19,6 +19,13 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 $handler = $argv[1] ?? '';
 $data = $argv[2] ?? null;
 
+if ($data === '--file') {
+    if ($argv[3] === null) {
+        throw new Exception('A file path to a valid JSON file must be passed when invoking the `--file` flag.');
+    }
+    $data = $argv[3];
+}
+
 try {
     $handler = Bref::getContainer()->get($handler);
 } catch (NotFoundExceptionInterface $e) {
