@@ -18,10 +18,14 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 
 $handler = $argv[1] ?? '';
 $data = $argv[2] ?? null;
-$opts = getopt("f::");
+$opts = getopt('', ['path:']);
 
-if (isset($opts['f']) && file_exists($opts['f'])) {
-    $data = file_get_contents($opts['f']);
+if (isset($opts['path'])) {
+    if (! file_exists($opts['path'])) {
+        throw new Exception('The file ' . $opts['path'] . ' could not be found.');
+    }
+
+    $data = file_get_contents($opts['path']);
 }
 
 try {
