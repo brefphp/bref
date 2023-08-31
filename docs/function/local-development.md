@@ -82,7 +82,7 @@ $ vendor/bin/bref-local my-function.php '{"name": "Jane"}'
 Hello Jane
 
 # With a path to a file containing a JSON event.
-$cat event.json
+$ cat event.json
 {
     "name": "Alex"
 }
