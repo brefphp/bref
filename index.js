@@ -205,9 +205,19 @@ class ServerlessPlugin {
               (f.runtime && this.runtimes.includes(f.runtime)) ||
               (!f.runtime && isBrefRuntimeGlobally)
             ) {
+                // The logic here is a bit custom:
+                // If there are layers on the function, we preserve them
+                let existingLayers = f.layers || []; // make sure it's an array
+                // Else, we merge with the layers defined at the root.
+                // Indeed, SF overrides the layers defined at the root with the ones defined on the function.
+                if (existingLayers.length === 0) {
+                    // for some reason it's not always an array
+                    existingLayers = Array.from(config.provider.layers || []);
+                }
+
                 f.layers = includeBrefLayers(
                     f.runtime || config.provider.runtime,
-                    f.layers || [], // make sure it's an array
+                    existingLayers,
                     f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
                 );
                 f.runtime = 'provided.al2';
