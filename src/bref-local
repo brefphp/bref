@@ -25,6 +25,7 @@ if (isset($opts['path'])) {
         throw new Exception('The file ' . $opts['path'] . ' could not be found.');
     }
 
+    $handler = $argv[array_key_last($argv)];
     $data = file_get_contents($opts['path']);
 }
 
