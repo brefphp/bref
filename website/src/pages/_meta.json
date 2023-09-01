@@ -21,6 +21,7 @@
   "plans": {
     "type": "page",
     "title": "Plans",
+    "display": "hidden",
     "theme": {
       "layout": "raw"
     }
