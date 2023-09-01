@@ -18,7 +18,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 
 $handler = $argv[1] ?? '';
 $data = $argv[2] ?? null;
-$opts = getopt('', ['path:']);
+$opts = getopt('f:', ['path:']);
 
 if (isset($opts['path'])) {
     if (! file_exists($opts['path'])) {
