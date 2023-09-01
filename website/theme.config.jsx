@@ -31,6 +31,11 @@ export default {
             </svg>
         )
     },
+    darkMode: false,
+    nextThemes: {
+        themes: ['light'],
+        enableSystem: false,
+    },
     primaryHue: 202,
     sidebar: {
         defaultMenuCollapseLevel: 1,
