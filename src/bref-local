@@ -29,6 +29,10 @@ if (isset($opts['path'])) {
     $data = file_get_contents($opts['path']);
 }
 
+if (isset($opts['f'])) {
+    $handler = $opts['f'];
+}
+
 try {
     $handler = Bref::getContainer()->get($handler);
 } catch (NotFoundExceptionInterface $e) {
