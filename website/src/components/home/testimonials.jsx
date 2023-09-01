@@ -2,6 +2,7 @@ import Image from 'next/image';
 import neil from './testimonials/neil.jpg';
 import geeh from './testimonials/geeh.jpg';
 import paul from './testimonials/paul.jpg';
+import marco from './testimonials/marco.jpg';
 import robdwaller from './testimonials/robdwaller.jpg';
 import aranreeks from './testimonials/aranreeks.jpg';
 import nyholm from './testimonials/nyholm.jpg';
@@ -35,6 +36,15 @@ const testimonials = [
             handle: 'HalasLabs',
             link: 'https://twitter.com/HalasLabs/status/1638650910971932672',
             image: paul,
+        },
+    },
+    {
+        body: 'Happily using Bref since 2019 to process <strong>millions of requests, jobs and scheduled tasks</strong>. It powers the best technical accomplishment of my career and has made me a better software engineer and open-source contributor.',
+        author: {
+            name: 'Marco Deleu',
+            handle: 'deleugyn',
+            link: 'https://twitter.com/deleugyn',
+            image: marco,
         },
     },
     {
