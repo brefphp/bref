@@ -30,6 +30,10 @@ if (isset($opts['path'])) {
 }
 
 if (isset($opts['f'])) {
+    if (! file_exists($opts['f'])) {
+        throw new Exception('Handler file ' . $opts['f'] . ' could not be found.');
+    }
+
     $handler = $opts['f'];
 }
 
