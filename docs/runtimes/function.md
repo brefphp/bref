@@ -37,7 +37,7 @@ If you are looking to create HTTP applications, have a look at [Bref for web app
 
 ## The function
 
-Functions that can run on Lambda can be an anonymous function or [any kind of callable supported by PHP](http://php.net/manual/en/language.types.callable.php).
+Functions that can run on Lambda can be an anonymous function or [any kind of callable supported by PHP](https://www.php.net/manual/en/language.types.callable.php).
 
 ```php
 <?php

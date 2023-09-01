@@ -89,7 +89,7 @@ ENV ZLIB_BUILD_DIR=${BUILD_DIR}/xml2
 RUN set -xe; \
     mkdir -p ${ZLIB_BUILD_DIR}; \
 # Download and upack the source code
-    curl -Ls  http://zlib.net/zlib-${VERSION_ZLIB}.tar.xz \
+    curl -Ls https://github.com/madler/zlib/releases/download/v${VERSION_ZLIB}/zlib-${VERSION_ZLIB}.tar.xz \
   | tar xJC ${ZLIB_BUILD_DIR} --strip-components=1
 
 # Move into the unpackaged code directory
