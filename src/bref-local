@@ -34,6 +34,10 @@ if (isset($opts['f'])) {
         throw new Exception('Handler file ' . $opts['f'] . ' could not be found.');
     }
 
+    if (! isset($opts['path'])) {
+        $data = $argv[3] ?? null;
+    }
+
     $handler = $opts['f'];
 }
 
