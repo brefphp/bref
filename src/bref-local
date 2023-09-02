@@ -16,16 +16,15 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once __DIR__ . '/../../../autoload.php';
 }
 
-$handler = $argv[1] ?? '';
-$data = $argv[2] ?? null;
-$opts = getopt('f:', ['path:']);
+$opts = getopt('f:', ['path:', 'data:']);
+$data = $opts['data'] ?? null;
+$handler = $opts['f'] ?? null;
 
 if (isset($opts['path'])) {
     if (! file_exists($opts['path'])) {
         throw new Exception('The file ' . $opts['path'] . ' could not be found.');
     }
 
-    $handler = $argv[array_key_last($argv)];
     $data = file_get_contents($opts['path']);
 }
 
@@ -34,8 +33,8 @@ if (isset($opts['f'])) {
         throw new Exception('Handler file ' . $opts['f'] . ' could not be found.');
     }
 
-    if (! isset($opts['path'])) {
-        $data = $argv[3] ?? null;
+    if (! isset($opts['path']) && isset($opts['data'])) {
+        $data = $opts['data'];
     }
 
     $handler = $opts['f'];
