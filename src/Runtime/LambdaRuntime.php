@@ -190,6 +190,7 @@ final class LambdaRuntime
         $errorFormatted = [
             'errorType' => get_class($error),
             'errorMessage' => $error->getMessage(),
+            'errorLocation' => 'File: ' . $error->getFile() . ', Line: ' . $error->getLine(),
             'stack' => $stackTraceAsArray,
         ];
 
