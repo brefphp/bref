@@ -17,7 +17,7 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 
 $opts = getopt('f:', ['path:', 'data:']);
-$handler = $opts['f'] ?? '';
+$handler = $opts['f'] ?? null;
 $data = $opts['data'] ?? null;
 
 // Retains backward compatibilty with `./vendor/bin/bref-local <handler> <event-data>`
