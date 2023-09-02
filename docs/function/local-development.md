@@ -83,7 +83,7 @@ $ cat event.json
 {
     "name": "Alex"
 }
-$ vendor/bin/bref-local --path event.json my-function.php
+$ vendor/bin/bref-local -f my-function.php --path event.json 
 Hello Alex
 ```
 
