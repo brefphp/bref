@@ -75,15 +75,15 @@ $ vendor/bin/bref-local -f my-function.php
 Hello world
 
 # With JSON event data
-$ vendor/bin/bref-local -f my-function.php '{"name": "Jane"}'
+$ vendor/bin/bref-local -f my-function.php --data '{"name": "Fred"}'
 Hello Jane
 
-# With a path to a file containing a JSON event.
+# With JSON in a file
 $ cat event.json
 {
     "name": "Alex"
 }
-$ vendor/bin/bref-local -f my-function.php --path event.json 
+$ vendor/bin/bref-local -f my-function.php --path event.json
 Hello Alex
 ```
 
