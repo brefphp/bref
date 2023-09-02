@@ -71,14 +71,11 @@ Instead, you can use the [`bref/dev-server`](https://github.com/brefphp/dev-serv
 If you do not use `serverless.yml` but something else, like SAM/AWS CDK/Terraform, use the `vendor/bin/bref-local` command instead:
 
 ```bash
-$ vendor/bin/bref-local <handler> <event-data>
-
-# For example
-$ vendor/bin/bref-local my-function.php
+$ vendor/bin/bref-local -f my-function.php
 Hello world
 
 # With JSON event data
-$ vendor/bin/bref-local my-function.php '{"name": "Jane"}'
+$ vendor/bin/bref-local -f my-function.php '{"name": "Jane"}'
 Hello Jane
 
 # With a path to a file containing a JSON event.
