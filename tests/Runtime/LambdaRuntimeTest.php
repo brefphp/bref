@@ -77,12 +77,17 @@ class LambdaRuntimeTest extends TestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(function () {
-            throw new RuntimeException('This is an exception');
+        $exception = new RuntimeException('This is an exception');
+        $output = $this->runtime->processNextEvent(function () use ($exception) {
+            throw $exception;
         });
 
         $this->assertFalse($output);
-        $this->assertInvocationErrorResult('RuntimeException', 'This is an exception');
+        $this->assertInvocationErrorResult(
+            'RuntimeException',
+            'This is an exception',
+            'File: ' . $exception->getFile() . ', Line: ' . $exception->getLine()
+        );
         $this->assertErrorInLogs('RuntimeException', 'This is an exception');
     }
 
@@ -90,11 +95,20 @@ class LambdaRuntimeTest extends TestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $this->runtime->processNextEvent(function () {
-            throw new RuntimeException('This is an exception', 0, new RuntimeException('The previous exception.', 0, new Exception('The original exception.')));
+        $exception = new RuntimeException(
+            'This is an exception', 
+            0, 
+            new RuntimeException('The previous exception.', 0, new Exception('The original exception.'))
+        );
+        $this->runtime->processNextEvent(function () use ($exception) {
+            throw $exception;
         });
 
-        $this->assertInvocationErrorResult('RuntimeException', 'This is an exception');
+        $this->assertInvocationErrorResult(
+            'RuntimeException',
+            'This is an exception',
+            'File: ' . $exception->getFile() . ', Line: ' . $exception->getLine()
+        );
         $this->assertErrorInLogs('RuntimeException', 'This is an exception');
         $this->assertPreviousErrorsInLogs([
             ['errorClass' => 'RuntimeException', 'errorMessage' => 'The previous exception.'],
@@ -397,7 +411,7 @@ ERROR;
         $this->assertEquals($result, json_decode($eventResponse->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR));
     }
 
-    private function assertInvocationErrorResult(string $errorClass, string $errorMessage)
+    private function assertInvocationErrorResult(string $errorClass, string $errorMessage, string $errorLocation = '')
     {
         $requests = Server::received();
         $this->assertCount(2, $requests);
@@ -418,6 +432,9 @@ ERROR;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
+        if ($errorClass instanceof RuntimeException) {
+            $this->assertEquals($errorLocation, $invocationResult['errorLocation']);
+        }
         $this->assertIsArray($invocationResult['stackTrace']);
     }
 
