@@ -99,8 +99,8 @@ class LambdaRuntimeTest extends TestCase
         $originalException = new Exception('The original exception.');
         $previousException = new RuntimeException('The previous exception.', 0, $originalException);
         $currentException = new RuntimeException(
-            'This is an exception', 
-            0, 
+            'This is an exception',
+            0,
             $previousException
         );
         $this->runtime->processNextEvent(function () use ($currentException) {
@@ -120,16 +120,16 @@ class LambdaRuntimeTest extends TestCase
                 'errorMessage' => 'The previous exception.',
                 'errorLocation' => [
                     'file' => $previousException->getFile(),
-                    'line' => $previousException->getLine()
-                ]
+                    'line' => $previousException->getLine(),
+                ],
             ],
             [
                 'errorClass' => 'Exception',
                 'errorMessage' => 'The original exception.',
                 'errorLocation' => [
                     'file' => $originalException->getFile(),
-                    'line' => $originalException->getLine()
-                ]
+                    'line' => $originalException->getLine(),
+                ],
             ],
         ]);
     }
@@ -450,7 +450,7 @@ ERROR;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
-        if ($errorClass instanceof RuntimeException) {
+        if ($errorClass === RuntimeException::class) {
             $this->assertEquals($errorLocation, $invocationResult['errorLocation']);
         }
         $this->assertIsArray($invocationResult['stackTrace']);
@@ -482,7 +482,7 @@ ERROR;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertStringContainsString($errorMessage, $invocationResult['errorMessage']);
-        if ($errorClass instanceof RuntimeException) {
+        if ($errorClass === RuntimeException::class) {
             $this->assertSame($errorLocation, $invocationResult['errorLocation']);
         }
         $this->assertIsArray($invocationResult['stack']);
