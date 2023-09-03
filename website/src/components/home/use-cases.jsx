@@ -3,7 +3,7 @@ import { CheckIcon } from '@heroicons/react/20/solid';
 const simpleUseCases = [
     {
         name: 'Websites',
-        description: 'Run PHP websites with your favorite framework (or none), with a worldwide CDN and your custom domain.'
+        description: 'Run PHP websites with Laravel, Symfony or any other framework, with a worldwide CDN and your custom domain.'
     },
     {
         name: 'HTTP APIs',
