@@ -450,7 +450,7 @@ ERROR;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertEquals($errorMessage, $invocationResult['errorMessage']);
-        if ($errorClass === RuntimeException::class) {
+        if (! empty($errorLocation)) {
             $this->assertEquals($errorLocation, $invocationResult['errorLocation']);
         }
         $this->assertIsArray($invocationResult['stackTrace']);
@@ -482,7 +482,7 @@ ERROR;
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
         $this->assertStringContainsString($errorMessage, $invocationResult['errorMessage']);
-        if ($errorClass === RuntimeException::class) {
+        if (! empty($errorLocation)) {
             $this->assertSame($errorLocation, $invocationResult['errorLocation']);
         }
         $this->assertIsArray($invocationResult['stack']);
