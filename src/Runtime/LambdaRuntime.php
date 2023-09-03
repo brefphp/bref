@@ -202,6 +202,7 @@ final class LambdaRuntime
                 $previousErrors[] = [
                     'errorType' => get_class($previousError),
                     'errorMessage' => $previousError->getMessage(),
+                    'errorLocation' => 'File: ' . $previousError->getFile() . ', Line: ' . $previousError->getLine(),
                     'stack' => explode(PHP_EOL, $previousError->getTraceAsString()),
                 ];
             } while ($previousError->getPrevious() !== null);
@@ -230,6 +231,7 @@ final class LambdaRuntime
             $this->postJson($url, [
                 'errorType' => get_class($error),
                 'errorMessage' => $error->getMessage(),
+                'errorLocation' => 'File: ' . $error->getFile() . ', Line: ' . $error->getLine(),
                 'stackTrace' => $stackTraceAsArray,
             ]);
         }

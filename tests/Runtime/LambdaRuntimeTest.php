@@ -413,6 +413,7 @@ ERROR;
         $this->assertSame([
             'errorType',
             'errorMessage',
+            'errorLocation',
             'stackTrace',
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
@@ -441,6 +442,7 @@ ERROR;
         $this->assertSame([
             'errorType',
             'errorMessage',
+            'errorLocation',
             'stack',
         ], array_keys($invocationResult));
         $this->assertEquals($errorClass, $invocationResult['errorType']);
@@ -461,6 +463,7 @@ ERROR;
             $this->assertSame([
                 'errorType',
                 'errorMessage',
+                'errorLocation',
                 'stack',
             ], array_keys($error));
             $this->assertEquals($previousErrors[$index]['errorClass'], $error['errorType']);
