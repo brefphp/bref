@@ -82,7 +82,7 @@ class LambdaRuntimeTest extends TestCase
             throw $exception;
         });
 
-        $errorLocation = 'File: ' . $exception->getFile() . ', Line: ' . $exception->getLine();
+        $errorLocation = ['file' => $exception->getFile(), 'line' => $exception->getLine()];
         $this->assertFalse($output);
         $this->assertInvocationErrorResult(
             'RuntimeException',
@@ -107,7 +107,7 @@ class LambdaRuntimeTest extends TestCase
             throw $currentException;
         });
 
-        $errorLocation = 'File: ' . $currentException->getFile() . ', Line: ' . $currentException->getLine();
+        $errorLocation = ['file' => $currentException->getFile(), 'line' => $currentException->getLine()];
         $this->assertInvocationErrorResult(
             'RuntimeException',
             'This is an exception',
@@ -118,12 +118,18 @@ class LambdaRuntimeTest extends TestCase
             [
                 'errorClass' => 'RuntimeException',
                 'errorMessage' => 'The previous exception.',
-                'errorLocation' => 'File: ' . $previousException->getFile() . ', Line: ' . $previousException->getLine()
+                'errorLocation' => [
+                    'file' => $previousException->getFile(),
+                    'line' => $previousException->getLine()
+                ]
             ],
             [
                 'errorClass' => 'Exception',
                 'errorMessage' => 'The original exception.',
-                'errorLocation' => 'File: ' . $originalException->getFile() . ', Line: ' . $originalException->getLine()
+                'errorLocation' => [
+                    'file' => $originalException->getFile(),
+                    'line' => $originalException->getLine()
+                ]
             ],
         ]);
     }
@@ -423,7 +429,7 @@ ERROR;
         $this->assertEquals($result, json_decode($eventResponse->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR));
     }
 
-    private function assertInvocationErrorResult(string $errorClass, string $errorMessage, string $errorLocation = '')
+    private function assertInvocationErrorResult(string $errorClass, string $errorMessage, array $errorLocation = [])
     {
         $requests = Server::received();
         $this->assertCount(2, $requests);
@@ -450,7 +456,7 @@ ERROR;
         $this->assertIsArray($invocationResult['stackTrace']);
     }
 
-    private function assertErrorInLogs(string $errorClass, string $errorMessage, string $errorLocation = ''): void
+    private function assertErrorInLogs(string $errorClass, string $errorMessage, array $errorLocation = []): void
     {
         // Decode the logs from stdout
         $stdout = $this->getActualOutput();
