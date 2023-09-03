@@ -96,16 +96,18 @@ class LambdaRuntimeTest extends TestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $exception = new RuntimeException(
+        $originalException = new Exception('The original exception.');
+        $previousException = new RuntimeException('The previous exception.', 0, $originalException);
+        $currentException = new RuntimeException(
             'This is an exception', 
             0, 
-            new RuntimeException('The previous exception.', 0, new Exception('The original exception.'))
+            $previousException
         );
-        $this->runtime->processNextEvent(function () use ($exception) {
-            throw $exception;
+        $this->runtime->processNextEvent(function () use ($currentException) {
+            throw $currentException;
         });
 
-        $errorLocation = 'File: ' . $exception->getFile() . ', Line: ' . $exception->getLine();
+        $errorLocation = 'File: ' . $currentException->getFile() . ', Line: ' . $currentException->getLine();
         $this->assertInvocationErrorResult(
             'RuntimeException',
             'This is an exception',
@@ -113,8 +115,16 @@ class LambdaRuntimeTest extends TestCase
         );
         $this->assertErrorInLogs('RuntimeException', 'This is an exception', $errorLocation);
         $this->assertPreviousErrorsInLogs([
-            ['errorClass' => 'RuntimeException', 'errorMessage' => 'The previous exception.'],
-            ['errorClass' => 'Exception', 'errorMessage' => 'The original exception.'],
+            [
+                'errorClass' => 'RuntimeException',
+                'errorMessage' => 'The previous exception.',
+                'errorLocation' => 'File: ' . $previousException->getFile() . ', Line: ' . $previousException->getLine()
+            ],
+            [
+                'errorClass' => 'Exception',
+                'errorMessage' => 'The original exception.',
+                'errorLocation' => 'File: ' . $originalException->getFile() . ', Line: ' . $originalException->getLine()
+            ],
         ]);
     }
 
@@ -490,6 +500,7 @@ ERROR;
             ], array_keys($error));
             $this->assertEquals($previousErrors[$index]['errorClass'], $error['errorType']);
             $this->assertEquals($previousErrors[$index]['errorMessage'], $error['errorMessage']);
+            $this->assertEquals($previousErrors[$index]['errorLocation'], $error['errorLocation']);
             $this->assertIsArray($error['stack']);
         }
     }
