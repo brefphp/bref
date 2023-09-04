@@ -37,5 +37,13 @@
     "display": "hidden",
     "theme": {
     }
+  },
+  "sentry": {
+    "type": "page",
+    "title": "Sentry integration for AWS Lambda",
+    "display": "hidden",
+    "theme": {
+      "layout": "raw"
+    }
   }
 }
