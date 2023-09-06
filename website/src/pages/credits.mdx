@@ -1,10 +1,61 @@
 import { useData } from 'nextra/data';
 import { graphql } from '@octokit/graphql';
-import { TwitterIcon } from '../components/icons/TwitterIcon';
-import { GitHubIcon } from '../components/icons/GitHubIcon';
 
 export const getStaticProps = async () => {
-    const query = `
+    const nonGitHubSponsors = [
+        {
+            isActive: true,
+            sponsorEntity: {
+                __typename: 'Organization',
+                login: 'whilenull',
+                name: 'Null',
+                websiteUrl: 'https://null.tc/?ref=bref',
+            },
+            isOneTimePayment: false,
+        },
+        {
+            isActive: true,
+            sponsorEntity: {
+                __typename: 'Organization',
+                login: 'CraftCMS',
+                name: 'CraftCMS',
+                websiteUrl: 'https://craftcms.com/?ref=bref.sh',
+            },
+            isOneTimePayment: false,
+        },
+        {
+            isActive: true,
+            sponsorEntity: {
+                __typename: 'Organization',
+                login: 'ShippyPro',
+                name: 'ShippyPro',
+                websiteUrl: 'https://www.shippypro.com/?ref=bref.sh',
+            },
+            isOneTimePayment: false,
+        },
+        {
+            isActive: true,
+            sponsorEntity: {
+                __typename: 'Organization',
+                login: 'Tideways',
+                name: 'Tideways',
+                websiteUrl: 'https://tideways.com/?ref=bref',
+            },
+            isOneTimePayment: false,
+        },
+        {
+            isActive: true,
+            sponsorEntity: {
+                __typename: 'Organization',
+                login: 'MyBuilder',
+                name: 'MyBuilder',
+                websiteUrl: 'https://www.mybuilder.com/?ref=bref.sh',
+            },
+            isOneTimePayment: false,
+        },
+    ];
+
+    const sponsorsQuery = `
     {
       viewer {
         sponsorshipsAsMaintainer(activeOnly: false, first: 100) {
@@ -34,10 +85,11 @@ export const getStaticProps = async () => {
       }
     }
     `;
+    let sponsorsResponse;
     try {
-        const response = await graphql(query, {
+        sponsorsResponse = await graphql(sponsorsQuery, {
             headers: {
-                authorization: `token ${process.env.GITHUB_TOKEN_REA}`
+                authorization: `token ${process.env.GITHUB_TOKEN_READ}`
             }
         });
     } catch (e) {
@@ -46,19 +98,39 @@ export const getStaticProps = async () => {
             props: {
                 ssg: {
                     sponsors: [],
+                    contributors: [],
                 },
             },
             // The page will be considered as stale and regenerated every 60 seconds.
             revalidate: false,
         };
     }
-    const sponsors = response.viewer.sponsorshipsAsMaintainer.edges.map(({ node }) => node);
+    const sponsors = [
+        ...nonGitHubSponsors,
+        ...sponsorsResponse.viewer.sponsorshipsAsMaintainer.edges.map(({ node }) => node),
+    ];
+
+    // Retrieve the list of contributors from the GitHub REST API
+    // Implement the pagination too
+    // See https://docs.github.com/en/rest/reference/repos#list-repository-contributors
+    const contributors = [];
+    let page = 1;
+    let hasNextPage = true;
+    while (hasNextPage) {
+        const response = await fetch(`https://api.github.com/repos/brefphp/bref/contributors?page=${page}&per_page=100`);
+        const data = await response.json();
+        contributors.push(...data.map(({ login, html_url, contributions }) => ({ login, html_url, contributions })));
+        hasNextPage = response.headers.get('Link')?.includes('rel="next"');
+        page++;
+    }
+    contributors.sort((a, b) => b.contributions - a.contributions);
 
     // See https://nextra.site/docs/guide/ssg
     return {
         props: {
             ssg: {
                 sponsors,
+                contributors,
             },
         },
         // The page will be considered as stale and regenerated every 60 seconds.
@@ -83,32 +155,33 @@ export const SponsorsList = ({ sponsors }) => {
             return a.__typename === 'Organization' ? -1 : 1;
         });
     return <p>
-        {sortedSponsors.map(({ sponsorEntity, isOneTimePayment }) => (
-            <span className="flex justify-between hover:bg-gray-50" key={sponsorEntity.login}>
-                <span>
+        {sortedSponsors.map(({ sponsorEntity, isOneTimePayment }, i) => (
+            <span key={sponsorEntity.login}>
+                {i > 0 && ", "}
+                <a className="!no-underline !text-inherit"
+                   href={sponsorEntity.websiteUrl || `https://github.com/${sponsorEntity.login}`}>
                     {sponsorEntity.name}
-                    {isOneTimePayment && ' (one-time sponsor)'}
-                </span>
-                <span>
-                    {sponsorEntity.websiteUrl && (
-                        <a className="mr-2 !no-underline opacity-75 hover:opacity-100"
-                           href={sponsorEntity.websiteUrl}>
-                            🔗
-                        </a>
-                    )}
-                    {sponsorEntity.twitterUsername && (
-                        <a className="mr-2 !no-underline opacity-75 hover:opacity-100" rel="nofollow"
-                           href={`https://twitter.com/${sponsorEntity.twitterUsername}`}>
-                            <TwitterIcon className="inline w-4 h-4" />
-                        </a>
-                    )}
-                    <a className="!text-black !no-underline opacity-75 hover:opacity-100" rel="nofollow"
-                       href={`https://github.com/${sponsorEntity.login}`}>
-                        <GitHubIcon className="inline w-4 h-4" />
-                    </a>
-                </span>
+                </a>
+                {isOneTimePayment && ' (one-time sponsor)'}
             </span>
         ))}
+        .
+    </p>;
+};
+
+export const ContributorsList = () => {
+    const { contributors } = useData();
+    return <p>
+        {contributors.map(({ login, html_url, contributions }, i) => (
+            <span key={login}>
+                {i > 0 && ", "}
+                <a className="!no-underline !text-inherit" href={html_url}>
+                    {login}
+                </a>
+                {contributions > 1 && ` (${contributions})`}
+            </span>
+        ))}
+        .
     </p>;
 };
 
@@ -127,6 +200,10 @@ export const PastSponsors = () => {
 ## Current sponsors
 
 <CurrentSponsors />
+
+## Contributors
+
+<ContributorsList />
 
 ## Past sponsors
 
