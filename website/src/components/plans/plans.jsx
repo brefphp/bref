@@ -87,7 +87,7 @@ export default function Plans() {
                     <section
                         key={tier.id}
                         className={classNames(
-                            tier.mostPopular ? 'rounded-xl bg-gray-400/5 ring-1 ring-inset ring-gray-200' : '',
+                            tier.mostPopular ? 'rounded-xl bg-gray-400/10 ring-1 ring-inset ring-gray-200' : '',
                             'p-8'
                         )}
                     >
@@ -147,7 +147,7 @@ export default function Plans() {
                                 aria-hidden="true"
                                 style={{ marginLeft: `${(tiers.findIndex((tier) => tier.mostPopular) + 1) * 25}%` }}
                             >
-                                <div className="w-full rounded-t-xl border-x border-t border-gray-900/10 bg-gray-400/5" />
+                                <div className="w-full rounded-t-xl border-x border-t border-gray-900/10 bg-gray-400/10" />
                             </div>
                         </div>
                     ) : null}

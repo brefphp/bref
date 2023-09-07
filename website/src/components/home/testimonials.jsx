@@ -114,16 +114,16 @@ export default function Testimonials() {
                 <div className="-mt-8 sm:-mx-4 sm:columns-2 sm:text-[0] lg:columns-3">
                     {testimonials.map((testimonial) => (
                         <div key={testimonial.author.handle} className="pt-8 sm:inline-block sm:w-full sm:px-4">
-                            <figure className="rounded-2xl bg-gray-50 p-8 text-sm leading-6">
+                            <figure className="rounded-2xl bg-gray-400/10 p-8 text-sm leading-6">
                                 <blockquote className="text-gray-900">
                                     <p dangerouslySetInnerHTML={{__html: `“${testimonial.body}”`}}></p>
                                 </blockquote>
                                 <figcaption className="mt-6 flex items-center gap-x-4">
                                     {testimonial.author.imageUrl ? (
-                                    <img className="h-10 w-10 rounded-full bg-gray-50"
+                                    <img className="h-10 w-10 rounded-full bg-gray-400/10"
                                          src={testimonial.author.imageUrl} alt={testimonial.author.name} />
                                     ) : (
-                                    <Image className="h-10 w-10 rounded-full bg-gray-50"
+                                    <Image className="h-10 w-10 rounded-full bg-gray-400/10"
                                            src={testimonial.author.image} alt={testimonial.author.name} />
                                     )}
                                     <div>
