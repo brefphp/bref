@@ -1,5 +1,6 @@
 import { useData } from 'nextra/data';
 import { graphql } from '@octokit/graphql';
+import { getContributors, mergeAndSortContributors } from '../github/contributors';
 
 export const getStaticProps = async () => {
     const nonGitHubSponsors = [
@@ -110,20 +111,14 @@ export const getStaticProps = async () => {
         ...sponsorsResponse.viewer.sponsorshipsAsMaintainer.edges.map(({ node }) => node),
     ];
 
-    // Retrieve the list of contributors from the GitHub REST API
-    // Implement the pagination too
-    // See https://docs.github.com/en/rest/reference/repos#list-repository-contributors
-    const contributors = [];
-    let page = 1;
-    let hasNextPage = true;
-    while (hasNextPage) {
-        const response = await fetch(`https://api.github.com/repos/brefphp/bref/contributors?page=${page}&per_page=100`);
-        const data = await response.json();
-        contributors.push(...data.map(({ login, html_url, contributions }) => ({ login, html_url, contributions })));
-        hasNextPage = response.headers.get('Link')?.includes('rel="next"');
-        page++;
-    }
-    contributors.sort((a, b) => b.contributions - a.contributions);
+    const contributors = mergeAndSortContributors([
+        ...(await getContributors('brefphp/bref')),
+        ...(await getContributors('brefphp/aws-lambda-layers')),
+        ...(await getContributors('brefphp/laravel-bridge')),
+        ...(await getContributors('brefphp/symfony-bridge')),
+        ...(await getContributors('brefphp/extra-php-extensions')),
+        ...(await getContributors('brefphp/examples')),
+    ]);
 
     // See https://nextra.site/docs/guide/ssg
     return {
@@ -196,6 +191,8 @@ export const PastSponsors = () => {
 };
 
 # Credits
+
+Here are the amazing people behind Bref. Either they are sponsoring Bref or they have contributed to the project.
 
 ## Current sponsors
 
