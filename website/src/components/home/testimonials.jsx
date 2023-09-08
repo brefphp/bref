@@ -66,7 +66,7 @@ const testimonials = [
         },
     },
     {
-        body: 'I’ve been running APIs and websites with bref (in prod) for over a year now. It is indeed as simple as you describe it.',
+        body: 'I’ve been running APIs and websites with Bref in prod for over a year now. It is indeed as simple as you describe it.',
         author: {
             name: 'Tobias Nyholm',
             handle: 'TobiasNyholm',

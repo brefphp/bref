@@ -10,6 +10,7 @@ import Sponsors from '../components/home/sponsors';
 import Intro from '../components/home/intro';
 import { useData } from 'nextra/data';
 import { getBrefInvocations } from '../aws/invocations';
+import CtaBottom from '../components/home/Cta-Bottom';
 
 export async function getStaticProps() {
     let invocations;
@@ -123,3 +124,4 @@ export async function getStaticProps() {
 <Sponsors />
 [//]: # (<Companies />)
 <Testimonials />
+<CtaBottom />
