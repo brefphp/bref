@@ -4,6 +4,8 @@ namespace Bref\Test\Event\Sqs;
 
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\Sqs\SqsEvent;
+use Generator;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 
 class SqsEventTest extends TestCase
@@ -35,10 +37,30 @@ class SqsEventTest extends TestCase
         $this->assertSame('AQEBzWwaftRI0KuVm4tP+/7q1rGgNqicHq...', $record->getReceiptHandle());
     }
 
-    public function test invalid event()
+    public function provideInvalidEvents(): Generator
     {
-        $this->expectException(InvalidLambdaEvent::class);
-        $this->expectExceptionMessage("This handler expected to be invoked with a SQS event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data");
-        new SqsEvent([]);
+        yield [
+            'exception' => InvalidLambdaEvent::class,
+            'exceptionMessage' => "This handler expected to be invoked with a SQS event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data",
+            'event' => [],
+        ];
+
+        yield [
+            'exception' => LogicException::class,
+            'exceptionMessage' => 'Unexpected record type "sns". Check your AWS infrastructure.',
+            'event' => [
+                'Records' => [
+                    'eventSource' => 'aws:sns',
+                ]
+            ]
+        ];
+    }
+
+    /** @dataProvider provideInvalidEvents */
+    public function test invalid event(string $exception, string $exceptionMessage, array $event)
+    {
+        $this->expectException($exception);
+        $this->expectExceptionMessage($exceptionMessage);
+        new SqsEvent($event);
     }
 }

@@ -4,6 +4,7 @@ namespace Bref\Event\Sns;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use LogicException;
 
 /**
  * Represents a SNS message record.
@@ -18,9 +19,18 @@ class SnsRecord
 
     public function __construct(mixed $record)
     {
-        if (! is_array($record) || ! isset($record['EventSource']) || $record['EventSource'] !== 'aws:sns') {
+        if (! is_array($record) || ! isset($record['EventSource'])) {
             throw new InvalidArgumentException;
         }
+
+        if ($record['EventSource'] === 'aws:sqs') {
+            throw new LogicException('Unexpected record type "sqs". Check your AWS infrastructure.');
+        }
+
+        if ($record['EventSource'] !== 'aws:sns') {
+            throw new InvalidArgumentException;
+        }
+
         $this->record = $record;
     }
 

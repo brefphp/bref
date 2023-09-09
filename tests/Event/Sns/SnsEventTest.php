@@ -4,6 +4,8 @@ namespace Bref\Test\Event\Sns;
 
 use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\Sns\SnsEvent;
+use Generator;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 
 class SnsEventTest extends TestCase
@@ -33,10 +35,30 @@ class SnsEventTest extends TestCase
         ], $attributes['Test']->toArray());
     }
 
-    public function test invalid event()
+    public function provideInvalidEvents(): Generator
     {
-        $this->expectException(InvalidLambdaEvent::class);
-        $this->expectExceptionMessage("This handler expected to be invoked with a SNS event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data");
-        new SnsEvent([]);
+        yield [
+            'exception' => InvalidLambdaEvent::class,
+            'exceptionMessage' => "This handler expected to be invoked with a SNS event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data",
+            'event' => [],
+        ];
+
+        yield [
+            'exception' => LogicException::class,
+            'exceptionMessage' => 'Unexpected record type "sns". Check your AWS infrastructure.',
+            'event' => [
+                'Records' => [
+                    'EventSource' => 'aws:sqs',
+                ]
+            ]
+        ];
+    }
+
+    /** @dataProvider provideInvalidEvents */
+    public function test invalid event(string $exception, string $exceptionMessage, array $event)
+    {
+        $this->expectException($exception);
+        $this->expectExceptionMessage($exceptionMessage);
+        new SnsEvent($event);
     }
 }

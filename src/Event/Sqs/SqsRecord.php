@@ -3,6 +3,7 @@
 namespace Bref\Event\Sqs;
 
 use InvalidArgumentException;
+use LogicException;
 
 /**
  * @final
@@ -13,9 +14,18 @@ class SqsRecord
 
     public function __construct(mixed $record)
     {
-        if (! is_array($record) || ! isset($record['eventSource']) || $record['eventSource'] !== 'aws:sqs') {
+        if (! is_array($record) || ! isset($record['eventSource'])) {
             throw new InvalidArgumentException;
         }
+
+        if ($record['eventSource'] === 'aws:sns') {
+            throw new LogicException('Unexpected record type "sns". Check your AWS infrastructure.');
+        }
+
+        if ($record['eventSource'] !== 'aws:sqs') {
+            throw new InvalidArgumentException;
+        }
+
         $this->record = $record;
     }
 
