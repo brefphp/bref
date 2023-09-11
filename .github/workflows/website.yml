@@ -25,5 +25,7 @@ jobs:
                 run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
             -   name: Build
                 run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             -   name: Deploy
                 run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
