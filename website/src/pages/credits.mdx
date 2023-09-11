@@ -1,98 +1,11 @@
 import { useData } from 'nextra/data';
-import { graphql } from '@octokit/graphql';
 import { getContributors, mergeAndSortContributors } from '../github/contributors';
+import { getSponsors } from '../github/sponsors';
 
 export const getStaticProps = async () => {
-    const nonGitHubSponsors = [
-        {
-            isActive: true,
-            sponsorEntity: {
-                __typename: 'Organization',
-                login: 'whilenull',
-                name: 'Null',
-                websiteUrl: 'https://null.tc/?ref=bref',
-            },
-            isOneTimePayment: false,
-        },
-        {
-            isActive: true,
-            sponsorEntity: {
-                __typename: 'Organization',
-                login: 'CraftCMS',
-                name: 'CraftCMS',
-                websiteUrl: 'https://craftcms.com/?ref=bref.sh',
-            },
-            isOneTimePayment: false,
-        },
-        {
-            isActive: true,
-            sponsorEntity: {
-                __typename: 'Organization',
-                login: 'ShippyPro',
-                name: 'ShippyPro',
-                websiteUrl: 'https://www.shippypro.com/?ref=bref.sh',
-            },
-            isOneTimePayment: false,
-        },
-        {
-            isActive: true,
-            sponsorEntity: {
-                __typename: 'Organization',
-                login: 'Tideways',
-                name: 'Tideways',
-                websiteUrl: 'https://tideways.com/?ref=bref',
-            },
-            isOneTimePayment: false,
-        },
-        {
-            isActive: true,
-            sponsorEntity: {
-                __typename: 'Organization',
-                login: 'MyBuilder',
-                name: 'MyBuilder',
-                websiteUrl: 'https://www.mybuilder.com/?ref=bref.sh',
-            },
-            isOneTimePayment: false,
-        },
-    ];
-
-    const sponsorsQuery = `
-    {
-      viewer {
-        sponsorshipsAsMaintainer(activeOnly: false, first: 100) {
-          totalCount
-          edges {
-            node {
-              isActive
-              isOneTimePayment
-              sponsorEntity {
-                __typename
-                ... on User {
-                  name
-                  login
-                  websiteUrl
-                  twitterUsername
-                }
-                ... on Organization {
-                  name
-                  login
-                  websiteUrl
-                  twitterUsername
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    `;
-    let sponsorsResponse;
+    let sponsors;
     try {
-        sponsorsResponse = await graphql(sponsorsQuery, {
-            headers: {
-                authorization: `token ${process.env.GITHUB_TOKEN_READ}`
-            }
-        });
+        sponsors = await getSponsors();
     } catch (e) {
         console.error(e);
         return {
@@ -102,14 +15,8 @@ export const getStaticProps = async () => {
                     contributors: [],
                 },
             },
-            // The page will be considered as stale and regenerated every 60 seconds.
-            revalidate: false,
         };
     }
-    const sponsors = [
-        ...nonGitHubSponsors,
-        ...sponsorsResponse.viewer.sponsorshipsAsMaintainer.edges.map(({ node }) => node),
-    ];
 
     const contributors = mergeAndSortContributors([
         ...(await getContributors('brefphp/bref')),
