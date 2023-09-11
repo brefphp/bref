@@ -188,7 +188,7 @@ LOGS;
         self::assertArraySubset([
             // On the CLI we want errors to be sent to stdout -> those will end up in CloudWatch
             'display_errors' => '1',
-            // This means `stderr` in php-cli (http://php.net/manual/errorfunc.configuration.php#ini.error-log)
+            // This means `stderr` in php-cli (https://www.php.net/manual/en/errorfunc.configuration.php#ini.error-log)
             'error_log' => null,
             // This is the default production value
             'error_reporting' => (string) (E_ALL & ~E_DEPRECATED & ~E_STRICT),
