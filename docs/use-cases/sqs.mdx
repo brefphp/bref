@@ -49,7 +49,7 @@ Then, create a Lambda function that listens to SQS events with the handler you c
         ```yml filename="serverless.yml"
         functions:
             # ...
-            events:
+            resizeImage:
                 handler: App\MyHandler
                 events:
                     - sqs:
