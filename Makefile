@@ -6,16 +6,16 @@ trigger_runtimes:
 runtime_build_status:
 	aws codepipeline get-pipeline-state --name=bref-php-binary | jq ".stageStates[1].latestExecution.status"
 
-# Generate and deploy the production version of the website using http://couscous.io
+# Generate and deploy the production version of the website using https://couscous.io/
 website:
-	# See http://couscous.io/
+	# See https://couscous.io/
 	couscous generate
 	netlify deploy --prod --dir=.couscous/generated
 website-staging:
 	couscous generate
 	netlify deploy --dir=.couscous/generated
 
-# Run a local preview of the website using http://couscous.io
+# Run a local preview of the website using https://couscous.io/
 website-preview:
 	couscous preview
 
