@@ -12,7 +12,7 @@ jobs:
 
     php-tests:
         name: Tests - PHP ${{ matrix.php }} ${{ matrix.dependency-version }}
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         timeout-minutes: 15
         strategy:
             matrix:
@@ -24,9 +24,9 @@ jobs:
                         dependency-version: '--prefer-lowest'
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v4
             # Node is required by some tests
-            -   uses: actions/setup-node@v1
+            -   uses: actions/setup-node@v3
                 with:
                     node-version: 12
             -   name: Setup PHP
@@ -50,19 +50,19 @@ jobs:
                 run: 'vendor/bin/phpunit --testsuite small'
 
     phpstan:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         name: PHPStan
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v4
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 8.1
+                    php-version: '8.1'
                     tools: composer:v2, cs2pr
                     coverage: none
             -   name: Cache Composer dependencies
-                uses: actions/cache@v2
+                uses: actions/cache@v3
                 with:
                     path: ~/.composer/cache
                     key: php-composer-locked-${{ hashFiles('composer.lock') }}
@@ -73,19 +73,19 @@ jobs:
                 run: vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr
 
     phpcs:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         name: PHP CodeSniffer
         steps:
             -   name: Checkout
-                uses: actions/checkout@v2
+                uses: actions/checkout@v4
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: 7.4
+                    php-version: '7.4'
                     tools: composer:v2, cs2pr
                     coverage: none
             -   name: Cache Composer dependencies
-                uses: actions/cache@v2
+                uses: actions/cache@v3
                 with:
                     path: ~/.composer/cache
                     key: php-composer-locked-${{ hashFiles('composer.lock') }}
