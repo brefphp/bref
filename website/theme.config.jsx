@@ -1,6 +1,7 @@
 // https://nextra.site/docs/docs-theme/theme-configuration
 import { useRouter } from 'next/router';
 import { AnimatedLogo } from './src/components/AnimatedLogo';
+import Footer from './src/components/Footer';
 
 export default {
     logo: <AnimatedLogo className="h-8" />,
@@ -34,7 +35,6 @@ export default {
     darkMode: false,
     nextThemes: {
         themes: ['light'],
-        enableSystem: false,
     },
     primaryHue: 202,
     sidebar: {
@@ -46,6 +46,7 @@ export default {
         </>
     ),
     footer: {
+        component: Footer,
         text: (
             <span>
                 MIT {new Date().getFullYear()} ©{' '}
