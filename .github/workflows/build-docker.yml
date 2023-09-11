@@ -8,10 +8,10 @@ on:
 jobs:
   publish:
     name: Building images
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Build images
         run: make docker-images
