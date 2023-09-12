@@ -42,6 +42,7 @@ services:
             - .:/var/task
         environment:
             HANDLER: public/index.php
+        user: nobody
 ```
 
 After running `docker-compose up`, the application will be available at [http://localhost:8000/](http://localhost:8000/).
