@@ -1,5 +1,6 @@
 {
   "fpm-runtime": "PHP-FPM runtime",
-  "function": "Event-driven functions",
+  "function": "Function runtime",
+  "console": "Console runtime",
   "runtimes-details": "Runtimes in details"
 }

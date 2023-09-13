@@ -1,24 +1,28 @@
----
-title: Console commands
-current_menu: console-applications
-introduction: Learn how to run serverless console commands on AWS Lambda with Symfony Console or Laravel Artisan.
-previous:
-    link: /docs/websites.html
-    title: Website assets
-next:
-    link: /docs/web-apps/cron.html
-    title: Cron commands
----
+export const introduction = 'Learn how to run serverless console commands on AWS Lambda with Symfony Console or Laravel Artisan.';
 
-Bref provides a way to run console commands on AWS Lambda.
+# Console runtime
 
-This can be used to run PHP scripts, the [Symfony Console](https://symfony.com/doc/current/console.html), as well as [Laravel Artisan](https://laravel.com/docs/artisan) commands in production.
+Bref's "Console" runtime lets us run CLI scripts on AWS Lambda.
 
-## Configuration
+This can be used to run PHP scripts, like cron tasks, the [Symfony Console](https://symfony.com/doc/current/console.html), [Laravel Artisan](https://laravel.com/docs/artisan), and more.
 
-The lambda function used for running console applications must use the `php-xx-console` runtime. Here is an example `serverless.yml`:
+## How it works
 
-```yaml
+When the function is invoked, the Console runtime will execute the PHP script defined as the *handler* in a sub-process.
+
+The result of the execution (exit code and output) will be returned as the result of the AWS Lambda invocation. All the CLI output is also logged ([learn more about logs](../environment/logs.mdx)).
+
+Console functions can be invoked:
+
+- via a cron schedule
+- via the `serverless bref:cli` command
+- manually by invoking the function via the AWS API
+
+## Usage
+
+The Lambda function used for running console applications must use the `php-xx-console` runtime. Here is an example:
+
+```yml filename="serverless.yml" {8-9}
 service: app
 provider:
     name: aws
@@ -26,15 +30,44 @@ plugins:
     - ./vendor/bref/bref
 functions:
     hello:
-        handler: bin/console # or 'artisan' for Laravel
+        handler: the-php-script-to-run.php
         runtime: php-81-console
 ```
 
 Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-81` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](../runtimes.mdx)).
 
-## Usage
+## Running commands
 
-To run a console command on AWS Lambda, run `serverless bref:cli` on your computer:
+When invoked, the "Console" runtime executes the `handler` script in a sub-process. For example, if the following handler was defined:
+
+```yml filename="serverless.yml"
+functions:
+    hello:
+        handler: the-php-script-to-run.php
+        runtime: php-81-console
+```
+
+Then the following command would run in Lambda every time the function is invoked:
+
+```sh
+php the-php-script-to-run.php
+```
+
+The Lambda function can be invoked with a payload. It must be a JSON string, for example `"arg1 arg2 --option1=foo"`. Note that it is a string encoded in JSON, that is why it is in quotes, `json_decode($payload)` would return the string itself.
+
+In our example, the following command would run in Lambda when invoked with such a payload:
+
+```sh
+php the-php-script-to-run.php arg1 arg2 --option1=foo
+```
+
+### Cron
+
+Read the dedicated documentation for [running cron tasks on AWS Lambda](../use-cases/cron.mdx).
+
+### CLI invocation
+
+To manually run a console command on AWS Lambda, run `serverless bref:cli` on your computer:
 
 ```bash
 serverless bref:cli --args="<command to run in lambda>"
@@ -64,7 +97,17 @@ $ AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar serverless bref:cli
 # ...
 ```
 
-### Usage without Serverless Framework
+The `bref:cli` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
+
+### Interactive terminal
+
+As an alternative to the CLI, the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) provides a convenient way to run commands via a terminal:
+
+[![Bref Dashboard terminal for Laravel](../runtimes/dashboard-terminal.png)](https://dashboard.bref.sh/?ref=bref)
+
+Functions using the "console" runtime are automatically detected, and colors are enabled by default for Laravel Artisan and Symfony Console.
+
+### Without Serverless Framework
 
 If you do not use `serverless.yml` but something else, like SAM/AWS CDK/Terraform, you can invoke your console function via the AWS CLI. For example:
 
@@ -96,12 +139,6 @@ aws lambda invoke \
 
 > **Note:**
 > The `--payload` needs to contain a JSON string, that is why it is quoted twice: `'"..."'`. This is intentional.
-
-The [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) also provides a convenient way to run commands via a terminal:
-
-[![Bref Dashboard terminal for Laravel](../runtimes/dashboard-terminal.png)](https://dashboard.bref.sh/?ref=bref)
-
-Functions using the "console" runtime are automatically detected, and colors are enabled by default for Laravel Artisan and Symfony Console.
 
 ## Lambda context
 
