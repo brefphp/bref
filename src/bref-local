@@ -30,8 +30,6 @@ if (isset($opts['path'])) {
     }
 
     $data = file_get_contents($opts['path']);
-} elseif (isset($opts['data'])) {
-    $data = $opts['data'];
 }
 
 // Retains backward compatibilty with `./vendor/bin/bref-local <handler> <event-data>`
