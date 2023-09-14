@@ -20,7 +20,7 @@ $opts = getopt('f:', ['path:', 'data:']);
 $handler = $opts['f'] ?? null;
 $data = $opts['data'] ?? null;
 
-if ($handler !== null && ! is_file($opts['f'])) {
+if ($handler !== null && ! is_file($handler)) {
     throw new Exception('Handler file ' . $handler . ' could not be found.');
 }
 
