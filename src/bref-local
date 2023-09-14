@@ -20,14 +20,6 @@ $opts = getopt('f:', ['path:', 'data:']);
 $handler = $opts['f'] ?? null;
 $data = $opts['data'] ?? null;
 
-if (isset($opts['path'])) {
-    if (! file_exists($opts['path'])) {
-        throw new Exception('The file ' . $opts['path'] . ' could not be found.');
-    }
-
-    $data = file_get_contents($opts['path']);
-}
-
 if (isset($opts['f'])) {
     if (! file_exists($opts['f'])) {
         throw new Exception('Handler file ' . $opts['f'] . ' could not be found.');
@@ -38,6 +30,14 @@ if (isset($opts['f'])) {
     }
 
     $handler = $opts['f'];
+}
+
+if (isset($opts['path'])) {
+    if (! file_exists($opts['path'])) {
+        throw new Exception('The file ' . $opts['path'] . ' could not be found.');
+    }
+
+    $data = file_get_contents($opts['path']);
 }
 
 // Retains backward compatibilty with `./vendor/bin/bref-local <handler> <event-data>`
