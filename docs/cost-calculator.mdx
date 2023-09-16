@@ -3,7 +3,7 @@ export const introduction = 'Calculate the costs of running your PHP application
 
 # Serverless costs calculator
 
-Use the calculator below to estimate the costs of running your PHP application on AWS Lambda.
+Use the calculator below to estimate the costs of running your PHP application serverless on AWS Lambda.
 
 <Calculator />
 
@@ -217,7 +217,7 @@ export function Calculator() {
 
             <div className="mt-6 sm:grid sm:grid-cols-5 sm:items-start sm:gap-4 sm:py-2">
                 <h3 className="block sm:col-span-2 text-xl font-extrabold leading-6 sm:pt-1.5">
-                    Total costs
+                    Total AWS costs
                 </h3>
                 <div className="mt-2 sm:col-span-3 sm:mt-0 py-1.5 sm:leading-6 text-xl font-extrabold">
                     ${totalCost.toFixed(2)}/month
