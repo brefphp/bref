@@ -39,11 +39,35 @@ Accept all the defaults by pressing "Enter". The following files will be created
 - `index.php` contains the code of your application
 - `serverless.yml` contains the configuration for deploying on AWS
 
-You are free to edit the code in `index.php`. If you want to deploy an existing application, you can delete `index.php` and edit `serverless.yml` to point to your existing index file (for example it may be another file like `public/index.php`).
+You are free to edit `index.php`.
+
+To deploy an existing application, you can delete `index.php` and edit `serverless.yml` to point to your existing index file (for example it may be another file like `public/index.php`). You can also create the `serverless.yml` file manually:
+
+```yml filename="serverless.yml"
+service: app
+provider:
+    name: aws
+    region: us-east-1
+
+functions:
+    web:
+        handler: index.php
+        runtime: php-81-fpm
+        events:
+            -   httpApi: '*'
+
+package:
+    patterns: # Exclude files from deployment
+        - '!node_modules/**'
+        - '!tests/**'
+
+plugins:
+    - ./vendor/bref/bref
+```
 
 ## Deployment
 
-To deploy, let's run:
+To deploy, run:
 
 ```bash
 serverless deploy
@@ -57,7 +81,7 @@ https://3pjp2yiw97.execute-api.us-east-1.amazonaws.com
 
 Open this URL and you should see your application: `index.php` is running on Lambda!
 
-🎉 congrats on creating your first serverless application!
+Congrats on creating your first serverless application 🎉
 
 To learn more about deployments, head over the [Deployment guide](../deploy.mdx).
 
