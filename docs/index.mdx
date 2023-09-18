@@ -1,6 +1,4 @@
----
-introduction: An introduction to what serverless and Bref can offer for PHP applications.
----
+export const introduction = 'An introduction to what serverless and Bref can offer for PHP applications.';
 
 # What is Bref and serverless?
 
@@ -64,11 +62,12 @@ Bref uses [the Serverless framework](https://serverless.com/) to configure and d
 Bref and AWS Lambda can be used to run many kind of PHP application, for example:
 
 - APIs
+- websites
 - workers
 - batch processes/scripts
-- websites
+- event-driven microservices
 
-Bref aims to support any PHP framework as well.
+Bref aims to support any PHP framework. It comes with deep integrations with Laravel and Symfony.
 
 If you are interested in real-world examples as well as cost analyses head over to the [**Case Studies** page](/docs/case-studies.md).
 
@@ -80,82 +79,98 @@ This maturity level is a vague metric, however it can be useful to anticipate th
 
 This matrix will be updated as Bref and AWS services evolve over time.
 
-<table class="text-xs sm:text-sm text-gray-700 table-fixed">
-    <tr class="bg-gray-100">
-        <th class="p-4"></th>
-        <th class="font-normal p-4">Simplicity</th>
-        <th class="font-normal p-4">Performance</th>
-        <th class="font-normal p-4">Reliability</th>
+<table className="text-xs sm:text-sm mt-6">
+    <thead>
+    <tr className="bg-gray-100">
+        <th className="p-4"></th>
+        <th className="font-normal p-4">Simplicity</th>
+        <th className="font-normal p-4">Performance</th>
+        <th className="font-normal p-4">Reliability</th>
     </tr>
-    <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold">
+    </thead>
+    <tbody>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">
             Jobs, Cron
         </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
         </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
         </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-    </tr>
-    <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold">API</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
-    <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold">Website</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">API</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
         </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
         </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-    </tr>
-    <tr class="border-b border-gray-200">
-        <td class="p-4 bg-gray-100 font-bold">Legacy application</td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-orange-400"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
-        </td>
-        <td class="p-4 text-center">
-            <span class="maturity-icon shadow bg-green-400"></span>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
-    <tr class="text-xs text-center leading-normal text-gray-600">
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">Website</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">Legacy application</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-yellow-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">Event-driven microservices</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="text-xs text-center text-gray-600">
         <td></td>
-        <td class="p-3">
+        <td className="p-3">
             Is this documented and simple to achieve?
         </td>
-        <td class="p-3">
+        <td className="p-3">
             Is performance acceptable?
         </td>
-        <td class="p-3">
+        <td className="p-3">
             Is this scenario production-ready?
         </td>
     </tr>
+    </tbody>
 </table>
 
-<div class="text-left text-xs text-gray-700 mb-8">
+<div className="text-xs text-gray-700 mb-8">
     Legend:
-    <span class="inline-block my-1 mx-1 sm:mx-2 bg-green-100 text-green-600 rounded-full px-4 py-1">Good use case</span>
-    <span class="inline-block my-1 mx-1 sm:mx-2 bg-orange-100 text-orange-600 rounded-full px-4 py-1">Some drawbacks</span>
-    <span class="inline-block my-1 ml-1 sm:ml-2 bg-red-100 text-red-600 rounded-full px-4 py-1">Strong limitations</span>
+    <span className="inline-block my-1 mx-1 sm:mx-2 bg-green-100 text-green-600 rounded-full px-2">Good use case</span>
+    <span className="inline-block my-1 mx-1 sm:mx-2 bg-orange-100 text-orange-600 rounded-full px-2">Some drawbacks</span>
+    <span className="inline-block my-1 ml-1 sm:ml-2 bg-red-100 text-red-600 rounded-full px-2">Strong limitations</span>
 </div>
 
 - **Jobs, Cron**
@@ -164,19 +179,23 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
     Using Bref, it is possible to implement cron jobs and queue workers using PHP. Bref also provides integration with popular queue libraries, like Laravel Queues and Symfony Messenger.
 
+    One limitation to keep in mind is that each AWS Lambda invocation has a maximum execution time of 15 minutes.
+
 - **API**
 
-    APIs run on AWS Lambda without problems. Performance is now similar to what you could expect on traditional VPS.
+    APIs run on AWS Lambda without problems. Performance is now similar to what you could expect on a traditional VPS.
+
+    The main difference to account for is that about 0.5% of HTTP requests are cold starts. If your use case requires that _all_ requests are handled below 10ms, serverless might not be a good fit.
 
 - **Website**
 
-    Websites can run on AWS Lambda. Assets can be stored in S3 and served via Cloudfront. This is documented in the ["Websites" documentation](/docs/use-cases/websites.mdx). Performance is as good as any server.
+    Websites run well on AWS Lambda. Assets can be stored in S3 and served via Cloudfront. This is documented in the ["Websites" documentation](/docs/use-cases/websites.mdx). Performance is as good as any server.
 
 - **Legacy application**
 
     Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite some parts of the code to make the application fit for Lambda (or running in containers in general). For example, file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and SQS.
 
-    Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net).
+    Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net). Note that if your application already runs redundantly on multiple servers, it is much more ready for AWS Lambda and the migration could be simple.
 
 ## Getting started
 

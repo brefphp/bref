@@ -39,3 +39,11 @@ body {
     stroke: #fff !important;
     stroke-width: 1px !important;
 }
+
+.maturity-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 9999px;
+    vertical-align: text-top;
+}

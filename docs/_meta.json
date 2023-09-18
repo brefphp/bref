@@ -1,6 +1,5 @@
 {
   "index": "What is Bref and serverless?",
-  "costs-calculator": "Costs calculator",
   "-- Getting started": {
     "type": "separator",
     "title": "Getting started"
@@ -14,6 +13,7 @@
     "title": "How it works"
   },
   "runtimes": "PHP runtimes for AWS Lambda",
+  "costs-calculator": "Costs calculator",
   "-- Workflow": {
     "type": "separator",
     "title": "Workflow"
