@@ -34,7 +34,8 @@ export default {
     },
     darkMode: false,
     nextThemes: {
-        themes: ['light'],
+        defaultTheme: 'light',
+        forcedTheme: 'light',
     },
     primaryHue: 202,
     sidebar: {
