@@ -41,6 +41,14 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
     const urlWithoutAnchor = url.split('#')[0];
     if (pageCache[urlWithoutAnchor] === undefined) {
         const response = await fetch(url);
+        // Ignore redirects to other domains (e.g. https://bref.sh/slack)
+        const originalDomain = new URL(url).hostname;
+        const finalDomain = new URL(response.url).hostname;
+        if (finalDomain !== originalDomain) {
+            console.log(`Ignoring ${url} redirecting to ${response.url}`);
+            pageCache[urlWithoutAnchor] = false;
+            return;
+        }
         if (! response.ok) {
             pageCache[urlWithoutAnchor] = false;
         } else {
@@ -80,6 +88,7 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
                     // Ignore already scanned links
                     return;
                 }
+                stdout.write(`Found new link ${newLink} on ${url}\n`);
                 links[newLink] = false;
             }
         },

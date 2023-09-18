@@ -17,4 +17,4 @@ node_modules:
 	npm install
 
 check-links:
-	node link-checker/index.js https://website-v3--bref-website-v2.netlify.app/docs
+	node link-checker/index.js https://bref-website.vercel.app/

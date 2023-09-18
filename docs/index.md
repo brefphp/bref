@@ -70,7 +70,7 @@ Bref and AWS Lambda can be used to run many kind of PHP application, for example
 
 Bref aims to support any PHP framework as well.
 
-If you are interested in real-world examples as well as cost analyses head over to the [**Case Studies** page](case-studies.md).
+If you are interested in real-world examples as well as cost analyses head over to the [**Case Studies** page](/docs/case-studies.md).
 
 ## Maturity matrix
 
@@ -170,7 +170,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Website**
 
-    Websites can run on AWS Lambda. Assets can be stored in S3 and served via Cloudfront. This is documented in the ["Websites" documentation](/docs/web-apps/website-assets.md). Performance is as good as any server.
+    Websites can run on AWS Lambda. Assets can be stored in S3 and served via Cloudfront. This is documented in the ["Websites" documentation](/docs/use-cases/websites.mdx). Performance is as good as any server.
 
 - **Legacy application**
 
@@ -180,4 +180,4 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 ## Getting started
 
-Get started with Bref by reading the [installation documentation](setup.mdx).
+Get started with Bref by reading the [installation documentation](/docs/setup.mdx).
