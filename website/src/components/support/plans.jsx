@@ -78,7 +78,7 @@ export default function Plans() {
             <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
                 Bref is a free and open-source project <a className="link" href="https://github.com/brefphp/bref">hosted on GitHub</a>.
                 <br/>
-                Bref Pro and Bref Enterprise are offered by <a className="link" href="https://null.tc">Null</a>, the company behind Bref.
+                Bref Pro and Bref Enterprise are support plans offered by <a className="link" href="https://null.tc">Null</a>, the company behind Bref.
             </p>
 
             {/* xs to lg */}
