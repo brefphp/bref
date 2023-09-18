@@ -28,7 +28,7 @@ jobs:
             # Node is required by some tests
             -   uses: actions/setup-node@v3
                 with:
-                    node-version: 12
+                    node-version: 18
             # serverless is required by some tests
             -   name: Install serverless
                 run: npm i -g serverless
