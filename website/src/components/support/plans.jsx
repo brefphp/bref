@@ -37,16 +37,9 @@ const sections = [
             { name: 'The Bref open-source project, its documentation and framework integrations', tiers: { OpenSource: true, Pro: true, Enterprise: true } },
             { name: 'Deploy your applications to your AWS account', tiers: { OpenSource: true, Pro: true, Enterprise: true } },
             { name: 'Use the public AWS Lambda runtimes hosted in the Bref AWS account', tiers: { OpenSource: true, Pro: true, Enterprise: true } },
-            { name: 'Use AWS Lambda runtimes hosted in your AWS account (opt-in)', tiers: { Pro: true, Enterprise: true } },
-            { name: ' Self-built, tailor-made AWS Lambda runtimes and PHP extensions optimized for your project (opt-in)', tiers: { Enterprise: true } },
+            { name: 'Use AWS Lambda runtimes hosted in your AWS account', tiers: { Pro: 'Optional', Enterprise: 'Optional' } },
+            { name: ' Self-built, tailor-made AWS Lambda runtimes and PHP extensions optimized for your project', tiers: { Enterprise: 'Optional' } },
             { name: 'Appear as an open-source sponsor 💙', tiers: { Pro: 'Gold sponsor', Enterprise: 'Premium sponsor' } },
-        ],
-    },
-    {
-        name: 'Extra integrations',
-        features: [
-            { name: 'AWS X-Ray integration', tiers: { Pro: true, Enterprise: true } },
-            { name: 'Sentry integration', tiers: { Pro: true, Enterprise: true } },
         ],
     },
     {
@@ -59,6 +52,13 @@ const sections = [
             { name: 'GitHub/GitLab infrastructure code review', tiers: { Enterprise: true } },
             { name: 'Unlimited access to the <a class="underline" href="https://serverless-visually-explained.com/">Serverless Visually Explained</a> course', tiers: { Enterprise: true } },
             { name: 'Onboarding workshop online or on-site', tiers: { Enterprise: 'Optional' } },
+        ],
+    },
+    {
+        name: 'Extra integrations',
+        features: [
+            { name: 'Sentry integration', tiers: { Pro: true, Enterprise: true } },
+            { name: 'AWS X-Ray integration', tiers: { Pro: 'Early access', Enterprise: 'Early access' } },
         ],
     },
 ]

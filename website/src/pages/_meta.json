@@ -18,10 +18,9 @@
       "typesetting": "article"
     }
   },
-  "plans": {
+  "support": {
     "type": "page",
-    "title": "Plans",
-    "display": "hidden",
+    "title": "Support",
     "theme": {
       "layout": "raw"
     }

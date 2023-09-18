@@ -25,7 +25,7 @@ export default function Companies() {
                             >
                                 Documentation
                             </a>
-                            <a href="/plans" className="text-sm font-semibold text-white">
+                            <a href="/src/pages/support" className="text-sm font-semibold text-white">
                                 Support & consulting <span aria-hidden="true">&rarr;</span>
                             </a>
                         </div>
