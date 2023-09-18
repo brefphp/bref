@@ -5,7 +5,6 @@ export function AnimatedLogo({ children, ...props }) {
     useEffect(() => {
         const interval = setInterval(() => {
             setCounter((counter + 1) % 28);
-            console.log(counter);
         }, 200);
         return () => clearInterval(interval);
     }, [counter]);
