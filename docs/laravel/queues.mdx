@@ -51,16 +51,18 @@ If you want to create the SQS queue manually, you will need to set these variabl
 
 That's it! Anytime a job is pushed to Laravel Queues, it will be sent to SQS, and SQS will invoke our "worker" function so that it is processed.
 
-> **Note**:
-> 
-> In the example above, we set the full SQS queue URL in the `SQS_QUEUE` variable.
-> 
-If you only set the queue name (which is also valid), you need to set the `SQS_PREFIX` environment variable too. For example: `SQS_PREFIX: "https://sqs.${aws:region}.amazonaws.com/${aws:accountId}"`.
+<Callout>
+    In the example above, we set the full SQS queue URL in the `SQS_QUEUE` variable.
 
-### How it works
+    If you only set the queue name (which is also valid), you need to set the `SQS_PREFIX` environment variable too. For example: `SQS_PREFIX: "https://sqs.${aws:region}.amazonaws.com/${aws:accountId}"`.
+</Callout>
+
+## How it works
 
 When integrated with AWS Lambda, SQS has a built-in retry mechanism and storage for failed messages. These features work slightly differently than Laravel Queues. The "Bref for Laravel" integration does **not** use these SQS features.
 
 Instead, "Bref for Laravel" makes all the feature of Laravel Queues work out of the box, just like on any server. Read more in [the Laravel Queues documentation](https://laravel.com/docs/latest/queues).
 
-> **Note:** the "Bref-Laravel bridge" v1 used to do the opposite. We changed that behavior in Bref v2 in order to make the experience smoother for Laravel users.
+<Callout>
+    The "Bref-Laravel bridge" v1 used to do the opposite. We changed that behavior in Bref v2 in order to make the experience smoother for Laravel users.
+</Callout>

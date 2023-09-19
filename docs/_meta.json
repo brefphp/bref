@@ -12,7 +12,7 @@
     "type": "separator",
     "title": "How it works"
   },
-  "runtimes": "PHP runtimes for AWS Lambda",
+  "runtimes": "PHP runtimes for Lambda",
   "serverless-costs": "Serverless costs",
   "-- Workflow": {
     "type": "separator",
@@ -28,14 +28,14 @@
   "use-cases": "Use cases",
   "environment": "Environment",
   "upgrading": "Upgrading",
-  "-- Learning": {
+  "-- Resources": {
     "type": "separator",
-    "title": "Learning"
+    "title": "Resources"
   },
   "course": {
-    "title": "Course",
+    "title": "Serverless course",
     "href": "https://serverless-visually-explained.com/?ref=bref-menu"
   },
-  "case-studies": "",
-  "community": ""
+  "community": "",
+  "case-studies": ""
 }

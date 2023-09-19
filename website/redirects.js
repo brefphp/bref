@@ -8,4 +8,5 @@ module.exports.redirects = {
     '/docs/web-apps/index.md#assets': '/docs/use-cases/websites',
     '/docs/function/local-development': '/docs/local-development/event-driven-functions',
     '/docs/frameworks/laravel': '/docs/laravel/getting-started',
+    '/docs/newsletters': '/docs/community#newsletters',
 };
