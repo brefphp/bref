@@ -1,6 +1,4 @@
----
-introduction: Run Laravel with Octane on AWS Lambda using Bref.
----
+export const introduction = 'Run Laravel with Octane on AWS Lambda using Bref.';
 
 # Laravel Octane
 
@@ -20,6 +18,7 @@ Keep the following details in mind:
 
 - Laravel Octane does not need Swoole or RoadRunner on AWS Lambda, so it is not possible to use Swoole-specific features.
 - Octane keeps Laravel booted in a long-running process, [beware of memory leaks](https://laravel.com/docs/10.x/octane#managing-memory-leaks).
+- The process is kept alive between requests, but you still don't pay for time between requests. The execution model and cost model of AWS Lambda does not change (Lambda is frozen between requests).
 - `BREF_LOOP_MAX` specifies the number of HTTP requests handled before the PHP process is restarted (and the memory is cleared).
 
 ### Persistent database connections
