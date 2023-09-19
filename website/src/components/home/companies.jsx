@@ -13,7 +13,7 @@ export default function Companies() {
                 <div className="grid grid-cols-1 items-center gap-x-8 gap-y-16 lg:grid-cols-2">
                     <div className="mx-auto w-full max-w-xl lg:mx-0">
                         <h2 className="text-3xl font-black leading-8 text-white">
-                            Used in production around the world
+                            Used by thousands of companies
                         </h2>
                         <p className="mt-6 text-lg leading-8 text-gray-300">
                             Get started with Bref on your own, or get in touch for support and consulting.
