@@ -13,7 +13,7 @@
     "title": "How it works"
   },
   "runtimes": "PHP runtimes for AWS Lambda",
-  "costs-calculator": "Costs calculator",
+  "serverless-costs": "Serverless costs",
   "-- Workflow": {
     "type": "separator",
     "title": "Workflow"

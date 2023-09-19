@@ -1,7 +1,23 @@
 import { useState } from 'react';
+
 export const introduction = 'Calculate the costs of running your PHP application on AWS Lambda.';
 
-# Serverless costs calculator
+# Costs of a serverless application
+
+Unlike traditional hosting, serverless hosting is billed based on usage. This means that you only pay for what you use, **down to the request**.
+
+To be clear, this means that if your application is not used, you don't pay anything.
+
+On AWS Lambda, you pay for:
+
+- the number of requests
+- the duration of the requests (the time it takes to execute your code)
+
+There are no costs when the PHP application is waiting between requests (or jobs, events, etc.). It doesn't matter if AWS Lambda scaled your functions up to several instances (containers), you only pay for the requests and the duration of the requests.
+
+For some use cases it has interesting consequences: 1 job running for 10 minutes has about the same costs as 600 jobs running for 1 second in parallel.
+
+## Costs calculator
 
 Use the calculator below to estimate the costs of running your PHP application serverless on AWS Lambda.
 
