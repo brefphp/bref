@@ -7,7 +7,7 @@ import nullLogo from './sponsors/logo-null.png';
 import awsLogo from './sponsors/logo-aws.svg';
 import jetbrainsLogo from './sponsors/logo-jetbrains.svg';
 import laravelLogo from './sponsors/logo-laravel.svg';
-import depotLogo from './sponsors/logo-depot.png';
+import depotLogo from './sponsors/logo-depot.svg';
 import secumailerLogo from './sponsors/logo-secumailer.svg';
 import ecomailLogo from './sponsors/logo-ecomail.png';
 import PremiumSponsor from './sponsors/premium-sponsor';
@@ -16,7 +16,7 @@ export default function Sponsors() {
     return (
         <div className="home-container home-section">
             <h2 className="text-center text-3xl font-black leading-8 text-gray-900">
-                They sponsor the open-source project ❤️
+                They sponsor the open-source project <span className="text-red-600">❤️</span>
             </h2>
 
             <h3 className="mt-16 text-lg font-bold text-gray-700">
@@ -36,8 +36,8 @@ export default function Sponsors() {
             </h3>
             <div className="mt-4 -mx-6 grid grid-cols-3 gap-0.5 overflow-hidden sm:mx-0 sm:rounded-2xl md:grid-cols-5">
                 <GoldSponsor src={jetbrainsLogo} alt="JetBrains - Maker of PhpStorm" href="https://www.jetbrains.com/?ref=bref.sh" imgClass="-my-4 max-h-16" />
-                <GoldSponsor src={laravelLogo} alt="Laravel" href="https://laravel.com/?ref=bref.sh" />
-                <GoldSponsor src={depotLogo} alt="Depot" href="https://depot.dev/?ref=bref.sh" imgClass="py-0.5" />
+                <GoldSponsor src={laravelLogo} alt="Laravel" href="https://laravel.com/?ref=bref.sh" imgClass="-my-4 max-h-16" />
+                <GoldSponsor src={depotLogo} alt="Depot" href="https://depot.dev/?ref=bref.sh" imgClass="py-3" />
                 <GoldSponsor src={secumailerLogo} alt="SecuMailer" href="https://secumailer.com/?ref=bref.sh" imgClass="py-1.5" />
                 <GoldSponsor src={ecomailLogo} alt="Ecomail" href="https://ecomail.cz/?ref=bref.sh" imgClass="py-3" />
             </div>
