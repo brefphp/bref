@@ -85,8 +85,7 @@ Have a look at the [Website guide](../use-cases/websites.mdx) to learn how to de
 
 ## Symfony Console
 
-As you may have noticed, we define a function named "console" in `serverless.yml`. That function is using the [Console runtime](/docs/web-apps/console.md),
-which lets us run the Symfony Console on AWS Lambda.
+As you may have noticed, we define a function named "console" in `serverless.yml`. That function is using the [Console runtime](../runtimes/console.mdx), which lets us run the Symfony Console on AWS Lambda.
 
 For example, to execute an `bin/console` command on Lambda, run the command below:
 
@@ -94,9 +93,13 @@ For example, to execute an `bin/console` command on Lambda, run the command belo
 serverless bref:cli --args="<console command and options>"
 ```
 
-For more details follow [the "Console" guide](/docs/web-apps/console.md).
+For example:
 
-TODO
+```bash
+serverless bref:cli --args="doctrine:migrations:migrate"
+```
+
+For more details follow [the "Console" guide](../runtimes/console.mdx).
 
 ## Logs
 

@@ -77,7 +77,7 @@ Have a look at the [Website guide](../use-cases/websites.mdx) to learn how to de
 
 ## Laravel Artisan
 
-As you may have noticed, we define a function named "artisan" in `serverless.yml`. That function is using the [Console runtime](/docs/web-apps/console.md), which lets us run Laravel Artisan on AWS Lambda.
+As you may have noticed, we define a function named "artisan" in `serverless.yml`. That function is using the [Console runtime](../runtimes/console.mdx), which lets us run Laravel Artisan on AWS Lambda.
 
 For example, to execute an `artisan` command on Lambda, run the command below:
 
@@ -85,9 +85,13 @@ For example, to execute an `artisan` command on Lambda, run the command below:
 serverless bref:cli --args="<artisan command and options>"
 ```
 
-For more details follow [the "Console" guide](/docs/web-apps/console.md).
+For example:
 
-TODO
+```bash
+serverless bref:cli --args="route:list"
+```
+
+For more details follow [the "Console" guide](../runtimes/console.mdx).
 
 ## Inertia
 
