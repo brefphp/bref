@@ -5,6 +5,7 @@ import myBuilderLogo from './companies/mybuilder.svg';
 import neuralLoveLogo from './companies/neural-love.svg';
 import enopteaLogo from './companies/enoptea.png';
 import gulliLogo from './companies/gulli.svg';
+import minutesLogo from './companies/20minutes.svg';
 
 export default function Companies() {
     return (
@@ -38,8 +39,8 @@ export default function Companies() {
                         />
                         <Image
                             className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
-                            src={bcastLogo}
-                            alt="bCast.fm"
+                            src={minutesLogo}
+                            alt="20minutes.fr"
                         />
                         <Image
                             className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
@@ -53,20 +54,22 @@ export default function Companies() {
                         />
                         <Image
                             className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
-                            src={neuralLoveLogo}
-                            alt="neural.love"
-                        />
-                        <Image
-                            className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
                             src={enopteaLogo}
                             alt="Enoptea"
                         />
-                        <div className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert">
-                            <span className="text-2xl font-bold text-white">phpjobs.app</span>
-                        </div>
+                        <Image
+                            className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
+                            src={bcastLogo}
+                            alt="bCast.fm"
+                        />
                         <div className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert">
                             <span className="text-2xl font-bold text-white">externals.io</span>
                         </div>
+                        <Image
+                            className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
+                            src={neuralLoveLogo}
+                            alt="neural.love"
+                        />
                     </div>
                 </div>
             </div>
