@@ -1,6 +1,7 @@
 import '../../styles/main.css';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import PlausibleProvider from 'next-plausible';
 const redirects = require('../../redirects').redirects;
 
 export default function MyApp({ Component, pageProps }) {
@@ -24,5 +25,9 @@ export default function MyApp({ Component, pageProps }) {
         }
     }, []);
 
-    return <Component {...pageProps} />
+    return (
+        <PlausibleProvider domain="bref.sh" trackOutboundLinks={true}>
+            <Component {...pageProps} />
+        </PlausibleProvider>
+    )
 }

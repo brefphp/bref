@@ -1,60 +1,75 @@
-import { ChevronRightIcon } from '@heroicons/react/20/solid'
-import { BookOpenIcon, BugAntIcon } from '@heroicons/react/24/solid'
+import { ChevronRightIcon } from '@heroicons/react/20/solid';
+import { BookOpenIcon, BugAntIcon } from '@heroicons/react/24/solid';
+import { usePlausible } from 'next-plausible';
+import { useEffect } from 'react';
 
-<main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">
-    <div className="mx-auto mt-20 max-w-2xl text-center sm:mt-24">
-        <div className="text-base font-semibold leading-8 text-blue-500">404</div>
-        <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">This page does not exist</h1>
-        <div className="mt-4 text-base leading-7 text-gray-600 sm:mt-6 sm:text-lg sm:leading-8">
-            Sorry, we couldn’t find the page you’re looking for.
+export default function NotFound() {
+    const plausible = usePlausible();
+    useEffect(() => {
+        // Track 404s so we can fix them
+        plausible('404', { props: { path: document.location.pathname } });
+    }, []);
+
+    return <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">
+        <div className="mx-auto mt-20 max-w-2xl text-center sm:mt-24">
+            <div className="text-base font-semibold leading-8 text-blue-500">404</div>
+            <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 sm:text-5xl">This page does not
+                exist</h1>
+            <div className="mt-4 text-base leading-7 text-gray-600 sm:mt-6 sm:text-lg sm:leading-8">
+                Sorry, we couldn’t find the page you’re looking for.
+            </div>
         </div>
-    </div>
-    <div className="mx-auto mt-16 flow-root max-w-lg sm:mt-20">
-        <h2 className="sr-only">Popular pages</h2>
-        <ul role="list" className="-mt-6 divide-y divide-gray-900/5 border-b border-gray-900/5">
+        <div className="mx-auto mt-16 flow-root max-w-lg sm:mt-20">
+            <h2 className="sr-only">Popular pages</h2>
+            <ul role="list" className="-mt-6 divide-y divide-gray-900/5 border-b border-gray-900/5">
 
-            <li className="relative flex gap-x-6 py-6">
-                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg shadow-sm ring-1 ring-gray-900/10">
-                    <BookOpenIcon className="h-6 w-6 text-blue-500" aria-hidden="true" />
-                </div>
-                <div className="flex-auto">
-                    <h3 className="text-sm font-semibold leading-6 text-gray-900">
-                        <a href="/docs/">
-                            <span className="absolute inset-0" aria-hidden="true" />
-                            Documentation
-                        </a>
-                    </h3>
-                    <div className="mt-2 text-sm leading-6 text-gray-600">Read the Bref documentation</div>
-                </div>
-                <div className="flex-none self-center">
-                    <ChevronRightIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                </div>
-            </li>
+                <li className="relative flex gap-x-6 py-6">
+                    <div
+                        className="flex h-10 w-10 flex-none items-center justify-center rounded-lg shadow-sm ring-1 ring-gray-900/10">
+                        <BookOpenIcon className="h-6 w-6 text-blue-500" aria-hidden="true" />
+                    </div>
+                    <div className="flex-auto">
+                        <h3 className="text-sm font-semibold leading-6 text-gray-900">
+                            <a href="/docs/">
+                                <span className="absolute inset-0" aria-hidden="true" />
+                                Documentation
+                            </a>
+                        </h3>
+                        <div className="mt-2 text-sm leading-6 text-gray-600">Read the Bref documentation</div>
+                    </div>
+                    <div className="flex-none self-center">
+                        <ChevronRightIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </div>
+                </li>
 
-            <li className="relative flex gap-x-6 py-6">
-                <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg shadow-sm ring-1 ring-gray-900/10">
-                    <BugAntIcon className="h-6 w-6 text-blue-500" aria-hidden="true" />
-                </div>
-                <div className="flex-auto">
-                    <h3 className="text-sm font-semibold leading-6 text-gray-900">
-                        <a href="https://github.com/brefphp/bref/issues/new?labels=bug&template=bug_report.md&title=404" target="_blank">
-                            <span className="absolute inset-0" aria-hidden="true" />
-                            Open a bug report
-                        </a>
-                    </h3>
-                    <div className="mt-2 text-sm leading-6 text-gray-600">Report the broken link in a GitHub issue</div>
-                </div>
-                <div className="flex-none self-center">
-                    <ChevronRightIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                </div>
-            </li>
+                <li className="relative flex gap-x-6 py-6">
+                    <div
+                        className="flex h-10 w-10 flex-none items-center justify-center rounded-lg shadow-sm ring-1 ring-gray-900/10">
+                        <BugAntIcon className="h-6 w-6 text-blue-500" aria-hidden="true" />
+                    </div>
+                    <div className="flex-auto">
+                        <h3 className="text-sm font-semibold leading-6 text-gray-900">
+                            <a href="https://github.com/brefphp/bref/issues/new?labels=bug&template=bug_report.md&title=404"
+                               target="_blank">
+                                <span className="absolute inset-0" aria-hidden="true" />
+                                Open a bug report
+                            </a>
+                        </h3>
+                        <div className="mt-2 text-sm leading-6 text-gray-600">Report the broken link in a GitHub issue
+                        </div>
+                    </div>
+                    <div className="flex-none self-center">
+                        <ChevronRightIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </div>
+                </li>
 
-        </ul>
-        <div className="mt-10 flex justify-center">
-            <a href="/" className="text-sm font-semibold leading-6 text-blue-500">
-                <span aria-hidden="true">&larr;</span>
-                Back to the home page
-            </a>
+            </ul>
+            <div className="mt-10 flex justify-center">
+                <a href="/" className="text-sm font-semibold leading-6 text-blue-500">
+                    <span aria-hidden="true">&larr;</span>
+                    Back to the home page
+                </a>
+            </div>
         </div>
-    </div>
-</main>
+    </main>
+}
