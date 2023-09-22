@@ -17,6 +17,7 @@ export async function getStaticProps() {
         invocations = await getBrefInvocations();
     } catch (e) {
         console.error(e);
+        // Fallback value for local development, preview environments, etc. (no permissions)
         invocations = 11700607900;
     }
     // See https://nextra.site/docs/guide/ssg
@@ -26,8 +27,8 @@ export async function getStaticProps() {
                 invocations: invocations,
             },
         },
-        // The page will be considered as stale and regenerated every 60 seconds.
-        revalidate: 60,
+        // The page will be considered as stale and regenerated every hour
+        revalidate: 60 * 60,
     };
 }
 
