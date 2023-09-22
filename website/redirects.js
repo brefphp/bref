@@ -9,4 +9,9 @@ module.exports.redirects = {
     '/docs/function/local-development': '/docs/local-development/event-driven-functions',
     '/docs/frameworks/laravel': '/docs/laravel/getting-started',
     '/docs/newsletters': '/docs/community#newsletters',
+    '/docs/newsletters.html': '/docs/community#newsletters',
+    '/docs/cron.html': '/docs/use-cases/cron',
+    '/docs/web-apps/cron.html': '/docs/use-cases/cron',
+    '/docs/local-development.html': '/docs/local-development',
+    '/docs/web-apps/local-development.html': '/docs/local-development',
 };

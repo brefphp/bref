@@ -1,8 +1,0 @@
-# Redirect default Netlify subdomain to primary domain
-http://bref-website.netlify.com/* http://bref.sh/:splat 301!
-https://bref-website.netlify.com/* https://bref.sh/:splat 301!
-
-# Deleted pages
-/docs/newsletters.html          /docs/community.html
-/docs/cron.html                 /docs/web-apps/cron.html
-/docs/local-development.html    /docs/web-apps/local-development.html
