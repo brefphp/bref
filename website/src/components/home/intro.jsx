@@ -14,7 +14,7 @@ const features = [
     },
     {
         name: 'Cost-efficient.',
-        description: 'Instead of paying for servers that are idle most of the time, pay for the time the code is actually running. The AWS free tier even provides about 1 million free requests per month. Play with the <a href="/docs/costs-calculator" class="link">serverless costs calculator</a>.',
+        description: 'Instead of paying for servers that are idle most of the time, pay for the time the code is actually running. The AWS free tier even provides about 1 million free requests per month. Play with the <a href="/docs/serverless-costs" class="link">serverless costs calculator</a>.',
         icon: BanknotesIcon,
     },
 ]

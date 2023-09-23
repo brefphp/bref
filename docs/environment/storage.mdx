@@ -14,7 +14,7 @@ Here is a simplified overview of the filesystem on AWS Lambda:
 ...
 ```
 
-The `/var/task` directory is [limited to 250MB](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html#function-configuration-deployment-and-execution). If you hit that limit, you can deploy [via Docker images instead](../web-apps/docker.md).
+The `/var/task` directory is [limited to 250MB](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html#function-configuration-deployment-and-execution). If you hit that limit, you can deploy [via Docker images instead](../deploy/docker.mdx).
 
 The filesystem on AWS Lambda **is read-only**, except for the `/tmp` directory.
 
