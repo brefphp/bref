@@ -2,6 +2,7 @@
 import { useRouter } from 'next/router';
 import { AnimatedLogo } from './src/components/AnimatedLogo';
 import Footer from './src/components/Footer';
+import { DocSearch } from '@docsearch/react';
 
 export default {
     logo: <AnimatedLogo className="h-8" />,
@@ -62,6 +63,9 @@ export default {
                 .
             </span>
         )
+    },
+    search: {
+        component: <DocSearch appId="7J23TEKSTT" indexName="bref" apiKey="0d252e6edd70998021bc0044444c42c4" />
     },
     components: {
         // https://github.com/shuding/nextra/blob/main/packages/nextra-theme-docs/src/mdx-components.tsx

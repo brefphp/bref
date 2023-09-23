@@ -1,6 +1,13 @@
+@import "@docsearch/css/dist/style.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    /* Algolia DocSearch https://github.com/algolia/docsearch/blob/main/packages/docsearch-css/src/_variables.css */
+    --docsearch-primary-color: theme(colors.blue.500);
+}
 
 body {
     font-family: "Inter var", system-ui, sans-serif;
@@ -46,4 +53,18 @@ body {
     display: inline-block;
     border-radius: 9999px;
     vertical-align: text-top;
+}
+
+/* Algolia */
+.DocSearch.DocSearch-Button {
+    @apply relative md:w-64 hidden md:flex min-w-[200px] w-full appearance-none rounded-lg px-3 py-2 transition-colors text-base leading-tight md:text-sm bg-black/[.05] contrast-more:border contrast-more:border-current ring-gray-500;
+}
+.DocSearch .DocSearch-Button-Placeholder {
+    @apply text-gray-500 text-sm font-normal !important;
+}
+.DocSearch-Search-Icon {
+    display: none !important;
+}
+.DocSearch-Button-Keys {
+    @apply opacity-75 scale-75;
 }
