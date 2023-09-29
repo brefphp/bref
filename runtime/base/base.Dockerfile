@@ -344,7 +344,7 @@ RUN set -xe; \
 #
 # Needed by:
 #   - php
-ENV VERSION_LIBSODIUM=1.0.18
+ENV VERSION_LIBSODIUM=1.0.19
 ENV LIBSODIUM_BUILD_DIR=${BUILD_DIR}/libsodium
 
 RUN set -xe; \
