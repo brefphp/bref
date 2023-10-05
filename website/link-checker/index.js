@@ -1,6 +1,7 @@
 import {Command, Option, runExit} from 'clipanion';
 import fetch from 'node-fetch';
 import { Parser } from "htmlparser2";
+import urls from './urls.js';
 
 runExit(class HelloCommand extends Command {
     url = Option.String();
@@ -12,6 +13,13 @@ runExit(class HelloCommand extends Command {
         /** @type {Record<string, string|false>} */
         const pageCache = {};
         await scan(this.context.stdout, this.url, links, brokenLinks, pageCache);
+
+        // Also scan the URLs we whitelisted
+        for (const chunk of chunkArray(urls)) {
+            const promises = chunk
+                .map(link => scan(this.context.stdout, this.url + link, links, brokenLinks, pageCache));
+            await Promise.all(promises);
+        }
 
         this.context.stdout.write(`Found ${brokenLinks.size} broken links\n`);
         for (const link of brokenLinks) {
