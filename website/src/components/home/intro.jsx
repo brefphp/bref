@@ -69,14 +69,14 @@ export default function Intro() {
                                     <p>Deploying demo to stage dev <span className="text-gray-500">(us-east-1)</span></p>
                                     <p>&nbsp;</p>
                                     <p>
-                                        <span className="text-red-500">✔</span> Service deployed to stack demo-prod <span className="text-gray-500">(31s)</span>
+                                        <span className="text-red-500">✔</span> Service deployed to stack demo-dev <span className="text-gray-500">(31s)</span>
                                     </p>
                                     <p>&nbsp;</p>
                                     <p><span className="text-gray-500">endpoint:</span> https://yti4le2q5.lambda-url.us-east-1.on.aws/</p>
                                     <p className="text-gray-500">functions:</p>
-                                    <p className="ml-5">api: demo-prod-api <span className="text-gray-500">(750 KB)</span></p>
-                                    <p className="ml-5">cron: demo-prod-cron <span className="text-gray-500">(750 KB)</span></p>
-                                    <p className="ml-5">worker: demo-prod-worker <span className="text-gray-500">(750 KB)</span></p>
+                                    <p className="ml-5">web: demo-dev-web <span className="text-gray-500">(750 KB)</span></p>
+                                    <p className="ml-5">cron: demo-dev-cron <span className="text-gray-500">(750 KB)</span></p>
+                                    <p className="ml-5">worker: demo-dev-worker <span className="text-gray-500">(750 KB)</span></p>
                                 </div>
                             </div>
                         </div>
