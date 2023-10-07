@@ -30,8 +30,11 @@ Test the following anchor links manually.
 /docs/web-apps/docker#deployment
 /docs/web-apps/docker#filesystem
 /docs/web-apps/docker#docker-registry
+/docs/runtimes/console#configuration
 /docs/runtimes/console#usage
 /docs/runtimes/console#lambda-context
+/docs/runtimes/console#usage-without-serverless-framework
+/docs/websites#setting-up-a-domain-name
 /docs/web-apps/local-development#the-simple-way
 /docs/web-apps/local-development#docker
 /docs/web-apps/local-development#read-only-filesystem
@@ -41,25 +44,12 @@ Test the following anchor links manually.
 /docs/web-apps/local-development#console-applications
 /docs/frameworks/symfony#setup
 /docs/frameworks/symfony#logs
-/docs/frameworks/symfony#trust-api-gateway
-
-### KO
-
-/docs/runtimes/console#configuration
-/docs/runtimes/console#usage-without-serverless-framework
-/docs/websites#setting-up-a-domain-name
-/docs/runtimes/#bref-ping
 /docs/frameworks/symfony#deploy
 /docs/frameworks/symfony#console
 /docs/frameworks/symfony#assets
 /docs/frameworks/symfony#symfony-messenger
 /docs/frameworks/symfony#caching
-
-### TODO
-
-/docs/runtimes/function#the-function
-/docs/runtimes/function#deployment-configuration
-/docs/runtimes/function#invocation
+/docs/frameworks/symfony#trust-api-gateway
 /docs/function/handlers#autoloading
 /docs/function/handlers#s3-events
 /docs/function/handlers#sqs-events
@@ -76,5 +66,9 @@ Test the following anchor links manually.
 /docs/function/local-development#with-serverless-framework
 /docs/function/local-development#api-gateway-local-development
 /docs/function/local-development#without-serverless-framework
+/docs/runtimes/function#deployment-configuration
 /docs/environment/custom-domains#custom-domains-for-http-lambdas
-/docs/environment/custom-domains#custom-domains-for-static-files-on-s3
+
+### KO
+
+/docs/runtimes/#bref-ping
