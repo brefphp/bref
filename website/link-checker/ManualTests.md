@@ -68,7 +68,4 @@ Test the following anchor links manually.
 /docs/function/local-development#without-serverless-framework
 /docs/runtimes/function#deployment-configuration
 /docs/environment/custom-domains#custom-domains-for-http-lambdas
-
-### KO
-
 /docs/runtimes/#bref-ping

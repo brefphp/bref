@@ -3,7 +3,6 @@ module.exports.redirects = {
     '/#ecosystem': '/support',
     '/#plans': '/support',
     '/#enterprise': '/support',
-    // TODO: add redirects for anchor links too
     '/docs/news': '/news',
     '/docs/news/01-bref-1.0': '/news/01-bref-1.0',
     '/docs/news/02-bref-2.0': '/news/02-bref-2.0',
@@ -37,8 +36,7 @@ module.exports.redirects = {
     '/docs/installation/aws-keys': '/docs/setup/aws-keys',
     '/docs/environment/custom-domains': '/docs/use-cases/http/custom-domains',
     '/docs/aws-cdk': '/docs/deploy/aws-cdk',
-    // TODO what's this url?
-    '/docs/web-apps/index.md#assets': '/docs/use-cases/websites',
+    '/docs/web-apps/index#assets': '/docs/use-cases/websites',
     '/docs/function/local-development': '/docs/local-development/event-driven-functions',
     '/docs/frameworks/laravel': '/docs/laravel/getting-started',
     '/docs/laravel/getting-started#assets': '/docs/laravel/getting-started#website-assets',
