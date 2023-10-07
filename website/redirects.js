@@ -65,4 +65,5 @@ module.exports.redirects = {
     '/docs/web-apps/local-development.html': '/docs/local-development',
     '/docs/runtimes/console#configuration': '/docs/runtimes/console#usage',
     '/docs/runtimes/console#usage-without-serverless-framework': '/docs/runtimes/console#without-serverless-framework',
+    '/docs/function/cron': '/docs/use-cases/cron#cron-functions',
 };
