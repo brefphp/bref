@@ -26,8 +26,6 @@ module.exports.redirects = {
     '/docs/cron.html': '/docs/use-cases/cron',
     '/docs/web-apps/cron': '/docs/use-cases/cron',
     '/docs/web-apps/cron.html': '/docs/use-cases/cron',
-    '/docs/local-development': '/docs/local-development',
-    '/docs/local-development.html': '/docs/local-development',
     '/docs/web-apps/local-development': '/docs/local-development',
     '/docs/web-apps/local-development.html': '/docs/local-development',
 };
