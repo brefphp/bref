@@ -1,16 +1,4 @@
 export default function Invocations({ invocations }) {
-    // const invocations = 16411284305;
-    // const [counter, setCounter] = useState(invocations);
-
-    // useEffect(() => {
-    //     const timeout = setTimeout(() => {
-    //         setCounter(counter + 23);
-    //     }, 300);
-    //     return () => {
-    //         clearTimeout(timeout);
-    //     };
-    // }, [counter]);
-
     return (
         <div className="home-container home-section !py-12 sm:!py-16">
             <div className="relative isolate overflow-hidden bg-gray-900 px-6 py-16 text-center shadow-2xl sm:rounded-3xl sm:px-16">
@@ -20,11 +8,11 @@ export default function Invocations({ invocations }) {
                 <p className="mx-auto mt-2 max-w-xl text-lg leading-8 text-gray-300">
                     requests, jobs, and messages handled with Bref in the <strong>last 30 days</strong>
                 </p>
-                <div className="mt-4 flex items-center justify-center gap-x-6">
-                    <a href="#" className="text-sm font-semibold leading-6 text-white">
-                        Learn more <span aria-hidden="true">→</span>
-                    </a>
-                </div>
+                {/*<div className="mt-4 flex items-center justify-center gap-x-6">*/}
+                {/*    <a href="#" className="text-sm font-semibold leading-6 text-white">*/}
+                {/*        Learn more <span aria-hidden="true">→</span>*/}
+                {/*    </a>*/}
+                {/*</div>*/}
                 <svg
                     viewBox="0 0 1024 1024"
                     className="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]"
