@@ -69,10 +69,47 @@ At the moment, we deployed our local codebase to Lambda. When deploying for prod
 
 Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details.
 
-Note as well that for better performance in production, you can warmup the Symfony cache before deploying:
+Separately, on cold starts, Symfony will boot with an empty cache directory. It will build the cache on the fly, which can take a few seconds depending on the complexity of the application.
+
+To optimize cold starts, you can deploy the application with a warm cache. In a simple application it means that the deployment script should include `cache:warmup` to look something like this:
 
 ```bash
-php bin/console cache:warmup --env=prod
+# Install dependencies
+composer install --classmap-authoritative --no-dev --no-scripts
+
+# Warmup the cache
+bin/console cache:clear --env=prod
+
+# Disable use of Dotenv component
+echo "<?php return [];" > .env.local.php
+
+serverless deploy
+```
+
+#### Optimizing caches
+
+When running Symfony on Lambda you should avoid writing to the filesystem. If you pre-warm the cache before deploying you are mostly fine. But you should also make sure you never write to a filesystem cache like `cache.system` or use a pool like:
+
+```yaml
+framework:
+    cache:
+        pools:
+            my_pool:
+                adapter: cache.adapter.filesystem
+```
+
+If you don't write to such cache pool you can optimize your setup by not copying the `var/cache/pools` directory. The change below will make sure to symlink the `pools` directory.
+
+```diff filename="src/Kernel.php"
+class Kernel extends BrefKernel
+{
+    // ...
+
++    protected function getWritableCacheDirectories(): array
++    {
++        return [];
++    }
+}
 ```
 
 ## Troubleshooting
