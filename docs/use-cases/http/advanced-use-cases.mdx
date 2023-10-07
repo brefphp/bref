@@ -153,7 +153,7 @@ This is more advanced, as PHP does not run in a traditional PHP-FPM environment.
 When used with a framework, understand that the whole HTTP stack (like HTTP middlewares) of the framework does not run. You are responsible for invoking the PHP code that should run.
 
 <Callout>
-    Note: this approach is used to run Laravel Octane or Symfony with a keep-alive process (like Roadrunner/Swoole). These use cases are not detailed here, read [about Laravel Octane](../../laravel/octane.mdx) or [about Symfony Runtime](../../symfony/keep-alive.mdx) instead.
+    Note: this approach is used to run Laravel Octane or Symfony with a keep-alive process (like Roadrunner/Swoole). These use cases are not detailed here, read [about Laravel Octane](../../laravel/octane.mdx) or [about Symfony Runtime](../../symfony/runtime.mdx) instead.
 </Callout>
 
 The `handler` must be a PHP function, or a PSR-15 implementation. Indeed, Bref natively supports the [PSR-15](https://www.php-fig.org/psr/psr-15/#2-interfaces) and [PSR-7](https://www.php-fig.org/psr/psr-7/) standards. Here is an example:
