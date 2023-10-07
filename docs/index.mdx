@@ -151,6 +151,18 @@ This matrix will be updated as Bref and AWS services evolve over time.
             <span className="maturity-icon shadow bg-green-400"></span>
         </td>
     </tr>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">Real-time applications</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-red-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
     <tr className="text-xs text-center text-gray-600">
         <td></td>
         <td className="p-3">
@@ -196,6 +208,10 @@ This matrix will be updated as Bref and AWS services evolve over time.
     Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite some parts of the code to make the application fit for Lambda (or running in containers in general). For example, file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and SQS.
 
     Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net). Note that if your application already runs redundantly on multiple servers, it is much more ready for AWS Lambda and the migration could be simple.
+
+- **Real-time applications**
+
+    Warm Lambda invocations are very fast (can be as low as 1ms), but cold starts can take 230ms or more. Cold starts are rare on most applications (less than 0.5% of invocations) and can be further mitigated with [provisioned concurrency](https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html), but it's unlikely to ensure they will _never_ happen. This makes Lambda a poor choice for real-time applications where latency must be below 100ms for 100% of requests.
 
 ## Getting started
 
