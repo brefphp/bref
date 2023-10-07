@@ -6,7 +6,7 @@
 
 :root {
     /* Algolia DocSearch https://github.com/algolia/docsearch/blob/main/packages/docsearch-css/src/_variables.css */
-    --docsearch-primary-color: theme(colors.blue.500);
+    --docsearch-primary-color: theme('colors.blue.500');
 }
 
 body {
