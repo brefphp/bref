@@ -17,4 +17,4 @@ node_modules:
 	npm install
 
 check-links:
-	node link-checker/index.js https://bref-website.vercel.app
+	node link-checker/index.js https://bref-website.vercel.app > links.log

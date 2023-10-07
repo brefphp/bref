@@ -43,7 +43,7 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
     }
     links[url] = true;
 
-    stdout.write(`Scanning ${url}\n`);
+    // stdout.write(`Scanning ${url}\n`);
 
     // Cache the page to avoid fetching it twice when it is linked via anchor tags
     const urlWithoutAnchor = url.split('#')[0];
@@ -53,7 +53,7 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
         const originalDomain = new URL(url).hostname;
         const finalDomain = new URL(response.url).hostname;
         if (finalDomain !== originalDomain) {
-            console.log(`Ignoring ${url} redirecting to ${response.url}`);
+            //console.log(`Ignoring ${url} redirecting to ${response.url}`);
             pageCache[urlWithoutAnchor] = false;
             return;
         }
@@ -66,7 +66,7 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
     const pageBody = pageCache[urlWithoutAnchor];
 
     if (pageBody === false) {
-        stdout.write(`Error: ${url}\n`);
+        // stdout.write(`Error: ${url}\n`);
         brokenLinks.add(url);
         return;
     }
@@ -96,7 +96,7 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
                     // Ignore already scanned links
                     return;
                 }
-                stdout.write(`Found new link ${newLink} on ${url}\n`);
+                // stdout.write(`Found new link ${newLink} on ${url}\n`);
                 links[newLink] = false;
             }
         },
@@ -105,7 +105,7 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
     parser.end();
 
     if (anchorLink && ! foundAnchorLink) {
-        stdout.write(`Error: anchor link not found: ${anchorLink}\n`);
+        // stdout.write(`Error: anchor link not found: ${anchorLink}\n`);
         brokenLinks.add(url);
     }
 
