@@ -26,6 +26,10 @@ jobs:
             -   name: Build
                 run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
                 env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    # CUSTOM_GITHUB_TOKEN_READ is a manually created GitHub token with appropriate permissions:
+                    # - allowed to list contributors
+                    # - allowed to list sponsors
+                    # It wouldn't be possible to use the default GITHUB_TOKEN because it doesn't have the required permissions.
+                    GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN_READ }}
             -   name: Deploy
                 run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

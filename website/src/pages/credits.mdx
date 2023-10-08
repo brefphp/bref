@@ -35,7 +35,7 @@ export const getStaticProps = async () => {
                 contributors,
             },
         },
-        // The page will be considered as stale and regenerated every 60 seconds.
+        // This page will be generated statically on deployment and never regenerated
         revalidate: false,
     };
 }
