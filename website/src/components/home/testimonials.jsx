@@ -8,7 +8,7 @@ import aranreeks from './testimonials/aranreeks.jpg';
 import nyholm from './testimonials/nyholm.jpg';
 import zmalter from './testimonials/zmalter.jpg';
 import simon from './testimonials/simon.jpg';
-import robmartinson from './testimonials/robmartinson.jpg';
+import lorenzo from './testimonials/lorenzo.jpg';
 
 const testimonials = [
     {
@@ -21,15 +21,6 @@ const testimonials = [
         },
     },
     {
-        body: 'Every time I throw something up onto AWS Lambda in PHP using Bref I marvel at how mega-useful it is. If you haven’t checked out Bref you’re probably missing out',
-        author: {
-            name: 'Gary Hockin',
-            handle: 'GeeH',
-            link: 'https://twitter.com/GeeH/status/1335909653897752576',
-            image: geeh,
-        },
-    },
-    {
         body: 'Bref has been a boon for running our customer\'s applications. We\'ve had a Laravel API on Bref for the last 12 months serve over <strong>25 million requests</strong> with an average response time of 50ms.',
         author: {
             name: 'Paul Giberson',
@@ -39,39 +30,12 @@ const testimonials = [
         },
     },
     {
-        body: 'Happily using Bref since 2019 to process <strong>millions of requests, jobs and scheduled tasks</strong>. It powers the best technical accomplishment of my career and has made me a better software engineer and open-source contributor.',
+        body: 'Every time I throw something up onto AWS Lambda in PHP using Bref I marvel at how mega-useful it is. If you haven’t checked out Bref you’re probably missing out',
         author: {
-            name: 'Marco Deleu',
-            handle: 'deleugyn',
-            link: 'https://twitter.com/deleugyn',
-            image: marco,
-        },
-    },
-    {
-        body: 'There is something amazing and magical about Bref and serverless deploying stuff to the cloud.',
-        author: {
-            name: 'Rob Waller',
-            handle: 'RobDWaller',
-            link: 'https://twitter.com/RobDWaller/status/1484569852694118406',
-            image: robdwaller,
-        },
-    },
-    {
-        body: 'An incredible project and one we\'re very proud to use in production for a recent eCommerce project we launched that saw <strong>32 million</strong> Lambda invocations last month.',
-        author: {
-            name: 'Aran Reeks',
-            handle: 'AranReeks',
-            link: 'https://twitter.com/AranReeks/status/1332467843254919168',
-            image: aranreeks,
-        },
-    },
-    {
-        body: 'I’ve been running APIs and websites with Bref in prod for over a year now. It is indeed as simple as you describe it.',
-        author: {
-            name: 'Tobias Nyholm',
-            handle: 'TobiasNyholm',
-            link: 'https://twitter.com/TobiasNyholm/status/1292027581986934785',
-            image: nyholm,
+            name: 'Gary Hockin',
+            handle: 'GeeH',
+            link: 'https://twitter.com/GeeH/status/1335909653897752576',
+            image: geeh,
         },
     },
     {
@@ -93,12 +57,48 @@ const testimonials = [
         },
     },
     {
-        body: 'We have several serverless applications deployed in production using Bref. It’s an awesome tool.',
+        body: 'I’ve been running APIs and websites with Bref in prod for over a year now. It is indeed as simple as you describe it.',
         author: {
-            name: 'Rob Martinson',
-            handle: 'robmartinson',
-            link: 'https://twitter.com/robmartinson/status/1603043069972320258',
-            image: robmartinson,
+            name: 'Tobias Nyholm',
+            handle: 'TobiasNyholm',
+            link: 'https://twitter.com/TobiasNyholm/status/1292027581986934785',
+            image: nyholm,
+        },
+    },
+    {
+        body: 'There is something amazing and magical about Bref and serverless deploying stuff to the cloud.',
+        author: {
+            name: 'Rob Waller',
+            handle: 'RobDWaller',
+            link: 'https://twitter.com/RobDWaller/status/1484569852694118406',
+            image: robdwaller,
+        },
+    },
+    {
+        body: 'Happily using Bref since 2019 to process <strong>millions of requests, jobs and scheduled tasks</strong>. It powers the best technical accomplishment of my career and has made me a better software engineer and open-source contributor.',
+        author: {
+            name: 'Marco Deleu',
+            handle: 'deleugyn',
+            link: 'https://twitter.com/deleugyn',
+            image: marco,
+        },
+    },
+    {
+        body: 'The team embraced Bref with lightning speed! We were able to roll out the first parts of our new <strong>event-driven architecture within days</strong>, crafting new features in a mere fraction of the time it used to take — truly mind-blowing!',
+        author: {
+            name: 'Lorenzo Rogai',
+            handle: 'lorenzo-rogai',
+            link: 'https://www.linkedin.com/in/lorenzo-rogai/',
+            image: lorenzo,
+        },
+    },
+    {
+        body: 'An incredible project and one we\'re very proud to use in production for a recent eCommerce project we launched that saw <strong>32 million</strong> Lambda invocations last month.',
+        author: {
+            name: 'Aran Reeks',
+            handle: 'AranReeks',
+            link: 'https://twitter.com/AranReeks/status/1332467843254919168',
+            image: aranreeks,
         },
     },
     // More testimonials...
