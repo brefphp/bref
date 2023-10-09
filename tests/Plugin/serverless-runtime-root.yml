@@ -1,0 +1,14 @@
+service: bref
+provider:
+    name: aws
+    runtime: php-83
+
+plugins:
+    - ../../index.js
+
+functions:
+    function:
+        handler: function.php
+    function-arm:
+        handler: function.php
+        architecture: arm64
