@@ -26,7 +26,7 @@ export default function Intro() {
     return (
         <div className="overflow-hidden home-container home-section">
             <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:gap-y-20 lg:grid-cols-2 lg:items-center">
-                <div className="px-6 lg:px-0 lg:pr-4 lg:pt-4">
+                <div className="lg:px-0 lg:pr-4 lg:pt-4">
                     <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-lg">
                         <h2 className="mt-2 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">
                             Why Bref? Why serverless?
@@ -55,7 +55,7 @@ export default function Intro() {
                         </dl>
                     </div>
                 </div>
-                <div className="sm:px-6 lg:px-0">
+                <div className="-mx-6 sm:px-6 lg:px-0">
                     <div className="relative isolate overflow-hidden bg-blue-500 px-6 pt-8 sm:mx-auto sm:max-w-2xl sm:rounded-3xl sm:pl-16 sm:pr-0 sm:pt-16 lg:mx-0 lg:max-w-none">
                         <div
                             className="absolute -inset-y-px -left-3 -z-10 w-full origin-bottom-left skew-x-[-30deg] bg-blue-100 opacity-20 ring-1 ring-inset ring-white"
@@ -63,7 +63,7 @@ export default function Intro() {
                         />
                         <div className="mx-auto max-w-2xl sm:mx-0 sm:max-w-none">
                             <div className="w-screen overflow-hidden rounded-tl-xl bg-gray-900">
-                                <div className=" px-6 pb-14 pt-6 text-gray-200 font-mono text-sm">
+                                <div className=" px-6 pb-14 pt-6 text-gray-200 font-mono text-sm overflow-hidden whitespace-nowrap">
                                     <p><span className="text-gray-400">$</span> serverless deploy</p>
                                     <p>&nbsp;</p>
                                     <p>Deploying demo to stage dev <span className="text-gray-500">(us-east-1)</span></p>

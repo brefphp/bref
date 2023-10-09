@@ -31,7 +31,7 @@ export default function Companies() {
                             </a>
                         </div>
                     </div>
-                    <div className="mx-auto grid w-full max-w-xl grid-cols-2 items-center gap-y-12 sm:gap-y-14 lg:mx-0 lg:max-w-none lg:pl-8">
+                    <div className="mx-auto grid w-full max-w-xl grid-cols-2 items-center gap-x-6 gap-y-12 sm:gap-y-14 lg:mx-0 lg:max-w-none lg:pl-8">
                         <Image
                             className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
                             src={phpStanLogo}
