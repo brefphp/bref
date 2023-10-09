@@ -71,6 +71,14 @@ Hello world
 # With JSON event data
 $ vendor/bin/bref-local my-function.php '{"name": "Jane"}'
 Hello Jane
+
+# With a path to a file containing a JSON event.
+$cat event.json
+{
+    "name": "Alex"
+}
+$ vendor/bin/bref-local --path event.json my-function.php
+Hello Alex
 ```
 
 ## With Docker
