@@ -1,6 +1,9 @@
 import { useData } from 'nextra/data';
 import { getContributors, mergeAndSortContributors } from '../github/contributors';
 import { getSponsors } from '../github/sponsors';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Bref credits: all the awesome people behind Bref." />
 
 export const getStaticProps = async () => {
     let sponsors;

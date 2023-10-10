@@ -10,6 +10,9 @@ import Sponsors from '../components/home/sponsors';
 import Intro from '../components/home/intro';
 import { useData } from 'nextra/data';
 import { getBrefInvocations } from '../aws/invocations';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Bref is a framework to write and deploy serverless PHP applications on AWS Lambda." />
 
 export async function getStaticProps() {
     let invocations;
