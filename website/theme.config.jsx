@@ -15,10 +15,24 @@ export default {
         if (asPath.length > 1) {
             return {
                 titleTemplate: '%s – Bref',
+                openGraph: {
+                    images: [
+                        {
+                            url: '/social-card.png',
+                        },
+                    ],
+                },
             };
         } else {
             return {
                 titleTemplate: 'Bref – Simple and scalable PHP with serverless',
+                openGraph: {
+                    images: [
+                        {
+                            url: '/social-card.png',
+                        },
+                    ],
+                },
             };
         }
     },
@@ -51,6 +65,7 @@ export default {
             <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/apple-touch-icon-152x152.png" />
             <meta property="og:locale" content="en_US" />
             <meta property="og:site_name" content="Bref" />
+            <meta name="twitter:card" content="summary" />
             <meta name="twitter:creator" content="@brefphp" />
             <meta name="google-site-verification" content="RRmKDrWI2l69B0nMwv4ndrYOHSuaTBfarvCgtJxMpXA" />
         </>
