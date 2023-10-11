@@ -12,8 +12,8 @@ export default {
     },
     useNextSeoProps() {
         const { asPath } = useRouter();
-        console.log(asPath);
-        if (asPath.length > 1) {
+        // On SSG the path is `/index` instead of `/` for some reason
+        if (asPath === '/' || asPath === '/index') {
             return {
                 titleTemplate: '%s – Bref',
                 openGraph: {
