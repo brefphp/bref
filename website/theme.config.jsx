@@ -12,7 +12,7 @@ export default {
     },
     useNextSeoProps() {
         const { asPath } = useRouter();
-        if (asPath !== '/') {
+        if (asPath.length > 1) {
             return {
                 titleTemplate: '%s – Bref',
             };
@@ -50,6 +50,10 @@ export default {
             <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
             <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144x144.png" />
             <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/apple-touch-icon-152x152.png" />
+            <meta property="og:locale" content="en_US" />
+            <meta property="og:site_name" content="Bref" />
+            <meta name="twitter:creator" content="@brefphp" />
+            <meta name="google-site-verification" content="RRmKDrWI2l69B0nMwv4ndrYOHSuaTBfarvCgtJxMpXA" />
         </>
     ),
     footer: {
