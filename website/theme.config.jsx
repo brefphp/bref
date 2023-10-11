@@ -16,25 +16,25 @@ export default {
         // On SSG the path is `/index` instead of `/` for some reason
         if (asPath === '/' || asPath === '/index') {
             return {
-                titleTemplate: '%s – Bref',
-                openGraph: {
-                    images: [
-                        {
-                            url: '/social-card.png',
-                        },
-                    ],
-                },
-            };
-        } else {
-            return {
                 titleTemplate: 'Bref – Simple and scalable PHP with serverless',
                 openGraph: {
                     images: [
                         {
-                            url: '/social-card.png',
-                        },
-                    ],
-                },
+                            url: '/social-card.png'
+                        }
+                    ]
+                }
+            };
+        } else {
+            return {
+                titleTemplate: '%s – Bref',
+                openGraph: {
+                    images: [
+                        {
+                            url: '/social-card.png'
+                        }
+                    ]
+                }
             };
         }
     },
