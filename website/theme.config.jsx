@@ -12,6 +12,7 @@ export default {
     },
     useNextSeoProps() {
         const { asPath } = useRouter();
+        console.log(asPath);
         if (asPath.length > 1) {
             return {
                 titleTemplate: '%s – Bref',
