@@ -9,7 +9,7 @@ module.exports = {
     darkMode: 'class',
     theme: {
         fontFamily: {
-            sans: ['"Inter var"', ...defaultTheme.fontFamily.sans],
+            sans: ['var(--font-inter)', ...defaultTheme.fontFamily.sans],
             mono: "ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace",
         },
         extend: {

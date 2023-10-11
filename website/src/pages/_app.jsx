@@ -2,7 +2,14 @@ import '../../styles/main.css';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import PlausibleProvider from 'next-plausible';
+import { Inter } from 'next/font/google'
 const redirects = require('../../redirects').redirects;
+
+// See https://nextjs.org/docs/pages/building-your-application/optimizing/fonts#with-tailwind-css
+const inter = Inter({
+    subsets: ['latin'],
+    variable: '--font-inter',
+})
 
 export default function MyApp({ Component, pageProps }) {
     // Custom code to redirect old URLs to new ones
@@ -27,7 +34,7 @@ export default function MyApp({ Component, pageProps }) {
 
     return (
         <PlausibleProvider domain="bref.sh" trackOutboundLinks={true}>
-            <Component {...pageProps} />
+            <Component className={`${inter.variable} font-sans`} {...pageProps} />
         </PlausibleProvider>
     )
 }
