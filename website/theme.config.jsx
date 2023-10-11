@@ -12,7 +12,6 @@ export default {
     },
     useNextSeoProps() {
         const { asPath } = useRouter();
-        console.log(asPath);
         // On SSG the path is `/index` instead of `/` for some reason
         if (asPath === '/' || asPath === '/index') {
             return {
