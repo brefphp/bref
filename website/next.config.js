@@ -16,16 +16,13 @@ module.exports = withNextra(withPlausibleProxy()({
             .map(([source, destination]) => ({
                 source,
                 destination,
-                // TODO switch to true
-                permanent: false
+                permanent: true,
             }));
         return [
             {
                 source: '/docs/:path*.html',
                 destination: '/docs/:path*',
-                // TODO enable permanent redirect when all pages are migrated
-                permanent: false,
-                // permanent: true,
+                permanent: true,
             },
             ...redirectList,
         ]
