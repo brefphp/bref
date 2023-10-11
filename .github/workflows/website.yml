@@ -19,6 +19,8 @@ jobs:
                 working-directory: ./website
         steps:
             -   uses: actions/checkout@v3
+                with:
+                    fetch-depth: 0 # fetch all history for "latest modified time"
             -   run: npm install --global vercel@latest
             -   run: make src/pages/docs
             -   name: Pull Vercel Environment Information
