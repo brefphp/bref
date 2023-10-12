@@ -1,0 +1,166 @@
+import { Tabs, Tab, Callout } from 'nextra/components';
+
+# Local development
+
+It is possible to run **web applications** (running with the FPM runtime) locally.
+
+<Callout>
+    To run **event-driven functions** locally, read [Local development for event-driven functions](./local-development/event-driven-functions.mdx) instead.
+</Callout>
+
+## The simple way
+
+To keep things simple, you can run your applications locally like you did without Bref.
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+<Tab>
+    With **Laravel**, run HTTP applications locally using `php artisan serve`, [Laravel Valet](https://laravel.com/docs/valet), or [Laravel Sail](https://laravel.com/docs/10.x/sail).
+
+    You can test CLI commands locally by running them in your terminal using `php artisan my-command`.
+</Tab>
+<Tab>
+    With **Symfony**, run HTTP applications locally using `symfony server:start` ([documentation](https://symfony.com/doc/current/setup/symfony_server.html)).
+
+    You can test CLI commands locally by running them in your terminal using `bin/console my-command`.
+</Tab>
+<Tab>
+    Run your HTTP applications locally via your preferred method to run PHP: Apache, WAMP, or even the built-in PHP server:
+
+    ```bash
+    php -S localhost:8000
+    # The application is now available at http://localhost:8000/
+    ```
+</Tab>
+</Tabs>
+
+## Docker
+
+In order to run the application locally in an environment closer to production, you can run your application using the [Bref Docker images](https://hub.docker.com/u/bref). For example, create the following `docker-compose.yml`:
+
+```yml filename="docker-compose.yml"
+version: "3.5"
+
+services:
+    app:
+        image: bref/php-81-fpm-dev:2
+        ports: [ '8000:8000' ]
+        volumes:
+            - .:/var/task
+        environment:
+            HANDLER: public/index.php
+            # Assets will be served from this directory
+            DOCUMENT_ROOT: public
+```
+
+You can then run:
+
+```bash
+docker-compose up
+```
+
+The application will be available at [http://localhost:8000/](http://localhost:8000/).
+
+The `HANDLER` environment variable lets you define which PHP file will be handling all HTTP requests. This should be the same handler that you have defined in `serverless.yml` for your HTTP function.
+
+> Currently, the Docker image support only one PHP handler. If you have multiple HTTP functions in `serverless.yml`, you can duplicate the service in `docker-compose.yml` to have one container per lambda function.
+
+### Read-only filesystem
+
+The code will be mounted in `/var/task`, just like in Lambda. But in Lambda, `/var/task` is read-only.
+
+When developing locally, it is common to regenerate cache files on the fly (for example Symfony or Laravel cache). You have 2 options:
+
+- either mount the whole codebase as writable (per the example above):
+
+    ```yaml filename="docker-compose.yml"
+            volumes:
+                - .:/var/task
+    ```
+- or mount a specific cache directory as writable (better):
+
+    ```yaml filename="docker-compose.yml" {3}
+            volumes:
+                - .:/var/task:ro
+                - ./storage:/var/task/storage
+    ```
+
+### Assets
+
+If you want to serve assets locally, you can define a `DOCUMENT_ROOT` environment variable:
+
+```yaml {6,7} filename="docker-compose.yml"
+services:
+    app:
+        # ...
+        environment:
+            HANDLER: public/index.php
+            # Assets will be served from this directory
+            DOCUMENT_ROOT: public
+```
+
+In the example above, a `public/assets/style.css` file will be accessible at `http://localhost:8000/assets/style.css`.
+
+<Callout>
+    Be aware that serving assets in production will not work like this out of the box. You will need [to use an S3 bucket](./use-cases/websites.mdx).
+</Callout>
+
+### Console commands
+
+You can run console commands in Docker via:
+
+```bash
+# Laravel (artisan)
+docker-compose run app php artisan ...
+
+# Symfony (bin/console)
+docker-compose run app php bin/console ...
+```
+
+### Xdebug
+
+The development container (`bref/php-<version>-fpm-dev`) comes with Xdebug pre-installed.
+
+To enable it, create a `php/conf.dev.d/php.ini` file in your project containing:
+
+```ini filename="php/conf.dev.d/php.ini"
+zend_extension=xdebug.so
+```
+
+Now start the debug session by issuing a request to your application [in the browser](https://xdebug.org/docs/remote#starting).
+
+#### Xdebug and MacOS
+
+Docker for Mac uses a virtual machine for running docker. That means you need to use a special host name (`host.docker.internal`) that is mapped to the host machine's IP address.
+
+Edit the `php/conf.dev.d/php.ini` file:
+
+```ini filename="php/conf.dev.d/php.ini" {3-6}
+zend_extension=xdebug.so
+
+[xdebug]
+xdebug.remote_enable = 1
+xdebug.remote_autostart = 0
+xdebug.remote_host = 'host.docker.internal'
+```
+
+### Blackfire
+
+The development container (`bref/php-<version>-fpm-dev`) comes with the [blackfire](https://www.blackfire.io/) extension. When using docker compose, you can add the following service for the blackfire agent:
+
+```yml filename="docker-compose.yml"
+services:
+    blackfire:
+        image: blackfire/blackfire
+        environment:
+            BLACKFIRE_SERVER_ID: server-id
+            BLACKFIRE_SERVER_TOKEN: server-token
+```
+
+In order to enable the probe you can create a folder `php/conf.dev.d` in your project and include an ini file enabling blackfire:
+
+```ini filename="php/conf.dev.d/php.ini"
+extension=blackfire
+blackfire.agent_socket=tcp://blackfire:8707
+```
+
+For more details about using blackfire in a docker environment see the [blackfire docs](https://blackfire.io/docs/integrations/docker)

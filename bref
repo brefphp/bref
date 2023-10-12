@@ -21,7 +21,7 @@ switch ($argv[1] ?? '') {
         break;
     case 'cli':
         cliWarning();
-        error('Since Bref 2.0, the "bref cli" command has been moved. Read https://bref.sh/docs/runtimes/console.html#usage');
+        error('Since Bref 2.0, the "bref cli" command has been moved. Read https://bref.sh/docs/runtimes/console#usage');
     case 'layers':
         cliWarning();
         echo "Bref layer ARNs can be found here: https://runtimes.bref.sh/\n\n";
@@ -29,7 +29,7 @@ switch ($argv[1] ?? '') {
         exit(1);
     case 'local':
         cliWarning();
-        error('Since Bref 2.0, the "bref local" command has been moved. Read https://bref.sh/docs/function/local-development.html\n');
+        error('Since Bref 2.0, the "bref local" command has been moved. Read https://bref.sh/docs/local-development/event-driven-functions\n');
     case 'dashboard':
         cliWarning();
         echo "The Bref Dashboard is now available as a desktop application.\n\n";

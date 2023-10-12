@@ -1,0 +1,55 @@
+import { Card, Cards } from 'nextra/components';
+// Path relative to the copy in the `website/` folder
+import { LaravelIcon } from '../../../components/icons/LaravelIcon';
+import { SymfonyIcon } from '../../../components/icons/SymfonyIcon';
+
+# Serverless HTTP applications
+
+Bref deploy HTTP applications that run with AWS Lambda and [API Gateway](https://aws.amazon.com/api-gateway/):
+
+```mermaid
+graph LR;
+START:::mermaidHidden -->|HTTP request| APIGateway(API Gateway):::mermaidAwsColor;
+APIGateway -->|invoke| Lambda(Lambda):::mermaidAwsColor;
+```
+
+On AWS Lambda there is no Apache or Nginx, API Gateway acts as the webserver. Our code is invoked only when there is an HTTP request, and we pay only for the request and the execution time of our code.
+
+Bref takes care of setting up everything so that your code runs the same way as on a traditional server with Apache or Nginx.
+
+## Usage
+
+HTTP applications is the default use case with Bref. That's why there is (almost) no documentation here.
+
+Instead, head to the **Getting started** guide for your framework:
+
+<Cards num={2}>
+    <Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
+    <Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
+    <Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
+</Cards>
+
+## How it works
+
+Bref sets up API Gateway with AWS Lambda and the [PHP-FPM runtime](../runtimes/fpm-runtime.mdx). This is done via the `php-xx-fpm` runtime and the `httpApi` event:
+
+```yml filename="serverless.yml"
+functions:
+    web:
+        handler: public/index.php
+        runtime: php-81-fpm
+        events:
+            - httpApi: '*'
+```
+
+This configuration deploys an API Gateway that forwards all routes (`*` is a wildcard) to AWS Lambda.
+
+On Lambda, the `php-81-fpm` runtime starts PHP-FPM and forwards all requests to it. PHP-FPM then runs the PHP code.
+
+This is perfect for most use-cases: **PHP works like on any server** with PHP-FPM. HTTP routing based on the URL is done by the application/the framework.
+
+The `handler` is the entrypoint of the application, usually `public/index.php` in most frameworks. That entrypoint kicks off the framework/your application, which does the routing and invokes the controllers, as usual. All the usual environment variables (like `$_GET`, `$_SERVER`, etc.) and functions (`header()`, etc.) work.
+
+That works well with frameworks like Symfony or Laravel that have a single entrypoint (e.g. `public/index.php`).
+
+Read the [PHP-FPM runtime documentation](../runtimes/fpm-runtime.mdx) to learn more.

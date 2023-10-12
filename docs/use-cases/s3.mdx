@@ -1,0 +1,89 @@
+import { Callout, Tab, Tabs } from 'nextra/components';
+
+# S3 file processing
+
+[S3 can trigger Lambda functions](https://docs.aws.amazon.com/lambda/latest/dg/with-s3.html) whenever a file is added, modified, or deleted in an S3 bucket.
+
+```mermaid
+graph LR;
+START:::mermaidHidden -->|file| S3(S3):::mermaidAwsColor;
+S3 --> Lambda(Lambda):::mermaidAwsColor;
+```
+
+This can be used to process files, for example to resize images, generate thumbnails, convert videos, after they are uploaded to S3.
+
+To handle S3 events, extend the `S3Handler` class:
+
+```php
+use Bref\Context\Context;
+use Bref\Event\S3\S3Event;
+use Bref\Event\S3\S3Handler;
+
+class MyHandler extends S3Handler
+{
+    public function handleS3(S3Event $event, Context $context): void
+    {
+        $bucketName = $event->getRecords()[0]->getBucket()->getName();
+        $fileName = $event->getRecords()[0]->getObject()->getKey();
+
+        // do something with the file
+    }
+}
+```
+
+Then, create a Lambda function that listens to S3 events with the handler you created:
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            resizeImage:
+                handler: App\MyHandler
+                events:
+                    - s3: photos
+        ```
+
+        The `App\MyHandler` class will be instantiated by Laravel's service container.
+    </Tab>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            resizeImage:
+                handler: App\MyHandler
+                events:
+                    - s3: photos
+        ```
+
+        The `App\MyHandler` class will be instantiated by Symfony's service container.
+    </Tab>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            resizeImage:
+                handler: handler.php
+                events:
+                    - s3: photos
+        ```
+
+        The file `handler.php` should return the handler instance:
+
+        ```php filename="handler.php"
+        <?php
+
+        require __DIR__ . '/vendor/autoload.php';
+
+        return new MyHandler();
+        ```
+    </Tab>
+</Tabs>
+
+The S3 bucket will automatically be created on deployment. You can listen to an existing S3 bucket via [the `existing: true` option](https://www.serverless.com/framework/docs/providers/aws/events/s3/#using-existing-buckets).
+
+Learn more about all the options available for S3 in `serverless.yml` [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/s3/).
+
+<Callout type="warning">
+    Watch out for recursive triggers: if your Lambda function writes files to the same S3 bucket, it will trigger itself again. You can avoid this by using a different bucket for the output files, or by using a prefix for the output files.
+</Callout>

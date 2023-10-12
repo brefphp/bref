@@ -1,0 +1,220 @@
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="An introduction to what serverless and Bref can offer for PHP applications." />
+
+# What is Bref and serverless?
+
+Serverless means using cloud services that manage the servers for us.
+
+## Why serverless?
+
+When running PHP on a server, we must:
+
+- setup, configure and maintain that server,
+- pay a fixed price for the server,
+- scale the server(s) if we get more traffic.
+
+When running PHP serverless:
+
+- We do not need to set up servers, the cloud provider takes care of that.
+- We pay only for what we use (per request).
+- Our application scales automatically.
+
+**Serverless provides more scalable, affordable and reliable architectures for less effort.**
+
+Serverless includes services like storage as a service, database as a service, message queue as a service, etc. One service in particular is interesting for us developers: *Function as a Service* (FaaS).
+
+FaaS is a way to run code where the hosting provider takes care of setting up everything, keeping the application available 24/7, scaling it up and down and we are only charged *while the code is actually executing*.
+
+## Why Bref?
+
+Bref aims to make running PHP applications simple.
+
+To reach that goal, Bref takes advantage of serverless technologies. However, while serverless is promising, there are many choices to make, tools to build and best practices to figure out.
+
+Bref's approach is to:
+
+- **simplify problems by removing choices**
+
+    *instead of trying to address every need*
+- **provide simple and familiar solutions**
+
+    *instead of aiming for powerful custom solutions*
+- **empower by sharing knowledge**
+
+    *instead of hiding too much behind leaky abstractions*
+
+### What is Bref
+
+Bref (which means "brief" in french) comes as an open source Composer package and helps you deploy PHP applications to [AWS](https://aws.amazon.com) and run them on [AWS Lambda](https://aws.amazon.com/lambda/).
+
+Bref provides:
+
+- documentation
+- PHP runtimes for AWS Lambda
+- deployment tooling
+- PHP frameworks integration
+
+The choice of AWS as serverless provider is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performance and reliability.
+
+Bref uses [the Serverless framework](https://serverless.com/) to configure and deploy serverless applications. Being the most popular tool, Serverless comes with a huge community, a lot of examples online and a simple configuration format.
+
+## Use cases
+
+Bref and AWS Lambda can be used to run many kind of PHP application, for example:
+
+- APIs
+- websites
+- workers
+- batch processes/scripts
+- event-driven microservices
+
+Bref aims to support any PHP framework. It comes with deep integrations with Laravel and Symfony.
+
+If you are interested in real-world examples as well as cost analyses head over to the [**Case Studies** page](/docs/case-studies.md).
+
+## Maturity matrix
+
+The matrix below provides an overview of the "maturity level" for common PHP applications.
+
+This maturity level is a vague metric, however it can be useful to anticipate the effort and the limitations to expect for each scenario. While a green note doesn't mean that Bref and Lambda are silver bullets for the use case (there are no silver bullets), a red note doesn't mean this is impossible or advised against.
+
+This matrix will be updated as Bref and AWS services evolve over time.
+
+<table className="text-xs sm:text-sm mt-6">
+    <thead>
+    <tr className="bg-gray-100">
+        <th className="p-4"></th>
+        <th className="font-normal p-4">Simplicity</th>
+        <th className="font-normal p-4">Performance</th>
+        <th className="font-normal p-4">Reliability</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">
+            Jobs, Cron
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">API</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">Website</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">Legacy application</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-yellow-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">Event-driven microservices</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">Real-time applications</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-red-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="text-xs text-center text-gray-600">
+        <td></td>
+        <td className="p-3">
+            Is this documented and simple to achieve?
+        </td>
+        <td className="p-3">
+            Is performance acceptable?
+        </td>
+        <td className="p-3">
+            Is this scenario production-ready?
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div className="text-xs text-gray-700 mb-8">
+    Legend:
+    <span className="inline-block my-1 mx-1 sm:mx-2 bg-green-100 text-green-600 rounded-full px-2">Good use case</span>
+    <span className="inline-block my-1 mx-1 sm:mx-2 bg-orange-100 text-orange-600 rounded-full px-2">Some drawbacks</span>
+    <span className="inline-block my-1 ml-1 sm:ml-2 bg-red-100 text-red-600 rounded-full px-2">Strong limitations</span>
+</div>
+
+- **Jobs, Cron**
+
+    Jobs, cron tasks and batch processes are very good candidates for FaaS. The scaling model of AWS Lambda can lead to very high throughput in queue processing, and the pay-per-use billing model can sometimes result in drastic costs reduction.
+
+    Using Bref, it is possible to implement cron jobs and queue workers using PHP. Bref also provides integration with popular queue libraries, like Laravel Queues and Symfony Messenger.
+
+    One limitation to keep in mind is that each AWS Lambda invocation has a maximum execution time of 15 minutes.
+
+- **API**
+
+    APIs run on AWS Lambda without problems. Performance is now similar to what you could expect on a traditional VPS.
+
+    The main difference to account for is that about 0.5% of HTTP requests are cold starts. If your use case requires that _all_ requests are handled below 10ms, serverless might not be a good fit.
+
+- **Website**
+
+    Websites run well on AWS Lambda. Assets can be stored in S3 and served via Cloudfront. This is documented in the ["Websites" documentation](/docs/use-cases/websites.mdx). Performance is as good as any server.
+
+- **Legacy application**
+
+    Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite some parts of the code to make the application fit for Lambda (or running in containers in general). For example, file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and SQS.
+
+    Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net). Note that if your application already runs redundantly on multiple servers, it is much more ready for AWS Lambda and the migration could be simple.
+
+- **Real-time applications**
+
+    Warm Lambda invocations are very fast (can be as low as 1ms), but cold starts can take 230ms or more. Cold starts are rare on most applications (less than 0.5% of invocations) and can be further mitigated with [provisioned concurrency](https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html), but it's unlikely to ensure they will _never_ happen. This makes Lambda a poor choice for real-time applications where latency must be below 100ms for 100% of requests.
+
+## Getting started
+
+Get started with Bref by reading the [installation documentation](/docs/setup.mdx).

@@ -1,0 +1,148 @@
+import { Callout } from 'nextra/components';
+
+# Deployment
+
+Bref is designed out of the box to deploy using [the Serverless Framework](https://serverless.com/).
+
+Bref can also work with any other deployment tool: Terraform, CloudFormation, SAM, [AWS CDK](https://github.com/brefphp/constructs), Pulumi… However, the documentation and user experience is optimized for Serverless Framework.
+
+## Deploying manually
+
+To deploy to AWS an application configured with `serverless.yml`, run:
+
+```bash
+serverless deploy
+```
+
+A `.serverless/` directory will be created. You can add it to `.gitignore`.
+
+<Callout>
+    Want to get an overview of your deployed application? Check out the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref).
+</Callout>
+
+## Deploying for production
+
+In the previous step, we deployed the project installed on your machine. This is probably a *development version*.
+
+For production, we usually don't want to deploy:
+
+- dev dependencies
+- dev configuration
+- etc.
+
+Instead, let's remove development dependencies and optimize Composer's autoloader for production:
+
+```bash
+composer install --prefer-dist --optimize-autoloader --no-dev
+```
+
+Now is also the best time to configure your project for production, as well as build any file cache if necessary.
+
+Once your project is ready, you can deploy via the following command:
+
+```bash
+serverless deploy
+```
+
+## Stages
+
+Serverless Framework has a concept of "stages", another name for "environments". We can deploy the same application multiple times in completely separated environments:
+
+```bash
+serverless deploy --stage=prod
+```
+
+The default stage is `dev`. The example above deploys a `prod` stage.
+
+Each stage is a separate CloudFormation stack, with completely separate AWS resources (Lambda functions, logs, permissions, etc.). All AWS resources are prefixed with the `service` and stage name (for example `myapp-dev-api`), which avoids any collision between stages.
+
+It is possible to deploy different stages in different AWS accounts (to lock down permissions), and to deploy one stage per git branch, pull request, or even developer in the team.
+
+## Automating deployments
+
+If you are using GitHub Actions, Gitlab CI, CircleCI, or any tool of the sort you will want to automate the deployment to something like this:
+
+```bash
+# Install Composer dependencies optimized for production
+composer install --prefer-dist --optimize-autoloader --no-dev
+
+# Perform extra tasks for your framework of choice
+# (e.g. generate the framework cache)
+# [...]
+
+# Deploy
+serverless deploy
+```
+
+That will also mean creating AWS access keys so that the continuous integration is allowed to deploy.
+
+You can find configuration examples for CI/CD tools in the [Bref examples repository](https://github.com/brefphp/examples).
+
+## Regions
+
+AWS runs applications in different [regions](https://aws.amazon.com/about-aws/global-infrastructure/). The default region is `us-east-1` (North Virginia, USA).
+
+If you want to use a different region (for example to host your application closer to your visitors) you can configure it in your `serverless.yml`:
+
+```yaml
+provider:
+    region: eu-west-1 # Ireland, Europe
+    ...
+```
+
+<Callout>
+    If you are a first time user, using the `us-east-1` region (the default region) is recommended for the first projects. It simplifies commands and avoids a lot of mistakes when discovering AWS.
+
+    I mean really… I can't count how many times a command failed or an AWS page looked empty because I was in the wrong region.
+</Callout>
+
+## Deletion
+
+To delete the whole application you can run:
+
+```bash
+serverless remove
+```
+
+Note that this command, like `serverless deploy`, is for a specific stage. If you want to delete all stages you will have to run the command once per stage.
+
+## How it works
+
+### CloudFormation stacks
+
+The `serverless deploy` command will deploy everything via a **[CloudFormation](https://aws.amazon.com/cloudformation/) stack**. A "stack" is nothing more than a bunch of things that compose an application:
+
+- lambda functions
+- S3 buckets
+- databases
+- etc.
+
+Stacks make it easy to group those resources together: the whole stack is updated at once on deployments, and if you delete the stack all the resources inside are deleted together too. Clean and simple.
+
+All of this is great except CloudFormation configuration is complex. This is where Serverless Framework helps.
+
+### Zero-downtime deployments
+
+CloudFormation deploys using the [blue/green deployment strategy](https://docs.aws.amazon.com/whitepapers/latest/overview-deployment-options/bluegreen-deployments.html).
+
+This means that when you deploy, a new version of your code is deployed alongside the old one. Once the new version is ready, the traffic switches to the new version. If the deployment fails at any point, the traffic stays on the old version.
+
+#### Limits to blue/green deployment
+
+As soon as you introduce **asynchronous behaviors** (e.g. background jobs with SQS, event-driven microservices…) you may have in-flight messages (SQS jobs, EventBridge events…) created by the old version of your code that will be processed by the new version of your code.
+
+Code that handles asynchronous events must be able to handle messages created by older versions of the code.
+
+#### Database migrations
+
+Zero-downtime deployments mean that database migrations must run when code is running in production. That means either before or after the deployment (traffic switch) happens, and having a DB migration strategy compatible with that.
+
+### `serverless.yml`
+
+Serverless Framework offers a simple configuration format. This is what you are using if you use Bref. That configuration is written in your project in a `serverless.yml` file.
+
+You can [learn more about that configuration format here](environment/serverless-yml.md).
+
+## Learn more
+
+Read more about `serverless deploy` in [the official documentation](https://serverless.com/framework/docs/providers/aws/guide/deploying/).

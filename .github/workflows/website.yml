@@ -1,0 +1,37 @@
+name: Website
+
+on:
+    push:
+        branches: [ 'website-v3' ]
+
+env:
+    VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+
+    deploy:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        defaults:
+            run:
+                working-directory: ./website
+        steps:
+            -   uses: actions/checkout@v3
+                with:
+                    fetch-depth: 0 # fetch all history for "latest modified time"
+            -   run: npm install --global vercel@latest
+            -   run: make src/pages/docs
+            -   name: Pull Vercel Environment Information
+                run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+            -   name: Build
+                run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+                env:
+                    # CUSTOM_GITHUB_TOKEN_READ is a manually created GitHub token with appropriate permissions:
+                    # - allowed to list contributors
+                    # - allowed to list sponsors
+                    # It wouldn't be possible to use the default GITHUB_TOKEN because it doesn't have the required permissions.
+                    GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN_READ }}
+            -   name: Deploy
+                run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

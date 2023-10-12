@@ -1,0 +1,308 @@
+import { Callout, Tab, Tabs } from 'nextra/components';
+
+# Advanced HTTP use-cases
+
+<Callout>
+    If you are getting started with Bref, read the guides for **Laravel** ([Get started](../../laravel/getting-started.mdx)), **Symfony** ([Get started](../../symfony/getting-started.mdx)), or other PHP frameworks ([Get started](../../default/getting-started.mdx)).
+
+    This documentation is for advanced use-cases.
+</Callout>
+
+## Alternative AWS architectures
+
+By default, Bref uses API Gateway v2 HTTP APIs to run HTTP applications.
+
+However, there are other ways to run HTTP applications on AWS Lambda: using [API Gateway](https://aws.amazon.com/api-gateway/), [Lambda Function URLs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-urls.html), or [AWS Application Load Balancer (ALB)](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html):
+
+- API Gateway v1 "REST" + Lambda
+- API Gateway v2 "HTTP" + Lambda
+- Lambda Function URL
+- AWS ALB (Application Load Balancer) + Lambda
+
+Bref supports all 4, but API Gateway v2 "HTTP" is the default because it is the simplest option that supports both HTTP APIs and websites with custom domains.
+
+<Callout>
+    If you are getting started, **stay with the defaults**. The documentation and integrations will be much simpler to follow.
+
+    You can change the architecture later if you need to.
+</Callout>
+
+Here is a summary of the differences between the 4 options:
+
+|                                 |  API Gateway v1 REST  |      API Gateway v2 HTTP      |           Function URL           |       ALB        |
+|---------------------------------|:---------------------:|:-----------------------------:|:--------------------------------:|:----------------:|
+| Pricing (Lambda cost excluded)  | $3.5/million requests |      $1/million requests      |      Free (no extra costs)       | Starts at $22/mo |
+| Custom domain                   |           ✅           |               ✅               | No, but possible with CloudFront |        ✅         |
+| Authorizers                     | IAM, Lambda, Cognito  | IAM, Lambda, Cognito, OAuth 2 |               IAM                |  OIDC, Cognito   |
+| CORS                            |           ✅           |               ✅               |                ✅                 |        ❌         |
+| CloudWatch metrics              |           ✅           |               ✅               |                ✅                 |        ✅         |
+| CloudWatch access logs          |           ✅           |               ✅               |                ❌                 |        ✅         |
+| Caching                         |           ✅           |               ❌               |                ❌                 |        ❌         |
+| API key management              |           ✅           |               ❌               |                ❌                 |        ❌         |
+| Request transformation          |           ✅           |               ❌               |                ❌                 |        ❌         |
+| Request/response validation     |           ✅           |               ❌               |                ❌                 |        ❌         |
+| Maximum HTTP response timeout   |          29s          |              30s              |            15 minutes            |    15 minutes    |
+| Added latency to HTTP responses |         25ms          |             15ms              |               10ms               |                  |
+
+You can read more details [in the "Choosing between REST APIs and HTTP APIs" AWS documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html).
+
+### API Gateway v2 HTTP API
+
+The simplest way to set up API Gateway is to have all incoming requests sent to our application in one Lambda function:
+
+```yml filename="serverless.yml"
+functions:
+    hello:
+        handler: index.php
+        # ...
+        events:
+            - httpApi: '*'
+```
+
+That works well with frameworks like Symfony or Laravel that have a single entrypoint (e.g. `public/index.php`) combined with the [PHP-FPM runtime](../../runtimes/fpm-runtime.mdx).
+
+You can look at more advanced API Gateway routing options in the [serverless documentation](https://www.serverless.com/framework/docs/providers/aws/events/http-api).
+
+### Lambda Function URLs
+
+Since 2022, AWS Lambda can respond to HTTP requests via [Lambda Function URLs](https://aws.amazon.com/blogs/aws/announcing-aws-lambda-function-urls-built-in-https-endpoints-for-single-function-microservices/). This is a new way to invoke Lambda functions via HTTP without using API Gateway.
+
+You can deploy a Lambda Function URL [via the following configuration](https://www.serverless.com/framework/docs/providers/aws/guide/functions#lambda-function-urls):
+
+```yml filename="serverless.yml"
+functions:
+    hello:
+        handler: index.php
+        # ...
+        url: true
+```
+
+### API Gateway v1 REST API
+
+The syntax is slightly different from API Gateway v2 HTTP APIs as we must use a different `events` configuration. Here is an example that sends all requests to a single Lambda function:
+
+```yml filename="serverless.yml"
+functions:
+    hello:
+        handler: index.php
+        # ...
+        events:
+            - http: 'ANY /'
+            - http: 'ANY /{proxy+}'
+```
+
+Learn more [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/apigateway).
+
+### Application Load Balancer
+
+Application Load Balancer (ALB) is a managed load balancer that can be used to route HTTP requests to Lambda functions. It is a more advanced option that is interesting at high scale as ALB can be much cheaper than API Gateway.
+
+```yml filename="serverless.yml"
+functions:
+    hello:
+        handler: index.php
+        # ...
+        events:
+            -   alb:
+                    listenerArn: arn:aws:elasticloadbalancing:us-east-1:12345:listener/app/my-load-balancer/50dc6c495c0c9188/
+                    priority: 1
+                    conditions:
+                        path: '/*'
+```
+
+Learn more [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/alb).
+
+## PHP handlers
+
+<Callout>
+    This section applies to all 4 approaches: API Gateway v1, v2, ALB, and Function URLs.
+
+    Bref abstracts the differences so that the same code can be used with all 4 solutions.
+</Callout>
+
+There are two ways to handle HTTP events with PHP:
+
+- via the [PHP-FPM runtime](../../runtimes/fpm-runtime.mdx) (simplest, this is Bref's default)
+- via the [Event-Driven Function runtime](../../runtimes/function.mdx) (more advanced)
+
+Here is a full comparison between both approaches:
+
+|                                                    | PHP-FPM runtime                                                                                                                | Event-Driven Function handler                                                                                           |
+|----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| What are the use cases?                            | To build websites, APIs, etc. This should be the **default approach** as it's compatible with mature PHP frameworks and tools. | Build event-driven microservices, or run Laravel Octane, or Symfony with a keep-alive process (like Roadrunner/Swoole). |
+| Why does that solution exist?                      | For out-of-the-box compatibility with existing applications and frameworks.                                                    | To match how other languages run in AWS Lambda, i.e. to build very specialized HTTP endpoints.                          |
+| How it runs under the hood                         | Using PHP-FPM.                                                                                                                 | Using the PHP CLI.                                                                                                      |
+| What does the routing (i.e. separate pages)?       | Your PHP framework (one Lambda receives all the URLs).                                                                         | API Gateway: we define one Lambda and one handler class per route.                                                      |
+| How to read the request?                           | `$_GET`, `$_POST`, etc.                                                                                                        | The `$request` parameter (PSR-7 request).                                                                               |
+| How to write a response?                           | `echo`, `header()` function, etc.                                                                                              | Returning a PSR-7 response from the handler class.                                                                      |
+| How does it work?                                  | Bref turns an API Gateway event into a FastCGI (PHP-FPM) request.                                                              | Bref turns an API Gateway event into a PSR-7 request.                                                                   |
+| Is each request handled in a separate PHP process? | Yes (that's how PHP-FPM works).                                                                                                | Yes by default (Bref replicates that to avoid surprises) but can be disabled for optimal performances.                  |
+
+### With the PHP-FPM runtime
+
+This is perfect for most use-cases: **PHP works like on any server** with PHP-FPM. HTTP routing based on the URL is done by the application/the framework.
+
+This approach is already covered by most of the Bref documentation, so we won't go into details here.
+
+You can read more about [the PHP-FPM runtime here](../../runtimes/fpm-runtime.mdx).
+
+### With the Event-Driven Function runtime
+
+This is more advanced, as PHP does not run in a traditional PHP-FPM environment. It can be used with or without a PHP framework.
+
+When used with a framework, understand that the whole HTTP stack (like HTTP middlewares) of the framework does not run. You are responsible for invoking the PHP code that should run.
+
+<Callout>
+    Note: this approach is used to run Laravel Octane or Symfony with a keep-alive process (like Roadrunner/Swoole). These use cases are not detailed here, read [about Laravel Octane](../../laravel/octane.mdx) or [about Symfony "Keep-Alive"](../../symfony/keep-alive.mdx) instead.
+</Callout>
+
+The `handler` must be a PHP function, or a PSR-15 implementation. Indeed, Bref natively supports the [PSR-15](https://www.php-fig.org/psr/psr-15/#2-interfaces) and [PSR-7](https://www.php-fig.org/psr/psr-7/) standards. Here is an example:
+
+```php
+<?php
+
+namespace App;
+
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class MyHttpHandler implements RequestHandlerInterface
+{
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        $name = $request->getQueryParams()['name'] ?? 'world';
+
+        return new Response(200, [], "Hello $name");
+    }
+}
+```
+
+Then, create a Lambda function that listens to HTTP events with the handler you created:
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            handler: App\MyHttpHandler
+            runtime: php-81
+            # Lambda Function URL
+            url: true
+            # Or API Gateway
+            events:
+                # API Gateway v2
+                - httpApi: 'GET /hello'
+                # API Gateway v1
+                - http: 'GET hello'
+        ```
+
+        The `App\MyHttpHandler` class will be instantiated by Laravel's service container.
+    </Tab>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            handler: App\MyHttpHandler
+            runtime: php-81
+            # Lambda Function URL
+            url: true
+            # Or API Gateway
+            events:
+                # API Gateway v2
+                - httpApi: 'GET /hello'
+                # API Gateway v1
+                - http: 'GET hello'
+        ```
+
+        The `App\MyHttpHandler` class will be instantiated by Symfony's service container.
+    </Tab>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            handler: handler.php
+            runtime: php-81
+            # Lambda Function URL
+            url: true
+            # Or API Gateway
+            events:
+                # API Gateway v2
+                - httpApi: 'GET /hello'
+                # API Gateway v1
+                - http: 'GET hello'
+        ```
+
+        The file `handler.php` should return the handler instance:
+
+        ```php filename="handler.php"
+        <?php
+
+        require __DIR__ . '/vendor/autoload.php';
+
+        return new MyHttpHandler();
+        ```
+    </Tab>
+</Tabs>
+
+Since a handler is a controller for a specific route, we can use the API Gateway routing to deploy multiple functions:
+
+```yml filename="serverless.yml"
+functions:
+    create-article:
+        handler: App\CreateArticleController
+        runtime: php-81
+        events:
+            - httpApi: 'POST /articles'
+    get-article:
+        handler: App\GetArticleController
+        runtime: php-81
+        events:
+            - httpApi: 'GET /articles/{id}'
+```
+
+Path parameters (e.g. `{id}` in the example above) are available as request attributes in the PSR-7 request:
+
+```php
+$id = $request->getAttribute('id');
+```
+
+[Full reference of HTTP events in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/http-api/).
+
+#### Lambda event and context
+
+The API Gateway event and Lambda context are available as attributes on the PSR-7 request:
+
+```php
+/** @var $event Bref\Event\Http\HttpRequestEvent */
+$event = $request->getAttribute('lambda-event');
+
+/** @var $context Bref\Context\Context */
+$context = $request->getAttribute('lambda-context');
+```
+
+If you're looking for the request context array, for example when using a [Lambda authorizer](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-lambda-authorizer.html#http-api-lambda-authorizer.payload-format-response):
+
+```php
+$requestContext = $request->getAttribute('lambda-event')->getRequestContext();
+```
+
+## Cold starts
+
+AWS Lambda automatically destroys Lambda containers that have been unused for 10 minutes. Warming up a new container can take 250ms or more, especially if your application is large. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).
+
+To mitigate cold starts for HTTP applications, you can periodically send an event to your Lambda including a `{warmer: true}` payload. This will trigger the Lambda function. Bref recognizes this event and immediately responds with a `Status: 100` without executing your code.
+
+You can set up such events using a schedule ([read this article for more details](https://www.jeremydaly.com/lambda-warmer-optimize-aws-lambda-function-cold-starts/)):
+
+```yml filename="serverless.yml"
+        events:
+            - httpApi: '*'
+            - schedule:
+                rate: rate(5 minutes)
+                input:
+                    warmer: true
+```
+
+You can learn more how AWS Lambda scales and runs in the [Serverless Visually Explained](https://serverless-visually-explained.com/) course.

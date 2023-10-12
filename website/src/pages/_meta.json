@@ -1,0 +1,56 @@
+{
+  "index": {
+    "type": "page",
+    "title": "Bref",
+    "display": "hidden",
+    "theme": {
+      "layout": "raw"
+    }
+  },
+  "docs": {
+    "type": "page",
+    "title": "Documentation"
+  },
+  "news": {
+    "title": "News",
+    "type": "page",
+    "theme": {
+      "typesetting": "article"
+    }
+  },
+  "support": {
+    "type": "page",
+    "title": "Support",
+    "theme": {
+      "layout": "raw"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "type": "page",
+    "href": "https://dashboard.bref.sh/"
+  },
+  "credits": {
+    "type": "page",
+    "title": "Credits",
+    "display": "hidden",
+    "theme": {
+    }
+  },
+  "404": {
+    "type": "page",
+    "title": "Sentry integration for AWS Lambda",
+    "display": "hidden",
+    "theme": {
+      "layout": "raw"
+    }
+  },
+  "sentry": {
+    "type": "page",
+    "title": "Sentry integration for AWS Lambda",
+    "display": "hidden",
+    "theme": {
+      "layout": "raw"
+    }
+  }
+}

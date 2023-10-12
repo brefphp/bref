@@ -12,7 +12,7 @@ Version 1.7.x will only receive critical bug fixes and security fixes, as well P
 
 You are encouraged to upgrade to v2.
 
-If you prefer to stay on v1 and need long term support for v1 (or need help upgrading), get in touch for enterprise support: https://bref.sh/#enterprise
+If you prefer to stay on v1 and need long term support for v1 (or need help upgrading), get in touch for enterprise support: https://bref.sh/support
 
 ## Reporting a Vulnerability
 
