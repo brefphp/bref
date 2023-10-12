@@ -28,7 +28,8 @@
   "dashboard": {
     "title": "Dashboard",
     "type": "page",
-    "href": "https://dashboard.bref.sh/"
+    "href": "https://dashboard.bref.sh/",
+    "newWindow": true
   },
   "credits": {
     "type": "page",
