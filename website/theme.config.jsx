@@ -19,7 +19,7 @@ export default {
                 openGraph: {
                     images: [
                         {
-                            url: '/social-card.png'
+                            url: 'https://bref.sh/social-card.png'
                         }
                     ]
                 }
@@ -30,7 +30,7 @@ export default {
                 openGraph: {
                     images: [
                         {
-                            url: '/social-card.png'
+                            url: 'https://bref.sh/social-card.png'
                         }
                     ]
                 }
@@ -66,7 +66,7 @@ export default {
             <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/apple-touch-icon-152x152.png" />
             <meta property="og:locale" content="en_US" />
             <meta property="og:site_name" content="Bref" />
-            <meta name="twitter:card" content="summary" />
+            <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:creator" content="@brefphp" />
             <meta name="google-site-verification" content="RRmKDrWI2l69B0nMwv4ndrYOHSuaTBfarvCgtJxMpXA" />
         </>
