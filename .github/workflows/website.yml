@@ -2,7 +2,7 @@ name: Website
 
 on:
     push:
-        branches: [ 'website-v3' ]
+        branches: [ 'master' ]
 
 env:
     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
