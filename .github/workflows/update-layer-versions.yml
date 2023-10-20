@@ -22,14 +22,14 @@ permissions:
 jobs:
     update-layer-versions:
         name: Update layer versions
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         steps:
-            -   uses: actions/checkout@v3
+            -   uses: actions/checkout@v4
                 with:
                     ref: master
 
             -   name: Set AWS credentials
-                uses: aws-actions/configure-aws-credentials@v2
+                uses: aws-actions/configure-aws-credentials@v4
                 with:
                     role-to-assume: arn:aws:iam::534081306603:role/bref-github-actions
                     role-session-name: bref-github-actions
