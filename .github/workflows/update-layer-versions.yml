@@ -23,7 +23,7 @@ jobs:
                     ref: v2
 
             -   name: Set AWS credentials
-                uses: aws-actions/configure-aws-credentials@v3
+                uses: aws-actions/configure-aws-credentials@v4
                 with:
                     role-to-assume: arn:aws:iam::534081306603:role/bref-github-actions
                     role-session-name: bref-github-actions
