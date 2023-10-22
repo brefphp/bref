@@ -12,7 +12,7 @@ jobs:
 
     php-tests:
         name: Tests - PHP ${{ matrix.php }} ${{ matrix.dependency-version }}
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         timeout-minutes: 15
         strategy:
             matrix:
@@ -24,7 +24,7 @@ jobs:
                         dependency-version: '--prefer-lowest'
         steps:
             -   name: Checkout
-                uses: actions/checkout@v3
+                uses: actions/checkout@v4
             # Node is required by some tests
             -   uses: actions/setup-node@v3
                 with:
@@ -45,11 +45,11 @@ jobs:
                 run: 'vendor/bin/phpunit --testsuite small'
 
     phpstan:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         name: PHPStan
         steps:
             -   name: Checkout
-                uses: actions/checkout@v3
+                uses: actions/checkout@v4
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
@@ -68,11 +68,11 @@ jobs:
                 run: vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr
 
     phpcs:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         name: PHP CodeSniffer
         steps:
             -   name: Checkout
-                uses: actions/checkout@v3
+                uses: actions/checkout@v4
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
@@ -91,10 +91,10 @@ jobs:
                 run: vendor/bin/phpcs -q --no-colors --report=checkstyle | cs2pr
 
     js-lint:
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-22.04
         name: JS type validation and linting
         steps:
-            - uses: actions/checkout@v3
+            - uses: actions/checkout@v4
             - uses: actions/setup-node@v3
               with:
                   node-version: 18
