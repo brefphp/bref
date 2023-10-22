@@ -18,11 +18,11 @@ function warnIfUsingSecretsWithoutTheBrefDependency(serverless, log) {
 
     if (allVariables.length > 0) {
         // Check if the bref/secrets-loader dependency is installed in composer.json
-        if (! fs.existsSync('composer.json')) {
+        if (! fs.existsSync('composer.lock')) {
             return;
         }
-        const composerJson = JSON.parse(fs.readFileSync('composer.json', 'utf8'));
-        const dependencies = Object.keys(composerJson.require || {});
+        const composerLock = JSON.parse(fs.readFileSync('composer.lock', 'utf8'));
+        const dependencies = composerLock.packages.map(v => v.name) || {};
         if (dependencies.includes('bref/secrets-loader')) {
             return;
         }
