@@ -27,7 +27,7 @@ function warnIfUsingSecretsWithoutTheBrefDependency(serverless, log) {
             return;
         }
 
-        log.warning(`The following environment variables use the "bref-ssm:" prefix, but the "bref/secrets-loader" dependency is not installed via "composer.json".`);
+        log.warning(`The following environment variables use the "bref-ssm:" prefix, but the "bref/secrets-loader" dependency is not installed.`);
         allVariables.forEach(variable => log.warning(`    ${variable}`));
         log.warning(`The "bref/secrets-loader" dependency is required to use the "bref-ssm:" prefix. Install it by running:`);
         log.warning(`    composer require bref/secrets-loader`);
