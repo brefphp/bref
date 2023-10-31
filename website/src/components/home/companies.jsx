@@ -6,6 +6,8 @@ import neuralLoveLogo from './companies/neural-love.svg';
 import enopteaLogo from './companies/enoptea.png';
 import gulliLogo from './companies/gulli.svg';
 import minutesLogo from './companies/20minutes.svg';
+import treezorLogo from './companies/treezor.svg';
+import Link from 'next/link';
 
 export default function Companies() {
     return (
@@ -32,11 +34,13 @@ export default function Companies() {
                         </div>
                     </div>
                     <div className="mx-auto grid w-full max-w-xl grid-cols-2 items-center gap-x-6 gap-y-12 sm:gap-y-14 lg:mx-0 lg:max-w-none lg:pl-8">
-                        <Image
-                            className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
-                            src={phpStanLogo}
-                            alt="PhpStan"
-                        />
+                        <Link href="/docs/case-studies/treezor">
+                            <Image
+                                className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
+                                src={treezorLogo}
+                                alt="Treezor"
+                            />
+                        </Link>
                         <Image
                             className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
                             src={minutesLogo}
@@ -54,22 +58,27 @@ export default function Companies() {
                         />
                         <Image
                             className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
-                            src={enopteaLogo}
-                            alt="Enoptea"
+                            src={phpStanLogo}
+                            alt="PhpStan"
                         />
                         <Image
                             className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
                             src={bcastLogo}
                             alt="bCast.fm"
                         />
+                        <Image
+                            className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
+                            src={enopteaLogo}
+                            alt="Enoptea"
+                        />
                         <div className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert">
                             <span className="text-2xl font-bold text-white">externals.io</span>
                         </div>
-                        <Image
-                            className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
-                            src={neuralLoveLogo}
-                            alt="neural.love"
-                        />
+                        {/*<Image*/}
+                        {/*    className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"*/}
+                        {/*    src={neuralLoveLogo}*/}
+                        {/*    alt="neural.love"*/}
+                        {/*/>*/}
                     </div>
                 </div>
             </div>
