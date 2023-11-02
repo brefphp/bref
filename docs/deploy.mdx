@@ -36,6 +36,10 @@ Instead, let's remove development dependencies and optimize Composer's autoloade
 composer install --prefer-dist --optimize-autoloader --no-dev
 ```
 
+<Callout>
+    Using [aws/aws-sdk-php](https://github.com/aws/aws-sdk-php/tree/master/src/Script/Composer) or [google/apiclient](https://github.com/googleapis/google-api-php-client#cleaning-up-unused-services)? See the links for reducing deployment size by removing unused services
+</Callout>
+
 Now is also the best time to configure your project for production, as well as build any file cache if necessary.
 
 Once your project is ready, you can deploy via the following command:
