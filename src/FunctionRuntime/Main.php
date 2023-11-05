@@ -3,6 +3,7 @@
 namespace Bref\FunctionRuntime;
 
 use Bref\Bref;
+use Bref\Context\Context;
 use Bref\LazySecretsLoader;
 use Bref\Runtime\LambdaRuntime;
 use Throwable;
@@ -34,7 +35,17 @@ class Main
             if (++$loops > $loopMax) {
                 exit(0);
             }
-            $success = $lambdaRuntime->processNextEvent($handler);
+
+            $success = $lambdaRuntime->processNextEvent(function ($event, Context $context) use ($handler) {
+                // Expose the context in an environment variable
+                // Used for example to retrieve the context in Laravel Queues jobs
+                $jsonContext = json_encode($context, JSON_THROW_ON_ERROR);
+                $_SERVER['LAMBDA_INVOCATION_CONTEXT'] = $_ENV['LAMBDA_INVOCATION_CONTEXT'] = $jsonContext;
+                putenv("LAMBDA_INVOCATION_CONTEXT=$jsonContext");
+
+                return $handler($event, $context);
+            });
+
             // In case the execution failed, we force starting a new process regardless of BREF_LOOP_MAX
             // Why: an exception could have left the application in a non-clean state, this is preventive
             if (! $success) {
