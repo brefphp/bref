@@ -59,10 +59,7 @@ class SqsRecord
 
     /**
      * Returns the name of the SQS queue that contains the message.
-     * 
-     * Queue naming constraints:
-     * 
-     * https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-queues.html
+     * Queue naming constraints: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-queues.html
      */
     public function getQueueName(): string
     {
