@@ -423,6 +423,7 @@ Year,Make,Model
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-cookies-invalid.json");
 
+        // See https://stackoverflow.com/a/61695783/245552
         $this->assertCookies([], 'foo');
     }
 
