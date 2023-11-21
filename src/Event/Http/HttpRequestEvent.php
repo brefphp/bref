@@ -190,7 +190,11 @@ final class HttpRequestEvent implements LambdaEvent
 
         $cookies = [];
         foreach ($cookieParts as $cookiePart) {
-            [$cookieName, $cookieValue] = explode('=', $cookiePart, 2);
+            $explode = explode('=', $cookiePart, 2);
+            if (count($explode) !== 2) {
+                continue;
+            }
+            [$cookieName, $cookieValue] = $explode;
             $cookies[$cookieName] = urldecode($cookieValue);
         }
         return $cookies;
