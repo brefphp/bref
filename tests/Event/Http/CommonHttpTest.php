@@ -508,7 +508,7 @@ Year,Make,Model
 
     abstract protected function assertContentType(?string $expected): void;
 
-    abstract protected function assertCookies(array $expected, string|null $expectedHeader = null): void;
+    abstract protected function assertCookies(array $expected, string |null $expectedHeader = null): void;
 
     abstract protected function assertHeaders(array $expected): void;
 

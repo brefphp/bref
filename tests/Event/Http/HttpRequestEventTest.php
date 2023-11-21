@@ -27,7 +27,7 @@ class HttpRequestEventTest extends CommonHttpTest
         }
     }
 
-    protected function assertCookies(array $expected, string|null $expectedHeader = null): void
+    protected function assertCookies(array $expected, string |null $expectedHeader = null): void
     {
         $this->assertEquals($expected, $this->event->getCookies());
 
