@@ -47,6 +47,8 @@ interface HttpRequestProxyTest
 
     public function test request with cookies(int $version);
 
+    public function test request with invalid cookies(int $version);
+
     public function test POST request with base64 encoded body(int $version);
 
     public function test PUT request(int $version);

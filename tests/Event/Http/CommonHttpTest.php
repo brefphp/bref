@@ -419,6 +419,16 @@ Year,Make,Model
     /**
      * @dataProvider provide API Gateway versions
      */
+    public function test request with invalid cookies(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-cookies-invalid.json");
+
+        $this->assertCookies([], 'foo');
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
     public function test POST request with base64 encoded body(int $version)
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-base64.json");
@@ -497,7 +507,7 @@ Year,Make,Model
 
     abstract protected function assertContentType(?string $expected): void;
 
-    abstract protected function assertCookies(array $expected): void;
+    abstract protected function assertCookies(array $expected, string|null $expectedHeader = null): void;
 
     abstract protected function assertHeaders(array $expected): void;
 
