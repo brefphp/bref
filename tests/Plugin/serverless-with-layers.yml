@@ -1,0 +1,30 @@
+service: bref
+provider:
+    name: aws
+    layers:
+        - arn:aws:lambda:us-east-1:1234567890:layer:foo:1
+
+plugins:
+    - ../../index.js
+
+functions:
+
+    function:
+        handler: function.php
+        runtime: php-83
+    function-arm:
+        handler: function.php
+        runtime: php-83
+        architecture: arm64
+
+    function-with-layers:
+        handler: function.php
+        runtime: php-83
+        layers:
+            - arn:aws:lambda:us-east-1:1234567890:layer:bar:1
+    function-arm-with-layers:
+        handler: function.php
+        runtime: php-83
+        architecture: arm64
+        layers:
+            - arn:aws:lambda:us-east-1:1234567890:layer:bar:1

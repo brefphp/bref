@@ -1,0 +1,27 @@
+import { Callout } from 'nextra/components';
+
+# Binary requests and responses
+
+AWS Lambda is only used for executing code. Serving assets via PHP does not make sense as this would be a waste of resources and money.
+
+<Callout>
+    Deploying a website with assets (e.g. CSS, JavaScript, images) is covered in [the "Websites" documentation](../websites.mdx).
+</Callout>
+
+In some cases however, you want to serve images (or other assets) via PHP. One example would be if you served generated images or PDFs via PHP.
+
+By default, API Gateway **does not support binary HTTP requests or responses** like images, PDF, binary files… To achieve this, you need to enable the option for binary media types in `serverless.yml` as well as define the `BREF_BINARY_RESPONSES` environment variable:
+
+```yml filename="serverless.yml"
+provider:
+    # ...
+    apiGateway:
+        binaryMediaTypes:
+            - '*/*'
+    environment:
+        BREF_BINARY_RESPONSES: '1'
+```
+
+This will make API Gateway support binary file uploads and downloads, and Bref will automatically encode responses to base64 (which is what API Gateway expects for binary responses).
+
+Be aware that the max upload and download size is **6MB**. For larger files, use AWS S3. An example is available in [Serverless Visually Explained](https://serverless-visually-explained.com/).

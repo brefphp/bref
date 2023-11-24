@@ -1,0 +1,171 @@
+import { BugAntIcon, ClockIcon, CodeBracketSquareIcon, FingerPrintIcon } from '@heroicons/react/20/solid';
+import sentry from '../components/sentry/sentry.png';
+import Image from 'next/image';
+import Breadcrumbs from '../components/Breadcrumbs';
+import { CheckIcon } from '@heroicons/react/20/solid'
+
+export const features = [
+    {
+        name: 'Exception tracking.',
+        description: 'Add exception tracking to AWS Lambda handlers like EventBridge, SQS or S3 handlers.',
+        icon: BugAntIcon,
+    },
+    {
+        name: 'Cold start tracking.',
+        description: 'Track cold start duration in Sentry performance tracking.',
+        icon: ClockIcon,
+    },
+    {
+        name: 'Lambda handler performance tracking.',
+        description: 'Trace the performance of event-driven PHP Lambda handlers.',
+        icon: CodeBracketSquareIcon,
+    },
+    {
+        name: 'AWS SDK tracking.',
+        description: 'View AWS SDK calls as spans in performance tracking.',
+        icon: FingerPrintIcon,
+    },
+]
+
+<div className="py-8 pb-12">
+    <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl sm:text-center">
+            <Breadcrumbs pages={[
+                { name: 'Sentry', href: '/sentry/' },
+            ]} />
+            <h1 className="mt-20 sm:mt-24 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+                Sentry integration for AWS Lambda
+            </h1>
+            <div className="mt-6 text-lg leading-8 text-gray-600">
+                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit
+                eaque, iste
+                dolor cupiditate blanditiis.
+            </div>
+            <div className="mt-10 flex items-center justify-center gap-x-6">
+                <a
+                    href="#"
+                    className="rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                >
+                    Documentation
+                </a>
+                <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
+                    Pricing <span aria-hidden="true">→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div className="relative overflow-hidden pt-16">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+            <Image
+                src={sentry}
+                alt="Sentry integration for AWS Lambda"
+                className="mb-[-12%] rounded-xl shadow-2xl ring-1 ring-gray-900/10"
+            />
+            <div className="relative" aria-hidden="true">
+                <div className="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white pt-[7%]" />
+            </div>
+        </div>
+    </div>
+    <div className="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8">
+        <dl className="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-2 lg:gap-x-8 lg:gap-y-16">
+            {features.map((feature) => (
+                <div key={feature.name} className="relative pl-9">
+                    <dt className="inline font-semibold text-gray-900">
+                        <feature.icon className="absolute left-1 top-1 h-5 w-5 text-blue-500"
+                                      aria-hidden="true" />
+                        {feature.name}
+                    </dt>
+                    {' '}
+                    <dd className="inline">{feature.description}</dd>
+                </div>
+            ))}
+        </dl>
+    </div>
+</div>
+
+
+export const includedFeatures = [
+    'Composer package & documentation',
+    'Email and Slack support',
+    'Unlimited projects',
+    'Unlimited users',
+]
+
+<div className="mx-auto max-w-7xl px-6 lg:px-8 py-24">
+    <div className="mx-auto max-w-2xl sm:text-center">
+        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Simple pricing
+        </h2>
+        <div className="mt-6 text-lg leading-8 text-gray-600">
+            Get access to the package for a one-time price with optional yearly renewal.
+        </div>
+    </div>
+    <div
+        className="mx-auto mt-16 max-w-2xl rounded-3xl ring-1 ring-gray-200 sm:mt-20 lg:mx-0 lg:flex lg:max-w-none">
+        <div className="p-8 sm:p-10 lg:flex-auto">
+            <h3 className="text-2xl font-bold tracking-tight text-gray-900">
+                One-time price with optional yearly renewal
+            </h3>
+            <div className="mt-6 text-base leading-7 text-gray-600">
+                The license includes access to the current version of the package.
+                During checkout, you can optionally enable automatic yearly renewal so that you can always access the latest version of the package.
+            </div>
+            <div className="mt-10 flex items-center gap-x-4">
+                <h4 className="flex-none text-sm font-semibold leading-6 text-blue-600">What’s included</h4>
+                <div className="h-px flex-auto bg-gray-100" />
+            </div>
+            <ul
+                role="list"
+                className="mt-8 grid grid-cols-1 gap-4 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6"
+            >
+                {includedFeatures.map((feature) => (
+                    <li key={feature} className="flex gap-x-3">
+                        <CheckIcon className="h-6 w-5 flex-none text-blue-500" aria-hidden="true" />
+                        {feature}
+                    </li>
+                ))}
+            </ul>
+            <div className="mt-10 flex items-center gap-x-4">
+                <h4 className="flex-none text-sm font-semibold leading-6 text-blue-600">What’s optional</h4>
+                <div className="h-px flex-auto bg-gray-100" />
+            </div>
+            <ul
+                role="list"
+                className="mt-8 grid grid-cols-1 gap-4 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6"
+            >
+                <li className="flex gap-x-3">
+                    <CheckIcon className="h-6 w-5 flex-none text-blue-500" aria-hidden="true" />
+                    Automatic yearly license renewal with access to future updates
+                </li>
+            </ul>
+        </div>
+        <div className="-mt-2 p-2 lg:mt-0 lg:w-full lg:max-w-md lg:flex-shrink-0">
+            <div
+                className="rounded-2xl bg-gray-400/10 py-10 text-center ring-1 ring-inset ring-gray-900/5 lg:flex lg:flex-col lg:justify-center lg:py-16">
+                <div className="mx-auto max-w-xs px-8">
+                    <div className="text-base font-semibold text-gray-600">
+                        License price
+                    </div>
+                    <div className="mt-6 flex items-baseline justify-center gap-x-2">
+                        <span className="text-5xl font-bold tracking-tight text-gray-900">90<span className="text-base font-semibold leading-6 tracking-wide text-gray-600">€</span></span>
+                    </div>
+                    <div className="mt-1 text-xs text-gray-600">
+                        * optional yearly renewal
+                    </div>
+                    <a
+                        href="#"
+                        className="mt-10 block w-full rounded-md bg-blue-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                    >
+                        Get access
+                    </a>
+                    <div className="mt-6 text-xs leading-5 text-gray-600">
+                        Invoices and receipts available for easy company reimbursement
+                    </div>
+                    <div className="mt-6 text-xs leading-5 text-gray-600">
+                        7-days no-questions-asked refund policy
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

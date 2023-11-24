@@ -1,0 +1,123 @@
+import { Callout } from 'nextra/components';
+
+# Deploying Docker images
+
+<Callout type="warning">
+    Are you starting with Bref? Deploy **without Docker first**. It's easier and faster. You can always switch to Docker later.
+
+    [Read the "Deployment" guide](../deploy)
+</Callout>
+
+By default, Bref deploys to AWS Lambda using zip archives, which Lambda will run in an Amazon Linux environment. This is how AWS Lambda works out of the box, and it works great.
+
+However, AWS Lambda also supports **deploying and running Docker container images**.
+
+We recommend Docker **as a last resort**, as it is less practical and usually comes with slightly worse cold starts. Yes, Docker is great and probably sounds familiar, but is often not worth it on Lambda.
+
+You should consider deploying using Docker when:
+
+- Your code size is [larger than the 250MB limit when unzipped](../environment/storage.md)
+- You reached the limit of 5 Lambda layers (e.g. for extra PHP extensions)
+- You need custom binaries/resources installed locally (e.g. mysqldump, wkhtmltopdf)
+
+<Callout type="warning">
+    This documentation page assumes that you have familiarized yourself with Bref first.
+</Callout>
+
+## Docker Image
+
+Bref helps you deploy using Docker images by offering base images that work on AWS Lambda. Here is an example of a Dockerfile you can use:
+
+```dockerfile filename="Dockerfile"
+FROM bref/php-81-fpm:2
+
+# Copy the source code in the image
+COPY .. /var/task
+
+# Configure the handler file (the entrypoint that receives all HTTP requests)
+CMD ["public/index.php"]
+```
+
+The `CMD` instruction let us specify the entrypoint that will handle all requests. This is the equivalent of the `handler` in the `serverless.yml` file.
+
+<Callout>
+    Always specify the major version of the Bref image you want to use. That avoids breaking changes when a new major version is released.
+
+    For example `bref/php-81-fpm:2` points to Bref v2.
+</Callout>
+
+Bref offers the following base images:
+
+- `bref/php-xx-fpm:2`: PHP-FPM to run HTTP applications
+- `bref/php-xx-console:2`: to run PHP CLI commands
+- `bref/php-xx:2`: to run [PHP functions](../runtimes/function.mdx)
+
+### Extra PHP extensions
+
+You can enable additional PHP extensions by pulling them from [Bref Extra Extensions](https://github.com/brefphp/extra-php-extensions):
+
+```dockerfile filename="Dockerfile" {3-4}
+FROM bref/php-81-fpm:2
+
+COPY --from=bref/extra-redis-php-81:1 /opt /opt
+COPY --from=bref/extra-gmp-php-81:1 /opt /opt
+
+COPY . /var/task
+
+CMD ["public/index.php"]
+```
+
+<Callout>
+    Like the Bref images, always specify the major version of the Bref Extra Extensions images: `bref/extra-*:1` points to Bref Extra Extensions v1.
+
+    Note that Bref v2 is compatible with Bref Extra Extensions v1 (yes that's confusing, sorry about that, we will fix that in Bref v3 to have matching versions).
+</Callout>
+
+## Deployment
+
+The Serverless Framework supports deploying Docker images to Lambda:
+
+```yml filename="serverless.yml" {5-9,13-14}
+service: bref-with-docker
+
+provider:
+    name: aws
+    ecr:
+        images:
+            hello-world:
+                # Path to the `Dockerfile` file
+                path: ./
+
+functions:
+    hello:
+        image:
+            name: hello-world
+        events:
+            - httpApi: '*'
+```
+
+Instead of having a `handler` and a `runtime`, we'll declare an `image`. In the `provider` block, we'll declare the Docker images that we want to build and deploy.
+
+When running `serverless deploy`, the CLI will:
+
+- Build the Docker images according to their specified `path`
+- Create an AWS ECR repository called `serverless-{service}-{env}`
+- Authenticate against your ECR account
+- Push the newly built Docker image
+- Deploy the Lambda function pointing to the Docker image
+
+Note that you can create multiple images in the same `serverless.yml` file. For example, you can have one image for the HTTP handler and another image for a worker.
+
+## Filesystem
+
+Like with non-Docker deployments, the filesystem for Docker on AWS Lambda is also readonly with a limited disk space under `/tmp` for read/write.
+
+The `/tmp` folder will always be empty on cold starts. Avoid writing content to `/tmp` in your Dockerfile because that content will **not be available** for your Lambda function.
+
+[Read more about file storage in Lambda](../environment/storage.md).
+
+## Docker Registry
+
+AWS Lambda only support AWS ECR as the source location for Docker images.
+
+AWS Lambda will use the image digest as the unique identifier. This means that even if you overwrite the exact same tag on ECR, your lambda will still run the previous image code until you actually redeploy using the new image.

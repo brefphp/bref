@@ -47,7 +47,7 @@ class ServerlessPlugin {
             .filter(name => !name.startsWith('arm-'));
         // Console runtimes must have a PHP version provided
         this.runtimes = this.runtimes.filter(name => name !== 'console');
-        this.runtimes.push('php-80-console', 'php-81-console', 'php-82-console');
+        this.runtimes.push('php-80-console', 'php-81-console', 'php-82-console', 'php-83-console');
 
         this.checkCompatibleRuntime();
 
@@ -197,23 +197,27 @@ class ServerlessPlugin {
 
         const config = this.serverless.service;
         const isArmGlobally = config.provider.architecture === 'arm64';
-
-        // Check provider config
-        if (this.runtimes.includes(config.provider.runtime || '')) {
-            config.provider.layers = includeBrefLayers(
-                config.provider.runtime,
-                config.provider.layers || [], // make sure it's an array
-                isArmGlobally,
-            );
-            config.provider.runtime = 'provided.al2';
-        }
+        const isBrefRuntimeGlobally = this.runtimes.includes(config.provider.runtime || '');
 
         // Check functions config
         for (const f of Object.values(config.functions || {})) {
-            if (f.runtime && this.runtimes.includes(f.runtime)) {
+            if (
+              (f.runtime && this.runtimes.includes(f.runtime)) ||
+              (!f.runtime && isBrefRuntimeGlobally)
+            ) {
+                // The logic here is a bit custom:
+                // If there are layers on the function, we preserve them
+                let existingLayers = f.layers || []; // make sure it's an array
+                // Else, we merge with the layers defined at the root.
+                // Indeed, SF overrides the layers defined at the root with the ones defined on the function.
+                if (existingLayers.length === 0) {
+                    // for some reason it's not always an array
+                    existingLayers = Array.from(config.provider.layers || []);
+                }
+
                 f.layers = includeBrefLayers(
-                    f.runtime,
-                    f.layers || [], // make sure it's an array
+                    f.runtime || config.provider.runtime,
+                    existingLayers,
                     f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
                 );
                 f.runtime = 'provided.al2';
@@ -224,9 +228,9 @@ class ServerlessPlugin {
         for (const construct of Object.values(this.serverless.configurationInput.constructs || {})) {
             if (construct.type !== 'queue' && construct.type !== 'webhook') continue;
             const f = construct.type === 'queue' ? construct.worker : construct.authorizer;
-            if (f && f.runtime && this.runtimes.includes(f.runtime)) {
+            if (f && (f.runtime && this.runtimes.includes(f.runtime) || !f.runtime && isBrefRuntimeGlobally) ) {
                 f.layers = includeBrefLayers(
-                    f.runtime,
+                    f.runtime || config.provider.runtime,
                     f.layers || [], // make sure it's an array
                     f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
                 );

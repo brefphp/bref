@@ -1,0 +1,117 @@
+import { useData } from 'nextra/data';
+import { getContributors, mergeAndSortContributors } from '../github/contributors';
+import { getSponsors } from '../github/sponsors';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Bref credits: all the awesome people behind Bref." />
+
+export const getStaticProps = async () => {
+    let sponsors;
+    try {
+        sponsors = await getSponsors();
+    } catch (e) {
+        console.error(e);
+        return {
+            props: {
+                ssg: {
+                    sponsors: [],
+                    contributors: [],
+                },
+            },
+        };
+    }
+
+    const contributors = mergeAndSortContributors([
+        ...(await getContributors('brefphp/bref')),
+        ...(await getContributors('brefphp/aws-lambda-layers')),
+        ...(await getContributors('brefphp/laravel-bridge')),
+        ...(await getContributors('brefphp/symfony-bridge')),
+        ...(await getContributors('brefphp/extra-php-extensions')),
+        ...(await getContributors('brefphp/examples')),
+    ]);
+
+    // See https://nextra.site/docs/guide/ssg
+    return {
+        props: {
+            ssg: {
+                sponsors,
+                contributors,
+            },
+        },
+        // This page will be generated statically on deployment and never regenerated
+        revalidate: false,
+    };
+}
+
+export const SponsorsList = ({ sponsors }) => {
+    const sortedSponsors = sponsors
+        // Fill missing names with the login
+        .map(sponsor => {
+            sponsor.sponsorEntity.name = sponsor.sponsorEntity.name ?? sponsor.sponsorEntity.login;
+            return sponsor;
+        })
+        // Sport organizations first, then alphabetically by name second
+        .sort(({ sponsorEntity: a }, { sponsorEntity: b }) => {
+            // Same type
+            if (a.__typename === b.__typename) {
+                return a.name.localeCompare(b.name);
+            }
+            // Different types
+            return a.__typename === 'Organization' ? -1 : 1;
+        });
+    return <p>
+        {sortedSponsors.map(({ sponsorEntity, isOneTimePayment }, i) => (
+            <span key={sponsorEntity.login}>
+                {i > 0 && ", "}
+                <a className="!no-underline !text-inherit"
+                   href={sponsorEntity.websiteUrl || `https://github.com/${sponsorEntity.login}`}>
+                    {sponsorEntity.name}
+                </a>
+                {isOneTimePayment && ' (one-time sponsor)'}
+            </span>
+        ))}
+        .
+    </p>;
+};
+
+export const ContributorsList = () => {
+    const { contributors } = useData();
+    return <p>
+        {contributors.map(({ login, html_url, contributions }, i) => (
+            <span key={login}>
+                {i > 0 && ", "}
+                <a className="!no-underline !text-inherit" href={html_url}>
+                    {login}
+                </a>
+                {contributions > 1 && ` (${contributions})`}
+            </span>
+        ))}
+        .
+    </p>;
+};
+
+export const CurrentSponsors = () => {
+    const { sponsors } = useData();
+    return <SponsorsList sponsors={sponsors.filter(({ isActive }) => isActive)} />;
+};
+
+export const PastSponsors = () => {
+    const { sponsors } = useData();
+    return <SponsorsList sponsors={sponsors.filter(({ isActive }) => !isActive)} />;
+};
+
+# Credits
+
+Here are the amazing people behind Bref. Either they are sponsoring Bref or they have contributed to the project.
+
+## Current sponsors
+
+<CurrentSponsors />
+
+## Contributors
+
+<ContributorsList />
+
+## Past sponsors
+
+<PastSponsors />

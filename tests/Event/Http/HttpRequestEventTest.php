@@ -27,15 +27,18 @@ class HttpRequestEventTest extends CommonHttpTest
         }
     }
 
-    protected function assertCookies(array $expected): void
+    protected function assertCookies(array $expected, string |null $expectedHeader = null): void
     {
         $this->assertEquals($expected, $this->event->getCookies());
 
         // Also check that the cookies are available in the HTTP headers (they should be)
-        $expectedHeader = array_map(function (string $value, string $key): string {
-            return $key . '=' . urlencode($value);
-        }, $expected, array_keys($expected));
-        $this->assertEquals(implode('; ', $expectedHeader), $this->event->getHeaders()['cookie'][0] ?? '');
+        if ($expectedHeader === null) {
+            $expectedHeader = array_map(function (string $value, string $key): string {
+                return $key . '=' . urlencode($value);
+            }, $expected, array_keys($expected));
+            $expectedHeader = implode('; ', $expectedHeader);
+        }
+        $this->assertEquals($expectedHeader, $this->event->getHeaders()['cookie'][0] ?? '');
     }
 
     protected function assertHeaders(array $expected): void

@@ -1,0 +1,110 @@
+import { Callout } from 'nextra/components';
+
+# File storage
+
+Laravel has a [filesystem abstraction](https://laravel.com/docs/filesystem) that lets us easily change where files are stored.
+
+When running on Lambda, you will need to use the **`s3` adapter** to store files on AWS S3.
+
+To do this, set `FILESYSTEM_DISK: s3` either in `serverless.yml` or your production `.env` file. We can also create an S3 bucket via `serverless.yml` directly:
+
+```yaml filename="serverless.yml"
+# ...
+provider:
+    # ...
+    environment:
+        # environment variable for Laravel
+        FILESYSTEM_DISK: s3
+        AWS_BUCKET: !Ref Storage
+    iam:
+        role:
+            statements:
+                # Allow Lambda to read and write files in the S3 buckets
+                -   Effect: Allow
+                    Action: s3:*
+                    Resource:
+                        - !Sub '${Storage.Arn}' # the storage bucket
+                        - !Sub '${Storage.Arn}/*' # and everything inside
+
+resources:
+    Resources:
+        # Create our S3 storage bucket using CloudFormation
+        Storage:
+            Type: AWS::S3::Bucket
+```
+
+That's it! The AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN) are set automatically in AWS Lambda, you don't have to define them.
+
+## Public files
+
+Laravel has a [special disk called `public`](https://laravel.com/docs/filesystem#the-public-disk): this disk stores files that we want to make public, like uploaded photos, generated PDF files, etc.
+
+Again, those files cannot be stored on Lambda, i.e. they cannot be stored in the default `storage/app/public` directory. You need to store those files on S3.
+
+<Callout>
+    Do not run `php artisan storage:link` in AWS Lambda: it is now useless, and it will fail because the filesystem is read-only in Lambda.
+</Callout>
+
+To store public files on S3, you could replace the disk in the code:
+
+```diff
+- Storage::disk('public')->put('avatars/1', $fileContents);
++ Storage::disk('s3')->put('avatars/1', $fileContents);
+```
+
+but doing this will not let your application work locally. A better solution, but more complex, involves making the `public` disk configurable. Let's change the following lines in `config/filesystems.php`:
+
+```php filename="config/filesystems.php" {7,18,35-43}
+    /*
+    |--------------------------------------------------------------------------
+    | Default Public Filesystem Disk
+    |--------------------------------------------------------------------------
+    */
+
+   'public' => env('FILESYSTEM_DISK', 'public_local'),
+
+    ...
+
+    'disks' => [
+
+        'local' => [
+            'driver' => 'local',
+            'root' => storage_path('app'),
+        ],
+
+        'public_local' => [ // Rename `public` to `public_local`
+            'driver' => 'local',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+        ],
+
+        's3' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'token' => env('AWS_SESSION_TOKEN'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'url' => env('AWS_URL'),
+        ],
+
+        's3_public' => [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'token' => env('AWS_SESSION_TOKEN'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_PUBLIC_BUCKET'),
+            'url' => env('AWS_URL'),
+        ],
+
+    ],
+```
+
+You can now configure the `public` disk to use S3 by changing `serverless.yml` or your production `.env`:
+
+```bash filename=".env"
+FILESYSTEM_DISK=s3
+FILESYSTEM_DISK_PUBLIC=s3
+```

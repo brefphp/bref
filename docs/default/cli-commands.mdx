@@ -1,0 +1,28 @@
+# CLI commands
+
+We can run CLI commands and scripts on AWS Lambda by deploying a "console" function with `serverless.yml`.
+
+```yml
+functions:
+    cli:
+        handler: the-php-script-to-run.php
+        runtime: php-81-console
+```
+
+The function uses the [Console runtime](../runtimes/console.mdx).
+
+To execute the script on Lambda, run the command below:
+
+```bash
+serverless bref:cli
+```
+
+We can also pass arguments to the script:
+
+```bash
+serverless bref:cli --args="extra command line arguments and options"
+```
+
+Our script will be invoked inside AWS Lambda and the result will be printed to the console.
+
+To learn more, read [the "Console" guide](../runtimes/console.mdx).

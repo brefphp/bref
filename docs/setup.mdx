@@ -1,0 +1,71 @@
+import { Callout, Steps, Cards, Card } from 'nextra/components';
+// Path relative to the copy in the `website/` folder
+import { LaravelIcon } from '../../components/icons/LaravelIcon';
+import { SymfonyIcon } from '../../components/icons/SymfonyIcon';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Getting ready to use Bref." />
+
+# Setup
+
+To use Bref, you will need an AWS account and the `serverless` CLI. Let's get started:
+
+<Steps>
+
+    ### AWS account
+
+    Bref deploys your applications to your AWS account. To create one, **go to [aws.amazon.com](https://aws.amazon.com/) and click *Sign up***.
+
+    AWS has a generous free tier that will usually allow you to deploy your first serverless applications for free.
+
+    ### Serverless CLI
+
+    Bref relies on the [Serverless framework](https://serverless.com/) and AWS access keys to deploy applications. You will need to install the `serverless` CLI ([more details here](https://serverless.com/framework/docs/providers/aws/guide/quick-start/)):
+
+    ```bash
+    npm install -g serverless
+    ```
+
+    Bref is compatible with Serverless Framework v3 (current version).
+
+    ### AWS credentials
+
+    Finally, we need AWS credentials so that the `serverless` CLI can deploy to AWS.
+
+    <Callout type="info">
+        If you have already set up AWS credentials on your machine (for example if you use the `aws` CLI), you can skip this step.
+    </Callout>
+
+    - [Create AWS access keys](./setup/aws-keys.mdx)
+
+    - Set up those keys by running:
+
+        ```bash
+        serverless config credentials --provider aws --key "key" --secret "secret"
+        ```
+
+        This will store the credentials in `~/.aws/credentials` (the [official file for AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)). This is the same as running the `aws configure` command with the `aws` CLI.
+
+        Alternatively (for example in CI/CD), you can store credentials in environment variables:
+
+        ```bash
+        export AWS_ACCESS_KEY_ID=key
+        export AWS_SECRET_ACCESS_KEY=secret
+        ```
+
+</Steps>
+
+## What's next?
+
+That's it, you're ready to use Bref!
+
+<Cards num={2}>
+    <Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
+    <Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
+    <Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
+</Cards>
+
+<Callout type="info">
+    Bref is compatible with PHP 8.0 or greater.
+    If you are using PHP 7.4, Bref v1 (previous major version) will be installed instead.
+</Callout>

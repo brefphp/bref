@@ -5,6 +5,7 @@ namespace Bref\FpmRuntime;
 use Bref\Bref;
 use Bref\LazySecretsLoader;
 use Bref\Runtime\LambdaRuntime;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -28,14 +29,14 @@ class Main
         $appRoot = getenv('LAMBDA_TASK_ROOT');
         $handlerFile = $appRoot . '/' . getenv('_HANDLER');
         if (! is_file($handlerFile)) {
-            $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist");
+            $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist", 'Runtime.NoSuchHandler');
         }
 
         $phpFpm = new FpmHandler($handlerFile);
         try {
             $phpFpm->start();
         } catch (Throwable $e) {
-            $lambdaRuntime->failInitialization('Error while starting PHP-FPM', $e);
+            $lambdaRuntime->failInitialization(new RuntimeException('Error while starting PHP-FPM: ' . $e->getMessage(), 0, $e));
         }
 
         Bref::events()->afterStartup();

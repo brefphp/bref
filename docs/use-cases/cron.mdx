@@ -1,0 +1,243 @@
+import { Tab, Tabs } from 'nextra/components';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Learn how to create serverless cron functions with PHP on AWS Lambda." />
+
+# Cron tasks on AWS Lambda
+
+A Lambda function can be invoked on a schedule using the `schedule` event. This is useful for running cron tasks, such as sending emails or cleaning up data. For example:
+
+```yml filename="serverless.yml" {5-8}
+functions:
+    cron:
+        # ...
+        events:
+            # the schedule can be defined as a rate
+            - schedule: rate(1 hour)
+            # or as a cron expression
+            - schedule: cron(0 12 * * ? *)
+```
+
+## CLI commands
+
+Cron events can be used to run CLI commands with the [Console runtime](../runtimes/console.md).
+
+In that case, use the `php-xx-console` runtime (for example `php-81-console`).
+
+This is usually best when coupled with a framework like Laravel or Symfony, or when porting an existing cron task to AWS Lambda.
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            cron:
+                handler: artisan
+                runtime: php-81-console
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+                        # The command needs to be passed as a JSON string
+                        # (that is why it's quoted twice: '"..."')
+                        input: '"my-command --option=value"'
+        ```
+
+        The configuration above will run `php artisan my-command --option=value` every hour in the Lambda function named "cron".
+
+        Note that Laravel already provides a [scheduler](https://laravel.com/docs/scheduling) that can be used instead of the `schedule` event. If you want to use it instead, run the `artisan schedule:run` command every minute:
+
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            artisan:
+                handler: artisan
+                runtime: php-81-console
+                events:
+                    - schedule:
+                        rate: rate(1 minute)
+                        input: '"schedule:run"'
+        ```
+    </Tab>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            cron:
+                handler: bin/console
+                runtime: php-81-console
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+                        # The command needs to be passed as a JSON string
+                        # (that is why it's quoted twice: '"..."')
+                        input: '"my-command --option=value"'
+        ```
+
+        The configuration above will run `bin/console my-command --option=value` every hour in the Lambda function named "cron".
+    </Tab>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            cron:
+                handler: my-script.php
+                runtime: php-81-console
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+        ```
+
+        The configuration above will run `php my-script.php` every hour in the Lambda function named "cron".
+
+        If you need to pass CLI options to the script, use the `input` option:
+
+        ```yml filename="serverless.yml" {9-11}
+        functions:
+            # ...
+            cron:
+                handler: my-script.php
+                runtime: php-81-console
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+                        # The command needs to be passed as a JSON string
+                        # (that is why it's quoted twice: '"..."')
+                        input: '"my-command --option=value"'
+        ```
+
+        The configuration above will run `php my-script.php my-command --option=value` every hour in the Lambda function named "cron".
+    </Tab>
+</Tabs>
+
+Read more about the options for the `schedule` event in the [Serverless documentation](https://www.serverless.com/framework/docs/providers/aws/events/schedule/).
+
+## Cron functions
+
+On top of running CLI cron tasks with the `php-xx-console` runtime, we can also run **event-driven functions** (using the [PHP function runtime](/docs/runtimes/function.md)) as cron tasks.
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            cron:
+                handler: App\MyCronHandler
+                runtime: php-81
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+        ```
+
+        The handler can be a class implementing the `Handler` interface:
+
+        ```php
+        namespace App;
+
+        use Bref\Context\Context;
+
+        class MyCronHandler implements \Bref\Event\Handler
+        {
+            public function handle($event, Context $context): void
+            {
+                echo 'Hello ' . $event['name'] ?? 'world';
+            }
+        }
+        ```
+
+        The configuration above will run `MyCronHandler::handle()` every hour.
+
+        It is possible to provide data inside the `$event` variable via the `input` option:
+
+        ```yml filename="serverless.yml" {6-8}
+        functions:
+            cron:
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+                        input:
+                            foo: bar
+                            hello: world
+        ```
+    </Tab>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            cron:
+                handler: App\MyCronHandler
+                runtime: php-81
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+        ```
+
+        The handler can be a class implementing the `Handler` interface:
+
+        ```php
+        namespace App;
+
+        use Bref\Context\Context;
+
+        class MyCronHandler implements \Bref\Event\Handler
+        {
+            public function handle($event, Context $context): void
+            {
+                echo 'Hello ' . $event['name'] ?? 'world';
+            }
+        }
+        ```
+
+        The configuration above will run `MyCronHandler::handle()` every hour.
+
+        It is possible to provide data inside the `$event` variable via the `input` option:
+
+        ```yml filename="serverless.yml" {6-8}
+        functions:
+            cron:
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+                        input:
+                            foo: bar
+                            hello: world
+        ```
+    </Tab>
+    <Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            cron:
+                handler: function.php
+                runtime: php-81-console
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+        ```
+
+        The example above will run the function returned by `function.php` every hour in AWS Lambda. For example:
+
+        ```php
+        <?php
+        require __DIR__ . '/vendor/autoload.php';
+
+        return function ($event) {
+            echo 'My cron function is running!';
+        };
+        ```
+
+        It is possible to provide data inside the `$event` variable via the `input` option:
+
+        ```yml filename="serverless.yml" {6-8}
+        functions:
+            cron:
+                events:
+                    - schedule:
+                        rate: rate(1 hour)
+                        input:
+                            foo: bar
+                            hello: world
+        ```
+    </Tab>
+</Tabs>
+
+Read more about the options for the `schedule` event in the [Serverless documentation](https://www.serverless.com/framework/docs/providers/aws/events/schedule/).

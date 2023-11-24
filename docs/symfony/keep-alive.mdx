@@ -1,0 +1,60 @@
+import { Callout } from 'nextra/components';
+
+# Keeping the Symfony Kernel alive between requests
+
+<Callout type="warning">
+    This is an **advanced approach** aimed at optimizing performance. If you are just starting with Bref, this approach is not recommended because it is more complex to set up and can lead to unexpected issues.
+</Callout>
+
+By default, Bref uses PHP-FPM to handle HTTP requests. This means that the Symfony Kernel is restarted for every request. This is not a problem for most applications, but if you want to optimize performance, you can keep the Symfony Kernel alive between requests. This approach is similar to [Laravel Octane](../laravel/octane), or running Symfony with [RoadRunner](https://roadrunner.dev/).
+
+## Usage
+
+The Bref Symfony Bridge integrates with the Symfony Runtime component. This means that Bref can natively set the Symfony Kernel as the handler for Lambda functions, without going through PHP-FPM:
+
+```diff filename="serverless.yml"
+functions:
+    app:
+-        handler: public/index.php
++        handler: App\Kernel
+        layers:
+            # Switch from PHP-FPM to the "function" runtime:
+-            - ${bref:layer.php-81-fpm}
++            - ${bref:layer.php-81}
+        environment:
++            # The Symfony process will restart every 100 requests
++            BREF_LOOP_MAX: 100
+```
+
+The `App\Kernel` will be retrieved via Symfony Runtime from `public/index.php`. If you don't have a `public/index.php`, read the next sections.
+
+## How it works
+
+Traditionally, Bref runs Symfony applications with the [PHP-FPM runtime](../runtimes/fpm-runtime.mdx). By switching to the [Function runtime](../runtimes/function.mdx), Bref loads the Symfony Kernel directly and can keep it alive between requests (controlled by `BREF_LOOP_MAX`).
+
+Note that the execution model of AWS Lambda is unchanged: the entire Lambda instance is frozen between requests. The Symfony Kernel is kept alive in memory, but it is not running. When a new request comes in, the Lambda instance is thawed and the request is handled.
+
+The main risks with this approach are memory leaks and global state. If your application has memory leaks, the memory usage will increase over time and eventually reach the Lambda limit. This can be mitigated by setting `BREF_LOOP_MAX` to a low value, so that the Symfony Kernel is restarted regularly. If your application uses global state, it will be shared between requests, which can be a disaster security-wise.
+
+## Custom bootstrap file
+
+If you do not have a `public/index.php` file, you can create a file that returns the kernel (or any PSR-11 container):
+
+```php
+<?php
+
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+
+return function (array $context) {
+    return new App\Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+};
+```
+
+And configure it in `serverless.yml`:
+
+```diff
+# serverless.yml
+functions:
+    sqsHandler:
+        handler: kernel.php:App\Service\MyService
+```

@@ -58,6 +58,17 @@ class SqsRecord
     }
 
     /**
+     * Returns the name of the SQS queue that contains the message.
+     * Queue naming constraints: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/quotas-queues.html
+     */
+    public function getQueueName(): string
+    {
+        $parts = explode(':', $this->record['eventSourceARN']);
+
+        return $parts[count($parts) - 1];
+    }
+
+    /**
      * Returns the record original data as an array.
      *
      * Use this method if you want to access data that is not returned by a method in this class.

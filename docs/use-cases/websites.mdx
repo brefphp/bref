@@ -1,0 +1,217 @@
+import { Callout, Tab, Tabs } from 'nextra/components';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Learn how to deal with assets and static files to deploy serverless PHP websites." />
+
+# Serverless PHP websites
+
+In this guide, you will learn how to set up assets for your serverless PHP website.
+
+<Callout>
+    This guide assumes that you have already gotten started with Bref. If you haven't, [get started first](../setup.mdx).
+</Callout>
+
+## Architecture
+
+Websites usually contain 2 parts:
+
+- PHP code, running on AWS Lambda + API Gateway (read the [HTTP applications](./http.mdx) guide)
+- static assets (CSS, JS…), [hosted on AWS S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/WebsiteHosting.html)
+
+To combine both, we can use [AWS CloudFront](https://aws.amazon.com/cloudfront/). CloudFront acts both as a CDN and as reverse proxy to route requests to PHP or assets on S3.
+
+![](./websites/cloudfront.svg)
+
+This lets us host everything under the same domain and support both HTTP and HTTPS.
+
+<Callout>
+    If you don't want to use Cloudfront, you can read the [older version of this documentation](https://github.com/brefphp/bref/blob/d1dd690d020cd03f134010db456bb61a6d0ffafb/docs/websites.md#architectures) which featured running PHP and the assets on two different domains.
+</Callout>
+
+## Setup
+
+While it is possible to set up CloudFront manually, the easiest approach is to use the [Server-side website construct of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
+
+First install the plugin:
+
+```bash
+serverless plugin install -n serverless-lift
+```
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tab>
+        Then add this configuration to `serverless.yml`:
+
+        ```yml filename="serverless.yml" {5,7-15}
+        # ...
+
+        plugins:
+            - ./vendor/bref/bref
+            - serverless-lift
+
+        constructs:
+            website:
+                type: server-side-website
+                assets:
+                    '/js/*': public/js
+                    '/css/*': public/css
+                    '/favicon.ico': public/favicon.ico
+                    '/robots.txt': public/robots.txt
+                    # add here any file or directory that needs to be served from S3
+        ```
+
+        Before deploying, compile your assets:
+
+        ```bash
+        npm run prod
+        ```
+    </Tab>
+    <Tab>
+        Then add this configuration to `serverless.yml`:
+
+        ```yml filename="serverless.yml" {5,7-15}
+        # ...
+
+        plugins:
+            - ./vendor/bref/bref
+            - serverless-lift
+
+        constructs:
+            website:
+                type: server-side-website
+                assets:
+                    '/bundles/*': public/bundles
+                    '/build/*': public/build
+                    '/favicon.ico': public/favicon.ico
+                    '/robots.txt': public/robots.txt
+                    # add here any file or directory that needs to be served from S3
+        ```
+
+        <Callout>
+            If you are not using Flex, update `serverless.yml` to exclude assets from the deployment ([see the recipe](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml#L35))
+        </Callout>
+
+        Because this construct sets the `X-Forwarded-Host` header by default, you should add it in your `trusted_headers` config, otherwise Symfony might generate wrong URLs.
+
+        ```yml filename="config/packages/framework.yaml" /, 'x-forwarded-host'/
+           trusted_headers: [ 'x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-host' ]
+        ```
+
+        Before deploying, compile your assets:
+
+        ```bash
+        php bin/console assets:install --env prod
+
+        # if using Webpack Encore, additionally run
+        yarn encore production
+        ```
+    </Tab>
+    <Tab>
+        Then add this configuration to `serverless.yml`:
+
+        ```yml filename="serverless.yml" {5,7-15}
+        # ...
+
+        plugins:
+            - ./vendor/bref/bref
+            - serverless-lift
+
+        constructs:
+            website:
+                type: server-side-website
+                assets:
+                    '/js/*': public/js
+                    '/css/*': public/css
+                    '/favicon.ico': public/favicon.ico
+                    '/robots.txt': public/robots.txt
+                    # add here any file or directory that needs to be served from S3
+        ```
+
+        If you need to compile your assets, make sure to run the command before deploying.
+    </Tab>
+</Tabs>
+
+Now deploy everything:
+
+```bash
+serverless deploy
+```
+
+Lift will create all the required resources and take care of uploading your assets to S3 automatically.
+You can access your website using the URL that Lift outputs at the end the deployment.
+
+<Callout>
+    The first deployment takes 5 minutes because CloudFront is a distributed service. The next deployments that do not modify CloudFront's configuration will not suffer from this delay.
+</Callout>
+
+## Assets in templates
+
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tab>
+        Assets referenced in Blade templates should be via the `asset()` helper:
+
+        ```blade
+        <script src="{{ asset('js/app.js') }}"></script>
+        ```
+
+        If your templates reference some assets via direct path, you should edit them to use the `asset()` helper:
+
+        ```diff
+        - <img src="/images/logo.png"/>
+        + <img src="{{ asset('images/logo.png') }}"/>
+        ```
+    </Tab>
+    <Tab>
+        For the above configuration to work, assets must be referenced in Twig templates via the `asset()` helper as [recommended by Symfony](https://symfony.com/doc/current/templates.html#linking-to-css-javascript-and-image-assets):
+
+        ```diff
+        - <img src="/images/logo.png"/>
+        + <img src="{{ asset('images/logo.png') }}"/>
+        ```
+    </Tab>
+    <Tab>
+        If your `serverless.yml` configuration has different CloudFront routes for assets than the directory layout in your codebase, you may need to update your templates to use the correct paths.
+    </Tab>
+</Tabs>
+
+## Custom domain name
+
+<Callout>
+    When using CloudFront, the custom domain must be set up on CloudFront, not API Gateway. If you have already set up your domain on API Gateway you will need to remove it before continuing.
+</Callout>
+
+The first thing to do is register the domain in **ACM** (AWS Certificate Manager) to get an HTTPS certificate. This step is not optional.
+
+- Open [this link](https://console.aws.amazon.com/acm/home?region=us-east-1#/wizard/) or manually go in the ACM Console and click "Request a new certificate" **in the `us-east-1` region** (CloudFront requires certificates from `us-east-1` because it is a global service)
+- Add your domain name and click "Next".
+- Choose the domain validation of your choice:
+    - domain validation will require you to create DNS entries (this is **recommended** because it renews the certificate automatically)
+    - email validation will require you to click a link you will receive in an email sent to `admin@your-domain.com`
+
+Copy the ARN of the ACM certificate. It should look like this:
+
+```
+arn:aws:acm:us-east-1:216536346254:certificate/322f12ee-1165-4bfa-a41f-08c932a2935d
+```
+
+Next, add your domain name and certificate in `serverless.yml`:
+
+```yml filename="serverless.yml"
+# ...
+
+constructs:
+    website:
+        # ...
+        domain: mywebsite.com
+        certificate: <certificate ARN>
+```
+
+The last step will be to point your domain name DNS records to the CloudFront domain:
+
+- copy the domain outputted by Lift during `serverless deploy`  (or run `serverless info` to retrieve it)
+- create a CNAME to point your domain name to this URL
+    - if you use Route53 you can read [the official guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)
+    - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [CloudFlare allows this with a technique called CNAME flattening](https://support.cloudflare.com/hc/en-us/articles/200169056-Understand-and-configure-CNAME-Flattening))
+
+Lift supports more advanced use cases like multiple domains, root domain to `www` redirects, and more. Check out [the Lift documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).

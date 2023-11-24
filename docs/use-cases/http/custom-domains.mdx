@@ -1,0 +1,48 @@
+import { Callout } from 'nextra/components';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Configure custom domain names for your web applications." />
+
+# Custom domain names
+
+API Gateway generates random domain names for our applications:
+
+```
+https://<random>.execute-api.<region>.amazonaws.com/
+```
+
+It is possible to replace those URLs by a custom domain.
+
+<Callout>
+    This guides assume you already own the domain name you will want to use.
+</Callout>
+
+The first thing to do is register the domain in **ACM** (AWS Certificate Manager) to get an HTTPS certificate. This step is not optional.
+
+- Open [this link](https://console.aws.amazon.com/acm/home?region=us-east-1#/wizard/) or manually go in the ACM Console and click "Request a new certificate" in the `us-east-1` region (the region used for global "edge" certificates)
+- Add your domain name and click "Next"
+- Choose the domain validation of your choice.
+    - domain validation will require you to add CNAME entries to your DNS configuration
+    - email validation will require you to click a link you will receive in an email sent to `admin@your-domain.com`
+
+After validating the domain and the certificate we can now link the custom domain to our application via API Gateway.
+
+- Open [API Gateway's "Custom Domain" configuration](https://console.aws.amazon.com/apigateway/main/publish/domain-names)
+- **Switch to the region of your application**
+- Click "Create"
+- Enter your domain name, select the certificate you created above and save
+- Edit the domain that was created
+- Click "Configure API mappings" to add an "API mapping": select your application and the `$default` stage (or `dev` in some cases), for example:
+
+  ![](./custom-domains-path-mapping.png)
+- After saving the "API mappings", find the `API Gateway domain name` in the "Configurations" tab
+- Create a CNAME entry in your DNS to point your domain name to this domain
+
+After waiting for the DNS change to propagate (sometimes up to several hours) your website is now accessible via your custom domain.
+
+<Callout>
+    You can also take a look at the plugin [serverless-domain-manager](https://www.serverless.com/plugins/serverless-domain-manager).
+    It handles the custom domain creation and optionally adds the Route53 record if asked. It is still necessary to create the ACM certificate manually.
+
+    A basic implementation is proposed here : https://www.serverless.com/blog/serverless-api-gateway-domain#create-a-custom-domain-in-api-gateway
+</Callout>

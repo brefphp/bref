@@ -1,0 +1,69 @@
+import { Callout } from 'nextra/components';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Run Laravel Queues on AWS Lambda and SQS using Bref." />
+
+# Laravel Queues
+
+<Callout>
+    A demo application is available on GitHub at [github.com/brefphp/examples](https://github.com/brefphp/examples).
+</Callout>
+
+To run Laravel Queues on AWS Lambda using [Amazon SQS](https://aws.amazon.com/sqs/), we don't want to run the `php artisan queue:work` command. Instead, we create a Lambda function that is invoked immediately when there are new jobs to process.
+
+To create the SQS queue (and the permissions for the Lambda functions to read/write to it), we can either do that manually, or use `serverless.yml`.
+
+To make things simpler, we will use the [Serverless Lift](https://github.com/getlift/lift) plugin to create and configure the SQS queue.
+
+First install the Lift plugin:
+
+```bash
+serverless plugin install -n serverless-lift
+```
+
+Then use [the Queue construct](https://github.com/getlift/lift/blob/master/docs/queue.md) in `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    # ...
+    environment:
+        # ...
+        QUEUE_CONNECTION: sqs
+        SQS_QUEUE: ${construct:jobs.queueUrl}
+
+functions:
+    # ...
+
+constructs:
+    jobs:
+        type: queue
+        worker:
+            handler: Bref\LaravelBridge\Queue\QueueHandler
+            runtime: php-81
+            timeout: 60 # seconds
+```
+
+We define Laravel environment variables in `provider.environment` (this could also be done in the deployed `.env` file):
+
+- `QUEUE_CONNECTION: sqs` enables the SQS queue connection
+- `SQS_QUEUE: ${construct:jobs.queueUrl}` passes the URL of the created SQS queue
+
+If you want to create the SQS queue manually, you will need to set these variables. AWS credentials (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) are automatically set up with the appropriate permissions for Laravel to use the SQS queue.
+
+That's it! Anytime a job is pushed to Laravel Queues, it will be sent to SQS, and SQS will invoke our "worker" function so that it is processed.
+
+<Callout>
+    In the example above, we set the full SQS queue URL in the `SQS_QUEUE` variable.
+
+    If you only set the queue name (which is also valid), you need to set the `SQS_PREFIX` environment variable too. For example: `SQS_PREFIX: "https://sqs.${aws:region}.amazonaws.com/${aws:accountId}"`.
+</Callout>
+
+## How it works
+
+When integrated with AWS Lambda, SQS has a built-in retry mechanism and storage for failed messages. These features work slightly differently than Laravel Queues. The "Bref for Laravel" integration does **not** use these SQS features.
+
+Instead, "Bref for Laravel" makes all the feature of Laravel Queues work out of the box, just like on any server. Read more in [the Laravel Queues documentation](https://laravel.com/docs/latest/queues).
+
+<Callout>
+    The "Bref-Laravel bridge" v1 used to do the opposite. We changed that behavior in Bref v2 in order to make the experience smoother for Laravel users.
+</Callout>

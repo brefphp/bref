@@ -1,0 +1,23 @@
+# Kinesis stream processing
+
+To handle [Kinesis events](https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html), extend the `KinesisHandler` class:
+
+```php
+use Bref\Context\Context;
+use Bref\Event\Kinesis\KinesisEvent;
+use Bref\Event\Kinesis\KinesisHandler;
+
+class Handler extends KinesisHandler
+{
+    public function handleKinesis(KinesisEvent $event, Context $context): void
+    {
+        foreach ($event->getRecords() as $record) {
+            $data = $record->getData();
+
+            // do something
+        }
+    }
+}
+```
+
+Learn more about using WebSockets in `serverless.yml` [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/streams/).

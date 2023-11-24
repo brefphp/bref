@@ -1,0 +1,41 @@
+{
+  "index": "What is Bref and serverless?",
+  "-- Getting started": {
+    "type": "separator",
+    "title": "Getting started"
+  },
+  "setup": "",
+  "laravel": "Laravel",
+  "symfony": "Symfony",
+  "default": "Other frameworks",
+  "-- How it works": {
+    "type": "separator",
+    "title": "How it works"
+  },
+  "runtimes": "PHP runtimes for Lambda",
+  "serverless-costs": "Serverless costs",
+  "-- Workflow": {
+    "type": "separator",
+    "title": "Workflow"
+  },
+  "deploy": "Deployment",
+  "local-development": "Local development",
+  "monitoring": "",
+  "-- Learn more": {
+    "type": "separator",
+    "title": "Learn more"
+  },
+  "use-cases": "Use cases",
+  "environment": "Environment",
+  "upgrading": "Upgrading",
+  "-- Resources": {
+    "type": "separator",
+    "title": "Resources"
+  },
+  "course": {
+    "title": "Serverless course",
+    "href": "https://serverless-visually-explained.com/?ref=bref-menu"
+  },
+  "community": "",
+  "case-studies": ""
+}

@@ -1,0 +1,25 @@
+# DynamoDB events
+
+To handle [DynamoDB events](https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html), extend the `DynamoDbHandler` class:
+
+```php
+use Bref\Context\Context;
+use Bref\Event\DynamoDb\DynamoDbEvent;
+use Bref\Event\DynamoDb\DynamoDbHandler;
+
+class MyHandler extends DynamoDbHandler
+{
+    public function handleDynamoDb(DynamoDbEvent $event, Context $context): void
+    {
+        foreach ($event->getRecords() as $record) {
+            $keys = $record->getKeys();
+            $old = $record->getOldImage();
+            $new = $record->getNewImage();
+
+            // do something
+        }
+    }
+}
+```
+
+Learn more about using DynamoDB in `serverless.yml` [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/streams/).

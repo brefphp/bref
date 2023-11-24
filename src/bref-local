@@ -18,6 +18,16 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 
 $handler = $argv[1] ?? '';
 $data = $argv[2] ?? null;
+$opts = getopt('', ['path:']);
+
+if (isset($opts['path'])) {
+    if (! file_exists($opts['path'])) {
+        throw new Exception('The file ' . $opts['path'] . ' could not be found.');
+    }
+
+    $handler = $argv[array_key_last($argv)];
+    $data = file_get_contents($opts['path']);
+}
 
 try {
     $handler = Bref::getContainer()->get($handler);
