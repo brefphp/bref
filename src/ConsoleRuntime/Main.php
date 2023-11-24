@@ -19,6 +19,7 @@ class Main
         LazySecretsLoader::loadSecretEnvironmentVariables();
 
         Bref::triggerHooks('beforeStartup');
+        Bref::events()->beforeStartup();
 
         $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('console');
 
@@ -27,6 +28,8 @@ class Main
         if (! is_file($handlerFile)) {
             $lambdaRuntime->failInitialization("Handler `$handlerFile` doesn't exist", 'Runtime.NoSuchHandler');
         }
+
+        Bref::events()->afterStartup();
 
         /** @phpstan-ignore-next-line */
         while (true) {
