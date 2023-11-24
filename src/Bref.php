@@ -34,7 +34,7 @@ class Bref
     public static function events(): EventDispatcher
     {
         if (! isset(self::$eventDispatcher)) {
-            self::$eventDispatcher = new EventDispatcher();
+            self::$eventDispatcher = new EventDispatcher;
         }
         return self::$eventDispatcher;
     }

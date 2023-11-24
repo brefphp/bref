@@ -3,9 +3,9 @@
 namespace Bref\Listener;
 
 use Bref\Context\Context;
+// @phpcs:disable
 use Bref\Event\Handler;
 use Psr\Http\Server\RequestHandlerInterface;
-use Throwable;
 
 /**
  * Listen to Bref internal events.
@@ -36,11 +36,10 @@ abstract class BrefEventSubscriber
      * Register a hook to be executed before any Lambda invocation.
      */
     public function beforeInvoke(
-        Handler|RequestHandlerInterface|callable $handler,
+        callable | Handler | RequestHandlerInterface $handler,
         mixed $event,
         Context $context,
-    ): void
-    {
+    ): void {
     }
 
     /**
@@ -50,12 +49,11 @@ abstract class BrefEventSubscriber
      * `$result` will be `null`.
      */
     public function afterInvoke(
-        Handler|RequestHandlerInterface|callable $handler,
+        callable | Handler | RequestHandlerInterface $handler,
         mixed $event,
         Context $context,
         mixed $result,
-        Throwable|null $error = null,
-    ): void
-    {
+        \Throwable | null $error = null,
+    ): void {
     }
 }

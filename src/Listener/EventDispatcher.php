@@ -3,9 +3,9 @@
 namespace Bref\Listener;
 
 use Bref\Context\Context;
+// @phpcs:disable
 use Bref\Event\Handler;
 use Psr\Http\Server\RequestHandlerInterface;
-use Throwable;
 
 /**
  * @internal This API is experimental and may change at any time.
@@ -17,8 +17,7 @@ final class EventDispatcher extends BrefEventSubscriber
      */
     public function __construct(
         private array $subscribers = [],
-    )
-    {
+    ) {
     }
 
     /**
@@ -59,11 +58,10 @@ final class EventDispatcher extends BrefEventSubscriber
      * @internal This method is called by Bref and should not be called by user code.
      */
     public function beforeInvoke(
-        Handler|RequestHandlerInterface|callable $handler,
+        callable | Handler | RequestHandlerInterface $handler,
         mixed $event,
         Context $context,
-    ): void
-    {
+    ): void {
         foreach ($this->subscribers as $listener) {
             $listener->beforeInvoke($handler, $event, $context);
         }
@@ -75,13 +73,12 @@ final class EventDispatcher extends BrefEventSubscriber
      * @internal This method is called by Bref and should not be called by user code.
      */
     public function afterInvoke(
-        Handler|RequestHandlerInterface|callable $handler,
+        callable | Handler | RequestHandlerInterface $handler,
         mixed $event,
         Context $context,
         mixed $result,
-        Throwable|null $error = null,
-    ): void
-    {
+        \Throwable | null $error = null,
+    ): void {
         foreach ($this->subscribers as $listener) {
             $listener->afterInvoke($handler, $event, $context, $result, $error);
         }

@@ -15,11 +15,17 @@ class FakeSubscriber extends BrefEventSubscriber
         $this->invokedBeforeStartup = true;
     }
 
+    /**
+     * @param mixed ...$params
+     */
     public function beforeInvoke(...$params): void
     {
         $this->invokedBeforeInvoke = $params;
     }
 
+    /**
+     * @param mixed ...$params
+     */
     public function afterInvoke(...$params): void
     {
         $this->invokedAfterInvoke = $params;
