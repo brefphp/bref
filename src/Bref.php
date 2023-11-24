@@ -31,6 +31,9 @@ class Bref
         self::$containerProvider = $containerProvider;
     }
 
+    /**
+     * @internal This API is experimental and may change at any time.
+     */
     public static function events(): EventDispatcher
     {
         if (! isset(self::$eventDispatcher)) {
