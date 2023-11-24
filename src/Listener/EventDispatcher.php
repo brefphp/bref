@@ -7,6 +7,9 @@ use Bref\Event\Handler;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
+/**
+ * @internal This API is experimental and may change at any time.
+ */
 final class EventDispatcher extends BrefEventSubscriber
 {
     /**

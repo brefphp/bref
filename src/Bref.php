@@ -12,6 +12,9 @@ class Bref
 {
     private static ?Closure $containerProvider = null;
     private static ?ContainerInterface $container = null;
+    /**
+     * TODO deprecate hooks when the event dispatcher is stable.
+     */
     private static array $hooks = [
         'beforeStartup' => [],
         'beforeInvoke' => [],

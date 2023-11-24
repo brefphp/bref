@@ -13,6 +13,8 @@ use Throwable;
  * Warning: Bref events are low-level extension points to be used by framework
  * integrations. For user code, it is not recommended to use them. Use your
  * framework's extension points instead.
+ *
+ * @internal This API is experimental and may change at any time.
  */
 abstract class BrefEventSubscriber
 {
@@ -24,7 +26,7 @@ abstract class BrefEventSubscriber
     }
 
     /**
-     * Register a hook to be executed after the runtime starts.
+     * Register a hook to be executed after the runtime has started.
      */
     public function afterStartup(): void
     {
