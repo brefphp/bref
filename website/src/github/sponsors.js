@@ -25,16 +25,6 @@ const nonGitHubSponsors = [
         isActive: true,
         sponsorEntity: {
             __typename: 'Organization',
-            login: 'ShippyPro',
-            name: 'ShippyPro',
-            websiteUrl: 'https://www.shippypro.com/?ref=bref.sh',
-        },
-        isOneTimePayment: false,
-    },
-    {
-        isActive: true,
-        sponsorEntity: {
-            __typename: 'Organization',
             login: 'Tideways',
             name: 'Tideways',
             websiteUrl: 'https://tideways.com/?ref=bref',
