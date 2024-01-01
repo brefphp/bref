@@ -22,6 +22,7 @@ class Main
         LazySecretsLoader::loadSecretEnvironmentVariables();
 
         Bref::triggerHooks('beforeStartup');
+        Bref::events()->beforeStartup();
 
         $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('fpm');
 
@@ -37,6 +38,8 @@ class Main
         } catch (Throwable $e) {
             $lambdaRuntime->failInitialization(new RuntimeException('Error while starting PHP-FPM: ' . $e->getMessage(), 0, $e));
         }
+
+        Bref::events()->afterStartup();
 
         /** @phpstan-ignore-next-line */
         while (true) {

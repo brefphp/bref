@@ -2,7 +2,6 @@ import GoldSponsor from './sponsors/gold-sponsor';
 import craftLogo from './sponsors/logo-craft-cms.png';
 import tidewaysLogo from './sponsors/logo-tideways.svg';
 import myBuilderLogo from './sponsors/logo-mybuilder.svg';
-import shippyProLogo from './sponsors/logo-shippypro.png';
 import nullLogo from './sponsors/logo-null.png';
 import awsLogo from './sponsors/logo-aws.svg';
 import jetbrainsLogo from './sponsors/logo-jetbrains.svg';
@@ -10,6 +9,7 @@ import laravelLogo from './sponsors/logo-laravel.svg';
 import depotLogo from './sponsors/logo-depot.svg';
 import secumailerLogo from './sponsors/logo-secumailer.svg';
 import ecomailLogo from './sponsors/logo-ecomail.png';
+import spreakerLogo from './sponsors/logo-spreaker.svg';
 import PremiumSponsor from './sponsors/premium-sponsor';
 
 export default function Sponsors() {
@@ -26,9 +26,9 @@ export default function Sponsors() {
                 <PremiumSponsor src={craftLogo} alt="Craft CMS" href="https://craftcms.com/?ref=bref.sh" />
                 <PremiumSponsor src={tidewaysLogo} alt="Tideways" href="https://tideways.com/?ref=bref" />
                 <PremiumSponsor src={myBuilderLogo} alt="MyBuilder" href="https://www.mybuilder.com/?ref=bref.sh" />
-                <PremiumSponsor src={shippyProLogo} alt="ShippyPro" href="https://www.shippypro.com/?ref=bref.sh" />
                 <PremiumSponsor src={nullLogo} alt="Null - Serverless consulting company" href="https://null.tc/?ref=bref" />
-                <PremiumSponsor src={awsLogo} alt="AWS" href="https://aws.amazon.com" oneTime={true} />
+                <PremiumSponsor src={awsLogo} alt="AWS" href="https://aws.amazon.com/?ref=bref" oneTime={true} />
+                <PremiumSponsor src={spreakerLogo} alt="Spreaker" href="https://www.spreaker.com/?ref=bref" oneTime={true} />
             </div>
 
             <h3 className="mt-8 text-lg font-bold text-gray-700">

@@ -2,6 +2,7 @@
 
 namespace Bref;
 
+use Bref\Listener\EventDispatcher;
 use Bref\Runtime\FileHandlerLocator;
 use Closure;
 use Psr\Container\ContainerInterface;
@@ -11,10 +12,14 @@ class Bref
 {
     private static ?Closure $containerProvider = null;
     private static ?ContainerInterface $container = null;
+    /**
+     * TODO deprecate hooks when the event dispatcher is stable.
+     */
     private static array $hooks = [
         'beforeStartup' => [],
         'beforeInvoke' => [],
     ];
+    private static EventDispatcher $eventDispatcher;
 
     /**
      * Configure the container that provides Lambda handlers.
@@ -24,6 +29,17 @@ class Bref
     public static function setContainer(Closure $containerProvider): void
     {
         self::$containerProvider = $containerProvider;
+    }
+
+    /**
+     * @internal This API is experimental and may change at any time.
+     */
+    public static function events(): EventDispatcher
+    {
+        if (! isset(self::$eventDispatcher)) {
+            self::$eventDispatcher = new EventDispatcher;
+        }
+        return self::$eventDispatcher;
     }
 
     /**

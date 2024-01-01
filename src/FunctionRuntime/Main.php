@@ -17,6 +17,7 @@ class Main
         LazySecretsLoader::loadSecretEnvironmentVariables();
 
         Bref::triggerHooks('beforeStartup');
+        Bref::events()->beforeStartup();
 
         $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('function');
 
@@ -27,6 +28,8 @@ class Main
         } catch (Throwable $e) {
             $lambdaRuntime->failInitialization($e, 'Runtime.NoSuchHandler');
         }
+
+        Bref::events()->afterStartup();
 
         $loopMax = getenv('BREF_LOOP_MAX') ?: 1;
         $loops = 0;
