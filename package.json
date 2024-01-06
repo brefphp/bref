@@ -14,5 +14,8 @@
         "eslint-config-prettier": "^8.8.0",
         "eslint-plugin-import": "^2.27.5",
         "prettier": "^2.8.8"
+    },
+    "dependencies": {
+        "@headlessui/react": "^1.7.17"
     }
 }
