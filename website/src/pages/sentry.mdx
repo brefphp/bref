@@ -1,5 +1,5 @@
 import { BugAntIcon, ClockIcon, CodeBracketSquareIcon, FingerPrintIcon } from '@heroicons/react/20/solid';
-import sentry from '../components/sentry/sentry.png';
+import sentry from './sentry/sentry.png';
 import Image from 'next/image';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CheckIcon } from '@heroicons/react/20/solid'
@@ -10,22 +10,22 @@ import { NextSeo } from 'next-seo';
 export const features = [
     {
         name: 'Exception tracking.',
-        description: 'Add exception tracking to AWS Lambda handlers like EventBridge, SQS or S3 handlers.',
+        description: 'Add exception tracking to AWS Lambda handlers like SQS, EventBridge, S3 handlers, and more.',
         icon: BugAntIcon,
     },
     {
         name: 'Cold start tracking.',
-        description: 'Track cold start duration in Sentry performance tracking.',
+        description: 'Track cold starts and Bref startup duration in Sentry performance tracing.',
         icon: ClockIcon,
     },
     {
         name: 'Lambda handler performance tracking.',
-        description: 'Trace the performance of event-driven PHP Lambda handlers.',
+        description: 'Trace the performance of event-driven PHP Lambda handlers (SQS, EventBridge, etc.).',
         icon: CodeBracketSquareIcon,
     },
     {
         name: 'AWS SDK tracking.',
-        description: 'View AWS SDK calls as spans in performance tracking.',
+        description: 'Measure AWS SDK calls in performance tracing to troubleshoot performance issues.',
         icon: FingerPrintIcon,
     },
 ]
@@ -40,9 +40,7 @@ export const features = [
                 Sentry integration for AWS Lambda
             </h1>
             <div className="mt-6 text-lg leading-8 text-gray-600">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit
-                eaque, iste
-                dolor cupiditate blanditiis.
+                Advanced Sentry integration for PHP applications running on AWS Lambda. Track cold starts, event-driven invocations, and more.
             </div>
             <div className="mt-10 flex items-center justify-center gap-x-6">
                 <a
@@ -51,7 +49,7 @@ export const features = [
                 >
                     Documentation
                 </a>
-                <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
+                <a href="#pricing" className="text-sm font-semibold leading-6 text-gray-900">
                     Pricing <span aria-hidden="true">→</span>
                 </a>
             </div>
@@ -134,8 +132,7 @@ export function classNames(...classes) {
         />
     </div>
     <div className="mx-auto max-w-2xl text-center lg:max-w-4xl">
-        <h2 className="text-base font-semibold leading-7 text-blue-600">Pricing</h2>
-        <div className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+        <div className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             Simple pricing
         </div>
     </div>
@@ -195,6 +192,10 @@ export function classNames(...classes) {
 
 export const faqs = [
     {
+        question: 'Where can I learn more about each feature?',
+        answer: 'You can find more information about each feature in <a href="/sentry/docs" class="link">the documentation</a>.',
+    },
+    {
         question: 'What is a considered a "project"?',
         answer: 'You can use a single project license on a single "service" or "application" (for example a Laravel or a Symfony project), regardless if you deploy it in multiple environments (like "dev", "staging", "production"…) or if you deploy multiple AWS Lambda functions in that application. However, if you deploy multiple applications, multiple services, or deploy the same application for multiple customers (aka multi-tenant), you need an "Unlimited" license (or a license for each application).',
     },
@@ -230,7 +231,7 @@ export const faqs = [
                     {faqs.map((faq) => (
                         <div key={faq.question}>
                             <dt className="text-base font-semibold leading-7 text-gray-900">{faq.question}</dt>
-                            <dd className="mt-2 text-base leading-7 text-gray-600">{faq.answer}</dd>
+                            <dd className="mt-2 text-base leading-7 text-gray-600" dangerouslySetInnerHTML={{ __html: faq.answer }}></dd>
                         </div>
                     ))}
                 </dl>
