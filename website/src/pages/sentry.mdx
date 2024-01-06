@@ -3,6 +3,9 @@ import sentry from '../components/sentry/sentry.png';
 import Image from 'next/image';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CheckIcon } from '@heroicons/react/20/solid'
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Sentry integration for PHP applications running on AWS Lambda. Track cold starts, event-driven invocations, and more." />
 
 export const features = [
     {
@@ -31,7 +34,7 @@ export const features = [
     <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl sm:text-center">
             <Breadcrumbs pages={[
-                { name: 'Sentry', href: '/sentry/' },
+                { name: 'Sentry', href: '/sentry' },
             ]} />
             <h1 className="mt-20 sm:mt-24 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
                 Sentry integration for AWS Lambda
@@ -43,7 +46,7 @@ export const features = [
             </div>
             <div className="mt-10 flex items-center justify-center gap-x-6">
                 <a
-                    href="#"
+                    href="/sentry/docs"
                     className="rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
                 >
                     Documentation

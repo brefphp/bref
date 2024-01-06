@@ -12,13 +12,17 @@ export default function Breadcrumbs({ pages }) {
                         Bref
                     </a>
                 </li>
-                {pages.map((page) => (
+                {pages.map((page, index) => (
                     <li key={page.name}>
                         <div className="flex items-center">
                             <ChevronRightIcon className="h-5 w-5 flex-shrink-0 text-gray-400" aria-hidden="true" />
                             <a
                                 href={page.href}
-                                className="ml-2 text-sm font-medium text-gray-600 hover:text-gray-800"
+                                className={`ml-2 text-sm font-medium ${
+                                    index === pages.length - 1
+                                        ? 'text-gray-600 hover:text-gray-800'
+                                        : 'text-gray-400 hover:text-gray-500'
+                                }`}
                             >
                                 {page.name}
                             </a>
