@@ -84,87 +84,153 @@ export const features = [
 </div>
 
 
-export const includedFeatures = [
-    'Composer package & documentation',
-    'Email and Slack support',
-    'Unlimited projects',
-    'Unlimited users',
-]
+export const tiers = [
+    {
+        name: 'Single project',
+        id: 'single-license',
+        href: '#',
+        price: '€99',
+        features: [
+            'Single project',
+            'Unlimited users',
+            'Composer package & documentation',
+            'Free updates for one year',
+            'Optional yearly license renewals',
+        ],
+        featured: false,
+    },
+    {
+        name: 'Unlimited',
+        id: 'unlimited-license',
+        href: '#',
+        price: '€299',
+        features: [
+            'Unlimited projects',
+            'Unlimited users',
+            'Composer package & documentation',
+            'Free updates for one year',
+            'Optional yearly license renewals',
+            'Email support',
+        ],
+        featured: true,
+    },
+];
 
-<div className="mx-auto max-w-7xl px-6 lg:px-8 py-24">
-    <div className="mx-auto max-w-2xl sm:text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+export function classNames(...classes) {
+    return classes.filter(Boolean).join(' ')
+}
+
+<div id="pricing" className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
+    <div className="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl" aria-hidden="true">
+        <div
+            className="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-blue-100 to-blue-500 opacity-30"
+            style={{
+                clipPath:
+                    'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
+            }}
+        />
+    </div>
+    <div className="mx-auto max-w-2xl text-center lg:max-w-4xl">
+        <h2 className="text-base font-semibold leading-7 text-blue-600">Pricing</h2>
+        <div className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
             Simple pricing
-        </h2>
-        <div className="mt-6 text-lg leading-8 text-gray-600">
-            Get access to the package for a one-time price with optional yearly renewal.
         </div>
     </div>
-    <div
-        className="mx-auto mt-16 max-w-2xl rounded-3xl ring-1 ring-gray-200 sm:mt-20 lg:mx-0 lg:flex lg:max-w-none">
-        <div className="p-8 sm:p-10 lg:flex-auto">
-            <h3 className="text-2xl font-bold tracking-tight text-gray-900">
-                One-time price with optional yearly renewal
-            </h3>
-            <div className="mt-6 text-base leading-7 text-gray-600">
-                The license includes access to the current version of the package.
-                During checkout, you can optionally enable automatic yearly renewal so that you can always access the latest version of the package.
-            </div>
-            <div className="mt-10 flex items-center gap-x-4">
-                <h4 className="flex-none text-sm font-semibold leading-6 text-blue-600">What’s included</h4>
-                <div className="h-px flex-auto bg-gray-100" />
-            </div>
-            <ul
-                role="list"
-                className="mt-8 grid grid-cols-1 gap-4 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6"
-            >
-                {includedFeatures.map((feature) => (
-                    <li key={feature} className="flex gap-x-3">
-                        <CheckIcon className="h-6 w-5 flex-none text-blue-500" aria-hidden="true" />
-                        {feature}
-                    </li>
-                ))}
-            </ul>
-            <div className="mt-10 flex items-center gap-x-4">
-                <h4 className="flex-none text-sm font-semibold leading-6 text-blue-600">What’s optional</h4>
-                <div className="h-px flex-auto bg-gray-100" />
-            </div>
-            <ul
-                role="list"
-                className="mt-8 grid grid-cols-1 gap-4 text-sm leading-6 text-gray-600 sm:grid-cols-2 sm:gap-6"
-            >
-                <li className="flex gap-x-3">
-                    <CheckIcon className="h-6 w-5 flex-none text-blue-500" aria-hidden="true" />
-                    Automatic yearly license renewal with access to future updates
-                </li>
-            </ul>
-        </div>
-        <div className="-mt-2 p-2 lg:mt-0 lg:w-full lg:max-w-md lg:flex-shrink-0">
+    <div className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
+        The license is a <strong>one-time purchase</strong> and includes free updates for a year.
+        You can optionally enable license renewals to receive all future updates.
+    </div>
+    <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
+        {tiers.map((tier, tierIdx) => (
             <div
-                className="rounded-2xl bg-gray-400/10 py-10 text-center ring-1 ring-inset ring-gray-900/5 lg:flex lg:flex-col lg:justify-center lg:py-16">
-                <div className="mx-auto max-w-xs px-8">
-                    <div className="text-base font-semibold text-gray-600">
-                        License price
-                    </div>
-                    <div className="mt-6 flex items-baseline justify-center gap-x-2">
-                        <span className="text-5xl font-bold tracking-tight text-gray-900">90<span className="text-base font-semibold leading-6 tracking-wide text-gray-600">€</span></span>
-                    </div>
-                    <div className="mt-1 text-xs text-gray-600">
-                        * optional yearly renewal
-                    </div>
-                    <a
-                        href="#"
-                        className="mt-10 block w-full rounded-md bg-blue-500 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-                    >
-                        Get access
-                    </a>
-                    <div className="mt-6 text-xs leading-5 text-gray-600">
-                        Invoices and receipts available for easy company reimbursement
-                    </div>
-                    <div className="mt-6 text-xs leading-5 text-gray-600">
-                        7-days no-questions-asked refund policy
-                    </div>
+                key={tier.id}
+                className={classNames(
+                    tier.featured ? 'relative bg-white shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0',
+                    tier.featured
+                        ? ''
+                        : tierIdx === 0
+                            ? 'rounded-t-3xl sm:rounded-b-none lg:rounded-tr-none lg:rounded-bl-3xl'
+                            : 'sm:rounded-t-none lg:rounded-tr-3xl lg:rounded-bl-none',
+                    'rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10'
+                )}
+            >
+                <h3 id={tier.id} className="text-base font-semibold leading-7 text-blue-600">
+                    {tier.name}
+                </h3>
+                <div className="mt-4 flex items-baseline gap-x-2">
+                    <span className="text-5xl font-bold tracking-tight text-gray-900">{tier.price}</span>
+                    <span className="text-xs text-gray-500">one-time payment</span>
                 </div>
+                <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600 sm:mt-10">
+                    {tier.features.map((feature) => (
+                        <li key={feature} className="flex gap-x-3">
+                            <CheckIcon className="h-6 w-5 flex-none text-blue-600" aria-hidden="true" />
+                            {feature}
+                        </li>
+                    ))}
+                </ul>
+                <a
+                    href={tier.href}
+                    aria-describedby={tier.id}
+                    className={classNames(
+                        tier.featured
+                            ? 'bg-blue-600 text-white shadow hover:bg-blue-500'
+                            : 'text-blue-600 ring-1 ring-inset ring-blue-200 hover:ring-blue-300',
+                        'mt-8 block rounded-md py-2.5 px-3.5 text-center text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:mt-10'
+                    )}
+                >
+                    Get started
+                </a>
+            </div>
+        ))}
+    </div>
+    <div className="mx-auto mt-12 grid max-w-lg text-gray-500 text-sm">
+        Invoices and receipts available for easy company reimbursement.
+    </div>
+</div>
+
+
+export const faqs = [
+    {
+        question: 'What is a considered a "project"?',
+        answer: 'You can use a single project license on a single "service" or "application" (for example a Laravel or a Symfony project), regardless if you deploy it in multiple environments (like "dev", "staging", "production"…) or if you deploy multiple AWS Lambda functions in that application. However, if you deploy multiple applications, multiple services, or deploy the same application for multiple customers (aka multi-tenant), you need an "Unlimited" license (or a license for each application).',
+    },
+    {
+        question: 'Do I get invoices?',
+        answer: 'Yes, you will receive an invoice by email after your purchase.',
+    },
+    {
+        question: 'What is the refund policy?',
+        answer: '7-days, full refund, no questions asked.',
+    },
+    {
+        question: 'Can I use an unlimited license for all of my client projects?',
+        answer: 'Not exactly. An unlimited license provides you unlimited access to Nova for all of your projects, but it doesn\'t mean your client is also allowed to use your license. Your clients will need their own license to use Nova for their projects.',
+    },
+    {
+        question: 'Are there any bulk pricing options?',
+        answer: 'That is possible, please get in touch.',
+    },
+]
+
+<div id="faq" className="bg-white">
+    <div className="mx-auto max-w-7xl px-6 py-24 sm:pt-32 lg:px-8 lg:py-40">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+            <div className="lg:col-span-5">
+                <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900">Frequently asked questions</h2>
+                <div className="mt-4 text-base leading-7 text-gray-600">
+                    Can’t find the answer you’re looking for? Reach out <a href="mailto:matthieu@bref.sh" className="font-semibold text-blue-600 hover:text-blue-500">via email</a>.
+                </div>
+            </div>
+            <div className="mt-10 lg:col-span-7 lg:mt-0">
+                <dl className="space-y-10">
+                    {faqs.map((faq) => (
+                        <div key={faq.question}>
+                            <dt className="text-base font-semibold leading-7 text-gray-900">{faq.question}</dt>
+                            <dd className="mt-2 text-base leading-7 text-gray-600">{faq.answer}</dd>
+                        </div>
+                    ))}
+                </dl>
             </div>
         </div>
     </div>
