@@ -72,6 +72,15 @@ composer require bref/sentry-integration
 
 If you use Laravel, the Laravel integration will be automatically set up via a service provider.
 
+If you use Symfony, you will need to manually register the bundle in `config/bundles.php`:
+
+```php
+return [
+    // ...
+    Bref\Sentry\Symfony\BrefSentryBundle::class => ['all' => true],
+];
+```
+
 ### Troubleshooting
 
 Send me a Slack message or an email (matthieu@bref.sh) if you have any trouble, I can help you set it up!
@@ -97,7 +106,7 @@ Advanced metadata and tags will also be captured on each transaction, allowing t
 
 ### Cold starts tracing
 
-Cold starts are automatically traced when using Laravel, there is nothing additional to set up.
+Cold starts are automatically traced when using Laravel or Symfony, there is nothing additional to set up.
 
 Cold starts will appear in transactions in Sentry performance tracing (named `lambda.cold-start`), along with a sub-span for the Bref initialization (`bref.startup`). For example:
 
