@@ -13,7 +13,7 @@ import { useState } from 'react';
 
 export function Sentry() {
     const [openCheckout, setOpenCheckout] = useState(false);
-    const [checkoutPrice, setCheckoutPrice] = useState('');
+    const [checkoutPrice, setCheckoutPrice] = useState(['']);
     const [checkoutLinkSingle, setCheckoutLinkSingle] = useState('');
     const [checkoutLinkSubscription, setCheckoutLinkSubscription] = useState('');
 
@@ -34,13 +34,12 @@ export function Sentry() {
             id: 'single-license',
             linkSingle: 'https://bref.lemonsqueezy.com/checkout/buy/cfb8de93-1f0e-41fa-868b-4fa3ab68fea0',
             linkSubscription: 'https://bref.lemonsqueezy.com/checkout/buy/0f4f58f4-4449-4fb9-89d6-c22b9fc41691',
-            price: '99',
+            price: ['99', '89'],
             features: [
                 'Single project',
                 'Unlimited users',
                 'Composer package & documentation',
                 'Free updates for one year',
-                'Optional yearly license renewals',
             ],
             featured: false,
         },
@@ -49,13 +48,12 @@ export function Sentry() {
             id: 'unlimited-license',
             linkSingle: 'https://bref.lemonsqueezy.com/checkout/buy/e9d8ed0f-f0af-44e3-9718-742ac90e1e51',
             linkSubscription: 'https://bref.lemonsqueezy.com/checkout/buy/0792799d-c2e8-402a-96d4-409bf4a6f04d',
-            price: '299',
+            price: ['279', '249'],
             features: [
                 'Unlimited projects',
                 'Unlimited users',
                 'Composer package & documentation',
                 'Free updates for one year',
-                'Optional yearly license renewals',
                 'Email support',
             ],
             featured: true,
@@ -92,7 +90,7 @@ export function Sentry() {
         },
         {
             question: 'What is a considered a "project"?',
-            answer: 'You can use a single project license on a single "service" or "application" (for example a Laravel or a Symfony project), regardless if you deploy it in multiple environments (like "dev", "staging", "production"…) or if you deploy multiple AWS Lambda functions in that application. However, if you deploy multiple applications, multiple services, or deploy the same application for multiple customers (aka multi-tenant), you need an "Unlimited" license (or a license for each application).',
+            answer: 'You can use a "Single Project" license on one "service" or "application" (for example a Laravel or a Symfony project). If one application is deployed to multiple environments (like "dev", "staging", "production"…), it counts as a single project (non-production environments are ignored). If one application contains multiple AWS Lambda functions, it still counts as a single project. <br/> However, if you deploy multiple applications, multiple services (e.g. with <strong>microservices</strong>), or deploy the same application for multiple customers (aka multi-tenant) or to multiple regions, you need an "Unlimited" license (or a license for each application).',
         },
         {
             question: 'Do I get invoices?',
@@ -104,7 +102,7 @@ export function Sentry() {
         },
         {
             question: 'Can I use an unlimited license for all of my client projects?',
-            answer: 'Not exactly. An unlimited license provides you unlimited access to Nova for all of your projects, but it doesn\'t mean your client is also allowed to use your license. Your clients will need their own license to use Nova for their projects.',
+            answer: 'Not exactly. An unlimited license provides you unlimited access for all of <em>your</em> projects, but it doesn\'t mean your client is also allowed to use your license. Your clients will need their own license to use the Sentry integration for their projects.',
         },
         {
             question: 'Are there any bulk pricing options?',
@@ -112,7 +110,7 @@ export function Sentry() {
         },
         {
             question: 'What are the terms of service?',
-            answer: 'Please follow this link to read the <a href="/sentry/terms" class="link">Terms of service</a> for the Sentry integration.',
+            answer: 'Please follow the following link to read the <a href="/sentry/terms" class="link">Terms of service</a> for the Sentry integration.',
         },
     ];
 
@@ -192,7 +190,7 @@ export function Sentry() {
                 </div>
                 <div className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
                     The license is a <strong>one-time purchase</strong> and includes free updates for a year.
-                    You can optionally enable license renewals to receive all future updates.
+                    If you prefer to get all future updates, you can enable automatic license renewals.
                 </div>
                 <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
                     {tiers.map((tier, tierIdx) => (
@@ -212,7 +210,7 @@ export function Sentry() {
                                 {tier.name}
                             </h3>
                             <div className="mt-4 flex items-baseline gap-x-2">
-                                <span className="text-5xl font-bold tracking-tight text-gray-900">{tier.price}€</span>
+                                <span className="text-5xl font-bold tracking-tight text-gray-900">{tier.price[0]}€</span>
                                 <span className="text-xs text-gray-500">one-time payment</span>
                             </div>
                             <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600 sm:mt-10">
@@ -222,6 +220,7 @@ export function Sentry() {
                                         {feature}
                                     </li>
                                 ))}
+                                <li>10% discount with yearly license renewal enabled</li>
                             </ul>
                             <button
                                 type="button"

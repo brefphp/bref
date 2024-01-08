@@ -48,12 +48,14 @@ export default function SentryCheckout({ open, setOpen, price, linkSingle, linkS
                                             </Dialog.Title>
                                             <div className="mt-2">
                                                 <div className="text-sm text-gray-500">
-                                                    Do you want to enable automatic license renewal every year? You can
-                                                    cancel it anytime.
+                                                    Do you want to enable automatic license renewal every year?
                                                 </div>
                                                 <div className="mt-2 text-sm text-gray-500">
                                                     Without license renewal, you will stop receiving updates after 1
                                                     year.
+                                                </div>
+                                                <div className="mt-2 text-sm text-gray-500">
+                                                    With license renewal, the license renews automatically every year so <strong>you always get the latest updates</strong>. You also get a 10% discount on the price. Renewal can be cancelled at any time.
                                                 </div>
                                             </div>
                                             <Switch.Group as="div" className="mt-5 flex items-center">
@@ -73,18 +75,21 @@ export default function SentryCheckout({ open, setOpen, price, linkSingle, linkS
                                                         )}
                                                     />
                                                 </Switch>
-                                                <Switch.Label as="span" className="ml-3 text-sm">
+                                                <Switch.Label as="span" className="ml-3 text-sm cursor-pointer">
                                                     <span className="font-medium text-gray-900">Automatic license renewal</span>{' '}
                                                     <span className="text-gray-500">(every year)</span>
                                                 </Switch.Label>
                                             </Switch.Group>
                                             {renewalEnabled ? (
                                                 <div className="mt-5 text-sm text-gray-500">
-                                                    {price}€ per year, cancel anytime, unlimited updates
+                                                    {price[1]}€ per year, cancel anytime,{" "}
+                                                    <span className="text-gray-900 font-medium">
+                                                        {" "}all future updates
+                                                    </span>
                                                 </div>
                                             ) : (
                                                 <div className="mt-5 text-sm text-gray-500">
-                                                    {price}€, one-time payment,{" "}
+                                                    {price[0]}€ one-time payment,{" "}
                                                     <span className="text-gray-900 font-medium">
                                                         {" "}no updates after 1 year
                                                     </span>
