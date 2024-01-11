@@ -47,8 +47,14 @@ const sections = [
             { name: 'Expert support via Slack and Email', tiers: { Pro: true, Enterprise: true } },
             { name: 'Architecture design and review in Zoom', tiers: { Enterprise: true } },
             { name: 'GitHub/GitLab infrastructure code review', tiers: { Enterprise: true } },
-            { name: 'Unlimited access to the <a class="underline" href="https://serverless-visually-explained.com/">Serverless Visually Explained</a> course', tiers: { Enterprise: true } },
+            { name: 'Unlimited access to the <a class="link" href="https://serverless-visually-explained.com/">Serverless Visually Explained</a> course', tiers: { Enterprise: true } },
             { name: 'Onboarding workshop online or on-site', tiers: { Enterprise: 'Optional' } },
+        ],
+    },
+    {
+        name: 'Extra integrations',
+        features: [
+            { name: 'Unlimited license for the <a href="/sentry" class="link">Sentry integration</a>', tiers: { Pro: true, Enterprise: true } },
         ],
     },
 ]
