@@ -35,7 +35,6 @@ const sections = [
         name: 'Bref and AWS deployments',
         features: [
             { name: 'The Bref open-source project, its documentation and framework integrations', tiers: { OpenSource: true, Pro: true, Enterprise: true } },
-            { name: 'Deploy your applications to your AWS account', tiers: { OpenSource: true, Pro: true, Enterprise: true } },
             { name: ' Tailor-made AWS Lambda runtimes and PHP extensions optimized for your project', tiers: { Enterprise: 'Optional' } },
             { name: 'Appear as an open-source sponsor 💙', tiers: { Pro: 'Gold sponsor', Enterprise: 'Premium sponsor' } },
         ],
