@@ -42,6 +42,9 @@ Instead, here is what you need to do:
     serverless deploy
     ```
 
+    Note, that during deployment the keys will be stored at `./storage` path not at `/var/task/storage`. Workaround for this is to adjust Passport path with `Passport::loadKeysFrom('storage')`.
+
+
     ### Create tokens
 
     Finally, you can create the tokens (which is the second part of the `passport:install` command):
