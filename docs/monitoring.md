@@ -6,12 +6,12 @@ It is possible to view these logs and metrics directly in the [AWS console](http
 
 As an alternative, we can use the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) to view these logs and metrics. It provides a simpler UI designed for serverless PHP applications.
 
-For advanced metrics and profiling, we can use [Tideways](https://tideways.com/?ref=bref), or [Sentry](https://sentry.io/?ref=bref) if we only want error tracking. Other monitoring tools specialized for distributed serverless applications are also available, like [Epsagon](https://epsagon.com/?ref=bref) or [Thundra](https://www.thundra.io/?ref=bref), but their compatibility with PHP is usually limited. [Serverless.com's Dashboard and Console](https://www.serverless.com/) are not compatible with PHP.
+For advanced metrics and profiling, we can use [Tideways](https://tideways.com/?ref=bref), or [Sentry's performance monitoring](/sentry). Note that [Serverless.com's Dashboard](https://www.serverless.com/) is not compatible with PHP.
 
 To summarize:
 
 - **General monitoring**: CloudWatch, [Bref Dashboard](https://dashboard.bref.sh/?ref=bref)
-- **Advanced monitoring and profiling**: [Tideways](https://tideways.com/?ref=bref)
+- **Advanced monitoring and profiling**: [Tideways](https://tideways.com/?ref=bref), [Sentry](/sentry)
 
 ## Bref Dashboard
 
