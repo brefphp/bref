@@ -177,7 +177,7 @@ final class Psr7Bridge
         $tmpFiles = glob(sys_get_temp_dir() . '/' . self::UPLOADED_FILES_PREFIX . '*');
         if ($tmpFiles !== false) {
             foreach ($tmpFiles as $file) {
-                if(is_file($file)) {
+                if (is_file($file)) {
                     unlink($file);
                 }
             }
