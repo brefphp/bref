@@ -18,6 +18,8 @@ use function str_starts_with;
  */
 final class Psr7Bridge
 {
+    private const UPLOADED_FILES_PREFIX = 'bref_upload_';
+
     /**
      * Create a PSR-7 server request from an AWS Lambda HTTP event.
      */
@@ -106,7 +108,7 @@ final class Psr7Bridge
                     $parsedBody = [];
                     foreach ($document->getParts() as $part) {
                         if ($part->isFile()) {
-                            $tmpPath = tempnam(sys_get_temp_dir(), 'bref_upload_');
+                            $tmpPath = tempnam(sys_get_temp_dir(), self::UPLOADED_FILES_PREFIX);
                             if ($tmpPath === false) {
                                 throw new RuntimeException('Unable to create a temporary directory');
                             }
@@ -165,5 +167,20 @@ final class Psr7Bridge
         }
 
         $pointer = $value;
+    }
+
+    /**
+     * Cleanup previously uploaded files.
+     */
+    public static function cleanupUploadedFiles(): void
+    {
+        $tmpFiles = glob(sys_get_temp_dir() . '/' . self::UPLOADED_FILES_PREFIX . '*');
+        if ($tmpFiles !== false) {
+            foreach ($tmpFiles as $file) {
+                if(is_file($file)) {
+                    unlink($file);
+                }
+            }
+        }
     }
 }
