@@ -18,6 +18,8 @@ use function str_starts_with;
  */
 final class Psr7Bridge
 {
+    private const UPLOADED_FILES_PREFIX = 'bref_upload_';
+
     /**
      * Create a PSR-7 server request from an AWS Lambda HTTP event.
      */
@@ -106,7 +108,7 @@ final class Psr7Bridge
                     $parsedBody = [];
                     foreach ($document->getParts() as $part) {
                         if ($part->isFile()) {
-                            $tmpPath = tempnam(sys_get_temp_dir(), 'bref_upload_');
+                            $tmpPath = tempnam(sys_get_temp_dir(), self::UPLOADED_FILES_PREFIX);
                             if ($tmpPath === false) {
                                 throw new RuntimeException('Unable to create a temporary directory');
                             }
@@ -165,5 +167,23 @@ final class Psr7Bridge
         }
 
         $pointer = $value;
+    }
+
+    /**
+     * Cleanup previously uploaded files.
+     */
+    public static function cleanupUploadedFiles(): void
+    {
+        // See https://github.com/brefphp/bref/commit/c77d9f5abf021f29fa96b5720b7b84adbd199092#r137983026
+        $tmpFiles = glob(sys_get_temp_dir() . '/' . self::UPLOADED_FILES_PREFIX . '[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9]');
+
+        if ($tmpFiles !== false) {
+            foreach ($tmpFiles as $file) {
+                if (is_file($file)) {
+                    // Silence warnings, we don't want to crash the whole runtime
+                    @unlink($file);
+                }
+            }
+        }
     }
 }
