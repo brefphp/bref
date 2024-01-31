@@ -180,7 +180,8 @@ final class Psr7Bridge
         if ($tmpFiles !== false) {
             foreach ($tmpFiles as $file) {
                 if (is_file($file)) {
-                    unlink($file);
+                    // Silence warnings, we don't want to crash the whole runtime
+                    @unlink($file);
                 }
             }
         }
