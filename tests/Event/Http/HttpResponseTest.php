@@ -58,7 +58,7 @@ class HttpResponseTest extends TestCase
         ], $response->toApiGatewayFormatV2());
     }
 
-    public function test nested arrays in headers are flattened()
+    public function test multi value headers()
     {
         $response = new HttpResponse('', [
             'foo' => ['bar', 'baz'],
@@ -76,8 +76,10 @@ class HttpResponseTest extends TestCase
             'cookies' => [],
             'isBase64Encoded' => false,
             'statusCode' => 200,
-            // The last value is kept (when multiheaders are not enabled)
-            'headers' => ['Foo' => 'baz'],
+            // Headers are joined with a comma
+            // See https://datatracker.ietf.org/doc/html/rfc7230#section-3.2.2
+            // API Gateway v2 does not support multi-value headers
+            'headers' => ['Foo' => 'bar, baz'],
             'body' => '',
         ], $response->toApiGatewayFormatV2());
     }
