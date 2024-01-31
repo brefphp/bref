@@ -262,7 +262,8 @@ RUN set -xe; \
     --with-gnu-ld \
     --with-ssl \
     --with-libssh2 \
-    --with-nghttp2
+    --with-nghttp2 \
+    --without-libpsl
 
 
 RUN set -xe; \
