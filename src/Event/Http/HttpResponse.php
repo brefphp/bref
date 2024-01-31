@@ -72,7 +72,7 @@ final class HttpResponse
             } else {
                 // Make sure the values are never arrays
                 // because API Gateway v2 does not support multi-value headers
-                $headers[$name] = is_array($values) ? end($values) : $values;
+                $headers[$name] = is_array($values) ? implode(', ', $values) : $values;
             }
         }
 
