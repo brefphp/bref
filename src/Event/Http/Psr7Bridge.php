@@ -174,7 +174,9 @@ final class Psr7Bridge
      */
     public static function cleanupUploadedFiles(): void
     {
-        $tmpFiles = glob(sys_get_temp_dir() . '/' . self::UPLOADED_FILES_PREFIX . '*');
+        // See https://github.com/brefphp/bref/commit/c77d9f5abf021f29fa96b5720b7b84adbd199092#r137983026
+        $tmpFiles = glob(sys_get_temp_dir() . '/' . self::UPLOADED_FILES_PREFIX . '[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9]');
+
         if ($tmpFiles !== false) {
             foreach ($tmpFiles as $file) {
                 if (is_file($file)) {
