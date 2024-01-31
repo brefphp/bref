@@ -111,7 +111,7 @@ final class Psr7Bridge
 
         // Parse the body as multipart/form-data
         $document = new Part("Content-type: $contentType\r\n\r\n" . $event->getBody());
-        if (!$document->isMultiPart()) {
+        if (! $document->isMultiPart()) {
             return [[], null];
         }
         $files = [];

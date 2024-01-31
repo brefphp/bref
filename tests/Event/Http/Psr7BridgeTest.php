@@ -123,7 +123,7 @@ class Psr7BridgeTest extends CommonHttpTest
         // Not applicable here
     }
 
-    protected function assertParsedBody(array|null $expected): void
+    protected function assertParsedBody(array | null $expected): void
     {
         $this->assertEquals($expected, $this->request->getParsedBody());
     }

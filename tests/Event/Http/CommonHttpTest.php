@@ -554,7 +554,7 @@ Year,Make,Model
 
     abstract protected function assertHasMultiHeader(bool $expected): void;
 
-    abstract protected function assertParsedBody(array|null $expected): void;
+    abstract protected function assertParsedBody(array | null $expected): void;
 
     abstract protected function assertSourceIp(string $expected): void;
 
