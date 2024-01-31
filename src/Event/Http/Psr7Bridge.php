@@ -114,11 +114,11 @@ final class Psr7Bridge
         if (! $document->isMultiPart()) {
             return [[], null];
         }
+        $parsedBody = null;
         $files = [];
-        $queryString = '';
         foreach ($document->getParts() as $part) {
             if ($part->isFile()) {
-                            $tmpPath = tempnam(sys_get_temp_dir(), self::UPLOADED_FILES_PREFIX);
+                $tmpPath = tempnam(sys_get_temp_dir(), self::UPLOADED_FILES_PREFIX);
                 if ($tmpPath === false) {
                     throw new RuntimeException('Unable to create a temporary directory');
                 }
@@ -126,15 +126,11 @@ final class Psr7Bridge
                 $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
                 self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
             } else {
-                // Temporarily store as a query string so that we can use PHP's native parse_str function to parse keys
-                $queryString .= urlencode($part->getName()) . '=' . urlencode($part->getBody()) . '&';
+                if ($parsedBody === null) {
+                    $parsedBody = [];
+                }
+                self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
             }
-        }
-        if ($queryString !== '') {
-            $parsedBody = [];
-            parse_str($queryString, $parsedBody);
-        } else {
-            $parsedBody = null;
         }
         return [$files, $parsedBody];
     }
@@ -144,42 +140,14 @@ final class Psr7Bridge
      */
     private static function parseKeyAndInsertValueInArray(array &$array, string $key, mixed $value): void
     {
-        if (! str_contains($key, '[')) {
-            $array[$key] = $value;
-
-            return;
-        }
-
-        $parts = explode('[', $key); // files[id_cards][jpg][] => [ 'files',  'id_cards]', 'jpg]', ']' ]
-        $pointer = &$array;
-
-        foreach ($parts as $k => $part) {
-            if ($k === 0) {
-                $pointer = &$pointer[$part];
-
-                continue;
-            }
-
-            // Skip two special cases:
-            // [[ in the key produces empty string
-            // [test : starts with [ but does not end with ]
-            if ($part === '' || ! str_ends_with($part, ']')) {
-                // Malformed key, we use it "as is"
-                $array[$key] = $value;
-
-                return;
-            }
-
-            $part = substr($part, 0, -1); // The last char is a ] => remove it to have the real key
-
-            if ($part === '') { // [] case
-                $pointer = &$pointer[];
-            } else {
-                $pointer = &$pointer[$part];
-            }
-        }
-
-        $pointer = $value;
+        $parsed = [];
+        // We use parse_str to parse the key in the same way PHP does natively
+        // We use "=mock" because the value can be an object (in case of uploaded files)
+        parse_str(urlencode($key) . '=mock', $parsed);
+        // Replace `mock` with the actual value
+        array_walk_recursive($parsed, fn (&$v) => $v = $value);
+        // Merge recursively into the main array to avoid overwriting existing values
+        $array = array_merge_recursive($array, $parsed);
     }
 
     /**
