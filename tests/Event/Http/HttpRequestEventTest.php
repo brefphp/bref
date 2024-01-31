@@ -112,7 +112,7 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertEquals($expected, $this->event->getSourceIp());
     }
 
-    protected function assertParsedBody(array $expected): void
+    protected function assertParsedBody(array|null $expected): void
     {
         // Not applicable here since the class doesn't parse the body
     }

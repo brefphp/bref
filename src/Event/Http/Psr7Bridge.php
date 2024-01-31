@@ -93,35 +93,48 @@ final class Psr7Bridge
         return new HttpResponse($body, $response->getHeaders(), $response->getStatusCode());
     }
 
+    /**
+     * @return array{0: array<string, UploadedFile>, 1: array<string, mixed>|null}
+     */
     private static function parseBodyAndUploadedFiles(HttpRequestEvent $event): array
     {
-        $bodyString = $event->getBody();
-        $files = [];
-        $parsedBody = null;
         $contentType = $event->getContentType();
-        if ($contentType !== null && $event->getMethod() === 'POST') {
-            if (str_starts_with($contentType, 'application/x-www-form-urlencoded')) {
-                parse_str($bodyString, $parsedBody);
-            } else {
-                $document = new Part("Content-type: $contentType\r\n\r\n" . $bodyString);
-                if ($document->isMultiPart()) {
-                    $parsedBody = [];
-                    foreach ($document->getParts() as $part) {
-                        if ($part->isFile()) {
-                            $tmpPath = tempnam(sys_get_temp_dir(), self::UPLOADED_FILES_PREFIX);
-                            if ($tmpPath === false) {
-                                throw new RuntimeException('Unable to create a temporary directory');
-                            }
-                            file_put_contents($tmpPath, $part->getBody());
-                            $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
+        if ($contentType === null || $event->getMethod() !== 'POST') {
+            return [[], null];
+        }
 
-                            self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
-                        } else {
-                            self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
-                        }
-                    }
+        if (str_starts_with($contentType, 'application/x-www-form-urlencoded')) {
+            $parsedBody = [];
+            parse_str($event->getBody(), $parsedBody);
+            return [[], $parsedBody];
+        }
+
+        // Parse the body as multipart/form-data
+        $document = new Part("Content-type: $contentType\r\n\r\n" . $event->getBody());
+        if (!$document->isMultiPart()) {
+            return [[], null];
+        }
+        $files = [];
+        $queryString = '';
+        foreach ($document->getParts() as $part) {
+            if ($part->isFile()) {
+                            $tmpPath = tempnam(sys_get_temp_dir(), self::UPLOADED_FILES_PREFIX);
+                if ($tmpPath === false) {
+                    throw new RuntimeException('Unable to create a temporary directory');
                 }
+                file_put_contents($tmpPath, $part->getBody());
+                $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
+                self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
+            } else {
+                // Temporarily store as a query string so that we can use PHP's native parse_str function to parse keys
+                $queryString .= urlencode($part->getName()) . '=' . urlencode($part->getBody()) . '&';
             }
+        }
+        if ($queryString !== '') {
+            $parsedBody = [];
+            parse_str($queryString, $parsedBody);
+        } else {
+            $parsedBody = null;
         }
         return [$files, $parsedBody];
     }

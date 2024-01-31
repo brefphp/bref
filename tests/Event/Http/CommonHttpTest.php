@@ -401,7 +401,7 @@ Year,Make,Model
 --testBoundary--\r
 ";
         $this->assertBody($body);
-        $this->assertParsedBody([]);
+        $this->assertParsedBody(null);
         $this->assertUploadedFile(
             'foo',
             'lorem.txt',
@@ -554,7 +554,7 @@ Year,Make,Model
 
     abstract protected function assertHasMultiHeader(bool $expected): void;
 
-    abstract protected function assertParsedBody(array $expected): void;
+    abstract protected function assertParsedBody(array|null $expected): void;
 
     abstract protected function assertSourceIp(string $expected): void;
 
