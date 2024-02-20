@@ -10,6 +10,7 @@ import depotLogo from './sponsors/logo-depot.svg';
 import secumailerLogo from './sponsors/logo-secumailer.svg';
 import ecomailLogo from './sponsors/logo-ecomail.png';
 import spreakerLogo from './sponsors/logo-spreaker.svg';
+import voxieLogo from './sponsors/logo-voxie.svg';
 import PremiumSponsor from './sponsors/premium-sponsor';
 
 export default function Sponsors() {
@@ -24,7 +25,7 @@ export default function Sponsors() {
             </h3>
             <div className="mt-4 -mx-6 grid grid-cols-2 gap-0.5 overflow-hidden sm:mx-0 sm:rounded-2xl md:grid-cols-3">
                 <PremiumSponsor src={craftLogo} alt="Craft CMS" href="https://craftcms.com/?ref=bref.sh" />
-                <PremiumSponsor src={tidewaysLogo} alt="Tideways" href="https://tideways.com/?ref=bref" />
+                <PremiumSponsor src={voxieLogo} alt="Tideways" href="https://voxie.com/?ref=bref" />
                 <PremiumSponsor src={myBuilderLogo} alt="MyBuilder" href="https://www.mybuilder.com/?ref=bref.sh" />
                 <PremiumSponsor src={nullLogo} alt="Null - Serverless consulting company" href="https://null.tc/?ref=bref" />
                 <PremiumSponsor src={awsLogo} alt="AWS" href="https://aws.amazon.com/?ref=bref" oneTime={true} />
