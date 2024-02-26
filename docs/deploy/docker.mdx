@@ -32,7 +32,7 @@ Bref helps you deploy using Docker images by offering base images that work on A
 FROM bref/php-81-fpm:2
 
 # Copy the source code in the image
-COPY .. /var/task
+COPY . /var/task
 
 # Configure the handler file (the entrypoint that receives all HTTP requests)
 CMD ["public/index.php"]
