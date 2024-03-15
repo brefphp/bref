@@ -182,6 +182,10 @@ final class FpmHandler extends HttpHandler
                     $e->getMessage()
                 );
 
+                // Restart PHP-FPM: in some cases PHP-FPM is borked, that's the only way we can recover
+                $this->stop();
+                $this->start();
+
                 throw new FastCgiCommunicationFailed;
             }
         }
