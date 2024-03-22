@@ -30,7 +30,8 @@
         "psr/http-message": "^1.0|^2.0",
         "psr/http-server-handler": "^1.0",
         "riverline/multipart-parser": "^2.1.2",
-        "symfony/process": "^4.4|^5.0|^6.0|^7.0"
+        "symfony/process": "^4.4|^5.0|^6.0|^7.0",
+        "bref/logger": "^1.0"
     },
     "require-dev": {
         "async-aws/core": "^1.0",

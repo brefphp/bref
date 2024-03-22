@@ -12,6 +12,8 @@ abstract class HttpHandler implements Handler
     /** {@inheritDoc} */
     public function handle($event, Context $context): array
     {
+        // TODO: set this via env variable.
+        $logger = new \Bref\Logger\StderrLogger(\Psr\Log\LogLevel::DEBUG);
         // See https://bref.sh/docs/runtimes/http.html#cold-starts
         if (isset($event['warmer']) && $event['warmer'] === true) {
             // Delay the response to ensure concurrent invocation
@@ -23,7 +25,7 @@ abstract class HttpHandler implements Handler
         $httpEvent = new HttpRequestEvent($event);
 
         $response = $this->handleRequest($httpEvent, $context);
-
+        $logger->debug($response);
         if ($httpEvent->isFormatV2()) {
             return $response->toApiGatewayFormatV2();
         }
