@@ -13,7 +13,7 @@ abstract class HttpHandler implements Handler
     public function handle($event, Context $context): array
     {
         // TODO: set this via env variable.
-        $logger = new \Bref\Logger\StderrLogger(\Psr\Log\LogLevel::DEBUG);
+        $logger = new \Bref\Logger\StderrLogger('debug');
         // See https://bref.sh/docs/runtimes/http.html#cold-starts
         if (isset($event['warmer']) && $event['warmer'] === true) {
             // Delay the response to ensure concurrent invocation
