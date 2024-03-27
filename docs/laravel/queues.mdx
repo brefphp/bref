@@ -67,3 +67,13 @@ Instead, "Bref for Laravel" makes all the feature of Laravel Queues work out of 
 <Callout>
     The "Bref-Laravel bridge" v1 used to do the opposite. We changed that behavior in Bref v2 in order to make the experience smoother for Laravel users.
 </Callout>
+
+### SQS Polling and Charges
+AWS Lambda maintains a continuous "poller" for SQS messages, which invokes the Lambda function upon receiving messages. This process, while eliminating the need for manual polling, generates continuous SQS requests, incurring charges, [though the first 1M requests of each month are free as part of the AWS free tier](https://aws.amazon.com/sqs/pricing/#:~:text=First%201%20Million%20Requests/Month). 
+
+Reducing Polling Charges
+To mitigate these charges, consider adjusting the `MaximumBatchingWindowInSeconds` in your Lambda configuration. This setting delays message delivery to the Lambda function when batching, aiming to assemble the largest possible batch within the specified timeframe, counted as a single SQS API request.
+
+<Callout>
+    Adjusting `MaximumBatchingWindowInSeconds` can effectively reduce SQS polling charges but may introduce a delay in message processing. This trade-off is essential to consider based on your application's requirements.
+</Callout>
