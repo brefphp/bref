@@ -171,7 +171,23 @@ final class FpmHandler extends HttpHandler
             $this->stop();
             $this->start();
 
-            throw new FastCgiCommunicationFailed;
+            try {
+                $socketId = $this->client->sendAsyncRequest($this->connection, $request);
+
+                $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
+            } catch (Throwable $e) {
+                printf(
+                    "Error communicating with PHP-FPM to read the HTTP response. Bref will restart PHP-FPM now. Original exception message: %s %s\n",
+                    get_class($e),
+                    $e->getMessage()
+                );
+
+                // Restart PHP-FPM: in some cases PHP-FPM is borked, that's the only way we can recover
+                $this->stop();
+                $this->start();
+
+                throw new FastCgiCommunicationFailed;
+            }
         }
 
         $responseHeaders = $this->getResponseHeaders($response);
