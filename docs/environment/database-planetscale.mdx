@@ -10,8 +10,7 @@ import { NextSeo } from 'next-seo';
 Amongst other features, it offers the following benefits compared to running a database on AWS:
 
 - Simple to set up: no VPC (virtual private network) to set up, no instances to configure.
-- Runs [the Vitess clustering system](https://planetscale.com/blog/vitess-for-the-rest-of-us), which offers better scalability and supports a lot more concurrent connections [via built-in connection pooling](https://planetscale.com/blog/one-million-connections).
-- Offers a [free database in the Hobby plan](https://planetscale.com/pricing), and paid plans are usage-based.
+- Runs [the Vitess clustering system](https://planetscale.com/blog/vitess-for-the-rest-of-us), which offers great scalability and supports a lot more concurrent connections [via built-in connection pooling](https://planetscale.com/blog/one-million-connections).
 - Since it does not require a VPC, we do not need to set up and pay [for a NAT Gateway](database.mdx#accessing-the-internet).
 
 One extra feature worth mentioning is [the branching concept](https://planetscale.com/docs/concepts/branching): it enables testing schema changes before deploying them in production without downtime.
