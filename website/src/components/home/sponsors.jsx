@@ -1,11 +1,8 @@
 import GoldSponsor from './sponsors/gold-sponsor';
 import craftLogo from './sponsors/logo-craft-cms.png';
-import tidewaysLogo from './sponsors/logo-tideways.svg';
 import myBuilderLogo from './sponsors/logo-mybuilder.svg';
 import nullLogo from './sponsors/logo-null.png';
 import awsLogo from './sponsors/logo-aws.svg';
-import jetbrainsLogo from './sponsors/logo-jetbrains.svg';
-import laravelLogo from './sponsors/logo-laravel.svg';
 import depotLogo from './sponsors/logo-depot.svg';
 import secumailerLogo from './sponsors/logo-secumailer.svg';
 import ecomailLogo from './sponsors/logo-ecomail.png';
@@ -29,18 +26,16 @@ export default function Sponsors() {
                 <PremiumSponsor src={myBuilderLogo} alt="MyBuilder" href="https://www.mybuilder.com/?ref=bref.sh" />
                 <PremiumSponsor src={nullLogo} alt="Null - Serverless consulting company" href="https://null.tc/?ref=bref" />
                 <PremiumSponsor src={awsLogo} alt="AWS" href="https://aws.amazon.com/?ref=bref" oneTime={true} />
-                <PremiumSponsor src={spreakerLogo} alt="Spreaker" href="https://www.spreaker.com/?ref=bref" oneTime={true} />
             </div>
 
             <h3 className="mt-8 text-lg font-bold text-gray-700">
                 Gold sponsors
             </h3>
             <div className="mt-4 -mx-6 grid grid-cols-3 gap-0.5 overflow-hidden sm:mx-0 sm:rounded-2xl md:grid-cols-5">
-                <GoldSponsor src={jetbrainsLogo} alt="JetBrains - Maker of PhpStorm" href="https://www.jetbrains.com/?ref=bref.sh" imgClass="-my-4 max-h-16" />
-                <GoldSponsor src={laravelLogo} alt="Laravel" href="https://laravel.com/?ref=bref.sh" imgClass="-my-4 max-h-16" />
                 <GoldSponsor src={depotLogo} alt="Depot" href="https://depot.dev/?ref=bref.sh" imgClass="py-3" />
                 <GoldSponsor src={secumailerLogo} alt="SecuMailer" href="https://secumailer.com/?ref=bref.sh" imgClass="py-1.5" />
                 <GoldSponsor src={ecomailLogo} alt="Ecomail" href="https://ecomail.cz/?ref=bref.sh" imgClass="py-3" />
+                <GoldSponsor src={spreakerLogo} alt="Spreaker" href="https://www.spreaker.com/?ref=bref"/>
             </div>
 
             <p className="mt-8 text-gray-700">
