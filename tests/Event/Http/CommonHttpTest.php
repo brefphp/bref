@@ -520,6 +520,15 @@ Year,Make,Model
         $this->assertBasicAuthPassword('secret');
     }
 
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test colon in uri(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-colon-in-uri.json");
+        $this->assertPath('/tags/john:81');
+    }
+
     abstract protected function fromFixture(string $file): void;
 
     abstract protected function assertBody(string $expected): void;
