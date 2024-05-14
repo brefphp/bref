@@ -54,7 +54,7 @@ class Main
                 $exitCode = $process->getExitCode();
 
                 if ($exitCode > 0) {
-                    throw new Exception('The command exited with a non-zero status code: ' . $exitCode);
+                    throw new CommandFailed($process->getOutput());
                 }
 
                 return [
