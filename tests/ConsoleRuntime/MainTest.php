@@ -34,7 +34,7 @@ class MainTest extends RuntimeTestCase
 
         try {
             Main::run();
-        } catch (Exception) {
+        } catch (\Throwable) {
             // Needed because `run()` is an infinite loop and will fail eventually
         }
 
@@ -50,7 +50,7 @@ class MainTest extends RuntimeTestCase
 
         try {
             Main::run();
-        } catch (Exception) {
+        } catch (\Throwable) {
             // Needed because `run()` is an infinite loop and will fail eventually
         }
 

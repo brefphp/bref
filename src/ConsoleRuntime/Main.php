@@ -6,7 +6,6 @@ use Bref\Bref;
 use Bref\Context\Context;
 use Bref\LazySecretsLoader;
 use Bref\Runtime\LambdaRuntime;
-use Exception;
 use Symfony\Component\Process\Process;
 
 /**
