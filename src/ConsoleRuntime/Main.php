@@ -44,7 +44,7 @@ class Main
                 }
 
                 $timeout = max(1, $context->getRemainingTimeInMillis() / 1000 - 1);
-                $command = sprintf('/opt/bin/php %s %s 2>&1', $handlerFile, $cliOptions);
+                $command = sprintf('php %s %s 2>&1', $handlerFile, $cliOptions);
                 $process = Process::fromShellCommandline($command, null, null, null, $timeout);
 
                 $process->run(function ($type, $buffer): void {
