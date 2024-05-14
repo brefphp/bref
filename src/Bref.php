@@ -104,5 +104,10 @@ class Bref
     {
         self::$containerProvider = null;
         self::$container = null;
+        self::$hooks = [
+            'beforeStartup' => [],
+            'beforeInvoke' => [],
+        ];
+        self::$eventDispatcher = new EventDispatcher;
     }
 }
