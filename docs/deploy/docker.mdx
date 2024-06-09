@@ -52,6 +52,14 @@ Bref offers the following base images:
 - `bref/php-xx-console:2`: to run PHP CLI commands
 - `bref/php-xx:2`: to run [PHP functions](../runtimes/function.mdx)
 
+<Callout type="warning">
+    The `CMD` instruction in `Dockerfile` must contain a valid JSON array. This is why you must escape any `\` character. This is important for PHP class names, for example when using Laravel Octane:
+
+    ```dockerfile filename="Dockerfile"
+    CMD ["Bref\\LaravelBridge\\Http\\OctaneHandler"]
+    ```
+</Callout>
+
 ### Extra PHP extensions
 
 You can enable additional PHP extensions by pulling them from [Bref Extra Extensions](https://github.com/brefphp/extra-php-extensions):
