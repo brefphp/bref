@@ -52,13 +52,21 @@ class Main
 
                 $exitCode = $process->getExitCode();
 
+                $output = $process->getOutput();
+                // Trim the output to stay under the 6MB limit for AWS Lambda
+                // We only keep 5MB because at this point the difference won't be important
+                // and we'll serialize the output to JSON which will add some overhead
+                $output = substr($output, max(0, strlen($output) - 5 * 1024 * 1024));
+
                 if ($exitCode > 0) {
-                    throw new CommandFailed($process->getOutput());
+                    // This needs to be thrown so that AWS Lambda knows the invocation failed
+                    // (e.g. important for error rates in CloudWatch)
+                    throw new CommandFailed($output);
                 }
 
                 return [
                     'exitCode' => $exitCode, // will always be 0
-                    'output' => $process->getOutput(),
+                    'output' => $output,
                 ];
             });
         }
