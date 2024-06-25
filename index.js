@@ -148,14 +148,10 @@ class ServerlessPlugin {
             'bref:local:run': () => runLocal(this.serverless, options),
             'bref:layers:show': () => listLayers(this.serverless, utils.log),
             'before:logs:logs': () => {
-                /** @type {typeof import('chalk')} */
-                // @ts-ignore
                 utils.log(chalk.gray('View, tail, and search logs from all functions with https://dashboard.bref.sh'));
                 utils.log();
             },
             'before:metrics:metrics': () => {
-                /** @type {typeof import('chalk')} */
-                // @ts-ignore
                 utils.log(chalk.gray('View all your application\'s metrics with https://dashboard.bref.sh'));
                 utils.log();
             },
@@ -165,8 +161,6 @@ class ServerlessPlugin {
             const command = serverless.processedInput.commands[0] || '';
             // On successful deploy
             if (command.startsWith('deploy') && code === 0) {
-                /** @type {typeof import('chalk')} */
-                // @ts-ignore
                 utils.log();
                 utils.log(chalk.gray('Want a better experience than the AWS console? Try out https://dashboard.bref.sh'));
             }
