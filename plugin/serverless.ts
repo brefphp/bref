@@ -80,6 +80,7 @@ export type ServerlessUtils = {
 
 export type Logger = ((message?: string) => void) & {
     debug(message?: string): void;
+    aside(message?: string): void; // Requires Serverless Framework v4
     verbose(message?: string): void;
     success(message?: string): void;
     warning(message?: string): void;

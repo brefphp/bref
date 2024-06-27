@@ -6,7 +6,6 @@ const {runLocal} = require('./plugin/local');
 const {warnIfUsingSecretsWithoutTheBrefDependency} = require('./plugin/secrets');
 const fs = require('fs');
 const path = require('path');
-const chalk = require('chalk');
 
 // Disable `sls` promoting the Serverless Console because it's not compatible with PHP, it's tripping users up
 if (!process.env.SLS_NOTIFICATIONS_MODE) {
@@ -148,11 +147,11 @@ class ServerlessPlugin {
             'bref:local:run': () => runLocal(this.serverless, options),
             'bref:layers:show': () => listLayers(this.serverless, utils.log),
             'before:logs:logs': () => {
-                utils.log(chalk.gray('View, tail, and search logs from all functions with https://dashboard.bref.sh'));
+                (utils.log.aside ?? utils.log)('View, tail, and search logs from all functions with https://dashboard.bref.sh');
                 utils.log();
             },
             'before:metrics:metrics': () => {
-                utils.log(chalk.gray('View all your application\'s metrics with https://dashboard.bref.sh'));
+                (utils.log.aside ?? utils.log)('View all your application\'s metrics with https://dashboard.bref.sh');
                 utils.log();
             },
         };
@@ -162,7 +161,7 @@ class ServerlessPlugin {
             // On successful deploy
             if (command.startsWith('deploy') && code === 0) {
                 utils.log();
-                utils.log(chalk.gray('Want a better experience than the AWS console? Try out https://dashboard.bref.sh'));
+                (utils.log.aside ?? utils.log)('Want a better experience than the AWS console? Try out https://dashboard.bref.sh');
             }
         });
     }

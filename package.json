@@ -16,7 +16,6 @@
         "prettier": "^2.8.8"
     },
     "dependencies": {
-        "@headlessui/react": "^1.7.17",
-        "chalk": "^4.1.2"
+        "@headlessui/react": "^1.7.17"
     }
 }
