@@ -360,6 +360,24 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
     /**
      * @dataProvider provide API Gateway versions
      */
+    public function test POST request with malformed multipart form data(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart-arrays-malformed.json");
+
+        $this->assertContentType('multipart/form-data; boundary=testBoundary');
+        $body = "--testBoundary\r
+Content-Disposition: form-data; name=\"key0[key1][key2][\"\r
+\r
+123\r
+--testBoundary--\r
+";
+        $this->assertBody($body);
+        $this->assertParsedBody(['key0' => ['key1' => ['key2' => '123']]]);
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
     public function test POST request with multipart file uploads(int $version)
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart-files.json");
@@ -383,7 +401,7 @@ Year,Make,Model
 --testBoundary--\r
 ";
         $this->assertBody($body);
-        $this->assertParsedBody([]);
+        $this->assertParsedBody(null);
         $this->assertUploadedFile(
             'foo',
             'lorem.txt',
@@ -414,6 +432,17 @@ Year,Make,Model
             'four' => 'two + 2',
             'theme' => 'light',
         ]);
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test request with invalid cookies(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-cookies-invalid.json");
+
+        // See https://stackoverflow.com/a/61695783/245552
+        $this->assertCookies([], 'foo');
     }
 
     /**
@@ -497,7 +526,7 @@ Year,Make,Model
 
     abstract protected function assertContentType(?string $expected): void;
 
-    abstract protected function assertCookies(array $expected): void;
+    abstract protected function assertCookies(array $expected, string |null $expectedHeader = null): void;
 
     abstract protected function assertHeaders(array $expected): void;
 
@@ -525,7 +554,7 @@ Year,Make,Model
 
     abstract protected function assertHasMultiHeader(bool $expected): void;
 
-    abstract protected function assertParsedBody(array $expected): void;
+    abstract protected function assertParsedBody(array | null $expected): void;
 
     abstract protected function assertSourceIp(string $expected): void;
 

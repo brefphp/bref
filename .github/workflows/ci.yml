@@ -31,7 +31,7 @@ jobs:
                     node-version: 18
             # serverless is required by some tests
             -   name: Install serverless
-                run: npm i -g serverless
+                run: npm i -g serverless@3
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:

@@ -37,5 +37,9 @@
     "href": "https://serverless-visually-explained.com/?ref=bref-menu"
   },
   "community": "",
-  "case-studies": ""
+  "case-studies": "",
+  "sentry": {
+    "title": "Sentry integration",
+    "href": "/sentry"
+  }
 }

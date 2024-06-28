@@ -10,6 +10,7 @@ use CurlHandle;
 use Exception;
 use JsonException;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -81,7 +82,11 @@ final class LambdaRuntime
     {
         [$event, $context] = $this->waitNextInvocation();
 
+        // Expose the context in an environment variable
+        $this->setEnv('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
+
         Bref::triggerHooks('beforeInvoke');
+        Bref::events()->beforeInvoke($handler, $event, $context);
 
         $this->ping();
 
@@ -89,8 +94,12 @@ final class LambdaRuntime
             $result = $this->invoker->invoke($handler, $event, $context);
 
             $this->sendResponse($context->getAwsRequestId(), $result);
+
+            Bref::events()->afterInvoke($handler, $event, $context, $result);
         } catch (Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
+
+            Bref::events()->afterInvoke($handler, $event, $context, null, $e);
 
             return false;
         }
@@ -426,5 +435,13 @@ final class LambdaRuntime
         // or execution time.
         socket_sendto($sock, $message, strlen($message), 0, '3.219.198.164', 8125);
         socket_close($sock);
+    }
+
+    private function setEnv(string $name, string $value): void
+    {
+        $_SERVER[$name] = $_ENV[$name] = $value;
+        if (! putenv("$name=$value")) {
+            throw new RuntimeException("Failed to set environment variable $name");
+        }
     }
 }

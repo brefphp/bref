@@ -60,6 +60,8 @@ aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type S
 
 It is recommended to prefix the parameter name with your application name, for example: `/my-app/my-parameter`.
 
+SSM also allows to store a SecureString parameter, which is encrypted with AWS KMS. To use a SecureString, simply change the `--type` argument to `--type SecureString`. Bref takes care of decrypting the value.
+
 ### Retrieving secrets
 
 You can inject a secret in an environment variable:

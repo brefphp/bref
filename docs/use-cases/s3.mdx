@@ -40,6 +40,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
             # ...
             resizeImage:
                 handler: App\MyHandler
+                runtime: php-82
                 events:
                     - s3: photos
         ```
@@ -52,6 +53,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
             # ...
             resizeImage:
                 handler: App\MyHandler
+                runtime: php-82
                 events:
                     - s3: photos
         ```
@@ -64,6 +66,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
             # ...
             resizeImage:
                 handler: handler.php
+                runtime: php-82
                 events:
                     - s3: photos
         ```
@@ -81,6 +84,26 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
 </Tabs>
 
 The S3 bucket will automatically be created on deployment. You can listen to an existing S3 bucket via [the `existing: true` option](https://www.serverless.com/framework/docs/providers/aws/events/s3/#using-existing-buckets).
+Or you can use the [`Storage` feature of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/storage.md). For example:
+
+```yml filename="serverless.yml"
+constructs:
+    reports-bucket:
+        type: storage
+
+functions:
+    resizeImage:
+        handler: handler.php
+        runtime: php-82
+        events:
+            - s3:
+                bucket: ${construct:reports-bucket.bucketName}
+                existing: true
+                event: s3:ObjectCreated:*
+# ...
+
+
+```
 
 Learn more about all the options available for S3 in `serverless.yml` [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/s3/).
 

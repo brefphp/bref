@@ -38,8 +38,9 @@ Then, create a Lambda function that listens to EventBridge events with the handl
         ```yml filename="serverless.yml"
         functions:
             # ...
-            events:
+            resizeImage:
                 handler: App\MyHandler
+                runtime: php-83
                 events:
                     - eventBridge:
                         pattern:
@@ -55,6 +56,7 @@ Then, create a Lambda function that listens to EventBridge events with the handl
             # ...
             resizeImage:
                 handler: App\MyHandler
+                runtime: php-83
                 events:
                     - eventBridge:
                         pattern:
@@ -70,6 +72,7 @@ Then, create a Lambda function that listens to EventBridge events with the handl
             # ...
             resizeImage:
                 handler: handler.php
+                runtime: php-83
                 events:
                     - eventBridge:
                         pattern:

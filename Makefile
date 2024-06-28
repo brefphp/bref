@@ -16,4 +16,7 @@ layers.json:
 test-stack:
 	serverless deploy -c tests/serverless.tests.yml
 
+preview:
+	cd website && make preview
+
 .PHONY: demo layers.json test-stack

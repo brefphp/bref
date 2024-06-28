@@ -64,7 +64,17 @@ At the moment, we deployed our local codebase to Lambda. When deploying for prod
 - our local `.env` file,
 - or any other dev artifact.
 
-Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details.
+Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details about deploying in general.
+
+Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying. However, if you want to improve the cold start time you can pre-generate the config cache before deploying:
+
+```bash
+php artisan config:clear && php artisan config:cache
+```
+
+<Callout type="warning">
+    Laravel will hardcode absolute paths in the cached configuration. To deploy a valid cached configuration, you should run the commands above in Docker, with the application mounted in `/var/task` (the same path as on AWS Lambda).
+</Callout>
 
 ## Troubleshooting
 

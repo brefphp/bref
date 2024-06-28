@@ -16,6 +16,8 @@ class Psr15Handler extends HttpHandler
 
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
+        Psr7Bridge::cleanupUploadedFiles();
+
         $request = Psr7Bridge::convertRequest($event, $context);
 
         $response = $this->psr15Handler->handle($request);

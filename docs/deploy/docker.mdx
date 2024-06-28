@@ -32,7 +32,7 @@ Bref helps you deploy using Docker images by offering base images that work on A
 FROM bref/php-81-fpm:2
 
 # Copy the source code in the image
-COPY .. /var/task
+COPY . /var/task
 
 # Configure the handler file (the entrypoint that receives all HTTP requests)
 CMD ["public/index.php"]
@@ -51,6 +51,14 @@ Bref offers the following base images:
 - `bref/php-xx-fpm:2`: PHP-FPM to run HTTP applications
 - `bref/php-xx-console:2`: to run PHP CLI commands
 - `bref/php-xx:2`: to run [PHP functions](../runtimes/function.mdx)
+
+<Callout type="warning">
+    The `CMD` instruction in `Dockerfile` must contain a valid JSON array. This is why you must escape any `\` character. This is important for PHP class names, for example when using Laravel Octane:
+
+    ```dockerfile filename="Dockerfile"
+    CMD ["Bref\\LaravelBridge\\Http\\OctaneHandler"]
+    ```
+</Callout>
 
 ### Extra PHP extensions
 

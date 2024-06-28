@@ -20,13 +20,15 @@ To use Bref, you will need an AWS account and the `serverless` CLI. Let's get st
 
     ### Serverless CLI
 
-    Bref relies on the [Serverless framework](https://serverless.com/) and AWS access keys to deploy applications. You will need to install the `serverless` CLI ([more details here](https://serverless.com/framework/docs/providers/aws/guide/quick-start/)):
+    Bref relies on the [Serverless framework](https://serverless.com/) and AWS access keys to deploy applications. You will need to install the `serverless` CLI using NPM:
 
     ```bash
-    npm install -g serverless
+    npm install -g serverless@3
     ```
 
-    Bref is compatible with Serverless Framework v3 (current version).
+    Bref is compatible with Serverless Framework v3 and v4. However the Bref documentation is written for v3 as v4 switches to a proprietary license.
+
+    If you don't want to install `serverless` via NPM, you can install it as a standalone binary [by following this documentation](https://github.com/serverless/serverless/blob/v3/docs/install-standalone.md).
 
     ### AWS credentials
 

@@ -24,4 +24,4 @@ provider:
 
 This will make API Gateway support binary file uploads and downloads, and Bref will automatically encode responses to base64 (which is what API Gateway expects for binary responses).
 
-Be aware that the max upload and download size is **6MB**. For larger files, use AWS S3. An example is available in [Serverless Visually Explained](https://serverless-visually-explained.com/).
+Be aware that the max upload and download size is **6MB** and because [base64 encoding adds a ~33% overhead](https://en.wikipedia.org/wiki/Base64) to the response, downloads are limited to ~4.5MB in size. For larger files, use AWS S3. An example is available in [Serverless Visually Explained](https://serverless-visually-explained.com/).

@@ -176,6 +176,32 @@ provider:
 
 If you only want to define some permissions **per function**, instead of globally (ie: in the provider), you should install and enable the Serverless plugin [`serverless-iam-roles-per-function`](https://github.com/functionalone/serverless-iam-roles-per-function) and then use the `iamRoleStatements` at the function definition block.
 
+## Stage parameters
+
+Stage parameters are a great way to define values that change depending on the stage (dev, prod, staging…).
+
+```yaml
+params:
+    # Default parameters that apply to all stages
+    default:
+        # Here we use the special `sls:stage` variable
+        # to define a domain that changes depending on the stage
+        domain: ${sls:stage}.preview.myapp.com
+    # Parameters that apply to the prod stage
+    prod:
+        domain: myapp.com
+    # Parameters that apply to the dev stage
+    dev:
+        domain: preview.myapp.com
+
+# Parameters can be used via the ${param:XXX} variables:
+provider:
+    environment:
+        APP_DOMAIN: ${param:domain}
+```
+
+Read the full [Serverless documentation about stage parameters](https://github.com/serverless/serverless/blob/v3/docs/guides/dashboard/parameters.md#stage-parameters).
+
 ## Resources
 
 ```yaml

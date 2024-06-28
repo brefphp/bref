@@ -53,3 +53,31 @@ The `handler` is the entrypoint of the application, usually `public/index.php` i
 That works well with frameworks like Symfony or Laravel that have a single entrypoint (e.g. `public/index.php`).
 
 Read the [PHP-FPM runtime documentation](../runtimes/fpm-runtime.mdx) to learn more.
+
+### Differences with Apache and Nginx on a server
+
+While Bref tries to make the experience as close as possible to running on a traditional server, there are some minor differences.
+
+This section lists the differences between running on AWS Lambda and running on a traditional server with Apache or Nginx.
+
+#### No `.htaccess` or `nginx.conf`
+
+There is no `.htaccess` or `nginx.conf` on AWS Lambda. Instead, you can use `serverless.yml` to configure the routing.
+
+#### No `fastcgi_finish_request()`
+
+[`fastcgi_finish_request()`](https://www.php.net/manual/en/function.fastcgi-finish-request.php) is disabled by Bref, as it is not possible to run code after the response has been sent to the client. All frameworks are designed to work without it transparently, so you don't need to do anything.
+
+#### Differences in URI query parameters
+
+In a few edge cases, Bref parses some URI query parameters differently than PHP on a server with PHP-FPM. This is intentional, as this fixes very surprising behaviors from PHP. Here is an exhaustive list of differences:
+
+- `?a.b=c` is parsed as:
+    - `['a_b' => 'c']` on a server with PHP-FPM (yes, the dot is replaced by an underscore)
+    - `['a.b' => 'c']` with Bref
+- `?a=1&a=2&a=3` is parsed as:
+    - `['a' => 3]` on a server with PHP-FPM
+    - `['a' => [1, 2, 3]]` with Bref
+- `?a=1&a=2&a[]=3&a[]=4` is parsed as:
+    - `['a' => [3, 4]]` on a server with PHP-FPM
+    - `['a' => [1, 2, 3, 4]` with Bref

@@ -48,7 +48,7 @@ class Psr7BridgeTest extends CommonHttpTest
         $this->assertEquals($expected, $this->request->getHeaderLine('Content-Type'));
     }
 
-    protected function assertCookies(array $expected): void
+    protected function assertCookies(array $expected, string |null $expectedHeader = null): void
     {
         $this->assertEquals($expected, $this->request->getCookieParams());
     }
@@ -123,7 +123,7 @@ class Psr7BridgeTest extends CommonHttpTest
         // Not applicable here
     }
 
-    protected function assertParsedBody(array $expected): void
+    protected function assertParsedBody(array | null $expected): void
     {
         $this->assertEquals($expected, $this->request->getParsedBody());
     }

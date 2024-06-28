@@ -143,6 +143,12 @@ In your PHP code, you can now use the `markAsFailed` method:
     }
 ```
 
+## SQS polling and AWS costs
+
+AWS Lambda maintains a continuous "poller" for SQS that invokes our function when messages are available. This process, while eliminating the need for manual polling, still creates SQS requests, which can incur charges. A single SQS queue with Lambda will be free since it fits in the AWS free tier. However, if you plan on deploying a lot of SQS queues, you should be aware of potential costs (about $0.26/month per queue).
+
+If you want to reduce the number of SQS requests (and thus potential costs), you can use [the `MaximumBatchingWindowInSeconds` option](https://github.com/getlift/lift/blob/master/docs/queue.md#maximum-batching-window). This setting delays message delivery to the Lambda function when batching, aiming to assemble the largest possible batch within the specified timeframe, counted as a single SQS API request. Note that this technique introduce a delay in message processing, so be aware of the trade-off.
+
 ## Learn more
 
 Learn more about all the options available for SQS events in `serverless.yml` [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/sqs/).

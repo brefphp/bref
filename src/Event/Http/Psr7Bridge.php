@@ -18,6 +18,8 @@ use function str_starts_with;
  */
 final class Psr7Bridge
 {
+    private const UPLOADED_FILES_PREFIX = 'bref_upload_';
+
     /**
      * Create a PSR-7 server request from an AWS Lambda HTTP event.
      */
@@ -91,34 +93,43 @@ final class Psr7Bridge
         return new HttpResponse($body, $response->getHeaders(), $response->getStatusCode());
     }
 
+    /**
+     * @return array{0: array<string, UploadedFile>, 1: array<string, mixed>|null}
+     */
     private static function parseBodyAndUploadedFiles(HttpRequestEvent $event): array
     {
-        $bodyString = $event->getBody();
-        $files = [];
-        $parsedBody = null;
         $contentType = $event->getContentType();
-        if ($contentType !== null && $event->getMethod() === 'POST') {
-            if (str_starts_with($contentType, 'application/x-www-form-urlencoded')) {
-                parse_str($bodyString, $parsedBody);
-            } else {
-                $document = new Part("Content-type: $contentType\r\n\r\n" . $bodyString);
-                if ($document->isMultiPart()) {
-                    $parsedBody = [];
-                    foreach ($document->getParts() as $part) {
-                        if ($part->isFile()) {
-                            $tmpPath = tempnam(sys_get_temp_dir(), 'bref_upload_');
-                            if ($tmpPath === false) {
-                                throw new RuntimeException('Unable to create a temporary directory');
-                            }
-                            file_put_contents($tmpPath, $part->getBody());
-                            $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
+        if ($contentType === null || $event->getMethod() !== 'POST') {
+            return [[], null];
+        }
 
-                            self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
-                        } else {
-                            self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
-                        }
-                    }
+        if (str_starts_with($contentType, 'application/x-www-form-urlencoded')) {
+            $parsedBody = [];
+            parse_str($event->getBody(), $parsedBody);
+            return [[], $parsedBody];
+        }
+
+        // Parse the body as multipart/form-data
+        $document = new Part("Content-type: $contentType\r\n\r\n" . $event->getBody());
+        if (! $document->isMultiPart()) {
+            return [[], null];
+        }
+        $parsedBody = null;
+        $files = [];
+        foreach ($document->getParts() as $part) {
+            if ($part->isFile()) {
+                $tmpPath = tempnam(sys_get_temp_dir(), self::UPLOADED_FILES_PREFIX);
+                if ($tmpPath === false) {
+                    throw new RuntimeException('Unable to create a temporary directory');
                 }
+                file_put_contents($tmpPath, $part->getBody());
+                $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
+                self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
+            } else {
+                if ($parsedBody === null) {
+                    $parsedBody = [];
+                }
+                self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
             }
         }
         return [$files, $parsedBody];
@@ -129,41 +140,31 @@ final class Psr7Bridge
      */
     private static function parseKeyAndInsertValueInArray(array &$array, string $key, mixed $value): void
     {
-        if (! str_contains($key, '[')) {
-            $array[$key] = $value;
+        $parsed = [];
+        // We use parse_str to parse the key in the same way PHP does natively
+        // We use "=mock" because the value can be an object (in case of uploaded files)
+        parse_str(urlencode($key) . '=mock', $parsed);
+        // Replace `mock` with the actual value
+        array_walk_recursive($parsed, fn (&$v) => $v = $value);
+        // Merge recursively into the main array to avoid overwriting existing values
+        $array = array_merge_recursive($array, $parsed);
+    }
 
-            return;
-        }
+    /**
+     * Cleanup previously uploaded files.
+     */
+    public static function cleanupUploadedFiles(): void
+    {
+        // See https://github.com/brefphp/bref/commit/c77d9f5abf021f29fa96b5720b7b84adbd199092#r137983026
+        $tmpFiles = glob(sys_get_temp_dir() . '/' . self::UPLOADED_FILES_PREFIX . '[A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9][A-Za-z0-9]');
 
-        $parts = explode('[', $key); // files[id_cards][jpg][] => [ 'files',  'id_cards]', 'jpg]', ']' ]
-        $pointer = &$array;
-
-        foreach ($parts as $k => $part) {
-            if ($k === 0) {
-                $pointer = &$pointer[$part];
-
-                continue;
-            }
-
-            // Skip two special cases:
-            // [[ in the key produces empty string
-            // [test : starts with [ but does not end with ]
-            if ($part === '' || ! str_ends_with($part, ']')) {
-                // Malformed key, we use it "as is"
-                $array[$key] = $value;
-
-                return;
-            }
-
-            $part = substr($part, 0, -1); // The last char is a ] => remove it to have the real key
-
-            if ($part === '') { // [] case
-                $pointer = &$pointer[];
-            } else {
-                $pointer = &$pointer[$part];
+        if ($tmpFiles !== false) {
+            foreach ($tmpFiles as $file) {
+                if (is_file($file)) {
+                    // Silence warnings, we don't want to crash the whole runtime
+                    @unlink($file);
+                }
             }
         }
-
-        $pointer = $value;
     }
 }
