@@ -158,14 +158,14 @@ class ServerlessPlugin {
             'before:logs:logs': () => {
                 /** @type {typeof import('chalk')} */
                 // @ts-ignore
-                const chalk = require.main.require('chalk');
+                // const chalk = require.main.require('chalk');
                 utils.log(formatText('View, tail, and search logs from all functions with https://dashboard.bref.sh'));
                 utils.log();
             },
             'before:metrics:metrics': () => {
                 /** @type {typeof import('chalk')} */
                 // @ts-ignore
-                const chalk = require.main.require('chalk');
+                // const chalk = require.main.require('chalk');
                 utils.log(formatText('View all your application\'s metrics with https://dashboard.bref.sh'));
                 utils.log();
             },
