@@ -7,15 +7,6 @@ const {warnIfUsingSecretsWithoutTheBrefDependency} = require('./plugin/secrets')
 const fs = require('fs');
 const path = require('path');
 
-function formatText(text) {
-  const grayText = "\x1b[37m"; // Gray text
-  const grayBackground = "\x1b[100m"; // Gray background
-  const reset = "\x1b[0m"; // Reset formatting
-
-  // Combine ANSI escape codes with the text
-  return `${grayBackground}${grayText}${text}${reset}`;
-}
-
 // Disable `sls` promoting the Serverless Console because it's not compatible with PHP, it's tripping users up
 if (!process.env.SLS_NOTIFICATIONS_MODE) {
     process.env.SLS_NOTIFICATIONS_MODE = 'upgrades-only';
@@ -156,17 +147,11 @@ class ServerlessPlugin {
             'bref:local:run': () => runLocal(this.serverless, options),
             'bref:layers:show': () => listLayers(this.serverless, utils.log),
             'before:logs:logs': () => {
-                /** @type {typeof import('chalk')} */
-                // @ts-ignore
-                // const chalk = require.main.require('chalk');
-                utils.log(formatText('View, tail, and search logs from all functions with https://dashboard.bref.sh'));
+                utils.log(this.gray('View, tail, and search logs from all functions with https://dashboard.bref.sh'));
                 utils.log();
             },
             'before:metrics:metrics': () => {
-                /** @type {typeof import('chalk')} */
-                // @ts-ignore
-                // const chalk = require.main.require('chalk');
-                utils.log(formatText('View all your application\'s metrics with https://dashboard.bref.sh'));
+                utils.log(this.gray('View all your application\'s metrics with https://dashboard.bref.sh'));
                 utils.log();
             },
         };
@@ -175,11 +160,8 @@ class ServerlessPlugin {
             const command = serverless.processedInput.commands[0] || '';
             // On successful deploy
             if (command.startsWith('deploy') && code === 0) {
-                /** @type {typeof import('chalk')} */
-                // @ts-ignore
-                 // const chalk = require.main.require('chalk');  // This will aslways throw an error as chalk is not available here. if we cannot load chalk into the required context
                 utils.log();
-                utils.log( formatText('Want a better experience than the AWS console? Try out https://dashboard.bref.sh'));
+                utils.log(this.gray('Want a better experience than the AWS console? Try out https://dashboard.bref.sh'));
             }
         });
     }
@@ -386,6 +368,16 @@ class ServerlessPlugin {
                 // These errors should not stop the execution
             }
         });
+    }
+
+    /**
+     * @param {string} text
+     * @returns {string}
+     */
+    gray(text) {
+        const grayText = "\x1b[90m";
+        const reset = "\x1b[0m";
+        return `${grayText}${text}${reset}`;
     }
 }
 
