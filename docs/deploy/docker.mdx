@@ -1,6 +1,6 @@
 import { Callout } from 'nextra/components';
 
-# Deploying Docker images
+# Deploying container images
 
 <Callout type="warning">
     Are you starting with Bref? Deploy **without Docker first**. It's easier and faster. You can always switch to Docker later.
@@ -10,9 +10,9 @@ import { Callout } from 'nextra/components';
 
 By default, Bref deploys to AWS Lambda using zip archives, which Lambda will run in an Amazon Linux environment. This is how AWS Lambda works out of the box, and it works great.
 
-However, AWS Lambda also supports **deploying and running Docker container images**.
+However, AWS Lambda also supports **deploying and running container images** (aka Docker images).
 
-We recommend Docker **as a last resort**, as it is less practical and usually comes with slightly worse cold starts. Yes, Docker is great and probably sounds familiar, but is often not worth it on Lambda.
+We don't recommend starting out with containers, as it is less practical and requires some knowledge of Docker. Yes, Docker is great and probably sounds familiar, but is often not worth it on Lambda.
 
 You should consider deploying using Docker when:
 
