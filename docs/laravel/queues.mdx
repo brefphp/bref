@@ -62,9 +62,11 @@ That's it! Anytime a job is pushed to Laravel Queues, it will be sent to SQS, an
 <Callout>
     In the example above, we used the default queue connection with the name `sqs`.
 
-    If you need to set up a custom queue connection, you must set the `AWS_SESSION_TOKEN` in the connection configuration as follows:
+    It is best practice to remove the `key` and `secret` keys from the queue.php configuration file.
 
-    `Config::set('queue.connections.<connection-name>.token', env('AWS_SESSION_TOKEN'));`
+    If you need to keep these keys (for example, due to requirements of your local environment), you should also add `'token' => env('AWS_SESSION_TOKEN')`.
+
+    Managing the connection's configuration is your responsibility; however, if the `key` and `secret` keys are provided (even with null values), the token key must also be set.
 </Callout>
 
 ## How it works
