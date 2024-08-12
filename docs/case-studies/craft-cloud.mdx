@@ -48,13 +48,13 @@ It is implemented as a Laravel application and runs on AWS Lambda using Bref and
 
 Each Craft Cloud project is deployed to AWS Lambda via a container image. The API builds these custom container images, one image for each project. That allows each project to run with a specific PHP version, environment variables, PHP extensions, etc.
 
-The Craft Cloud API builds the Lambda container images using [Dagger](https://dagger.io), a Go-based Dockerfile alternative, and a custom Go application that orchestrates and inspects the builds. These builds run on ECS (Fargate), as AWS Lambda cannot build Container images directly.
+The Craft Cloud API builds the Lambda container images using [Dagger](https://dagger.io) (Dagger is like writing Dockerfiles using Go), and a custom Go application that orchestrates and inspects the builds. These builds run on ECS (Fargate), as AWS Lambda cannot build Container images directly.
 
 ## Craft Cloud environments
 
 Craft Cloud environments are the key part of the infrastructure: they run Craft CMS customer projects. These run serverless with Bref on AWS Lambda, using the container images built by the Craft Cloud API.
 
-In each environment, Craft CMS customer projects have automatic access to a MySQL or PostgreSQL database, S3 for storing files, a job queue preconfigured with SQS, cron tasks, and logs storage in CloudWatch. Customers can also choose the AWS regions in which their application will run.
+In each environment, Craft CMS customer projects have automatic access to a MySQL or PostgreSQL database, S3 for storing files, a job queue preconfigured with SQS, commands, and logs storage in CloudWatch. Customers can also choose the AWS regions in which their application will run.
 
 ![](./craft-cloud/environments.svg)
 
@@ -112,7 +112,7 @@ It also provides helpers to reference assets served via the CDN, detect whether 
 
 By building on top of cloud primitives, like AWS Lambda, SQS, S3, and Cloudflare workers, the Craft team is able to build a PaaS that is secure and scalable while keeping the maintenance effort manageable.
 
-With this architecture, Craft Cloud has served over **280 million HTTP requests and 5TB of data** in the last 30 days.
+With this architecture, Craft Cloud has served over **310 million HTTP requests and 6TB of data** in the last 30 days.
 
 Having been able to help the Craft team adopt Bref and AWS Lambda over the last few years, I am personally very excited to see the project go live, and I want to congratulate them for the launch! Running PHP online deserves to be simpler, and Craft is making it happen!
 
