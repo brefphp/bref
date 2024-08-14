@@ -215,7 +215,8 @@ final class FpmHandler extends HttpHandler
 
             // If the process has crashed we can stop immediately
             if (! $this->isFpmRunning()) {
-                throw new Exception('PHP-FPM failed to start: ' . PHP_EOL . $this->fpm->getOutput() . PHP_EOL . $this->fpm->getErrorOutput());
+                // The output of FPM is in the stderr of the Lambda process
+                throw new Exception('PHP-FPM failed to start');
             }
         }
     }
