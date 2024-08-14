@@ -369,7 +369,7 @@ ERROR;
     public function test exceptions in beforeInvoke result in an invocation error()
     {
         Bref::events()->subscribe(new class extends BrefEventSubscriber {
-            public function beforeInvoke(...$params): void
+            public function beforeInvoke(mixed ...$params): void
             {
                 throw new Exception('This is an exception in beforeInvoke');
             }
@@ -377,7 +377,7 @@ ERROR;
 
         $this->givenAnEvent([]);
 
-        $output = $this->runtime->processNextEvent(fn() => []);
+        $output = $this->runtime->processNextEvent(fn () => []);
 
         $this->assertFalse($output);
         $this->assertInvocationErrorResult('Exception', 'This is an exception in beforeInvoke');
@@ -391,14 +391,14 @@ ERROR;
     public function test a failure in afterInvoke after a success does not signal a failure()
     {
         Bref::events()->subscribe(new class extends BrefEventSubscriber {
-            public function afterInvoke(...$params): void
+            public function afterInvoke(mixed ...$params): void
             {
                 throw new Exception('This is an exception in afterInvoke');
             }
         });
 
         $this->givenAnEvent([]);
-        $output = $this->runtime->processNextEvent(fn() => []);
+        $output = $this->runtime->processNextEvent(fn () => []);
 
         $this->assertFalse($output);
         $this->assertErrorInLogs('Exception', 'This is an exception in afterInvoke');
@@ -415,14 +415,14 @@ ERROR;
     public function test a failure in afterInvoke after a failure does not crash the runtime()
     {
         Bref::events()->subscribe(new class extends BrefEventSubscriber {
-            public function afterInvoke(...$params): void
+            public function afterInvoke(mixed ...$params): void
             {
                 throw new Exception('This is an exception in afterInvoke');
             }
         });
 
         $this->givenAnEvent([]);
-        $output = $this->runtime->processNextEvent(fn() => throw new Exception('Invocation error'));
+        $output = $this->runtime->processNextEvent(fn () => throw new Exception('Invocation error'));
 
         $this->assertFalse($output);
         // The error response was already sent, it contains the handler error
