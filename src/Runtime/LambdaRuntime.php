@@ -85,21 +85,33 @@ final class LambdaRuntime
         // Expose the context in an environment variable
         $this->setEnv('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
 
-        Bref::triggerHooks('beforeInvoke');
-        Bref::events()->beforeInvoke($handler, $event, $context);
-
-        $this->ping();
-
         try {
+            Bref::triggerHooks('beforeInvoke');
+            Bref::events()->beforeInvoke($handler, $event, $context);
+
+            $this->ping();
+
             $result = $this->invoker->invoke($handler, $event, $context);
 
             $this->sendResponse($context->getAwsRequestId(), $result);
-
-            Bref::events()->afterInvoke($handler, $event, $context, $result);
         } catch (Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e);
 
-            Bref::events()->afterInvoke($handler, $event, $context, null, $e);
+            try {
+                Bref::events()->afterInvoke($handler, $event, $context, null, $e);
+            } catch (Throwable $e) {
+                $this->logError($e, $context->getAwsRequestId());
+            }
+
+            return false;
+        }
+
+        // Any error in the afterInvoke hook happens after the response has been sent,
+        // we can no longer mark the invocation as failed. Instead we log the error.
+        try {
+            Bref::events()->afterInvoke($handler, $event, $context, $result);
+        } catch (Throwable $e) {
+            $this->logError($e, $context->getAwsRequestId());
 
             return false;
         }
@@ -195,33 +207,7 @@ final class LambdaRuntime
      */
     private function signalFailure(string $invocationId, Throwable $error): void
     {
-        $stackTraceAsArray = explode(PHP_EOL, $error->getTraceAsString());
-        $errorFormatted = [
-            'errorType' => get_class($error),
-            'errorMessage' => $error->getMessage(),
-            'stack' => $stackTraceAsArray,
-        ];
-
-        if ($error->getPrevious() !== null) {
-            $previousError = $error;
-            $previousErrors = [];
-            do {
-                $previousError = $previousError->getPrevious();
-                $previousErrors[] = [
-                    'errorType' => get_class($previousError),
-                    'errorMessage' => $previousError->getMessage(),
-                    'stack' => explode(PHP_EOL, $previousError->getTraceAsString()),
-                ];
-            } while ($previousError->getPrevious() !== null);
-
-            $errorFormatted['previous'] = $previousErrors;
-        }
-
-        // Log the exception in CloudWatch
-        // We aim to use the same log format as what we can see when throwing an exception in the NodeJS runtime
-        // See https://github.com/brefphp/bref/pull/579
-        /** @noinspection JsonEncodingApiUsageInspection */
-        echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
+        $this->logError($error, $invocationId);
 
         /**
          * Send an "error" Lambda response (see https://github.com/brefphp/bref/pull/1483).
@@ -238,7 +224,7 @@ final class LambdaRuntime
             $this->postJson($url, [
                 'errorType' => get_class($error),
                 'errorMessage' => $error->getMessage(),
-                'stackTrace' => $stackTraceAsArray,
+                'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
             ]);
         }
     }
@@ -443,5 +429,39 @@ final class LambdaRuntime
         if (! putenv("$name=$value")) {
             throw new RuntimeException("Failed to set environment variable $name");
         }
+    }
+
+    /**
+     * Log the exception in CloudWatch
+     * We aim to use the same log format as what we can see when throwing an exception in the NodeJS runtime
+     *
+     * @see https://github.com/brefphp/bref/pull/579
+     */
+    private function logError(Throwable $error, string $invocationId): void
+    {
+        $stackTraceAsArray = explode(PHP_EOL, $error->getTraceAsString());
+        $errorFormatted = [
+            'errorType' => get_class($error),
+            'errorMessage' => $error->getMessage(),
+            'stack' => $stackTraceAsArray,
+        ];
+
+        if ($error->getPrevious() !== null) {
+            $previousError = $error;
+            $previousErrors = [];
+            do {
+                $previousError = $previousError->getPrevious();
+                $previousErrors[] = [
+                    'errorType' => get_class($previousError),
+                    'errorMessage' => $previousError->getMessage(),
+                    'stack' => explode(PHP_EOL, $previousError->getTraceAsString()),
+                ];
+            } while ($previousError->getPrevious() !== null);
+
+            $errorFormatted['previous'] = $previousErrors;
+        }
+
+        /** @noinspection JsonEncodingApiUsageInspection */
+        echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
     }
 }

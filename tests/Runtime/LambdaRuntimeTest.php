@@ -2,6 +2,7 @@
 
 namespace Bref\Test\Runtime;
 
+use Bref\Bref;
 use Bref\Context\Context;
 use Bref\Event\EventBridge\EventBridgeEvent;
 use Bref\Event\EventBridge\EventBridgeHandler;
@@ -13,6 +14,7 @@ use Bref\Event\Sns\SnsEvent;
 use Bref\Event\Sns\SnsHandler;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
+use Bref\Listener\BrefEventSubscriber;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Runtime\ResponseTooBig;
 use Bref\Test\RuntimeTestCase;
@@ -36,6 +38,8 @@ class LambdaRuntimeTest extends RuntimeTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Bref::reset();
 
         $this->runtime = new LambdaRuntime('localhost:8126', 'phpunit');
     }
@@ -360,5 +364,71 @@ ERROR;
         $this->runtime->processNextEvent($handler);
 
         $this->assertEquals(new EventBridgeEvent($eventData), $handler->event);
+    }
+
+    public function test exceptions in beforeInvoke result in an invocation error()
+    {
+        Bref::events()->subscribe(new class extends BrefEventSubscriber {
+            public function beforeInvoke(mixed ...$params): void
+            {
+                throw new Exception('This is an exception in beforeInvoke');
+            }
+        });
+
+        $this->givenAnEvent([]);
+
+        $output = $this->runtime->processNextEvent(fn () => []);
+
+        $this->assertFalse($output);
+        $this->assertInvocationErrorResult('Exception', 'This is an exception in beforeInvoke');
+        $this->assertErrorInLogs('Exception', 'This is an exception in beforeInvoke');
+    }
+
+    /**
+     * Once we reported to Lambda that the execution was successful, we should not report a failure.
+     * So any exception in `afterInvoke` should not be reported as a failure.
+     */
+    public function test a failure in afterInvoke after a success does not signal a failure()
+    {
+        Bref::events()->subscribe(new class extends BrefEventSubscriber {
+            public function afterInvoke(mixed ...$params): void
+            {
+                throw new Exception('This is an exception in afterInvoke');
+            }
+        });
+
+        $this->givenAnEvent([]);
+        $output = $this->runtime->processNextEvent(fn () => []);
+
+        $this->assertFalse($output);
+        $this->assertErrorInLogs('Exception', 'This is an exception in afterInvoke');
+        $requests = Server::received();
+        // Only the event request and the success response should be sent, no error should be sent
+        $this->assertCount(2, $requests);
+        [$eventRequest, $eventSuccessResponse] = $requests;
+        $this->assertSame('GET', $eventRequest->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
+        $this->assertSame('POST', $eventSuccessResponse->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventSuccessResponse->getUri()->__toString());
+    }
+
+    public function test a failure in afterInvoke after a failure does not crash the runtime()
+    {
+        Bref::events()->subscribe(new class extends BrefEventSubscriber {
+            public function afterInvoke(mixed ...$params): void
+            {
+                throw new Exception('This is an exception in afterInvoke');
+            }
+        });
+
+        $this->givenAnEvent([]);
+        $output = $this->runtime->processNextEvent(fn () => throw new Exception('Invocation error'));
+
+        $this->assertFalse($output);
+        // The error response was already sent, it contains the handler error
+        $this->assertInvocationErrorResult('Exception', 'Invocation error');
+        // The logs should contain both the handler error and the afterInvoke error
+        $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"Invocation error","stack":', $this->getActualOutput());
+        $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"This is an exception in afterInvoke","stack":', $this->getActualOutput());
     }
 }
