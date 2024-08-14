@@ -1255,8 +1255,8 @@ Year,Make,Model
             $this->fail('No exception was thrown');
         } catch (Timeout $e) {
             $this->markTestSkipped('We can no longer test this since proc_open skips output buffering, we cannot capture the logs');
-            $logs = ob_get_contents();
-            self::assertStringContainsString('This is a log message', $logs);
+//            $logs = ob_get_contents();
+//            self::assertStringContainsString('This is a log message', $logs);
         }
     }
 

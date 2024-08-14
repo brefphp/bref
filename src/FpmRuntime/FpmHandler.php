@@ -351,8 +351,10 @@ final class FpmHandler extends HttpHandler
             @posix_kill($pid, 15);
             do {
                 usleep(1000);
+                // @phpstan-ignore-next-line
             } while ($this->isFpmRunning() && microtime(true) < $timeoutMicro);
 
+            // @phpstan-ignore-next-line
             if ($this->isFpmRunning()) {
                 // SIGKILL
                 @posix_kill($pid, 9);
