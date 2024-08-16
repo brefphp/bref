@@ -15,7 +15,7 @@ use hollodotme\FastCGI\Exceptions\TimedoutException;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
-use Symfony\Component\Process\Process;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -47,7 +47,8 @@ final class FpmHandler extends HttpHandler
     private UnixDomainSocket $connection;
     private string $handler;
     private string $configFile;
-    private ?Process $fpm = null;
+    /** @var resource|null */
+    private $fpm;
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
@@ -76,13 +77,12 @@ final class FpmHandler extends HttpHandler
          * --nodaemonize: we want to keep control of the process
          * --force-stderr: force logs to be sent to stderr, which will allow us to send them to CloudWatch
          */
-        $this->fpm = new Process(['php-fpm', '--nodaemonize', '--force-stderr', '--fpm-config', $this->configFile]);
+        $resource = @proc_open(['php-fpm', '--nodaemonize', '--force-stderr', '--fpm-config', $this->configFile], [], $pipes);
 
-        $this->fpm->setTimeout(null);
-        $this->fpm->start(function ($type, $output): void {
-            // Send any PHP-FPM log to CloudWatch
-            echo $output;
-        });
+        if (! is_resource($resource)) {
+            throw new RuntimeException('PHP-FPM failed to start');
+        }
+        $this->fpm = $resource;
 
         $this->client = new Client;
         $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 900000);
@@ -95,12 +95,11 @@ final class FpmHandler extends HttpHandler
      */
     public function stop(): void
     {
-        if ($this->fpm && $this->fpm->isRunning()) {
+        if ($this->isFpmRunning()) {
             // Give it less than a second to stop (500ms should be plenty enough time)
             // this is for the case where the script timed out: we reserve 1 second before the end
             // of the Lambda timeout, so we must kill everything and restart FPM in 1 second.
-            // Note: Symfony will first try sending SIGTERM (15) and then SIGKILL (9)
-            $this->fpm->stop(0.5);
+            $this->stopFpm(0.5);
             if ($this->isReady()) {
                 throw new Exception('PHP-FPM cannot be stopped');
             }
@@ -192,7 +191,7 @@ final class FpmHandler extends HttpHandler
      */
     private function ensureStillRunning(): void
     {
-        if (! $this->fpm || ! $this->fpm->isRunning()) {
+        if (! $this->isFpmRunning()) {
             throw new Exception('PHP-FPM has stopped for an unknown reason');
         }
     }
@@ -215,8 +214,9 @@ final class FpmHandler extends HttpHandler
             }
 
             // If the process has crashed we can stop immediately
-            if (! $this->fpm->isRunning()) {
-                throw new Exception('PHP-FPM failed to start: ' . PHP_EOL . $this->fpm->getOutput() . PHP_EOL . $this->fpm->getErrorOutput());
+            if (! $this->isFpmRunning()) {
+                // The output of FPM is in the stderr of the Lambda process
+                throw new Exception('PHP-FPM failed to start');
             }
         }
     }
@@ -336,5 +336,38 @@ final class FpmHandler extends HttpHandler
     private function getResponseHeaders(ProvidesResponseData $response): array
     {
         return array_change_key_case($response->getHeaders(), CASE_LOWER);
+    }
+
+    public function stopFpm(float $timeout): void
+    {
+        if (! $this->fpm) {
+            return;
+        }
+
+        $timeoutMicro = microtime(true) + $timeout;
+        if ($this->isFpmRunning()) {
+            $pid = proc_get_status($this->fpm)['pid'];
+            // SIGTERM
+            @posix_kill($pid, 15);
+            do {
+                usleep(1000);
+                // @phpstan-ignore-next-line
+            } while ($this->isFpmRunning() && microtime(true) < $timeoutMicro);
+
+            // @phpstan-ignore-next-line
+            if ($this->isFpmRunning()) {
+                // SIGKILL
+                @posix_kill($pid, 9);
+                usleep(1000);
+            }
+        }
+
+        proc_close($this->fpm);
+        $this->fpm = null;
+    }
+
+    private function isFpmRunning(): bool
+    {
+        return $this->fpm && proc_get_status($this->fpm)['running'];
     }
 }

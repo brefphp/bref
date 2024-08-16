@@ -1254,8 +1254,9 @@ Year,Make,Model
             ], new Context('abc', time(), 'abc', 'abc'));
             $this->fail('No exception was thrown');
         } catch (Timeout $e) {
-            $logs = ob_get_contents();
-            self::assertStringContainsString('This is a log message', $logs);
+            $this->markTestSkipped('We can no longer test this since proc_open skips output buffering, we cannot capture the logs');
+//            $logs = ob_get_contents();
+//            self::assertStringContainsString('This is a log message', $logs);
         }
     }
 
@@ -1283,6 +1284,16 @@ Year,Make,Model
             'warmer' => true,
         ], $this->fakeContext);
         self::assertEquals(['Lambda is warm'], $result);
+    }
+
+    /**
+     * @see https://github.com/brefphp/bref/issues/1369
+     */
+    public function test large logs()
+    {
+        $response = $this->get('large-logs.php');
+
+        self::assertSame('Hello, world!', $response['body']);
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
