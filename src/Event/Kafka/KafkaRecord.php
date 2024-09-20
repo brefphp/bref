@@ -18,6 +18,11 @@ class KafkaRecord
         }
         $this->record = $record;
     }
+    
+    public function getKey(): string
+    {
+        return $this->record['key'];
+    }
 
     public function getTopic(): string
     {
