@@ -9,6 +9,7 @@
                 "offset":15,
                 "timestamp":1545084650987,
                 "timestampType":"CREATE_TIME",
+                "key": "SGVsbG8gV29ybGQ=",
                 "value":"SGVsbG8sIHRoaXMgaXMgYSB0ZXN0Lg==",
                 "headers":[
                     {
