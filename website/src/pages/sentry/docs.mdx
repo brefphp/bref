@@ -18,7 +18,7 @@ Check out the documentation below for screenshots and more details.
 
 ## Installation
 
-Before getting started, make sure you have set up Sentry in your application ([documentation for PHP](https://docs.sentry.io/platforms/php/), [for Laravel](https://docs.sentry.io/platforms/php/guides/laravel/) or [for Symfony](https://docs.sentry.io/platforms/php/symfony/)).
+Before getting started, make sure you have set up Sentry in your application ([documentation for PHP](https://docs.sentry.io/platforms/php/), [for Laravel](https://docs.sentry.io/platforms/php/guides/laravel/) or [for Symfony](https://docs.sentry.io/platforms/php/symfony/)). The Bref integration will add features on top of the Sentry SDK.
 
 When configuring Sentry, you can set the Sentry "DSN" in a `.env` file (if you framework supports it) or in an environment variable in `serverless.yml`.
 
@@ -80,6 +80,8 @@ return [
     Bref\Sentry\Symfony\BrefSentryBundle::class => ['all' => true],
 ];
 ```
+
+If you don't use Laravel or Symfony, the package provides a PSR-15 middleware you can add to your application. Add the `Bref\Sentry\Psr15\BrefSentryMiddleware` middleware to your middleware stack.
 
 ### Troubleshooting
 
