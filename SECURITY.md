@@ -5,12 +5,9 @@
 | Version | Supported          |
 | ------- | ------------------ |
 | 2.x     | :white_check_mark: |
-| 1.7.x   | :white_check_mark: |
-| < 1.7.x | :x:                |
+| 1.x     | :x:                |
 
-Version 1.7.x will only receive critical bug fixes and security fixes, as well PHP version upgrades for patch versions on a best-effort basis. It will not receive new features or support for new minor PHP versions (e.g. PHP 8.3). There is no hard timeline for dropping support for 1.7.x but it should be no sooner than July 2023.
-
-You are encouraged to upgrade to v2.
+Version 1.x is no longer supported. You should upgrade to v2.
 
 If you prefer to stay on v1 and need long term support for v1 (or need help upgrading), get in touch for enterprise support: https://bref.sh/support
 
