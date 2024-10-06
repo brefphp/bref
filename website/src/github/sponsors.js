@@ -22,7 +22,7 @@ const nonGitHubSponsors = [
         isOneTimePayment: false,
     },
     {
-        isActive: true,
+        isActive: false,
         sponsorEntity: {
             __typename: 'Organization',
             login: 'Tideways',
@@ -38,6 +38,16 @@ const nonGitHubSponsors = [
             login: 'MyBuilder',
             name: 'MyBuilder',
             websiteUrl: 'https://www.mybuilder.com/?ref=bref.sh',
+        },
+        isOneTimePayment: false,
+    },
+    {
+        isActive: true,
+        sponsorEntity: {
+            __typename: 'Organization',
+            login: 'Voxie',
+            name: 'Voxie',
+            websiteUrl: 'https://www.voxie.com/?ref=bref.sh',
         },
         isOneTimePayment: false,
     },
