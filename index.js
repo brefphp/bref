@@ -52,6 +52,9 @@ class ServerlessPlugin {
         this.checkCompatibleRuntime();
 
         serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(...this.runtimes);
+        serverless.configSchemaHandler.defineTopLevelProperty('bref', {
+            type: 'object',
+        });
 
         // Declare `${bref:xxx}` variables
         // See https://www.serverless.com/framework/docs/guides/plugins/custom-variables
