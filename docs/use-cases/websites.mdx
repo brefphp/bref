@@ -94,6 +94,7 @@ serverless plugin install -n serverless-lift
         Because this construct sets the `X-Forwarded-Host` header by default, you should add it in your `trusted_headers` config, otherwise Symfony might generate wrong URLs.
 
         ```yml filename="config/packages/framework.yaml" /, 'x-forwarded-host'/
+           trusted_proxies: '127.0.0.1, 0.0.0.0/0'
            trusted_headers: [ 'x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-host' ]
         ```
 
