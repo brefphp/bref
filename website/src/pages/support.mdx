@@ -1,5 +1,7 @@
 import Plans from '../components/support/plans';
 import { NextSeo } from 'next-seo';
+import profile from './support/profile.jpg';
+import Image from 'next/image';
 
 <NextSeo description="Support plans for serverless migrations to AWS with Bref and PHP." />
 
@@ -9,10 +11,15 @@ import { NextSeo } from 'next-seo';
 
         <div className="mt-12 mb-10 space-y-10 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0 lg:mx-auto lg:max-w-4xl xl:mx-0 xl:max-w-none">
             <div className="text-gray-600">
-                <div>
-                    Bref Pro and Bref Enterprise are offered by <a className="link" href="https://null.tc">Null</a>, the company created by the author of Bref.
+                <div className="aspect-[9/10] w-20 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 sm:rounded-2xl -rotate-2 hover:rotate-2 transition-transform">
+                    <Image alt="Matthieu Napoli" loading="lazy" decoding="async" data-nimg="1"
+                           className="absolute inset-0 h-full w-full object-cover"
+                           src={profile} />
                 </div>
-                <div>
+                <div className="mt-4">
+                    Bref Pro and Bref Enterprise are provided through <a className="link" href="https://null.tc">Null</a>, Matthieu's company.
+                </div>
+                <div className="mt-2">
                     Got any question about these plans?
                     <a className="link" href="mailto:matthieu@bref.sh">Get in touch</a>.
                 </div>
@@ -39,6 +46,25 @@ import { NextSeo } from 'next-seo';
                             <a className="link" href="https://aws.amazon.com/developer/community/heroes/matthieu-napoli/">AWS Serverless Hero</a>,
                             and former
                             <a className="link" href="https://github.com/serverless/serverless">Serverless Framework product manager</a>.
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex">
+                    <div className="flex-grow-0 pr-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-10 text-blue-700">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                        </svg>
+
+                    </div>
+                    <div className="flex-grow mb-6">
+                        <div className="text-lg font-bold mb-1">
+                            Move to AWS and scale with confidence
+                        </div>
+                        <div className="text-gray-600">
+                            Do you want to simplify your infrastructure? Or do you have scaling issues?
+                            <br/>
+                            I'm here to help. Whether it's by answering questions, reviewing infrastructure, or even taking care of the migration for you.
                         </div>
                     </div>
                 </div>

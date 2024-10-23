@@ -67,13 +67,13 @@ export default function Plans() {
         <div>
             <div className="mx-auto max-w-4xl text-center">
                 <h1 className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                    Get more with Bref Pro and Enterprise
+                    Expert AWS support and consulting
                 </h1>
             </div>
             <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
                 Bref is a free and open-source project <a className="link" href="https://github.com/brefphp/bref">hosted on GitHub</a>.
                 <br/>
-                Bref Pro and Bref Enterprise are support plans offered by <a className="link" href="https://null.tc">Null</a>, the company behind Bref.
+                With Bref Pro and Bref Enterprise, get direct support and consulting from <a className="link" href="https://mnapoli.fr/">Matthieu</a>, the creator of Bref.
             </p>
 
             {/* xs to lg */}
