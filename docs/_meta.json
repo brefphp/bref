@@ -13,6 +13,7 @@
     "title": "How it works"
   },
   "runtimes": "PHP runtimes for Lambda",
+  "how-it-works": "How Bref works in details",
   "serverless-costs": "Serverless costs",
   "-- Workflow": {
     "type": "separator",
