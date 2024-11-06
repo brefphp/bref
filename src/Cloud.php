@@ -71,11 +71,11 @@ class Cloud
     {
         self::init();
 
-        // Random string of 8 characters
-        $uniqueId = bin2hex(random_bytes(4));
+        // Random string of 8 characters (prefixed with "a" to ensure it's not cast to a number)
+        $uniqueId = 'a' . bin2hex(random_bytes(4));
         $packageKey = "\${package:$uniqueId}";
 
-        self::$packages[$packageKey] = [
+        self::$packages[$uniqueId] = [
             'path' => $path,
             'patterns' => $patterns,
         ];
