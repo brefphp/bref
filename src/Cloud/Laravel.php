@@ -9,7 +9,10 @@ class Laravel
     /** @var string[] */
     public array $patterns = [
         '**',
+        '!.idea/**',
+        '!.bref/**',
         '!.git/**',
+        '!.serverless/**',
         '!database/*.sqlite',
         '!node_modules/**',
         '!public/build/**',
