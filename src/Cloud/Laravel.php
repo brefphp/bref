@@ -71,6 +71,7 @@ class Laravel
     {
         $config = [
             'name' => $this->name,
+            'type' => 'laravel',
             'php' => $this->php,
             'package' => Cloud::package($this->path, $this->patterns),
             'variables' => $this->variables,
