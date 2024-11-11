@@ -73,7 +73,7 @@ class Cloud
 
         // Random string of 8 characters (prefixed with "a" to ensure it's not cast to a number)
         $uniqueId = 'a' . bin2hex(random_bytes(4));
-        $packageKey = "\${package:$uniqueId}";
+        $packageKey = "\${packages:$uniqueId}";
 
         self::$packages[$uniqueId] = [
             'path' => $path,
