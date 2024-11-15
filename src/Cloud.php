@@ -76,7 +76,7 @@ class Cloud
         $packageKey = "\${packages:$uniqueId}";
 
         self::$packages[$uniqueId] = [
-            'path' => $path,
+            'path' => realpath($path),
             'patterns' => $patterns,
         ];
 
