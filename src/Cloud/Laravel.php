@@ -25,9 +25,9 @@ class Laravel
         '!tests/**',
     ];
 
-    /** @var array<string, mixed> */
+    /** @var array<string, string> */
     public array $variables = [
-        'APP_DEBUG' => false,
+        'APP_DEBUG' => '0',
         'LOG_CHANNEL' => 'stderr',
         'SESSION_DRIVER' => 'cookie',
     ];
