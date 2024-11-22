@@ -9,6 +9,7 @@ import nyholm from './testimonials/nyholm.jpg';
 import zmalter from './testimonials/zmalter.jpg';
 import simon from './testimonials/simon.jpg';
 import lorenzo from './testimonials/lorenzo.jpg';
+import jlaswell from './testimonials/jlaswell.png';
 
 const testimonials = [
     {
@@ -30,21 +31,21 @@ const testimonials = [
         },
     },
     {
-        body: 'Every time I throw something up onto AWS Lambda in PHP using Bref I marvel at how mega-useful it is. If you haven’t checked out Bref you’re probably missing out',
-        author: {
-            name: 'Gary Hockin',
-            handle: 'GeeH',
-            link: 'https://twitter.com/GeeH/status/1335909653897752576',
-            image: geeh,
-        },
-    },
-    {
         body: 'Just finished migrating our production from Heroku to AWS Lambda via Bref. It\'ll save us around <strong>$2k a year</strong> 🤯',
         author: {
             name: 'Zach Malter',
             handle: 'zmalter99',
             link: 'https://twitter.com/zmalter99/status/1671228229317689367',
             image: zmalter,
+        },
+    },
+    {
+        body: 'Every time I throw something up onto AWS Lambda in PHP using Bref I marvel at how mega-useful it is. If you haven’t checked out Bref you’re probably missing out',
+        author: {
+            name: 'Gary Hockin',
+            handle: 'GeeH',
+            link: 'https://twitter.com/GeeH/status/1335909653897752576',
+            image: geeh,
         },
     },
     {
@@ -99,6 +100,15 @@ const testimonials = [
             handle: 'AranReeks',
             link: 'https://twitter.com/AranReeks/status/1332467843254919168',
             image: aranreeks,
+        },
+    },
+    {
+        body: 'Bref defines how PHP should run on AWS Lambda. At Voxie, we sponsor Bref because it\'s more than a runtime — it\'s the best foundation for building scalable, efficient products on AWS Lambda.',
+        author: {
+            name: 'John Laswell',
+            handle: 'john_laswell',
+            link: 'https://www.linkedin.com/feed/update/urn:li:activity:7265474236402536448/',
+            image: jlaswell,
         },
     },
     // More testimonials...
