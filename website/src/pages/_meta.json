@@ -25,12 +25,6 @@
       "layout": "raw"
     }
   },
-  "dashboard": {
-    "title": "Dashboard",
-    "type": "page",
-    "href": "https://dashboard.bref.sh/",
-    "newWindow": true
-  },
   "credits": {
     "type": "page",
     "title": "Credits",
@@ -50,6 +44,13 @@
     "type": "page",
     "title": "Sentry integration for AWS Lambda",
     "display": "hidden",
+    "theme": {
+      "layout": "raw"
+    }
+  },
+  "cloud": {
+    "type": "page",
+    "title": "Bref Cloud",
     "theme": {
       "layout": "raw"
     }

@@ -8,7 +8,7 @@ const navigation = {
         { name: 'Documentation', href: '/docs/' },
         { name: 'News', href: '/news/' },
         { name: 'Support', href: '/support' },
-        { name: 'Bref Dashboard', href: 'https://dashboard.bref.sh/' },
+        { name: 'Bref Cloud', href: '/cloud' },
         { name: 'Credits', href: '/credits' },
     ],
     social: [
