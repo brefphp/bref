@@ -16,8 +16,8 @@
     "next-plausible": "^3.11.1",
     "next-seo": "^6.1.0",
     "next-sitemap": "^4.2.3",
-    "nextra": "^2.13.2",
-    "nextra-theme-docs": "^2.13.2",
+    "nextra": "^3.2.4",
+    "nextra-theme-docs": "^3.2.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sharp": "^0.32.6"
