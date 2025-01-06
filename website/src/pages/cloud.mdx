@@ -1,17 +1,7 @@
-import {
-    BugAntIcon,
-    ChevronRightIcon,
-    ClockIcon,
-    CodeBracketSquareIcon,
-    FingerPrintIcon
-} from '@heroicons/react/20/solid';
-import sentry from './sentry/sentry.png';
-import Image from 'next/image';
-import Breadcrumbs from '../components/Breadcrumbs';
-import { CheckIcon } from '@heroicons/react/20/solid'
+import mainScreenshot from './cloud/bref-cloud.png';
+import deploymentsScreenshot from './cloud/deployments.png';
+import awsIllustration from './cloud/aws.svg';
 import { NextSeo } from 'next-seo';
-import SentryCheckout from '../components/sentry/SentryCheckout';
-import { useState } from 'react';
 
 <NextSeo
     description="Bref Cloud"
@@ -29,32 +19,16 @@ import { useState } from 'react';
 export function BrefCloud() {
     const faqs = [
         {
-            question: 'Where can I learn more about each feature?',
-            answer: 'You can find more information about each feature in <a href="/sentry/docs" class="link">the documentation</a>.',
-        },
-        {
-            question: 'What is a considered a "project"?',
-            answer: 'You can use a "Single Project" license on one "service" or "application" (for example a Laravel or a Symfony project). If one application is deployed to multiple environments (like "dev", "staging", "production"…), it counts as a single project (non-production environments are ignored). If one application contains multiple AWS Lambda functions, it still counts as a single project. <br/> However, if you deploy multiple applications, multiple services (e.g. with <strong>microservices</strong>), or deploy the same application for multiple customers (aka multi-tenant) or to multiple regions, you need an "Unlimited" license (or a license for each application).',
+            question: 'What is a considered an "application"?',
+            answer: '',
         },
         {
             question: 'Do I get invoices?',
             answer: 'Yes, you will receive an invoice by email after your purchase.',
         },
         {
-            question: 'What is the refund policy?',
-            answer: '7-days, full refund if the package is not working out for you.',
-        },
-        {
-            question: 'Can I use an unlimited license for all of my client projects?',
-            answer: 'Not exactly. An unlimited license provides you unlimited access for all of <em>your</em> projects, but it doesn\'t mean your client is also allowed to use your license. Your clients will need their own license to use the Sentry integration for their projects.',
-        },
-        {
-            question: 'Are there any bulk pricing options?',
-            answer: 'That is possible, please get in touch.',
-        },
-        {
-            question: 'What are the terms of service?',
-            answer: 'Please follow the following link to read the <a href="/sentry/terms" class="link">Terms of service</a> for the Sentry integration.',
+            question: 'Can I use AWS credits?',
+            answer: 'Yes. Since applications run in your AWS account, you can use your AWS credits for the usage of AWS services.',
         },
     ];
 
@@ -68,17 +42,21 @@ export function BrefCloud() {
                 <div className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-40">
                     <div className="mx-auto max-w-2xl lg:mx-0 lg:shrink-0 lg:pt-8">
                         <h1 className="mt-10 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
-                            The power of AWS <br/> without the complexity
+                            The power of <span className="text-blue-500">serverless</span>
+                            <br/>
+                            without the complexity
                         </h1>
-                        <p className="mt-8 text-pretty text-lg text-gray-600">
-                            AWS is the most reliable hosting provider in the world. <br/>
-                            AWS Lambda gives insane scalability without server management. <br/>
+                        <p className="mt-8 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
+                            The reliability of AWS and insane scalability of
+                            AWS&nbsp;Lambda without having to become an AWS expert. <br/>
+                        </p>
+                        <p className="mt-3 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
                             Bref Cloud makes all that accessible and simple, <br/>
-                            with expert support built-in.
+                            with <strong>expert support</strong> built-in.
                         </p>
                         <div className="mt-10 flex items-center gap-x-6">
                             <a
-                                href="#"
+                                href="https://bref.cloud/register"
                                 className="rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             >
                                 Get started
@@ -95,7 +73,7 @@ export function BrefCloud() {
                                 className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
                                 <img
                                     alt="App screenshot"
-                                    src="https://tailwindui.com/plus/img/component-images/project-app-screenshot.png"
+                                    src={mainScreenshot}
                                     width={2432}
                                     height={1442}
                                     className="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10"
@@ -108,46 +86,46 @@ export function BrefCloud() {
 
             <div className="bg-white py-24 sm:py-32">
                 <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
-                    <h2 className="text-base/7 font-semibold text-blue-500">Your Cloud Platform</h2>
+                    <h2 className="text-base/7 font-semibold text-blue-500">Your Own Cloud</h2>
                     <p className="mt-2 max-w-lg text-pretty text-4xl font-black tracking-tight text-gray-950 sm:text-5xl">
                         Deploy, debug, monitor, all in one place.
                     </p>
                     <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
                         <div className="relative lg:col-span-3">
+                            <div className="absolute inset-px rounded-lg bg-white lg:rounded-tr-[2rem]" />
+                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
+                                <img alt="AWS" src={awsIllustration}
+                                     className="h-80 object-cover object-left lg:object-right bg-gray-50" />
+                                <div className="p-10 pt-4">
+                                    <h3 className="text-sm/4 font-semibold text-blue-500">
+                                        AWS
+                                    </h3>
+                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
+                                        Best in class hosting
+                                    </p>
+                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
+                                        Applications run in <strong>your AWS account</strong>.
+                                        Run on the biggest and most reliable hosting provider in the world, without any markup on AWS prices.
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 lg:rounded-tr-[2rem]" />
+                        </div>
+                        <div className="relative lg:col-span-3">
                             <div className="absolute inset-px rounded-lg bg-white max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
                             <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">
-                                <img alt="" src="https://tailwindui.com/plus/img/component-images/bento-01-performance.png"
-                                    className="h-80 object-cover object-left" />
+                                <img alt="Deployments" src={deploymentsScreenshot} className="h-80 object-cover object-left" />
                                 <div className="p-10 pt-4">
                                     <h3 className="text-sm/4 font-semibold text-blue-500">Deployments</h3>
                                     <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
                                         Simple and fast deployments
                                     </p>
                                     <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Deploy PHP applications
+                                        Deploy Laravel, Symfony, or any PHP applications with a simple <code className="font-semibold">serverless.yml</code> file. Bref Cloud tracks all your deployments in one place.
                                     </p>
                                 </div>
                             </div>
                             <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
-                        </div>
-                        <div className="relative lg:col-span-3">
-                            <div className="absolute inset-px rounded-lg bg-white lg:rounded-tr-[2rem]" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
-                                <img alt="" src="https://tailwindui.com/plus/img/component-images/bento-01-releases.png"
-                                    className="h-80 object-cover object-left lg:object-right" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">AWS</h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        Trust AWS for hosting
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Applications run in <strong>your</strong> AWS account.
-                                        Get the most reliable hosting provider in the world, without any markup on their prices.
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 lg:rounded-tr-[2rem]" />
                         </div>
                         <div className="relative lg:col-span-2">
                             <div className="absolute inset-px rounded-lg bg-white lg:rounded-bl-[2rem]" />
