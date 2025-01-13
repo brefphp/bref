@@ -1,6 +1,7 @@
 import mainScreenshot from './cloud/bref-cloud.png';
 import deploymentsScreenshot from './cloud/deployments.png';
 import awsIllustration from './cloud/aws.svg';
+import authorPhoto from './cloud/author.jpg';
 import { NextSeo } from 'next-seo';
 
 <NextSeo
@@ -79,6 +80,62 @@ export function BrefCloud() {
                                     className="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10"
                                 />
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="py-24 sm:py-28">
+                <div className="mx-auto max-w-4xl px-6 lg:px-8 text-lg text-pretty leading-8 text-gray-700">
+                    <p>
+                        Choosing infrastructure is usually a compromise between: <strong>reliable</strong>, <strong>powerful</strong>, or <strong>simple</strong>.
+                    </p>
+                    <p className="mt-4">
+                        Pick two.
+                    </p>
+                    <p className="mt-4">
+                        One can build the most advanced infrastructure themselves, but it requires good expertise.
+                        There are also really cool PaaS out there, but they don't have the same track record as large and established cloud providers.
+                    </p>
+                    <p className="mt-4">
+                        Bref Cloud goes for all three.
+                    </p>
+                    <ul className="list-disc pl-6">
+                        <li className="mt-4">
+                            <strong>Reliable</strong>: your apps are hosted on AWS, the most reliable cloud provider in the world. More specifically, they run serverless on AWS Lambda, getting high availability, self-healing, and extremely secure environments out of the box. Bref itself is 7 years-old, open-source, and battle-tested running the most critical apps. Even <a className="underline" href="https://bref.sh/docs/case-studies/treezor">banks run on Bref</a>.
+                        </li>
+                        <li className="mt-4">
+                            <strong>Powerful</strong>: Bref runs PHP applications at (almost) infinite scale using serverless. It also uses the best of AWS to provide everything your application needs: databases, queues, storage, caches, cron tasks, CDN, event buses, logging, metrics… And if you fancy, you can use any other AWS service without any limitation.
+                        </li>
+                        <li className="mt-4">
+                            <strong>Simple</strong>: Bref Cloud makes the power of Bref and AWS accessible to all PHP developers. No need to become an AWS expert. Get the best developer experience with a simple and intuitive UI and CLI. Deploy, debug, monitor, all in one place.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div className="py-24 sm:py-28">
+                <div className="mx-auto max-w-4xl px-6 lg:px-8 text-lg text-pretty leading-8 text-gray-700">
+                    <h2 className="mb-10 text-pretty text-3xl font-black tracking-tight text-gray-950">
+                        By developers, for developers. For real though.
+                    </h2>
+                    <div className="w-full flex flex-col-reverse md:flex-row gap-6 items-start">
+                        <div className="flex-grow">
+                            <p>
+                                Hi! I'm <a href="https://mnapoli.fr" title="Matthieu Napoli">Matthieu</a>, PHP enjoyer, open-source developer since 2003 and <a className="link" href="https://aws.amazon.com/developer/community/heroes/matthieu-napoli/">AWS Serverless Hero</a>.
+                                After years of setting up servers, learning Ansible and finally Docker, I moved to serverless and started Bref {(new Date).getFullYear() - 2017} years ago.
+                            </p>
+                            <p className="mt-4">
+                                Since 2017, I've built countless projects on AWS Lambda, but also helped many others do the same. I've seen a lot, from small projects, to large legacy monoliths, or high-traffic microservices.
+                                I <a className="link" href="https://mnapoli.fr">blog</a>, <a className="link" href="https://mnapoli.fr/presentations/">talk</a>, and <a className="link" href="https://serverless-visually-explained.com/">teach</a> about serverless.
+                            </p>
+                            <p className="mt-4">
+                                <strong>Bref Cloud is more than just software</strong>.
+                                It comes with my support, consulting, and guidance to build the best infrastructure for your projects.
+                            </p>
+                        </div>
+                        <div className="aspect-square flex-none rounded-full w-32 h-32 md:w-64 md:h-64 lg:w-80 lg:h-80 border border-gray-500 shadow-lg overflow-hidden">
+                            <img src={authorPhoto} alt="Matthieu Napoli" className="object-cover h-full w-full" />
                         </div>
                     </div>
                 </div>
