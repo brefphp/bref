@@ -117,12 +117,13 @@ export function BrefCloud() {
             <div className="py-24 sm:py-28">
                 <div className="mx-auto max-w-4xl px-6 lg:px-8 text-lg text-pretty leading-8 text-gray-700">
                     <h2 className="mb-10 text-pretty text-3xl font-black tracking-tight text-gray-950">
-                        By developers, for developers. For real though.
+                        By developers, for developers. <br/>
+                        <span className="text-amber-800/80">For real though.</span>
                     </h2>
                     <div className="w-full flex flex-col-reverse md:flex-row gap-6 items-start">
                         <div className="flex-grow">
                             <p>
-                                Hi! I'm <a href="https://mnapoli.fr" title="Matthieu Napoli">Matthieu</a>, PHP enjoyer, open-source developer since 2003 and <a className="link" href="https://aws.amazon.com/developer/community/heroes/matthieu-napoli/">AWS Serverless Hero</a>.
+                                Hi! I'm <a href="https://mnapoli.fr" title="Matthieu Napoli">Matthieu</a>, PHP enjoyer, open-source developer since 2003, and <a className="link" href="https://aws.amazon.com/developer/community/heroes/matthieu-napoli/">AWS Serverless Hero</a>.
                                 After years of setting up servers, learning Ansible and finally Docker, I moved to serverless and started Bref {(new Date).getFullYear() - 2017} years ago.
                             </p>
                             <p className="mt-4">
@@ -130,8 +131,15 @@ export function BrefCloud() {
                                 I <a className="link" href="https://mnapoli.fr">blog</a>, <a className="link" href="https://mnapoli.fr/presentations/">talk</a>, and <a className="link" href="https://serverless-visually-explained.com/">teach</a> about serverless.
                             </p>
                             <p className="mt-4">
-                                <strong>Bref Cloud is more than just software</strong>.
-                                It comes with my support, consulting, and guidance to build the best infrastructure for your projects.
+                                <strong>Bref Cloud is more than just software</strong>.&nbsp;
+                                <span style={{
+                                    background: 'linear-gradient(120deg, #fef08a 0%, #fef08a 100%)',
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundSize: '100% 40%',
+                                    backgroundPosition: '0 88%'
+                                }}>
+                                    It comes with my support, consulting, and guidance
+                                </span> to pick the best infrastructure for your projects.
                             </p>
                         </div>
                         <div className="aspect-square flex-none rounded-full w-32 h-32 md:w-64 md:h-64 lg:w-80 lg:h-80 border border-gray-500 shadow-lg overflow-hidden">
