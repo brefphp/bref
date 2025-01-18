@@ -5,6 +5,7 @@ import authorPhoto from './cloud/author.jpg';
 import { NextSeo } from 'next-seo';
 import Pricing from './cloud/pricing';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
+import Features from './cloud/features';
 
 <NextSeo
     description="Bref Cloud"
@@ -160,7 +161,7 @@ export function BrefCloud() {
                 </div>
             </div>
 
-            <div className="bg-white py-24 sm:py-32">
+            <div className="bg-white py-24 sm:py-32 hidden">
                 <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
                     <h2 className="text-base/7 font-semibold text-blue-500">Your Own Cloud</h2>
                     <p className="mt-2 max-w-lg text-pretty text-4xl font-black tracking-tight text-gray-950 sm:text-5xl">
@@ -258,6 +259,8 @@ export function BrefCloud() {
                     </div>
                 </div>
             </div>
+
+            <Features />
 
             <Pricing />
 
