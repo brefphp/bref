@@ -4,6 +4,7 @@ import awsIllustration from './cloud/aws.svg';
 import authorPhoto from './cloud/author.jpg';
 import { NextSeo } from 'next-seo';
 import Pricing from './cloud/pricing';
+import { CheckCircleIcon } from '@heroicons/react/20/solid';
 
 <NextSeo
     description="Bref Cloud"
@@ -101,15 +102,24 @@ export function BrefCloud() {
                     <p className="mt-4">
                         Bref Cloud goes for all three.
                     </p>
-                    <ul className="list-disc pl-6">
-                        <li className="mt-4">
-                            <strong className="text-gray-900">Reliable</strong>: your apps are hosted on AWS, the most reliable cloud provider in the world. More specifically, they run serverless on AWS Lambda, getting high availability, self-healing, and extremely secure environments out of the box. Bref itself is 7 years-old, open-source, and battle-tested running the most critical apps. Even <a className="underline" href="https://bref.sh/docs/case-studies/treezor">banks run on Bref</a>.
+                    <ul className="mt-6 space-y-6">
+                        <li className="flex gap-x-3">
+                            <CheckCircleIcon aria-hidden="true" className="mt-1.5 size-5 flex-none text-blue-500" />
+                            <span>
+                                <strong className="text-gray-900">Reliable</strong>: your apps are hosted on AWS, the most reliable cloud provider in the world. More specifically, they run serverless on AWS Lambda, getting high availability, self-healing, and extremely secure environments out of the box. Bref itself is 7 years-old, open-source, and battle-tested running the most critical apps. Even <a className="underline" href="https://bref.sh/docs/case-studies/treezor">banks run on Bref</a>.
+                            </span>
                         </li>
-                        <li className="mt-4">
-                            <strong className="text-gray-900">Powerful</strong>: Bref runs PHP applications at (almost) infinite scale using serverless. It also uses the best of AWS to provide everything your application needs: databases, queues, storage, caches, cron tasks, CDN, event buses, logging, metrics… And if you fancy, you can use any other AWS service without any limitation.
+                        <li className="flex gap-x-3">
+                            <CheckCircleIcon aria-hidden="true" className="mt-1.5 size-5 flex-none text-blue-500" />
+                            <span>
+                                <strong className="text-gray-900">Powerful</strong>: Bref runs PHP applications at (almost) infinite scale using serverless. It also uses the best of AWS to provide everything your application needs: databases, queues, storage, caches, cron tasks, CDN, event buses, logging, metrics… And if you fancy, you can use any other AWS service without any limitation.
+                            </span>
                         </li>
-                        <li className="mt-4">
-                            <strong className="text-gray-900">Simple</strong>: Bref Cloud makes the power of Bref and AWS accessible to all PHP developers. No need to become an AWS expert. Get the best developer experience with a simple and intuitive UI and CLI. Deploy, debug, monitor, all in one place.
+                        <li className="flex gap-x-3">
+                            <CheckCircleIcon aria-hidden="true" className="mt-1.5 size-5 flex-none text-blue-500" />
+                            <span>
+                                <strong className="text-gray-900">Simple</strong>: Bref Cloud makes the power of Bref and AWS accessible to all PHP developers. No need to become an AWS expert. Get the best developer experience with a simple and intuitive UI and CLI. Deploy, debug, monitor, all in one place.
+                            </span>
                         </li>
                     </ul>
                 </div>
@@ -124,7 +134,7 @@ export function BrefCloud() {
                     <div className="w-full flex flex-col-reverse md:flex-row gap-6 items-start">
                         <div className="flex-grow">
                             <p>
-                                Hi! I'm <a href="https://mnapoli.fr" title="Matthieu Napoli">Matthieu</a>, PHP enjoyer, open-source developer since 2003, and <a className="link" href="https://aws.amazon.com/developer/community/heroes/matthieu-napoli/">AWS Serverless Hero</a>.
+                                Hi! I'm Matthieu, PHP enjoyer, <a className="link" href="https://github.com/mnapoli">open-source developer</a> since 2003, and <a className="link" href="https://aws.amazon.com/developer/community/heroes/matthieu-napoli/">AWS Serverless Hero</a>.
                                 After years of setting up servers, learning Ansible and finally Docker, I moved to serverless and started Bref {(new Date).getFullYear() - 2017} years ago.
                             </p>
                             <p className="mt-4">
