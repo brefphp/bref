@@ -53,5 +53,10 @@
     "theme": {
       "layout": "raw"
     }
+  },
+  "book": {
+    "type": "page",
+    "title": "The Bref documentation as a book",
+    "display": "hidden"
   }
 }
