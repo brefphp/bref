@@ -52,6 +52,7 @@
   "cloud": {
     "type": "page",
     "title": "Bref Cloud",
+    "display": "hidden",
     "theme": {
       "layout": "raw"
     }

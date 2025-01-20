@@ -9,7 +9,6 @@ const navigation = {
         { name: 'Slack', href: 'https://bref.sh/slack' },
         { name: 'News', href: '/news/' },
         { name: 'Support', href: '/support' },
-        { name: 'Bref Cloud', href: '/cloud' },
         { name: 'Credits', href: '/credits' },
     ],
     social: [
