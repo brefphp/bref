@@ -12,6 +12,10 @@ const faqs = [
         answer: 'Yes. Since applications run in your AWS account, you can use your AWS credits for the usage of AWS services.',
     },
     {
+        question: 'What\'s your refund policy?',
+        answer: 'We generally offer refunds within 14 days of purchase, but please email us to contact@bref.sh if you aren\'t happy with Bref Cloud and we\'ll find a solution.',
+    },
+    {
         question: 'What are the terms of service and privacy policy?',
         answer: 'Here are the links to the <a class="link" href="https://bref.cloud/terms-of-service">terms of service</a> and the <a class="link" href="https://bref.cloud/privacy-policy">privacy policy</a> of Bref Cloud.',
     },
