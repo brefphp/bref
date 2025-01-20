@@ -81,6 +81,14 @@ const sections = [
                 }
             },
             { name: 'Queue jobs management', tiers: { bref: false, cloud: true } },
+            { name: 'Secrets management', tiers: {
+                    bref: {
+                        title: false,
+                        description: 'AWS SSM Parameter Store',
+                    },
+                    cloud: true,
+                }
+            },
             { name: 'S3 files management', tiers: {
                     bref: {
                         title: false,
