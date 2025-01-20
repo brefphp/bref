@@ -6,9 +6,9 @@ const navigation = {
     main: [
         { name: 'Home', href: '/' },
         { name: 'Documentation', href: '/docs/' },
+        { name: 'Slack', href: 'https://bref.sh/slack' },
         { name: 'News', href: '/news/' },
         { name: 'Support', href: '/support' },
-        { name: 'Bref Dashboard', href: 'https://dashboard.bref.sh/' },
         { name: 'Credits', href: '/credits' },
     ],
     social: [
