@@ -10,7 +10,7 @@ const tiers = [
     {
         name: 'Personal',
         id: 'tier-free',
-        href: '#',
+        href: 'https://bref.cloud/register',
         price: 'Free',
         description: 'Deploy and host your personal projects.',
         features: [
@@ -27,7 +27,7 @@ const tiers = [
     {
         name: 'Startup',
         id: 'tier-startup',
-        href: '#',
+        href: 'https://bref.cloud/register',
         price: { monthly: '$39', annually: '$399' },
         description: 'The essentials for small dev teams that want to grow.',
         features: [
@@ -44,7 +44,7 @@ const tiers = [
     {
         name: 'Team',
         id: 'tier-team',
-        href: '#',
+        href: 'https://bref.cloud/register',
         price: { monthly: '$99', annually: '$999' },
         description: 'A plan for businesses with multiple dev teams.',
         features: [
