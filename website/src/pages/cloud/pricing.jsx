@@ -188,7 +188,7 @@ export default function Pricing() {
                 </div>
 
                 <div
-                    className="mt-6 flex flex-col items-start gap-x-8 gap-y-6 rounded-3xl p-8 ring-1 ring-gray-900/10 sm:gap-y-10 sm:p-10 lg:col-span-2 lg:flex-row lg:items-center">
+                    className="mt-6 flex flex-col items-start gap-x-8 gap-y-6 rounded-3xl p-8 ring-1 ring-gray-900/10 sm:gap-y-10 lg:col-span-2 lg:flex-row lg:items-center">
                     <div className="lg:min-w-0 lg:flex-1">
                         <h3 className="text-base/7 font-semibold text-blue-500">Indie maker</h3>
                         <p className="mt-1 text-base/7 text-gray-600">
@@ -202,6 +202,11 @@ export default function Pricing() {
                         Get started at $15/month
                     </a>
                 </div>
+
+                <p className="mt-6 text-xs text-gray-500 text-center">
+                    All prices are excluding taxes.
+                    You can remove VAT on checkout by adding your VAT ID.
+                </p>
 
             </div>
         </div>
