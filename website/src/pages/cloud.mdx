@@ -6,6 +6,7 @@ import { NextSeo } from 'next-seo';
 import Pricing from './cloud/pricing';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import Features from './cloud/features';
+import Faq from './cloud/faq';
 
 <NextSeo
     description="Bref Cloud"
@@ -21,21 +22,6 @@ import Features from './cloud/features';
 <BrefCloud />
 
 export function BrefCloud() {
-    const faqs = [
-        {
-            question: 'What is a considered an "application"?',
-            answer: '',
-        },
-        {
-            question: 'Do I get invoices?',
-            answer: 'Yes, you will receive an invoice by email after your purchase.',
-        },
-        {
-            question: 'Can I use AWS credits?',
-            answer: 'Yes. Since applications run in your AWS account, you can use your AWS credits for the usage of AWS services.',
-        },
-    ];
-
     return (
         <div>
 
@@ -264,28 +250,7 @@ export function BrefCloud() {
 
             <Pricing />
 
-            <div id="faq" className="bg-white">
-                <div className="mx-auto max-w-7xl px-6 py-24 sm:pt-32 lg:px-8 lg:py-40">
-                    <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-                        <div className="lg:col-span-5">
-                            <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900">Frequently asked questions</h2>
-                            <div className="mt-4 text-base leading-7 text-gray-600">
-                                Can’t find the answer you’re looking for? Reach out <a href="mailto:matthieu@bref.sh" className="font-semibold text-blue-600 hover:text-blue-500">via email</a>.
-                            </div>
-                        </div>
-                        <div className="mt-10 lg:col-span-7 lg:mt-0">
-                            <dl className="space-y-10">
-                                {faqs.map((faq) => (
-                                    <div key={faq.question}>
-                                        <dt className="text-base font-semibold leading-7 text-gray-900">{faq.question}</dt>
-                                        <dd className="mt-2 text-base leading-7 text-gray-600" dangerouslySetInnerHTML={{ __html: faq.answer }}></dd>
-                                    </div>
-                                ))}
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <Faq />
 
         </div>
     )
