@@ -37,7 +37,7 @@ export default function Sponsors() {
                 <GoldSponsor src={secumailerLogo} alt="SecuMailer" href="https://secumailer.com/?ref=bref.sh" imgClass="py-1.5" />
                 <GoldSponsor src={ecomailLogo} alt="Ecomail" href="https://ecomail.cz/?ref=bref.sh" imgClass="py-2.5" />
                 <GoldSponsor src={spreakerLogo} alt="Spreaker" href="https://www.spreaker.com/?ref=bref" imgClass="py-1.5" />
-                <GoldSponsor src={runsOnLogo} alt="Spreaker" href="https://runs-on.com/?ref=bref" imgClass="-my-1"/>
+                <GoldSponsor src={runsOnLogo} alt="Runs On" href="https://runs-on.com/?ref=bref" imgClass="-my-1"/>
             </div>
 
             <p className="mt-8 text-gray-700">
