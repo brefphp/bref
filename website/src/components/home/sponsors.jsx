@@ -13,7 +13,7 @@ import PremiumSponsor from './sponsors/premium-sponsor';
 
 export default function Sponsors() {
     return (
-        <div className="home-container home-section">
+        <div id="sponsors" className="home-container home-section">
             <h2 className="text-center text-3xl font-black leading-8 text-gray-900">
                 They sponsor the open-source project <span className="text-red-600">❤️</span>
             </h2>
