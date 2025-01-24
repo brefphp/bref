@@ -8,6 +8,7 @@ import secumailerLogo from './sponsors/logo-secumailer.svg';
 import ecomailLogo from './sponsors/logo-ecomail.png';
 import spreakerLogo from './sponsors/logo-spreaker.svg';
 import voxieLogo from './sponsors/logo-voxie.svg';
+import runsOnLogo from './sponsors/runs-on.svg';
 import PremiumSponsor from './sponsors/premium-sponsor';
 
 export default function Sponsors() {
@@ -34,8 +35,9 @@ export default function Sponsors() {
             <div className="mt-4 -mx-6 grid grid-cols-3 gap-0.5 overflow-hidden sm:mx-0 sm:rounded-2xl md:grid-cols-5">
                 <GoldSponsor src={depotLogo} alt="Depot" href="https://depot.dev/?ref=bref.sh" imgClass="py-3" />
                 <GoldSponsor src={secumailerLogo} alt="SecuMailer" href="https://secumailer.com/?ref=bref.sh" imgClass="py-1.5" />
-                <GoldSponsor src={ecomailLogo} alt="Ecomail" href="https://ecomail.cz/?ref=bref.sh" imgClass="py-3" />
-                <GoldSponsor src={spreakerLogo} alt="Spreaker" href="https://www.spreaker.com/?ref=bref"/>
+                <GoldSponsor src={ecomailLogo} alt="Ecomail" href="https://ecomail.cz/?ref=bref.sh" imgClass="py-2.5" />
+                <GoldSponsor src={spreakerLogo} alt="Spreaker" href="https://www.spreaker.com/?ref=bref" imgClass="py-1.5" />
+                <GoldSponsor src={runsOnLogo} alt="Spreaker" href="https://runs-on.com/?ref=bref" imgClass="-my-1"/>
             </div>
 
             <p className="mt-8 text-gray-700">
