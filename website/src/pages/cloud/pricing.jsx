@@ -33,7 +33,7 @@ const tiers = [
         features: [
             '5 users',
             '5 applications',
-            '2 AWS accounts',
+            '3 AWS accounts',
             'Unlimited deployments',
             'Unlimited environments',
             'Slack + email support & consulting',
@@ -74,6 +74,7 @@ const tiers = [
             'Zoom consulting',
             'Tailored AWS infrastructure',
             'Self-hosted Bref Cloud',
+            'Access to Bref Cloud source code',
         ],
         featured: true,
         cta: 'Get in touch',

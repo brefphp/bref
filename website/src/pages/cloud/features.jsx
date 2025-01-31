@@ -20,7 +20,7 @@ const sections = [
         features: [
             { name: 'Hosting', tiers: { bref: 'AWS Lambda in your AWS account', cloud: 'AWS Lambda in your AWS account' } },
             { name: 'Real-time scaling', tiers: { bref: true, cloud: true }, description: 'AWS Lambda scales up/down automatically in a second or less.' },
-            { name: 'High-availability', tiers: { bref: true, cloud: true }, description: 'AWS Lambda runs your code redundantly in multiple data centers and automatically replaces instances that fail.' },
+            { name: 'High-availability', tiers: { bref: true, cloud: true }, description: 'AWS Lambda runs your app redundantly in multiple data centers and automatically replaces instances that fail.' },
             { name: 'PHP runtime for AWS Lambda', tiers: { bref: true, cloud: true } },
             { name: 'Laravel and Symfony integrations', tiers: { bref: true, cloud: true } },
         ],
