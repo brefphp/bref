@@ -6,12 +6,16 @@ const tiers = [
         id: 'bref',
         featured: false,
         description: 'The open-source project.',
+        cta: 'Free and open-source',
+        ctaLink: null,
     },
     {
         name: 'Bref Cloud',
         id: 'cloud',
         featured: true,
         description: 'The all-in one solution for running your PHP applications.',
+        cta: 'View pricing',
+        ctaLink: '#pricing',
     },
 ];
 const sections = [
@@ -324,10 +328,12 @@ export default function Features() {
                                                         className="w-1/4 py-3 pr-4 text-left text-sm/6 font-normal text-gray-900">
                                                         <div className="">{feature.name}</div>
                                                         {feature.description && (
-                                                            <div className="mt-2 text-xs/4 text-gray-500 text-pretty">{feature.description}</div>
+                                                            <div
+                                                                className="mt-2 text-xs/4 text-gray-500 text-pretty">{feature.description}</div>
                                                         )}
                                                         {featureIdx !== section.features.length - 1 ? (
-                                                            <div className="absolute bottom-0 inset-x-0 mt-3 h-px bg-gray-200" />
+                                                            <div
+                                                                className="absolute bottom-0 inset-x-0 mt-3 h-px bg-gray-200" />
                                                         ) : null}
                                                     </th>
                                                     {tiers.map((tier) => (
@@ -359,7 +365,8 @@ export default function Features() {
                                                                     </>
                                                                 )}
                                                                 {typeof feature.tiers[tier.id]?.description === 'string' && (
-                                                                    <div className="mt-1 text-gray-500 text-xs/4 text-pretty">
+                                                                    <div
+                                                                        className="mt-1 text-gray-500 text-xs/4 text-pretty">
                                                                         {feature.tiers[tier.id].description}
                                                                     </div>
                                                                 )}
@@ -387,6 +394,42 @@ export default function Features() {
                                             ))}
                                         </div>
                                     </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-3 gap-x-8 border-b border-gray-900/10 before:block">
+                            {tiers.map((tier) => (
+                                <div key={tier.id} aria-hidden="true" className="-mt-px">
+                                    <div
+                                        className={classNames(
+                                            tier.featured ? 'border-blue-600' : 'border-transparent',
+                                            'border-b-2 pt-10',
+                                        )}
+                                    >
+                                        <p
+                                            className={classNames(
+                                                tier.featured ? 'text-blue-600' : 'text-gray-900',
+                                                'text-center text-sm/6 font-semibold',
+                                            )}
+                                        >
+                                            {tier.name}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="mt-4 grid grid-cols-3 gap-x-8 before:block">
+                            {tiers.map((tier) => (
+                                <div key={tier.id} aria-hidden="true" className="-mt-px">
+                                    {tier.ctaLink ? (
+                                        <a href={tier.ctaLink}
+                                           className="block rounded-md px-3 py-2 text-center text-sm/6 font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-blue-500 text-white shadow-sm hover:bg-blue-600 focus-visible:outline-blue-600">{tier.cta}</a>
+                                    ) : (
+                                        <div
+                                            className="block rounded-md px-3 py-2 text-center text-sm/6 font-semibold bg-transparent text-gray-600">{tier.cta}</div>
+                                    )}
                                 </div>
                             ))}
                         </div>
