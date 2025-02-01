@@ -4,7 +4,7 @@ import awsIllustration from './cloud/aws.svg';
 import authorPhoto from './cloud/author.jpg';
 import { NextSeo } from 'next-seo';
 import Pricing from './cloud/pricing';
-import { CheckCircleIcon } from '@heroicons/react/20/solid';
+import { CheckCircleIcon, InformationCircleIcon } from '@heroicons/react/20/solid';
 import Features from './cloud/features';
 import Faq from './cloud/faq';
 
@@ -252,6 +252,25 @@ export function BrefCloud() {
             <Features />
 
             <Pricing />
+
+
+            <div className="bg-white px-6 py-32 lg:px-8">
+                <div className="mx-auto max-w-2xl text-lg text-pretty leading-8 text-gray-700">
+                    <p className="text-base/7 font-semibold text-blue-500">AWS hosting</p>
+                    <h1 className="mt-2 text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
+                        No markup, no lock-in
+                    </h1>
+                    <p className="mt-6">
+                        Bref Cloud deploys your code to AWS. Your applications run in <strong>your AWS account</strong>, with no markup on AWS prices.
+                        Serverless hosting being pay-as-you-go, your hosting bill from AWS could be as low as $0.
+                        Learn more about <a className="link" href="/docs/serverless-costs">serverless hosting costs</a>.
+                    </p>
+                    <p className="mt-6">
+                        Under the hood, Bref Cloud deploys your applications following AWS best practices and using <strong>AWS CloudFormation</strong>. That means that you are not locked in and can eject from Bref Cloud at any point if you prefer to manage the infrastructure yourself.
+                    </p>
+                </div>
+            </div>
+
 
             <Faq />
 
