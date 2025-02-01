@@ -197,7 +197,7 @@ export default function Pricing() {
                         </p>
                     </div>
                     <a
-                        href="#"
+                        href="https://bref.cloud/register"
                         className="rounded-md px-3.5 py-2 text-sm/6 font-semibold text-blue-600 ring-1 ring-inset ring-blue-200 hover:ring-blue-500 hover:bg-blue-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                     >
                         Get started at $15/month
