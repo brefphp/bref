@@ -15,6 +15,7 @@ use hollodotme\FastCGI\Exceptions\TimedoutException;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -175,16 +176,17 @@ final class FpmHandler extends HttpHandler
         }
 
         $responseHeaders = $this->getResponseHeaders($response);
-
-        // Extract the status code
-        if (isset($responseHeaders['status'])) {
-            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
-            unset($responseHeaders['status']);
+        // Determine if the response is a streaming response
+        $body = $response->getBody();
+        if ($body instanceof StreamInterface) {
+          // If the body is a stream, handle streaming response
+          return $this->sendStreamedResponse($responseHeaders, $body, $context);
         }
 
-        $this->ensureStillRunning();
+        // Regular response flow
+        return $this->createHttpResponse($response, $responseHeaders);
 
-        return new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
+
     }
 
     /**
@@ -337,4 +339,79 @@ final class FpmHandler extends HttpHandler
     {
         return array_change_key_case($response->getHeaders(), CASE_LOWER);
     }
+
+  /**
+   * Process and send a streamed response to the Lambda runtime.
+   *
+   * @param array $responseHeaders Headers to send with the response.
+   * @param StreamInterface $streamBody The response body stream to process.
+   * @param Context $context Lambda context for additional metadata (e.g., timeout).
+   *
+   * @throws Exception
+   */
+  private function sendStreamedResponse(array $responseHeaders, StreamInterface $streamBody, Context $context): HttpResponse
+  {
+    // Lambda-specific streaming headers
+    $responseHeaders['Transfer-Encoding'] = 'chunked';
+    $responseHeaders['Lambda-Runtime-Function-Response-Mode'] = 'streaming';
+    $responseHeaders['Trailer'] = ['Lambda-Runtime-Function-Error-Type', 'Lambda-Runtime-Function-Error-Body'];
+
+    // Send the headers first (indicates to Lambda that the response is streaming)
+    foreach ($responseHeaders as $header => $value) {
+      if (is_array($value)) {
+        foreach ($value as $v) {
+          header("$header: $v", false);
+        }
+      } else {
+        header("$header: $value", false);
+      }
+    }
+
+    try {
+      // Actively poll the stream and send chunks of data
+      while (!$streamBody->eof()) {
+        // Read a chunk of data (e.g., 8KB)
+        $chunk = $streamBody->read(8192); // 8 KB chunks
+        if ($chunk === '') {
+          // If no data is available, continue to avoid sending empty chunks
+          usleep(1000); // Sleep for 1ms to prevent excessive CPU usage
+          continue;
+        }
+
+        echo $chunk;  // Write the chunk to PHP's output stream for Lambda
+        flush();      // Ensure the chunk is immediately sent (important for streaming)
+      }
+    } catch (Exception $e) {
+      // Add error info in trailers to report midstream failures
+      header('Lambda-Runtime-Function-Error-Type: Function.ResponseStream.Error', false);
+      header('Lambda-Runtime-Function-Error-Body: ' . $e->getMessage(), false);
+
+      throw $e; // Re-throw the exception after reporting
+    }
+
+    // Return an empty response since streaming is handled dynamically
+    return new HttpResponse('', $responseHeaders, 200);
+  }
+
+  /**
+   * Handle regular responses.
+   *
+   * @param ProvidesResponseData $response
+   * @param array $responseHeaders
+   *
+   * @return HttpResponse
+   */
+  private function createHttpResponse($response, $responseHeaders): HttpResponse
+  {
+    // Extract and handle status + headers for normal responses
+    if (isset($responseHeaders['status'])) {
+      $status = (int)(is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
+      unset($responseHeaders['status']);
+    }
+
+    // Return the normal HTTP response
+    return new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
+  }
+
+
 }
