@@ -9,6 +9,7 @@ use Bref\Event\Http\HttpResponse;
 use Bref\FpmRuntime\FastCgi\FastCgiCommunicationFailed;
 use Bref\FpmRuntime\FastCgi\FastCgiRequest;
 use Bref\FpmRuntime\FastCgi\Timeout;
+use Bref\Logger\StderrLogger;
 use Exception;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Exceptions\TimedoutException;
@@ -16,6 +17,7 @@ use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use Psr\Http\Message\StreamInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -49,11 +51,13 @@ final class FpmHandler extends HttpHandler
     private string $handler;
     private string $configFile;
     private ?Process $fpm = null;
+    private $logger;
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
         $this->handler = $handler;
         $this->configFile = $configFile;
+        $this->logger = new StderrLogger();
     }
 
     /**
@@ -179,10 +183,12 @@ final class FpmHandler extends HttpHandler
         // Determine if the response is a streaming response
         $body = $response->getBody();
         if ($body instanceof StreamInterface) {
+          $this->logger->warning('Streaming response');
+
           // If the body is a stream, handle streaming response
           return $this->sendStreamedResponse($responseHeaders, $body, $context);
         }
-
+        $this->logger->warning('Regular response');
         // Regular response flow
         return $this->createHttpResponse($response, $responseHeaders);
 
