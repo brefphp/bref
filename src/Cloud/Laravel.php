@@ -18,6 +18,9 @@ class Laravel
         '!public/build/**',
         '!public/storage/**',
         '!resources/assets/**',
+        '!resources/js/**',
+        '!resources/css/**',
+        '!resources/images/**',
         '!storage/**',
         // Force to include the public and private keys required by Laravel Passport
         'storage/oauth-private.key',
@@ -39,7 +42,7 @@ class Laravel
      */
     public function __construct(
         public string $name,
-        public string $php = '8.2',
+        public string $php = '8.3',
         public string $path = '.',
         array $patterns = [],
         public string $assets = 'public',
