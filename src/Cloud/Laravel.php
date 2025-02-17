@@ -33,6 +33,9 @@ class Laravel
         'APP_DEBUG' => '0',
         'LOG_CHANNEL' => 'stderr',
         'SESSION_DRIVER' => 'cookie',
+        'FILESYSTEM_DISK' => 's3',
+        'FILESYSTEM_CLOUD' => 's3',
+        'FILESYSTEM_DRIVER' => 's3',
     ];
 
     /**
