@@ -84,9 +84,43 @@ class Laravel
             'queue' => $this->queue,
         ];
 
-        // Only package assets if the `assets` directory exists and contains files
-        if (is_dir($this->assets) && count(scandir($this->assets)) > 2) {
-            $config['assets'] = Cloud::package($this->assets, ['**']);
+        $config = $this->packageAssets($config);
+
+        return $config;
+    }
+
+    private function packageAssets(array $config): array
+    {
+        if (! is_dir($this->assets)) {
+            return $config;
+        }
+
+        // Ignore files:
+        // - .
+        // - ..
+        // - PHP files
+        // - symlinks (e.g. public/storage)
+        // - .htaccess
+        $fileList = scandir($this->assets);
+        $fileList = array_filter($fileList, fn($file) =>
+            ! in_array($file, ['.', '..', '.htaccess'], true)
+            && ! preg_match('/\.php$/', $file)
+            && ! is_link($file)
+        );
+        if (empty($fileList)) {
+            return $config;
+        }
+
+        $config['assets'] = Cloud::package($this->assets, [
+            '**',
+            '!*.php',
+            '!.htaccess',
+            // Ignore the public storage symlink
+            '!storage',
+        ]);
+        $config['routing'] = [];
+        foreach ($fileList as $file) {
+            $config['routing'][$file] = "/$file";
         }
 
         return $config;
