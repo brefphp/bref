@@ -9,6 +9,7 @@ import ecomailLogo from './sponsors/logo-ecomail.png';
 import spreakerLogo from './sponsors/logo-spreaker.svg';
 import voxieLogo from './sponsors/logo-voxie.svg';
 import runsOnLogo from './sponsors/runs-on.svg';
+import playableLogo from './sponsors/logo-playable.svg';
 import PremiumSponsor from './sponsors/premium-sponsor';
 
 export default function Sponsors() {
@@ -38,6 +39,7 @@ export default function Sponsors() {
                 <GoldSponsor src={ecomailLogo} alt="Ecomail" href="https://ecomail.cz/?ref=bref.sh" imgClass="py-2.5" />
                 <GoldSponsor src={spreakerLogo} alt="Spreaker" href="https://www.spreaker.com/?ref=bref" imgClass="py-1.5" />
                 <GoldSponsor src={runsOnLogo} alt="Runs On" href="https://runs-on.com/?ref=bref"/>
+                <GoldSponsor src={playableLogo} alt="Playable" href="https://playable.com/?ref=bref" imgClass="py-3"/>
             </div>
 
             <p className="mt-8 text-gray-700">
