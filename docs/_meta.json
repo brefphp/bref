@@ -28,19 +28,20 @@
   },
   "use-cases": "Use cases",
   "environment": "Environment",
-  "upgrading": "Upgrading",
-  "-- Resources": {
-    "type": "separator",
-    "title": "Resources"
-  },
-  "course": {
-    "title": "Serverless course",
-    "href": "https://serverless-visually-explained.com/?ref=bref-menu"
-  },
   "community": "",
   "case-studies": "",
+  "upgrading": "Upgrading",
   "sentry": {
     "title": "Sentry integration",
     "href": "/sentry"
+  },
+  "-- Cloud": {
+    "type": "separator",
+    "title": "Bref Cloud",
+    "display": "hidden"
+  },
+  "cloud-getting-started": {
+    "title": "Getting started",
+    "display": "hidden"
   }
 }
