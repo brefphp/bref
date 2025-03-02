@@ -44,6 +44,10 @@
     "title": "Getting started",
     "display": "hidden"
   },
+  "cloud-deploy": {
+    "title": "Deployment",
+    "display": "hidden"
+  },
   "cloud-security": {
     "title": "Security",
     "display": "hidden"
