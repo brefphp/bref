@@ -5,9 +5,9 @@ import { Callout } from 'nextra/components';
 
 # Secure access to your AWS accounts
 
-Bref Cloud accesses your AWS accounts to deploy and manage resources like AWS Lambda.
+Bref Cloud accesses your AWS accounts to deploy and manage resources, such as AWS Lambda, S3 buckets, etc. To do this, it interacts with AWS via its SDK and API.
 
-This document explains how Bref Cloud accesses these AWS accounts securely.
+Instead of using long-lived AWS credentials (access keys), Bref Cloud uses IAM roles with temporary credentials following AWS best practices. This document explains how Bref Cloud accesses these AWS accounts securely in more detail.
 
 ## Introduction
 
