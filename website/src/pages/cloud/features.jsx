@@ -23,10 +23,11 @@ const sections = [
         name: 'Features',
         features: [
             { name: 'Hosting', tiers: { bref: 'AWS Lambda in your AWS account', cloud: 'AWS Lambda in your AWS account' } },
-            { name: 'Real-time scaling', tiers: { bref: true, cloud: true }, description: 'AWS Lambda scales up/down automatically in a second or less.' },
+            { name: 'Real-time scaling', tiers: { bref: true, cloud: true }, description: 'AWS Lambda <a class="underline" href="https://bref.sh/docs/how-it-works">scales up/down automatically</a> in a second or less.' },
             { name: 'High-availability', tiers: { bref: true, cloud: true }, description: 'AWS Lambda runs your app redundantly in multiple data centers and automatically replaces instances that fail.' },
             { name: 'PHP runtime for AWS Lambda', tiers: { bref: true, cloud: true } },
             { name: 'Laravel and Symfony integrations', tiers: { bref: true, cloud: true } },
+            { name: 'No vendor lock-in', tiers: { bref: true, cloud: true }, description: '<a class="underline" href="https://bref.sh/docs/vendor-lock-in">Learn more</a>' },
         ],
     },
     {
@@ -44,7 +45,7 @@ const sections = [
                     },
                     cloud: {
                         title: 'Automatic',
-                        description: 'No direct AWS access needed, no action necessary. Bref Cloud transparently creates short-lived access keys.'
+                        description: 'No direct AWS access needed, no action necessary. Bref Cloud transparently <a class="underline" href="https://bref.sh/docs/cloud-security">creates short-lived access keys</a>.'
                     }
                 }
             },
@@ -81,7 +82,7 @@ const sections = [
                         title: false,
                         description: 'AWS CloudWatch (advanced)',
                     },
-                    cloud: 'Coming soon',
+                    cloud: true,
                 }
             },
             { name: 'Queue jobs management', tiers: { bref: false, cloud: true } },
@@ -329,7 +330,7 @@ export default function Features() {
                                                         <div className="">{feature.name}</div>
                                                         {feature.description && (
                                                             <div
-                                                                className="mt-2 text-xs/4 text-gray-500 text-pretty">{feature.description}</div>
+                                                                className="mt-2 text-xs/4 text-gray-500 text-pretty" dangerouslySetInnerHTML={{ __html: feature.description }}></div>
                                                         )}
                                                         {featureIdx !== section.features.length - 1 ? (
                                                             <div
@@ -365,10 +366,7 @@ export default function Features() {
                                                                     </>
                                                                 )}
                                                                 {typeof feature.tiers[tier.id]?.description === 'string' && (
-                                                                    <div
-                                                                        className="mt-1 text-gray-500 text-xs/4 text-pretty">
-                                                                        {feature.tiers[tier.id].description}
-                                                                    </div>
+                                                                    <div className="mt-1 text-gray-500 text-xs/4 text-pretty" dangerouslySetInnerHTML={{ __html: feature.tiers[tier.id].description }}></div>
                                                                 )}
                                                             </div>
                                                         </td>
