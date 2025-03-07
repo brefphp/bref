@@ -153,7 +153,7 @@ export function BrefCloud() {
             <div className="bg-white py-24 sm:py-32 hidden">
                 <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
                     <h2 className="text-base/7 font-semibold text-blue-500">Your Own Cloud</h2>
-                    <p className="mt-2 max-w-lg text-pretty text-4xl font-black tracking-tight text-gray-950 sm:text-5xl">
+                    <p className="mt-2 max-w-lg text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-950">
                         Deploy, debug, monitor, all in one place.
                     </p>
                     <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
@@ -253,20 +253,20 @@ export function BrefCloud() {
 
             <Pricing />
 
-
             <div className="bg-white px-6 py-32 lg:px-8">
                 <div className="mx-auto max-w-2xl text-lg text-pretty leading-8 text-gray-700">
                     <p className="text-base/7 font-semibold text-blue-500">AWS hosting</p>
-                    <h1 className="mt-2 text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
+                    <h2 className="mt-2 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-950">
                         No markup, no lock-in
-                    </h1>
+                    </h2>
                     <p className="mt-6">
-                        Bref Cloud deploys your code to AWS. Your applications run in <strong>your AWS account</strong>, with no markup on AWS prices.
+                        Bref Cloud deploys your applications to <strong>your AWS account</strong>, with no markup on AWS prices.
                         Serverless hosting being pay-as-you-go, your hosting bill from AWS could be as low as $0.
                         Learn more about <a className="link" href="/docs/serverless-costs">serverless hosting costs</a>.
                     </p>
                     <p className="mt-6">
-                        Under the hood, Bref Cloud deploys your applications following AWS best practices and using <strong>AWS CloudFormation</strong>. That means that you are not locked in and can eject from Bref Cloud at any point if you prefer to manage the infrastructure yourself.
+                        Under the hood, Bref Cloud deploys your applications <a className="link" href="https://bref.sh/docs/cloud-security">following AWS best practices</a> and using <strong>standard AWS CloudFormation</strong>. That means that you are not locked in and can eject from Bref Cloud at any point if you prefer to manage the infrastructure yourself.
+                        You are <a className="link" href="https://bref.sh/docs/vendor-lock-in">not even locked in AWS Lambda</a>.
                     </p>
                 </div>
             </div>

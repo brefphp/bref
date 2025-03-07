@@ -93,7 +93,7 @@ export default function Pricing() {
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="mx-auto max-w-4xl text-center">
                     <h2 className="text-base/7 font-semibold text-blue-500">Pricing</h2>
-                    <p className="mt-2 text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
+                    <p className="mt-2 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-950">
                         A plan for every team
                     </p>
                 </div>

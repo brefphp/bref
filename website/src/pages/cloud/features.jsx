@@ -166,7 +166,7 @@ export default function Features() {
             <div className="relative bg-gray-50 lg:pt-14">
                 <div className="mx-auto max-w-4xl text-center">
                     <h2 className="text-base/7 font-semibold text-blue-500">Features</h2>
-                    <p className="mt-2 text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
+                    <p className="mt-2 text-balance text-4xl sm:text-5xl font-black tracking-tight text-gray-950">
                         Bref <small>vs</small> Bref Cloud
                     </p>
                 </div>
