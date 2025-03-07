@@ -1,8 +1,19 @@
 import brefCloudIcon from '../../components/icon.svg';
 import awsIcon from '../../components/icons/AWS.svg';
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
 export default function HowItWorks() {
+    const [step, setStep] = useState(1);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setStep((currentStep) => currentStep === 5 ? 1 : currentStep + 1);
+        }, 2000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <div className="bg-white py-24 sm:py-32">
             <div className="mx-auto max-w-2xl px-6 lg:max-w-4xl lg:px-8">
@@ -49,99 +60,74 @@ export default function HowItWorks() {
                     </div>
 
                     {/* Step 1 */}
-                    <div className="absolute inset-0 py-36 h-full w-40 flex justify-center">
+                    <div className={`absolute inset-0 py-36 h-full w-40 flex justify-center transition-opacity duration-500 ${step === 1 ? 'opacity-100' : 'opacity-0'}`}>
                         <div className="h-full w-full flex justify-center relative">
                             <svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg" className="max-h-full text-blue-500 opacity-75">
                                 <path d="M50 180 L50 35 M50 20 L35 40 M50 20 L65 40" stroke="currentColor" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <div className="absolute inset-0 flex flex-col gap-1 justify-center items-center">
-                                <div className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-center text-gray-700">
+                                <div className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-gray-700">
                                     <div>1</div>
                                 </div>
-                                <div className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Get
-                                    AWS credentials
-                                </div>
+                                <div className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Get AWS credentials</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Step 2 */}
-                    <div className="absolute inset-0 px-40 py-36 h-full w-full flex justify-center">
+                    <div className={`absolute inset-0 px-40 py-36 h-full w-full flex justify-center transition-opacity duration-500 ${step === 2 ? 'opacity-100' : 'opacity-0'}`}>
                         <div className="h-full w-full flex justify-center relative">
-                            <svg viewBox="0 0 760 160" xmlns="http://www.w3.org/2000/svg"
-                                 className="max-h-full text-blue-500 opacity-75">
-                                <path d="M76 190 L664 -10 M684 -20 L634 -30 M684 -20 L660 25" stroke="currentColor"
-                                      strokeWidth="7" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                            <svg viewBox="0 0 760 160" xmlns="http://www.w3.org/2000/svg" className="max-h-full text-blue-500 opacity-75">
+                                <path d="M76 190 L664 -10 M684 -20 L634 -30 M684 -20 L660 25" stroke="currentColor" strokeWidth="7" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <div className="absolute inset-0 flex gap-1 justify-center items-center">
-                                <div
-                                    className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-center text-gray-700">
+                                <div className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-gray-700">
                                     <div>2</div>
                                 </div>
-                                <div
-                                    className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Deploy
-                                </div>
+                                <div className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Deploy</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Step 3 */}
-                    <div className="absolute top-0 right-0 bottom-0 py-36 h-full w-40 flex justify-center">
+                    <div className={`absolute top-0 right-0 bottom-0 py-36 h-full w-40 flex justify-center transition-opacity duration-500 ${step === 3 ? 'opacity-100' : 'opacity-0'}`}>
                         <div className="h-full w-full flex justify-center relative">
-                            <svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg"
-                                 className="max-h-full text-blue-500 opacity-75">
-                                <path d="M50 180 L50 35 M50 20 L35 40 M50 20 L65 40" stroke="currentColor"
-                                      strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                            <svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg" className="max-h-full text-blue-500 opacity-75">
+                                <path d="M50 180 L50 35 M50 20 L35 40 M50 20 L65 40" stroke="currentColor" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <div className="absolute inset-0 flex flex-col gap-1 justify-center items-center">
-                                <div
-                                    className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-center text-gray-700">
+                                <div className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-gray-700">
                                     <div>3</div>
                                 </div>
-                                <div
-                                    className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Your
-                                    app is up and serving traffic
-                                </div>
+                                <div className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Your app is up and serving traffic</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Step 4 */}
-                    <div className="absolute inset-0 py-36 h-full w-40 flex justify-center">
+                    <div className={`absolute inset-0 py-36 h-full w-40 flex justify-center transition-opacity duration-500 ${step === 4 ? 'opacity-100' : 'opacity-0'}`}>
                         <div className="h-full w-full flex justify-center relative">
-                            <svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg"
-                                 className="max-h-full text-blue-500 opacity-75">
-                                <path d="M50 180 L50 35 M50 20 L35 40 M50 20 L65 40" stroke="currentColor"
-                                      strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                            <svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg" className="max-h-full text-blue-500 opacity-75">
+                                <path d="M50 180 L50 35 M50 20 L35 40 M50 20 L65 40" stroke="currentColor" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <div className="absolute inset-0 flex flex-col gap-1 justify-center items-center">
-                                <div
-                                    className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-center text-gray-700">
+                                <div className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-gray-700">
                                     <div>4</div>
                                 </div>
-                                <div
-                                    className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Monitor
-                                    via Bref Cloud
-                                </div>
+                                <div className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Monitor via Bref Cloud</div>
                             </div>
                         </div>
                     </div>
-                    <div className="absolute top-0 right-0 bottom-0 h-36 w-full px-48 flex justify-center">
+                    <div className={`absolute top-0 right-0 bottom-0 h-36 w-full px-48 flex justify-center transition-opacity duration-500 ${step === 4 ? 'opacity-100' : 'opacity-0'}`}>
                         <div className="h-full w-full flex justify-center relative">
-                            <svg viewBox="0 0 760 144" xmlns="http://www.w3.org/2000/svg"
-                                 className="max-h-full text-blue-500 opacity-75">
-                                <path d="M20 72 L712 72 M740 72 L700 52 M740 72 L700 92" stroke="currentColor"
-                                      strokeWidth="7" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                            <svg viewBox="0 0 760 144" xmlns="http://www.w3.org/2000/svg" className="max-h-full text-blue-500 opacity-75">
+                                <path d="M20 72 L712 72 M740 72 L700 52 M740 72 L700 92" stroke="currentColor" strokeWidth="7" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <div className="absolute inset-0 flex gap-1 justify-center items-center">
-                                <div
-                                    className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-center text-gray-700">
+                                <div className="flex items-center justify-center size-6 rounded-full bg-gray-100 ring-1 ring-gray-200 text-gray-700">
                                     <div>4</div>
                                 </div>
-                                <div
-                                    className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Secure
-                                    access via the AWS API
-                                </div>
+                                <div className="px-1 text-center font-semibold text-xs bg-white text-gray-600 rounded">Secure access via the AWS API</div>
                             </div>
                         </div>
                     </div>
