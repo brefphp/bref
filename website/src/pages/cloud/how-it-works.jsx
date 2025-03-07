@@ -9,6 +9,8 @@ export default function HowItWorks() {
     const nextStep = () => setStep((current) => current === 5 ? 1 : current + 1);
     const prevStep = () => setStep((current) => current === 1 ? 5 : current - 1);
 
+    return (<div></div>);
+
     return (
         <div className="bg-white py-24 sm:py-32">
             <div className="mx-auto max-w-2xl px-6 lg:max-w-4xl lg:px-8">
