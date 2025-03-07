@@ -89,7 +89,7 @@ export default function Pricing() {
     const [frequency, setFrequency] = useState(frequencies[0])
 
     return (
-        <div id="pricing" className="bg-white py-24 sm:py-32">
+        <div id="pricing" className="bg-white py-24">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="mx-auto max-w-4xl text-center">
                     <h2 className="text-base/7 font-semibold text-blue-500">Pricing</h2>
