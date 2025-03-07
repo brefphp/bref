@@ -1,0 +1,44 @@
+import { NextSeo } from 'next-seo';
+import { Callout } from 'nextra/components';
+
+<NextSeo description="Is there vendor lock-in from using Bref and AWS Lambda?" />
+
+# AWS Lambda vendor lock-in
+
+A key design goal of Bref is to make it easy to port existing applications to AWS Lambda without changes.
+
+In most scenarios, **your PHP code does not need to be adapted for AWS Lambda**.
+
+## No vendor lock-in
+
+Bref provides abstractions that make your code run like it would on any traditional server: the [default runtime](./runtimes/fpm-runtime.mdx) runs PHP-FPM exactly like on a classic server, framework integrations preconfigure common needs like file storage and queues, and console commands run as usual through the [Console runtime](./runtimes/console.mdx).
+
+**New projects with modern frameworks often don't require code changes**.
+
+For existing (or legacy) applications, the main changes are usually about **making applications "cloud-ready"**. This means preparing your code to run distributed across multiple servers:
+
+- Storing sessions in a central place (e.g. the database or Redis) instead of the local filesystem
+- Send logs to a central place (AWS CloudWatch) instead of local files
+- Using centralized caching (e.g. Redis) instead of local file caching
+- Storing files on cloud storage (e.g. S3) instead of the local filesystem
+- Hosting the database on a separate server (e.g. RDS) instead of using SQLite or running MySQL on the same server as the application
+
+The good news is: **these changes are not specific to serverless or AWS Lambda**. They are necessary for any application that needs to scale across multiple servers. This work is not wasted.
+
+**This doesn't create vendor lock-in.** This actually helps move to another hosting solution if you ever need to.
+
+The reason this is made easy is a combination of both native framework features and Bref's integrations, for example:
+
+- Frameworks can easily switch between different storage and caching backends
+- Bref preconfigures logs to be sent to CloudWatch
+- Bref provides SQS + Lambda runtime integrations for Symfony Messenger and Laravel Queues
+
+## Choosing vendor lock-in
+
+Vendor lock-in is not a bad thing in itself. It's a trade-off.
+
+While Bref makes things easy, it also allows you to take advantage of all that AWS and AWS Lambda have to offer. That means **you can make the choice of coupling to AWS Lambda's lower-level features if you want to**.
+
+For example, you can write event-driven functions to handle events from other AWS services (you will find plenty of examples in the "Use cases" section of the docs), as well as skip the framework integrations and write custom [SQS queue handlers](./use-cases/sqs.mdx) (for example to optimize performance or costs).
+
+This approach is completely optional: you can start with a traditional PHP application structure and gradually adopt AWS features if and when they provide value.

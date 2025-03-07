@@ -15,6 +15,7 @@
   "runtimes": "PHP runtimes for Lambda",
   "how-it-works": "How Bref works in details",
   "serverless-costs": "Serverless costs",
+  "vendor-lock-in": "Vendor lock-in",
   "-- Workflow": {
     "type": "separator",
     "title": "Workflow"
