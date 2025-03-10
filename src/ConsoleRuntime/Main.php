@@ -5,6 +5,7 @@ namespace Bref\ConsoleRuntime;
 use Bref\Bref;
 use Bref\Context\Context;
 use Bref\LazySecretsLoader;
+use Bref\Runtime\ColdStartTracker;
 use Bref\Runtime\LambdaRuntime;
 use Symfony\Component\Process\Process;
 
@@ -15,6 +16,8 @@ class Main
 {
     public static function run(): void
     {
+        ColdStartTracker::init();
+
         LazySecretsLoader::loadSecretEnvironmentVariables();
 
         Bref::triggerHooks('beforeStartup');
@@ -29,6 +32,8 @@ class Main
         }
 
         Bref::events()->afterStartup();
+
+        ColdStartTracker::coldStartFinished();
 
         /** @phpstan-ignore-next-line */
         while (true) {
