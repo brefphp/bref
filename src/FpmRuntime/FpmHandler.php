@@ -198,12 +198,17 @@ final class FpmHandler extends HttpHandler
 
     /**
      * @throws Exception
+     * @see https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html#runtimes-lifecycle-ib
      */
     private function waitUntilReady(): void
     {
         $wait = 5000; // 5ms
         $timeout = 5000000; // 5 secs
         $elapsed = 0;
+
+        if ($_SERVER['BREF_FPM_READY_TIMEOUT'] ?? false) {
+            $timeout = (int) $_SERVER['BREF_FPM_READY_TIMEOUT'];
+        }
 
         while (! $this->isReady()) {
             usleep($wait);
