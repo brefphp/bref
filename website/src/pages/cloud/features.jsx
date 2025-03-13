@@ -148,6 +148,12 @@ const sections = [
         ],
     },
     {
+        name: 'Costs Management',
+        features: [
+            { name: 'AWS cost alerts & limits', tiers: { bref: false, cloud: 'Coming soon' } },
+        ],
+    },
+    {
         name: 'Support',
         features: [
             { name: 'Priority bugfixes on GitHub', tiers: { bref: false, cloud: true } },
@@ -399,12 +405,7 @@ export default function Features() {
                         <div className="mt-4 grid grid-cols-3 gap-x-8 border-b border-gray-900/10 before:block">
                             {tiers.map((tier) => (
                                 <div key={tier.id} aria-hidden="true" className="-mt-px">
-                                    <div
-                                        className={classNames(
-                                            tier.featured ? 'border-blue-600' : 'border-transparent',
-                                            'border-b-2 pt-10',
-                                        )}
-                                    >
+                                    <div className="pt-10 pb-2">
                                         <p
                                             className={classNames(
                                                 tier.featured ? 'text-blue-600' : 'text-gray-900',
