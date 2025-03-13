@@ -197,8 +197,9 @@ final class FpmHandler extends HttpHandler
     }
 
     /**
-     * @throws Exception
      * @see https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtime-environment.html#runtimes-lifecycle-ib
+     *
+     * @throws Exception
      */
     private function waitUntilReady(): void
     {
