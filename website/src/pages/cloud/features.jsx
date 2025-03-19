@@ -169,7 +169,7 @@ function classNames(...classes) {
 export default function Features() {
     return (
         <div className="isolate overflow-hidden">
-            <div className="relative bg-gray-50 lg:pt-14">
+            <div className="relative bg-gray-50 pt-8 lg:pt-14">
                 <div className="mx-auto max-w-4xl text-center">
                     <h2 className="text-base/7 font-semibold text-blue-500">Features</h2>
                     <p className="mt-2 text-balance text-4xl sm:text-5xl font-black tracking-tight text-gray-950">

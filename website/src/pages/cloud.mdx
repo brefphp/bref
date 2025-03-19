@@ -8,6 +8,7 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import Features from './cloud/features';
 import Faq from './cloud/faq';
 import HowItWorks from './cloud/how-it-works';
+import Image from 'next/image';
 
 <NextSeo
     title="Bref Cloud - Serverless PHP hosting on AWS Lambda - powerful, scalable, simple"
@@ -65,12 +66,11 @@ export function BrefCloud() {
                         <div className="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
                             <div
                                 className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-                                <img
-                                    alt="App screenshot"
+                                <Image
+                                    alt="Bref Cloud screenshot"
                                     src={mainScreenshot}
-                                    width={2432}
-                                    height={1442}
                                     className="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10"
+                                    priority={true}
                                 />
                             </div>
                         </div>
@@ -130,7 +130,7 @@ export function BrefCloud() {
             <div className="py-24 sm:py-28">
                 <div className="mx-auto max-w-4xl px-6 lg:px-8 text-lg text-pretty leading-8 text-gray-700">
                     <h2 className="mb-10 text-pretty text-3xl font-black tracking-tight text-gray-950">
-                        Support, consulting, and guidance <br/>
+                        Support, consulting, and guidance <br className="hidden lg:block"/>
                         <span className="text-amber-800/80">built-in</span>
                     </h2>
                     <div className="w-full flex flex-col-reverse md:flex-row gap-6 items-start">
@@ -160,105 +160,6 @@ export function BrefCloud() {
                         </div>
                         <div className="aspect-square flex-none rounded-full w-32 h-32 md:w-64 md:h-64 lg:w-80 lg:h-80 border border-gray-500 shadow-lg overflow-hidden">
                             <img src={authorPhoto} alt="Matthieu Napoli" className="object-cover h-full w-full" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-white py-24 sm:py-32 hidden">
-                <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
-                    <h2 className="text-base/7 font-semibold text-blue-500">Your Own Cloud</h2>
-                    <p className="mt-2 max-w-lg text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-950">
-                        Deploy, debug, monitor, all in one place.
-                    </p>
-                    <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
-                        <div className="relative lg:col-span-3">
-                            <div className="absolute inset-px rounded-lg bg-white lg:rounded-tr-[2rem]" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
-                                <img alt="AWS" src={awsIllustration}
-                                     className="h-80 object-cover object-left lg:object-right bg-gray-50" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">
-                                        AWS
-                                    </h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        Best in class hosting
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Applications run in <strong>your AWS account</strong>.
-                                        Run on the biggest and most reliable hosting provider in the world, without any markup on AWS prices.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 lg:rounded-tr-[2rem]" />
-                        </div>
-                        <div className="relative lg:col-span-3">
-                            <div className="absolute inset-px rounded-lg bg-white max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">
-                                <img alt="Deployments" src={deploymentsScreenshot} className="h-80 object-cover object-left" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">Deployments</h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        Simple and fast deployments
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Deploy Laravel, Symfony, or any PHP applications with a simple <code className="font-semibold">serverless.yml</code> file. Bref Cloud tracks all your deployments in one place.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
-                        </div>
-                        <div className="relative lg:col-span-2">
-                            <div className="absolute inset-px rounded-lg bg-white lg:rounded-bl-[2rem]" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-bl-[calc(2rem+1px)]">
-                                <img alt="" src="https://tailwindui.com/plus/img/component-images/bento-01-speed.png"
-                                    className="h-80 object-cover object-left" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">Access Management</h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        Invite teammates without IAM nightmares
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Bref Cloud makes it easy to invite your team members to your projects.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 lg:rounded-bl-[2rem]" />
-                        </div>
-                        <div className="relative lg:col-span-2">
-                            <div className="absolute inset-px rounded-lg bg-white" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-                                <img alt="" src="https://tailwindui.com/plus/img/component-images/bento-01-integrations.png"
-                                    className="h-80 object-cover" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">Dashboard</h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        All your apps in one place
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Hosting multi-region? Using multiple AWS accounts?
-                                        Bref Cloud centralizes everything in one place.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5" />
-                        </div>
-                        <div className="relative lg:col-span-2">
-                            <div className="absolute inset-px rounded-lg bg-white max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]">
-                                <img alt="" src="https://tailwindui.com/plus/img/component-images/bento-01-network.png"
-                                    className="h-80 object-cover" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">Monitoring</h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        Logs, metrics, queues…
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        All your logs, metrics, and queues in one place to quickly debug your applications.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]" />
                         </div>
                     </div>
                 </div>

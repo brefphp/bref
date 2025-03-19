@@ -38,23 +38,18 @@
   },
   "-- Cloud": {
     "type": "separator",
-    "title": "Bref Cloud",
-    "display": "visible"
+    "title": "Bref Cloud"
   },
   "cloud": {
-    "title": "Introduction",
-    "display": "visible"
+    "title": "Introduction"
   },
   "cloud-getting-started": {
-    "title": "Getting started",
-    "display": "visible"
+    "title": "Getting started"
   },
   "cloud-deploy": {
-    "title": "Deployment",
-    "display": "visible"
+    "title": "Deployment"
   },
   "cloud-security": {
-    "title": "Security",
-    "display": "visible"
+    "title": "Security"
   }
 }
