@@ -184,85 +184,51 @@ export default function Features() {
                         </h2>
 
                         <div className="mx-auto max-w-2xl space-y-16">
-                            {tiers.map((tier) => (
-                                <div key={tier.id} className="border-t border-gray-900/10">
-                                    <div
-                                        className={classNames(
-                                            tier.featured ? 'border-blue-600' : 'border-transparent',
-                                            '-mt-px w-72 border-t-2 pt-10 md:w-80',
-                                        )}
-                                    >
-                                        <h3
-                                            className={classNames(
-                                                tier.featured ? 'text-blue-600' : 'text-gray-900',
-                                                'text-sm/6 font-semibold',
-                                            )}
-                                        >
-                                            {tier.name}
-                                        </h3>
-                                        <p className="mt-1 text-sm/6 text-gray-600">{tier.description}</p>
-                                    </div>
 
-                                    <div className="mt-10 space-y-10">
-                                        {sections.map((section) => (
-                                            <div key={section.name}>
-                                                <h4 className="text-sm/6 font-semibold text-gray-900">{section.name}</h4>
-                                                <div className="relative mt-6">
-                                                    {/* Fake card background */}
-                                                    <div
-                                                        aria-hidden="true"
-                                                        className="absolute inset-y-0 right-0 hidden w-1/2 rounded-lg bg-white shadow-sm sm:block"
-                                                    />
-
-                                                    <div
-                                                        className={classNames(
-                                                            tier.featured ? 'ring-2 ring-blue-600' : 'ring-1 ring-gray-900/10',
-                                                            'relative rounded-lg bg-white shadow-sm sm:rounded-none sm:bg-transparent sm:shadow-none sm:ring-0',
-                                                        )}
-                                                    >
-                                                        <dl className="divide-y divide-gray-200 text-sm/6">
-                                                            {section.features.map((feature) => (
-                                                                <div
-                                                                    key={feature.name}
-                                                                    className="flex items-center justify-between px-4 py-3 sm:grid sm:grid-cols-2 sm:px-0"
+                            {sections.map((section) => (
+                                <div key={section.name}>
+                                    <h4 className="text-base/6 font-semibold text-gray-900">{section.name}</h4>
+                                    <div className="mt-6 text-sm/6">
+                                        {section.features.map((feature) => (
+                                            <div key={feature.name} className="my-6">
+                                                <div className="font-semibold text-gray-600">{feature.name}</div>
+                                                {feature.description && (
+                                                    <div className="mt-1 text-xs/4 text-gray-500 text-pretty" dangerouslySetInnerHTML={{ __html: feature.description }}></div>
+                                                )}
+                                                <div className="mt-2 grid grid-cols-2 text-center text-gray-400 text-xs">
+                                                    <div>Bref</div>
+                                                    <div>Bref Cloud</div>
+                                                </div>
+                                                <div className="rounded bg-white ring-1 ring-gray-900/10 py-2 grid grid-cols-2 text-center divide-x divide-gray-200">
+                                                    {tiers.map((tier) => (
+                                                        <div className="px-1.5">
+                                                            {(typeof feature.tiers[tier.id] === 'string' || typeof feature.tiers[tier.id]?.title === 'string') && (
+                                                                <span
+                                                                    className={classNames(
+                                                                        tier.featured ? 'font-semibold text-blue-600' : 'text-gray-900',
+                                                                        ' text-sm/5',
+                                                                    )}
                                                                 >
-                                                                    <dt className="pr-4 text-gray-600">{feature.name}</dt>
-                                                                    <dd className="flex items-center justify-end sm:justify-center sm:px-4">
-                                                                        {typeof feature.tiers[tier.id] === 'string' ? (
-                                                                            <span
-                                                                                className={tier.featured ? 'font-semibold text-blue-600' : 'text-gray-900'}
-                                                                            >
-                                                                                {feature.tiers[tier.id]}
-                                                                            </span>
-                                                                        ) : (
-                                                                            <>
-                                                                                {feature.tiers[tier.id] === true ? (
-                                                                                    <CheckIcon aria-hidden="true"
-                                                                                               className="mx-auto size-5 text-blue-600" />
-                                                                                ) : (
-                                                                                    <XMarkIcon aria-hidden="true"
-                                                                                               className="mx-auto size-5 text-gray-400" />
-                                                                                )}
-
-                                                                                <span className="sr-only">
-                                                                                    {feature.tiers[tier.id] === true ? 'Yes' : 'No'}
-                                                                                </span>
-                                                                            </>
-                                                                        )}
-                                                                    </dd>
+                                                                    {feature.tiers[tier.id]?.title || feature.tiers[tier.id]}
+                                                                </span>
+                                                            )}
+                                                            {(typeof feature.tiers[tier.id] === 'boolean' || typeof feature.tiers[tier.id]?.title === 'boolean') && (
+                                                                <div className="flex justify-center">
+                                                                    {(feature.tiers[tier.id]?.title || feature.tiers[tier.id]) === true ? (
+                                                                        <CheckIcon aria-hidden="true" className="block size-6 text-blue-600" />
+                                                                    ) : (
+                                                                        <XMarkIcon aria-hidden="true" className="block size-6 text-gray-400" />
+                                                                    )}
+                                                                    <span className="sr-only">
+                                                                        {(feature.tiers[tier.id]?.title || feature.tiers[tier.id]) === true ? 'Yes' : 'No'}
+                                                                    </span>
                                                                 </div>
-                                                            ))}
-                                                        </dl>
-                                                    </div>
-
-                                                    {/* Fake card border */}
-                                                    <div
-                                                        aria-hidden="true"
-                                                        className={classNames(
-                                                            tier.featured ? 'ring-2 ring-blue-600' : 'ring-1 ring-gray-900/10',
-                                                            'pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 rounded-lg sm:block',
-                                                        )}
-                                                    />
+                                                            )}
+                                                            {typeof feature.tiers[tier.id]?.description === 'string' && (
+                                                                <div className="mt-1 text-gray-500 text-xs/4 text-pretty" dangerouslySetInnerHTML={{ __html: feature.tiers[tier.id].description }}></div>
+                                                            )}
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             </div>
                                         ))}
