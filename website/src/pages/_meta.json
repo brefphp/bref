@@ -19,6 +19,13 @@
       "typesetting": "article"
     }
   },
+  "cloud": {
+    "type": "page",
+    "title": "Bref Cloud",
+    "theme": {
+      "layout": "raw"
+    }
+  },
   "support": {
     "type": "page",
     "title": "Support",
@@ -44,14 +51,6 @@
   "sentry": {
     "type": "page",
     "title": "Sentry integration for AWS Lambda",
-    "display": "hidden",
-    "theme": {
-      "layout": "raw"
-    }
-  },
-  "cloud": {
-    "type": "page",
-    "title": "Bref Cloud",
     "display": "hidden",
     "theme": {
       "layout": "raw"
