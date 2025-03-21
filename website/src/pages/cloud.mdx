@@ -1,6 +1,5 @@
 import mainScreenshot from './cloud/bref-cloud.png';
-import deploymentsScreenshot from './cloud/deployments.png';
-import awsIllustration from './cloud/aws.svg';
+import logo from './cloud/bref-cloud-logo.svg';
 import authorPhoto from './cloud/author.jpg';
 import { NextSeo } from 'next-seo';
 import Pricing from './cloud/pricing';
@@ -34,7 +33,10 @@ export function BrefCloud() {
                 </svg>
                 <div className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-32">
                     <div className="mx-auto max-w-2xl lg:mx-0 lg:shrink-0 lg:pt-8">
-                        <h1 className="mt-10 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
+                        <div className="flex justify-start">
+                            <Image src={logo} className="w-32" alt="Bref Cloud" />
+                        </div>
+                        <h1 className="mt-4 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
                             <span className="text-blue-500">Serverless</span> PHP made simple,
                             <br/>
                             with everything included
