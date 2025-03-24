@@ -38,4 +38,11 @@ if (isset($_GET['huge'])) {
     exit(0);
 }
 
+// Overload the memory with a 3GB string
+if (isset($_GET['overload'])) {
+    $str = str_repeat('a', 1024 * 1024 * 1024 * 3);
+    echo $str;
+    exit(0);
+}
+
 echo 'Hello world!';

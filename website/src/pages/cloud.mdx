@@ -1,6 +1,5 @@
 import mainScreenshot from './cloud/bref-cloud.png';
-import deploymentsScreenshot from './cloud/deployments.png';
-import awsIllustration from './cloud/aws.svg';
+import logo from './cloud/bref-cloud-logo.svg';
 import authorPhoto from './cloud/author.jpg';
 import { NextSeo } from 'next-seo';
 import Pricing from './cloud/pricing';
@@ -8,9 +7,11 @@ import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import Features from './cloud/features';
 import Faq from './cloud/faq';
 import HowItWorks from './cloud/how-it-works';
+import Image from 'next/image';
 
 <NextSeo
-    description="Bref Cloud"
+    title="Bref Cloud - Serverless PHP hosting on AWS Lambda - powerful, scalable, simple"
+    description="Deploy PHP applications on AWS Lambda for unlimited scalability and enterprise-grade reliability. Get all the power of serverless without the complexity."
     openGraph={{
         images: [
             {
@@ -30,20 +31,25 @@ export function BrefCloud() {
                 <svg aria-hidden="true" className="absolute inset-0 -z-10 size-full stroke-gray-200 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]">
                     <defs><pattern x="50%" y={-1} id="0787a7c5-978c-4f66-83c7-11c213f99cb7" width={200} height={200} patternUnits="userSpaceOnUse"><path d="M.5 200V.5H200" fill="none" /></pattern></defs><rect fill="url(#0787a7c5-978c-4f66-83c7-11c213f99cb7)" width="100%" height="100%" strokeWidth={0} />
                 </svg>
-                <div className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-40">
+                <div className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-32">
                     <div className="mx-auto max-w-2xl lg:mx-0 lg:shrink-0 lg:pt-8">
-                        <h1 className="mt-10 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
-                            The power of <span className="text-blue-500">serverless</span>
+                        <div className="flex justify-start">
+                            <Image src={logo} className="w-32" alt="Bref Cloud" />
+                        </div>
+                        <h1 className="mt-4 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
+                            <span className="text-blue-500">Serverless</span> PHP made simple,
                             <br/>
-                            without the complexity
+                            with everything included
                         </h1>
                         <p className="mt-8 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
-                            The reliability of AWS and insane scalability of
-                            AWS&nbsp;Lambda without having to become an AWS expert. <br/>
+                            Get the reliability and scalability of
+                            AWS and Lambda without having to become an AWS expert.
                         </p>
                         <p className="mt-3 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
-                            Bref Cloud makes all that accessible and simple, <br/>
-                            with <strong>expert support</strong> built-in.
+                            Deploy in one command, monitor from an intuitive dashboard, and manage permissions easily.
+                        </p>
+                        <p className="mt-3 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
+                            Bref Cloud makes it all <strong>accessible and simple</strong> with expert support built-in.
                         </p>
                         <div className="mt-10 flex items-center gap-x-6">
                             <a
@@ -53,7 +59,7 @@ export function BrefCloud() {
                                 Get started
                             </a>
                             <a href="https://calendly.com/bref-enterprise/bref-cloud-demo" className="text-sm/6 font-semibold text-gray-900">
-                                Get a demo <span aria-hidden="true">→</span>
+                                Schedule a demo <span aria-hidden="true">→</span>
                             </a>
                         </div>
                     </div>
@@ -62,12 +68,11 @@ export function BrefCloud() {
                         <div className="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
                             <div
                                 className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-                                <img
-                                    alt="App screenshot"
+                                <Image
+                                    alt="Bref Cloud screenshot"
                                     src={mainScreenshot}
-                                    width={2432}
-                                    height={1442}
                                     className="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10"
+                                    priority={true}
                                 />
                             </div>
                         </div>
@@ -84,8 +89,8 @@ export function BrefCloud() {
                         Pick two.
                     </p>
                     <p className="mt-4">
-                        One can build the most advanced infrastructure themselves, but it requires good expertise and effort.
-                        There are also really cool PaaS out there, but they don't have the same track record as large and established cloud providers.
+                        Building advanced infrastructure yourself requires expertise and time.
+                        There are also really cool PaaS out there, but they don't have the same track record as major cloud providers.
                     </p>
                     <p className="mt-4">
                         Bref Cloud goes for all three.
@@ -100,23 +105,34 @@ export function BrefCloud() {
                         <li className="flex gap-x-3">
                             <CheckCircleIcon aria-hidden="true" className="mt-1.5 size-5 flex-none text-blue-500" />
                             <span>
-                                <strong className="text-gray-900">Powerful</strong>: Bref runs PHP applications at (almost) infinite scale using serverless. It also uses the best of AWS to provide everything your application needs: databases, queues, storage, caches, cron tasks, CDN, event buses, logging, metrics… And if you fancy, you can use any other AWS service without any limitation.
+                                <strong className="text-gray-900">Powerful</strong>: Run PHP applications at virtually unlimited scale using serverless. Get everything your application needs out of the box: databases, queues, storage, caches, cron, CDN, event buses, logging, metrics… If you fancy, you can also use the entire AWS ecosystem without limitations.
                             </span>
                         </li>
                         <li className="flex gap-x-3">
                             <CheckCircleIcon aria-hidden="true" className="mt-1.5 size-5 flex-none text-blue-500" />
                             <span>
-                                <strong className="text-gray-900">Simple</strong>: Bref Cloud makes the power of Bref and AWS accessible to all PHP developers. No need to become an AWS expert. Get the best developer experience with a simple and intuitive UI and CLI. Deploy, debug, monitor, all in one place.
+                                <strong className="text-gray-900">Simple</strong>: Bref Cloud makes the power of AWS accessible to all. Deploy with a single command, monitor from an intuitive dashboard, and manage your team without AWS IAM complexity. Perfect for PHP developers who want to build, not configure.
                             </span>
                         </li>
                     </ul>
+                    <div className="mt-10 flex items-center gap-x-6">
+                        <a
+                            href="https://bref.cloud/register"
+                            className="rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                        >
+                            Get started
+                        </a>
+                        <a href="https://calendly.com/bref-enterprise/bref-cloud-demo" className="text-sm/6 font-semibold text-gray-900">
+                            Schedule a demo <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <div className="py-24 sm:py-28">
                 <div className="mx-auto max-w-4xl px-6 lg:px-8 text-lg text-pretty leading-8 text-gray-700">
                     <h2 className="mb-10 text-pretty text-3xl font-black tracking-tight text-gray-950">
-                        Support, consulting, and guidance <br/>
+                        Support, consulting, and guidance <br className="hidden lg:block"/>
                         <span className="text-amber-800/80">built-in</span>
                     </h2>
                     <div className="w-full flex flex-col-reverse md:flex-row gap-6 items-start">
@@ -151,105 +167,6 @@ export function BrefCloud() {
                 </div>
             </div>
 
-            <div className="bg-white py-24 sm:py-32 hidden">
-                <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
-                    <h2 className="text-base/7 font-semibold text-blue-500">Your Own Cloud</h2>
-                    <p className="mt-2 max-w-lg text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-950">
-                        Deploy, debug, monitor, all in one place.
-                    </p>
-                    <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
-                        <div className="relative lg:col-span-3">
-                            <div className="absolute inset-px rounded-lg bg-white lg:rounded-tr-[2rem]" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-tr-[calc(2rem+1px)]">
-                                <img alt="AWS" src={awsIllustration}
-                                     className="h-80 object-cover object-left lg:object-right bg-gray-50" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">
-                                        AWS
-                                    </h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        Best in class hosting
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Applications run in <strong>your AWS account</strong>.
-                                        Run on the biggest and most reliable hosting provider in the world, without any markup on AWS prices.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 lg:rounded-tr-[2rem]" />
-                        </div>
-                        <div className="relative lg:col-span-3">
-                            <div className="absolute inset-px rounded-lg bg-white max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-t-[calc(2rem+1px)] lg:rounded-tl-[calc(2rem+1px)]">
-                                <img alt="Deployments" src={deploymentsScreenshot} className="h-80 object-cover object-left" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">Deployments</h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        Simple and fast deployments
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Deploy Laravel, Symfony, or any PHP applications with a simple <code className="font-semibold">serverless.yml</code> file. Bref Cloud tracks all your deployments in one place.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 max-lg:rounded-t-[2rem] lg:rounded-tl-[2rem]" />
-                        </div>
-                        <div className="relative lg:col-span-2">
-                            <div className="absolute inset-px rounded-lg bg-white lg:rounded-bl-[2rem]" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] lg:rounded-bl-[calc(2rem+1px)]">
-                                <img alt="" src="https://tailwindui.com/plus/img/component-images/bento-01-speed.png"
-                                    className="h-80 object-cover object-left" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">Access Management</h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        Invite teammates without IAM nightmares
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Bref Cloud makes it easy to invite your team members to your projects.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 lg:rounded-bl-[2rem]" />
-                        </div>
-                        <div className="relative lg:col-span-2">
-                            <div className="absolute inset-px rounded-lg bg-white" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)]">
-                                <img alt="" src="https://tailwindui.com/plus/img/component-images/bento-01-integrations.png"
-                                    className="h-80 object-cover" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">Dashboard</h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        All your apps in one place
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        Hosting multi-region? Using multiple AWS accounts?
-                                        Bref Cloud centralizes everything in one place.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5" />
-                        </div>
-                        <div className="relative lg:col-span-2">
-                            <div className="absolute inset-px rounded-lg bg-white max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]" />
-                            <div className="relative flex h-full flex-col overflow-hidden rounded-[calc(theme(borderRadius.lg)+1px)] max-lg:rounded-b-[calc(2rem+1px)] lg:rounded-br-[calc(2rem+1px)]">
-                                <img alt="" src="https://tailwindui.com/plus/img/component-images/bento-01-network.png"
-                                    className="h-80 object-cover" />
-                                <div className="p-10 pt-4">
-                                    <h3 className="text-sm/4 font-semibold text-blue-500">Monitoring</h3>
-                                    <p className="mt-2 text-lg font-extrabold tracking-tight text-gray-950">
-                                        Logs, metrics, queues…
-                                    </p>
-                                    <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
-                                        All your logs, metrics, and queues in one place to quickly debug your applications.
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="pointer-events-none absolute inset-px rounded-lg shadow ring-1 ring-black/5 max-lg:rounded-b-[2rem] lg:rounded-br-[2rem]" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <Features />
 
             <HowItWorks />
@@ -258,19 +175,30 @@ export function BrefCloud() {
 
             <div className="bg-white px-6 py-32 lg:px-8">
                 <div className="mx-auto max-w-2xl text-lg text-pretty leading-8 text-gray-700">
-                    <p className="text-base/7 font-semibold text-blue-500">AWS hosting</p>
+                    <p className="text-base/7 font-semibold text-blue-500">Your cloud, your control</p>
                     <h2 className="mt-2 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-950">
                         No markup, no lock-in
                     </h2>
                     <p className="mt-6">
-                        Bref Cloud deploys your applications to <strong>your AWS account</strong>, with no markup on AWS prices.
-                        Serverless hosting being pay-as-you-go, your hosting bill from AWS could be as low as $0.
+                        Bref Cloud deploys your applications to <strong>your AWS account</strong>, with zero markup on AWS prices.
+                        With serverless pay-as-you-go pricing, your hosting bill from AWS could be as low as $0.
                         Learn more about <a className="link" href="/docs/serverless-costs">serverless hosting costs</a>.
                     </p>
                     <p className="mt-6">
-                        Under the hood, Bref Cloud deploys your applications <a className="link" href="https://bref.sh/docs/cloud-security">following AWS best practices</a> and using <strong>standard AWS CloudFormation</strong>. That means that you are not locked in and can eject from Bref Cloud at any point if you prefer to manage the infrastructure yourself.
+                        Under the hood, Bref Cloud uses <strong>standard AWS CloudFormation</strong> and follows <a className="link" href="https://bref.sh/docs/cloud-security">AWS best practices</a>, meaning you're never locked in. You can eject from Bref Cloud at any point if you prefer to manage the infrastructure yourself.
                         You are <a className="link" href="https://bref.sh/docs/vendor-lock-in">not even locked in AWS Lambda</a>.
                     </p>
+                    <div className="mt-10 flex items-center gap-x-6">
+                        <a
+                            href="https://bref.cloud/register"
+                            className="rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                        >
+                            Get started
+                        </a>
+                        <a href="https://calendly.com/bref-enterprise/bref-cloud-demo" className="text-sm/6 font-semibold text-gray-900">
+                            Schedule a demo <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 

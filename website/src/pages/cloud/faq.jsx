@@ -30,9 +30,12 @@ export default function Faq() {
                         <h2 className="text-2xl font-bold leading-10 tracking-tight text-gray-900">
                             Frequently asked questions
                         </h2>
-                        <div className="mt-4 text-base leading-7 text-gray-600">
+                        <p className="mt-4 text-base leading-7 text-gray-600">
+                            Looking for the docs? Check out the <a href="https://bref.sh/docs" className="font-semibold text-blue-600 hover:text-blue-500">Bref Cloud documentation</a>.
+                        </p>
+                        <p className="mt-2 text-base leading-7 text-gray-600">
                             Can’t find the answer you’re looking for? Reach out <a href="mailto:matthieu@bref.sh" className="font-semibold text-blue-600 hover:text-blue-500">via email</a>.
-                        </div>
+                        </p>
                     </div>
                     <div className="mt-10 lg:col-span-7 lg:mt-0">
                         <dl className="space-y-10">

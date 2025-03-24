@@ -6,10 +6,6 @@ trigger_runtimes:
 runtime_build_status:
 	aws codepipeline get-pipeline-state --name=bref-php-binary | jq ".stageStates[1].latestExecution.status"
 
-# Deploy the demo functions
-demo:
-	serverless deploy
-
 layers.json:
 	php utils/layers.json/update.php
 

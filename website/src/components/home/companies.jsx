@@ -1,8 +1,7 @@
 import Image from 'next/image';
 import phpStanLogo from './companies/phpstan.svg';
 import bcastLogo from './companies/bcast.svg';
-import myBuilderLogo from './companies/mybuilder.svg';
-import neuralLoveLogo from './companies/neural-love.svg';
+import crowcubeLogo from './companies/crowdcube.svg';
 import enopteaLogo from './companies/enoptea.png';
 import gulliLogo from './companies/gulli.svg';
 import minutesLogo from './companies/20minutes.svg';
@@ -47,8 +46,8 @@ export default function Companies() {
                             alt="20minutes.fr"
                         />
                         <Image
-                            className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"
-                            src={myBuilderLogo}
+                            className="max-h-12 max-w-[10rem] w-full object-contain object-left"
+                            src={crowcubeLogo}
                             alt="MyBuilder"
                         />
                         <Image
@@ -72,13 +71,8 @@ export default function Companies() {
                             alt="Enoptea"
                         />
                         <div className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert">
-                            <span className="text-2xl font-bold text-white">externals.io</span>
+                            <span className="text-xl font-bold text-white">externals.io</span>
                         </div>
-                        {/*<Image*/}
-                        {/*    className="max-h-12 max-w-[10rem] w-full object-contain object-left brightness-0 invert"*/}
-                        {/*    src={neuralLoveLogo}*/}
-                        {/*    alt="neural.love"*/}
-                        {/*/>*/}
                     </div>
                 </div>
             </div>

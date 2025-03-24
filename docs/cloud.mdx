@@ -1,0 +1,19 @@
+import { NextSeo } from 'next-seo';
+import { Cards, Card } from 'nextra/components';
+import brefIcon from '../../components/icon.svg';
+import Image from 'next/image';
+
+<NextSeo description="Bref Cloud documentation." />
+
+# Bref Cloud documentation
+
+Bref Cloud makes it easy to deploy and monitor serverless PHP applications on AWS Lambda. Learn more about it [on the Bref Cloud homepage](https://bref.sh/cloud).
+
+To get started, [create a free Bref Cloud account](https://bref.cloud/register).
+
+Bref Cloud is a service that complements the open-source Bref project. It connects to all your AWS accounts to simplify permissions and access management, and provides a dashboard to manage your serverless applications.
+
+<Cards num={2}>
+    <Card icon={<Image src={brefIcon} className="size-6" />} title="Learn more about Bref Cloud" href="/cloud" />
+    <Card icon={<Image src={brefIcon} className="size-6" />} arrow={true} title="Get started with Bref Cloud" href="https://bref.cloud/register" />
+</Cards>

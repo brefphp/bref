@@ -10,6 +10,15 @@ export default {
     project: {
         link: 'https://github.com/brefphp/bref'
     },
+    banner: {
+        dismissible: true,
+        key: 'bref-cloud',
+        text: (
+            <a href="https://bref.sh/cloud">
+                🎉 Bref Cloud is live! Read more →
+            </a>
+        ),
+    },
     useNextSeoProps() {
         const { asPath } = useRouter();
         // On SSG the path is `/index` instead of `/` for some reason
