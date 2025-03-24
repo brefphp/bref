@@ -93,6 +93,8 @@ So far, knowing the number of Bref invocations has helped Bref grow, be recogniz
 
 ### Data
 
+You can find the latest number of AWS Lambda invocations on the [Bref homepage](https://bref.sh/).
+
 On the month of the Bref 1.0 release, [Bref was powering 1 billion invocations per month](../../news/01-bref-1.0.md#1-billion-executions-per-month).
 
 On the month of the Bref 2.0 release, [Bref was powering 10 billion invocations per month](../../news/02-bref-2.0.md).
@@ -101,15 +103,15 @@ On the month of the Bref 2.0 release, [Bref was powering 10 billion invocations 
 
 The data sent in the ping is completely anonymous. It does not contain any identifiable data about anything (the project, users, etc.).
 
-**The only data it contains is:** "A Bref invocation happened with the layer XYZ" (where XYZ is the name of the Bref layer, like "function", "fpm" or "console").
+**The only data it contains is:** A Bref invocation happened with the layer XYZ (where XYZ is the name of the Bref layer, like "function", "fpm" or "console") and whether the invocation was a cold start.
 
 Here is an example payload:
 
 ```
-Invocations_100:1|c\nLayer_fpm_100:1|c
+Invocations_100:1|c\nLayer_fpm_100:1|c\nCold_100:1\nWarm_100:0|c
 ```
 
-Anyone can inspect the code and the data sent by checking the [`Bref\Runtime\LambdaRuntime::ping()` function](https://github.com/brefphp/bref/blob/master/src/Runtime/LambdaRuntime.php#L374).
+Anyone can inspect the code and the data sent by checking the [`Bref\Runtime\LambdaRuntime::ping()` function](https://github.com/brefphp/bref/blob/master/src/Runtime/LambdaRuntime.php#L387).
 
 ### How is it sent
 

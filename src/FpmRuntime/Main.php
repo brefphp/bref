@@ -4,6 +4,7 @@ namespace Bref\FpmRuntime;
 
 use Bref\Bref;
 use Bref\LazySecretsLoader;
+use Bref\Runtime\ColdStartTracker;
 use Bref\Runtime\LambdaRuntime;
 use RuntimeException;
 use Throwable;
@@ -18,6 +19,8 @@ class Main
         // In the FPM runtime process (our process) we want to log all errors and warnings
         ini_set('display_errors', '1');
         error_reporting(E_ALL);
+
+        ColdStartTracker::init();
 
         LazySecretsLoader::loadSecretEnvironmentVariables();
 
@@ -40,6 +43,8 @@ class Main
         }
 
         Bref::events()->afterStartup();
+
+        ColdStartTracker::coldStartFinished();
 
         /** @phpstan-ignore-next-line */
         while (true) {

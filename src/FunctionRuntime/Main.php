@@ -4,6 +4,7 @@ namespace Bref\FunctionRuntime;
 
 use Bref\Bref;
 use Bref\LazySecretsLoader;
+use Bref\Runtime\ColdStartTracker;
 use Bref\Runtime\LambdaRuntime;
 use Throwable;
 
@@ -14,6 +15,8 @@ class Main
 {
     public static function run(): void
     {
+        ColdStartTracker::init();
+
         LazySecretsLoader::loadSecretEnvironmentVariables();
 
         Bref::triggerHooks('beforeStartup');
@@ -30,6 +33,8 @@ class Main
         }
 
         Bref::events()->afterStartup();
+
+        ColdStartTracker::coldStartFinished();
 
         $loopMax = getenv('BREF_LOOP_MAX') ?: 1;
         $loops = 0;
