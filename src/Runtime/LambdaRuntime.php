@@ -403,6 +403,7 @@ final class LambdaRuntime
         }
 
         $isColdStart = ColdStartTracker::currentInvocationIsUserFacingColdStart() ? '1' : '0';
+        $isWarmInvocation = ($isColdStart === '0') ? '1' : '0';
 
         /**
          * Here is the content sent to the Bref analytics server.
@@ -417,7 +418,7 @@ final class LambdaRuntime
          *
          * See https://github.com/statsd/statsd/blob/master/docs/metric_types.md for more information.
          */
-        $message = "Invocations_100:1|c\nLayer_{$this->layer}_100:1|c\nColdStarts_100:$isColdStart|c";
+        $message = "Invocations_100:1|c\nLayer_{$this->layer}_100:1|c\nCold_100:$isColdStart|c\nWarm_100:$isWarmInvocation|c";
 
         $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         // This IP address is the Bref server.
