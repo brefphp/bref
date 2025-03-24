@@ -403,7 +403,7 @@ final class LambdaRuntime
         }
 
         $isColdStart = ColdStartTracker::currentInvocationIsUserFacingColdStart() ? '1' : '0';
-        $isWarmInvocation = ($isColdStart === '0') ? '1' : '0';
+        $isWarmInvocation = $isColdStart === '0' ? '1' : '0';
 
         /**
          * Here is the content sent to the Bref analytics server.
