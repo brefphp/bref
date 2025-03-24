@@ -2,8 +2,6 @@
 
 namespace Bref\Runtime;
 
-use Exception;
-
 /**
  * Tracks cold starts.
  *
@@ -13,11 +11,11 @@ class ColdStartTracker
 {
     private const FILE = '/tmp/.bref-cold-start';
 
-    private static bool $currentInvocationIsColdStart;
+    private static bool $currentInvocationIsColdStart = false;
     private static ?float $coldStartBeginningTime = null;
     private static ?float $coldStartEndedTime = null;
     private static bool $hasFirstInvocationStarted = false;
-    private static bool $wasProactiveInitialization;
+    private static bool $wasProactiveInitialization = false;
 
     public static function init(): void
     {
@@ -62,6 +60,9 @@ class ColdStartTracker
             // (100ms is an arbitrary value, we could use a lower value but I want to be conservative)
             // That means the Lambda sandbox was initialized proactively
             self::$wasProactiveInitialization = $timeElapsedSinceColdStartEnded > 0.1;
+        } else {
+            // There was no cold start, we are in a warm start
+            self::$wasProactiveInitialization = false;
         }
     }
 
@@ -112,10 +113,6 @@ class ColdStartTracker
      */
     public static function wasProactiveInitialization(): bool
     {
-        if (! isset(self::$wasProactiveInitialization)) {
-            throw new Exception('Bref runtime error: it is too early to determine if the initialization was proactive, this method can only be called after the first invocation has started');
-        }
-
         return self::$wasProactiveInitialization;
     }
 }
