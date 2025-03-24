@@ -12,9 +12,7 @@ class Bref
 {
     private static ?Closure $containerProvider = null;
     private static ?ContainerInterface $container = null;
-    /**
-     * @deprecated Use Bref::events()->subscribe() instead.
-     */
+    /** @deprecated Use Bref::events()->subscribe() instead */
     private static array $hooks = [
         'beforeStartup' => [],
         'beforeInvoke' => [],
