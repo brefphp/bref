@@ -13,7 +13,7 @@ class Bref
     private static ?Closure $containerProvider = null;
     private static ?ContainerInterface $container = null;
     /**
-     * TODO deprecate hooks when the event dispatcher is stable.
+     * @deprecated Use Bref::events()->subscribe() instead.
      */
     private static array $hooks = [
         'beforeStartup' => [],
@@ -31,9 +31,6 @@ class Bref
         self::$containerProvider = $containerProvider;
     }
 
-    /**
-     * @internal This API is experimental and may change at any time.
-     */
     public static function events(): EventDispatcher
     {
         if (! isset(self::$eventDispatcher)) {
@@ -48,6 +45,8 @@ class Bref
      * Warning: hooks are low-level extension points to be used by framework
      * integrations. For user code, it is not recommended to use them. Use your
      * framework's extension points instead.
+     *
+     * @deprecated Use Bref::events()->subscribe() instead.
      */
     public static function beforeStartup(Closure $hook): void
     {
@@ -60,6 +59,8 @@ class Bref
      * Warning: hooks are low-level extension points to be used by framework
      * integrations. For user code, it is not recommended to use them. Use your
      * framework's extension points instead.
+     *
+     * @deprecated Use Bref::events()->subscribe() instead.
      */
     public static function beforeInvoke(Closure $hook): void
     {
