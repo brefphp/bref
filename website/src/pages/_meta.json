@@ -50,7 +50,15 @@
   },
   "sentry": {
     "type": "page",
-    "title": "Sentry integration for AWS Lambda",
+    "title": "Sentry integration for PHP on AWS Lambda",
+    "display": "hidden",
+    "theme": {
+      "layout": "raw"
+    }
+  },
+  "xray": {
+    "type": "page",
+    "title": "X-Ray integration for PHP",
     "display": "hidden",
     "theme": {
       "layout": "raw"
