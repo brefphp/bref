@@ -78,7 +78,11 @@ bref deploy --env production
 
 ## Deploying from GitHub Actions
 
-You can also deploy your application using GitHub Actions. Here is an example workflow:
+You can also deploy your application using GitHub Actions.
+
+First, make sure you have set up the `bref.team` option in `serverless.yml` as shown in the section above.
+
+Then, create a `.github/workflows/deploy.yml` workflow. Here is an example workflow you can use as a starting point:
 
 ```yaml
 name: Deploy
