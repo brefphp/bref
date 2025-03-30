@@ -17,7 +17,7 @@ telemetry();
 switch ($argv[1] ?? '') {
     case 'init':
         require_once __DIR__ . '/src/Cli/init.php';
-        init();
+        init($argv[2] ?? null);
         break;
     case 'cli':
         cliWarning();

@@ -21,17 +21,17 @@ Next, in an existing Symfony project, install Bref and the [Symfony Bridge packa
 composer require bref/bref bref/symfony-bridge --update-with-dependencies
 ```
 
-If you are using [Symfony Flex](https://flex.symfony.com/), it will automatically run the [bref/symfony-bridge recipe](https://github.com/symfony/recipes-contrib/tree/master/bref/symfony-bridge/0.1) which will perform the following tasks:
+Next, create a `serverless.yml` configuration file at the root of your project by running:
 
-- Create a `serverless.yml` configuration file optimized for Symfony.
-- Add the `.serverless` folder to the `.gitignore` file.
+```bash
+vendor/bin/bref init symfony
+```
 
-Otherwise, you can create the `serverless.yml` file manually at the root of the project. Take a look at the [default configuration](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml) provided by the recipe.
+(you can preview that file [here](https://github.com/brefphp/bref/blob/master/template/http/serverless.yml))
 
 You still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and logs are stored in
-the `src/Kernel.php` file. This is automatically done by the bridge, you just need to use the `BrefKernel` class instead of the default `BaseKernel`:
+Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and logs are stored in the `src/Kernel.php` file. This is automatically done by the bridge, you just need to use the `BrefKernel` class instead of the default `BaseKernel`:
 
 ```diff filename="src/Kernel.php"
 namespace App;
