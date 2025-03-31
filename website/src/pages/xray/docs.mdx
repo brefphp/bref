@@ -62,7 +62,7 @@ You can now install the package via Composer:
 composer require bref/xray-integration -W
 ```
 
-Enable tracing in your `serverless.yml` file:
+Enable X-Ray tracing in your `serverless.yml` file:
 
 ```yaml
 provider:
@@ -119,7 +119,7 @@ If you are using Symfony, the package automatically integrates with the Symfony 
 
 ### Cold starts tracing
 
-Cold starts are automatically traced when using Laravel or Symfony, there is nothing additional to set up.
+Cold starts are automatically traced when using Laravel or Symfony. There is nothing additional to set up.
 
 In the example below, we can see the "Initialization" segment corresponding to the whole time it takes for AWS Lambda to initialize the instance. Part of that is the "Runtime startup" segment, which is the time it takes for the Bref runtime to start up.
 
@@ -148,7 +148,7 @@ Proactive initializations are also annotated by Bref:
 
 ### Tracing code
 
-The simplest way to trace custom code sections is via:
+The simplest way to trace custom code sections is using:
 
 ```php
 use Bref\Apm\XRay\XRay;
