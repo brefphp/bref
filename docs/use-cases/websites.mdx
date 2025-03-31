@@ -53,8 +53,8 @@ serverless plugin install -n serverless-lift
             website:
                 type: server-side-website
                 assets:
-                    '/js/*': public/js
-                    '/css/*': public/css
+                    '/build/*': public/build
+                    '/vendor/*': public/vendor
                     '/favicon.ico': public/favicon.ico
                     '/robots.txt': public/robots.txt
                     # add here any file or directory that needs to be served from S3
