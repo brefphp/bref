@@ -35,7 +35,7 @@ const sections = [
         name: 'Bref and AWS deployments',
         features: [
             { name: 'The Bref open-source project, its documentation and framework integrations', tiers: { OpenSource: true, Pro: true, Enterprise: true } },
-            { name: ' Tailor-made AWS Lambda runtimes and PHP extensions optimized for your project', tiers: { Enterprise: 'Optional' } },
+            { name: 'Tailor-made AWS Lambda runtimes and PHP extensions optimized for your project', tiers: { Enterprise: 'Optional' } },
             { name: 'Appear as an open-source sponsor 💙', tiers: { Pro: 'Gold sponsor', Enterprise: 'Premium sponsor' } },
         ],
     },
@@ -51,9 +51,10 @@ const sections = [
         ],
     },
     {
-        name: 'Extra integrations',
+        name: 'Bref integrations',
         features: [
-            { name: 'Unlimited license for the <a href="/sentry" class="link">Sentry integration</a>', tiers: { Pro: true, Enterprise: true } },
+            { name: '<a href="/sentry" class="link">Sentry integration</a> license for unlimited projects', tiers: { Pro: true, Enterprise: true } },
+            { name: '<a href="/xray" class="link">X-Ray integration</a> license for unlimited projects', tiers: { Pro: true, Enterprise: true } },
         ],
     },
 ]
