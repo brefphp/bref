@@ -117,6 +117,38 @@ The integration will also forward X-Ray trace IDs correctly so that distributed 
 
 If you are using Symfony, the package automatically integrates with the Symfony service provider. You can see the traces in the AWS X-Ray console.
 
+#### Symfony Messenger
+
+To trace Symfony Messenger jobs across multiple services, you need to trace the AWS SDK client used by Symfony Messenger:
+
+```yaml
+    bref.messenger.sqs_client:
+        class: AsyncAws\Sqs\SqsClient
+        public: true
+        arguments:
+            $httpClient: '@Bref\Apm\XRay\AsyncAws\TracedAsyncAwsHttpClient'
+
+    bref.messenger.sns_client:
+        class: AsyncAws\Sns\SnsClient
+        public: true
+        arguments:
+            $httpClient: '@Bref\Apm\XRay\AsyncAws\TracedAsyncAwsHttpClient'
+
+    bref.messenger.eventbridge_client:
+        class: AsyncAws\EventBridge\EventBridgeClient
+        public: true
+        arguments:
+            $httpClient: '@Bref\Apm\XRay\AsyncAws\TracedAsyncAwsHttpClient'
+```
+
+Alternatively, you can also install [`async-aws/async-aws-bundle`](https://async-aws.com/integration/symfony-bundle.html) and apply the following configuration to `config/packages/async_aws.yaml`:
+
+```yaml
+async_aws:
+    config:
+        http_client: 'Bref\Apm\XRay\AsyncAws\TracedAsyncAwsHttpClient'
+```
+
 ### Cold starts tracing
 
 Cold starts are automatically traced when using Laravel or Symfony. There is nothing additional to set up.
@@ -230,7 +262,7 @@ If you are using Symfony, you can set that up in the service container:
         class: GuzzleHttp\HandlerStack
         factory: [ GuzzleHttp\HandlerStack, create ]
         calls:
-            - [ push, [ '@Bref\Apm\XRay\Guzzle\GuzzleTracer' ] ]
+            - [ push, [ '@xray.guzzle.tracer_middleware' ] ]
 ```
 
 The Guzzle integration correctly handles requests made in parallel using Guzzle's async API and Guzzle pools.
