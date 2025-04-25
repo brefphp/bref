@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components';
+import { Callout, Tab, Tabs } from 'nextra/components';
 
 # Deployment
 
@@ -10,15 +10,20 @@ Bref can also work with any other deployment tool: Terraform, CloudFormation, SA
 
 To deploy to AWS an application configured with `serverless.yml`, run:
 
-```bash
-serverless deploy
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless deploy
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref deploy
+        ```
+    </Tab>
+</Tabs>
 
 A `.serverless/` directory will be created. You can add it to `.gitignore`.
-
-<Callout>
-    Want to get an overview of your deployed application? Check out the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref).
-</Callout>
 
 ## Deploying for production
 
@@ -44,25 +49,54 @@ Now is also the best time to configure your project for production, as well as b
 
 Once your project is ready, you can deploy via the following command:
 
-```bash
-serverless deploy
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless deploy
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref deploy
+        ```
+    </Tab>
+</Tabs>
 
-## Stages
+## Environments
 
-Serverless Framework has a concept of "stages", another name for "environments". We can deploy the same application multiple times in completely separated environments:
+We can deploy the same application multiple times in completely separated environments (also called "stages" by the Serverless CLI).
 
-```bash
-serverless deploy --stage=prod
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless deploy --stage=prod
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref deploy --env=prod
 
-The default stage is `dev`. The example above deploys a `prod` stage.
+        # or
+        bref deploy -e prod
+        ```
+    </Tab>
+</Tabs>
 
-Each stage is a separate CloudFormation stack, with completely separate AWS resources (Lambda functions, logs, permissions, etc.). All AWS resources are prefixed with the `service` and stage name (for example `myapp-dev-api`), which avoids any collision between stages.
+The default environment is `dev`. The example above deploys a `prod` environment.
 
-It is possible to deploy different stages in different AWS accounts (to lock down permissions), and to deploy one stage per git branch, pull request, or even developer in the team.
+Each environment is a separate CloudFormation stack, with completely separate AWS resources (Lambda functions, logs, permissions, etc.). All AWS resources are prefixed with the `service` and environment name (for example `myapp-dev-api`), which avoids any collision between environments.
+
+It is possible to deploy different environments in different AWS accounts (to lock down permissions), and to deploy one environment per git branch, pull request, or even developer in the team.
 
 ## Automating deployments
+
+### Bref Cloud
+
+If you are using [Bref Cloud](https://bref.sh/cloud), you can easily set up automatic deployments from CI/CD tools.
+
+Read the [documentation on deploying with Bref Cloud](https://bref.sh/docs/deploying/deploying-with-bref-cloud.html) for more information.
+
+### Serverless CLI
 
 If you are using GitHub Actions, Gitlab CI, CircleCI, or any tool of the sort you will want to automate the deployment to something like this:
 
@@ -96,40 +130,54 @@ provider:
 
 <Callout>
     If you are a first time user, using the `us-east-1` region (the default region) is recommended for the first projects. It simplifies commands and avoids a lot of mistakes when discovering AWS.
-
-    I mean really… I can't count how many times a command failed or an AWS page looked empty because I was in the wrong region.
 </Callout>
 
 ## Deletion
 
-To delete the whole application you can run:
+You can delete a deployed environment using the `remove` command.
 
-```bash
-serverless remove
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless remove
 
-Note that this command, like `serverless deploy`, is for a specific stage. If you want to delete all stages you will have to run the command once per stage.
+        # or remove a specific environment
+        serverless remove --stage=prod
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref remove
+
+        # or remove a specific environment
+        bref remove --env=prod
+        ```
+    </Tab>
+</Tabs>
+
+Note that this will destroy the AWS resources of a given environment.
+
+If you want to delete all environments of an application, you can do so in the [Bref Cloud dashboard](https://bref.cloud). If you don't use Bref Cloud, you will need to delete each environment one by one.
 
 ## How it works
 
 ### CloudFormation stacks
 
-The `serverless deploy` command will deploy everything via a **[CloudFormation](https://aws.amazon.com/cloudformation/) stack**. A "stack" is nothing more than a bunch of things that compose an application:
+Under the hood, Bref will deploy everything to AWS as a **[CloudFormation](https://aws.amazon.com/cloudformation/) stack**. A "stack" is nothing more than a bunch of things that compose an application:
 
-- lambda functions
+- Lambda functions
+- HTTP endpoints
 - S3 buckets
 - databases
 - etc.
 
 Stacks make it easy to group those resources together: the whole stack is updated at once on deployments, and if you delete the stack all the resources inside are deleted together too. Clean and simple.
 
-All of this is great except CloudFormation configuration is complex. This is where Serverless Framework helps.
-
 ### Zero-downtime deployments
 
 CloudFormation deploys using the [blue/green deployment strategy](https://docs.aws.amazon.com/whitepapers/latest/overview-deployment-options/bluegreen-deployments.html).
 
-This means that when you deploy, a new version of your code is deployed alongside the old one. Once the new version is ready, the traffic switches to the new version. If the deployment fails at any point, the traffic stays on the old version.
+This means that when you deploy, a new version of your code is deployed alongside the old one. Once the new version is ready, the traffic switches to the new version. If the deployment fails at any point, the traffic stays on the old version and the deployment is rolled back.
 
 #### Limits to blue/green deployment
 
@@ -149,4 +197,4 @@ You can [learn more about that configuration format here](environment/serverless
 
 ## Learn more
 
-Read more about `serverless deploy` in [the official documentation](https://serverless.com/framework/docs/providers/aws/guide/deploying/).
+Read more about `serverless deploy` in [the official documentation](https://github.com/oss-serverless/serverless/blob/main/docs/guides/deploying.md).
