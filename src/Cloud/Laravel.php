@@ -126,7 +126,11 @@ class Laravel
         ]);
         $config['routing'] = [];
         foreach ($fileList as $file) {
-            $config['routing'][$file] = "/$file";
+            if (is_dir($file)) {
+                $config['routing'][$file . '/*'] = "/$file";
+            } else {
+                $config['routing'][$file] = "/$file";
+            }
         }
 
         return $config;
