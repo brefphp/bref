@@ -15,7 +15,9 @@ class Laravel
         '!.serverless/**',
         '!database/*.sqlite',
         '!node_modules/**',
+        // Exclude assets except for the manifest file
         '!public/build/**',
+        'public/build/manifest.json',
         '!public/storage/**',
         '!resources/assets/**',
         '!resources/js/**',
