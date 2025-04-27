@@ -3,7 +3,7 @@
 use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 
-function init(): void
+function init(?string $template): void
 {
     $exeFinder = new ExecutableFinder;
     if (! $exeFinder->find('serverless')) {
@@ -15,28 +15,43 @@ function init(): void
         );
     }
 
-    $intro = green('What kind of application do you want to create?');
-    echo <<<TEXT
+    if (! $template) {
+        $intro = green('What kind of application are you building?');
+        echo <<<TEXT
     $intro (you will be able to add more functions later by editing `serverless.yml`)
       [0] Web application (default)
-      [1] Event-driven function
+      [1] Event-driven functions
+      [2] Symfony application
 
     TEXT;
-    $choice = readline('> ') ?: '0';
-    echo PHP_EOL;
-    if (! in_array($choice, ['0', '1'], true)) {
-        error('Invalid response (must be "0" or "1"), aborting');
+        $choice = readline('> ') ?: '0';
+        echo PHP_EOL;
+        if (! in_array($choice, ['0', '1', '2'], true)) {
+            error('Invalid response (must be "0", "1" or "2"), aborting');
+        }
+
+        $template = [
+            '0' => 'http',
+            '1' => 'function',
+            '2' => 'symfony',
+        ][$choice];
     }
 
-    $templateDirectory = [
-        '0' => 'http',
-        '1' => 'function',
-    ][$choice];
+    $rootPath = dirname(__DIR__, 2) . "/template/$template";
 
-    $rootPath = dirname(__DIR__, 2) . "/template/$templateDirectory";
-
-    createFile($rootPath, 'index.php');
+    if (file_exists($rootPath . '/index.php')) {
+        createFile($rootPath, 'index.php');
+    }
     createFile($rootPath, 'serverless.yml');
+
+    // If these is a `.gitignore` file in the current directory, let's add `.serverless` to it
+    if (file_exists('.gitignore')) {
+        $gitignore = file_get_contents('.gitignore');
+        if (! str_contains($gitignore, '.serverless')) {
+            file_put_contents('.gitignore', PHP_EOL . '.serverless' . PHP_EOL, FILE_APPEND);
+            success('Added `.serverless` to your `.gitignore` file.');
+        }
+    }
 
     success('Project initialized and ready to test or deploy.');
 }

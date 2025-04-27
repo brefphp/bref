@@ -1,5 +1,9 @@
 service: app
 
+# Set your team ID if you are using Bref Cloud
+#bref:
+#    team: my-team-id
+
 provider:
     name: aws
     region: us-east-1

@@ -1,0 +1,55 @@
+import { NextSeo } from 'next-seo';
+import { Callout } from 'nextra/components';
+
+<NextSeo description="Installing the Bref CLI." />
+
+# Getting started with Bref Cloud
+
+Bref Cloud is a service that makes it easy to deploy and monitor serverless PHP applications on AWS Lambda. Learn more about it [on the Bref Cloud homepage](https://bref.sh/cloud).
+
+To get started, [create a free Bref Cloud account](https://bref.cloud/register).
+
+You will be guided through the process of creating an AWS account (if needed) and connecting it to Bref Cloud.
+
+## Installing the CLI
+
+To deploy PHP applications using Bref Cloud, you need to install the Bref CLI:
+
+```shell
+composer global require bref/cli
+```
+
+The [`global` option](https://getcomposer.org/doc/03-cli.md#global) ensures that the `bref` CLI is installed globally on your machine in the `~/.composer/vendor/bin` directory.
+
+Make sure the command works by running:
+
+```shell
+bref --version
+```
+
+If the `bref` command is not found, you need to add Composer's global bin directory to your `PATH`. Add this line to your shell configuration file (e.g. `~/.bashrc`, `~/.zshrc`, `~/.profile`):
+
+```shell
+export PATH="$PATH:$HOME/.composer/vendor/bin"
+```
+
+If you want to find the location of the Composer's global installation directory, run `composer -n config --global home`.
+
+<Callout>
+    To keep the `bref` CLI up-to-date, run `composer global update bref/cli`.
+</Callout>
+
+## Connecting the CLI
+
+To connect the CLI to your Bref Cloud account, run:
+
+```shell
+bref login
+```
+
+This command will open a browser window where you can log in to your Bref Cloud account and authorize the CLI to access your account.
+
+When running in a non-interactive environment (e.g. CI/CD, or a Docker container), you can set a `BREF_TOKEN` environment variable instead. You can create a token in the [Bref Cloud dashboard](https://bref.cloud):
+
+- either as a [personal token](https://bref.cloud/user/api-tokens), which makes the CLI act on your behalf, with your permissions
+- or as a "bot token", which represents a service or a CI/CD pipeline that is not tied to a specific user

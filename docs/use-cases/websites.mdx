@@ -53,8 +53,8 @@ serverless plugin install -n serverless-lift
             website:
                 type: server-side-website
                 assets:
-                    '/js/*': public/js
-                    '/css/*': public/css
+                    '/build/*': public/build
+                    '/vendor/*': public/vendor
                     '/favicon.ico': public/favicon.ico
                     '/robots.txt': public/robots.txt
                     # add here any file or directory that needs to be served from S3
@@ -86,10 +86,6 @@ serverless plugin install -n serverless-lift
                     '/robots.txt': public/robots.txt
                     # add here any file or directory that needs to be served from S3
         ```
-
-        <Callout>
-            If you are not using Flex, update `serverless.yml` to exclude assets from the deployment ([see the recipe](https://github.com/symfony/recipes-contrib/blob/master/bref/symfony-bridge/0.1/serverless.yaml#L35))
-        </Callout>
 
         Because this construct sets the `X-Forwarded-Host` header by default, you should add it in your `trusted_headers` config, otherwise Symfony might generate wrong URLs.
 

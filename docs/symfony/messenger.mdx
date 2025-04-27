@@ -88,7 +88,7 @@ constructs:
             timeout: 60 # in seconds
 ```
 
-You will want to disable `auto_setup` to avoid extra SQS requests and permission issues.
+You will want to disable `auto_setup` to avoid useless extra SQS requests and permission issues.
 
 ```yml filename="config/packages/messenger.yaml" {6-7}
 framework:
@@ -100,7 +100,7 @@ framework:
                     auto_setup: false
 ```
 
-With that configuration, anytime a message is pushed to Symfony Messenger, it will be sent to SQS, and SQS will invoke our "worker" Lambda function so that it is processed.
+With that configuration, anytime a message is pushed to Symfony Messenger, it will be sent to SQS, and SQS will automatically invoke our "worker" Lambda function so that it is processed.
 
 <Callout>
     With Lift, AWS credentials (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) are automatically set up with the appropriate permissions for Messenger to use the SQS queue.
@@ -133,8 +133,6 @@ services:
         public: true
         autowire: true
         arguments:
-            # Pass the transport name used in config/packages/messenger.yaml
-            $transportName: 'async'
             $partialBatchFailure: true
 ```
 
@@ -148,8 +146,7 @@ When using SNS and EventBridge, messages will be retried by default 2 times.
 
 ### FIFO queue
 
-[FIFO queues](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html) guarantee
-exactly once delivery, and have a mandatory queue name suffix `.fifo`.
+[FIFO queues](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/FIFO-queues.html) guarantee exactly once delivery, and have a mandatory queue name suffix `.fifo`.
 
 With Lift, [set `fifo: true`](https://github.com/getlift/lift/blob/master/docs/queue.md#fifo-first-in-first-out) to enable it:
 
@@ -160,8 +157,7 @@ constructs:
         fifo: true
 ```
 
-[Symfony Amazon SQS Messenger](https://symfony.com/doc/current/messenger.html#amazon-sqs)  will automatically calculate/set
-the `MessageGroupId` and `MessageDeduplicationId` parameters required for FIFO queues, but you can set them explicitly:
+[Symfony Amazon SQS Messenger](https://symfony.com/doc/current/messenger.html#amazon-sqs)  will automatically calculate/set the `MessageGroupId` and `MessageDeduplicationId` parameters required for FIFO queues, but you can set them explicitly:
 
 ```php
 use Symfony\Component\Messenger\MessageBus;
@@ -230,9 +226,6 @@ services:
     Bref\Symfony\Messenger\Service\Sns\SnsConsumer:
         public: true
         autowire: true
-        arguments:
-            # Pass the transport name used in config/packages/messenger.yaml
-            $transportName: 'async'
 ```
 
 Now, anytime a message is dispatched to SNS, the Lambda function will be called. The Bref consumer class will put back the message into Symfony Messenger to be processed.
@@ -355,6 +348,34 @@ services:
                 region: us-east-1
 ```
 
+### Automatic transport recognition
+
+Automatic transport recognition is primarily handled by default through TransportNameResolvers for SNS and SQS,
+ensuring that the transport name is automatically passed to your message handlers.
+However, in scenarios where you need to manually specify the transport name or adjust the default behavior,
+you can do so by setting the `$transportName` parameter in your service definitions within the config/services.yaml file.
+This parameter should match the transport name defined in your config/packages/messenger.yaml.
+For instance, for a SNSConsumer, you would configure it as follows:
+
+```yaml
+# config/packages/messenger.yaml
+framework:
+    messenger:
+        transports:
+            async: '%env(MESSENGER_TRANSPORT_DSN)%'
+```
+
+```yaml
+# config/services.yaml
+services:
+    Bref\Symfony\Messenger\Service\Sns\SnsConsumer:
+        public: true
+        autowire: true
+        arguments:
+            # Pass the transport name used in config/packages/messenger.yaml
+            $transportName: 'async'
+```
+
 ### Disabling transports
 
 By default, this package registers Symfony Messenger transports for SQS, SNS and EventBridge.
@@ -380,6 +401,5 @@ services:
         public: true
         autowire: true
         arguments:
-            $transportName: 'async'
             $serializer: '@Happyr\MessageSerializer\Serializer'
 ```

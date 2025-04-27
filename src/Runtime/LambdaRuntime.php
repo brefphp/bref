@@ -86,6 +86,8 @@ final class LambdaRuntime
         $this->setEnv('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
 
         try {
+            ColdStartTracker::invocationStarted();
+
             Bref::triggerHooks('beforeInvoke');
             Bref::events()->beforeInvoke($handler, $event, $context);
 
@@ -400,12 +402,15 @@ final class LambdaRuntime
             return;
         }
 
+        $isColdStart = ColdStartTracker::currentInvocationIsUserFacingColdStart() ? '1' : '0';
+        $isWarmInvocation = $isColdStart === '0' ? '1' : '0';
+
         /**
          * Here is the content sent to the Bref analytics server.
-         * It signals an invocation happened on which layer.
+         * It signals an invocation happened on which layer and whether it was a cold start.
          * Nothing else is sent.
          *
-         * `Invocations_100` is used to signal that this is 1 ping equals 100 invocations.
+         * `Invocations_100` is used to signal that 1 ping equals 100 invocations.
          * We could use statsd sample rate system like this:
          * `Invocations:1|c|@0.01`
          * but this doesn't seem to be compatible with the bridge that forwards
@@ -413,7 +418,7 @@ final class LambdaRuntime
          *
          * See https://github.com/statsd/statsd/blob/master/docs/metric_types.md for more information.
          */
-        $message = "Invocations_100:1|c\nLayer_{$this->layer}_100:1|c";
+        $message = "Invocations_100:1|c\nLayer_{$this->layer}_100:1|c\nCold_100:$isColdStart|c\nWarm_100:$isWarmInvocation|c";
 
         $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         // This IP address is the Bref server.

@@ -12,6 +12,11 @@ return function ($event) {
         return str_repeat('a', 1024 * 1024 * 7);
     }
 
+    // Overload the memory with a 3GB string
+    if (isset($event['overload'])) {
+        return str_repeat('a', 1024 * 1024 * 1024 * 3);
+    }
+
     echo 'This is a log line' . PHP_EOL;
 
     return 'Hello ' . ($event['name'] ?? 'world');

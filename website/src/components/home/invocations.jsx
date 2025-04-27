@@ -1,6 +1,6 @@
 export default function Invocations({ invocations }) {
     return (
-        <div className="home-container home-section !px-0 sm:!px-6 !py-12 sm:!py-16">
+        <div id="invocations" className="home-container home-section !px-0 sm:!px-6 !py-12 sm:!py-16">
             <div
                 className="relative isolate overflow-hidden bg-gray-900 px-6 py-16 text-center shadow-2xl sm:rounded-3xl sm:px-16">
                 <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight text-white sm:text-5xl">

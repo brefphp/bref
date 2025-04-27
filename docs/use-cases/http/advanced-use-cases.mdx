@@ -29,20 +29,22 @@ Bref supports all 4, but API Gateway v2 "HTTP" is the default because it is the 
 
 Here is a summary of the differences between the 4 options:
 
-|                                 |  API Gateway v1 REST  |      API Gateway v2 HTTP      |           Function URL           |       ALB        |
-|---------------------------------|:---------------------:|:-----------------------------:|:--------------------------------:|:----------------:|
-| Pricing (Lambda cost excluded)  | $3.5/million requests |      $1/million requests      |      Free (no extra costs)       | Starts at $22/mo |
-| Custom domain                   |           ✅           |               ✅               | No, but possible with CloudFront |        ✅         |
-| Authorizers                     | IAM, Lambda, Cognito  | IAM, Lambda, Cognito, OAuth 2 |               IAM                |  OIDC, Cognito   |
-| CORS                            |           ✅           |               ✅               |                ✅                 |        ❌         |
-| CloudWatch metrics              |           ✅           |               ✅               |                ✅                 |        ✅         |
-| CloudWatch access logs          |           ✅           |               ✅               |                ❌                 |        ✅         |
-| Caching                         |           ✅           |               ❌               |                ❌                 |        ❌         |
-| API key management              |           ✅           |               ❌               |                ❌                 |        ❌         |
-| Request transformation          |           ✅           |               ❌               |                ❌                 |        ❌         |
-| Request/response validation     |           ✅           |               ❌               |                ❌                 |        ❌         |
-| Maximum HTTP response timeout   |          29s          |              30s              |            15 minutes            |    15 minutes    |
-| Added latency to HTTP responses |         25ms          |             15ms              |               10ms               |                  |
+|                                 |  API Gateway v1 REST  |         API Gateway v2 HTTP          |             Function URL             |       ALB        |
+|---------------------------------|:---------------------:|:------------------------------------:|:------------------------------------:|:----------------:|
+| Pricing (Lambda cost excluded)  | $3.5/million requests |         $1/million requests          |        Free (no extra costs)         | Starts at $22/mo |
+| Custom domain                   |           ✅           |                  ✅                   |   No, but possible with CloudFront   |        ✅         |
+| HTTP/HTTPS Support              |           ✅           | HTTPS only (use CloudFront for HTTP) | HTTPS only (use CloudFront for HTTP) |        ✅         |
+| Authorizers                     | IAM, Lambda, Cognito  |    IAM, Lambda, Cognito, OAuth 2     |                 IAM                  |  OIDC, Cognito   |
+| CORS                            |           ✅           |                  ✅                   |                  ✅                   |        ❌         |
+| CloudWatch metrics              |           ✅           |                  ✅                   |                  ✅                   |        ✅         |
+| CloudWatch access logs          |           ✅           |                  ✅                   |                  ❌                   |        ✅         |
+| Caching                         |           ✅           |                  ❌                   |                  ❌                   |        ❌         |
+| API key management              |           ✅           |                  ❌                   |                  ❌                   |        ❌         |
+| Request transformation          |           ✅           |                  ❌                   |                  ❌                   |        ❌         |
+| Request/response validation     |           ✅           |                  ❌                   |                  ❌                   |        ❌         |
+| Maximum request/response size   |          6MB          |                 6MB                  |                 6MB                  |       1MB        |
+| Maximum HTTP response timeout   |          29s          |                 30s                  |              15 minutes              |    15 minutes    |
+| Added latency to HTTP responses |         25ms          |                 15ms                 |                 10ms                 |                  |
 
 You can read more details [in the "Choosing between REST APIs and HTTP APIs" AWS documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html).
 

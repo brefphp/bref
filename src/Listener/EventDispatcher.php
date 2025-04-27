@@ -7,13 +7,12 @@ use Bref\Context\Context;
 use Bref\Event\Handler;
 use Psr\Http\Server\RequestHandlerInterface;
 
-/**
- * @internal This API is experimental and may change at any time.
- */
 final class EventDispatcher extends BrefEventSubscriber
 {
     /**
      * @param BrefEventSubscriber[] $subscribers
+     *
+     * @internal This method is called by Bref and should not be called by user code.
      */
     public function __construct(
         private array $subscribers = [],

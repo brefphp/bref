@@ -4,7 +4,7 @@ const features = [
     {
         name: 'Simple.',
         description:
-            'Instead of setting up and maintaining servers, define your application in a simple <code class="inline-code">serverless.yml</code> file. Then deploy to AWS with <code class="inline-code">serverless deploy</code>. Bref integrates with the <a href="https://www.serverless.com/framework" class="link">Serverless Framework</a> for a great developer experience.',
+            'Instead of setting up and maintaining servers, define your application in a simple <code class="inline-code">serverless.yml</code> file. Then deploy to AWS by running <code class="inline-code">serverless deploy</code>.',
         icon: CloudArrowUpIcon,
     },
     {
@@ -15,6 +15,11 @@ const features = [
     {
         name: 'Cost-efficient.',
         description: 'Instead of paying for servers that are idle most of the time, pay for the time the code is actually running. The AWS free tier even provides about 1 million free requests per month. Play with the <a href="/docs/serverless-costs" class="link">serverless costs calculator</a>.',
+        icon: BanknotesIcon,
+    },
+    {
+        name: 'Extensible.',
+        description: 'Bref uses standard CloudFormation under the hood: you can use everything AWS has to offer. If you are a cloud expert, Bref also works with AWS CDK, Terraform, and more.',
         icon: BanknotesIcon,
     },
 ]

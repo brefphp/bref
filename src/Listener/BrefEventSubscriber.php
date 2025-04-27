@@ -13,8 +13,6 @@ use Psr\Http\Server\RequestHandlerInterface;
  * Warning: Bref events are low-level extension points to be used by framework
  * integrations. For user code, it is not recommended to use them. Use your
  * framework's extension points instead.
- *
- * @internal This API is experimental and may change at any time.
  */
 abstract class BrefEventSubscriber
 {
