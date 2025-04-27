@@ -125,11 +125,12 @@ class Laravel
             '!storage',
         ]);
         $config['routing'] = [];
-        foreach ($fileList as $file) {
-            if (is_dir($file)) {
-                $config['routing'][$file . '/*'] = "/$file";
+        foreach ($fileList as $fileName) {
+            $relativePath = $this->assets . '/' . $fileName;
+            if (is_dir($relativePath)) {
+                $config['routing'][$fileName . '/*'] = "/$fileName";
             } else {
-                $config['routing'][$file] = "/$file";
+                $config['routing'][$fileName] = "/$fileName";
             }
         }
 
