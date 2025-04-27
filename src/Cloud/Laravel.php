@@ -120,6 +120,7 @@ class Laravel
             '**',
             '!*.php',
             '!.htaccess',
+            'hot',
             // Ignore the public storage symlink
             '!storage',
         ]);
