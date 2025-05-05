@@ -70,6 +70,10 @@ provider:
     tracing:
         lambda: true
         apiGateway: true # enable if you are using API Gateway
+    iam:
+        role:
+            managedPolicies:
+                - arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess
 ```
 
 If you use Laravel, the Laravel integration will be automatically set up via a service provider.
@@ -86,6 +90,18 @@ return [
 ### Troubleshooting
 
 Send me a Slack message or an email (matthieu@bref.sh) if you have any trouble, I can help you set it up!
+
+## Costs
+
+AWS X-Ray is a paid service. You can find the pricing details on the [AWS X-Ray pricing page](https://aws.amazon.com/xray/pricing/). The free tier includes 100k traces per month. Beyond that, it is $5 per million traces.
+
+One trace is one AWS Lambda invocation, i.e. one request or one job. X-Ray applies a sampling rate out of the box for AWS Lambda traces, so you will not be charged for all traces:
+
+> The sampling rate is 1 request per second and 5 percent of additional requests.
+
+This is quite useful: when an application has low traffic, most requests/invocations will be traced. However when traffic ramps up, X-Ray costs don't scale linearly with traffic because only a percentage of requests will be traced.
+
+For very applications with a lot of traffic in production, enabling X-Ray in development and staging environments can be a great way to help debug and troubleshoot issues without incurring high costs.
 
 ## Usage
 
