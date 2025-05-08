@@ -1,3 +1,5 @@
+import { Tab, Tabs } from 'nextra/components';
+
 # CLI commands
 
 We can run CLI commands and scripts on AWS Lambda by deploying a "console" function with `serverless.yml`.
@@ -13,15 +15,33 @@ The function uses the [Console runtime](../runtimes/console.mdx).
 
 To execute the script on Lambda, run the command below:
 
-```bash
-serverless bref:cli
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless bref:cli
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref command
+        ```
+    </Tab>
+</Tabs>
 
 We can also pass arguments to the script:
 
-```bash
-serverless bref:cli --args="extra command line arguments and options"
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless bref:cli --args="extra command line arguments and options"
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref command "extra command line arguments and options"
+        ```
+    </Tab>
+</Tabs>
 
 Our script will be invoked inside AWS Lambda and the result will be printed to the console.
 
