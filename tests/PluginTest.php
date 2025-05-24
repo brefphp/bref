@@ -12,26 +12,24 @@ class PluginTest extends TestCase
     {
         $output = $this->slsPrint('serverless.yml');
 
-        self::assertFunction($output['functions']['function'], [
+        self::assertFunction($output['functions']['function'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
         ]);
-        self::assertFunction($output['functions']['fpm'], [
-            'arn:aws:lambda:us-east-1:873528684822:layer:php-83-fpm:',
-        ]);
-        self::assertFunction($output['functions']['console'], [
+        self::assertFunction($output['functions']['fpm'], \Bref\FpmRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
-            'arn:aws:lambda:us-east-1:873528684822:layer:console:',
+        ]);
+        self::assertFunction($output['functions']['console'], \Bref\ConsoleRuntime\Main::class, [
+            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
         ]);
 
-        self::assertFunction($output['functions']['function-arm'], [
+        self::assertFunction($output['functions']['function-arm'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
         ]);
-        self::assertFunction($output['functions']['fpm-arm'], [
-            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83-fpm:',
-        ]);
-        self::assertFunction($output['functions']['console-arm'], [
+        self::assertFunction($output['functions']['fpm-arm'], \Bref\FpmRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
-            'arn:aws:lambda:us-east-1:873528684822:layer:console:',
+        ]);
+        self::assertFunction($output['functions']['console-arm'], \Bref\ConsoleRuntime\Main::class, [
+            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
         ]);
     }
 
@@ -39,10 +37,10 @@ class PluginTest extends TestCase
     {
         $output = $this->slsPrint('serverless-runtime-root.yml');
 
-        self::assertFunction($output['functions']['function'], [
+        self::assertFunction($output['functions']['function'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
         ]);
-        self::assertFunction($output['functions']['function-arm'], [
+        self::assertFunction($output['functions']['function-arm'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
         ]);
     }
@@ -51,21 +49,21 @@ class PluginTest extends TestCase
     {
         $output = $this->slsPrint('serverless-with-layers.yml');
 
-        self::assertFunction($output['functions']['function'], [
+        self::assertFunction($output['functions']['function'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
-        self::assertFunction($output['functions']['function-arm'], [
+        self::assertFunction($output['functions']['function-arm'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
-        self::assertFunction($output['functions']['function-with-layers'], [
+        self::assertFunction($output['functions']['function-with-layers'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
             'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
         ]);
-        self::assertFunction($output['functions']['function-arm-with-layers'], [
+        self::assertFunction($output['functions']['function-arm-with-layers'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
@@ -77,21 +75,21 @@ class PluginTest extends TestCase
     {
         $output = $this->slsPrint('serverless-runtime-root-with-layers.yml');
 
-        self::assertFunction($output['functions']['function'], [
+        self::assertFunction($output['functions']['function'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
-        self::assertFunction($output['functions']['function-arm'], [
+        self::assertFunction($output['functions']['function-arm'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
-        self::assertFunction($output['functions']['function-with-layers'], [
+        self::assertFunction($output['functions']['function-with-layers'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
             'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
         ]);
-        self::assertFunction($output['functions']['function-arm-with-layers'], [
+        self::assertFunction($output['functions']['function-arm-with-layers'], \Bref\FunctionRuntime\Main::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
@@ -111,9 +109,10 @@ class PluginTest extends TestCase
         return Yaml::parse($process->getOutput());
     }
 
-    private static function assertFunction(array $config, array $layers): void
+    private static function assertFunction(array $config, string $brefRuntime, array $layers): void
     {
         self::assertEquals('provided.al2', $config['runtime']);
+        self::assertEquals($brefRuntime, $config['environment']['BREF_RUNTIME']);
         self::assertCount(count($layers), $config['layers'], sprintf('Expected %d layers, got %d: %s', count($layers), count($config['layers']), json_encode($config['layers'], JSON_THROW_ON_ERROR)));
         foreach ($layers as $index => $layer) {
             self::assertStringStartsWith($layer, $config['layers'][$index]);
