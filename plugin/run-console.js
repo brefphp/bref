@@ -47,7 +47,7 @@ function getConsoleLayerArn(region) {
     const json = fs.readFileSync(path.join(__dirname, '../layers.json'));
     const layers = JSON.parse(json.toString());
     const version = layers.console[region];
-    return `arn:aws:lambda:${region}:534081306603:layer:console:${version}`;
+    return `arn:aws:lambda:${region}:873528684822:layer:console:${version}`;
 }
 
 module.exports = {runConsole};

@@ -66,7 +66,7 @@ function lambdaClient(string $region): LambdaClient
         ]);
 
         $credentials = $stsClient->AssumeRole([
-            'RoleArn' => 'arn:aws:iam::534081306603:role/bref-layer-publisher',
+            'RoleArn' => 'arn:aws:iam::873528684822:role/bref-layer-publisher',
             'RoleSessionName' => 'bref-layer-builder',
         ]);
 
@@ -90,7 +90,7 @@ function listLayers(LambdaClient $lambda, string $selectedRegion): array
 
     foreach (LAYER_NAMES as $layerName) {
         $results[$layerName] = $lambda->listLayerVersions([
-            'LayerName' => sprintf('arn:aws:lambda:%s:534081306603:layer:%s', $selectedRegion, $layerName),
+            'LayerName' => sprintf('arn:aws:lambda:%s:873528684822:layer:%s', $selectedRegion, $layerName),
             'MaxItems' => 1,
         ]);
     }

@@ -13,25 +13,25 @@ class PluginTest extends TestCase
         $output = $this->slsPrint('serverless.yml');
 
         self::assertFunction($output['functions']['function'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
         ]);
         self::assertFunction($output['functions']['fpm'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:php-83-fpm:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:php-83-fpm:',
         ]);
         self::assertFunction($output['functions']['console'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:php-83:',
-            'arn:aws:lambda:us-east-1:534081306603:layer:console:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:console:',
         ]);
 
         self::assertFunction($output['functions']['function-arm'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:arm-php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
         ]);
         self::assertFunction($output['functions']['fpm-arm'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:arm-php-83-fpm:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83-fpm:',
         ]);
         self::assertFunction($output['functions']['console-arm'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:arm-php-83:',
-            'arn:aws:lambda:us-east-1:534081306603:layer:console:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:console:',
         ]);
     }
 
@@ -40,10 +40,10 @@ class PluginTest extends TestCase
         $output = $this->slsPrint('serverless-runtime-root.yml');
 
         self::assertFunction($output['functions']['function'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
         ]);
         self::assertFunction($output['functions']['function-arm'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:arm-php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
         ]);
     }
 
@@ -52,21 +52,21 @@ class PluginTest extends TestCase
         $output = $this->slsPrint('serverless-with-layers.yml');
 
         self::assertFunction($output['functions']['function'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
         self::assertFunction($output['functions']['function-arm'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:arm-php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
         self::assertFunction($output['functions']['function-with-layers'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
             'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
         ]);
         self::assertFunction($output['functions']['function-arm-with-layers'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:arm-php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
             'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
@@ -78,21 +78,21 @@ class PluginTest extends TestCase
         $output = $this->slsPrint('serverless-runtime-root-with-layers.yml');
 
         self::assertFunction($output['functions']['function'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
         self::assertFunction($output['functions']['function-arm'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:arm-php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
         self::assertFunction($output['functions']['function-with-layers'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
             'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
         ]);
         self::assertFunction($output['functions']['function-arm-with-layers'], [
-            'arn:aws:lambda:us-east-1:534081306603:layer:arm-php-83:',
+            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
             'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',

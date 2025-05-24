@@ -15,12 +15,12 @@ Resources:
                     - Effect: Allow
                       Action: sts:AssumeRoleWithWebIdentity
                       Principal:
-                          Federated: arn:aws:iam::534081306603:oidc-provider/token.actions.githubusercontent.com
+                          Federated: arn:aws:iam::873528684822:oidc-provider/token.actions.githubusercontent.com
                       Condition:
                           StringLike:
                               token.actions.githubusercontent.com:sub: !Sub repo:${FullRepoName}:*
             Policies:
-                -   PolicyName: RetrieveLayersForLayerJsRole
+                -   PolicyName: RetrieveLayersForLayerRole
                     PolicyDocument:
                         Statement:
                             -   Effect: Allow

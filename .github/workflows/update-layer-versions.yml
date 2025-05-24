@@ -1,4 +1,4 @@
-name: Update layer versions (Bref v2)
+name: Update layer versions
 
 # Triggered manually or automatically when new Bref layers published
 on:
@@ -26,12 +26,12 @@ jobs:
         steps:
             -   uses: actions/checkout@v4
                 with:
-                    ref: master
+                    ref: v3 # temporary until v3 becomes the main branch
 
             -   name: Set AWS credentials
                 uses: aws-actions/configure-aws-credentials@v4
                 with:
-                    role-to-assume: arn:aws:iam::534081306603:role/bref-github-actions
+                    role-to-assume: arn:aws:iam::873528684822:role/bref-github-actions
                     role-session-name: bref-github-actions
                     aws-region: us-east-1
 
@@ -47,10 +47,10 @@ jobs:
             -   run: make layers.json
 
             -   name: Create Pull Request
-                uses: peter-evans/create-pull-request@v5
+                uses: peter-evans/create-pull-request@v7
                 with:
                     commit-message: Update layer versions
-                    title: Update Lambda layers [${{ inputs.release_name }}](${{ inputs.release_html_url }})
+                    title: Update v3 layers [${{ inputs.release_name }}](${{ inputs.release_html_url }})
                     body: |
                         New AWS Lambda layers [have been released](https://github.com/brefphp/aws-lambda-layers/releases):
                         
@@ -61,7 +61,5 @@ jobs:
                         
                         If you are using AWS Lambda layer ARNs, check out [runtimes.bref.sh](https://runtimes.bref.sh/) to see the latest ARNs.
                     branch: new-layer-versions
+                    base: v3 # temporary until v3 becomes the main branch
                     delete-branch: true # delete after merging or closing the PR
-                    # https://github.com/actions/checkout/issues/13#issuecomment-724415212
-                    committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-                    author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
