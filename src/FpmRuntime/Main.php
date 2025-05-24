@@ -16,10 +16,6 @@ class Main
 {
     public static function run(): void
     {
-        // In the FPM runtime process (our process) we want to log all errors and warnings
-        ini_set('display_errors', '1');
-        error_reporting(E_ALL);
-
         ColdStartTracker::init();
 
         LazySecretsLoader::loadSecretEnvironmentVariables();

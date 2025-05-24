@@ -14,18 +14,11 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 const LAYER_NAMES = [
     'php-84',
-    'php-84-fpm',
     'php-83',
-    'php-83-fpm',
     'php-82',
-    'php-82-fpm',
     'arm-php-84',
-    'arm-php-84-fpm',
     'arm-php-83',
-    'arm-php-83-fpm',
     'arm-php-82',
-    'arm-php-82-fpm',
-    'console',
 ];
 
 $regions = json_decode(file_get_contents(__DIR__ . '/regions.json'), true);
