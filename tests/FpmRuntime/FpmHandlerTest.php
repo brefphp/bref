@@ -883,12 +883,6 @@ Year,Make,Model
             'HTTP_RAW_BODY' => '',
         ];
 
-        if (\PHP_VERSION_ID < 80100) {
-            // full_path was introduced in PHP 8.1, remove it for lower versions
-            unset($expectedGlobalVariables['$_FILES']['foo']['full_path']);
-            unset($expectedGlobalVariables['$_FILES']['bar']['full_path']);
-        }
-
         $this->assertGlobalVariables($event, $expectedGlobalVariables);
     }
 

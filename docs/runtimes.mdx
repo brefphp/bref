@@ -23,7 +23,7 @@ The runtimes are available as AWS Lambda layers that you can use (explained belo
 
 ### PHP-FPM runtime for web apps
 
-Name: `php-83-fpm`, `php-82-fpm`, `php-81-fpm`, and `php-80-fpm`.
+Name: `php-84-fpm`, `php-83-fpm`, and `php-82-fpm`.
 
 This runtime uses PHP-FPM to run **web applications** on AWS Lambda, like on a traditional server.
 
@@ -33,7 +33,7 @@ It's **the easiest to start with**: it works like traditional PHP hosting and is
 
 ### Event-driven functions
 
-Name: `php-83`, `php-82`, `php-81`, and `php-80`.
+Name: `php-84`, `php-83`, and `php-82`.
 
 AWS Lambda was initially created to run _functions_ (yes, functions of code) in the cloud.
 
@@ -49,7 +49,7 @@ This runtime works great to create **event-driven micro-services**.
 
 ### Console
 
-Name: `php-83-console`, `php-82-console`, `php-81-console`, and `php-80-console`.
+Name: `php-84-console`, `php-83-console`, and `php-82-console`.
 
 This runtime lets you run CLI console commands on Lambda.
 
@@ -70,32 +70,25 @@ plugins:
 functions:
     hello:
         # ...
-        runtime: php-81
+        runtime: php-84
         # or:
-        runtime: php-81-fpm
+        runtime: php-84-fpm
         # or:
-        runtime: php-81-console
+        runtime: php-84-console
 ```
 
-Bref currently provides runtimes for PHP 8.0, 8.1, 8.2 and 8.3:
+Bref currently provides runtimes for PHP 8.2, 8.3, and 8.4:
 
+- `php-84`
 - `php-83`
 - `php-82`
-- `php-81`
-- `php-80`
 - `php-83-fpm`
 - `php-82-fpm`
-- `php-81-fpm`
-- `php-80-fpm`
 - `php-83-console`
 - `php-82-console`
-- `php-81-console`
-- `php-80-console`
-
-Bref also provides runtimes for alpha versions of PHP 8.4.
 
 <Callout>
-    `php-80` means PHP 8.0.\*. It is not possible to require a specific "patch" version. The latest Bref versions always aim to support the latest PHP versions, so upgrade via Composer frequently to keep PHP up to date.
+    `php-84` means PHP 8.4.\*. It is not possible to require a specific "patch" version. The latest Bref versions always aim to support the latest PHP versions, so upgrade via Composer frequently to keep PHP up to date.
 </Callout>
 
 ### The Bref plugin for serverless.yml
@@ -107,7 +100,7 @@ plugins:
     - ./vendor/bref/bref
 ```
 
-This plugin is what makes `runtime: php-81` work (as well as other utilities). It is explained in more details in the section below.
+This plugin is what makes `runtime: php-84` work (as well as other utilities). It is explained in more details in the section below.
 
 ### ARM runtimes
 
@@ -119,7 +112,7 @@ You can deploy to ARM by using the `arm64` architecture:
 functions:
     api:
         handler: public/index.php
-        runtime: php-81-fpm
+        runtime: php-84-fpm
 +       architecture: arm64
 ```
 
@@ -139,7 +132,7 @@ What the Bref plugin for `serverless.yml` (the one we include with `./vendor/bre
 functions:
     hello:
         # ...
-        runtime: php-81
+        runtime: php-84
 ```
 
 into this:
@@ -150,14 +143,14 @@ functions:
         # ...
         runtime: provided.al2
         layers:
-            - 'arn:aws:lambda:us-east-1:873528684822:layer:php-81:21'
+            - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:21'
 ```
 
 ☝️ `provided.al2` [is the generic Linux environment for custom runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-use), and the `layers` config points to Bref's AWS Lambda layers.
 
 Thanks to the Bref plugin, our `serverless.yml` is simpler. It also automatically adapts to the AWS region in use, and automatically points to the correct layer version. You can learn more about "layers" [in this page](./runtimes/runtimes-details.mdx).
 
-If you want to reference AWS Lambda layers directly (instead of using the simpler `runtime: php-81` syntax), the Bref plugin also provides simple `serverless.yml` variables. These were the default in Bref v1.x, so you may find this older syntax on tutorials and blog posts:
+If you want to reference AWS Lambda layers directly (instead of using the simpler `runtime: php-84` syntax), the Bref plugin also provides simple `serverless.yml` variables. These were the default in Bref v1.x, so you may find this older syntax on tutorials and blog posts:
 
 ```yaml
 service: app
@@ -170,21 +163,18 @@ functions:
     hello:
         # ...
         layers:
-            - ${bref:layer.php-81}
+            - ${bref:layer.php-84}
             # or:
-            - ${bref:layer.php-81-fpm}
+            - ${bref:layer.php-84-fpm}
 ```
 
 The `${...}` notation is the [syntax to use variables](https://serverless.com/framework/docs/providers/aws/guide/variables/) in `serverless.yml`. The Bref plugin provides the following variables:
 
+- `${bref:layer.php-84}`
 - `${bref:layer.php-83}`
 - `${bref:layer.php-82}`
-- `${bref:layer.php-81}`
-- `${bref:layer.php-80}`
 - `${bref:layer.php-83-fpm}`
 - `${bref:layer.php-82-fpm}`
-- `${bref:layer.php-81-fpm}`
-- `${bref:layer.php-80-fpm}`
 - `${bref:layer.console}`
 
 Bref ARM layers are the same as the x86 layers, but with the `arm-` prefix in their name, for example `${bref:layer.arm-php-82}`. The only exception is `${bref:layer.console}` (this is the same layer for both x86 and ARM).
