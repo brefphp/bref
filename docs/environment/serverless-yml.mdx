@@ -22,7 +22,7 @@ plugins:
 functions:
     foo:
         handler: index.php
-        runtime: php-81
+        runtime: php-84
 
 resources:
     Resources:
@@ -65,7 +65,7 @@ The `provider` section also lets us configure global options on all functions:
 ```yaml
 provider:
     name: aws
-    runtime: php-81
+    runtime: php-84
     timeout: 10
 
 functions:
@@ -86,11 +86,11 @@ provider:
 functions:
     foo:
         handler: foo.php
-        runtime: php-81
+        runtime: php-84
         timeout: 10
     bar:
         handler: bar.php
-        runtime: php-81
+        runtime: php-84
         timeout: 10
 
 # ...
@@ -136,10 +136,10 @@ Read more about the `package` configuration [in the serverless.yml documentation
 functions:
     foo:
         handler: foo.php
-        runtime: php-81
+        runtime: php-84
     bar:
         handler: bar.php
-        runtime: php-81
+        runtime: php-84
 ```
 
 Functions are AWS Lambda functions. You can find all options available [in this Serverless documentation page](https://serverless.com/framework/docs/providers/aws/guide/functions/).

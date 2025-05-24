@@ -37,14 +37,14 @@ Bref sets up API Gateway with AWS Lambda and the [PHP-FPM runtime](../runtimes/f
 functions:
     web:
         handler: public/index.php
-        runtime: php-81-fpm
+        runtime: php-84-fpm
         events:
             - httpApi: '*'
 ```
 
 This configuration deploys an API Gateway that forwards all routes (`*` is a wildcard) to AWS Lambda.
 
-On Lambda, the `php-81-fpm` runtime starts PHP-FPM and forwards all requests to it. PHP-FPM then runs the PHP code.
+On Lambda, the `php-84-fpm` runtime starts PHP-FPM and forwards all requests to it. PHP-FPM then runs the PHP code.
 
 This is perfect for most use-cases: **PHP works like on any server** with PHP-FPM. HTTP routing based on the URL is done by the application/the framework.
 

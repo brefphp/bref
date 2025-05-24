@@ -33,10 +33,10 @@ plugins:
 functions:
     hello:
         handler: the-php-script-to-run.php
-        runtime: php-81-console
+        runtime: php-84-console
 ```
 
-Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-81` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](../runtimes.mdx)).
+Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-84` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](../runtimes.mdx)).
 
 ## Running commands
 
@@ -46,7 +46,7 @@ When invoked, the "Console" runtime executes the `handler` script in a sub-proce
 functions:
     hello:
         handler: the-php-script-to-run.php
-        runtime: php-81-console
+        runtime: php-84-console
 ```
 
 Then the following command would run in Lambda every time the function is invoked:
