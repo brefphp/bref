@@ -76,6 +76,7 @@ final class FpmHandler extends HttpHandler
         /**
          * --nodaemonize: we want to keep control of the process
          * --force-stderr: force logs to be sent to stderr, which will allow us to send them to CloudWatch
+         * TODO set `max_execution_time` to the timeout of the Lambda function?
          */
         $resource = @proc_open(['php-fpm', '--nodaemonize', '--force-stderr', '--fpm-config', $this->configFile], [], $pipes);
 

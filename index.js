@@ -173,20 +173,66 @@ class ServerlessPlugin {
      * Process the `php-xx` runtimes to turn them into `provided.al2` runtimes + Bref layers.
      */
     processPhpRuntimes() {
-        const includeBrefLayers = (runtime, existingLayers, isArm) => {
-            let layerName = runtime;
+        const includeBrefLayers = (existingLayers, phpVersion, isArm) => {
+            let layerName = 'php-' + phpVersion;
             // Automatically use ARM layers if the function is deployed to an ARM architecture
             if (isArm) {
                 layerName = 'arm-' + layerName;
             }
-            if (layerName.endsWith('-console')) {
-                layerName = layerName.substring(0, layerName.length - '-console'.length);
-                existingLayers.unshift(this.getLayerArn('console', this.provider.getRegion()));
-                existingLayers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
-            } else {
-                existingLayers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
-            }
+            existingLayers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
             return existingLayers;
+        }
+        /**
+         * @param {string} runtime
+         * @return {string|undefined}
+         */
+        const runtimeStringToRuntimeClass = (runtime) => {
+            if (! runtime.startsWith('php-')) {
+                return undefined;
+            }
+            if (runtime.endsWith('-console')) {
+                return 'Bref\\ConsoleRuntime\\Main';
+            }
+            if (runtime.endsWith('-fpm')) {
+                return 'Bref\\FpmRuntime\\Main';
+            }
+            return 'Bref\\FunctionRuntime\\Main';
+        };
+        const configureFunctionRuntime = (f) => {
+            // `php-\d\d(-fpm|console)?`
+            const fullRuntimeString = f.runtime || config.provider.runtime;
+            if (! fullRuntimeString || ! fullRuntimeString.startsWith('php-')) {
+                return;
+            }
+            const phpVersion = fullRuntimeString.substring('php-'.length).split('-')[0];
+            const runtimeClass = runtimeStringToRuntimeClass(fullRuntimeString);
+            if (! runtimeClass) return;
+
+            // The logic here is a bit custom:
+            // If there are layers on the function, we preserve them
+            let existingLayers = f.layers || []; // make sure it's an array
+            // Else, we merge with the layers defined at the root.
+            // Indeed, SF overrides the layers defined at the root with the ones defined on the function.
+            if (existingLayers.length === 0) {
+                // for some reason it's not always an array
+                existingLayers = Array.from(config.provider.layers || []);
+            }
+
+            f.layers = includeBrefLayers(
+                existingLayers,
+                phpVersion,
+                f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
+            );
+            f.runtime = 'provided.al2';
+            // Add the `BREF_RUNTIME` environment variable
+            // to let the function know which runtime it is using
+            // (this is used by the Bref runtime)
+            if (!f.environment) {
+                f.environment = {};
+            }
+            if (!f.environment.BREF_RUNTIME) {
+                f.environment.BREF_RUNTIME = runtimeClass;
+            }
         }
 
         const config = this.serverless.service;
@@ -195,40 +241,15 @@ class ServerlessPlugin {
 
         // Check functions config
         for (const f of Object.values(config.functions || {})) {
-            if (
-              (f.runtime && this.runtimes.includes(f.runtime)) ||
-              (!f.runtime && isBrefRuntimeGlobally)
-            ) {
-                // The logic here is a bit custom:
-                // If there are layers on the function, we preserve them
-                let existingLayers = f.layers || []; // make sure it's an array
-                // Else, we merge with the layers defined at the root.
-                // Indeed, SF overrides the layers defined at the root with the ones defined on the function.
-                if (existingLayers.length === 0) {
-                    // for some reason it's not always an array
-                    existingLayers = Array.from(config.provider.layers || []);
-                }
-
-                f.layers = includeBrefLayers(
-                    f.runtime || config.provider.runtime,
-                    existingLayers,
-                    f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
-                );
-                f.runtime = 'provided.al2';
-            }
+            configureFunctionRuntime(f);
         }
 
         // Check Lift constructs config
         for (const construct of Object.values(this.serverless.configurationInput.constructs || {})) {
             if (construct.type !== 'queue' && construct.type !== 'webhook') continue;
             const f = construct.type === 'queue' ? construct.worker : construct.authorizer;
-            if (f && (f.runtime && this.runtimes.includes(f.runtime) || !f.runtime && isBrefRuntimeGlobally) ) {
-                f.layers = includeBrefLayers(
-                    f.runtime || config.provider.runtime,
-                    f.layers || [], // make sure it's an array
-                    f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
-                );
-                f.runtime = 'provided.al2';
+            if (f) {
+                configureFunctionRuntime(f);
             }
         }
     }
