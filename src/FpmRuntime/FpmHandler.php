@@ -82,10 +82,12 @@ final class FpmHandler extends HttpHandler
             'php-fpm',
             '--nodaemonize',
             '--force-stderr',
-            '--fpm-config', $this->configFile,
+            '--fpm-config',
+            $this->configFile,
             // Override ini settings to force disabling display_errors
             // Displaying errors in the HTTP response is a security risk
-            '-d', 'display_errors=0',
+            '-d',
+            'display_errors=0',
         ], [], $pipes);
 
         if (! is_resource($resource)) {

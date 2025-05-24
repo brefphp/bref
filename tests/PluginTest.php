@@ -2,6 +2,9 @@
 
 namespace Bref\Test;
 
+use Bref\ConsoleRuntime\Main as ConsoleMain;
+use Bref\FpmRuntime\Main as FpmMain;
+use Bref\FunctionRuntime\Main as FunctionMain;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
@@ -12,23 +15,23 @@ class PluginTest extends TestCase
     {
         $output = $this->slsPrint('serverless.yml');
 
-        self::assertFunction($output['functions']['function'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
         ]);
-        self::assertFunction($output['functions']['fpm'], \Bref\FpmRuntime\Main::class, [
+        self::assertFunction($output['functions']['fpm'], FpmMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
         ]);
-        self::assertFunction($output['functions']['console'], \Bref\ConsoleRuntime\Main::class, [
+        self::assertFunction($output['functions']['console'], ConsoleMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
         ]);
 
-        self::assertFunction($output['functions']['function-arm'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
         ]);
-        self::assertFunction($output['functions']['fpm-arm'], \Bref\FpmRuntime\Main::class, [
+        self::assertFunction($output['functions']['fpm-arm'], FpmMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
         ]);
-        self::assertFunction($output['functions']['console-arm'], \Bref\ConsoleRuntime\Main::class, [
+        self::assertFunction($output['functions']['console-arm'], ConsoleMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
         ]);
     }
@@ -37,10 +40,10 @@ class PluginTest extends TestCase
     {
         $output = $this->slsPrint('serverless-runtime-root.yml');
 
-        self::assertFunction($output['functions']['function'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
         ]);
-        self::assertFunction($output['functions']['function-arm'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
         ]);
     }
@@ -49,21 +52,21 @@ class PluginTest extends TestCase
     {
         $output = $this->slsPrint('serverless-with-layers.yml');
 
-        self::assertFunction($output['functions']['function'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
-        self::assertFunction($output['functions']['function-arm'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
-        self::assertFunction($output['functions']['function-with-layers'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function-with-layers'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
             'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
         ]);
-        self::assertFunction($output['functions']['function-arm-with-layers'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function-arm-with-layers'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
@@ -75,21 +78,21 @@ class PluginTest extends TestCase
     {
         $output = $this->slsPrint('serverless-runtime-root-with-layers.yml');
 
-        self::assertFunction($output['functions']['function'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
-        self::assertFunction($output['functions']['function-arm'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
         ]);
-        self::assertFunction($output['functions']['function-with-layers'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function-with-layers'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
             'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
         ]);
-        self::assertFunction($output['functions']['function-arm-with-layers'], \Bref\FunctionRuntime\Main::class, [
+        self::assertFunction($output['functions']['function-arm-with-layers'], FunctionMain::class, [
             'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
             // This function doesn't have the `foo` layer because that's how SF works:
             // layers in the function completely override the layers in the root
