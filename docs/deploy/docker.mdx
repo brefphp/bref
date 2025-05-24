@@ -29,7 +29,7 @@ You should consider deploying using Docker when:
 Bref helps you deploy using Docker images by offering base images that work on AWS Lambda. Here is an example of a Dockerfile you can use:
 
 ```dockerfile filename="Dockerfile"
-FROM bref/php-81-fpm:2
+FROM bref/php-84-fpm:2
 
 # Copy the source code in the image
 COPY . /var/task
@@ -43,14 +43,14 @@ The `CMD` instruction let us specify the entrypoint that will handle all request
 <Callout>
     Always specify the major version of the Bref image you want to use. That avoids breaking changes when a new major version is released.
 
-    For example `bref/php-81-fpm:2` points to Bref v2.
+    For example `bref/php-84-fpm:3` points to Bref v3.
 </Callout>
 
 Bref offers the following base images:
 
-- `bref/php-xx-fpm:2`: PHP-FPM to run HTTP applications
-- `bref/php-xx-console:2`: to run PHP CLI commands
-- `bref/php-xx:2`: to run [PHP functions](../runtimes/function.mdx)
+- `bref/php-xx-fpm:3`: PHP-FPM to run HTTP applications
+- `bref/php-xx-console:3`: to run PHP CLI commands
+- `bref/php-xx:3`: to run [PHP functions](../runtimes/function.mdx)
 
 <Callout type="warning">
     The `CMD` instruction in `Dockerfile` must contain a valid JSON array. This is why you must escape any `\` character. This is important for PHP class names, for example when using Laravel Octane:
@@ -65,10 +65,10 @@ Bref offers the following base images:
 You can enable additional PHP extensions by pulling them from [Bref Extra Extensions](https://github.com/brefphp/extra-php-extensions):
 
 ```dockerfile filename="Dockerfile" {3-4}
-FROM bref/php-81-fpm:2
+FROM bref/php-84-fpm:2
 
-COPY --from=bref/extra-redis-php-81:1 /opt /opt
-COPY --from=bref/extra-gmp-php-81:1 /opt /opt
+COPY --from=bref/extra-redis-php-84:1 /opt /opt
+COPY --from=bref/extra-gmp-php-84:1 /opt /opt
 
 COPY . /var/task
 

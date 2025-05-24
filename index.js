@@ -47,7 +47,7 @@ class ServerlessPlugin {
             .filter(name => !name.startsWith('arm-'));
         // Console runtimes must have a PHP version provided
         this.runtimes = this.runtimes.filter(name => name !== 'console');
-        this.runtimes.push('php-80-console', 'php-81-console', 'php-82-console', 'php-83-console', 'php-84-console');
+        this.runtimes.push('php-82-console', 'php-83-console', 'php-84-console');
 
         this.checkCompatibleRuntime();
 
@@ -258,7 +258,7 @@ class ServerlessPlugin {
             throw new this.serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
         }
         const version = this.layers[layerName][region];
-        return `arn:aws:lambda:${region}:534081306603:layer:${layerName}:${version}`;
+        return `arn:aws:lambda:${region}:873528684822:layer:${layerName}:${version}`;
     }
 
     /**
@@ -299,7 +299,7 @@ class ServerlessPlugin {
 
         const payload = {
             cli: 'sls',
-            v: 2, // Bref version
+            v: 3, // Bref version
             c: command,
             ci: ci.isCI,
             install: userConfig.get('meta.created_at'),

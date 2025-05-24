@@ -91,9 +91,9 @@ functions:
     my-function:
         handler: index.php
         layers:
-            - ${bref:layer.php-81-fpm}
+            - ${bref:layer.php-84-fpm}
             # Add this line:
-            - ${bref-extra:tideways-php-81}
+            - ${bref-extra:tideways-php-84}
 ```
 
 > Make sure to use the same PHP version as the one for the PHP layer.
