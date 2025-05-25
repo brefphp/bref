@@ -8,6 +8,64 @@ introduction: Upgrading guide to go from Bref 2.x to Bref 3.0.
 
 Bref 3.0 now requires PHP 8.2 or greater.
 
+## Container image changes
+
+If you deploy using [container images](../deploy/docker.mdx), you must update your `Dockerfile`.
+
+First, change the major version of the Bref base image:
+
+```diff filename="Dockerfile"
+- FROM bref/php-84-fpm:2
++ FROM bref/php-84-fpm:3
+
+# ...
+```
+
+Since Bref container images have been merged into a single `bref/php-xx` image, the following images don't exist anymore: `bref/php-xx-fpm` and `bref/php-xx-console`.
+
+You must replace the base image to `bref/php-xx` when needed and define the `BREF_RUNTIME` environment variable:
+
+```diff filename="Dockerfile"
+FROM bref/php-84:3
+
++ ENV BREF_RUNTIME=function
+
+# ...
+```
+
+or
+
+```diff filename="Dockerfile"
+- FROM bref/php-84-fpm:3
++ FROM bref/php-84:3
+
++ ENV BREF_RUNTIME=fpm
+
+# ...
+```
+
+or
+
+```diff filename="Dockerfile"
+- FROM bref/php-84-console:3
++ FROM bref/php-84:3
+
++ ENV BREF_RUNTIME=console
+
+# ...
+```
+
+Separately, if you use the `bref/php-84-fpm-dev` image for local development, you need to update its name and version:
+
+```diff filename="Dockerfile"
+- FROM bref/php-84-fpm-dev:2
++ FROM bref/php-84-dev:3
+
+# ...
+```
+
+The rest works as usual.
+
 ## Smaller breaking changes that might impact you
 
 The changes below should not impact the majority of users. However, if you are using any of these features, you might need to update your code.
