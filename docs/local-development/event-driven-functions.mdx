@@ -88,8 +88,8 @@ If you want to run your function in Docker:
 ```bash
 $ docker run --rm -it --entrypoint= -v $(PWD):/var/task:ro bref/php-84:3 vendor/bin/bref-local my-function.php
 
-# You can also use the `dev` images for a simpler command (and Xdebug and Blackfire in the image):
-$ docker run --rm -it -v $(PWD):/var/task:ro bref/php-84-fpm-dev:3 vendor/bin/bref-local my-function.php
+# You can also use the `dev` images for a simpler command (and Xdebug in the image):
+$ docker run --rm -it -v $(PWD):/var/task:ro bref/php-84-dev:3 vendor/bin/bref-local my-function.php
 ```
 
 You can also use Docker Compose, like described in [Local development for HTTP applications](../local-development.mdx):
@@ -98,7 +98,7 @@ You can also use Docker Compose, like described in [Local development for HTTP a
 version: "3.5"
 services:
     app:
-        image: bref/php-84-fpm-dev:3
+        image: bref/php-84-dev:3
         volumes:
             - .:/var/task
 ```
