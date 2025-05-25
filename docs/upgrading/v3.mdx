@@ -4,9 +4,24 @@ introduction: Upgrading guide to go from Bref 2.x to Bref 3.0.
 
 # Upgrading to Bref 3.0
 
+## Updating dependencies
+
 ### PHP 8.2 required
 
 Bref 3.0 now requires PHP 8.2 or greater.
+
+### Composer Dependencies
+
+You should update the `bref/bref` dependency in your application's composer.json file:
+
+```diff
+-    "bref/bref": "^2",
++    "bref/bref": "^3",
+```
+
+Then run `composer update bref/bref --with-all-dependencies`.
+
+If you use the [Bref Extra extensions](https://github.com/brefphp/extra-php-extensions), you also need to update the `bref/extra-php-extensions` package to version `^3.0`.
 
 ## Container image changes
 
@@ -196,6 +211,6 @@ Under the hood, **all layers have been merged into one**, i.e. `php-xx-fpm` and 
                 # or
                 BREF_RUNTIME: console # ${bref:layer.php-xx-console}
     ```
-  
+
     The examples above assume you are using PHP 8.4 (`php-84`) but you can replace `84` with another PHP version.
 
