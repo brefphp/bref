@@ -42,7 +42,7 @@ version: "3.5"
 
 services:
     app:
-        image: bref/php-84-fpm-dev:3
+        image: bref/php-84-dev:3
         ports: [ '8000:8000' ]
         volumes:
             - .:/var/task
@@ -62,7 +62,7 @@ The application will be available at [http://localhost:8000/](http://localhost:8
 
 The `HANDLER` environment variable lets you define which PHP file will be handling all HTTP requests. This should be the same handler that you have defined in `serverless.yml` for your HTTP function.
 
-> Currently, the Docker image support only one PHP handler. If you have multiple HTTP functions in `serverless.yml`, you can duplicate the service in `docker-compose.yml` to have one container per lambda function.
+> Currently, the Docker image supports only one PHP handler. If you have multiple HTTP functions in `serverless.yml`, you can duplicate the service in `docker-compose.yml` to have one container per lambda function.
 
 ### Read-only filesystem
 

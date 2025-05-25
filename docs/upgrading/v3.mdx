@@ -23,20 +23,194 @@ Then run `composer update bref/bref --with-all-dependencies`.
 
 If you use the [Bref Extra extensions](https://github.com/brefphp/extra-php-extensions), you also need to update the `bref/extra-php-extensions` package to version `^3.0`.
 
+## Container image changes
+
+If you deploy using [container images](../deploy/docker.mdx), you must update your `Dockerfile`.
+
+First, change the major version of the Bref base image:
+
+```diff filename="Dockerfile"
+- FROM bref/php-84-fpm:2
++ FROM bref/php-84-fpm:3
+
+# ...
+```
+
+Since Bref container images have been merged into a single `bref/php-xx` image, the following images don't exist anymore: `bref/php-xx-fpm` and `bref/php-xx-console`.
+
+You must replace the base image to `bref/php-xx` when needed and define the `BREF_RUNTIME` environment variable:
+
+```diff filename="Dockerfile"
+FROM bref/php-84:3
+
++ ENV BREF_RUNTIME=function
+
+# ...
+```
+
+or
+
+```diff filename="Dockerfile"
+- FROM bref/php-84-fpm:3
++ FROM bref/php-84:3
+
++ ENV BREF_RUNTIME=fpm
+
+# ...
+```
+
+or
+
+```diff filename="Dockerfile"
+- FROM bref/php-84-console:3
++ FROM bref/php-84:3
+
++ ENV BREF_RUNTIME=console
+
+# ...
+```
+
+Separately, if you use the `bref/php-84-fpm-dev` image for local development, you need to update its name and version:
+
+```diff filename="Dockerfile"
+- FROM bref/php-84-fpm-dev:2
++ FROM bref/php-84-dev:3
+
+# ...
+```
+
+The rest works as usual.
+
 ## Smaller breaking changes that might impact you
 
 The changes below should not impact the majority of users. However, if you are using any of these features, you might need to update your code.
 
 ### Changed the AWS account ID for AWS Lambda layers
 
-The AWS account ID where Bref layers are published is different for v3. That lets us keep releasing Bref v2 layers without mixing up layer numbers.
-
-For Bref v3 layers, you need to use `873528684822` as the AWS account number (instead of `534081306603`).
+The AWS account ID where Bref layers are published is different for v3. That lets us keep releasing Bref v2 layers without mixing up layer numbers. If you reference the layers via their full ARN, you must update the Bref AWS account number to `873528684822` (instead of `534081306603`).
 
 ```bash
 # Bref v2 layer
-arn:aws:lambda:eu-west-2:534081306603:layer:php-84:xxx
+arn:aws:lambda:us-east-1:534081306603:layer:php-84:xxx
 
 # Bref v3 layer
-arn:aws:lambda:eu-west-2:873528684822:layer:php-84:xxx
+arn:aws:lambda:us-east-1:873528684822:layer:php-84:xxx
 ```
+
+**If you don't know what that means**, you're likely not concerned by this change.
+
+If you're not sure, search for `534081306603` in your codebase and replace it with the new account ID.
+
+### AWS Lambda layers have been merged into a single layer
+
+If you configure the `runtime` in your functions using the following syntax:
+
+```yml filename="serverless.yml"
+functions:
+    web:
+        # ...
+        runtime: php-84-fpm # or `php-xx` or `php-xx-console`
+```
+
+✅ **you have nothing to do**, your configuration is valid for Bref v3.
+
+However, if you specify AWS Lambda layers explicitly in `serverless.yml` (or through any other deployment method), for example:
+
+```yml filename="serverless.yml"
+functions:
+    web:
+        # ...
+        runtime: provided.al2
+        layers:
+            - ${bref:layer.php-84}
+            # or:
+            - ${bref:layer.php-84-fpm}
+        # or:
+        layers:
+            - 'arn:aws:lambda:us-east-1:534081306603:layer:php-84:21'
+```
+
+Then you must update your configuration.
+
+Under the hood, **all layers have been merged into one**, i.e. `php-xx-fpm` and `php-xx-console` have been merged into `php-xx` to make Bref layers simpler. The runtime is now defined via an environment variable that is automatically injected by Bref when using the `runtime:` syntax.
+
+- **Option 1**: switch to using the simpler `runtime:` syntax.
+
+    Before:
+
+    ```yml filename="serverless.yml"
+    functions:
+        web:
+            # ...
+            runtime: provided.al2
+            layers:
+                - ${bref:layer.php-84}
+                # or:
+                - ${bref:layer.php-84-fpm}
+                # or:
+                - ${bref:layer.php-84-console}
+    ```
+
+    After:
+
+    ```yml filename="serverless.yml"
+    functions:
+        web:
+            # ...
+            runtime: php-84
+            # or:
+            runtime: php-84-fpm
+            # or:
+            runtime: php-84-console
+    ```
+
+    The examples above assume you are using PHP 8.4 (`php-84`) but you can replace `84` with another PHP version.
+
+    If you include additional layers, you can keep them without issues, for example:
+
+    ```yml filename="serverless.yml"
+    functions:
+        web:
+            # ...
+            runtime: php-84-fpm
+            layers:
+                - ${bref-extra:imagick-php-84}
+    ```
+
+- **Option 2**: change the layer names and define the `BREF_RUNTIME` environment variable.
+
+    Before:
+
+    ```yml filename="serverless.yml"
+    functions:
+        web:
+            # ...
+            runtime: provided.al2
+            layers:
+                - ${bref:layer.php-84}
+                # or:
+                - ${bref:layer.php-84-fpm}
+                # or:
+                - ${bref:layer.php-84-console}
+    ```
+
+    After:
+
+    ```yml filename="serverless.yml"
+    functions:
+        web:
+            # ...
+            runtime: provided.al2
+            layers:
+                - ${bref:layer.php-84}
+            environment:
+                # ...
+                BREF_RUNTIME: function # for ${bref:layer.php-xx}
+                # or
+                BREF_RUNTIME: fpm # for ${bref:layer.php-xx-fpm}
+                # or
+                BREF_RUNTIME: console # ${bref:layer.php-xx-console}
+    ```
+
+    The examples above assume you are using PHP 8.4 (`php-84`) but you can replace `84` with another PHP version.
+

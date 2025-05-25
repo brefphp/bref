@@ -29,10 +29,13 @@ You should consider deploying using Docker when:
 Bref helps you deploy using Docker images by offering base images that work on AWS Lambda. Here is an example of a Dockerfile you can use:
 
 ```dockerfile filename="Dockerfile"
-FROM bref/php-84-fpm:2
+FROM bref/php-84:3
 
 # Copy the source code in the image
 COPY . /var/task
+
+# In this example we're serving an HTTP application with php-fpm
+ENV BREF_RUNTIME=fpm
 
 # Configure the handler file (the entrypoint that receives all HTTP requests)
 CMD ["public/index.php"]
@@ -43,14 +46,14 @@ The `CMD` instruction let us specify the entrypoint that will handle all request
 <Callout>
     Always specify the major version of the Bref image you want to use. That avoids breaking changes when a new major version is released.
 
-    For example `bref/php-84-fpm:3` points to Bref v3.
+    For example `bref/php-84:3` points to Bref v3.
 </Callout>
 
-Bref offers the following base images:
+The `ENV BREF_RUNTIME=fpm` let's us specify which [runtime](../runtimes.mdx) to use. As a reminder, Bref offers the following runtimes:
 
-- `bref/php-xx-fpm:3`: PHP-FPM to run HTTP applications
-- `bref/php-xx-console:3`: to run PHP CLI commands
-- `bref/php-xx:3`: to run [PHP functions](../runtimes/function.mdx)
+- `fpm`: [uses PHP-FPM to serve web applications](../runtimes/fpm-runtime.mdx)
+- `function`: [to run PHP code](../runtimes/function.mdx)
+- `console`: [to run CLI commands](../runtimes/console.mdx)
 
 <Callout type="warning">
     The `CMD` instruction in `Dockerfile` must contain a valid JSON array. This is why you must escape any `\` character. This is important for PHP class names, for example when using Laravel Octane:
@@ -65,10 +68,10 @@ Bref offers the following base images:
 You can enable additional PHP extensions by pulling them from [Bref Extra Extensions](https://github.com/brefphp/extra-php-extensions):
 
 ```dockerfile filename="Dockerfile" {3-4}
-FROM bref/php-84-fpm:2
+FROM bref/php-84:3
 
-COPY --from=bref/extra-redis-php-84:1 /opt /opt
-COPY --from=bref/extra-gmp-php-84:1 /opt /opt
+COPY --from=bref/extra-redis-php-84:3 /opt /opt
+COPY --from=bref/extra-gmp-php-84:3 /opt /opt
 
 COPY . /var/task
 
@@ -76,9 +79,9 @@ CMD ["public/index.php"]
 ```
 
 <Callout>
-    Like the Bref images, always specify the major version of the Bref Extra Extensions images: `bref/extra-*:1` points to Bref Extra Extensions v1.
+    Like the Bref images, always specify the major version of the Bref Extra Extensions images: `bref/extra-*:3` points to Bref Extra Extensions v3.
 
-    Note that Bref v2 is compatible with Bref Extra Extensions v1 (yes that's confusing, sorry about that, we will fix that in Bref v3 to have matching versions).
+    Note that Bref v3 is compatible with Bref Extra Extensions v3.
 </Callout>
 
 ## Deployment
@@ -126,6 +129,6 @@ The `/tmp` folder will always be empty on cold starts. Avoid writing content to 
 
 ## Docker Registry
 
-AWS Lambda only support AWS ECR as the source location for Docker images.
+AWS Lambda only supports AWS ECR as the source location for Docker images.
 
 AWS Lambda will use the image digest as the unique identifier. This means that even if you overwrite the exact same tag on ECR, your lambda will still run the previous image code until you actually redeploy using the new image.
