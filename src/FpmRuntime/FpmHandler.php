@@ -88,6 +88,11 @@ final class FpmHandler extends HttpHandler
             // Displaying errors in the HTTP response is a security risk
             '-d',
             'display_errors=0',
+            // This setting is enabled by default for CLI invocations because it
+            // improves performance. We disable if it for PHP-FPM manually
+            // because it tanks performance by essentially disabling opcache
+            '-d',
+            'opcache.file_cache_only=0',
         ], [], $pipes);
 
         if (! is_resource($resource)) {
