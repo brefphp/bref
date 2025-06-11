@@ -32,8 +32,19 @@ Your application can write logs to CloudWatch:
 For example with [Monolog](https://github.com/Seldaek/monolog):
 
 ```php
-$log = new Monolog\Logger('name');
-$log->pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
+$log = new Monolog\Logger('default');
+$log->pushHandler(new StreamHandler('php://stderr', Logger::INFO));
+
+$log->warning('This is a warning!');
+```
+
+Bref also provides a formatter optimized for CloudWatch:
+
+```php
+$log = new Monolog\Logger('default');
+$handler = new StreamHandler('php://stderr', Logger::INFO);
+$handler->setFormatter(new \Bref\Logs\CloudWatchFormatter);
+$log->pushHandler($handler);
 
 $log->warning('This is a warning!');
 ```
