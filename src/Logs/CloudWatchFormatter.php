@@ -15,9 +15,6 @@ use Throwable;
  */
 class CloudWatchFormatter extends NormalizerFormatter
 {
-    /**
-     * @inheritDoc
-     */
     public function format(LogRecord $record): string
     {
         $level = strtoupper($record->level->name);
@@ -28,12 +25,9 @@ class CloudWatchFormatter extends NormalizerFormatter
         return "$level\t$message\t$json\n";
     }
 
-    /**
-     * @inheritDoc
-     */
     public function formatBatch(array $records): string
     {
-        return implode('', array_map(fn(LogRecord $record) => $this->format($record), $records));
+        return implode('', array_map(fn (LogRecord $record) => $this->format($record), $records));
     }
 
     /**
@@ -63,12 +57,12 @@ class CloudWatchFormatter extends NormalizerFormatter
     }
 
     /**
-     * @return null|scalar|array<array|scalar|null|object>|object
+     * @return null|scalar|array<array|scalar|object|null>|object
      */
     protected function normalize(mixed $data, int $depth = 0): mixed
     {
         if ($depth > $this->maxNormalizeDepth) {
-            return 'Over '.$this->maxNormalizeDepth.' levels deep, aborting normalization';
+            return 'Over ' . $this->maxNormalizeDepth . ' levels deep, aborting normalization';
         }
 
         if (is_array($data)) {
@@ -77,7 +71,7 @@ class CloudWatchFormatter extends NormalizerFormatter
             $count = 1;
             foreach ($data as $key => $value) {
                 if ($count++ > $this->maxNormalizeItemCount) {
-                    $normalized['...'] = 'Over '.$this->maxNormalizeItemCount.' items ('. count($data).' total), aborting normalization';
+                    $normalized['...'] = 'Over ' . $this->maxNormalizeItemCount . ' items (' . count($data) . ' total), aborting normalization';
                     break;
                 }
 
