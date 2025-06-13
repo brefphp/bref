@@ -57,7 +57,7 @@ class CloudWatchFormatter extends NormalizerFormatter
     }
 
     /**
-     * @return null|scalar|array<array|scalar|object|null>|object
+     * @return scalar|array<array|scalar|object|null>|object|null
      */
     protected function normalize(mixed $data, int $depth = 0): mixed
     {
