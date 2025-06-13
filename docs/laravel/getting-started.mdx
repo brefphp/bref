@@ -80,6 +80,29 @@ php artisan config:clear && php artisan config:cache
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
 
+## Logs
+
+Thanks to the Bref integration, Laravel will automatically log to CloudWatch via `stderr`. You don't have to do anything.
+
+You can learn more about logs in the [Logs guide](../environment/logs.md).
+
+It is recommended you enable Bref's logs formatter optimized for CloudWatch:
+
+```yaml filename="config/packages/prod/monolog.yaml"
+monolog:
+    handlers:
+        file:
+            type: stream
+            level: info
+            formatter: 'Bref\Monolog\CloudWatchFormatter'
+```
+
+<Callout>
+    This formatter will be enabled by default in Bref v3.
+</Callout>
+
+With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level, exception class, or anything in the [Laravel Context](https://laravel.com/docs/12.x/context).
+
 ## Website assets
 
 Have a look at the [Website guide](../use-cases/websites.mdx) to learn how to deploy a website with assets.
