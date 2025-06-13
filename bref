@@ -32,8 +32,7 @@ switch ($argv[1] ?? '') {
         error('Since Bref 2.0, the "bref local" command has been moved. Read https://bref.sh/docs/local-development/event-driven-functions\n');
     case 'dashboard':
         cliWarning();
-        echo "The Bref Dashboard is now available as a desktop application.\n\n";
-        echo "Check out https://dashboard.bref.sh/\n";
+        echo "Check out Bref Cloud: https://bref.sh/cloud\n";
         exit(1);
     case '':
         help();
