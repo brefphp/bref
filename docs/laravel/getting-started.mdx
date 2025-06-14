@@ -88,13 +88,10 @@ You can learn more about logs in the [Logs guide](../environment/logs.md).
 
 It is recommended you enable Bref's logs formatter optimized for CloudWatch:
 
-```yaml filename="config/packages/prod/monolog.yaml"
-monolog:
-    handlers:
-        file:
-            type: stream
-            level: info
-            formatter: 'Bref\Monolog\CloudWatchFormatter'
+```yaml filename="serverless.yml"
+provider:
+    environment:
+        LOG_STDERR_FORMATTER: Bref\Monolog\CloudWatchFormatter
 ```
 
 <Callout>
