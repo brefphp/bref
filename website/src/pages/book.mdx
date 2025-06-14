@@ -1,0 +1,144 @@
+import Intro from './docs/index.mdx'
+import Setup from './docs/setup.mdx'
+import Chapter from '../components/book/Chapter';
+import PageBreak from '../components/book/PageBreak';
+import LaravelGettingStarted from './docs/laravel/getting-started.mdx';
+import LaravelFileStorage from './docs/laravel/file-storage.mdx';
+import LaravelQueues from './docs/laravel/queues.mdx';
+import LaravelOctane from './docs/laravel/octane.mdx';
+import LaravelPassport from './docs/laravel/passport.mdx';
+import LaravelCaching from './docs/laravel/caching.mdx';
+import LaravelMaintenanceMode from './docs/laravel/maintenance-mode.mdx';
+import SymfonyGettingStarted from './docs/symfony/getting-started.mdx';
+import SymfonyMessenger from './docs/symfony/messenger.mdx';
+import SymfonyCaching from './docs/symfony/caching.mdx';
+import SymfonyKeepAlive from './docs/symfony/keep-alive.mdx';
+import OtherFrameworksGettingStarted from './docs/default/getting-started.mdx';
+import OtherFrameworksCli from './docs/default/cli-commands.mdx';
+import Runtimes from './docs/runtimes.mdx';
+import FpmRuntime from './docs/runtimes/fpm-runtime.mdx';
+import FunctionRuntime from './docs/runtimes/function.mdx';
+import ConsoleRuntime from './docs/runtimes/console.mdx';
+import RuntimesDetails from './docs/runtimes/runtimes-details.mdx';
+import ServerlessCosts from './docs/serverless-costs.mdx';
+import Deploy from './docs/deploy.mdx'
+import DeployDocker from './docs/deploy/docker.mdx';
+import DeployCdk from './docs/deploy/aws-cdk.mdx';
+import LocalDevelopment from './docs/local-development.mdx';
+import LocalDevEventDriven from './docs/local-development/event-driven-functions.mdx';
+import Monitoring from './docs/monitoring.md';
+import HttpApplications from './docs/use-cases/http.mdx';
+import HttpCustomDomains from './docs/use-cases/http/custom-domains.mdx';
+import HttpBinaryRequests from './docs/use-cases/http/binary-requests-responses.mdx';
+import HttpAdvanced from './docs/use-cases/http/advanced-use-cases.mdx';
+import Websites from './docs/use-cases/websites.mdx';
+import StaticWebsites from './docs/use-cases/static-websites.mdx';
+import Cron from './docs/use-cases/cron.mdx';
+import S3 from './docs/use-cases/s3.mdx';
+import Sqs from './docs/use-cases/sqs.mdx';
+import EventBridge from './docs/use-cases/eventbridge.mdx';
+import Websockets from './docs/use-cases/websockets.mdx';
+import Sns from './docs/use-cases/sns.mdx';
+import DynamoDb from './docs/use-cases/dynamodb.mdx';
+import Kinesis from './docs/use-cases/kinesis.mdx';
+import Kafka from './docs/use-cases/kafka.mdx';
+import CustomArchitecture from './docs/use-cases/custom-architecture.mdx';
+import ServerlessYml from './docs/environment/serverless-yml.mdx';
+import EnvironmentVariables from './docs/environment/variables.mdx';
+import CustomizingPhp from './docs/environment/php.mdx';
+import Storage from './docs/environment/storage.mdx';
+import Logs from './docs/environment/logs.mdx';
+import Databases from './docs/environment/database.mdx';
+import DatabasesPlanetScale from './docs/environment/database-planetscale.mdx';
+import Performance from './docs/environment/performances.mdx';
+import V1toV2 from './docs/upgrading/v2.md';
+import Community from './docs/community.mdx';
+import CaseStudies from './docs/case-studies.mdx';
+import CraftCloud from './docs/case-studies/craft-cloud.mdx';
+import Treezor from './docs/case-studies/treezor.mdx';
+import Credits from './credits.mdx';
+
+export default function Book() {
+    return <div>
+        <Intro /> <PageBreak />
+
+        <Chapter title="Getting started" /> <PageBreak />
+
+        <Setup /> <PageBreak />
+
+        <Chapter title="Laravel" /> <PageBreak />
+        <LaravelGettingStarted /> <PageBreak />
+        <LaravelFileStorage /> <PageBreak />
+        <LaravelQueues /> <PageBreak />
+        <LaravelOctane /> <PageBreak />
+        <LaravelPassport /> <PageBreak />
+        <LaravelCaching /> <PageBreak />
+        <LaravelMaintenanceMode /> <PageBreak />
+
+        <Chapter title="Symfony" /> <PageBreak />
+        <SymfonyGettingStarted /> <PageBreak />
+        <SymfonyMessenger /> <PageBreak />
+        <SymfonyCaching /> <PageBreak />
+        <SymfonyKeepAlive /> <PageBreak />
+
+        <Chapter title="Other frameworks" /> <PageBreak />
+        <OtherFrameworksGettingStarted /> <PageBreak />
+        <OtherFrameworksCli /> <PageBreak />
+
+        <Chapter title="How it works" /> <PageBreak />
+        <Runtimes /> <PageBreak />
+        <FpmRuntime /> <PageBreak />
+        <FunctionRuntime /> <PageBreak />
+        <ConsoleRuntime /> <PageBreak />
+        <RuntimesDetails /> <PageBreak />
+        <ServerlessCosts /> <PageBreak />
+
+        <Chapter title="Workflow" /> <PageBreak />
+        <Deploy /> <PageBreak />
+        <DeployDocker /> <PageBreak />
+        <DeployCdk /> <PageBreak />
+        <LocalDevelopment /> <PageBreak />
+        <LocalDevEventDriven /> <PageBreak />
+        <Monitoring /> <PageBreak />
+
+        <Chapter title="Use cases" /> <PageBreak />
+        <HttpApplications /> <PageBreak />
+        <HttpCustomDomains /> <PageBreak />
+        <HttpBinaryRequests /> <PageBreak />
+        <HttpAdvanced /> <PageBreak />
+        <Websites /> <PageBreak />
+        <StaticWebsites /> <PageBreak />
+        <Cron /> <PageBreak />
+        <S3 /> <PageBreak />
+        <Sqs /> <PageBreak />
+        <EventBridge /> <PageBreak />
+        <Websockets /> <PageBreak />
+        <Sns /> <PageBreak />
+        <DynamoDb /> <PageBreak />
+        <Kinesis /> <PageBreak />
+        <Kafka /> <PageBreak />
+        <CustomArchitecture /> <PageBreak />
+
+        <Chapter title="Environment" /> <PageBreak />
+        <ServerlessYml /> <PageBreak />
+        <EnvironmentVariables /> <PageBreak />
+        <CustomizingPhp /> <PageBreak />
+        <Storage /> <PageBreak />
+        <Logs /> <PageBreak />
+        <Databases /> <PageBreak />
+        <DatabasesPlanetScale /> <PageBreak />
+        <Performance /> <PageBreak />
+
+        <Chapter title="Upgrading" /> <PageBreak />
+        <V1toV2 /> <PageBreak />
+
+        <Chapter title="Resources" /> <PageBreak />
+        <Community /> <PageBreak />
+        <CaseStudies /> <PageBreak />
+        <CraftCloud /> <PageBreak />
+        <Treezor /> <PageBreak />
+
+        <Credits /> <PageBreak />
+
+    </div>
+}
