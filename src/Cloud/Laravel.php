@@ -60,6 +60,9 @@ class Laravel
         $this->patterns = array_merge($this->patterns, $patterns);
 
         $this->variables['APP_ENV'] = Cloud::environment();
+        if (class_exists(\Bref\Monolog\CloudWatchFormatter::class)) {
+             $this->variables['LOG_STDERR_FORMATTER'] = \Bref\Monolog\CloudWatchFormatter::class;
+        }
         $this->variables = array_merge($this->variables, $variables);
 
         Cloud::app($this);
