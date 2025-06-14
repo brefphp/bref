@@ -1,4 +1,6 @@
 import { NextSeo } from 'next-seo';
+import { Tab, Tabs } from 'nextra/components';
+import { Callout } from 'nextra/components';
 
 <NextSeo description="Learn how to write and read PHP logs on AWS Lambda using Bref." />
 
@@ -29,22 +31,76 @@ Your application can write logs to CloudWatch:
 - [With the PHP-FPM runtime for web apps](../runtimes/fpm-runtime.mdx): write logs to `stderr`
 - [With the runtime for event-driven functions](../runtimes/function.mdx): write logs to `stdout` (using `echo` for example) or `stderr`
 
-For example with [Monolog](https://github.com/Seldaek/monolog):
+All logs written to `stdout` or `stderr` are automatically be sent to CloudWatch asynchronously by AWS Lambda, **without performance impact on applications**.
 
-```php
-$log = new Monolog\Logger('name');
-$log->pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tab>
+        If you use Laravel, Bref will automatically configure Laravel to log to CloudWatch via `stderr`. You don't have to do anything.
 
-$log->warning('This is a warning!');
-```
+        It is recommended you enable Bref's logs formatter optimized for CloudWatch:
 
-For simple needs, you can replace Monolog with [Bref's logger](https://github.com/brefphp/logger), a PSR-3 logger designed for AWS Lambda:
+        ```yaml filename="serverless.yml"
+        provider:
+            environment:
+                LOG_STDERR_FORMATTER: Bref\Monolog\CloudWatchFormatter
+        ```
 
-```php
-$log = new \Bref\Logger\StderrLogger();
+        <Callout>
+            This formatter will be enabled by default in Bref v3.
+        </Callout>
 
-$log->warning('This is a warning!');
-```
+        With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level, exception class, or anything in the [Laravel Context](https://laravel.com/docs/12.x/context).
+    </Tab>
+    <Tab>
+        If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr`. You don't have to do anything.
+
+        It is recommended you enable Bref's logs formatter optimized for CloudWatch:
+
+        ```yaml filename="config/packages/prod/monolog.yaml"
+        monolog:
+            handlers:
+                file:
+                    type: stream
+                    level: info
+                    formatter: 'Bref\Monolog\CloudWatchFormatter'
+        ```
+
+        <Callout>
+            This formatter will be enabled by default in Bref v3.
+        </Callout>
+
+        With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
+    </Tab>
+    <Tab>
+        You can use [Monolog](https://github.com/Seldaek/monolog) to write logs to CloudWatch via `stderr`:
+
+        ```php
+        $log = new Monolog\Logger('default');
+        $log->pushHandler(new StreamHandler('php://stderr', Logger::INFO));
+
+        $log->warning('This is a warning!');
+        ```
+
+        Bref provides a formatter optimized for CloudWatch, it is highly recommended to use it:
+
+        ```php
+        $log = new Monolog\Logger('default');
+        $handler = new StreamHandler('php://stderr', Logger::INFO);
+        $handler->setFormatter(new Bref\Logs\CloudWatchFormatter);
+        $log->pushHandler($handler);
+
+        $log->warning('This is a warning!');
+        ```
+
+        For simple needs, you can replace Monolog with [Bref's logger](https://github.com/brefphp/logger), a PSR-3 logger designed for AWS Lambda:
+
+        ```php
+        $log = new \Bref\Logger\StderrLogger();
+
+        $log->warning('This is a warning!');
+        ```
+    </Tab>
+</Tabs>
 
 ### Reading logs
 
