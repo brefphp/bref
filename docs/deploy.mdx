@@ -94,7 +94,7 @@ It is possible to deploy different environments in different AWS accounts (to lo
 
 If you are using [Bref Cloud](https://bref.sh/cloud), you can easily set up automatic deployments from CI/CD tools.
 
-Read the [documentation on deploying with Bref Cloud](https://bref.sh/docs/deploying/deploying-with-bref-cloud.html) for more information.
+Read the [documentation on deploying with Bref Cloud](./cloud-deploy.mdx) for more information.
 
 ### Serverless CLI
 
@@ -144,6 +144,8 @@ You can delete a deployed environment using the `remove` command.
         # or remove a specific environment
         serverless remove --stage=prod
         ```
+
+        Note that because of the way Serverless Framework works, you will need to delete the contents of AWS S3 buckets manually before running this command.
     </Tab>
     <Tab>
         ```bash
@@ -152,10 +154,12 @@ You can delete a deployed environment using the `remove` command.
         # or remove a specific environment
         bref remove --env=prod
         ```
+
+        Bref Cloud will automatically delete the contents of AWS S3 buckets.
     </Tab>
 </Tabs>
 
-Note that this will destroy the AWS resources of a given environment.
+**Deleting an environment destroys the AWS resources that were created for that environment.**
 
 If you want to delete all environments of an application, you can do so in the [Bref Cloud dashboard](https://bref.cloud). If you don't use Bref Cloud, you will need to delete each environment one by one.
 
