@@ -8,7 +8,70 @@ import { NextSeo } from 'next-seo';
 
 # Setup
 
-To use Bref, you will need an AWS account and the `serverless` CLI. Let's get started:
+You can deploy PHP applications with Bref using either:
+
+- [Bref Cloud](/cloud) (simplest, most features, free and paid plans available)
+- or the [Serverless CLI](https://github.com/oss-serverless/serverless) (more complex, fewer features built-in, free)
+
+Bref Cloud is the easiest way to deploy PHP applications. It simplifies setting up and managing AWS credentials, and it provides a dashboard to manage your applications, view logs, and more. Learn more about [Bref Cloud](/cloud).
+
+This page will help you set up your environment for either option.
+
+Before getting started, you will need PHP (8.0 or greater) and [NPM](https://nodejs.org/) installed.
+
+## Bref Cloud
+
+To use Bref Cloud, you will need a [Bref Cloud](/cloud) account, an AWS account, and the `bref` CLI. Let's get started:
+
+<Steps>
+
+    ### Bref Cloud account
+
+    First, visit [bref.cloud](https://bref.cloud) to create an account.
+
+    You can select a free plan, or start a free trial of the paid plans ([compare plans](https://bref.sh/cloud#pricing)).
+
+    ### AWS account
+
+    Bref Cloud deploys your applications to your AWS account.
+
+    To create an AWS account, **go to [aws.amazon.com](https://aws.amazon.com/) and click *Sign up***. Bref Cloud will guide you through the process of creating an AWS account and connecting it to Bref Cloud.
+
+    If you want to learn more about how Bref Cloud connects securely to your AWS account, read the ["Security" documentation](./cloud-security.mdx).
+
+    AWS has a generous free tier that will usually allow you to deploy your first serverless applications for free.
+
+    ### Bref CLI
+
+    Next, let's install the Bref CLI:
+
+    ```shell
+    composer global require bref/cli
+    ```
+
+    Finally, let's connect the CLI to your Bref Cloud account:
+
+    ```shell
+    bref login
+    ```
+
+    If the `bref` command is not found, or if you want more details on how to install the CLI, read the detailed [installation instructions](./cloud-getting-started.mdx).
+
+</Steps>
+
+That's it, you're ready to use Bref with Bref Cloud!
+
+<Cards num={2}>
+    <Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
+    <Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
+    <Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
+</Cards>
+
+## Serverless CLI
+
+If you don't want to use Bref Cloud, you can deploy PHP applications using the open-source [Serverless CLI](https://github.com/oss-serverless/serverless).
+
+To use Bref with the Serverless CLI, you will need an AWS account, the `serverless` CLI, and AWS credentials. Let's get started:
 
 <Steps>
 
@@ -20,15 +83,15 @@ To use Bref, you will need an AWS account and the `serverless` CLI. Let's get st
 
     ### Serverless CLI
 
-    Bref relies on the [Serverless framework](https://serverless.com/) and AWS access keys to deploy applications. You will need to install the `serverless` CLI using NPM:
+    Bref relies on the [Serverless Framework](https://github.com/oss-serverless/serverless) and AWS access keys to deploy applications. You will need to install the `serverless` CLI using NPM:
 
     ```bash
-    npm install -g serverless@3
+    npm install -g osls
     ```
 
-    Bref is compatible with Serverless Framework v3 and v4. Note that Serverless Framework v4 has proven to be very unstable and is no longer open-source. We recommend using v3 for the best experience.
-
-    If you don't want to install `serverless` via NPM, you can install it as a standalone binary [by following this documentation](https://github.com/serverless/serverless/blob/v3/docs/install-standalone.md).
+    <Callout type="info">
+        The original [Serverless Framework](https://serverless.com/) is no longer open-source. An open-source alternative is [OSS Serverless](https://github.com/oss-serverless/serverless), created and maintained by Bref maintainers. This is a drop-in replacement for the original CLI and is used throughout this documentation.
+    </Callout>
 
     ### AWS credentials
 
@@ -57,17 +120,10 @@ To use Bref, you will need an AWS account and the `serverless` CLI. Let's get st
 
 </Steps>
 
-## What's next?
-
-That's it, you're ready to use Bref!
+That's it, you're ready to use Bref with the Serverless CLI!
 
 <Cards num={2}>
     <Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
     <Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
     <Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
 </Cards>
-
-<Callout type="info">
-    Bref is compatible with PHP 8.0 or greater.
-    If you are using PHP 7.4, Bref v1 (previous major version) will be installed instead.
-</Callout>

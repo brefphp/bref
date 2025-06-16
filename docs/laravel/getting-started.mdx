@@ -1,5 +1,6 @@
 import { Callout } from 'nextra/components';
 import { NextSeo } from 'next-seo';
+import { Tab, Tabs } from 'nextra/components';
 
 <NextSeo description="Run Laravel serverless on AWS Lambda using Bref." />
 
@@ -50,9 +51,18 @@ When running in AWS Lambda, the Laravel application will automatically cache its
 
 Let's deploy now:
 
-```bash
-serverless deploy
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless deploy
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref deploy
+        ```
+    </Tab>
+</Tabs>
 
 When finished, the `deploy` command will show the URL of the application.
 
@@ -110,15 +120,30 @@ As you may have noticed, we define a function named "artisan" in `serverless.yml
 
 For example, to execute an `artisan` command on Lambda, run the command below:
 
-```bash
-serverless bref:cli --args="<artisan command and options>"
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless bref:cli --args="{artisan command and options}"
+        ```
 
-For example:
+        For example:
 
-```bash
-serverless bref:cli --args="route:list"
-```
+        ```bash
+        serverless bref:cli --args="route:list"
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref command "{artisan command and options}"
+        ```
+
+        For example:
+
+        ```bash
+        bref command "route:list"
+        ```
+    </Tab>
+</Tabs>
 
 For more details follow [the "Console" guide](../runtimes/console.mdx).
 

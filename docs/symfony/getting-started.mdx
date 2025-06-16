@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components';
+import { Callout, Tab, Tabs } from 'nextra/components';
 import { NextSeo } from 'next-seo';
 
 <NextSeo description="Run Symfony serverless on AWS Lambda using Bref." />
@@ -54,9 +54,18 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
 
 Let's deploy the application to AWS Lambda:
 
-```bash
-serverless deploy
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless deploy
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref deploy
+        ```
+    </Tab>
+</Tabs>
 
 When finished, the `deploy` command will show the URL of the application.
 
@@ -74,18 +83,36 @@ Separately, on cold starts, Symfony will boot with an empty cache directory. It 
 
 To optimize cold starts, you can deploy the application with a warm cache. In a simple application it means that the deployment script should include `cache:warmup` to look something like this:
 
-```bash
-# Install dependencies
-composer install --classmap-authoritative --no-dev --no-scripts
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        # Install dependencies
+        composer install --classmap-authoritative --no-dev --no-scripts
 
-# Warmup the cache
-bin/console cache:clear --env=prod
+        # Warmup the cache
+        bin/console cache:clear --env=prod
 
-# Disable use of Dotenv component
-echo "<?php return [];" > .env.local.php
+        # Disable use of Dotenv component
+        echo "<?php return [];" > .env.local.php
 
-serverless deploy
-```
+        serverless deploy
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        # Install dependencies
+        composer install --classmap-authoritative --no-dev --no-scripts
+
+        # Warmup the cache
+        bin/console cache:clear --env=prod
+
+        # Disable use of Dotenv component
+        echo "<?php return [];" > .env.local.php
+
+        bref deploy
+        ```
+    </Tab>
+</Tabs>
 
 #### Optimizing caches
 
@@ -150,15 +177,30 @@ As you may have noticed, we define a function named "console" in `serverless.yml
 
 For example, to execute an `bin/console` command on Lambda, run the command below:
 
-```bash
-serverless bref:cli --args="<console command and options>"
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless bref:cli --args="{console command and options}"
+        ```
 
-For example:
+        For example:
 
-```bash
-serverless bref:cli --args="doctrine:migrations:migrate"
-```
+        ```bash
+        serverless bref:cli --args="doctrine:migrations:migrate"
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref command "{console command and options}"
+        ```
+
+        For example:
+
+        ```bash
+        bref command "doctrine:migrations:migrate"
+        ```
+    </Tab>
+</Tabs>
 
 For more details follow [the "Console" guide](../runtimes/console.mdx).
 

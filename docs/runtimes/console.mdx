@@ -1,4 +1,5 @@
 import { NextSeo } from 'next-seo';
+import { Tab, Tabs } from 'nextra/components';
 
 <NextSeo description="Learn how to run serverless console commands on AWS Lambda with Symfony Console or Laravel Artisan." />
 
@@ -18,6 +19,7 @@ Console functions can be invoked:
 
 - via a cron schedule
 - via the `serverless bref:cli` command
+- via the `bref command` command when using [Bref Cloud](/cloud)
 - manually by invoking the function via the AWS API
 
 ## Usage
@@ -69,37 +71,68 @@ Read the dedicated documentation for [running cron tasks on AWS Lambda](../use-c
 
 ### CLI invocation
 
-To manually run a console command on AWS Lambda, run `serverless bref:cli` on your computer:
+To manually run a console command on AWS Lambda, run the following command on your computer:
 
-```bash
-serverless bref:cli --args="<command to run in lambda>"
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless bref:cli --args="{arguments and options for the script}"
+        ```
 
-The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` runtime and will run the command on that function.
+        The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` runtime and will run the command on that function.
 
-Pass your command arguments and options in the `--args` flag (shortcut: `-a`). Remember to escape quotes properly. Some examples:
+        Pass your command arguments and options in the `--args` flag (shortcut: `-a`). Remember to escape quotes properly. Some examples:
 
-```bash
-# Runs the CLI application without arguments and displays the help
-$ serverless bref:cli
-# ...
+        ```bash
+        # Runs the CLI application without arguments and displays the help
+        $ serverless bref:cli
+        # ...
 
-$ serverless bref:cli --args="doctrine:migrations:migrate"
-Your database will be migrated.
-To execute the SQL queries run the command with the `--force` option.
+        $ serverless bref:cli --args="doctrine:migrations:migrate"
+        Your database will be migrated.
+        To execute the SQL queries run the command with the `--force` option.
 
-$ serverless bref:cli -a "doctrine:migrations:migrate --force"
-Your database has been migrated.
+        $ serverless bref:cli -a "doctrine:migrations:migrate --force"
+        Your database has been migrated.
 
-$ serverless bref:cli --stage=prod -a "db:dump --file='/tmp/dump.sql' --verbose"
-# ...
+        $ serverless bref:cli --stage=prod -a "db:dump --file='/tmp/dump.sql' --verbose"
+        # ...
 
-# You can use environment variables to configure AWS credentials (e.g. in CI)
-$ AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar serverless bref:cli
-# ...
-```
+        # You can use environment variables to configure AWS credentials (e.g. in CI)
+        $ AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar serverless bref:cli
+        # ...
+        ```
 
-The `bref:cli` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
+        The `bref:cli` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
+    </Tab>
+    <Tab>
+        ```bash
+        bref command "{arguments and options for the script}"
+        ```
+
+        It will automatically detect which function (in `serverless.yml`) uses the `console` runtime and will run the command on that function.
+
+        Pass your command arguments and options as a single string. Remember to escape quotes properly. Some examples:
+
+        ```bash
+        # Runs the CLI application without arguments and displays the help
+        $ bref command
+        # ...
+
+        $ bref command "doctrine:migrations:migrate"
+        Your database will be migrated.
+        To execute the SQL queries run the command with the `--force` option.
+
+        $ bref command "doctrine:migrations:migrate --force"
+        Your database has been migrated.
+
+        $ bref command --env=prod "db:dump --file='/tmp/dump.sql' --verbose"
+        # ...
+        ```
+
+        The `bref command` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
+    </Tab>
+</Tabs>
 
 ### Interactive terminal
 
