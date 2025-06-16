@@ -13,6 +13,12 @@ To summarize:
 - **General monitoring**: [Bref Cloud](/cloud), CloudWatch, or [Bref Dashboard](https://dashboard.bref.sh/?ref=bref)
 - **Advanced monitoring and profiling**: [Tideways](https://tideways.com/?ref=bref), [Sentry](/sentry)
 
+## Bref Cloud
+
+[Bref Cloud](/cloud) is an all-in-one platform for serverless PHP applications. It provides a simple UI to view logs, metrics, and errors, and it is designed specifically for PHP applications running on AWS Lambda.
+
+[Learn more about Bref Cloud](/cloud).
+
 ## Bref Dashboard
 
 As mentioned above, the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) fetches data from AWS CloudWatch (which is published by default by all serverless applications). As such, it requires no setup in AWS and can be used straight away.
