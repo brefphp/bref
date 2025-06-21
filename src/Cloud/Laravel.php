@@ -57,6 +57,11 @@ class Laravel
         public bool $scheduler = false,
         public bool $queue = false,
     ) {
+        // Ensures the root path is never empty
+        if (empty($this->rootPath)) {
+            $this->rootPath = '.';
+        }
+
         $this->patterns = array_merge($this->patterns, $patterns);
 
         $this->variables['APP_ENV'] = Cloud::environment();
@@ -83,6 +88,7 @@ class Laravel
             'timeout' => $this->timeout,
             'scheduler' => $this->scheduler,
             'queue' => $this->queue,
+            'healthChecks' => file_exists($this->rootPath . '/vendor/bref/laravel-health-check/composer.json'),
         ];
 
         $config = $this->packageAssets($config);
