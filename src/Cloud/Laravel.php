@@ -88,7 +88,6 @@ class Laravel
             'timeout' => $this->timeout,
             'scheduler' => $this->scheduler,
             'queue' => $this->queue,
-            'healthChecks' => file_exists($this->rootPath . '/vendor/bref/laravel-health-check/composer.json'),
         ];
 
         $config = $this->packageAssets($config);
