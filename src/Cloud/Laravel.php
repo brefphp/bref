@@ -48,7 +48,7 @@ class Laravel
     public function __construct(
         public string $name,
         public string $php = '8.3',
-        public string $path = '.',
+        public string $rootPath = '.',
         array $patterns = [],
         public string $assets = 'public',
         array $variables = [],
@@ -68,13 +68,6 @@ class Laravel
         Cloud::app($this);
     }
 
-    public function path(string $path): self
-    {
-        $this->path = $path;
-
-        return $this;
-    }
-
     /**
      * @internal
      */
@@ -84,7 +77,7 @@ class Laravel
             'name' => $this->name,
             'type' => 'laravel',
             'php' => $this->php,
-            'package' => Cloud::package($this->path, $this->patterns),
+            'package' => Cloud::package($this->rootPath, $this->patterns),
             'variables' => $this->variables,
             'memory' => $this->memory,
             'timeout' => $this->timeout,
@@ -99,7 +92,8 @@ class Laravel
 
     private function packageAssets(array $config): array
     {
-        if (! is_dir($this->assets)) {
+        $assetsPath = $this->rootPath . '/' . $this->assets;
+        if (! is_dir($assetsPath)) {
             return $config;
         }
 
@@ -109,7 +103,7 @@ class Laravel
         // - PHP files
         // - symlinks (e.g. public/storage)
         // - .htaccess
-        $fileList = scandir($this->assets);
+        $fileList = scandir($assetsPath);
         $fileList = array_filter($fileList, fn($file) =>
             ! in_array($file, ['.', '..', '.htaccess'], true)
             && ! preg_match('/\.php$/', $file)
@@ -119,7 +113,7 @@ class Laravel
             return $config;
         }
 
-        $config['assets'] = Cloud::package($this->assets, [
+        $config['assets'] = Cloud::package($assetsPath, [
             '**',
             '!*.php',
             '!.htaccess',
@@ -129,7 +123,7 @@ class Laravel
         ]);
         $config['routing'] = [];
         foreach ($fileList as $fileName) {
-            $relativePath = $this->assets . '/' . $fileName;
+            $relativePath = $assetsPath . '/' . $fileName;
             if (is_dir($relativePath)) {
                 $config['routing'][$fileName . '/*'] = "/$fileName";
             } else {
