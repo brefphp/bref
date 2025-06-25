@@ -3,6 +3,7 @@
 namespace Bref\Cloud;
 
 use Bref\Cloud;
+use InvalidArgumentException;
 
 class Laravel
 {
@@ -60,6 +61,10 @@ class Laravel
         // Ensures the root path is never empty
         if (empty($this->rootPath)) {
             $this->rootPath = '.';
+        }
+
+        if (! in_array($this->php, ['8.0', '8.1', '8.2', '8.3', '8.4'], true)) {
+            throw new InvalidArgumentException("Invalid PHP version '$this->php', must be one of '8.0', '8.1', '8.2', '8.3', or '8.4'.");
         }
 
         $this->patterns = array_merge($this->patterns, $patterns);
