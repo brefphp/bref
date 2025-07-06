@@ -265,6 +265,10 @@ $result = json_decode($result->get('Payload')->getContents(), true);
 ```
 
 <Callout>
+    **Important**: When invoking Lambda functions, use the exact function name as it appears in the AWS console, not the function name from `serverless.yml`. For example, if your service is named `my-app` and your function is named `hello`, the actual Lambda function name will be `my-app-dev-hello` (or similar, depending on your stage).
+</Callout>
+
+<Callout type="info">
     A lighter alternative to the official AWS PHP SDK is the [AsyncAws Lambda](https://async-aws.com/clients/lambda.html) package.
 </Callout>
 
