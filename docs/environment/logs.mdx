@@ -54,15 +54,23 @@ All logs written to `stdout` or `stderr` are automatically be sent to CloudWatch
     <Tab>
         If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr`. You don't have to do anything.
 
-        It is recommended you enable Bref's logs formatter optimized for CloudWatch:
+        It is recommended you enable Bref's logs formatter optimized for CloudWatch, for example:
 
         ```yaml filename="config/packages/prod/monolog.yaml"
         monolog:
             handlers:
-                file:
+                main:
                     type: stream
                     level: info
+                    path: php://stderr
                     formatter: 'Bref\Monolog\CloudWatchFormatter'
+        ```
+
+        If you do use that formatter, you also need to declare the service in your `services.yaml` (a pull request in [the Symfony bridge](https://github.com/brefphp/symfony-bridge) to do this automatically is welcome!):
+
+        ```yaml filename="config/services.yaml"
+        services:
+            Bref\Monolog\CloudWatchFormatter: ~
         ```
 
         <Callout>
