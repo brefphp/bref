@@ -8,18 +8,18 @@ const frequencies = [
 ]
 const tiers = [
     {
-        name: 'Personal',
-        id: 'tier-free',
+        name: 'Indie maker',
+        id: 'tier-indie-maker',
         href: 'https://bref.cloud/register',
-        price: 'Free',
-        description: 'Deploy and host your personal projects.',
+        price: { monthly: '$15', annually: '$150' },
+        description: 'For solo devs who want to focus on building instead of hosting.',
         features: [
             '1 user',
             '2 applications',
             '1 AWS account',
             'Unlimited deployments',
             'Unlimited environments',
-            'Non-commercial applications only',
+            'Slack + email support & consulting',
         ],
         featured: false,
         cta: 'Get started',
@@ -29,7 +29,7 @@ const tiers = [
         id: 'tier-startup',
         href: 'https://bref.cloud/register',
         price: { monthly: '$39', annually: '$399' },
-        description: 'The essentials for small dev teams that want to grow.',
+        description: 'For small dev teams that want to scale their applications easily.',
         features: [
             '5 users',
             '5 applications',
@@ -70,7 +70,7 @@ const tiers = [
             'Unlimited AWS accounts',
             'Unlimited deployments',
             'Unlimited environments',
-            'Priority support & consulting',
+            'Priority support',
             'Zoom consulting',
             'Tailored AWS infrastructure',
             'Self-hosted Bref Cloud',
@@ -186,22 +186,6 @@ export default function Pricing() {
                             </ul>
                         </div>
                     ))}
-                </div>
-
-                <div
-                    className="mt-6 flex flex-col items-start gap-x-8 gap-y-6 rounded-3xl p-8 ring-1 ring-gray-900/10 sm:gap-y-10 lg:col-span-2 lg:flex-row lg:items-center">
-                    <div className="lg:min-w-0 lg:flex-1">
-                        <h3 className="text-base/7 font-semibold text-blue-500">Indie maker</h3>
-                        <p className="mt-1 text-base/7 text-gray-600">
-                            Working solo on your projects? Get a discounted price that allows commercial projects on the "Personal" plan.
-                        </p>
-                    </div>
-                    <a
-                        href="https://bref.cloud/register"
-                        className="rounded-md px-3.5 py-2 text-sm/6 font-semibold text-blue-600 ring-1 ring-inset ring-blue-200 hover:ring-blue-500 hover:bg-blue-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-                    >
-                        Get started at $15/month
-                    </a>
                 </div>
 
                 <p className="mt-6 text-xs text-gray-500 text-center">

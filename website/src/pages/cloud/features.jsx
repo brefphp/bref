@@ -38,6 +38,8 @@ const sections = [
             { name: 'Deploy from your machine', tiers: { bref: true, cloud: true } },
             { name: 'Deploy from CI/CD', tiers: { bref: true, cloud: true } },
             { name: 'Deploy multiple environments (prod, staging…)', tiers: { bref: true, cloud: true } },
+            { name: 'Simplified creation and management of databases', tiers: { bref: false, cloud: true } },
+            { name: 'Simplified creation of private networks', tiers: { bref: false, cloud: 'Coming soon' } },
             { name: 'AWS deployment security', tiers: {
                     bref: {
                         title: 'Your responsibility',
@@ -49,7 +51,6 @@ const sections = [
                     }
                 }
             },
-            { name: 'Simplified database creation and management', tiers: { bref: false, cloud: 'Coming soon' } },
         ],
     },
     {
@@ -106,7 +107,7 @@ const sections = [
                     bref: false,
                     cloud: {
                         title: true,
-                        description: 'Laravel-only for now, more frameworks coming soon.',
+                        description: 'Laravel-only for now.',
                     },
                 }
             },
@@ -148,16 +149,10 @@ const sections = [
         ],
     },
     {
-        name: 'Costs Management',
-        features: [
-            { name: 'AWS cost alerts & limits', tiers: { bref: false, cloud: 'Coming soon' } },
-        ],
-    },
-    {
         name: 'Support',
         features: [
             { name: 'Priority bugfixes on GitHub', tiers: { bref: false, cloud: true } },
-            { name: 'Expert support & consulting', tiers: { bref: false, cloud: true } },
+            { name: 'Expert AWS support', tiers: { bref: false, cloud: true } },
         ],
     },
 ];
