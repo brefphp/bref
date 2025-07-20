@@ -36,7 +36,7 @@ final class LazySecretsLoader
     private static function areThereSecretsToLoad(): bool
     {
         /** @var array<string,string>|string|false $envVars */
-        $envVars = getenv(local_only: true); // @phpstan-ignore-line PHPStan is wrong
+        $envVars = getenv(local_only: true);
         if (! is_array($envVars)) {
             return false;
         }
