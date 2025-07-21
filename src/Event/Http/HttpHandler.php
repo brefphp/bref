@@ -7,10 +7,10 @@ use Bref\Event\Handler;
 
 abstract class HttpHandler implements Handler
 {
-    abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse;
+    abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse|StreamedHttpResponse;
 
     /** {@inheritDoc} */
-    public function handle($event, Context $context): array
+    public function handle($event, Context $context): array|\Generator
     {
         // See https://bref.sh/docs/runtimes/http.html#cold-starts
         if (isset($event['warmer']) && $event['warmer'] === true) {
