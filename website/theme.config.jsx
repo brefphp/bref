@@ -84,7 +84,9 @@ export default {
         )
     },
     search: {
-        component: <DocSearch appId="7J23TEKSTT" indexName="bref" apiKey="0d252e6edd70998021bc0044444c42c4" />
+        component: <DocSearch appId="7J23TEKSTT" indexName="bref" apiKey="0d252e6edd70998021bc0044444c42c4" translations={{
+            button: {buttonText: 'Search docs'}
+        }} />,
     },
     components: {
         // https://github.com/shuding/nextra/blob/main/packages/nextra-theme-docs/src/mdx-components.tsx
