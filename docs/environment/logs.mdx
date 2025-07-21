@@ -91,10 +91,14 @@ All logs written to `stdout` or `stderr` are automatically be sent to CloudWatch
 
         Bref provides a formatter optimized for CloudWatch, it is highly recommended to use it:
 
+        ```bash
+        composer require bref/monolog-bridge
+        ```
+
         ```php
         $log = new Monolog\Logger('default');
         $handler = new StreamHandler('php://stderr', Logger::INFO);
-        $handler->setFormatter(new Bref\Logs\CloudWatchFormatter);
+        $handler->setFormatter(new Bref\Monolog\CloudWatchFormatter);
         $log->pushHandler($handler);
 
         $log->warning('This is a warning!');
