@@ -24,7 +24,6 @@ abstract class HttpHandler implements Handler
 
         $response = $this->handleRequest($httpEvent, $context);
 
-        var_dump($response->toApiGatewayFormat());
         if ($httpEvent->isFormatV2()) {
             return $response->toApiGatewayFormatV2();
         }
