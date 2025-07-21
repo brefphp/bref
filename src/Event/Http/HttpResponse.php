@@ -9,12 +9,12 @@ final class HttpResponse
 {
     private int $statusCode;
     private array $headers;
-    private string $body;
+    private string|\Generator $body;
 
     /**
      * @param array<string|string[]> $headers
      */
-    public function __construct(string $body, array $headers = [], int $statusCode = 200)
+    public function __construct(string|\Generator $body, array $headers = [], int $statusCode = 200)
     {
         $this->body = $body;
         $this->headers = $headers;
@@ -57,13 +57,31 @@ final class HttpResponse
 
             yield "\0\0\0\0\0\0\0\0";
 
-            yield $this->body;
+            if ( $this->body instanceof \Generator ) {
+                foreach ($this->body as $dataChunk) {
+                    yield $dataChunk;
+                }
+            } else {
+                yield $this->body;
+            }
         } else {
+            if ( $this->body instanceof \Generator ) {
+                $dataChunk = '';
+
+                while ($this->body->valid()) {
+                    $dataChunk .= $this->body->current();
+
+                    $this->body->next();
+                }
+            } else {
+                $dataChunk = $this->body;
+            }
+
             return [
                 'isBase64Encoded' => $base64Encoding,
                 'statusCode' => $this->statusCode,
                 $headersKey => $headers,
-                'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
+                'body' => $base64Encoding ? base64_encode($dataChunk) : $dataChunk,
             ];
         }
     }
@@ -103,14 +121,32 @@ final class HttpResponse
 
             yield "\0\0\0\0\0\0\0\0";
 
-            yield $this->body;
+            if ( $this->body instanceof \Generator ) {
+                foreach ($this->body as $dataChunk) {
+                    yield $dataChunk;
+                }
+            } else {
+                yield $this->body;
+            }
         } else {
+            if ( $this->body instanceof \Generator ) {
+                $dataChunk = '';
+
+                while ($this->body->valid()) {
+                    $dataChunk .= $this->body->current();
+
+                    $this->body->next();
+                }
+            } else {
+                $dataChunk = $this->body;
+            }
+
             return [
                 'cookies' => $cookies,
                 'isBase64Encoded' => $base64Encoding,
                 'statusCode' => $this->statusCode,
                 'headers' => $headers,
-                'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
+                'body' => $base64Encoding ? base64_encode($dataChunk) : $dataChunk,
             ];
         }
     }
