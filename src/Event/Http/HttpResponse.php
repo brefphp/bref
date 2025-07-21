@@ -57,7 +57,7 @@ final class HttpResponse
 
             yield "\0\0\0\0\0\0\0\0";
 
-            if ( $this->body instanceof \Generator ) {
+            if ($this->body instanceof \Generator) {
                 foreach ($this->body as $dataChunk) {
                     yield $dataChunk;
                 }
@@ -65,7 +65,7 @@ final class HttpResponse
                 yield $this->body;
             }
         } else {
-            if ( $this->body instanceof \Generator ) {
+            if ($this->body instanceof \Generator) {
                 $dataChunk = '';
 
                 while ($this->body->valid()) {
@@ -121,7 +121,7 @@ final class HttpResponse
 
             yield "\0\0\0\0\0\0\0\0";
 
-            if ( $this->body instanceof \Generator ) {
+            if ($this->body instanceof \Generator) {
                 foreach ($this->body as $dataChunk) {
                     yield $dataChunk;
                 }
@@ -129,7 +129,7 @@ final class HttpResponse
                 yield $this->body;
             }
         } else {
-            if ( $this->body instanceof \Generator ) {
+            if ($this->body instanceof \Generator) {
                 $dataChunk = '';
 
                 while ($this->body->valid()) {
