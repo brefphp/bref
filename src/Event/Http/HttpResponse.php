@@ -50,20 +50,10 @@ final class HttpResponse
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
 
         if ($isStreamedMode) {
-            yield json_encode([
+            return $this->yieldBody([
                 'statusCode' => $this->statusCode,
                 $headersKey => $headers,
             ]);
-
-            yield "\0\0\0\0\0\0\0\0";
-
-            if ($this->body instanceof \Generator) {
-                foreach ($this->body as $dataChunk) {
-                    yield $dataChunk;
-                }
-            } else {
-                yield $this->body;
-            }
         } else {
             if ($this->body instanceof \Generator) {
                 $dataChunk = '';
@@ -113,21 +103,11 @@ final class HttpResponse
         $headers = empty($headers) ? new \stdClass : $headers;
 
         if ($isStreamedMode) {
-            yield json_encode([
+            return $this->yieldBody([
                 'cookies' => $cookies,
                 'statusCode' => $this->statusCode,
                 'headers' => $headers,
             ]);
-
-            yield "\0\0\0\0\0\0\0\0";
-
-            if ($this->body instanceof \Generator) {
-                foreach ($this->body as $dataChunk) {
-                    yield $dataChunk;
-                }
-            } else {
-                yield $this->body;
-            }
         } else {
             if ($this->body instanceof \Generator) {
                 $dataChunk = '';
@@ -159,5 +139,20 @@ final class HttpResponse
         $name = str_replace('-', ' ', $name);
         $name = ucwords($name);
         return str_replace(' ', '-', $name);
+    }
+
+    private function yieldBody($headersFormat): \Generator
+    {
+        yield json_encode($headersFormat);
+
+        yield "\0\0\0\0\0\0\0\0";
+
+        if ($this->body instanceof \Generator) {
+            foreach ($this->body as $dataChunk) {
+                yield $dataChunk;
+            }
+        } else {
+            yield $this->body;
+        }
     }
 }
