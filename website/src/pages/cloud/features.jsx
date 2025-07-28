@@ -25,9 +25,8 @@ const sections = [
             { name: 'Hosting', tiers: { bref: 'AWS Lambda in your AWS account', cloud: 'AWS Lambda in your AWS account' } },
             { name: 'Real-time scaling', tiers: { bref: true, cloud: true }, description: 'AWS Lambda <a class="underline" href="https://bref.sh/docs/how-it-works">scales up/down automatically</a> in a second or less.' },
             { name: 'High-availability', tiers: { bref: true, cloud: true }, description: 'AWS Lambda runs your app redundantly in multiple data centers and automatically replaces instances that fail.' },
-            { name: 'PHP runtime for AWS Lambda', tiers: { bref: true, cloud: true } },
+            { name: 'PHP runtime for AWS Lambda', tiers: { bref: true, cloud: true }, description: '<a class="underline" href="/docs/vendor-lock-in">Without vendor lock-in</a>' },
             { name: 'Laravel and Symfony integrations', tiers: { bref: true, cloud: true } },
-            { name: 'No vendor lock-in', tiers: { bref: true, cloud: true }, description: '<a class="underline" href="https://bref.sh/docs/vendor-lock-in">Learn more</a>' },
         ],
     },
     {
@@ -35,9 +34,8 @@ const sections = [
         features: [
             { name: 'Simple serverless.yml configuration', tiers: { bref: true, cloud: true } },
             { name: 'Extensible via custom CloudFormation', tiers: { bref: true, cloud: true } },
-            { name: 'Deploy from your machine', tiers: { bref: true, cloud: true } },
-            { name: 'Deploy from CI/CD', tiers: { bref: true, cloud: true } },
             { name: 'Deploy multiple environments (prod, staging…)', tiers: { bref: true, cloud: true } },
+            { name: 'Simple deployments from GitHub Actions', tiers: { bref: false, cloud: true }, description: '<a class="underline" href="/docs/cloud-deploy#deploying-from-github-actions">Documentation</a>' },
             { name: 'Simplified creation and management of databases', tiers: { bref: false, cloud: true } },
             { name: 'Simplified creation of private networks', tiers: { bref: false, cloud: 'Coming soon' } },
             { name: 'AWS deployment security', tiers: {

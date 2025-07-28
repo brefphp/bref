@@ -6,6 +6,7 @@ import Pricing from './cloud/pricing';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import Features from './cloud/features';
 import Faq from './cloud/faq';
+import CaseStudies from './cloud/case-studies';
 import HowItWorks from './cloud/how-it-works';
 import Image from 'next/image';
 
@@ -37,26 +38,27 @@ export function BrefCloud() {
                             <Image src={logo} className="w-32" alt="Bref Cloud" />
                         </div>
                         <h1 className="mt-4 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
-                            <span className="text-blue-500">Serverless</span> PHP made simple,
-                            <br/>
-                            with everything included
+                            Deploy, monitor, and run
+                            <span className="lg:hidden">&nbsp;</span>
+                            <br className="hidden lg:block" />
+                            PHP <span className="text-blue-500">serverless</span> on AWS
                         </h1>
                         <p className="mt-8 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
-                            Get the reliability and scalability of
-                            AWS and Lambda without having to become an AWS expert.
+                            When one server is no longer enough and Kubernetes feels too much, go serverless.
+                        </p>
+                        <p className="mt-3 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
+                            Get the reliability and <strong>insane scalability</strong> of AWS and Lambda without devops or AWS expertise.
                         </p>
                         <p className="mt-3 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
                             Deploy in one command, monitor from an intuitive dashboard, and manage permissions easily.
-                        </p>
-                        <p className="mt-3 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
-                            Bref Cloud makes it all <strong>accessible and simple</strong> with expert support built-in.
+                            Bref Cloud makes AWS and serverless <strong>accessible and simple</strong> with expert support built-in.
                         </p>
                         <div className="mt-10 flex items-center gap-x-6">
                             <a
                                 href="https://bref.cloud/register"
                                 className="rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             >
-                                Get started
+                                Start free trial
                             </a>
                             <a href="https://calendly.com/bref-enterprise/bref-cloud-demo" className="text-sm/6 font-semibold text-gray-900">
                                 Schedule a demo <span aria-hidden="true">→</span>
@@ -120,7 +122,7 @@ export function BrefCloud() {
                             href="https://bref.cloud/register"
                             className="rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                         >
-                            Get started
+                            Start free trial
                         </a>
                         <a href="https://calendly.com/bref-enterprise/bref-cloud-demo" className="text-sm/6 font-semibold text-gray-900">
                             Schedule a demo <span aria-hidden="true">→</span>
@@ -163,6 +165,8 @@ export function BrefCloud() {
                     </div>
                 </div>
             </div>
+
+            <CaseStudies />
 
             <div className="py-24 sm:py-28">
                 <div className="mx-auto max-w-4xl px-6 lg:px-8 text-lg text-pretty leading-8 text-gray-700">

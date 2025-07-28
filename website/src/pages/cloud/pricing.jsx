@@ -22,7 +22,7 @@ const tiers = [
             'Slack + email support & consulting',
         ],
         featured: false,
-        cta: 'Get started',
+        cta: 'Start free trial',
     },
     {
         name: 'Startup',
@@ -39,7 +39,7 @@ const tiers = [
             'Slack + email support & consulting',
         ],
         featured: false,
-        cta: 'Get started',
+        cta: 'Start free trial',
     },
     {
         name: 'Team',
@@ -56,7 +56,7 @@ const tiers = [
             'Slack + email support & consulting',
         ],
         featured: false,
-        cta: 'Get started',
+        cta: 'Start free trial',
     },
     {
         name: 'Enterprise',
