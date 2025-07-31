@@ -8,6 +8,7 @@ use Bref\Event\EventBridge\EventBridgeEvent;
 use Bref\Event\EventBridge\EventBridgeHandler;
 use Bref\Event\Handler;
 use Bref\Event\Http\HttpRequestEvent;
+use Bref\Event\Http\HttpResponse;
 use Bref\Event\S3\S3Event;
 use Bref\Event\S3\S3Handler;
 use Bref\Event\Sns\SnsEvent;
@@ -248,7 +249,7 @@ ERROR;
 
     public function test generic event handler()
     {
-        $handler = new class() implements Handler {
+        $handler = new class () implements Handler {
             public function handle(mixed $event, Context $context): mixed
             {
                 return $event;
@@ -264,7 +265,7 @@ ERROR;
 
     public function test SQS event handler()
     {
-        $handler = new class() extends SqsHandler {
+        $handler = new class () extends SqsHandler {
             public SqsEvent $event;
             public function handleSqs(SqsEvent $event, Context $context): void
             {
@@ -282,7 +283,7 @@ ERROR;
 
     public function test SNS event handler()
     {
-        $handler = new class() extends SnsHandler {
+        $handler = new class () extends SnsHandler {
             public SnsEvent $event;
             public function handleSns(SnsEvent $event, Context $context): void
             {
@@ -300,7 +301,7 @@ ERROR;
 
     public function test S3 event handler()
     {
-        $handler = new class() extends S3Handler {
+        $handler = new class () extends S3Handler {
             public S3Event $event;
             public function handleS3(S3Event $event, Context $context): void
             {
@@ -318,7 +319,7 @@ ERROR;
 
     public function test PSR15 event handler()
     {
-        $handler = new class() implements RequestHandlerInterface {
+        $handler = new class () implements RequestHandlerInterface {
             public ServerRequestInterface $request;
             public function handle(ServerRequestInterface $request): ResponseInterface
             {
@@ -350,7 +351,7 @@ ERROR;
 
     public function test EventBridge event handler()
     {
-        $handler = new class() extends EventBridgeHandler {
+        $handler = new class () extends EventBridgeHandler {
             public EventBridgeEvent $event;
             public function handleEventBridge(EventBridgeEvent $event, Context $context): void
             {
@@ -368,7 +369,7 @@ ERROR;
 
     public function test exceptions in beforeInvoke result in an invocation error()
     {
-        Bref::events()->subscribe(new class extends BrefEventSubscriber {
+        Bref::events()->subscribe(new class () extends BrefEventSubscriber {
             public function beforeInvoke(mixed ...$params): void
             {
                 throw new Exception('This is an exception in beforeInvoke');
@@ -390,7 +391,7 @@ ERROR;
      */
     public function test a failure in afterInvoke after a success does not signal a failure()
     {
-        Bref::events()->subscribe(new class extends BrefEventSubscriber {
+        Bref::events()->subscribe(new class () extends BrefEventSubscriber {
             public function afterInvoke(mixed ...$params): void
             {
                 throw new Exception('This is an exception in afterInvoke');
@@ -414,7 +415,7 @@ ERROR;
 
     public function test a failure in afterInvoke after a failure does not crash the runtime()
     {
-        Bref::events()->subscribe(new class extends BrefEventSubscriber {
+        Bref::events()->subscribe(new class () extends BrefEventSubscriber {
             public function afterInvoke(mixed ...$params): void
             {
                 throw new Exception('This is an exception in afterInvoke');
@@ -430,5 +431,58 @@ ERROR;
         // The logs should contain both the handler error and the afterInvoke error
         $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"Invocation error","stack":', $this->getActualOutput());
         $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"This is an exception in afterInvoke","stack":', $this->getActualOutput());
+    }
+
+    public function test streamed response from generator http event()
+    {
+        putenv('BREF_STREAMED_MODE=1');
+
+        Server::flush();
+
+        Server::enqueue([
+            new Response( // lambda event
+                200,
+                [
+                    'lambda-runtime-aws-request-id' => '1',
+                ],
+                '{ "Hello": "world!"}'
+            ),
+            new Response(202),
+        ]);
+
+        $this->runtime->processNextEvent(function ($event) {
+            $generatorFunction = function (): \Generator {
+                yield 'hello';
+                yield 'world';
+            };
+
+            return (
+                new HttpResponse(
+                    $generatorFunction(),
+                    [
+                        'Content-Type' => 'text/html; charset=utf-8',
+                    ]
+                )
+            )->toApiGatewayFormatV2();
+        });
+
+        $requests = Server::received();
+
+        $this->assertCount(2, $requests);
+
+        [$eventRequest, $eventStreamResponse] = $requests;
+
+        $this->assertSame('GET', $eventRequest->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
+
+        $this->assertSame('POST', $eventStreamResponse->getMethod());
+
+        $this->assertSame('streaming', $eventStreamResponse->getHeaderLine('lambda-runtime-function-response-mode'));
+        $this->assertSame('chunked', $eventStreamResponse->getHeaderLine('transfer-encoding'));
+        $this->assertSame('application/vnd.awslambda.http-integration-response', $eventStreamResponse->getHeaderLine('content-type'));
+
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventStreamResponse->getUri()->__toString());
+
+        putenv('BREF_STREAMED_MODE=0');
     }
 }

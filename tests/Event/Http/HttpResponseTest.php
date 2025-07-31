@@ -177,4 +177,73 @@ class HttpResponseTest extends TestCase
             'body' => '',
         ], $response->toApiGatewayFormatV2());
     }
+
+    public function test generator returns generator api gateway v1()
+    {
+        putenv('BREF_STREAMED_MODE=1');
+
+        $generatorFunction = function (): \Generator {
+            yield 'hello';
+            yield 'world';
+        };
+
+        $response = new HttpResponse($generatorFunction(), [
+            'x-foo-bar' => 'baz',
+        ]);
+
+        $generator = $response->toApiGatewayFormat();
+
+        self::assertInstanceOf(\Generator::class, $generator);
+
+        self::assertEquals([
+            'statusCode' => 200,
+            'headers' => ['X-Foo-Bar' => 'baz'],
+        ], json_decode($generator->current(), true));
+
+        $generator->next();
+        self::assertEquals("\0\0\0\0\0\0\0\0", $generator->current());
+
+        $generator->next();
+        self::assertEquals('hello', $generator->current());
+
+        $generator->next();
+        self::assertEquals('world', $generator->current());
+
+        putenv('BREF_STREAMED_MODE=0');
+    }
+
+    public function test generator returns generator api gateway v2()
+    {
+        putenv('BREF_STREAMED_MODE=1');
+
+        $generatorFunction = function (): \Generator {
+            yield 'hello';
+            yield 'world';
+        };
+
+        $response = new HttpResponse($generatorFunction(), [
+            'x-foo-bar' => 'baz',
+        ]);
+
+        $generator = $response->toApiGatewayFormatV2();
+
+        self::assertInstanceOf(\Generator::class, $generator);
+
+        self::assertEquals([
+            'cookies' => [],
+            'statusCode' => 200,
+            'headers' => ['X-Foo-Bar' => 'baz'],
+        ], json_decode($generator->current(), true));
+
+        $generator->next();
+        self::assertEquals("\0\0\0\0\0\0\0\0", $generator->current());
+
+        $generator->next();
+        self::assertEquals('hello', $generator->current());
+
+        $generator->next();
+        self::assertEquals('world', $generator->current());
+
+        putenv('BREF_STREAMED_MODE=0');
+    }
 }
