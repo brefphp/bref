@@ -1,6 +1,9 @@
 import { NextSeo } from 'next-seo';
 import { Tab, Tabs } from 'nextra/components';
 import { Callout } from 'nextra/components';
+import Image from 'next/image';
+import brefCloudLogs from '../cloud/logs.png';
+import Link from 'next/link';
 
 <NextSeo description="Learn how to write and read PHP logs on AWS Lambda using Bref." />
 
@@ -16,28 +19,26 @@ Because of that, logs should not be stored on disk.
 
 ## CloudWatch
 
-The simplest solution is to push logs to AWS CloudWatch, AWS' service for logs.
-
-### PHP errors and warnings
-
-By default, all PHP errors, warnings and notices emitted by PHP will be forwarded into CloudWatch.
-
-That means that you don't have to configure anything to log errors, warnings or uncaught exceptions.
+Instead of storing logs on disk, logs should be pushed to [AWS CloudWatch](https://aws.amazon.com/cloudwatch/), AWS' service for logs.
 
 ### Writing logs
 
-Your application can write logs to CloudWatch:
+By default, Bref will forward low-level PHP errors and warnings to CloudWatch.
+
+For all other logs, your application should write logs to CloudWatch:
 
 - [With the PHP-FPM runtime for web apps](../runtimes/fpm-runtime.mdx): write logs to `stderr`
 - [With the runtime for event-driven functions](../runtimes/function.mdx): write logs to `stdout` (using `echo` for example) or `stderr`
 
-All logs written to `stdout` or `stderr` are automatically be sent to CloudWatch asynchronously by AWS Lambda, **without performance impact on applications**.
+AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `stdout` for event-driven functions) to CloudWatch Logs in the background, **without performance impact**.
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
     <Tab>
-        If you use Laravel, Bref will automatically configure Laravel to log to CloudWatch via `stderr`. You don't have to do anything.
+        If you use Laravel, Bref will automatically configure Laravel to log to CloudWatch via `stderr` (`LOG_CHANNEL=stderr`). You don't have to do anything.
 
-        It is recommended you enable Bref's logs formatter optimized for CloudWatch:
+        If you have a custom log setup (e.g. using the `stack` channel), you should ensure that the `stderr` channel is included in your stack.
+
+        It is also recommended you enable Bref's logs formatter optimized for CloudWatch:
 
         ```yaml filename="serverless.yml"
         provider:
@@ -54,7 +55,9 @@ All logs written to `stdout` or `stderr` are automatically be sent to CloudWatch
     <Tab>
         If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr`. You don't have to do anything.
 
-        It is recommended you enable Bref's logs formatter optimized for CloudWatch, for example:
+        If you have a custom log setup, you should ensure that logs are sent to `stderr` (e.g. using the `stream` handler with `php://stderr`).
+
+        It is also recommended you enable Bref's logs formatter optimized for CloudWatch, for example:
 
         ```yaml filename="config/packages/prod/monolog.yaml"
         monolog:
@@ -116,9 +119,13 @@ All logs written to `stdout` or `stderr` are automatically be sent to CloudWatch
 
 ### Reading logs
 
-To read logs, either open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:) or the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref).
+You can view, search and tail logs in the [Bref Cloud](https://bref.sh/cloud) dashboard:
 
-You can also use `serverless logs` to view them in the CLI:
+<a title="Bref Cloud" href="/cloud"><Image className="mt-6 border border-gray-200 rounded-lg shadow hover:shadow-lg" src={brefCloudLogs} /></a>
+
+If you don't use Bref Cloud, you can view logs in the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:).
+
+You can also use `serverless logs` to view them in the terminal:
 
 ```bash
 serverless logs -f <function-name>

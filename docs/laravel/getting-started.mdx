@@ -68,7 +68,7 @@ When finished, the `deploy` command will show the URL of the application.
 
 ### Deploying for production
 
-At the moment, we deployed our local codebase to Lambda. When deploying for production, we probably don't want to deploy:
+At the moment, we deployed our local codebase to Lambda. When deploying for production, we don't want to deploy:
 
 - development dependencies,
 - our local `.env` file,
@@ -76,14 +76,18 @@ At the moment, we deployed our local codebase to Lambda. When deploying for prod
 
 Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details about deploying in general.
 
-Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying. However, if you want to improve the cold start time you can pre-generate the config cache before deploying:
-
-```bash
-php artisan config:clear && php artisan config:cache
-```
+Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying.
 
 <Callout type="warning">
-    Laravel will hardcode absolute paths in the cached configuration. To deploy a valid cached configuration, you should run the commands above in Docker, with the application mounted in `/var/task` (the same path as on AWS Lambda).
+    You could improve the cold start time by pre-generating the config cache before deploying:
+
+    ```bash
+    php artisan config:clear && php artisan config:cache
+    ```
+
+    However Laravel will **hardcode** absolute paths and environment variables in the cached configuration. To deploy a valid cached configuration, you would need to run the commands above in Docker with the application mounted in `/var/task` (the same path as on AWS Lambda), with production environment variables available.
+
+    For most applications we do not recommend this approach. Instead, let Bref cache the config in AWS Lambda on cold starts.
 </Callout>
 
 ## Troubleshooting
