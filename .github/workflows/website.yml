@@ -12,11 +12,15 @@ jobs:
 
     deploy:
         runs-on: ubuntu-22.04
+        concurrency: deploy-prod # Avoid deploying concurrently
         permissions:
             contents: read
         defaults:
             run:
                 working-directory: ./website
+        environment:
+            name: prod
+            url: https://bref.sh
         steps:
             -   uses: actions/checkout@v4
                 with:
