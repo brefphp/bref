@@ -13,7 +13,7 @@
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.0.18",
     "@octokit/graphql": "^7.0.1",
-    "next": "^14.2.22",
+    "next": "^14.2.31",
     "next-plausible": "^3.11.1",
     "next-seo": "^6.1.0",
     "next-sitemap": "^4.2.3",
