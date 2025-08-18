@@ -9,5 +9,6 @@
   "database-public": {
     "display": "hidden"
   },
+  "aws-credentials": "AWS credentials",
   "performances": "Performance"
 }

@@ -12,10 +12,6 @@ introduction: Configure RDS to expose a RDS database publicly so that you can ac
 
 A secure alternative is to set up an SSH tunnel instead, for example **[using 7777](https://port7777.com/?utm_source=bref)**.
 
-## Limitations
-
-Aurora Serverless databases cannot be made publicly accessible.
-
 ## How to
 
 Open the RDS instance in the [RDS console](https://console.aws.amazon.com/rds/home#databases:):
