@@ -9,7 +9,9 @@ import Faq from './cloud/faq';
 import CaseStudies from './cloud/case-studies';
 import HowItWorks from './cloud/how-it-works';
 import Image from 'next/image';
+import { useState } from 'react';
 import { HeroBg } from './cloud/hero-bg';
+import { usePlausible } from 'next-plausible';
 
 <NextSeo
     title="Bref Cloud - Serverless PHP hosting on AWS Lambda - powerful, scalable, simple"
@@ -26,6 +28,17 @@ import { HeroBg } from './cloud/hero-bg';
 <BrefCloud />
 
 export function BrefCloud() {
+    const plausible = usePlausible();
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [reportedVideoPlay, setReportedVideoPlay] = useState(false);
+    const playVideo = () => {
+        setIsPlaying(true);
+        if (!reportedVideoPlay) {
+            setReportedVideoPlay(true);
+            plausible('Played Bref Cloud video');
+        }
+    };
+
     return (
         <div>
 
@@ -50,11 +63,11 @@ export function BrefCloud() {
                             <br className="hidden lg:block" />
                             PHP <span className="text-blue-500">serverless</span> on AWS
                         </h1>
-                        <p className="mt-6 text-pretty leading-7 text-lg text-gray-600 max-w-2xl mx-auto">
+                        <p className="mt-6 text-pretty leading-7 sm:text-lg text-gray-600 max-w-2xl mx-auto">
                             When one server is no longer enough and Kubernetes feels too much,
                             get the reliability and <strong>insane scalability</strong> of AWS Lambda without devops or AWS expertise.
                         </p>
-                        <p className="mt-3 text-pretty leading-7 text-lg text-gray-600 max-w-2xl mx-auto">
+                        <p className="mt-3 text-pretty leading-7 sm:text-lg text-gray-600 max-w-2xl mx-auto">
                             Deploy in one command, monitor from an intuitive dashboard, and manage permissions easily.
                             Bref Cloud makes AWS and serverless <strong>accessible and simple</strong>.
                         </p>
@@ -72,13 +85,39 @@ export function BrefCloud() {
                     </div>
                     <div className="mx-auto max-w-5xl mt-16 sm:mt-20 flex">
                         <div
-                            className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-                            <Image
-                                alt="Bref Cloud screenshot"
-                                src={mainScreenshot}
-                                className="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10"
-                                priority={true}
-                            />
+                            className="w-full -m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+                            {isPlaying ? (
+                                <div className="w-full max-w-full overflow-hidden rounded-md shadow-2xl ring-1 ring-gray-900/10 aspect-video bg-black">
+                                    <iframe
+                                        src="https://www.youtube.com/embed/mU6Wlcetl9M?autoplay=1&rel=0"
+                                        title="Bref Cloud video"
+                                        allow="autoplay; encrypted-media; picture-in-picture"
+                                        allowFullScreen
+                                        className="h-full w-full aspect-video"
+                                    />
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => playVideo()}
+                                    className="group relative focus:outline-none"
+                                    aria-label="Play video"
+                                >
+                                    <Image
+                                        alt="Bref Cloud screenshot"
+                                        src={mainScreenshot}
+                                        className="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10 group-hover:opacity-80 transition-opacity"
+                                        priority={true}
+                                    />
+                                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                                        <span className="inline-flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-white size-14 md:size-20 shadow-xl ring-1 ring-gray-900/10 transition-colors">
+                                            <svg aria-hidden="true" className="size-10 md:size-16 text-gray-800" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                        </span>
+                                    </span>
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
