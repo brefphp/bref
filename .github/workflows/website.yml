@@ -11,7 +11,7 @@ env:
 jobs:
 
     deploy:
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
         concurrency: deploy-prod # Avoid deploying concurrently
         permissions:
             contents: read
