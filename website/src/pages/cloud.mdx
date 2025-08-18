@@ -9,6 +9,9 @@ import Faq from './cloud/faq';
 import CaseStudies from './cloud/case-studies';
 import HowItWorks from './cloud/how-it-works';
 import Image from 'next/image';
+import { useState } from 'react';
+import { HeroBg } from './cloud/hero-bg';
+import { usePlausible } from 'next-plausible';
 
 <NextSeo
     title="Bref Cloud - Serverless PHP hosting on AWS Lambda - powerful, scalable, simple"
@@ -25,64 +28,102 @@ import Image from 'next/image';
 <BrefCloud />
 
 export function BrefCloud() {
+    const plausible = usePlausible();
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [reportedVideoPlay, setReportedVideoPlay] = useState(false);
+    const playVideo = () => {
+        setIsPlaying(true);
+        if (!reportedVideoPlay) {
+            setReportedVideoPlay(true);
+            plausible('Played Bref Cloud video');
+        }
+    };
+
     return (
         <div>
 
             <div className="relative isolate overflow-hidden bg-white">
-                <svg aria-hidden="true" className="absolute inset-0 -z-10 size-full stroke-gray-200 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]">
+
+                <HeroBg className="hidden lg:block absolute inset-x-0 -ml-14 mt-16 scale-90 -z-10 drop-shadow-xl" />
+
+                <HeroBg className="hidden lg:block absolute top-0 right-0 -mr-14 mt-16 scale-90 -z-10 drop-shadow-xl" style={{ 'transform': 'scale(-1, 1)' }} />
+
+                <svg aria-hidden="true" className="absolute inset-0 -z-20 size-full stroke-gray-200 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]">
                     <defs><pattern x="50%" y={-1} id="0787a7c5-978c-4f66-83c7-11c213f99cb7" width={200} height={200} patternUnits="userSpaceOnUse"><path d="M.5 200V.5H200" fill="none" /></pattern></defs><rect fill="url(#0787a7c5-978c-4f66-83c7-11c213f99cb7)" width="100%" height="100%" strokeWidth={0} />
                 </svg>
-                <div className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-32">
-                    <div className="mx-auto max-w-2xl lg:mx-0 lg:shrink-0 lg:pt-8">
-                        <div className="flex justify-start">
+
+                <div className="mx-auto max-w-7xl py-20 lg:py-24 px-6 lg:px-8">
+                    <div className="mx-auto max-w-2xl text-center">
+                        <div className="flex justify-center">
                             <Image src={logo} className="w-32" alt="Bref Cloud" />
                         </div>
-                        <h1 className="mt-4 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
+                        <h1 className="mt-3 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
                             Deploy, monitor, and run
                             <span className="lg:hidden">&nbsp;</span>
                             <br className="hidden lg:block" />
                             PHP <span className="text-blue-500">serverless</span> on AWS
                         </h1>
-                        <p className="mt-8 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
-                            When one server is no longer enough and Kubernetes feels too much, go serverless.
+                        <p className="mt-6 text-pretty leading-7 sm:text-lg text-gray-600 max-w-2xl mx-auto">
+                            When one server is no longer enough and Kubernetes feels too much,
+                            get the reliability and <strong>insane scalability</strong> of AWS Lambda without devops or AWS expertise.
                         </p>
-                        <p className="mt-3 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
-                            Get the reliability and <strong>insane scalability</strong> of AWS and Lambda without devops or AWS expertise.
-                        </p>
-                        <p className="mt-3 text-pretty leading-7 text-lg text-gray-600 max-w-lg">
+                        <p className="mt-3 text-pretty leading-7 sm:text-lg text-gray-600 max-w-2xl mx-auto">
                             Deploy in one command, monitor from an intuitive dashboard, and manage permissions easily.
-                            Bref Cloud makes AWS and serverless <strong>accessible and simple</strong> with expert support built-in.
+                            Bref Cloud makes AWS and serverless <strong>accessible and simple</strong>.
                         </p>
-                        <div className="mt-10 flex items-center gap-x-6">
+                        <div className="mt-8 flex items-center justify-center gap-x-6">
                             <a
                                 href="https://bref.cloud/register"
                                 className="rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             >
-                                Start free trial
+                                Get started
                             </a>
                             <a href="https://calendly.com/bref-enterprise/bref-cloud-demo" className="text-sm/6 font-semibold text-gray-900">
                                 Schedule a demo <span aria-hidden="true">→</span>
                             </a>
                         </div>
                     </div>
-                    <div
-                        className="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:ml-10 lg:mr-0 lg:mt-0 lg:max-w-none lg:flex-none xl:ml-32">
-                        <div className="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
-                            <div
-                                className="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-                                <Image
-                                    alt="Bref Cloud screenshot"
-                                    src={mainScreenshot}
-                                    className="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10"
-                                    priority={true}
-                                />
-                            </div>
+                    <div className="mx-auto max-w-5xl mt-16 sm:mt-20 flex">
+                        <div
+                            className="w-full -m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4">
+                            {isPlaying ? (
+                                <div className="w-full max-w-full overflow-hidden rounded-md shadow-2xl ring-1 ring-gray-900/10 aspect-video bg-black">
+                                    <iframe
+                                        src="https://www.youtube.com/embed/mU6Wlcetl9M?autoplay=1&rel=0"
+                                        title="Bref Cloud video"
+                                        allow="autoplay; encrypted-media; picture-in-picture"
+                                        allowFullScreen
+                                        className="h-full w-full aspect-video"
+                                    />
+                                </div>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={() => playVideo()}
+                                    className="group relative focus:outline-none"
+                                    aria-label="Play video"
+                                >
+                                    <Image
+                                        alt="Bref Cloud screenshot"
+                                        src={mainScreenshot}
+                                        className="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10 group-hover:opacity-80 transition-opacity"
+                                        priority={true}
+                                    />
+                                    <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                                        <span className="inline-flex items-center justify-center rounded-full bg-gray-50 group-hover:bg-white size-14 md:size-20 shadow-xl ring-1 ring-gray-900/10 transition-colors">
+                                            <svg aria-hidden="true" className="size-10 md:size-16 text-gray-800" viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                        </span>
+                                    </span>
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="py-24 sm:py-28">
+            <div className="pt-4 pb-20 sm:pb-24">
                 <div className="mx-auto max-w-4xl px-6 lg:px-8 text-lg text-pretty leading-8 text-gray-700">
                     <p>
                         Choosing infrastructure is usually a compromise between: <strong className="text-gray-900">reliable</strong>, <strong className="text-gray-900">powerful</strong>, or <strong className="text-gray-900">simple</strong>.
