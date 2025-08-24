@@ -43,15 +43,22 @@ class ServerlessPlugin {
         /** @type {Record<string, Record<string, string>>} */
         this.layers = JSON.parse(fs.readFileSync(filename).toString());
 
-        this.runtimes = Object.keys(this.layers)
-            .filter(name => !name.startsWith('arm-'));
-        // Console runtimes must have a PHP version provided
-        this.runtimes = this.runtimes.filter(name => name !== 'console');
-        this.runtimes.push('php-82-console', 'php-83-console', 'php-84-console', 'php-85-console');
-
         this.checkCompatibleRuntime();
 
-        serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(...this.runtimes);
+        serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(...[
+            'php-82',
+            'php-83',
+            'php-84',
+            'php-85',
+            'php-82-fpm',
+            'php-83-fpm',
+            'php-84-fpm',
+            'php-85-fpm',
+            'php-82-console',
+            'php-83-console',
+            'php-84-console',
+            'php-85-console',
+        ]);
         serverless.configSchemaHandler.defineTopLevelProperty('bref', {
             type: 'object',
         });
@@ -237,7 +244,6 @@ class ServerlessPlugin {
 
         const config = this.serverless.service;
         const isArmGlobally = config.provider.architecture === 'arm64';
-        const isBrefRuntimeGlobally = this.runtimes.includes(config.provider.runtime || '');
 
         // Check functions config
         for (const f of Object.values(config.functions || {})) {
