@@ -13,9 +13,11 @@ use Aws\Sts\StsClient; // AsyncAWS doesn't support regional endpoints: https://g
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 const LAYER_NAMES = [
+    'php-85',
     'php-84',
     'php-83',
     'php-82',
+    'arm-php-85',
     'arm-php-84',
     'arm-php-83',
     'arm-php-82',
