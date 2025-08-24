@@ -177,7 +177,7 @@ class ServerlessPlugin {
     }
 
     /**
-     * Process the `php-xx` runtimes to turn them into `provided.al2` runtimes + Bref layers.
+     * Process the `php-xx` runtimes to turn them into `provided.al2023` runtimes + Bref layers.
      */
     processPhpRuntimes() {
         const includeBrefLayers = (existingLayers, phpVersion, isArm) => {
@@ -230,7 +230,7 @@ class ServerlessPlugin {
                 phpVersion,
                 f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
             );
-            f.runtime = 'provided.al2';
+            f.runtime = 'provided.al2023';
             // Add the `BREF_RUNTIME` environment variable
             // to let the function know which runtime it is using
             // (this is used by the Bref runtime)
@@ -261,13 +261,20 @@ class ServerlessPlugin {
     }
 
     checkCompatibleRuntime() {
-        const errorMessage = 'Bref layers are not compatible with the "provided" runtime.\nYou have to use the "provided.al2" runtime instead in serverless.yml.\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2';
+        const providedErrorMessage = 'Bref layers are not compatible with the "provided" runtime.\nYou have to use the "provided.al2023" runtime instead in serverless.yml.\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2';
+        const providdeAl2ErrorMessage = 'Bref layers are not compatible with the "provided" runtime.\nYou have to use the "provided.al2023" runtime instead in serverless.yml.\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2';
         if (this.serverless.service.provider.runtime === 'provided') {
-            throw new this.serverless.classes.Error(errorMessage);
+            throw new this.serverless.classes.Error(providedErrorMessage);
+        }
+        if (this.serverless.service.provider.runtime === 'provided.al2') {
+            throw new this.serverless.classes.Error(providdeAl2ErrorMessage);
         }
         for (const [, f] of Object.entries(this.serverless.service.functions || {})) {
             if (f.runtime === 'provided') {
-                throw new this.serverless.classes.Error(errorMessage);
+                throw new this.serverless.classes.Error(providedErrorMessage);
+            }
+            if (f.runtime === 'provided.al2') {
+                throw new this.serverless.classes.Error(providdeAl2ErrorMessage);
             }
         }
     }
