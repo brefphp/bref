@@ -114,7 +114,7 @@ class PluginTest extends TestCase
 
     private static function assertFunction(array $config, string $brefRuntime, array $layers): void
     {
-        self::assertEquals('provided.al2', $config['runtime']);
+        self::assertEquals('provided.al2023', $config['runtime']);
         self::assertEquals($brefRuntime, $config['environment']['BREF_RUNTIME']);
         self::assertCount(count($layers), $config['layers'], sprintf('Expected %d layers, got %d: %s', count($layers), count($config['layers']), json_encode($config['layers'], JSON_THROW_ON_ERROR)));
         foreach ($layers as $index => $layer) {
