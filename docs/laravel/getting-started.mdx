@@ -1,5 +1,6 @@
 import { Callout } from 'nextra/components';
 import { NextSeo } from 'next-seo';
+import { Tab, Tabs } from 'nextra/components';
 
 <NextSeo description="Run Laravel serverless on AWS Lambda using Bref." />
 
@@ -50,15 +51,24 @@ When running in AWS Lambda, the Laravel application will automatically cache its
 
 Let's deploy now:
 
-```bash
-serverless deploy
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless deploy
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref deploy
+        ```
+    </Tab>
+</Tabs>
 
 When finished, the `deploy` command will show the URL of the application.
 
 ### Deploying for production
 
-At the moment, we deployed our local codebase to Lambda. When deploying for production, we probably don't want to deploy:
+At the moment, we deployed our local codebase to Lambda. When deploying for production, we don't want to deploy:
 
 - development dependencies,
 - our local `.env` file,
@@ -66,19 +76,43 @@ At the moment, we deployed our local codebase to Lambda. When deploying for prod
 
 Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details about deploying in general.
 
-Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying. However, if you want to improve the cold start time you can pre-generate the config cache before deploying:
-
-```bash
-php artisan config:clear && php artisan config:cache
-```
+Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying.
 
 <Callout type="warning">
-    Laravel will hardcode absolute paths in the cached configuration. To deploy a valid cached configuration, you should run the commands above in Docker, with the application mounted in `/var/task` (the same path as on AWS Lambda).
+    You could improve the cold start time by pre-generating the config cache before deploying:
+
+    ```bash
+    php artisan config:clear && php artisan config:cache
+    ```
+
+    However Laravel will **hardcode** absolute paths and environment variables in the cached configuration. To deploy a valid cached configuration, you would need to run the commands above in Docker with the application mounted in `/var/task` (the same path as on AWS Lambda), with production environment variables available.
+
+    For most applications we do not recommend this approach. Instead, let Bref cache the config in AWS Lambda on cold starts.
 </Callout>
 
 ## Troubleshooting
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
+
+## Logs
+
+Thanks to the Bref integration, Laravel will automatically log to CloudWatch via `stderr`. You don't have to do anything.
+
+You can learn more about logs in the [Logs guide](../environment/logs.md).
+
+It is recommended you enable Bref's logs formatter optimized for CloudWatch:
+
+```yaml filename="serverless.yml"
+provider:
+    environment:
+        LOG_STDERR_FORMATTER: Bref\Monolog\CloudWatchFormatter
+```
+
+<Callout>
+    This formatter will be enabled by default in Bref v3.
+</Callout>
+
+With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level, exception class, or anything in the [Laravel Context](https://laravel.com/docs/12.x/context).
 
 ## Website assets
 
@@ -90,15 +124,30 @@ As you may have noticed, we define a function named "artisan" in `serverless.yml
 
 For example, to execute an `artisan` command on Lambda, run the command below:
 
-```bash
-serverless bref:cli --args="<artisan command and options>"
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless bref:cli --args="{artisan command and options}"
+        ```
 
-For example:
+        For example:
 
-```bash
-serverless bref:cli --args="route:list"
-```
+        ```bash
+        serverless bref:cli --args="route:list"
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref command "{artisan command and options}"
+        ```
+
+        For example:
+
+        ```bash
+        bref command "route:list"
+        ```
+    </Tab>
+</Tabs>
 
 For more details follow [the "Console" guide](../runtimes/console.mdx).
 

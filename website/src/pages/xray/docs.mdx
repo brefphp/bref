@@ -138,12 +138,6 @@ If you are using Symfony, the package automatically integrates with the Symfony 
 To trace Symfony Messenger jobs across multiple services, you need to trace the AWS SDK client used by Symfony Messenger:
 
 ```yaml
-    bref.messenger.sqs_client:
-        class: AsyncAws\Sqs\SqsClient
-        public: true
-        arguments:
-            $httpClient: '@Bref\Apm\XRay\AsyncAws\TracedAsyncAwsHttpClient'
-
     bref.messenger.sns_client:
         class: AsyncAws\Sns\SnsClient
         public: true
@@ -162,6 +156,42 @@ Alternatively, you can also install [`async-aws/async-aws-bundle`](https://async
 ```yaml
 async_aws:
     http_client: 'Bref\Apm\XRay\AsyncAws\TracedAsyncAwsHttpClient'
+```
+
+While the configuration above works for SNS and EventBridge, it is unfortunately not as simple for SQS. The SQS client is created inside a Symfony Messenger class (`AmazonSqsTransportFactory`) in a non-extensible way. To work around that, you can create a custom transport factory that overrides the native one from Symfony Messenger and make it use the `TracedAsyncAwsHttpClient` from Bref. Here is an example of class you can create in your Symfony application:
+
+```php
+<?php declare(strict_types=1);
+
+namespace App;
+
+use Bref\Apm\XRay\AsyncAws\TracedAsyncAwsHttpClient;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\Bridge\AmazonSqs\Transport\AmazonSqsTransport;
+use Symfony\Component\Messenger\Bridge\AmazonSqs\Transport\Connection;
+use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
+use Symfony\Component\Messenger\Transport\TransportFactoryInterface;
+use Symfony\Component\Messenger\Transport\TransportInterface;
+
+class AmazonSqsTransportFactory implements TransportFactoryInterface
+{
+    public function __construct(
+        private ?LoggerInterface $logger = null,
+    ) {
+    }
+
+    public function createTransport(#[\SensitiveParameter] string $dsn, array $options, SerializerInterface $serializer): TransportInterface
+    {
+        unset($options['transport_name']);
+
+        return new AmazonSqsTransport(Connection::fromDsn($dsn, $options, new TracedAsyncAwsHttpClient, $this->logger), $serializer);
+    }
+
+    public function supports(#[\SensitiveParameter] string $dsn, array $options): bool
+    {
+        return str_starts_with($dsn, 'sqs://') || preg_match('#^https://sqs\.[\w\-]+\.amazonaws\.com/.+#', $dsn);
+    }
+}
 ```
 
 ### Cold starts tracing

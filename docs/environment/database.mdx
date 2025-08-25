@@ -12,20 +12,16 @@ Here are some of the database services offered by RDS:
 - MySQL
 - PostgreSQL
 - [Aurora MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/): closed-source database with MySQL/PostgreSQL compatibility
-- [Aurora Serverless MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/serverless/): similar to Aurora but scales automatically on-demand
+- [Aurora Serverless v2 MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/serverless/): similar to Aurora but scales automatically on-demand
 
 <Callout>
-    Aurora Serverless can be configured to scale down to 0 instances when unused (which costs $0), however be careful with this option: the database can take up to 30 seconds to un-pause.
+    Aurora Serverless can be configured to scale down to 0 when unused (which costs $0), however be careful with this option: the database can take up to 15 seconds to un-pause.
 </Callout>
 
 All RDS databases can be setup with Lambda in two ways:
 
 1. the database can be made publicly accessible and protected by a username and password
 2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/vpc/))
-
-<Callout>
-    Aurora Serverless [cannot be made publicly accessible](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless.html), only the second option is possible.
-</Callout>
 
 While the first solution is simpler, the second is more secure. Using a VPC also comes with a few limitations that are detailed below.
 

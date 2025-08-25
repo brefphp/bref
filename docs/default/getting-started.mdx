@@ -1,4 +1,4 @@
-import { Cards, Card } from 'nextra/components';
+import { Cards, Card, Tabs, Tab } from 'nextra/components';
 // Path relative to the copy in the `website/` folder
 import { LaravelIcon } from '../../../components/icons/LaravelIcon';
 import { SymfonyIcon } from '../../../components/icons/SymfonyIcon';
@@ -70,9 +70,18 @@ plugins:
 
 To deploy, run:
 
-```bash
-serverless deploy
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless deploy
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref deploy
+        ```
+    </Tab>
+</Tabs>
 
 Once the command finishes, it should print a URL like this one:
 

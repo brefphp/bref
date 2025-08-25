@@ -1,4 +1,9 @@
 import { NextSeo } from 'next-seo';
+import { Tab, Tabs } from 'nextra/components';
+import { Callout } from 'nextra/components';
+import Image from 'next/image';
+import brefCloudLogs from '../cloud/logs.png';
+import Link from 'next/link';
 
 <NextSeo description="Learn how to write and read PHP logs on AWS Lambda using Bref." />
 
@@ -14,43 +19,113 @@ Because of that, logs should not be stored on disk.
 
 ## CloudWatch
 
-The simplest solution is to push logs to AWS CloudWatch, AWS' service for logs.
-
-### PHP errors and warnings
-
-By default, all PHP errors, warnings and notices emitted by PHP will be forwarded into CloudWatch.
-
-That means that you don't have to configure anything to log errors, warnings or uncaught exceptions.
+Instead of storing logs on disk, logs should be pushed to [AWS CloudWatch](https://aws.amazon.com/cloudwatch/), AWS' service for logs.
 
 ### Writing logs
 
-Your application can write logs to CloudWatch:
+By default, Bref will forward low-level PHP errors and warnings to CloudWatch.
+
+For all other logs, your application should write logs to CloudWatch:
 
 - [With the PHP-FPM runtime for web apps](../runtimes/fpm-runtime.mdx): write logs to `stderr`
 - [With the runtime for event-driven functions](../runtimes/function.mdx): write logs to `stdout` (using `echo` for example) or `stderr`
 
-For example with [Monolog](https://github.com/Seldaek/monolog):
+AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `stdout` for event-driven functions) to CloudWatch Logs in the background, **without performance impact**.
 
-```php
-$log = new Monolog\Logger('name');
-$log->pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tab>
+        If you use Laravel, Bref will automatically configure Laravel to log to CloudWatch via `stderr` (`LOG_CHANNEL=stderr`). You don't have to do anything.
 
-$log->warning('This is a warning!');
-```
+        If you have a custom log setup (e.g. using the `stack` channel), you should ensure that the `stderr` channel is included in your stack.
 
-For simple needs, you can replace Monolog with [Bref's logger](https://github.com/brefphp/logger), a PSR-3 logger designed for AWS Lambda:
+        It is also recommended you enable Bref's logs formatter optimized for CloudWatch:
 
-```php
-$log = new \Bref\Logger\StderrLogger();
+        ```yaml filename="serverless.yml"
+        provider:
+            environment:
+                LOG_STDERR_FORMATTER: Bref\Monolog\CloudWatchFormatter
+        ```
 
-$log->warning('This is a warning!');
-```
+        <Callout>
+            This formatter will be enabled by default in Bref v3.
+        </Callout>
+
+        With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level, exception class, or anything in the [Laravel Context](https://laravel.com/docs/12.x/context).
+    </Tab>
+    <Tab>
+        If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr`. You don't have to do anything.
+
+        If you have a custom log setup, you should ensure that logs are sent to `stderr` (e.g. using the `stream` handler with `php://stderr`).
+
+        It is also recommended you enable Bref's logs formatter optimized for CloudWatch, for example:
+
+        ```yaml filename="config/packages/prod/monolog.yaml"
+        monolog:
+            handlers:
+                main:
+                    type: stream
+                    level: info
+                    path: php://stderr
+                    formatter: 'Bref\Monolog\CloudWatchFormatter'
+        ```
+
+        If you do use that formatter, you also need to declare the service in your `services.yaml` (a pull request in [the Symfony bridge](https://github.com/brefphp/symfony-bridge) to do this automatically is welcome!):
+
+        ```yaml filename="config/services.yaml"
+        services:
+            Bref\Monolog\CloudWatchFormatter: ~
+        ```
+
+        <Callout>
+            This formatter will be enabled by default in Bref v3.
+        </Callout>
+
+        With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
+    </Tab>
+    <Tab>
+        You can use [Monolog](https://github.com/Seldaek/monolog) to write logs to CloudWatch via `stderr`:
+
+        ```php
+        $log = new Monolog\Logger('default');
+        $log->pushHandler(new StreamHandler('php://stderr', Logger::INFO));
+
+        $log->warning('This is a warning!');
+        ```
+
+        Bref provides a formatter optimized for CloudWatch, it is highly recommended to use it:
+
+        ```bash
+        composer require bref/monolog-bridge
+        ```
+
+        ```php
+        $log = new Monolog\Logger('default');
+        $handler = new StreamHandler('php://stderr', Logger::INFO);
+        $handler->setFormatter(new Bref\Monolog\CloudWatchFormatter);
+        $log->pushHandler($handler);
+
+        $log->warning('This is a warning!');
+        ```
+
+        For simple needs, you can replace Monolog with [Bref's logger](https://github.com/brefphp/logger), a PSR-3 logger designed for AWS Lambda:
+
+        ```php
+        $log = new \Bref\Logger\StderrLogger();
+
+        $log->warning('This is a warning!');
+        ```
+    </Tab>
+</Tabs>
 
 ### Reading logs
 
-To read logs, either open the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:) or the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref).
+You can view, search and tail logs in the [Bref Cloud](https://bref.sh/cloud) dashboard:
 
-You can also use `serverless logs` to view them in the CLI:
+<a title="Bref Cloud" href="/cloud"><Image className="mt-6 border border-gray-200 rounded-lg shadow hover:shadow-lg" src={brefCloudLogs} /></a>
+
+If you don't use Bref Cloud, you can view logs in the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:).
+
+You can also use `serverless logs` to view them in the terminal:
 
 ```bash
 serverless logs -f <function-name>

@@ -96,6 +96,10 @@ jobs:
         runs-on: ubuntu-latest
         timeout-minutes: 15
         concurrency: deploy-prod # Avoid deploying concurrently
+        environment:
+            name: prod
+            # Optionally set a URL for the environment
+            # url: https://example.com
         steps:
             -   uses: actions/checkout@v4
 

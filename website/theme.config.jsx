@@ -10,15 +10,6 @@ export default {
     project: {
         link: 'https://github.com/brefphp/bref'
     },
-    banner: {
-        dismissible: true,
-        key: 'bref-cloud',
-        text: (
-            <a href="https://bref.sh/cloud">
-                🎉 Bref Cloud is live! Read more →
-            </a>
-        ),
-    },
     useNextSeoProps() {
         const { asPath } = useRouter();
         // On SSG the path is `/index` instead of `/` for some reason
@@ -93,7 +84,9 @@ export default {
         )
     },
     search: {
-        component: <DocSearch appId="7J23TEKSTT" indexName="bref" apiKey="0d252e6edd70998021bc0044444c42c4" />
+        component: <DocSearch appId="7J23TEKSTT" indexName="bref" apiKey="0d252e6edd70998021bc0044444c42c4" translations={{
+            button: {buttonText: 'Search docs'}
+        }} />,
     },
     components: {
         // https://github.com/shuding/nextra/blob/main/packages/nextra-theme-docs/src/mdx-components.tsx

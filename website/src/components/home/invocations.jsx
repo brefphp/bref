@@ -1,40 +1,59 @@
+import Link from 'next/link';
+import Image from 'next/image';
+import treezorLogo from './companies/treezor.svg';
+import minutesLogo from './companies/20minutes.svg';
+import crowcubeLogo from './companies/crowdcube.svg';
+import gulliLogo from './companies/gulli.svg';
+import phpStanLogo from './companies/phpstan.svg';
+import bcastLogo from './companies/bcast.svg';
+import enopteaLogo from './companies/enoptea.png';
+import suaMusicaLogo from './companies/sua-musica.svg';
+import myBuilderLogo from './companies/mybuilder.svg';
+import craftCmsLogo from './sponsors/logo-craft-cms.png';
+import voxieLogo from './companies/voxie.svg';
+import spreakerLogo from './sponsors/logo-spreaker.svg';
+
+const companies = [
+    { src: crowcubeLogo, alt: 'Crowdcube', link: 'https://www.crowdcube.com/', classes: '!h-10' },
+    { src: suaMusicaLogo, alt: 'SuaMusica', link: 'https://suamusica.com.br/', classes: 'invert' },
+    { src: minutesLogo, alt: '20minutes.fr', link: 'https://www.20minutes.fr/', classes: 'brightness-0 invert' },
+    { src: voxieLogo, alt: 'Voxie', link: 'https://voxie.com/', classes: 'brightness-10 invert !h-10' },
+    { src: phpStanLogo, alt: 'PhpStan', link: 'https://phpstan.org/', classes: 'brightness-0 invert !h-6' },
+    { src: bcastLogo, alt: 'bCast.fm', link: 'https://bcast.fm/', classes: 'brightness-0 invert' },
+    { src: craftCmsLogo, alt: 'Craft CMS', link: 'https://craftcms.com/', classes: 'brightness-0 invert !h-9' },
+    { src: myBuilderLogo, alt: 'MyBuilder', link: 'https://www.mybuilder.com/', classes: 'brightness-0 invert !h-7' },
+    { src: enopteaLogo, alt: 'Enoptea', link: 'https://www.enoptea.fr/', classes: 'brightness-0 invert !h-7' },
+    { src: spreakerLogo, alt: 'Spreaker', link: 'https://www.spreaker.com/', classes: 'brightness-0 invert !h-9' },
+    { src: gulliLogo, alt: 'Gulli.fr', link: 'https://www.gulli.fr/', classes: 'grayscale brightness-200' },
+    { src: treezorLogo, alt: 'Treezor', link: 'https://www.treezor.com/', classes: 'brightness-0 invert !h-7' }
+];
+
 export default function Invocations({ invocations }) {
     return (
         <div id="invocations" className="home-container home-section !px-0 sm:!px-6 !py-12 sm:!py-16">
             <div
-                className="relative isolate overflow-hidden bg-gray-900 px-6 py-16 text-center shadow-2xl sm:rounded-3xl sm:px-16">
+                className="relative isolate overflow-hidden bg-gray-900 px-6 py-10 text-center shadow-2xl sm:rounded-3xl sm:px-16">
                 <h2 className="mx-auto max-w-2xl text-3xl font-black tracking-tight text-white sm:text-5xl">
                     {invocations?.toLocaleString('en-US')}
                 </h2>
-                <p className="mx-auto mt-2 max-w-xl text-lg leading-8 text-gray-300">
-                    requests, jobs, and messages handled with Bref in the <strong>last 30 days</strong>
+                <p className="mx-auto mt-3 max-w-xl text-lg text-gray-300">
+                    requests, jobs, and messages handled with Bref in the <strong className="text-white">last 30 days</strong>
                 </p>
-                {/*<div className="mt-4 flex items-center justify-center gap-x-6">*/}
-                {/*    <a href="#" className="text-sm font-semibold leading-6 text-white">*/}
-                {/*        Learn more <span aria-hidden="true">→</span>*/}
-                {/*    </a>*/}
-                {/*</div>*/}
-                <form action="https://app.convertkit.com/forms/5696241/subscriptions"
-                      className="w-full flex flex-col items-center justify-center mt-10"
-                      method="post" data-sv-form="5696241" data-uid="ee838f35c4" data-format="inline" data-version="5"
-                      data-options="{&quot;settings&quot;:{&quot;after_subscribe&quot;:{&quot;action&quot;:&quot;message&quot;,&quot;success_message&quot;:&quot;Success! Now check your email to confirm your subscription.&quot;,&quot;redirect_url&quot;:&quot;&quot;},&quot;analytics&quot;:{&quot;google&quot;:null,&quot;fathom&quot;:null,&quot;facebook&quot;:null,&quot;segment&quot;:null,&quot;pinterest&quot;:null,&quot;sparkloop&quot;:null,&quot;googletagmanager&quot;:null},&quot;modal&quot;:{&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;powered_by&quot;:{&quot;show&quot;:true,&quot;url&quot;:&quot;https://convertkit.com/features/forms?utm_campaign=poweredby&amp;utm_content=form&amp;utm_medium=referral&amp;utm_source=dynamic&quot;},&quot;recaptcha&quot;:{&quot;enabled&quot;:false},&quot;return_visitor&quot;:{&quot;action&quot;:&quot;show&quot;,&quot;custom_content&quot;:&quot;&quot;},&quot;slide_in&quot;:{&quot;display_in&quot;:&quot;bottom_right&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15},&quot;sticky_bar&quot;:{&quot;display_in&quot;:&quot;top&quot;,&quot;trigger&quot;:&quot;timer&quot;,&quot;scroll_percentage&quot;:null,&quot;timer&quot;:5,&quot;devices&quot;:&quot;all&quot;,&quot;show_once_every&quot;:15}},&quot;version&quot;:&quot;5&quot;}">
-                    <ul className="text-red-400 font-bold" data-element="errors" data-group="alert"></ul>
-                    <div data-element="fields" data-stacked="false"
-                         className="flex flex-col sm:flex-row w-full sm:w-auto gap-4">
-                        <input
-                            className="min-w-0 flex-auto rounded-md border-0 bg-white/10 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-white/75 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6"
-                            name="email_address" aria-label="Email" placeholder="you@example.com" required type="email" />
-                        <button data-element="submit" type="submit"
-                                className="flex-none rounded-md !bg-blue-600 hover:!bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500">
-                            <div className="formkit-spinner">
-                                <div></div>
-                                <div></div>
-                                <div></div>
-                            </div>
-                            Subscribe to the newsletter
-                        </button>
-                    </div>
-                </form>
+                <p className="mx-auto max-w-xl text-lg text-gray-300">
+                    across thousands of companies
+                </p>
+                <div className="mt-8 mx-auto flex justify-center flex-wrap w-full items-center gap-6 lg:gap-x-12">
+                    {companies.map(company => (
+                        <Link key={company.link} href={company.link} rel="noopener nofollow"
+                              className="h-9 lg:h-12 flex items-center justify-center overflow-hidden">
+                            <Image
+                                className={`h-full w-auto object-contain opacity-50 hover:opacity-100 ${company.classes}`}
+                                src={company.src}
+                                alt={company.alt}
+                            />
+                        </Link>
+                    ))}
+                </div>
                 <svg
                     viewBox="0 0 1024 1024"
                     className="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]"

@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components';
+import { Callout, Tab, Tabs } from 'nextra/components';
 import { NextSeo } from 'next-seo';
 
 <NextSeo description="Run Symfony serverless on AWS Lambda using Bref." />
@@ -54,9 +54,18 @@ use Symfony\Component\Routing\RouteCollectionBuilder;
 
 Let's deploy the application to AWS Lambda:
 
-```bash
-serverless deploy
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless deploy
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref deploy
+        ```
+    </Tab>
+</Tabs>
 
 When finished, the `deploy` command will show the URL of the application.
 
@@ -74,18 +83,36 @@ Separately, on cold starts, Symfony will boot with an empty cache directory. It 
 
 To optimize cold starts, you can deploy the application with a warm cache. In a simple application it means that the deployment script should include `cache:warmup` to look something like this:
 
-```bash
-# Install dependencies
-composer install --classmap-authoritative --no-dev --no-scripts
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        # Install dependencies
+        composer install --classmap-authoritative --no-dev --no-scripts
 
-# Warmup the cache
-bin/console cache:clear --env=prod
+        # Warmup the cache
+        bin/console cache:clear --env=prod
 
-# Disable use of Dotenv component
-echo "<?php return [];" > .env.local.php
+        # Disable use of Dotenv component
+        echo "<?php return [];" > .env.local.php
 
-serverless deploy
-```
+        serverless deploy
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        # Install dependencies
+        composer install --classmap-authoritative --no-dev --no-scripts
+
+        # Warmup the cache
+        bin/console cache:clear --env=prod
+
+        # Disable use of Dotenv component
+        echo "<?php return [];" > .env.local.php
+
+        bref deploy
+        ```
+    </Tab>
+</Tabs>
 
 #### Optimizing caches
 
@@ -117,6 +144,29 @@ class Kernel extends BrefKernel
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
 
+## Logs
+
+Thanks to the Bref integration, Symfony will automatically log to CloudWatch via `stderr`. You don't have to do anything.
+
+You can learn more about logs in the [Logs guide](../environment/logs.md).
+
+It is recommended you enable Bref's logs formatter optimized for CloudWatch:
+
+```yaml filename="config/packages/prod/monolog.yaml"
+monolog:
+    handlers:
+        file:
+            type: stream
+            level: info
+            formatter: 'Bref\Monolog\CloudWatchFormatter'
+```
+
+<Callout>
+    This formatter will be enabled by default in Bref v3.
+</Callout>
+
+With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
+
 ## Website assets
 
 Have a look at the [Website guide](../use-cases/websites.mdx) to learn how to deploy a website with assets.
@@ -127,15 +177,30 @@ As you may have noticed, we define a function named "console" in `serverless.yml
 
 For example, to execute an `bin/console` command on Lambda, run the command below:
 
-```bash
-serverless bref:cli --args="<console command and options>"
-```
+<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+    <Tab>
+        ```bash
+        serverless bref:cli --args="{console command and options}"
+        ```
 
-For example:
+        For example:
 
-```bash
-serverless bref:cli --args="doctrine:migrations:migrate"
-```
+        ```bash
+        serverless bref:cli --args="doctrine:migrations:migrate"
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        bref command "{console command and options}"
+        ```
+
+        For example:
+
+        ```bash
+        bref command "doctrine:migrations:migrate"
+        ```
+    </Tab>
+</Tabs>
 
 For more details follow [the "Console" guide](../runtimes/console.mdx).
 
