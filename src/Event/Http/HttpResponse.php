@@ -9,20 +9,21 @@ final class HttpResponse
 {
     private int $statusCode;
     private array $headers;
-    private string $body;
+    private string|\Generator $body;
 
     /**
      * @param array<string|string[]> $headers
      */
-    public function __construct(string $body, array $headers = [], int $statusCode = 200)
+    public function __construct(string|\Generator $body, array $headers = [], int $statusCode = 200)
     {
         $this->body = $body;
         $this->headers = $headers;
         $this->statusCode = $statusCode;
     }
 
-    public function toApiGatewayFormat(bool $multiHeaders = false): array
+    public function toApiGatewayFormat(bool $multiHeaders = false): array|\Generator
     {
+        $isStreamedMode = (bool) getenv('BREF_STREAMED_MODE');
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
         $headers = [];
@@ -47,19 +48,40 @@ final class HttpResponse
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
-        return [
-            'isBase64Encoded' => $base64Encoding,
-            'statusCode' => $this->statusCode,
-            $headersKey => $headers,
-            'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
-        ];
+
+        if ($isStreamedMode) {
+            return $this->yieldBody([
+                'statusCode' => $this->statusCode,
+                $headersKey => $headers,
+            ]);
+        } else {
+            if ($this->body instanceof \Generator) {
+                $dataChunk = '';
+
+                while ($this->body->valid()) {
+                    $dataChunk .= $this->body->current();
+
+                    $this->body->next();
+                }
+            } else {
+                $dataChunk = $this->body;
+            }
+
+            return [
+                'isBase64Encoded' => $base64Encoding,
+                'statusCode' => $this->statusCode,
+                $headersKey => $headers,
+                'body' => $base64Encoding ? base64_encode($dataChunk) : $dataChunk,
+            ];
+        }
     }
 
     /**
      * See https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.response
      */
-    public function toApiGatewayFormatV2(): array
+    public function toApiGatewayFormatV2(): array|\Generator
     {
+        $isStreamedMode = (bool) getenv('BREF_STREAMED_MODE');
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
         $headers = [];
@@ -80,13 +102,33 @@ final class HttpResponse
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
         $headers = empty($headers) ? new \stdClass : $headers;
 
-        return [
-            'cookies' => $cookies,
-            'isBase64Encoded' => $base64Encoding,
-            'statusCode' => $this->statusCode,
-            'headers' => $headers,
-            'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
-        ];
+        if ($isStreamedMode) {
+            return $this->yieldBody([
+                'cookies' => $cookies,
+                'statusCode' => $this->statusCode,
+                'headers' => $headers,
+            ]);
+        } else {
+            if ($this->body instanceof \Generator) {
+                $dataChunk = '';
+
+                while ($this->body->valid()) {
+                    $dataChunk .= $this->body->current();
+
+                    $this->body->next();
+                }
+            } else {
+                $dataChunk = $this->body;
+            }
+
+            return [
+                'cookies' => $cookies,
+                'isBase64Encoded' => $base64Encoding,
+                'statusCode' => $this->statusCode,
+                'headers' => $headers,
+                'body' => $base64Encoding ? base64_encode($dataChunk) : $dataChunk,
+            ];
+        }
     }
 
     /**
@@ -97,5 +139,20 @@ final class HttpResponse
         $name = str_replace('-', ' ', $name);
         $name = ucwords($name);
         return str_replace(' ', '-', $name);
+    }
+
+    private function yieldBody($headersFormat): \Generator
+    {
+        yield json_encode($headersFormat);
+
+        yield "\0\0\0\0\0\0\0\0";
+
+        if ($this->body instanceof \Generator) {
+            foreach ($this->body as $dataChunk) {
+                yield $dataChunk;
+            }
+        } else {
+            yield $this->body;
+        }
     }
 }
