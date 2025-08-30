@@ -42,13 +42,13 @@ class Laravel
     ];
 
     /**
-     * @param '8.0'|'8.1'|'8.2'|'8.3'|'8.4' $php The PHP version to use.
+     * @param '8.2'|'8.3'|'8.4'|'8.5' $php The PHP version to use.
      * @param string[] $patterns Path patterns to include or exclude from the deployment.
      * @param array<string, mixed> $variables Environment variables to set in the Lambda.
      */
     public function __construct(
         public string $name,
-        public string $php = '8.3',
+        public string $php,
         public string $rootPath = '.',
         array $patterns = [],
         public string $assets = 'public',
@@ -63,8 +63,8 @@ class Laravel
             $this->rootPath = '.';
         }
 
-        if (! in_array($this->php, ['8.0', '8.1', '8.2', '8.3', '8.4'], true)) {
-            throw new InvalidArgumentException("Invalid PHP version '$this->php', must be one of '8.0', '8.1', '8.2', '8.3', or '8.4'.");
+        if (! in_array($this->php, ['8.2', '8.3', '8.4', '8.5'], true)) {
+            throw new InvalidArgumentException("Invalid PHP version '$this->php', must be one of '8.2', '8.3', '8.4', or '8.5'.");
         }
 
         $this->patterns = array_merge($this->patterns, $patterns);
