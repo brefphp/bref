@@ -1,4 +1,4 @@
-import { BugAntIcon, ClockIcon, CodeBracketSquareIcon, FingerPrintIcon } from '@heroicons/react/20/solid';
+import { BugAntIcon, ClockIcon, CodeBracketSquareIcon, FingerPrintIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import sentry from './sentry/sentry.png';
 import Image from 'next/image';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -72,7 +72,12 @@ export function Sentry() {
 
     const features = [
         {
-            name: 'Exception tracking.',
+            name: 'Advanced error tracking.',
+            description: 'Track AWS Lambda errors that are outside of PHP-FPM, like timeouts or "response too big" errors in Sentry.',
+            icon: MagnifyingGlassIcon,
+        },
+        {
+            name: 'Non-HTTP exception tracking.',
             description: 'Add exception tracking to AWS Lambda handlers like SQS, EventBridge, S3 handlers, and more.',
             icon: BugAntIcon,
         },
