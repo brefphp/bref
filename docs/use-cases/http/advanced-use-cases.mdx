@@ -79,6 +79,28 @@ functions:
         url: true
 ```
 
+#### Invoke Method RESPONSE_STREAM
+
+In order to support Lambda Function URLs invoke method as `RESPONSE_STREAM` you need to change to settings:
+
+* BREF_STREAMED_MODE = 1 in the lambda environment
+* invokeMode: RESPONSE_STREAM in the function url settings
+
+Like the following sample config:
+
+```yml filename="serverless.yml"
+functions:
+    hello:
+        handler: MyApp\Handlers\MyLambdaUrlHandler
+        # ...
+        environment:
+           BREF_STREAMED_MODE: 1 
+        url:
+            invokeMode: RESPONSE_STREAM
+```
+
+Be aware that you must implement an `HttpHandler` handler, or use something like Laravel Octane handler if you are using Laravel.
+
 ### API Gateway v1 REST API
 
 The syntax is slightly different from API Gateway v2 HTTP APIs as we must use a different `events` configuration. Here is an example that sends all requests to a single Lambda function:
