@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bref\Runtime;
 
@@ -58,7 +60,7 @@ final class LambdaRuntime
         }
 
         $this->apiUrl = $apiUrl;
-        $this->invoker = new Invoker;
+        $this->invoker = new Invoker();
         $this->layer = $layer;
     }
 
@@ -145,7 +147,7 @@ final class LambdaRuntime
         }
 
         // Retrieve invocation ID
-        $contextBuilder = new ContextBuilder;
+        $contextBuilder = new ContextBuilder();
         curl_setopt($this->curlHandleNext, CURLOPT_HEADERFUNCTION, function ($ch, $header) use ($contextBuilder) {
             if (! preg_match('/:\s*/', $header)) {
                 return strlen($header);
@@ -313,7 +315,7 @@ final class LambdaRuntime
             ...$headers,
         ]);
 
-        if (PHP_VERSION_ID < 80100) {
+        if (PHP_VERSION_ID < 80100 || ((bool) getenv('BREF_STREAM_NO_FIBER'))) {
             $buffer = '';
             curl_setopt(
                 $this->curlStreamedHandleResult,
@@ -385,7 +387,7 @@ final class LambdaRuntime
             $this->closeCurlStreamedHandleResult();
 
             if ($statusCode === 413) {
-                throw new ResponseTooBig;
+                throw new ResponseTooBig();
             }
 
             try {
@@ -438,7 +440,7 @@ final class LambdaRuntime
             $this->closeCurlHandleResult();
 
             if ($statusCode === 413) {
-                throw new ResponseTooBig;
+                throw new ResponseTooBig();
             }
 
             try {
