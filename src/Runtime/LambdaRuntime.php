@@ -321,6 +321,9 @@ final class LambdaRuntime
                 $this->curlStreamedHandleResult,
                 CURLOPT_READFUNCTION,
                 function ($ch, $fd, $length) use (&$data, &$buffer) {
+                    Bref::triggerHooks('setupStreamFiberContext');
+                    Bref::events()->setupStreamFiberContext();
+
                     if (strlen($buffer) < $length && $data->valid()) {
                         $buffer .= (string) $data->current();
 
@@ -345,6 +348,9 @@ final class LambdaRuntime
             */
             $fiber = new \Fiber(
                 function () use (&$data): void {
+                    Bref::triggerHooks('setupStreamFiberContext');
+                    Bref::events()->setupStreamFiberContext();
+
                     foreach ($data as $dataChunk) {
                         \Fiber::suspend((string) $dataChunk);
                     }

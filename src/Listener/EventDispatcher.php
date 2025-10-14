@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bref\Listener;
 
@@ -48,6 +50,18 @@ final class EventDispatcher extends BrefEventSubscriber
     {
         foreach ($this->subscribers as $listener) {
             $listener->afterStartup();
+        }
+    }
+
+    /**
+     * Trigger the `setupStreamFiberContext` event.
+     *
+     * @internal This method is called by Bref and should not be called by user code.
+     */
+    public function setupStreamFiberContext(): void
+    {
+        foreach ($this->subscribers as $listener) {
+            $listener->setupStreamFiberContext();
         }
     }
 

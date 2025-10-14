@@ -16,6 +16,7 @@ class Bref
     private static array $hooks = [
         'beforeStartup' => [],
         'beforeInvoke' => [],
+        'setupStreamFiberContext' => [],
     ];
     private static EventDispatcher $eventDispatcher;
 
@@ -66,6 +67,20 @@ class Bref
     }
 
     /**
+     * Register a hook to be executed when the stream fiber starts.
+     *
+     * Warning: hooks are low-level extension points to be used by framework
+     * integrations. For user code, it is not recommended to use them. Use your
+     * framework's extension points instead.
+     *
+     * @deprecated Use Bref::events()->subscribe() instead.
+     */
+    public static function setupStreamFiberContext(Closure $hook): void
+    {
+        self::$hooks['setupStreamFiberContext'][] = $hook;
+    }
+
+    /**
      * @param 'beforeStartup'|'beforeInvoke' $hookName
      *
      * @internal Used by the Bref runtime
@@ -106,6 +121,7 @@ class Bref
         self::$hooks = [
             'beforeStartup' => [],
             'beforeInvoke' => [],
+            'setupStreamFiberContext' => [],
         ];
         self::$eventDispatcher = new EventDispatcher;
     }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bref\Listener;
 
@@ -27,6 +29,13 @@ abstract class BrefEventSubscriber
      * Register a hook to be executed after the runtime has started.
      */
     public function afterStartup(): void
+    {
+    }
+
+    /**
+     * Register a hook to be executed when the stream fiber needs to have context setup.
+     */
+    public function setupStreamFiberContext(): void
     {
     }
 
