@@ -122,7 +122,7 @@ final class FpmHandler extends HttpHandler
     {
         $responseFiber = new \Fiber(
             function () use (&$event, &$context) {
-                $request = $this->eventToFastCgiRequest(
+                $this->sendRequestToFastCgi(
                     $event,
                     $context,
                     function (string $stdOut = '', string $stdErr = '') {
@@ -131,24 +131,13 @@ final class FpmHandler extends HttpHandler
                         } elseif ($stdErr !== '') {
                             \Fiber::suspend(['stderr', $stdErr]);
                         }
-                    }
+                    },
+                    false
                 );
-
-                $margin = 1000;
-                $timeoutDelayInMs = max(1000, $context->getRemainingTimeInMillis() - $margin);
-
-                try {
-                    $socketId = $this->client->sendAsyncRequest($this->connection, $request);
-
-                    $this->client->readResponse($socketId, $timeoutDelayInMs);
-
-                    \Fiber::suspend(['finish', PHP_INT_MAX]);
-                } catch (TimedoutException) {
-                }
             }
         );
 
-        [, $outputAccumulator] = $responseFiber->start();
+        $outputAccumulator = '';
         $stdErrAccumulator = '';
         $finishHeaders = false;
         $startTime = microtime(true);
@@ -156,13 +145,15 @@ final class FpmHandler extends HttpHandler
         $responseHeaders = [];
 
         do {
-            if ($responseFiber->isStarted() || $responseFiber->isSuspended()) {
-                [$chunkType, $fiberChunk] = $responseFiber->resume();
+            if (($responseFiber->isStarted() || $responseFiber->isSuspended()) && ! $responseFiber->isTerminated()) {
+                [$chunkType, $fiberChunk] = $responseFiber->resume() ?: ['', ''];
+            } elseif (! $responseFiber->isTerminated()) {
+                [$chunkType, $fiberChunk] = $responseFiber->start() ?: ['', ''];
             } else {
-                [$chunkType, $fiberChunk] = ['finish', PHP_INT_MIN];
+                [$chunkType, $fiberChunk] = ['finish', PHP_INT_MAX];
             }
 
-            if ($fiberChunk !== PHP_INT_MIN) {
+            if ($fiberChunk !== PHP_INT_MAX) {
                 if ($chunkType === 'stderr') {
                     $stdErrAccumulator .= $fiberChunk;
                 } else {
@@ -171,27 +162,36 @@ final class FpmHandler extends HttpHandler
             }
 
             $lines  = explode(PHP_EOL, $outputAccumulator);
-            $firstCRLFOffset = 0;
 
+            $hasHeaderFound = false;
             foreach ($lines as $i => $line) {
-                if ($line === "\r" && ! $firstCRLFOffset) {
-                    $firstCRLFOffset = $i;
-                } elseif ($line === "\r" && $i - 1 === $firstCRLFOffset) {
+                if (! $hasHeaderFound) {
+                    if (trim($line) !== "") {
+                        $hasHeaderFound = true;
+                    }
+                }
+
+                if ($line === "\r" && $hasHeaderFound) {
                     $finishHeaders = true;
                     $headerLines = implode(PHP_EOL, array_slice($lines, 0, $i)) . "\r\n\r\n";
-                    $outputAccumulator = implode(PHP_EOL, array_slice($lines, $i));
+                    $outputAccumulator = implode(PHP_EOL, array_slice($lines, $i + 1));
+                    break;
                 }
             }
 
-            $responseHeaders = $this->getResponseHeaders(
-                (
-                new FastCGIResponse(
-                    $headerLines,
-                    '',
-                    microtime(true) - $startTime
-                )
-            )
-            );
+            if ($finishHeaders) {
+                $responseHeaders = $this->getResponseHeaders(
+                    (
+                        new FastCGIResponse(
+                            $headerLines,
+                            '',
+                            microtime(true) - $startTime
+                        )
+                    )
+                );
+            } else {
+                $responseHeaders = [];
+            }
         } while(!$finishHeaders);
 
         if (isset($responseHeaders['status'])) {
@@ -199,34 +199,53 @@ final class FpmHandler extends HttpHandler
             unset($responseHeaders['status']);
         }
 
-        return new HttpResponse('ola', $responseHeaders, $status ?? 200);
+        $this->ensureStillRunning();
+
+        return new HttpResponse(
+            (function () use (&$responseFiber, &$outputAccumulator): \Generator {
+                if ($outputAccumulator !== '') { // We can never yield an empty string, otherwise it thinks its the end of the execution
+                    yield $outputAccumulator;
+                }
+
+                while (! $responseFiber->isTerminated()) {
+                    [$chunkType, $fiberChunk] = $responseFiber->resume() ?: ['', ''];
+
+                    if ($chunkType === 'stdout') {
+                        if ($fiberChunk !== '') {  // We can never yield an empty string, otherwise it thinks its the end of the execution
+                            yield $fiberChunk;
+                        }
+                    }
+                }
+            })(),
+            $responseHeaders,
+            $status ?? 200
+        );
     }
 
-    /**
-     * Proxy the API Gateway event to PHP-FPM and return its response.
-     *
-     * @throws FastCgiCommunicationFailed
-     * @throws Timeout
-     * @throws Exception
-     */
-    public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
-    {
-        if (Bref::doesStreamingSupportsFibers()) {
-            return $this->handleStreamedRequest($event, $context);
-        }
+    protected function sendRequestToFastCgi(
+        HttpRequestEvent $event,
+        Context $context,
+        ?callable $passThroughCallback = null,
+        bool $readResponse = true
+    ): ?ProvidesResponseData {
+        $request = $this->eventToFastCgiRequest(
+            $event,
+            $context,
+            $passThroughCallback
+        );
 
-        $request = $this->eventToFastCgiRequest($event, $context);
-
-        // The script will timeout 1 second before the remaining time
-        // to allow some time for Bref/PHP-FPM to recover and cleanup
         $margin = 1000;
         $timeoutDelayInMs = max(1000, $context->getRemainingTimeInMillis() - $margin);
 
         try {
             $socketId = $this->client->sendAsyncRequest($this->connection, $request);
+            if ($readResponse) {
+                return $this->client->readResponse($socketId, $timeoutDelayInMs);
+            } else {
+                $this->client->waitForResponse($socketId, $timeoutDelayInMs);
 
-            $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
-            // TODO: Here when it's streamed mode we return an http response with body as a generator, and then we use the callback to yield the body
+                return null;
+            }
         } catch (TimedoutException) {
             $invocationId = $context->getAwsRequestId();
             echo "$invocationId The PHP script timed out. Bref will now restart PHP-FPM to start from a clean slate and flush the PHP logs.\nTimeouts can happen for example when trying to connect to a remote API or database, if this happens continuously check for those.\nIf you are using a RDS database, read this: https://bref.sh/docs/environment/database.html#accessing-the-internet\n";
@@ -265,6 +284,22 @@ final class FpmHandler extends HttpHandler
 
             throw new FastCgiCommunicationFailed();
         }
+    }
+
+    /**
+     * Proxy the API Gateway event to PHP-FPM and return its response.
+     *
+     * @throws FastCgiCommunicationFailed
+     * @throws Timeout
+     * @throws Exception
+     */
+    public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
+    {
+        if (Bref::isRunningInStreamingMode() && Bref::doesStreamingSupportsFibers()) {
+            return $this->handleStreamedRequest($event, $context);
+        }
+
+        $response = $this->sendRequestToFastCgi($event, $context, null, true);
 
         $responseHeaders = $this->getResponseHeaders($response);
 
