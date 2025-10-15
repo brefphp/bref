@@ -54,14 +54,26 @@ final class EventDispatcher extends BrefEventSubscriber
     }
 
     /**
-     * Trigger the `setupStreamFiberContext` event.
+     * Trigger the `beforeStreamFiberLoops` event.
      *
      * @internal This method is called by Bref and should not be called by user code.
      */
-    public function setupStreamFiberContext(): void
+    public function beforeStreamFiberLoops(): void
     {
         foreach ($this->subscribers as $listener) {
-            $listener->setupStreamFiberContext();
+            $listener->beforeStreamFiberLoops();
+        }
+    }
+
+    /**
+     * Trigger the `afterStreamFiberLoops` event.
+     *
+     * @internal This method is called by Bref and should not be called by user code.
+     */
+    public function afterStreamFiberLoops(): void
+    {
+        foreach ($this->subscribers as $listener) {
+            $listener->afterStreamFiberLoops();
         }
     }
 

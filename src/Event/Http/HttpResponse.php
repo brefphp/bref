@@ -1,6 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bref\Event\Http;
+
+use Bref\Bref;
 
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
@@ -23,7 +27,7 @@ final class HttpResponse
 
     public function toApiGatewayFormat(bool $multiHeaders = false): array|\Generator
     {
-        $isStreamedMode = (bool) getenv('BREF_STREAMED_MODE');
+        $isStreamedMode = Bref::isRunningInStreamingMode();
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
         $headers = [];
@@ -41,7 +45,7 @@ final class HttpResponse
 
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
-        $headers = empty($headers) ? new \stdClass : $headers;
+        $headers = empty($headers) ? new \stdClass() : $headers;
 
         // Support for multi-value headers (only in version 1.0 of the http payload)
         $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
@@ -81,7 +85,7 @@ final class HttpResponse
      */
     public function toApiGatewayFormatV2(): array|\Generator
     {
-        $isStreamedMode = (bool) getenv('BREF_STREAMED_MODE');
+        $isStreamedMode = Bref::isRunningInStreamingMode();
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
         $headers = [];
@@ -100,7 +104,7 @@ final class HttpResponse
 
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
-        $headers = empty($headers) ? new \stdClass : $headers;
+        $headers = empty($headers) ? new \stdClass() : $headers;
 
         if ($isStreamedMode) {
             return $this->yieldBody([

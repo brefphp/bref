@@ -315,15 +315,12 @@ final class LambdaRuntime
             ...$headers,
         ]);
 
-        if (PHP_VERSION_ID < 80100 || ((bool) getenv('BREF_STREAM_NO_FIBER'))) {
+        if (! Bref::doesStreamingSupportsFibers()) {
             $buffer = '';
             curl_setopt(
                 $this->curlStreamedHandleResult,
                 CURLOPT_READFUNCTION,
                 function ($ch, $fd, $length) use (&$data, &$buffer) {
-                    Bref::triggerHooks('setupStreamFiberContext');
-                    Bref::events()->setupStreamFiberContext();
-
                     if (strlen($buffer) < $length && $data->valid()) {
                         $buffer .= (string) $data->current();
 
@@ -348,12 +345,13 @@ final class LambdaRuntime
             */
             $fiber = new \Fiber(
                 function () use (&$data): void {
-                    Bref::triggerHooks('setupStreamFiberContext');
-                    Bref::events()->setupStreamFiberContext();
+                    Bref::events()->beforeStreamFiberLoops();
 
                     foreach ($data as $dataChunk) {
                         \Fiber::suspend((string) $dataChunk);
                     }
+
+                    Bref::events()->afterStreamFiberLoops();
 
                     \Fiber::suspend(PHP_INT_MIN);
                 }

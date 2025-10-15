@@ -33,9 +33,16 @@ abstract class BrefEventSubscriber
     }
 
     /**
-     * Register a hook to be executed when the stream fiber needs to have context setup.
+     * Register a hook to be executed before the stream fiber loops, usually used to setup extra context.
      */
-    public function setupStreamFiberContext(): void
+    public function beforeStreamFiberLoops(): void
+    {
+    }
+
+    /**
+     * Register a hook to be executed when the stream fiber is about to finish, usually used to draw resources.
+     */
+    public function afterStreamFiberLoops(): void
     {
     }
 

@@ -134,6 +134,7 @@ final class FpmHandler extends HttpHandler
             $socketId = $this->client->sendAsyncRequest($this->connection, $request);
 
             $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
+            // TODO: Here when it's streamed mode we return an http response with body as a generator, and then we use the callback to yield the body
         } catch (TimedoutException) {
             $invocationId = $context->getAwsRequestId();
             echo "$invocationId The PHP script timed out. Bref will now restart PHP-FPM to start from a clean slate and flush the PHP logs.\nTimeouts can happen for example when trying to connect to a remote API or database, if this happens continuously check for those.\nIf you are using a RDS database, read this: https://bref.sh/docs/environment/database.html#accessing-the-internet\n";

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bref;
 
@@ -16,9 +18,18 @@ class Bref
     private static array $hooks = [
         'beforeStartup' => [],
         'beforeInvoke' => [],
-        'setupStreamFiberContext' => [],
     ];
     private static EventDispatcher $eventDispatcher;
+
+    public static function isRunningInStreamingMode(): bool
+    {
+        return (bool) getenv('BREF_STREAMED_MODE');
+    }
+
+    public static function doesStreamingSupportsFibers(): bool
+    {
+        return PHP_VERSION_ID >= 80100 && !((bool) getenv('BREF_STREAM_NO_FIBER'));
+    }
 
     /**
      * Configure the container that provides Lambda handlers.
@@ -33,7 +44,7 @@ class Bref
     public static function events(): EventDispatcher
     {
         if (! isset(self::$eventDispatcher)) {
-            self::$eventDispatcher = new EventDispatcher;
+            self::$eventDispatcher = new EventDispatcher();
         }
         return self::$eventDispatcher;
     }
@@ -67,20 +78,6 @@ class Bref
     }
 
     /**
-     * Register a hook to be executed when the stream fiber starts.
-     *
-     * Warning: hooks are low-level extension points to be used by framework
-     * integrations. For user code, it is not recommended to use them. Use your
-     * framework's extension points instead.
-     *
-     * @deprecated Use Bref::events()->subscribe() instead.
-     */
-    public static function setupStreamFiberContext(Closure $hook): void
-    {
-        self::$hooks['setupStreamFiberContext'][] = $hook;
-    }
-
-    /**
      * @param 'beforeStartup'|'beforeInvoke' $hookName
      *
      * @internal Used by the Bref runtime
@@ -104,7 +101,7 @@ class Bref
                     throw new RuntimeException('The closure provided to Bref\Bref::setContainer() did not return an instance of ' . ContainerInterface::class);
                 }
             } else {
-                self::$container = new FileHandlerLocator;
+                self::$container = new FileHandlerLocator();
             }
         }
 
@@ -121,8 +118,9 @@ class Bref
         self::$hooks = [
             'beforeStartup' => [],
             'beforeInvoke' => [],
-            'setupStreamFiberContext' => [],
+            'beforeStreamFiberLoops' => [],
+            'afterStreamFiberLoops' => [],
         ];
-        self::$eventDispatcher = new EventDispatcher;
+        self::$eventDispatcher = new EventDispatcher();
     }
 }
