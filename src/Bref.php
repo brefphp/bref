@@ -28,7 +28,7 @@ class Bref
 
     public static function doesStreamingSupportsFibers(): bool
     {
-        return PHP_VERSION_ID >= 80100 && !((bool) getenv('BREF_STREAM_NO_FIBER'));
+        return PHP_VERSION_ID >= 80100 && !((bool) getenv('BREF_STREAM_NO_FIBER')) && class_exists('Fiber');
     }
 
     /**

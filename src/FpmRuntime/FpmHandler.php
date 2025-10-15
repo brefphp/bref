@@ -1,7 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Bref\FpmRuntime;
 
+use Bref\Bref;
 use Bref\Context\Context;
 use Bref\Event\Http\HttpHandler;
 use Bref\Event\Http\HttpRequestEvent;
@@ -14,6 +17,7 @@ use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Exceptions\TimedoutException;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
+use hollodotme\FastCGI\Responses\Response as FastCGIResponse;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use RuntimeException;
 use Throwable;
@@ -84,7 +88,7 @@ final class FpmHandler extends HttpHandler
         }
         $this->fpm = $resource;
 
-        $this->client = new Client;
+        $this->client = new Client();
         $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 900000);
 
         $this->waitUntilReady();
@@ -114,6 +118,90 @@ final class FpmHandler extends HttpHandler
         $this->stop();
     }
 
+    public function handleStreamedRequest(HttpRequestEvent $event, Context $context): HttpResponse
+    {
+        $responseFiber = new \Fiber(
+            function () use (&$event, &$context) {
+                $request = $this->eventToFastCgiRequest(
+                    $event,
+                    $context,
+                    function (string $stdOut = '', string $stdErr = '') {
+                        if ($stdOut !== '') {
+                            \Fiber::suspend(['stdout', $stdOut]);
+                        } elseif ($stdErr !== '') {
+                            \Fiber::suspend(['stderr', $stdErr]);
+                        }
+                    }
+                );
+
+                $margin = 1000;
+                $timeoutDelayInMs = max(1000, $context->getRemainingTimeInMillis() - $margin);
+
+                try {
+                    $socketId = $this->client->sendAsyncRequest($this->connection, $request);
+
+                    $this->client->readResponse($socketId, $timeoutDelayInMs);
+
+                    \Fiber::suspend(['finish', PHP_INT_MAX]);
+                } catch (TimedoutException) {
+                }
+            }
+        );
+
+        [, $outputAccumulator] = $responseFiber->start();
+        $stdErrAccumulator = '';
+        $finishHeaders = false;
+        $startTime = microtime(true);
+        $headerLines = '';
+        $responseHeaders = [];
+
+        do {
+            if ($responseFiber->isStarted() || $responseFiber->isSuspended()) {
+                [$chunkType, $fiberChunk] = $responseFiber->resume();
+            } else {
+                [$chunkType, $fiberChunk] = ['finish', PHP_INT_MIN];
+            }
+
+            if ($fiberChunk !== PHP_INT_MIN) {
+                if ($chunkType === 'stderr') {
+                    $stdErrAccumulator .= $fiberChunk;
+                } else {
+                    $outputAccumulator .= $fiberChunk;
+                }
+            }
+
+            $lines  = explode(PHP_EOL, $outputAccumulator);
+            $firstCRLFOffset = 0;
+
+            foreach ($lines as $i => $line) {
+                if ($line === "\r" && ! $firstCRLFOffset) {
+                    $firstCRLFOffset = $i;
+                } elseif ($line === "\r" && $i - 1 === $firstCRLFOffset) {
+                    $finishHeaders = true;
+                    $headerLines = implode(PHP_EOL, array_slice($lines, 0, $i)) . "\r\n\r\n";
+                    $outputAccumulator = implode(PHP_EOL, array_slice($lines, $i));
+                }
+            }
+
+            $responseHeaders = $this->getResponseHeaders(
+                (
+                new FastCGIResponse(
+                    $headerLines,
+                    '',
+                    microtime(true) - $startTime
+                )
+            )
+            );
+        } while(!$finishHeaders);
+
+        if (isset($responseHeaders['status'])) {
+            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
+            unset($responseHeaders['status']);
+        }
+
+        return new HttpResponse('ola', $responseHeaders, $status ?? 200);
+    }
+
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
      *
@@ -123,6 +211,10 @@ final class FpmHandler extends HttpHandler
      */
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
+        if (Bref::doesStreamingSupportsFibers()) {
+            return $this->handleStreamedRequest($event, $context);
+        }
+
         $request = $this->eventToFastCgiRequest($event, $context);
 
         // The script will timeout 1 second before the remaining time
@@ -171,7 +263,7 @@ final class FpmHandler extends HttpHandler
             $this->stop();
             $this->start();
 
-            throw new FastCgiCommunicationFailed;
+            throw new FastCgiCommunicationFailed();
         }
 
         $responseHeaders = $this->getResponseHeaders($response);
@@ -229,7 +321,7 @@ final class FpmHandler extends HttpHandler
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(HttpRequestEvent $event, Context $context): ProvidesRequestData
+    private function eventToFastCgiRequest(HttpRequestEvent $event, Context $context, ?callable $passThroughCallback = null): ProvidesRequestData
     {
         $request = new FastCgiRequest($event->getMethod(), $this->handler, $event->getBody());
         $request->setRequestUri($event->getUri());
@@ -243,6 +335,10 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('QUERY_STRING', $event->getQueryString());
         $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext(), JSON_THROW_ON_ERROR));
+
+        if ($passThroughCallback) {
+            $request->addPassThroughCallbacks($passThroughCallback);
+        }
 
         $contentType = $event->getContentType();
         if ($contentType) {
