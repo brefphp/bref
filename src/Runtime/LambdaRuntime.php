@@ -100,12 +100,18 @@ final class LambdaRuntime
 
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (Throwable $e) {
-            $this->signalFailure($context->getAwsRequestId(), $e);
-
             try {
-                Bref::events()->afterInvoke($handler, $event, $context, null, $e);
-            } catch (Throwable $e) {
-                $this->logError($e, $context->getAwsRequestId());
+                if (isset($result) && $result instanceof \Generator) {
+                    $this->logError($e, $context->getAwsRequestId()); // We just log the error as we can't mark the lambda as failed when the streaming has started.
+                } else {
+                    $this->signalFailure($context->getAwsRequestId(), $e);
+                }
+            } finally {
+                try {
+                    Bref::events()->afterInvoke($handler, $event, $context, null, $e);
+                } catch (Throwable $e) {
+                    $this->logError($e, $context->getAwsRequestId());
+                }
             }
 
             return false;
