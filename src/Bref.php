@@ -116,8 +116,6 @@ class Bref
         self::$hooks = [
             'beforeStartup' => [],
             'beforeInvoke' => [],
-            'beforeStreamFiberLoops' => [],
-            'afterStreamFiberLoops' => [],
         ];
         self::$eventDispatcher = new EventDispatcher;
     }
