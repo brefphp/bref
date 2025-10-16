@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\FpmRuntime;
 
@@ -88,7 +86,7 @@ final class FpmHandler extends HttpHandler
         }
         $this->fpm = $resource;
 
-        $this->client = new Client();
+        $this->client = new Client;
         $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 900000);
 
         $this->waitUntilReady();
@@ -121,11 +119,11 @@ final class FpmHandler extends HttpHandler
     public function handleStreamedRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
         $responseFiber = new \Fiber(
-            function () use (&$event, &$context) {
+            function () use (&$event, &$context): void {
                 $this->sendRequestToFastCgi(
                     $event,
                     $context,
-                    function (string $stdOut = '', string $stdErr = '') {
+                    function (string $stdOut = '', string $stdErr = ''): void {
                         if ($stdOut !== '') {
                             \Fiber::suspend(['stdout', $stdOut]);
                         } elseif ($stdErr !== '') {
@@ -166,7 +164,7 @@ final class FpmHandler extends HttpHandler
             $hasHeaderFound = false;
             foreach ($lines as $i => $line) {
                 if (! $hasHeaderFound) {
-                    if (trim($line) !== "") {
+                    if (trim($line) !== '') {
                         $hasHeaderFound = true;
                     }
                 }
@@ -192,7 +190,7 @@ final class FpmHandler extends HttpHandler
             } else {
                 $responseHeaders = [];
             }
-        } while(!$finishHeaders);
+        } while (! $finishHeaders);
 
         if (isset($responseHeaders['status'])) {
             $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
@@ -282,7 +280,7 @@ final class FpmHandler extends HttpHandler
             $this->stop();
             $this->start();
 
-            throw new FastCgiCommunicationFailed();
+            throw new FastCgiCommunicationFailed;
         }
     }
 

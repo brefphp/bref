@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Bref\Event\Http;
 
@@ -45,7 +43,7 @@ final class HttpResponse
 
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
-        $headers = empty($headers) ? new \stdClass() : $headers;
+        $headers = empty($headers) ? new \stdClass : $headers;
 
         // Support for multi-value headers (only in version 1.0 of the http payload)
         $headersKey = $multiHeaders ? 'multiValueHeaders' : 'headers';
@@ -104,7 +102,7 @@ final class HttpResponse
 
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
-        $headers = empty($headers) ? new \stdClass() : $headers;
+        $headers = empty($headers) ? new \stdClass : $headers;
 
         if ($isStreamedMode) {
             return $this->yieldBody([
@@ -145,7 +143,7 @@ final class HttpResponse
         return str_replace(' ', '-', $name);
     }
 
-    private function yieldBody($headersFormat): \Generator
+    private function yieldBody(array $headersFormat): \Generator
     {
         yield json_encode($headersFormat);
 
