@@ -143,8 +143,18 @@ final class HttpResponse
         return str_replace(' ', '-', $name);
     }
 
+    /**
+     * Yields headers and response body in Lambda Streaming Format.
+     *
+     * @param array $headersFormat
+     */
     private function yieldBody(array $headersFormat): \Generator
     {
+        /*
+        * Lambda Streaming response requires you to send the headers in API Gateway format
+        * followed by a set of 8 NULL bits, and only then you can start sending the actual
+        * response body.
+        */
         yield json_encode($headersFormat);
 
         yield "\0\0\0\0\0\0\0\0";
