@@ -12,6 +12,7 @@ use Riverline\MultiPartParser\Part;
 use RuntimeException;
 
 use function str_starts_with;
+use function array_is_list;
 
 /**
  * Bridges PSR-7 requests and responses with API Gateway or ALB event/response formats.
@@ -146,7 +147,7 @@ final class Psr7Bridge
         parse_str(urlencode($key) . '=mock', $parsed);
         // Replace `mock` with the actual value
         array_walk_recursive($parsed, fn (&$v) => $v = $value);
-        
+
         // Use a custom merge that handles both structured arrays and regular arrays
         $array = self::mergeRecursivePreserveNumeric($array, $parsed);
     }
@@ -154,7 +155,7 @@ final class Psr7Bridge
     private static function mergeRecursivePreserveNumeric(array $a, array $b): array
     {
         foreach ($b as $key => $bVal) {
-            if (!array_key_exists($key, $a)) {
+            if (! array_key_exists($key, $a)) {
                 $a[$key] = $bVal;
                 continue;
             }
@@ -168,9 +169,19 @@ final class Psr7Bridge
                 if ($aIsList && $bIsList) {
                     // Determine whether list items are arrays (objects) -> merge-by-index
                     $mergeByIndex = false;
-                    foreach ($aVal as $item) { if (is_array($item)) { $mergeByIndex = true; break; } }
-                    if (!$mergeByIndex) {
-                        foreach ($bVal as $item) { if (is_array($item)) { $mergeByIndex = true; break; } }
+                    foreach ($aVal as $item) {
+                        if (is_array($item)) {
+                            $mergeByIndex = true;
+                            break;
+                        }
+                    }
+                    if (! $mergeByIndex) {
+                        foreach ($bVal as $item) {
+                            if (is_array($item)) {
+                                $mergeByIndex = true;
+                                break;
+                            }
+                        }
                     }
 
                     if ($mergeByIndex) {
