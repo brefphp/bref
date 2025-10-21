@@ -34,6 +34,102 @@ class Psr7BridgeTest extends CommonHttpTest
 
     public function test I can convert a request from an event with body multipart data type()
     {
+        $datav1 = [
+            'version' => '1.0',
+            'resource' => '/path',
+            'path' => '/path',
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Accept' => '*/*',
+                'Accept-Encoding' => 'gzip, deflate',
+                'Cache-Control' => 'no-cache',
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+                'Host' => 'example.org',
+                'User-Agent' => 'PostmanRuntime/7.20.1',
+                'X-Amzn-Trace-Id' => 'Root=1-ffffffff-ffffffffffffffffffffffff',
+                'X-Forwarded-For' => '1.1.1.1',
+                'X-Forwarded-Port' => '443',
+                'X-Forwarded-Proto' => 'https',
+            ],
+            'queryStringParameters' => null,
+            'pathParameters' => null,
+            'stageVariables' => null,
+            'requestContext' => [
+                'resourceId' => 'xxxxxx',
+                'resourcePath' => '/path',
+                'httpMethod' => 'POST',
+                'extendedRequestId' => 'XXXXXX-xxxxxxxx=',
+                'requestTime' => '24/Nov/2019:18:55:08 +0000',
+                'path' => '/path',
+                'accountId' => '123400000000',
+                'protocol' => 'HTTP/1.1',
+                'stage' => 'dev',
+                'domainPrefix' => 'dev',
+                'requestTimeEpoch' => 1574621708700,
+                'requestId' => 'ffffffff-ffff-4fff-ffff-ffffffffffff',
+                'identity' => [
+                    'cognitoIdentityPoolId' => null,
+                    'accountId' => null,
+                    'cognitoIdentityId' => null,
+                    'caller' => null,
+                    'sourceIp' => '1.1.1.1',
+                    'principalOrgId' => null,
+                    'accessKey' => null,
+                    'cognitoAuthenticationType' => null,
+                    'cognitoAuthenticationProvider' => null,
+                    'userArn' => null,
+                    'userAgent' => 'PostmanRuntime/7.20.1',
+                    'user' => null,
+                ],
+                'domainName' => 'example.org',
+                'apiId' => 'xxxxxxxxxx',
+            ],
+            'body' => "--testBoundary\r\nContent-Disposition: form-data; name=\"content\"\r\n\r\n<h1>Test content</h1>\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"some_id\"\r\n\r\n3034\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][other_id]\"\r\n\r\n4390954279\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][other_id]\"\r\n\r\n4313323164\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][other_id]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][url]\"\r\n\r\nhttps://someurl.com/node/745911\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[0]\"\r\n\r\npublic health\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[1]\"\r\n\r\npublic finance\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"_method\"\r\n\r\nPATCH\r\n--testBoundary--\r\n",
+            'isBase64Encoded' => false,
+        ];
+
+        $datav2 = [
+            'version' => '2.0',
+            'routeKey' => 'ANY /path',
+            'rawPath' => '/path',
+            'rawQueryString' => '',
+            'headers' => [
+                'Accept' => '*/*',
+                'Accept-Encoding' => 'gzip, deflate',
+                'Cache-Control' => 'no-cache',
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+                'Host' => 'example.org',
+                'User-Agent' => 'PostmanRuntime/7.20.1',
+                'X-Amzn-Trace-Id' => 'Root=1-ffffffff-ffffffffffffffffffffffff',
+                'X-Forwarded-For' => '1.1.1.1',
+                'X-Forwarded-Port' => '443',
+                'X-Forwarded-Proto' => 'https',
+            ],
+            'queryStringParameters' => null,
+            'stageVariables' => null,
+            'requestContext' => [
+                'accountId' => '123400000000',
+                'apiId' => 'xxxxxxxxxx',
+                'domainName' => 'example.org',
+                'domainPrefix' => '0000000000',
+                'http' => [
+                    'method' => 'POST',
+                    'path' => '/path',
+                    'protocol' => 'HTTP/1.1',
+                    'sourceIp' => '1.1.1.1',
+                    'userAgent' => 'PostmanRuntime/7.20.1',
+                ],
+                'requestId' => 'JTHoQgr2oAMEPMg=',
+                'routeId' => '47matwk',
+                'routeKey' => 'ANY /path',
+                'stage' => '$default',
+                'time' => '24/Nov/2019:18:55:08 +0000',
+                'timeEpoch' => 1574621708700,
+            ],
+            'body' => "--testBoundary\r\nContent-Disposition: form-data; name=\"content\"\r\n\r\n<h1>Test content</h1>\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"some_id\"\r\n\r\n3034\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][other_id]\"\r\n\r\n4390954279\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][other_id]\"\r\n\r\n4313323164\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][other_id]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][url]\"\r\n\r\nhttps://someurl.com/node/745911\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[0]\"\r\n\r\npublic health\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[1]\"\r\n\r\npublic finance\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"_method\"\r\n\r\nPATCH\r\n--testBoundary--\r\n",
+            'isBase64Encoded' => false,
+        ];
+
         $expectedBody = [
             'content' => '<h1>Test content</h1>',
             'some_id' => '3034',
@@ -58,11 +154,11 @@ class Psr7BridgeTest extends CommonHttpTest
             '_method' => 'PATCH',
         ];
 
-        $eventv1 = new HttpRequestEvent(json_decode(file_get_contents(__DIR__ . '/Fixture/ag-v1-body-form-multipart-structured-arrays.json'), true, 512, JSON_THROW_ON_ERROR));
+        $eventv1 = new HttpRequestEvent($datav1);
         $requestv1 = Psr7Bridge::convertRequest($eventv1, Context::fake());
         $this->assertEquals($expectedBody, $requestv1->getParsedBody());
 
-        $eventv2 = new HttpRequestEvent(json_decode(file_get_contents(__DIR__ . '/Fixture/ag-v2-body-form-multipart-structured-arrays.json'), true, 512, JSON_THROW_ON_ERROR));
+        $eventv2 = new HttpRequestEvent($datav2);
         $requestv2 = Psr7Bridge::convertRequest($eventv2, Context::fake());
         $this->assertEquals($expectedBody, $requestv2->getParsedBody());
     }
