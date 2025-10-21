@@ -146,8 +146,68 @@ final class Psr7Bridge
         parse_str(urlencode($key) . '=mock', $parsed);
         // Replace `mock` with the actual value
         array_walk_recursive($parsed, fn (&$v) => $v = $value);
-        // Merge recursively into the main array to avoid overwriting existing values
-        $array = array_merge_recursive($array, $parsed);
+        
+        // Use a custom merge that handles both structured arrays and regular arrays
+        $array = self::mergeRecursivePreserveNumeric($array, $parsed);
+    }
+
+    private static function mergeRecursivePreserveNumeric(array $a, array $b): array
+    {
+        foreach ($b as $key => $bVal) {
+            if (!array_key_exists($key, $a)) {
+                $a[$key] = $bVal;
+                continue;
+            }
+
+            $aVal = $a[$key];
+
+            if (is_array($aVal) && is_array($bVal)) {
+                $aIsList = array_is_list($aVal);
+                $bIsList = array_is_list($bVal);
+
+                if ($aIsList && $bIsList) {
+                    // Determine whether list items are arrays (objects) -> merge-by-index
+                    $mergeByIndex = false;
+                    foreach ($aVal as $item) { if (is_array($item)) { $mergeByIndex = true; break; } }
+                    if (!$mergeByIndex) {
+                        foreach ($bVal as $item) { if (is_array($item)) { $mergeByIndex = true; break; } }
+                    }
+
+                    if ($mergeByIndex) {
+                        $max = max(count($aVal), count($bVal));
+                        $merged = [];
+                        for ($i = 0; $i < $max; $i++) {
+                            $hasA = array_key_exists($i, $aVal);
+                            $hasB = array_key_exists($i, $bVal);
+                            if ($hasA && $hasB) {
+                                if (is_array($aVal[$i]) && is_array($bVal[$i])) {
+                                    $merged[$i] = self::mergeRecursivePreserveNumeric($aVal[$i], $bVal[$i]);
+                                } else {
+                                    // if one is scalar, b wins
+                                    $merged[$i] = $bVal[$i];
+                                }
+                            } elseif ($hasA) {
+                                $merged[$i] = $aVal[$i];
+                            } else {
+                                $merged[$i] = $bVal[$i];
+                            }
+                        }
+                        $a[$key] = $merged;
+                    } else {
+                        // both lists of scalars -> append
+                        $a[$key] = array_merge($aVal, $bVal);
+                    }
+                } else {
+                    // At least one side is associative -> merge recursively by key
+                    $a[$key] = self::mergeRecursivePreserveNumeric($aVal, $bVal);
+                }
+            } else {
+                // Non-array or conflicting types -> b wins
+                $a[$key] = $bVal;
+            }
+        }
+
+        return $a;
     }
 
     /**
