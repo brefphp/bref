@@ -32,6 +32,41 @@ class Psr7BridgeTest extends CommonHttpTest
         ], $response->toApiGatewayFormat());
     }
 
+    public function test I can convert a request from an event with body multipart data type()
+    {
+        $expectedBody = [
+            'content' => '<h1>Test content</h1>',
+            'some_id' => '3034',
+            'references' => [
+                [
+                    'other_id' => '4390954279',
+                    'url' => '',
+                ],
+                [
+                    'other_id' => '4313323164',
+                    'url' => '',
+                ],
+                [
+                    'other_id' => '',
+                    'url' => 'https://someurl.com/node/745911',
+                ],
+            ],
+            'tags' => [
+                'public health',
+                'public finance',
+            ],
+            '_method' => 'PATCH',
+        ];
+
+        $eventv1 = new HttpRequestEvent(json_decode(file_get_contents(__DIR__ . '/Fixture/ag-v1-body-form-multipart-structured-arrays.json'), true, 512, JSON_THROW_ON_ERROR));
+        $requestv1 = Psr7Bridge::convertRequest($eventv1, Context::fake());
+        $this->assertEquals($expectedBody, $requestv1->getParsedBody());
+
+        $eventv2 = new HttpRequestEvent(json_decode(file_get_contents(__DIR__ . '/Fixture/ag-v2-body-form-multipart-structured-arrays.json'), true, 512, JSON_THROW_ON_ERROR));
+        $requestv2 = Psr7Bridge::convertRequest($eventv2, Context::fake());
+        $this->assertEquals($expectedBody, $requestv2->getParsedBody());
+    }
+
     protected function fromFixture(string $file): void
     {
         $event = new HttpRequestEvent(json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR));
