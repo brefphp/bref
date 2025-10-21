@@ -11,8 +11,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Riverline\MultiPartParser\Part;
 use RuntimeException;
 
-use function str_starts_with;
 use function array_is_list;
+use function str_starts_with;
 
 /**
  * Bridges PSR-7 requests and responses with API Gateway or ALB event/response formats.

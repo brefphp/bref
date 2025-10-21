@@ -32,6 +32,47 @@ class Psr7BridgeTest extends CommonHttpTest
         ], $response->toApiGatewayFormat());
     }
 
+    public function test I can convert a request from a PSR7 response form data type()
+    {
+        $event = new HttpRequestEvent(json_decode(file_get_contents("/Fixture/ag-v$version-body-form-multipart-structured-arrays.json"), true, 512, JSON_THROW_ON_ERROR));
+
+        $psr7Response = new Response(200, [
+            'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+        ], "--testBoundary\r\nContent-Disposition: form-data; name=\"content\"\r\n\r\n<h1>Test content</h1>\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"some_id\"\r\n\r\n3034\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][other_id]\"\r\n\r\n4390954279\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][other_id]\"\r\n\r\n4313323164\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][other_id]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][url]\"\r\n\r\nhttps://someurl.com/node/745911\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[0]\"\r\n\r\npublic health\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[1]\"\r\n\r\npublic finance\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"_method\"\r\n\r\nPATCH\r\n--testBoundary--\r\n");
+
+        $response = Psr7Bridge::convertRequest($psr7Response);
+        self::assertSame([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+            ],
+            'body' => [
+                'content' => '<h1>Test content</h1>',
+                'some_id' => '3034',
+                'references' => [
+                    [
+                        'other_id' => '4390954279',
+                        'url' => '',
+                    ],
+                    [
+                        'other_id' => '4313323164',
+                        'url' => '',
+                    ],
+                    [
+                        'other_id' => '',
+                        'url' => 'https://someurl.com/node/745911',
+                    ],
+                ],
+                'tags' => [
+                    'public health',
+                    'public finance',
+                ],
+                '_method' => 'PATCH',
+            ],
+        ], $response->toApiGatewayFormat());
+    }
+
     protected function fromFixture(string $file): void
     {
         $event = new HttpRequestEvent(json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR));
