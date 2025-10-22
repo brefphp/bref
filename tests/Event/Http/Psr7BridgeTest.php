@@ -32,8 +32,10 @@ class Psr7BridgeTest extends CommonHttpTest
         ], $response->toApiGatewayFormat());
     }
 
-    public function test I can convert a request from an event with body multipart data type()
+    public function test I can convert a request from an event with complex multipart form data structures()
     {
+        $body = "--complexBoundary\r\nContent-Disposition: form-data; name=\"simple_string\"\r\n\r\nHello World\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"empty_string\"\r\n\r\n\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"numeric_string\"\r\n\r\n12345\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"boolean_string\"\r\n\r\ntrue\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"indexed_array[0]\"\r\n\r\nfirst_item\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"indexed_array[1]\"\r\n\r\nsecond_item\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"indexed_array[2]\"\r\n\r\nthird_item\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"associative_array[name]\"\r\n\r\nJohn Doe\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"associative_array[age]\"\r\n\r\n30\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"associative_array[email]\"\r\n\r\njohn@example.com\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"nested_objects[user][profile][first_name]\"\r\n\r\nJohn\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"nested_objects[user][profile][last_name]\"\r\n\r\nDoe\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"nested_objects[user][profile][age]\"\r\n\r\n30\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"nested_objects[user][settings][theme]\"\r\n\r\ndark\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"nested_objects[user][settings][notifications]\"\r\n\r\ntrue\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"nested_objects[company][name]\"\r\n\r\nAcme Corp\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"nested_objects[company][employees]\"\r\n\r\n150\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"mixed_arrays[0][id]\"\r\n\r\n1\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"mixed_arrays[0][name]\"\r\n\r\nItem One\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"mixed_arrays[0][tags][0]\"\r\n\r\ntag1\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"mixed_arrays[0][tags][1]\"\r\n\r\ntag2\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"mixed_arrays[1][id]\"\r\n\r\n2\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"mixed_arrays[1][name]\"\r\n\r\nItem Two\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"mixed_arrays[1][tags][0]\"\r\n\r\ntag3\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"mixed_arrays[1][tags][1]\"\r\n\r\ntag4\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"sparse_array[0]\"\r\n\r\nfirst\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"sparse_array[2]\"\r\n\r\nthird\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"sparse_array[5]\"\r\n\r\nsixth\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"string_keys[first_key]\"\r\n\r\nfirst_value\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"string_keys[second_key]\"\r\n\r\nsecond_value\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"numeric_keys[0]\"\r\n\r\nzero_value\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"numeric_keys[1]\"\r\n\r\none_value\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"numeric_keys[10]\"\r\n\r\nten_value\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"empty_values[empty_string]\"\r\n\r\n\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"empty_values[zero_string]\"\r\n\r\n0\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"empty_values[false_string]\"\r\n\r\nfalse\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"empty_values[null_string]\"\r\n\r\nnull\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"complex_nesting[level1][level2][level3][items][0][name]\"\r\n\r\nDeep Item 1\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"complex_nesting[level1][level2][level3][items][0][value]\"\r\n\r\n100\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"complex_nesting[level1][level2][level3][items][1][name]\"\r\n\r\nDeep Item 2\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"complex_nesting[level1][level2][level3][items][1][value]\"\r\n\r\n200\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"complex_nesting[level1][level2][level3][metadata][count]\"\r\n\r\n2\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"complex_nesting[level1][level2][level3][metadata][enabled]\"\r\n\r\ntrue\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"duplicate_keys[0]\"\r\n\r\nfirst_duplicate\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"duplicate_keys[0]\"\r\n\r\nsecond_duplicate\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"duplicate_keys[0]\"\r\n\r\nthird_duplicate\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"special_chars[with spaces]\"\r\n\r\nvalue with spaces\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"special_chars[with-dashes]\"\r\n\r\nvalue-with-dashes\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"special_chars[with_underscores]\"\r\n\r\nvalue_with_underscores\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"special_chars[with.dots]\"\r\n\r\nvalue.with.dots\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"unicode[测试]\"\r\n\r\n测试值\r\n--complexBoundary\r\nContent-Disposition: form-data; name=\"unicode[emoji]\"\r\n\r\n🚀🌟💻\r\n--complexBoundary--\r\n";
+
         $datav1 = [
             'version' => '1.0',
             'resource' => '/path',
@@ -43,7 +45,7 @@ class Psr7BridgeTest extends CommonHttpTest
                 'Accept' => '*/*',
                 'Accept-Encoding' => 'gzip, deflate',
                 'Cache-Control' => 'no-cache',
-                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+                'Content-Type' => 'multipart/form-data; boundary=complexBoundary',
                 'Host' => 'example.org',
                 'User-Agent' => 'PostmanRuntime/7.20.1',
                 'X-Amzn-Trace-Id' => 'Root=1-ffffffff-ffffffffffffffffffffffff',
@@ -84,7 +86,7 @@ class Psr7BridgeTest extends CommonHttpTest
                 'domainName' => 'example.org',
                 'apiId' => 'xxxxxxxxxx',
             ],
-            'body' => "--testBoundary\r\nContent-Disposition: form-data; name=\"content\"\r\n\r\n<h1>Test content</h1>\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"some_id\"\r\n\r\n3034\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][other_id]\"\r\n\r\n4390954279\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][other_id]\"\r\n\r\n4313323164\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][other_id]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][url]\"\r\n\r\nhttps://someurl.com/node/745911\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[0]\"\r\n\r\npublic health\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[1]\"\r\n\r\npublic finance\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"_method\"\r\n\r\nPATCH\r\n--testBoundary--\r\n",
+            'body' => $body,
             'isBase64Encoded' => false,
         ];
 
@@ -97,7 +99,7 @@ class Psr7BridgeTest extends CommonHttpTest
                 'Accept' => '*/*',
                 'Accept-Encoding' => 'gzip, deflate',
                 'Cache-Control' => 'no-cache',
-                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+                'Content-Type' => 'multipart/form-data; boundary=complexBoundary',
                 'Host' => 'example.org',
                 'User-Agent' => 'PostmanRuntime/7.20.1',
                 'X-Amzn-Trace-Id' => 'Root=1-ffffffff-ffffffffffffffffffffffff',
@@ -126,32 +128,117 @@ class Psr7BridgeTest extends CommonHttpTest
                 'time' => '24/Nov/2019:18:55:08 +0000',
                 'timeEpoch' => 1574621708700,
             ],
-            'body' => "--testBoundary\r\nContent-Disposition: form-data; name=\"content\"\r\n\r\n<h1>Test content</h1>\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"some_id\"\r\n\r\n3034\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][other_id]\"\r\n\r\n4390954279\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[0][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][other_id]\"\r\n\r\n4313323164\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[1][url]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][other_id]\"\r\n\r\n\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"references[2][url]\"\r\n\r\nhttps://someurl.com/node/745911\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[0]\"\r\n\r\npublic health\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"tags[1]\"\r\n\r\npublic finance\r\n--testBoundary\r\nContent-Disposition: form-data; name=\"_method\"\r\n\r\nPATCH\r\n--testBoundary--\r\n",
+            'body' => $body,
             'isBase64Encoded' => false,
         ];
 
         $expectedBody = [
-            'content' => '<h1>Test content</h1>',
-            'some_id' => '3034',
-            'references' => [
-                [
-                    'other_id' => '4390954279',
-                    'url' => '',
+            'simple_string' => 'Hello World',
+            'empty_string' => '',
+            'numeric_string' => '12345',
+            'boolean_string' => 'true',
+            'indexed_array' => [
+                'first_item',
+                'second_item',
+                'third_item',
+            ],
+            'associative_array' => [
+                'name' => 'John Doe',
+                'age' => '30',
+                'email' => 'john@example.com',
+            ],
+            'nested_objects' => [
+                'user' => [
+                    'profile' => [
+                        'first_name' => 'John',
+                        'last_name' => 'Doe',
+                        'age' => '30',
+                    ],
+                    'settings' => [
+                        'theme' => 'dark',
+                        'notifications' => 'true',
+                    ],
                 ],
-                [
-                    'other_id' => '4313323164',
-                    'url' => '',
-                ],
-                [
-                    'other_id' => '',
-                    'url' => 'https://someurl.com/node/745911',
+                'company' => [
+                    'name' => 'Acme Corp',
+                    'employees' => '150',
                 ],
             ],
-            'tags' => [
-                'public health',
-                'public finance',
+            'mixed_arrays' => [
+                [
+                    'id' => '1',
+                    'name' => 'Item One',
+                    'tags' => [
+                        'tag1',
+                        'tag2',
+                    ],
+                ],
+                [
+                    'id' => '2',
+                    'name' => 'Item Two',
+                    'tags' => [
+                        'tag3',
+                        'tag4',
+                    ],
+                ],
             ],
-            '_method' => 'PATCH',
+            'sparse_array' => [
+                0 => 'first',
+                2 => 'third',
+                5 => 'sixth',
+            ],
+            'string_keys' => [
+                'first_key' => 'first_value',
+                'second_key' => 'second_value',
+            ],
+            'numeric_keys' => [
+                0 => 'zero_value',
+                1 => 'one_value',
+                10 => 'ten_value',
+            ],
+            'empty_values' => [
+                'empty_string' => '',
+                'zero_string' => '0',
+                'false_string' => 'false',
+                'null_string' => 'null',
+            ],
+            'complex_nesting' => [
+                'level1' => [
+                    'level2' => [
+                        'level3' => [
+                            'items' => [
+                                [
+                                    'name' => 'Deep Item 1',
+                                    'value' => '100',
+                                ],
+                                [
+                                    'name' => 'Deep Item 2',
+                                    'value' => '200',
+                                ],
+                            ],
+                            'metadata' => [
+                                'count' => '2',
+                                'enabled' => 'true',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'duplicate_keys' => [
+                'first_duplicate',
+                'second_duplicate',
+                'third_duplicate',
+            ],
+            'special_chars' => [
+                'with spaces' => 'value with spaces',
+                'with-dashes' => 'value-with-dashes',
+                'with_underscores' => 'value_with_underscores',
+                'with.dots' => 'value.with.dots',
+            ],
+            'unicode' => [
+                '??????' => '测试值',
+                'emoji' => '🚀🌟💻',
+            ],
         ];
 
         $eventv1 = new HttpRequestEvent($datav1);
