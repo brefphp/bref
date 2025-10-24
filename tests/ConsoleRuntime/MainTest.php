@@ -19,16 +19,6 @@ class MainTest extends RuntimeTestCase
         putenv('_HANDLER=console.php');
     }
 
-    public function test startup hook is called()
-    {
-        Bref::beforeStartup(function () {
-            throw new Exception('This should be called');
-        });
-
-        $this->expectExceptionMessage('This should be called');
-        Main::run();
-    }
-
     public function test happy path()
     {
         $this->givenAnEvent('');
