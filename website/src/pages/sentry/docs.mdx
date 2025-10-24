@@ -10,6 +10,7 @@ import { Callout } from 'nextra/components';
 
 This package provides an advanced integration between Bref applications and [Sentry monitoring](https://sentry.io/):
 
+- Capture AWS Lambda errors that would otherwise be invisible: Lambda timeouts, "response too large" errors, etc. (these errors happen outside PHP-FPM workers and are not captured by the Sentry SDK by default)
 - Trace cold starts in performance tracing
 - Capture exceptions and trace event handlers using the [function runtime](/docs/runtimes/function) (like EventBridge, SQS, S3…)
 - Trace AWS SDK calls in performance tracing

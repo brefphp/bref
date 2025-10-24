@@ -1,0 +1,120 @@
+import Breadcrumbs from '../../components/Breadcrumbs';
+import { NextSeo } from 'next-seo';
+import { getReleases } from '../../github/releases';
+
+<NextSeo
+    title="X-Ray Integration Changelog"
+    description="Latest updates and releases for the Bref X-Ray integration package"
+/>
+
+export async function getStaticProps() {
+    const releases = await getReleases('brefphp/xray-integration', 20);
+    
+    // Format dates consistently on the server
+    const formattedReleases = releases ? releases.map(release => {
+        const date = new Date(release.publishedAt);
+        const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+        return {
+            ...release,
+            formattedDate: `${months[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}`
+        };
+    }) : [];
+    
+    return {
+        props: {
+            releases: formattedReleases
+        },
+        // The page will be considered as stale and regenerated every hour
+        revalidate: 3600
+    };
+}
+
+export default function ChangelogPage({ releases }) {
+    function renderMarkdown(markdown) {
+        // Remove Full Changelog links since the repo is private (handle both bold and non-bold versions)
+        let cleaned = markdown
+            .replace(/\*\*Full Changelog\*\*: https:\/\/github\.com\/brefphp\/xray-integration\/compare\/[^\s\n]+/g, '')
+            .replace(/Full Changelog: https:\/\/github\.com\/brefphp\/xray-integration\/compare\/[^\s\n]+/g, '');
+        
+        // Simple markdown to HTML conversion
+        let html = cleaned
+            // Headers
+            .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            // Bold and italic
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+            // Code blocks and inline code
+            .replace(/```[\s\S]*?```/g, (match) => {
+                const code = match.slice(3, -3).trim();
+                return `<pre><code>${code}</code></pre>`;
+            })
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            // Links
+            .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+            // Line breaks and paragraphs
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br/>')
+            // Lists
+            .replace(/^\* (.+)$/gm, '<li>$1</li>')
+            .replace(/^- (.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+        
+        // Wrap in paragraph tags if not already wrapped
+        if (!html.startsWith('<')) {
+            html = '<p>' + html + '</p>';
+        }
+        
+        return html;
+    }
+    
+    if (!releases || releases.length === 0) {
+        return (
+            <div>
+                <Breadcrumbs pages={[
+                    { name: 'X-Ray', href: '/xray' },
+                    { name: 'Documentation', href: '/xray/docs' },
+                    { name: 'Changelog', href: '/xray/changelog' },
+                ]} />
+                <h1 className="text-4xl font-bold tracking-tight text-gray-900 mt-8">X-Ray Integration Changelog</h1>
+                <div className="mt-6 text-lg leading-8 text-gray-600">
+                    Latest updates and releases for the Bref X-Ray integration package.
+                </div>
+                <div className="mt-12 text-center">
+                    <p className="text-gray-500">No releases found or unable to fetch releases.</p>
+                </div>
+            </div>
+        );
+    }
+    
+    return (
+        <div>
+            <Breadcrumbs pages={[
+                { name: 'X-Ray', href: '/xray' },
+                { name: 'Documentation', href: '/xray/docs' },
+                { name: 'Changelog', href: '/xray/changelog' },
+            ]} />
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 mt-8">X-Ray Integration Changelog</h1>
+            <div className="mt-6 text-lg leading-8 text-gray-600">
+                Latest updates and releases for the Bref X-Ray integration package.
+            </div>
+            <div className="mt-8">
+            {releases.map(release => (
+                <div key={release.id} className="mb-12">
+                    <h2 className="text-2xl font-bold mb-2">
+                        {release.name || release.tagName}
+                    </h2>
+                    <p className="text-sm text-gray-500 mb-4">
+                        {release.formattedDate}
+                    </p>
+                    <div className="prose prose-sm max-w-none"
+                         dangerouslySetInnerHTML={{ __html: renderMarkdown(release.body || 'No release notes provided.') }} />
+                </div>
+            ))}
+            </div>
+        </div>
+    );
+}
