@@ -88,7 +88,6 @@ final class LambdaRuntime
         try {
             ColdStartTracker::invocationStarted();
 
-            Bref::triggerHooks('beforeInvoke');
             Bref::events()->beforeInvoke($handler, $event, $context);
 
             $this->ping();
