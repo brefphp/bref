@@ -11,8 +11,21 @@ use Psr\Http\Message\ServerRequestInterface;
 use Riverline\MultiPartParser\Part;
 use RuntimeException;
 
-use function array_is_list;
 use function str_starts_with;
+
+// Polyfill for array_is_list (PHP 8.1+) to support PHP 8.0
+if (! function_exists('array_is_list')) {
+    function array_is_list(array $array): bool
+    {
+        $i = 0;
+        foreach ($array as $key => $value) {
+            if ($key !== $i++) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
 
 /**
  * Bridges PSR-7 requests and responses with API Gateway or ALB event/response formats.
