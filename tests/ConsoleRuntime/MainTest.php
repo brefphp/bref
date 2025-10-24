@@ -2,12 +2,10 @@
 
 namespace Bref\Test\ConsoleRuntime;
 
-use Bref\Bref;
 use Bref\ConsoleRuntime\CommandFailed;
 use Bref\ConsoleRuntime\Main;
 use Bref\Test\RuntimeTestCase;
 use Bref\Test\Server;
-use Exception;
 
 class MainTest extends RuntimeTestCase
 {
