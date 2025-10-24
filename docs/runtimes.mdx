@@ -146,12 +146,12 @@ into this:
 functions:
     hello:
         # ...
-        runtime: provided.al2
+        runtime: provided.al2023
         layers:
             - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:21'
 ```
 
-☝️ `provided.al2` [is the generic Linux environment for custom runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-use), and the `layers` config points to Bref's AWS Lambda layers.
+☝️ `provided.al2023` [is the generic Linux environment for custom runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-use), and the `layers` config points to Bref's AWS Lambda layers.
 
 Thanks to the Bref plugin, our `serverless.yml` is simpler. It also automatically adapts to the AWS region in use, and automatically points to the correct layer version. You can learn more about "layers" [in this page](./runtimes/runtimes-details.mdx).
 
@@ -161,7 +161,7 @@ If you want to reference AWS Lambda layers directly (instead of using the simple
 service: app
 provider:
     name: aws
-    runtime: provided.al2
+    runtime: provided.al2023
 plugins:
     - ./vendor/bref/bref
 functions:
