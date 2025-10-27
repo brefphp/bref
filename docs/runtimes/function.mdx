@@ -248,6 +248,10 @@ You first need to install the AWS PHP SDK by running
 $ composer require aws/aws-sdk-php
 ```
 
+<Callout type="info">
+    Note: You can remove unused AWS services by following [Removing Unused Services guide](https://github.com/aws/aws-sdk-php/tree/master/src/Script/Composer) to reduce vendor size of your bundle.
+</Callout>
+
 ```php
 $lambda = new \Aws\Lambda\LambdaClient([
     'version' => 'latest',
