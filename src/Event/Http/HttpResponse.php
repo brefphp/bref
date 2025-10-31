@@ -78,10 +78,10 @@ final class HttpResponse
             }
         }
 
-        $this->checkHeadersSize([
-            ...$headers,
-            'Set-Cookie' => $cookies, // include cookies in the size check
-        ], $awsRequestId);
+        $this->checkHeadersSize(array_merge(
+            $headers,
+            ['Set-Cookie' => $cookies], // include cookies in the size check
+        ), $awsRequestId);
 
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
