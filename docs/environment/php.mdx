@@ -103,9 +103,9 @@ The following extensions are installed in Bref runtimes, but disabled by default
 You can enable these extensions by loading them in `php/conf.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
 ```ini filename="php/conf.d/php.ini"
-extension=intl
-extension=apcu
-extension=pdo_pgsql
+extension=/opt/bref/extensions/intl
+extension=/opt/bref/extensions/apcu
+extension=/opt/bref/extensions/pdo_pgsql.so
 ```
 
 ### Extra extensions
