@@ -32,32 +32,24 @@ Bref aims to make running PHP applications simple.
 
 To reach that goal, Bref takes advantage of serverless technologies. However, while serverless is promising, there are many choices to make, tools to build and best practices to figure out.
 
-Bref's approach is to:
-
-- **simplify problems by removing choices**
-
-    *instead of trying to address every need*
-- **provide simple and familiar solutions**
-
-    *instead of aiming for powerful custom solutions*
-- **empower by sharing knowledge**
-
-    *instead of hiding too much behind leaky abstractions*
+Bref provides extensive documentation and an entire toolkit to make serverless approachable and easy to use.
 
 ### What is Bref
 
-Bref (which means "brief" in french) comes as an open source Composer package and helps you deploy PHP applications to [AWS](https://aws.amazon.com) and run them on [AWS Lambda](https://aws.amazon.com/lambda/).
+Bref (which means "brief" in french) comes as an open source Composer package and helps you deploy PHP applications to [AWS](https://aws.amazon.com) and run them on [AWS Lambda](https://aws.amazon.com/lambda/). It also makes it easy to use other AWS services (like S3, RDS, SQS…) for file storage, databases, etc.
 
 Bref provides:
 
 - documentation
 - PHP runtimes for AWS Lambda
 - deployment tooling
-- PHP frameworks integration
+- integrations for Laravel and Symfony
 
-The choice of AWS as serverless provider is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performance and reliability.
+The choice of AWS is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performance and reliability. AWS combines the advantages of being an extremely safe choice for hosting, while providing the most advanced serverless solution.
 
-Bref uses [the Serverless framework](https://serverless.com/) to configure and deploy serverless applications. Being the most popular tool, Serverless comes with a huge community, a lot of examples online and a simple configuration format.
+Bref configures and deploys applications to AWS using [the `serverless` CLI](https://github.com/oss-serverless/serverless). Being the most popular tool, `serverless` comes with a huge community, a lot of examples online, and a simple configuration format.
+
+If you want to learn more [how AWS Lambda and Bref work, read more here](/docs/how-it-works).
 
 ## Use cases
 
@@ -72,6 +64,47 @@ Bref and AWS Lambda can be used to run many kind of PHP application, for example
 Bref aims to support any PHP framework. It comes with deep integrations with Laravel and Symfony.
 
 If you are interested in real-world examples as well as cost analyses head over to the [**Case Studies** page](/docs/case-studies.md).
+
+## Adapting to serverless
+
+> Do PHP applications need to be adapted to run serverless?
+
+In general no, but it depends on where you're coming from.
+
+Running PHP applications serverless comes with roughly the same constraints as running an application in auto-scaled containers.
+
+- The application code is mounted as read-only on disk.
+- Since the application scales horizontally to run in multiple "instances" (like containers), all these instances have independent and ephemeral file systems.
+- Logs must not be written to disk, instead they must be collected to a centralized system (on AWS Lambda logs written to `stderr` are automatically centralized to AWS CloudWatch, so this is usually a one-line config change).
+- Sessions must not be written to disk, instead they must be stored in a centralized system (e.g. the database or Redis).
+- Database and cache services (e.g. MySQL and Redis) must not run on the same server/container as PHP, instead they must run in separate servers or containers (e.g. run databases in AWS RDS, Redis in AWS Elasticache…).
+- Uploaded files and generated files (e.g. CSV exports, PDF files…) must be stored in a centralized system (e.g. AWS S3).
+- You can use the filesystem as a cache, but each instance of the application will then have a separate cache since the filesystem is not shared.
+
+If these sound familiar to you, good news: your application is ready for serverless.
+
+If your application is currently not set up like this, good news: preparing for serverless means you are actually preparing for a horizontally scalable application, these points are not "serverless specific".
+
+### Serverless-specific constraints
+
+There are however a few serverless-specific constraints to be aware of:
+
+- About 0.3% of all requests in production are ["cold starts"](/docs/environment/performances.mdx#cold-starts), i.e. slower requests (AWS Lambda scaling up) that can add 200ms to 500ms (or even more on very large applications) to the HTTP response time.
+
+    If your application cannot tolerate that occasional latency on the p99 metric, then serverless might not be the best fit.
+- AWS Lambda has a limit of ~4MB for HTTP requests/uploaded files.
+
+    If your application needs to support uploading larger files, a better option is to update your JavaScript frontend to upload files directly to AWS S3 via S3 pre-signed URLs (Laravel has helpers to generate these URLs for example).
+
+- We do not run long-running processes on AWS Lambda, like queue workers or websocket servers.
+
+    For queue workers, this is actually great: SQS and Lambda integrate natively so that we don't have to run workers (or even think about those). Bref does the rest of the job to integrate natively with Laravel Queues or Symfony Messenger. More on this in the rest of the Bref documentation.
+
+    For websocket servers, this means we cannot run websocket servers like Ratchet or Laravel Reverb on Lambda. It is possible to run this on the side in an AWS EC2 server, or in a container in ECS, but this is extra setup. An alternative is to use the native API Gateway Websocket feature: this is however not well documented in Bref at the moment.
+
+- AWS Lambda has a maximum execution time limit of 15 minutes *per invocation*.
+
+    Note that this limit applies "per invocation", i.e. per HTTP request, per SQS job, per CLI command, per cron task, etc. That does mean you cannot have one job or a PHP script running for more than 15 minutes. If you do, you can either try to split these tasks in smaller jobs, or run longer tasks in EC2 or ECS separately.
 
 ## Maturity matrix
 
@@ -106,7 +139,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr className="border-b border-gray-200">
-        <td className="p-4 bg-gray-100 font-bold">API</td>
+        <td className="p-4 bg-gray-100 font-bold">APIs</td>
         <td className="p-4 text-center">
             <span className="maturity-icon shadow bg-green-400"></span>
         </td>
@@ -118,7 +151,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr className="border-b border-gray-200">
-        <td className="p-4 bg-gray-100 font-bold">Website</td>
+        <td className="p-4 bg-gray-100 font-bold">Websites</td>
         <td className="p-4 text-center">
             <span className="maturity-icon shadow bg-green-400"></span>
         </td>
@@ -130,7 +163,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr className="border-b border-gray-200">
-        <td className="p-4 bg-gray-100 font-bold">Legacy application</td>
+        <td className="p-4 bg-gray-100 font-bold">Legacy applications</td>
         <td className="p-4 text-center">
             <span className="maturity-icon shadow bg-yellow-400"></span>
         </td>
@@ -148,6 +181,18 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
         <td className="p-4 text-center">
             <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-green-400"></span>
+        </td>
+    </tr>
+    <tr className="border-b border-gray-200">
+        <td className="p-4 bg-gray-100 font-bold">Websockets</td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-yellow-400"></span>
+        </td>
+        <td className="p-4 text-center">
+            <span className="maturity-icon shadow bg-yellow-400"></span>
         </td>
         <td className="p-4 text-center">
             <span className="maturity-icon shadow bg-green-400"></span>
@@ -182,7 +227,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 <div className="text-xs text-gray-700 mb-8">
     Legend:
-    <span className="inline-block my-1 mx-1 sm:mx-2 bg-green-100 text-green-600 rounded-full px-2">Good use case</span>
+    <span className="inline-block my-1 mx-1 sm:mx-2 bg-green-100 text-green-700 rounded-full px-2">Good use case</span>
     <span className="inline-block my-1 mx-1 sm:mx-2 bg-orange-100 text-orange-600 rounded-full px-2">Some drawbacks</span>
     <span className="inline-block my-1 ml-1 sm:ml-2 bg-red-100 text-red-600 rounded-full px-2">Strong limitations</span>
 </div>
@@ -211,12 +256,24 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
     Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net). Note that if your application already runs redundantly on multiple servers, it is much more ready for AWS Lambda and the migration could be simple.
 
+- **Event-driven microservices**
+
+    Serverless is excellent for running event-driven microservice architectures. First of all, being able to standardize and orchestrate the deployment of multiple PHP microservices via a simple `serverless.yml` file and AWS CloudFormation simplifies deployments a lot. Every microservice can deploy in under a minute and easily reference other services or AWS resources. Each microservice then scales independently and in real-time without thinking about provisioning or allocating resources, and while keeping costs aligned with usage (not paying for dozens or hundreds of idle containers).
+
+    On top of that, `serverless.yml` and CloudFormation offer the ability to deeply integrate with other AWS services like SQS, EventBridge, SNS, DynamoDB, and more.
+
+    Some teams also prefer to deploy everything with Terraform, which is less documented in Bref but doable for those experienced with Terraform.
+
+- **Websockets**
+
+    It is possible to integrate PHP applications with API Gateway Websocket. This has been done by several Bref users, however this is currently not documented in Bref directly. On top of that there is currently no native integration with Laravel Echo.
+
 - **Real-time applications**
 
-    Warm Lambda invocations are very fast (can be as low as 1ms), but cold starts can take 230ms or more. Cold starts are rare on most applications (less than 0.5% of invocations) and can be further mitigated with [provisioned concurrency](https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html), but it's unlikely to ensure they will _never_ happen. This makes Lambda a poor choice for real-time applications where latency must be below 100ms for 100% of requests.
+    Warm Lambda invocations are very fast (can be as low as 1ms), but cold starts can take 200ms or more. Cold starts are rare on most applications (less than 0.5% of invocations) and can be further mitigated with [provisioned concurrency](https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html), but it's unlikely to ensure they will _never_ happen. This makes Lambda a poor choice for real-time applications where latency **must** be below 100ms for 100% of requests.
 
 ## Getting started
 
 Get started with Bref by reading the [installation documentation](/docs/setup.mdx).
 
-Want to know if Bref is a good fit for you? [Let's talk on Zoom](https://calendly.com/bref-enterprise/intro) (30 minutes, yes it's free, I'll answer any questions I can) or find me on [Slack](https://bref.sh/slack).
+Want to know if Bref is a good fit for you? Ask on [Slack](https://bref.sh/slack) in the `#help` channel.
