@@ -10,7 +10,7 @@ Serverless means using cloud services that manage the servers for us.
 
 When running PHP on a server, we must:
 
-- setup, configure and maintain that server,
+- set up, configure, and maintain that server,
 - pay a fixed price for the server,
 - scale the server(s) if we get more traffic.
 
@@ -20,23 +20,23 @@ When running PHP serverless:
 - We pay only for what we use (per request).
 - Our application scales automatically.
 
-**Serverless provides more scalable, affordable and reliable architectures for less effort.**
+**Serverless provides more scalable, affordable, and reliable architectures with less effort.**
 
 Serverless includes services like storage as a service, database as a service, message queue as a service, etc. One service in particular is interesting for us developers: *Function as a Service* (FaaS).
 
-FaaS is a way to run code where the hosting provider takes care of setting up everything, keeping the application available 24/7, scaling it up and down and we are only charged *while the code is actually executing*.
+FaaS is a way to run code where the hosting provider takes care of setting up everything, keeping the application available 24/7, scaling it up and down, and we are only charged *while the code is actually executing*.
 
 ## Why Bref?
 
 Bref aims to make running PHP applications simple.
 
-To reach that goal, Bref takes advantage of serverless technologies. However, while serverless is promising, there are many choices to make, tools to build and best practices to figure out.
+To reach that goal, Bref takes advantage of serverless technologies. However, while serverless is promising, there are many choices to make, tools to build, and best practices to figure out.
 
 Bref provides extensive documentation and an entire toolkit to make serverless approachable and easy to use.
 
 ### What is Bref
 
-Bref (which means "brief" in french) comes as an open source Composer package and helps you deploy PHP applications to [AWS](https://aws.amazon.com) and run them on [AWS Lambda](https://aws.amazon.com/lambda/). It also makes it easy to use other AWS services (like S3, RDS, SQS…) for file storage, databases, etc.
+Bref (which means "brief" in French) comes as an open source Composer package and helps you deploy PHP applications to [AWS](https://aws.amazon.com) and run them on [AWS Lambda](https://aws.amazon.com/lambda/). It also makes it easy to use other AWS services (like S3, RDS, SQS…) for file storage, databases, etc.
 
 Bref provides:
 
@@ -45,15 +45,15 @@ Bref provides:
 - deployment tooling
 - integrations for Laravel and Symfony
 
-The choice of AWS is deliberate: at the moment AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performance and reliability. AWS combines the advantages of being an extremely safe choice for hosting, while providing the most advanced serverless solution.
+The choice of AWS is deliberate: at the moment, AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performance, and reliability. AWS combines the advantages of being an extremely safe choice for hosting while providing the most advanced serverless solution.
 
 Bref configures and deploys applications to AWS using [the `serverless` CLI](https://github.com/oss-serverless/serverless). Being the most popular tool, `serverless` comes with a huge community, a lot of examples online, and a simple configuration format.
 
-If you want to learn more [how AWS Lambda and Bref work, read more here](/docs/how-it-works).
+If you want to learn [how AWS Lambda and Bref work, read more here](/docs/how-it-works).
 
 ## Use cases
 
-Bref and AWS Lambda can be used to run many kind of PHP application, for example:
+Bref and AWS Lambda can be used to run many kinds of PHP applications, for example:
 
 - APIs
 - websites
@@ -63,7 +63,7 @@ Bref and AWS Lambda can be used to run many kind of PHP application, for example
 
 Bref aims to support any PHP framework. It comes with deep integrations with Laravel and Symfony.
 
-If you are interested in real-world examples as well as cost analyses head over to the [**Case Studies** page](/docs/case-studies.md).
+If you are interested in real-world examples as well as cost analyses, head over to the [**Case Studies** page](/docs/case-studies.md).
 
 ## Adapting to serverless
 
@@ -74,37 +74,37 @@ In general no, but it depends on where you're coming from.
 Running PHP applications serverless comes with roughly the same constraints as running an application in auto-scaled containers.
 
 - The application code is mounted as read-only on disk.
-- Since the application scales horizontally to run in multiple "instances" (like containers), all these instances have independent and ephemeral file systems.
-- Logs must not be written to disk, instead they must be collected to a centralized system (on AWS Lambda logs written to `stderr` are automatically centralized to AWS CloudWatch, so this is usually a one-line config change).
+- Since the application scales horizontally to run in multiple "instances" (like containers), all these instances have independent and ephemeral filesystems.
+- Logs must not be written to disk, instead they must be sent to a centralized system (on AWS Lambda, logs written to `stderr` are automatically centralized in AWS CloudWatch, so this is usually a one-line config change).
 - Sessions must not be written to disk, instead they must be stored in a centralized system (e.g. the database or Redis).
-- Database and cache services (e.g. MySQL and Redis) must not run on the same server/container as PHP, instead they must run in separate servers or containers (e.g. run databases in AWS RDS, Redis in AWS Elasticache…).
+- Database and cache services (e.g. MySQL and Redis) must not run on the same server/container as PHP; instead, they must run in separate servers or containers (e.g. run databases in AWS RDS, Redis in AWS ElastiCache…).
 - Uploaded files and generated files (e.g. CSV exports, PDF files…) must be stored in a centralized system (e.g. AWS S3).
 - You can use the filesystem as a cache, but each instance of the application will then have a separate cache since the filesystem is not shared.
 
 If these sound familiar to you, good news: your application is ready for serverless.
 
-If your application is currently not set up like this, good news: preparing for serverless means you are actually preparing for a horizontally scalable application, these points are not "serverless specific".
+If your application is currently not set up like this, good news: preparing for serverless means you are actually preparing for a horizontally scalable application. These points are not "serverless-specific".
 
 ### Serverless-specific constraints
 
-There are however a few serverless-specific constraints to be aware of:
+There are still a few serverless-specific constraints to be aware of:
 
-- About 0.3% of all requests in production are ["cold starts"](/docs/environment/performances.mdx#cold-starts), i.e. slower requests (AWS Lambda scaling up) that can add 200ms to 500ms (or even more on very large applications) to the HTTP response time.
+- About 0.3% of all requests in production are ["cold starts"](/docs/environment/performances.mdx#cold-starts), i.e. slower requests (AWS Lambda scaling up) that can add 200 ms to 500 ms (or even more on very large applications) to the HTTP response time.
 
-    If your application cannot tolerate that occasional latency on the p99 metric, then serverless might not be the best fit.
-- AWS Lambda has a limit of ~4MB for HTTP requests/uploaded files.
+    If your application cannot tolerate that occasional latency at the p99 metric, then serverless might not be the best fit.
+- AWS Lambda has a limit of ~4 MB for HTTP requests/uploaded files.
 
     If your application needs to support uploading larger files, a better option is to update your JavaScript frontend to upload files directly to AWS S3 via S3 pre-signed URLs (Laravel has helpers to generate these URLs for example).
 
 - We do not run long-running processes on AWS Lambda, like queue workers or websocket servers.
 
-    For queue workers, this is actually great: SQS and Lambda integrate natively so that we don't have to run workers (or even think about those). Bref does the rest of the job to integrate natively with Laravel Queues or Symfony Messenger. More on this in the rest of the Bref documentation.
+    For queue workers, this is actually great: SQS and Lambda integrate natively so that we don't have to run workers (or even think about them). Bref does the rest of the job to integrate natively with Laravel Queues or Symfony Messenger. More on this in the rest of the Bref documentation.
 
-    For websocket servers, this means we cannot run websocket servers like Ratchet or Laravel Reverb on Lambda. It is possible to run this on the side in an AWS EC2 server, or in a container in ECS, but this is extra setup. An alternative is to use the native API Gateway Websocket feature: this is however not well documented in Bref at the moment.
+    For websocket servers, this means we cannot run servers like Ratchet or Laravel Reverb on Lambda. It is possible to run this on the side in an AWS EC2 server, or in a container in ECS, but this is extra setup. An alternative is to use the native API Gateway WebSocket feature; however, this is not well documented in Bref at the moment.
 
 - AWS Lambda has a maximum execution time limit of 15 minutes *per invocation*.
 
-    Note that this limit applies "per invocation", i.e. per HTTP request, per SQS job, per CLI command, per cron task, etc. That does mean you cannot have one job or a PHP script running for more than 15 minutes. If you do, you can either try to split these tasks in smaller jobs, or run longer tasks in EC2 or ECS separately.
+    Note that this limit applies "per invocation", i.e. per HTTP request, per SQS job, per CLI command, per cron task, etc. That does mean you cannot have one job or a PHP script running for more than 15 minutes. If you do, you can either try to split these tasks into smaller jobs, or run longer tasks in EC2 or ECS separately.
 
 ## Maturity matrix
 
@@ -187,7 +187,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
         </td>
     </tr>
     <tr className="border-b border-gray-200">
-        <td className="p-4 bg-gray-100 font-bold">Websockets</td>
+        <td className="p-4 bg-gray-100 font-bold">WebSockets</td>
         <td className="p-4 text-center">
             <span className="maturity-icon shadow bg-yellow-400"></span>
         </td>
@@ -234,7 +234,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Jobs, Cron**
 
-    Jobs, cron tasks and batch processes are very good candidates for FaaS. The scaling model of AWS Lambda can lead to very high throughput in queue processing, and the pay-per-use billing model can sometimes result in drastic costs reduction.
+    Jobs, cron tasks, and batch processes are very good candidates for FaaS. The scaling model of AWS Lambda can lead to very high throughput in queue processing, and the pay-per-use billing model can sometimes result in drastic cost reductions.
 
     Using Bref, it is possible to implement cron jobs and queue workers using PHP. Bref also provides integration with popular queue libraries, like Laravel Queues and Symfony Messenger.
 
@@ -244,21 +244,21 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
     APIs run on AWS Lambda without problems. Performance is now similar to what you could expect on a traditional VPS.
 
-    The main difference to account for is that about 0.5% of HTTP requests are cold starts. If your use case requires that _all_ requests are handled below 10ms, serverless might not be a good fit.
+    The main difference to account for is that about 0.5% of HTTP requests are cold starts. If your use case requires that _all_ requests are handled in under 10 ms, serverless might not be a good fit.
 
 - **Website**
 
-    Websites run well on AWS Lambda. Assets can be stored in S3 and served via Cloudfront. This is documented in the ["Websites" documentation](/docs/use-cases/websites.mdx). Performance is as good as any server.
+    Websites run well on AWS Lambda. Assets can be stored in S3 and served via CloudFront. This is documented in the ["Websites" guide](/docs/use-cases/websites.mdx). Performance is as good as any server.
 
 - **Legacy application**
 
-    Migrating a legacy PHP application to Bref and Lambda can be a challenge. One could expect to rewrite some parts of the code to make the application fit for Lambda (or running in containers in general). For example, file uploads and sessions often need to be adapted to work with the read-only filesystem. Cron tasks, scripts or asynchronous jobs must be made compatible with Lambda and SQS.
+    Migrating a legacy PHP application to Bref and Lambda can be a challenge. You can expect to rewrite some parts of the code to make the application fit for Lambda (or running in containers in general). For example, file uploads and sessions often need to be adapted to work with the read-only file system. Cron tasks, scripts, or asynchronous jobs must be made compatible with Lambda and SQS.
 
-    Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net). Note that if your application already runs redundantly on multiple servers, it is much more ready for AWS Lambda and the migration could be simple.
+    Not impossible, but definitely not the easiest place to start. As a first step, you can follow the guidelines of [The Twelve-Factor App](https://12factor.net). Note that if your application already runs redundantly on multiple servers, it is much closer to being ready for AWS Lambda and the migration could be simple.
 
 - **Event-driven microservices**
 
-    Serverless is excellent for running event-driven microservice architectures. First of all, being able to standardize and orchestrate the deployment of multiple PHP microservices via a simple `serverless.yml` file and AWS CloudFormation simplifies deployments a lot. Every microservice can deploy in under a minute and easily reference other services or AWS resources. Each microservice then scales independently and in real-time without thinking about provisioning or allocating resources, and while keeping costs aligned with usage (not paying for dozens or hundreds of idle containers).
+    Serverless is excellent for running event-driven microservice architectures. First of all, being able to standardize and orchestrate the deployment of multiple PHP microservices via a simple `serverless.yml` file and AWS CloudFormation simplifies deployments a lot. Every microservice can deploy in under a minute and easily reference other services or AWS resources. Each microservice then scales independently and in real time without thinking about provisioning or allocating resources, and while keeping costs aligned with usage (not paying for dozens or hundreds of idle containers).
 
     On top of that, `serverless.yml` and CloudFormation offer the ability to deeply integrate with other AWS services like SQS, EventBridge, SNS, DynamoDB, and more.
 
@@ -266,11 +266,11 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Websockets**
 
-    It is possible to integrate PHP applications with API Gateway Websocket. This has been done by several Bref users, however this is currently not documented in Bref directly. On top of that there is currently no native integration with Laravel Echo.
+    It is possible to integrate PHP applications with API Gateway WebSocket. This has been done by several Bref users; however, this is currently not documented in Bref directly. On top of that, there is currently no native integration with Laravel Echo.
 
 - **Real-time applications**
 
-    Warm Lambda invocations are very fast (can be as low as 1ms), but cold starts can take 200ms or more. Cold starts are rare on most applications (less than 0.5% of invocations) and can be further mitigated with [provisioned concurrency](https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html), but it's unlikely to ensure they will _never_ happen. This makes Lambda a poor choice for real-time applications where latency **must** be below 100ms for 100% of requests.
+    Warm Lambda invocations are very fast (can be as low as 1 ms), but cold starts can take 200 ms or more. Cold starts are rare on most applications (less than 0.5% of invocations) and can be further mitigated with [provisioned concurrency](https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html), but it's unlikely you can ensure they will _never_ happen. This makes Lambda a poor choice for real-time applications where latency **must** be below 100 ms for 100% of requests.
 
 ## Getting started
 
