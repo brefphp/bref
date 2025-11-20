@@ -22,7 +22,7 @@ functions:
 
 Cron events can be used to run CLI commands with the [Console runtime](../runtimes/console.md).
 
-In that case, use the `php-xx-console` runtime (for example `php-81-console`).
+In that case, use the `php-xx-console` runtime (for example `php-84-console`).
 
 This is usually best when coupled with a framework like Laravel or Symfony, or when porting an existing cron task to AWS Lambda.
 
@@ -33,7 +33,7 @@ This is usually best when coupled with a framework like Laravel or Symfony, or w
             # ...
             cron:
                 handler: artisan
-                runtime: php-81-console
+                runtime: php-84-console
                 events:
                     - schedule:
                         rate: rate(1 hour)
@@ -51,7 +51,7 @@ This is usually best when coupled with a framework like Laravel or Symfony, or w
             # ...
             artisan:
                 handler: artisan
-                runtime: php-81-console
+                runtime: php-84-console
                 events:
                     - schedule:
                         rate: rate(1 minute)
@@ -64,7 +64,7 @@ This is usually best when coupled with a framework like Laravel or Symfony, or w
             # ...
             cron:
                 handler: bin/console
-                runtime: php-81-console
+                runtime: php-84-console
                 events:
                     - schedule:
                         rate: rate(1 hour)
@@ -81,7 +81,7 @@ This is usually best when coupled with a framework like Laravel or Symfony, or w
             # ...
             cron:
                 handler: my-script.php
-                runtime: php-81-console
+                runtime: php-84-console
                 events:
                     - schedule:
                         rate: rate(1 hour)
@@ -96,7 +96,7 @@ This is usually best when coupled with a framework like Laravel or Symfony, or w
             # ...
             cron:
                 handler: my-script.php
-                runtime: php-81-console
+                runtime: php-84-console
                 events:
                     - schedule:
                         rate: rate(1 hour)
@@ -122,7 +122,7 @@ On top of running CLI cron tasks with the `php-xx-console` runtime, we can also 
             # ...
             cron:
                 handler: App\MyCronHandler
-                runtime: php-81
+                runtime: php-84
                 events:
                     - schedule:
                         rate: rate(1 hour)
@@ -165,7 +165,7 @@ On top of running CLI cron tasks with the `php-xx-console` runtime, we can also 
             # ...
             cron:
                 handler: App\MyCronHandler
-                runtime: php-81
+                runtime: php-84
                 events:
                     - schedule:
                         rate: rate(1 hour)
@@ -208,7 +208,7 @@ On top of running CLI cron tasks with the `php-xx-console` runtime, we can also 
             # ...
             cron:
                 handler: function.php
-                runtime: php-81-console
+                runtime: php-84-console
                 events:
                     - schedule:
                         rate: rate(1 hour)
