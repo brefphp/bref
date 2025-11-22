@@ -19,6 +19,16 @@ class Bref
     ];
     private static EventDispatcher $eventDispatcher;
 
+    public static function isRunningInStreamingMode(): bool
+    {
+        return (bool) getenv('BREF_STREAMED_MODE');
+    }
+
+    public static function doesStreamingSupportsFibers(): bool
+    {
+        return PHP_VERSION_ID >= 80100 && ! (bool) getenv('BREF_STREAM_NO_FIBER') && class_exists('Fiber');
+    }
+
     /**
      * Configure the container that provides Lambda handlers.
      *
