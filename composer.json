@@ -16,7 +16,6 @@
         }
     },
     "bin": [
-        "bref",
         "src/bref-local"
     ],
     "require": {
