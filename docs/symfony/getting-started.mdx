@@ -21,13 +21,54 @@ Next, in an existing Symfony project, install Bref and the [Symfony Bridge packa
 composer require bref/bref bref/symfony-bridge --update-with-dependencies
 ```
 
-Next, create a `serverless.yml` configuration file at the root of your project by running:
+Next, create a `serverless.yml` configuration file at the root of your project:
 
-```bash
-vendor/bin/bref init symfony
+```yml filename="serverless.yml"
+service: app # your application name (lowercase without spaces)
+
+bref:
+    # Uncomment and set your team ID if you are using Bref Cloud
+    #team: bref-team-id
+
+provider:
+    name: aws
+    region: us-east-1 # AWS region to deploy to
+    environment: # Environment variables
+        APP_ENV: prod
+
+functions:
+    # This function runs the Symfony website/API
+    web:
+        handler: public/index.php
+        runtime: php-84-fpm
+        timeout: 28 # in seconds (API Gateway has a max timeout of 29 seconds)
+        events:
+            -   httpApi: '*'
+    # This function let us run console commands in Lambda
+    console:
+        handler: bin/console
+        runtime: php-84-console
+        timeout: 120 # in seconds
+
+package:
+    patterns:
+        # Excluded files and folders for deployment
+        - '!assets/**'
+        - '!node_modules/**'
+        - '!public/build/**'
+        - '!tests/**'
+        - '!var/**'
+        # If you want to include files and folders that are part of excluded folders,
+        # add them at the end
+        - 'var/cache/prod/**'
+        - 'public/build/entrypoints.json'
+        - 'public/build/manifest.json'
+
+plugins:
+    - ./vendor/bref/bref
 ```
 
-(you can preview that file [here](https://github.com/brefphp/bref/blob/master/template/http/serverless.yml))
+You will also want to add `.serverless` to your `.gitignore`.
 
 You still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
