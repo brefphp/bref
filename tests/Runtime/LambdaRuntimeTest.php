@@ -431,4 +431,18 @@ ERROR;
         $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"Invocation error","stack":', $this->getActualOutput());
         $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"This is an exception in afterInvoke","stack":', $this->getActualOutput());
     }
+
+    public function test request id env variables()
+    {
+        $this->givenAnEvent([]);
+
+        $this->runtime->processNextEvent(function () use (&$requestId, &$traceId) {
+            $requestId = getenv('LAMBDA_REQUEST_ID');
+            $traceId = getenv('_X_AMZN_TRACE_ID');
+            return ['hello' => 'world'];
+        });
+
+        $this->assertSame('1', $requestId);
+        $this->assertSame('Root=1-67891233-abcdef012345678912345678', $traceId);
+    }
 }
