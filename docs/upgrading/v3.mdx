@@ -2,7 +2,11 @@
 introduction: Upgrading guide to go from Bref 2.x to Bref 3.0.
 ---
 
+import { Callout } from 'nextra/components';
+
 # Upgrading to Bref 3.0
+
+Read the [Bref 3.0 release announcement](/news/03-bref-3.0) to learn about all the new features and improvements.
 
 ## Updating dependencies
 
@@ -12,74 +16,100 @@ Bref 3.0 now requires PHP 8.2 or greater.
 
 ### Composer Dependencies
 
-You should update the `bref/bref` dependency in your application's composer.json file:
+Update all Bref packages in your `composer.json` file from `^2` to `^3`, for example:
 
-```diff
--    "bref/bref": "^2",
-+    "bref/bref": "^3",
+```json filename="composer.json"
+"require": {
+    "bref/bref": "^3",
+    "bref/laravel-bridge": "^3",         // if you use Laravel
+    "bref/symfony-bridge": "^3",         // if you use Symfony
+    "bref/extra-php-extensions": "^3"    // if you use extra extensions
+}
 ```
 
-Then run `composer update bref/bref --with-all-dependencies`.
+<Callout>
+    Only update the versions for the packages you actually have in your project.
+</Callout>
 
-If you use the [Bref Extra extensions](https://github.com/brefphp/extra-php-extensions), you also need to update the `bref/extra-php-extensions` package to version `^3.0`.
+Then run:
+
+```bash
+composer update --with-all-dependencies
+```
 
 ## Container image changes
 
 If you deploy using [container images](../deploy/docker.mdx), you must update your `Dockerfile`.
 
-First, change the major version of the Bref base image:
+Since Bref container images have been merged into a single `bref/php-xx` image, the following images don't exist anymore: `bref/php-xx-fpm` and `bref/php-xx-console`.
+
+### Option 1: Set BREF_RUNTIME in the Dockerfile
+
+The simplest upgrade path is to update your Dockerfile to use the unified image and set the runtime:
 
 ```diff filename="Dockerfile"
 - FROM bref/php-84-fpm:2
-+ FROM bref/php-84-fpm:3
-
-# ...
-```
-
-Since Bref container images have been merged into a single `bref/php-xx` image, the following images don't exist anymore: `bref/php-xx-fpm` and `bref/php-xx-console`.
-
-You must replace the base image to `bref/php-xx` when needed and define the `BREF_RUNTIME` environment variable:
-
-```diff filename="Dockerfile"
-FROM bref/php-84:3
-
-+ ENV BREF_RUNTIME=function
-
-# ...
-```
-
-or
-
-```diff filename="Dockerfile"
-- FROM bref/php-84-fpm:3
 + FROM bref/php-84:3
-
 + ENV BREF_RUNTIME=fpm
 
 # ...
 ```
 
-or
+Replace `fpm` with `function` or `console` depending on your use case.
 
-```diff filename="Dockerfile"
-- FROM bref/php-84-console:3
-+ FROM bref/php-84:3
+### Option 2: Use one image for all function types (recommended)
 
-+ ENV BREF_RUNTIME=console
+A major benefit of v3 is that you can now use **a single Docker image** for all your functions (web, console, queues, etc.) and set `BREF_RUNTIME` per function in `serverless.yml`.
 
-# ...
+**Dockerfile** (single image for everything):
+
+```dockerfile filename="Dockerfile"
+FROM bref/php-84:3
+
+# Your application code
+COPY . /var/task
+
+# No BREF_RUNTIME set here!
 ```
 
-Separately, if you use the `bref/php-84-fpm-dev` image for local development, you need to update its name and version:
+**serverless.yml** (set runtime per function):
 
-```diff filename="Dockerfile"
+```yml filename="serverless.yml"
+functions:
+    web:
+        image:
+            name: my-app-image
+        environment:
+            BREF_RUNTIME: fpm  # Web/HTTP function
+        events:
+            - httpApi: '*'
+
+    console:
+        image:
+            name: my-app-image
+        environment:
+            BREF_RUNTIME: console  # Console commands
+
+    worker:
+        image:
+            name: my-app-image
+        environment:
+            BREF_RUNTIME: function  # Queue worker
+        events:
+            - sqs:
+                arn: !GetAtt MyQueue.Arn
+```
+
+This approach lets you build and deploy a single Docker image for all function types, simplifying your deployment pipeline.
+
+### Local development images
+
+If you use the `bref/php-84-fpm-dev` image for local development, update it to:
+
+```diff filename="docker-compose.yml"
 - FROM bref/php-84-fpm-dev:2
 + FROM bref/php-84-dev:3
-
-# ...
 ```
-
-The rest works as usual.
 
 ## Smaller breaking changes that might impact you
 
@@ -214,3 +244,135 @@ Under the hood, **all layers have been merged into one**, i.e. `php-xx-fpm` and 
 
     The examples above assume you are using PHP 8.4 (`php-84`) but you can replace `84` with another PHP version.
 
+### The `vendor/bin/bref` CLI has been removed
+
+The `vendor/bin/bref` CLI has been completely removed in Bref 3.0. This is a minor change since the CLI was already 90% removed in Bref 2.0 - only the `bref init` command remained for bootstrapping new projects.
+
+We now have better onboarding with improved documentation. Here are the alternatives:
+
+- **Scaffolding new projects**: Follow the [getting started guide](/docs/setup) to create your `serverless.yml` manually.
+- **Layer versions**: Visit [runtimes.bref.sh](https://runtimes.bref.sh/) or run `serverless bref:layers`.
+- **Running console commands**: Use `serverless bref:cli` (unchanged from v2).
+- **Local development**: Use [Docker-based local development](/docs/local-development).
+
+### The hooks system has been removed
+
+The deprecated hooks system has been removed. This change affects very few users (less than 1%) as it was a low-level API used primarily by framework integrations.
+
+If you were using `Bref::beforeStartup()` or `Bref::beforeInvoke()`, you must migrate to the `BrefEventSubscriber` pattern:
+
+Before:
+
+```php
+use Bref\Bref;
+
+Bref::beforeStartup(function () {
+    // Setup code
+});
+```
+
+After:
+
+```php
+use Bref\Bref;
+use Bref\Listener\BrefEventSubscriber;
+
+class MyEventSubscriber extends BrefEventSubscriber
+{
+    public function beforeStartup(): void
+    {
+        // Setup code
+    }
+}
+
+Bref::events()->subscribe(new MyEventSubscriber());
+```
+
+The `BrefEventSubscriber` class provides additional hooks: `afterStartup()`, `beforeInvoke()`, and `afterInvoke()`. This refactor powers better integrations like the [Laravel bridge](https://github.com/brefphp/laravel-bridge), [X-Ray integration](https://bref.sh/xray), and [Sentry integration](https://bref.sh/sentry).
+
+### SOAP extension is now disabled by default
+
+The SOAP PHP extension is now disabled by default. It had very little usage, and disabling it helped reduce layer sizes to make room for more commonly used extensions.
+
+If you need the SOAP extension, you can enable it by creating a `php.ini` file in your project:
+
+```ini filename="php/conf.d/soap.ini"
+extension=soap
+```
+
+And reference it in your `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        BREF_AUTOLOAD_PATH: php/conf.d
+```
+
+### Laravel users
+
+If you are using Laravel with Bref, note that:
+
+- **Laravel 10, 11, or 12 is required** (Laravel 8 and 9 are no longer supported).
+- Update `bref/laravel-bridge` to the latest version.
+
+The Laravel bridge has been updated to use the new `BrefEventSubscriber` pattern internally, but this change is transparent to users.
+
+### CloudWatch log formatter enabled by default
+
+The [Bref Monolog formatter](https://github.com/brefphp/monolog-bridge) is now enabled by default in the Laravel and Symfony bridges.
+
+**This changes how your logs will look.** Logs now use a hybrid format that combines human-readable text with structured JSON:
+
+Before (plain text):
+```
+[2025-12-05 10:30:45] production.ERROR: Database connection failed
+```
+
+After (structured format):
+```
+ERROR Database connection failed {"message":"Database connection failed","level":"ERROR","context":{...}}
+```
+
+This format makes logs easier to read in CloudWatch and enables powerful filtering with CloudWatch Logs Insights (e.g., filter by log level or exception class).
+
+**Exception handling is greatly improved:** Previously, exception stack traces were split across multiple CloudWatch log records (one per line), making them difficult to read and browse. Now, the entire exception (including stack trace) is grouped in a single JSON object, making debugging much easier.
+
+If you prefer the old format, you can disable the formatter in your Laravel or Symfony configuration. See the [Bref Monolog documentation](https://github.com/brefphp/monolog-bridge) for details.
+
+## Cleanup: Remove deprecated configurations
+
+The following improvements in Bref 3.0 let you clean up old configurations.
+
+### Redis extension is now built-in
+
+The Redis PHP extension is now included in Bref layers by default.
+
+If you were using the Redis extension from [bref/extra-php-extensions](https://github.com/brefphp/extra-php-extensions), remove it from your `serverless.yml`:
+
+```diff filename="serverless.yml"
+functions:
+    api:
+        # ...
+        layers:
+-            - ${bref-extra:redis-php-84}
+```
+
+If Redis was the only extra extension you were using, you can also uninstall the package:
+
+```bash
+composer remove bref/extra-php-extensions
+```
+
+### PostgreSQL extension is enabled by default
+
+The PostgreSQL PDO extension (`pdo_pgsql`) is now enabled by default in Bref layers.
+
+If you had enabled it manually via a `php.ini` file, you can remove that line:
+
+```diff filename="php/conf.d/php.ini"
+-extension=pdo_pgsql
+```
+
+---
+
+That's it! Read the [Bref 3.0 release announcement](/news/03-bref-3.0) to learn more about all the new features and improvements in this release.
