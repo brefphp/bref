@@ -17,7 +17,7 @@ function listLayers(serverless, log) {
     log('----------------------------------------------------------------------------------');
     for (const [layer, versions] of Object.entries(layers)) {
         const version = versions[region];
-        const arn = `arn:aws:lambda:${region}:534081306603:layer:${layer}:${version}`;
+        const arn = `arn:aws:lambda:${region}:873528684822:layer:${layer}:${version}`;
         log(`${padString(layer, 12)} ${padString(version, 9)} ${arn}`);
     }
 }
