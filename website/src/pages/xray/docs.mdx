@@ -10,7 +10,7 @@ import { Callout } from 'nextra/components';
 
 This package provides an advanced integration between Bref applications and [AWS X-Ray monitoring](https://aws.amazon.com/xray/).
 
-Check out the documentation below for screenshots and more details.
+Check out the documentation below for screenshots and more details. View the [changelog](/xray/changelog) for the latest updates and releases.
 
 ## Installation
 
@@ -128,6 +128,10 @@ The package automatically traces all jobs dispatched via the Laravel queue. You 
 The integration will also forward X-Ray trace IDs correctly so that distributed tracing works correctly. For example, if a job is dispatched from a Lambda function that is already traced, the job will be traced as well.
 
 ![](./distributed-job-tracing.png)
+
+#### HTTP client
+
+The package automatically traces all HTTP requests made via the Laravel HTTP client.
 
 ### Symfony
 

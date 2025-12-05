@@ -88,7 +88,6 @@ final class LambdaRuntime
         try {
             ColdStartTracker::invocationStarted();
 
-            Bref::triggerHooks('beforeInvoke');
             Bref::events()->beforeInvoke($handler, $event, $context);
 
             $this->ping();
@@ -337,7 +336,6 @@ final class LambdaRuntime
     private function closeCurlHandleNext(): void
     {
         if ($this->curlHandleNext !== null) {
-            curl_close($this->curlHandleNext);
             $this->curlHandleNext = null;
         }
     }
@@ -345,7 +343,6 @@ final class LambdaRuntime
     private function closeCurlHandleResult(): void
     {
         if ($this->curlHandleResult !== null) {
-            curl_close($this->curlHandleResult);
             $this->curlHandleResult = null;
         }
     }

@@ -1,5 +1,5 @@
 module.exports.redirects = {
-    '/slack': 'https://join.slack.com/t/brefworkspace/shared_invite/enQtNTcwMjU2NTcxNjAxLTIxYmM2MmRjMDkzYjdjYTNkMmE5NGI3YTcyZjc2ZGRjNTFmNjFmYzk5NWQ1YmVhMDkwNzExNzhjZThkZWM0ODE',
+    '/slack': 'https://join.slack.com/t/brefworkspace/shared_invite/zt-3c5ihg8n9-2oA~2DMB9YYnufTzHih5OQ',
     '/#ecosystem': '/support',
     '/#plans': '/support',
     '/#enterprise': '/support',
