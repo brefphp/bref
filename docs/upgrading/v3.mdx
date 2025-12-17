@@ -347,7 +347,7 @@ The following improvements in Bref 3.0 let you clean up old configurations.
 
 The Redis PHP extension is now included in Bref layers by default.
 
-If you were using the Redis extension from [bref/extra-php-extensions](https://github.com/brefphp/extra-php-extensions), remove it from your `serverless.yml`:
+If you were using the Redis extension from [bref/extra-php-extensions](https://github.com/brefphp/extra-php-extensions), remove the layer from your `serverless.yml`:
 
 ```diff filename="serverless.yml"
 functions:
@@ -357,7 +357,13 @@ functions:
 -            - ${bref-extra:redis-php-84}
 ```
 
-If Redis was the only extra extension you were using, you can also uninstall the package:
+And enable the extension via a `php.ini` file in your project (`php/conf.d/php.ini`):
+
+```diff filename="php/conf.d/php.ini"
+extension=redis
+```
+
+If Redis was the only `bref/extra-php-extensions` extension you were using, you can uninstall the package:
 
 ```bash
 composer remove bref/extra-php-extensions
