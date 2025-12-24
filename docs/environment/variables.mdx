@@ -1,4 +1,4 @@
-import { Callout } from 'nextra/components';
+import { Callout, Tab, Tabs } from 'nextra/components';
 import { NextSeo } from 'next-seo';
 
 <NextSeo description="Define environment variables for your Bref application." />
@@ -42,25 +42,42 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
 
 ### Creating secrets
 
-To create a parameter, you can do it via the [AWS SSM console](https://console.aws.amazon.com/systems-manager/parameters) or the [Bref Dashboard](https://dashboard.bref.sh/):
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tab>
+        Create secrets via [Bref Cloud](https://bref.cloud).
 
-![](./variables-create-secret.png)
+        If you have **not** deployed the application yet, go to the root "Secrets" section in Bref Cloud and create a new secret there ([bref.cloud/secrets/create](https://bref.cloud/secrets/create)). Provide the target application and environment name when creating the secret.
 
-You can also do it in the CLI via the following command:
+        If you have already deployed the application, open the application in Bref Cloud, go to a specific environment, and create a new secret under the "Secrets" tab:
 
-```bash
-aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
-```
+        ![](./variables-create-secret.png)
 
-On Windows, the first part of the path needs to be double slashes and all subsequent forward slashes changed to backslashes:
+        You can also run the `bref secret:create` command in your terminal:
 
-```bash
-aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type String --value 'mysecretvalue'
-```
+        ```bash
+        bref secret:create
+        ```
 
-It is recommended to prefix the parameter name with your application name, for example: `/my-app/my-parameter`.
+        You can also run the command outside of a project: `bref secret:create --app=app-name --env=env-name --team=team-slug`.
+    </Tab>
+    <Tab>
+        Create a parameter via the [AWS SSM console](https://console.aws.amazon.com/systems-manager/parameters) or the `aws` CLI:
 
-SSM also allows to store a SecureString parameter, which is encrypted with AWS KMS. To use a SecureString, simply change the `--type` argument to `--type SecureString`. Bref takes care of decrypting the value.
+        ```bash
+        aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
+        ```
+
+        On Windows, the first part of the path needs to be double slashes and all subsequent forward slashes changed to backslashes:
+
+        ```bash
+        aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type String --value 'mysecretvalue'
+        ```
+
+        It is recommended to prefix the parameter name with your application name, for example: `/my-app/my-parameter`.
+
+        SSM also allows to store a SecureString parameter, which is encrypted with AWS KMS. To use a SecureString, simply change the `--type` argument to `--type SecureString`. Bref takes care of decrypting the value.
+    </Tab>
+</Tabs>
 
 ### Retrieving secrets
 
