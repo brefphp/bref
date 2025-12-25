@@ -40,7 +40,7 @@ jobs:
                     coverage: none
                     ini-values: expose_php=1
             -   name: Install dependencies
-                run: 'composer update ${{ matrix.dependency-version }} --no-interaction --prefer-dist --no-progress --no-security-blocking ${{ matrix.platform-reqs }}'
+                run: 'composer update ${{ matrix.dependency-version }} --no-interaction --prefer-dist --no-progress ${{ matrix.platform-reqs }}'
             -   name: Execute Unit Tests
                 run: 'vendor/bin/phpunit --testsuite small'
 
