@@ -1,5 +1,8 @@
 import { Callout } from 'nextra/components';
 import { NextSeo } from 'next-seo';
+import { Tab, Tabs } from 'nextra/components';
+import cloudDbCreate from './database/cloud-db-create.png';
+import Image from 'next/image';
 
 <NextSeo description="Configure Bref to use a database in your PHP application on AWS Lambda." />
 
@@ -11,23 +14,66 @@ Here are some of the database services offered by RDS:
 
 - MySQL
 - PostgreSQL
-- [Aurora MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/): closed-source database with MySQL/PostgreSQL compatibility
+- [Aurora MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/): closed-source database compatible with MySQL or PostgreSQL
 - [Aurora Serverless v2 MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/serverless/): similar to Aurora but scales automatically on-demand
 
 <Callout>
     Aurora Serverless can be configured to scale down to 0 when unused (which costs $0), however be careful with this option: the database can take up to 15 seconds to un-pause.
 </Callout>
 
-All RDS databases can be setup with Lambda in two ways:
+RDS databases can be setup with Lambda in two ways:
 
-1. the database can be made publicly accessible and protected by a username and password
-2. the database can be made inaccessible from internet by putting it in a private network (aka [VPC](https://aws.amazon.com/vpc/))
+- **Public:** the database has a public IP and is protected by a username and password.
+    - Simple set up: create the database and connect to it from PHP.
+    - Allows connecting to the database from your machine (for example with TablePlus, DBeaver…).
+    - Works great for development and non-critical applications.
+- **Private:** the database is in a private network (aka [VPC](https://aws.amazon.com/vpc/)), inaccessible from the internet.
+    - More complex: Lambda functions must be configured to run in the VPC too (comes with limitations, see below).
+    - The database cannot be accessed from your machine directly.
+    - More secure: the network isolation adds another layer of protection on top of the username/password.
+    - Recommended for critical production applications.
 
-While the first solution is simpler, the second is more secure. Using a VPC also comes with a few limitations that are detailed below.
+[Bref Cloud](https://bref.sh/cloud) makes it easy to create and manage RDS databases from the dashboard.
 
-This page documents how to create databases using VPC (the reliable and secure solution). If you want to skip using a VPC you can read the instructions in the "Accessing the database from your machine" section.
+The documentation below explains how to create databases using VPC. If you want to skip using a VPC you can read the instructions in the "Accessing the database from your machine" section.
 
-## Accessing the internet
+## Public databases
+
+### Creating a public database
+
+<Tabs items={['Bref Cloud', 'AWS console']}>
+    <Tab>
+        In the Bref Cloud dashboard, open the "Databases" page and [click "Create database"](https://bref.cloud/databases/create).
+
+        Fill in the form and click "Create":
+
+        <Image className="mt-3" src={cloudDbCreate} />
+
+        The `serverless.yml` configuration with credentials [securely stored in AWS SSM](./variables.mdx) will be displayed once the database is created.
+    </Tab>
+    <Tab>
+        In the [RDS console](https://console.aws.amazon.com/rds/home):
+
+        - switch to the region of your application
+        - click "Create database"
+        - select the type of database you want to create (engine, instance class, etc.) and fill the rest of the form
+        - make sure to select "Public access: Yes"
+
+        Once the database is created, make sure the security group allows inbound connections on the database port from any IP address (AWS Lambda IPs are dynamic).
+
+        Copy the endpoint (hostname) and configure your PHP application to connect to it. Don't forget to [securely store the username and password in AWS SSM](./variables.mdx).
+
+        Tips to better control costs:
+
+        - for non-critical databases you can disable replication
+        - switch storage to "General Purpose (SSD)" for lower costs
+        - you can disable "enhanced monitoring" to avoid the associated costs
+    </Tab>
+</Tabs>
+
+## Private databases
+
+### Accessing the internet
 
 <Callout type="warning">
     If your Lambda function has **timeouts**, please read this section.
@@ -53,7 +99,7 @@ When possible, an alternative to NAT Gateways is to split the work done by a lam
 
 Finally, another free alternative to NAT Gateway is to access AWS services by creating "*private VPC endpoints*": this is possible for S3, API Gateway, [and more](https://docs.aws.amazon.com/en_pv/vpc/latest/userguide/vpc-endpoints-access.html).
 
-## Creating a database
+### Creating a database
 
 In the [RDS console](https://console.aws.amazon.com/rds/home):
 
@@ -67,7 +113,7 @@ Tips to better control costs:
 - switch storage to "General Purpose (SSD)" for lower costs
 - you can disable "enhanced monitoring" to avoid the associated costs
 
-## Accessing the database from PHP
+### Accessing the database from PHP
 
 To retrieve the information needed to let AWS Lambda access the database go into [the RDS dashboard](https://console.aws.amazon.com/rds/home#databases:) (or the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref)) and open the database you created.
 
@@ -122,11 +168,11 @@ To learn how to properly store this connection string in your configuration head
 
 Also refer to the [Extensions](/docs/environment/php.mdx#extensions) section to see if you need to enable any database-specific extensions.
 
-### Learn more
+#### Learn more
 
 You can learn more about limitations and guidelines from the AWS documentation about [Configuring a lambda to access resources in a VPC](https://docs.aws.amazon.com/lambda/latest/dg/vpc.html).
 
-## Accessing the database from your machine
+### Accessing the database from your machine
 
 A database in a VPC cannot be accessed from the outside, i.e. the internet. You cannot connect to it via tools like MySQL Workbench.
 
