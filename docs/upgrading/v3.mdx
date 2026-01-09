@@ -37,9 +37,51 @@ Then run:
 composer update --with-all-dependencies
 ```
 
+## PHP extension changes
+
+The following improvements in Bref 3.0 let you clean up old configurations.
+
+### PostgreSQL extension is enabled by default
+
+The PostgreSQL PDO extension (`pdo_pgsql`) is now enabled by default in Bref layers.
+
+If you had enabled it manually via a `php.ini` file, you can remove that line:
+
+```diff filename="php/conf.d/php.ini"
+-extension=pdo_pgsql
+```
+
+### Redis extension is now built-in
+
+The Redis PHP extension is now included in Bref layers by default.
+
+If you were using the Redis extension from [bref/extra-php-extensions](https://github.com/brefphp/extra-php-extensions), remove the layer from your `serverless.yml`:
+
+```diff filename="serverless.yml"
+functions:
+    api:
+        # ...
+        layers:
+-            - ${bref-extra:redis-php-84}
+```
+
+And enable the extension via a `php.ini` file in your project (`php/conf.d/php.ini`):
+
+```diff filename="php/conf.d/php.ini"
+extension=redis
+```
+
+If Redis was the only `bref/extra-php-extensions` extension you were using, you can uninstall the package:
+
+```bash
+composer remove bref/extra-php-extensions
+```
+
 ## Container image changes
 
 If you deploy using [container images](../deploy/docker.mdx), you must update your `Dockerfile`.
+
+**If you don't have a `Dockerfile` in your project, you can skip this section.**
 
 Since Bref container images have been merged into a single `bref/php-xx` image, the following images don't exist anymore: `bref/php-xx-fpm` and `bref/php-xx-console`.
 
@@ -110,6 +152,8 @@ If you use the `bref/php-84-fpm-dev` image for local development, update it to:
 - FROM bref/php-84-fpm-dev:2
 + FROM bref/php-84-dev:3
 ```
+
+You can then set `BREF_RUNTIME` environment variable in your `docker-compose.yml` file or in the `Dockerfile` directly.
 
 ## Smaller breaking changes that might impact you
 
@@ -308,7 +352,7 @@ provider:
         BREF_AUTOLOAD_PATH: php/conf.d
 ```
 
-### Laravel users
+### Laravel version compatibility
 
 If you are using Laravel with Bref, note that:
 
@@ -338,46 +382,6 @@ This format makes logs easier to read in CloudWatch and enables powerful filteri
 **Exception handling is greatly improved:** Previously, exception stack traces were split across multiple CloudWatch log records (one per line), making them difficult to read and browse. Now, the entire exception (including stack trace) is grouped in a single JSON object, making debugging much easier.
 
 If you prefer the old format, you can disable the formatter in your Laravel or Symfony configuration. See the [Bref Monolog documentation](https://github.com/brefphp/monolog-bridge) for details.
-
-## Cleanup: Remove deprecated configurations
-
-The following improvements in Bref 3.0 let you clean up old configurations.
-
-### Redis extension is now built-in
-
-The Redis PHP extension is now included in Bref layers by default.
-
-If you were using the Redis extension from [bref/extra-php-extensions](https://github.com/brefphp/extra-php-extensions), remove the layer from your `serverless.yml`:
-
-```diff filename="serverless.yml"
-functions:
-    api:
-        # ...
-        layers:
--            - ${bref-extra:redis-php-84}
-```
-
-And enable the extension via a `php.ini` file in your project (`php/conf.d/php.ini`):
-
-```diff filename="php/conf.d/php.ini"
-extension=redis
-```
-
-If Redis was the only `bref/extra-php-extensions` extension you were using, you can uninstall the package:
-
-```bash
-composer remove bref/extra-php-extensions
-```
-
-### PostgreSQL extension is enabled by default
-
-The PostgreSQL PDO extension (`pdo_pgsql`) is now enabled by default in Bref layers.
-
-If you had enabled it manually via a `php.ini` file, you can remove that line:
-
-```diff filename="php/conf.d/php.ini"
--extension=pdo_pgsql
-```
 
 ---
 
