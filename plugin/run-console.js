@@ -1,14 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-
 /**
  * @param {import('./serverless').Serverless} serverless
  * @param {import('./serverless').CliOptions} options
  */
 async function runConsole(serverless, options) {
-    const region = serverless.getProvider('aws').getRegion();
     // Override CLI options for `sls invoke`
-    options.function = options.function || getConsoleFunction(serverless, region);
+    options.function = options.function || getConsoleFunction(serverless);
     options.type = 'RequestResponse';
     options.data = options.args;
     options.log = true;
@@ -18,36 +14,24 @@ async function runConsole(serverless, options) {
 
 /**
  * @param {import('./serverless').Serverless} serverless
- * @param {string} region
  */
-function getConsoleFunction(serverless, region) {
-    const consoleLayerArn = getConsoleLayerArn(region);
-
+function getConsoleFunction(serverless) {
     const functions = serverless.service.functions;
     const consoleFunctions = [];
     for (const [functionName, functionDetails] of Object.entries(functions || {})) {
-        if (functionDetails.layers && functionDetails.layers.includes(consoleLayerArn)) {
+        // Check for BREF_RUNTIME environment variable (set by Bref plugin for php-XX-console runtimes)
+        const brefRuntime = functionDetails.environment && functionDetails.environment.BREF_RUNTIME;
+        if (brefRuntime === 'Bref\\ConsoleRuntime\\Main' || brefRuntime === 'console') {
             consoleFunctions.push(functionName);
         }
     }
     if (consoleFunctions.length === 0) {
-        throw new serverless.classes.Error('This command invokes the Lambda "console" function, but no function was found with the "console" layer');
+        throw new serverless.classes.Error('This command invokes a Lambda console function, but no function was found using the console runtime (e.g. php-84-console)');
     }
     if (consoleFunctions.length > 1) {
-        throw new serverless.classes.Error('More than one function contains the console layer: cannot automatically run it. Please provide a function name using the --function option.');
+        throw new serverless.classes.Error('More than one function uses the console runtime: cannot automatically run it. Please provide a function name using the --function option.');
     }
     return consoleFunctions[0];
-}
-
-/**
- * @param {string} region
- * @returns {string}
- */
-function getConsoleLayerArn(region) {
-    const json = fs.readFileSync(path.join(__dirname, '../layers.json'));
-    const layers = JSON.parse(json.toString());
-    const version = layers.console[region];
-    return `arn:aws:lambda:${region}:873528684822:layer:console:${version}`;
 }
 
 module.exports = {runConsole};
