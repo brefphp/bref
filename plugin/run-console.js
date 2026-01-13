@@ -20,7 +20,7 @@ function getConsoleFunction(serverless) {
     const consoleFunctions = [];
     for (const [functionName, functionDetails] of Object.entries(functions || {})) {
         // Check for BREF_RUNTIME environment variable (set by Bref plugin for php-XX-console runtimes)
-        const brefRuntime = functionDetails.environment?.BREF_RUNTIME;
+        const brefRuntime = functionDetails.environment && functionDetails.environment.BREF_RUNTIME;
         if (brefRuntime === 'Bref\\ConsoleRuntime\\Main' || brefRuntime === 'console') {
             consoleFunctions.push(functionName);
         }
