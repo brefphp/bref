@@ -15,12 +15,14 @@ final class FpmHandlerLoadBalancerTest extends TestCase
     {
         parent::setUp();
 
+        ob_start();
         $this->fakeContext = new Context('abc', time(), 'abc', 'abc');
     }
 
     public function tearDown(): void
     {
         $this->fpm->stop();
+        ob_end_clean();
     }
 
     /**

@@ -20,12 +20,14 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
     {
         parent::setUp();
 
+        ob_start();
         $this->fakeContext = new Context('abc', time(), 'abc', 'abc');
     }
 
     public function tearDown(): void
     {
         $this->fpm->stop();
+        ob_end_clean();
     }
 
     public static function provide API Gateway versions(): array
