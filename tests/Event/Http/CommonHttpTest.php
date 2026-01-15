@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
 {
-    public function provide API Gateway versions(): array
+    public static function provide API Gateway versions(): array
     {
         return [
             'v1' => [1],

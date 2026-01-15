@@ -30,7 +30,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ob_end_clean();
     }
 
-    public function provide API Gateway versions(): array
+    public static function provide API Gateway versions(): array
     {
         return [
             'v1' => [1],
