@@ -15,7 +15,6 @@ abstract class RuntimeTestCase extends TestCase
     protected function setUp(): void
     {
         Bref::reset();
-        ob_start();
         Server::start();
         putenv('AWS_LAMBDA_RUNTIME_API=localhost:8126');
     }
@@ -23,7 +22,6 @@ abstract class RuntimeTestCase extends TestCase
     protected function tearDown(): void
     {
         Server::stop();
-        ob_end_clean();
     }
 
     protected function givenAnEvent(mixed $event): void

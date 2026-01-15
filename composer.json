@@ -40,7 +40,7 @@
         "doctrine/coding-standard": "^8.0",
         "guzzlehttp/guzzle": "^7.5",
         "phpstan/phpstan": "^2",
-        "phpunit/phpunit": "^10",
+        "phpunit/phpunit": "^10.1",
         "symfony/console": "^6.4|^7.0|^8.0",
         "symfony/yaml": "^6.4|^7.0|^8.0"
     },
