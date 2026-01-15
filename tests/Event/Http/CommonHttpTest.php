@@ -232,7 +232,7 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function provideHttpMethodsWithRequestBodySupport(): array
+    public static function provideHttpMethodsWithRequestBodySupport(): array
     {
         return [
             'POST v1' => [

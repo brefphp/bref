@@ -43,7 +43,7 @@ final class FpmHandler extends HttpHandler
      */
     private const SIGTERM = 15;
 
-    private ?Client $client;
+    private ?Client $client = null;
     private UnixDomainSocket $connection;
     private string $handler;
     private string $configFile;
