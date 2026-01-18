@@ -132,14 +132,10 @@ public function store(Request $request)
     constructs:
         storage:
             type: storage
-            extensions:
-                bucket:
-                    Properties:
-                        LifecycleConfiguration:
-                            Rules:
-                                - Prefix: tmp/
-                                  Status: Enabled
-                                  ExpirationInDays: 1
+            lifecycleRules:
+                # Files in the `tmp/` folder are will be cleaned after 1 day
+                -   prefix: tmp/
+                    expirationInDays: 1
     ```
 </Callout>
 
