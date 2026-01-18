@@ -6,34 +6,157 @@ Laravel has a [filesystem abstraction](https://laravel.com/docs/filesystem) that
 
 When running on Lambda, you will need to use the **`s3` adapter** to store files on AWS S3.
 
-To do this, set `FILESYSTEM_DISK: s3` either in `serverless.yml` or your production `.env` file. We can also create an S3 bucket via `serverless.yml` directly:
+## Quick setup with Lift
+
+The easiest way to set up S3 storage is using [Serverless Lift](https://github.com/getlift/lift):
+
+First install the Lift plugin:
+
+```bash
+serverless plugin install -n serverless-lift
+```
+
+Then use [the `storage` construct](https://github.com/getlift/lift/blob/master/docs/storage.md) in `serverless.yml`:
 
 ```yaml filename="serverless.yml"
-# ...
 provider:
     # ...
     environment:
         # environment variable for Laravel
         FILESYSTEM_DISK: s3
-        AWS_BUCKET: !Ref Storage
-    iam:
-        role:
-            statements:
-                # Allow Lambda to read and write files in the S3 buckets
-                -   Effect: Allow
-                    Action: s3:*
-                    Resource:
-                        - !Sub '${Storage.Arn}' # the storage bucket
-                        - !Sub '${Storage.Arn}/*' # and everything inside
+        AWS_BUCKET: ${construct:storage.bucketName}
 
-resources:
-    Resources:
-        # Create our S3 storage bucket using CloudFormation
-        Storage:
-            Type: AWS::S3::Bucket
+constructs:
+    storage:
+        type: storage
 ```
 
-That's it! The AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN) are set automatically in AWS Lambda, you don't have to define them.
+That's it! Lift automatically:
+
+- Creates the S3 bucket
+- Grants IAM permissions to your Lambda functions
+- Exposes the bucket name via `${construct:storage.bucketName}`
+
+The AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TOKEN) are set automatically in AWS Lambda, you don't have to define them.
+
+## Uploading files
+
+### Small files (< 6 MB)
+
+For files under 6 MB, you can upload directly through your Laravel application as usual:
+
+```php
+$request->file('document')->store('documents');
+```
+
+### Large files
+
+AWS Lambda has a **6MB request payload limit**. For larger files, you must upload directly to S3 from the browser using **presigned URLs**.
+
+How it works:
+
+1. Your frontend requests a presigned upload URL from your backend
+1. Your backend generates a temporary presigned URL using Laravel's Storage
+1. The frontend uploads the file directly to S3
+1. The frontend sends the S3 key back to your backend to save in the database
+
+Backend - Generate presigned URL:
+
+```php
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+
+public function presignedUploadUrl(): JsonResponse
+{
+    $key = 'tmp/' . Str::uuid() . '.pdf';
+
+    // Generate a presigned PUT URL valid for 15 minutes
+    $url = Storage::temporaryUploadUrl($key, now()->addMinutes(15));
+
+    return response()->json([
+        'url' => $url,
+        'key' => $key,
+    ]);
+}
+```
+
+Frontend - Upload to S3:
+
+```js
+// 1. Get presigned URL from your backend
+const { url, key } = await fetch('/api/presigned-upload-url', {
+    method: 'POST',
+    headers: { 'X-CSRF-TOKEN': csrfToken },
+}).then(r => r.json());
+
+// 2. Upload directly to S3
+await fetch(url, {
+    method: 'PUT',
+    body: file,
+    headers: { 'Content-Type': file.type },
+});
+
+// 3. Put the key in your form or send the key to your backend to save
+await fetch('/api/documents', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': csrfToken,
+    },
+    body: JSON.stringify({ file_key: key }),
+});
+```
+
+Backend - Move file to final location:
+
+```php
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'file_key' => 'required|string',
+    ]);
+
+    // Move from temporary location to final location
+    $finalPath = "documents/{$document->id}.pdf";
+    Storage::move($validated['file_key'], $finalPath);
+
+    // Save the final path in the database
+    $document->update(['file_path' => $finalPath]);
+}
+```
+
+<Callout>
+    **Cleanup temporary files**: Files uploaded to `tmp/` but never moved (e.g., user abandons the form) will accumulate. Add an S3 lifecycle rule to auto-delete them:
+
+    ```yaml filename="serverless.yml"
+    constructs:
+        storage:
+            type: storage
+            extensions:
+                bucket:
+                    Properties:
+                        LifecycleConfiguration:
+                            Rules:
+                                - Prefix: tmp/
+                                  Status: Enabled
+                                  ExpirationInDays: 1
+    ```
+</Callout>
+
+## Downloading files
+
+For private files, generate temporary presigned URLs:
+
+```php
+// Generate a presigned download URL valid for 15 minutes
+$url = Storage::temporaryUrl($document->file_path, now()->addMinutes(15));
+
+return response()->json(['download_url' => $url]);
+```
+
+The URL can be used directly in the browser or in an `<a>` tag.
+
+For local development, Laravel's filesystem abstraction lets you use the same code locally and in production. Laravel [supports temporary URLs for local files](https://laravel.com/docs/filesystem#temporary-urls) since version 9.
 
 ## Public files
 
