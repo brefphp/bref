@@ -168,7 +168,7 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertEquals($expectedOutput, $result);
     }
 
-    public function provide query strings(): iterable
+    public static function provide query strings(): iterable
     {
         yield ['', []];
 
@@ -248,7 +248,7 @@ class HttpRequestEventTest extends CommonHttpTest
         self::assertSame($normalizedQs, $event->getQueryString());
     }
 
-    public function provide query strings for event(): array
+    public static function provide query strings for event(): array
     {
         return [
             [['foo' => 'bar'], 'foo=bar', 'foo=bar'],
