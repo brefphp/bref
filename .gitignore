@@ -9,3 +9,4 @@
 .phpunit.result.cache
 node_modules/
 package-lock.json
+/.phpunit.cache/test-results

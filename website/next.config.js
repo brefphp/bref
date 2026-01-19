@@ -27,6 +27,15 @@ module.exports = withNextra(withPlausibleProxy()({
             ...redirectList,
         ]
     },
+    // Serve Markdown versions of docs for AI crawlers
+    async rewrites() {
+        return [
+            {
+                source: '/docs/:path*.md',
+                destination: '/api/md/:path*',
+            },
+        ]
+    },
 }));
 
 // If you have other Next.js configurations, you can pass them as the parameter:

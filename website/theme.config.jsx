@@ -57,20 +57,27 @@ export default {
     sidebar: {
         defaultMenuCollapseLevel: 1,
     },
-    head: (
-        <>
-            <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-            <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
-            <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
-            <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144x144.png" />
-            <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/apple-touch-icon-152x152.png" />
-            <meta property="og:locale" content="en_US" />
-            <meta property="og:site_name" content="Bref" />
-            <meta name="twitter:card" content="summary_large_image" />
-            <meta name="twitter:creator" content="@brefphp" />
-            <meta name="google-site-verification" content="RRmKDrWI2l69B0nMwv4ndrYOHSuaTBfarvCgtJxMpXA" />
-        </>
-    ),
+    head: function Head() {
+        const { asPath } = useRouter();
+        const isDocsPage = asPath.startsWith('/docs/');
+        return (
+            <>
+                <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+                <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
+                <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
+                <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144x144.png" />
+                <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/apple-touch-icon-152x152.png" />
+                <meta property="og:locale" content="en_US" />
+                <meta property="og:site_name" content="Bref" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:creator" content="@brefphp" />
+                <meta name="google-site-verification" content="RRmKDrWI2l69B0nMwv4ndrYOHSuaTBfarvCgtJxMpXA" />
+                {isDocsPage && (
+                    <link rel="alternate" type="text/markdown" href={`https://bref.sh${asPath}.md`} />
+                )}
+            </>
+        );
+    },
     footer: {
         component: Footer,
         text: (
