@@ -95,6 +95,8 @@ provider:
             hello-world:
                 # Path to the `Dockerfile` file
                 path: ./
+                file: Dockerfile
+                platform: linux/amd64
 
 functions:
     hello:
@@ -115,6 +117,8 @@ When running `serverless deploy`, the CLI will:
 - Deploy the Lambda function pointing to the Docker image
 
 Note that you can create multiple images in the same `serverless.yml` file. For example, you can have one image for the HTTP handler and another image for a worker.
+
+You can read the detailed documentation about [all options available in the Serverless documentation](https://github.com/oss-serverless/serverless/blob/main/docs/guides/functions.md#referencing-container-image-as-a-target).
 
 ## Filesystem
 
