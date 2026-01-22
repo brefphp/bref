@@ -35,10 +35,8 @@ use Throwable;
  */
 final class LambdaRuntime
 {
-    /** @var resource|CurlHandle|null */
-    private $curlHandleNext;
-    /** @var resource|CurlHandle|null */
-    private $curlHandleResult;
+    private ?CurlHandle $curlHandleNext = null;
+    private ?CurlHandle $curlHandleResult = null;
     private string $apiUrl;
     private Invoker $invoker;
     private string $layer;
@@ -88,7 +86,6 @@ final class LambdaRuntime
         try {
             ColdStartTracker::invocationStarted();
 
-            Bref::triggerHooks('beforeInvoke');
             Bref::events()->beforeInvoke($handler, $event, $context);
 
             $this->ping();
@@ -337,7 +334,6 @@ final class LambdaRuntime
     private function closeCurlHandleNext(): void
     {
         if ($this->curlHandleNext !== null) {
-            curl_close($this->curlHandleNext);
             $this->curlHandleNext = null;
         }
     }
@@ -345,7 +341,6 @@ final class LambdaRuntime
     private function closeCurlHandleResult(): void
     {
         if ($this->curlHandleResult !== null) {
-            curl_close($this->curlHandleResult);
             $this->curlHandleResult = null;
         }
     }

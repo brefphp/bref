@@ -428,7 +428,7 @@ ERROR;
         // The error response was already sent, it contains the handler error
         $this->assertInvocationErrorResult('Exception', 'Invocation error');
         // The logs should contain both the handler error and the afterInvoke error
-        $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"Invocation error","stack":', $this->getActualOutput());
-        $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"This is an exception in afterInvoke","stack":', $this->getActualOutput());
+        $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"Invocation error","stack":', $this->output());
+        $this->assertStringContainsString('Invoke Error	{"errorType":"Exception","errorMessage":"This is an exception in afterInvoke","stack":', $this->output());
     }
 }

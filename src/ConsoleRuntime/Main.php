@@ -20,7 +20,6 @@ class Main
 
         LazySecretsLoader::loadSecretEnvironmentVariables();
 
-        Bref::triggerHooks('beforeStartup');
         Bref::events()->beforeStartup();
 
         $lambdaRuntime = LambdaRuntime::fromEnvironmentVariable('console');

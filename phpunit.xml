@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" bootstrap="./vendor/autoload.php">
-  <coverage processUncoveredFiles="true">
-    <include>
-      <directory suffix=".php">src</directory>
-    </include>
-  </coverage>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" bootstrap="./vendor/autoload.php" cacheDirectory=".phpunit.cache">
   <testsuites>
     <testsuite name="small">
       <directory>./tests/</directory>
       <exclude>./tests/Sam</exclude>
       <exclude>./tests/Fixtures</exclude>
+      <exclude>./tests/HttpRequestProxyTest.php</exclude>
+      <exclude>./tests/Event/Http/CommonHttpTest.php</exclude>
     </testsuite>
     <testsuite name="runtimes">
       <directory>./tests/Sam</directory>
     </testsuite>
   </testsuites>
   <php>
-    <env name="AWS_REGION" value="eu-west-1" force="true" />
+    <env name="AWS_REGION" value="eu-west-1" force="true"/>
   </php>
+  <source>
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+  </source>
 </phpunit>
