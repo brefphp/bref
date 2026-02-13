@@ -383,6 +383,23 @@ This format makes logs easier to read in CloudWatch and enables powerful filteri
 
 If you prefer the old format, you can disable the formatter in your Laravel or Symfony configuration. See the [Bref Monolog documentation](https://github.com/brefphp/monolog-bridge) for details.
 
+### Locale files from glibc langpacks are no longer included
+
+If you are using [`intl` / ICU](https://www.php.net/manual/en/intro.intl.php) for locale-aware formatting (dates, numbers, currencies) or translations, you don't need to do anything as ICU is fully supported in Bref v3. **Modern frameworks (Laravel, Symfony…) use ICU, not `gettext`**. That means most users are not affected.
+
+If you are using PHP's native [`gettext`](https://www.php.net/manual/en/book.gettext.php) functions or rely on `setlocale()` with specific locales (e.g. for
+`strftime()`), glibc locale files are no longer included in Amazon Linux 2023 (AL2023). These will no longer work in Bref v3. You may either:
+
+- Switch to using `intl` / ICU, which is the modern standard for translations in PHP and is fully supported in Bref v3.
+- Or, if you want to keep using `gettext` or `setlocale()`, switch to [container deployments](../deploy/docker.mdx) and use a custom Docker image that includes the necessary locale files:
+
+```dockerfile filename="Dockerfile"
+# Install the locale packages you need (e.g. English and French)
+RUN microdnf update -y && \
+    microdnf install -y glibc-langpack-en glibc-langpack-fr && \
+    microdnf clean all
+```
+
 ---
 
 That's it! Read the [Bref 3.0 release announcement](/news/03-bref-3.0) to learn more about all the new features and improvements in this release.
