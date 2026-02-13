@@ -47,6 +47,7 @@ What did we break? **Almost nothing**, the upgrade should be smooth. Here are th
 - The `vendor/bin/bref` CLI is removed (it was already 90% removed in v2).
 - The SOAP extension is now opt-in (it had very little usage).
 - If you deploy using container images, you'll need to update your Dockerfile.
+- If you use [`bref/extra-php-extensions`](https://github.com/brefphp/extra-php-extensions), update it from v1 to v3 (there is no v2 — v1 was for Bref v2, v3 is aligned with Bref v3).
 
 For a complete list of changes and instructions, check out the [**v3 upgrade guide**](../docs/upgrading/v3.mdx).
 
