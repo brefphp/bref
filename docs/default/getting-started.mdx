@@ -27,33 +27,29 @@ Next, in an empty directory, install Bref using Composer:
 composer require bref/bref
 ```
 
-Make sure that the version of Bref that was installed is 1.0 or greater.
+Make sure that the version of Bref that was installed is 3.0 or greater.
 
-Then let's start by initializing a new project by running:
-
-```bash
-vendor/bin/bref init
-```
-
-Accept all the defaults by pressing "Enter". The following files will be created in your project:
-
-- `index.php` contains the code of your application
-- `serverless.yml` contains the configuration for deploying on AWS
-
-You are free to edit `index.php`.
-
-To deploy an existing application, you can delete `index.php` and edit `serverless.yml` to point to your existing index file (for example it may be another file like `public/index.php`). You can also create the `serverless.yml` file manually:
+Then, create a `serverless.yml` file. This file will describe how to deploy your application.
 
 ```yml filename="serverless.yml"
-service: app
+service: app # your application name (lowercase without spaces)
+
+bref:
+    # Uncomment and set your team ID if you are using Bref Cloud
+    #team: bref-team-id
+
 provider:
     name: aws
-    region: us-east-1
+    region: us-east-1 # AWS region to deploy to
+    environment: # Environment variables
+        APP_ENV: prod
 
 functions:
     web:
+        # `index.php` is the entrypoint of your application
         handler: index.php
-        runtime: php-81-fpm
+        runtime: php-84-fpm
+        timeout: 28 # in seconds (API Gateway has a max timeout of 29 seconds)
         events:
             -   httpApi: '*'
 
@@ -65,6 +61,21 @@ package:
 plugins:
     - ./vendor/bref/bref
 ```
+
+If your `index.php` entrypoint is in a different folder, feel free to adjust the `handler` key. For example if it is in `public/index.php`:
+
+```yml
+        handler: public/index.php
+```
+
+If this is a new application, you can create a very simple `index.php` file to test things out, for example:
+
+```php
+<?php
+echo 'Hello world!';
+```
+
+You will also want to add `.serverless` to your `.gitignore`.
 
 ## Deployment
 

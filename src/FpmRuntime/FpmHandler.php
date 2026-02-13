@@ -43,7 +43,7 @@ final class FpmHandler extends HttpHandler
      */
     private const SIGTERM = 15;
 
-    private ?Client $client;
+    private ?Client $client = null;
     private UnixDomainSocket $connection;
     private string $handler;
     private string $configFile;
@@ -76,8 +76,20 @@ final class FpmHandler extends HttpHandler
         /**
          * --nodaemonize: we want to keep control of the process
          * --force-stderr: force logs to be sent to stderr, which will allow us to send them to CloudWatch
+         * TODO set `max_execution_time` to the timeout of the Lambda function?
          */
-        $resource = @proc_open(['php-fpm', '--nodaemonize', '--force-stderr', '--fpm-config', $this->configFile], [], $pipes);
+        $resource = @proc_open([
+            'php-fpm',
+            '--nodaemonize',
+            '--force-stderr',
+            '--fpm-config',
+            $this->configFile,
+            // This setting is enabled by default for CLI invocations because it
+            // improves performance. We disable if it for PHP-FPM manually
+            // because it tanks performance by essentially disabling opcache
+            '-d',
+            'opcache.file_cache_only=0',
+        ], [], $pipes);
 
         if (! is_resource($resource)) {
             throw new RuntimeException('PHP-FPM failed to start');

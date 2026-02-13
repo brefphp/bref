@@ -80,7 +80,7 @@ abstract class RuntimeTestCase extends TestCase
     protected function assertErrorInLogs(string $errorClass, string $errorMessage): void
     {
         // Decode the logs from stdout
-        $stdout = $this->getActualOutput();
+        $stdout = $this->output();
 
         [$requestId, $message, $json] = explode("\t", $stdout);
 
@@ -108,7 +108,7 @@ abstract class RuntimeTestCase extends TestCase
     protected function assertPreviousErrorsInLogs(array $previousErrors): void
     {
         // Decode the logs from stdout
-        $stdout = $this->getActualOutput();
+        $stdout = $this->output();
 
         [, , $json] = explode("\t", $stdout);
 

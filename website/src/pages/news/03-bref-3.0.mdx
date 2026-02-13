@@ -1,0 +1,229 @@
+import ArticleHeader from '../../components/news/ArticleHeader';
+import { NextSeo } from 'next-seo';
+import Image from 'next/image';
+import cloudScreenshot from './03/cloud-screenshot.png';
+
+<NextSeo description="Bref 3.0 is released and reaches 40 billion invocations every month."
+         openGraph={{
+             images: [
+                 {
+                     url: 'https://bref.sh/news/03-social-card.png',
+                 },
+             ],
+         }}
+/>
+
+# Bref 3.0 is released 🎉
+
+<ArticleHeader
+    subTitle="Celebrating 40 billion executions per month"
+    date="December 2025"
+    author="Matthieu Napoli"
+    authorGitHub="mnapoli" />
+
+Bref 3.0 is here! Since Bref 2.0, we've grown from 10 billion to **40 billion Lambda executions** (aka requests) every month. The package has been installed more than **8 million times**, and we've crossed **4,000 commits** across all Bref repositories.
+
+Today, we celebrate these achievements and **the release of Bref 3.0** 🎉
+
+Let's check out what's new in v3.
+
+## Bref 3.0
+
+Here's a summary, we'll dive into the details below:
+
+- **24% smaller layers** for faster cold starts.
+- **Runtimes rebuilt on Amazon Linux 2023**: upgrade from deprecated Amazon Linux 2.
+- **PHP 8.5 support**
+- **PostgreSQL extension** is now enabled by default.
+- **Redis extension** is now built-in.
+- **Unified PHP runtime**: one layer and one container image instead of three.
+- **New regions**: `ap-southeast-3` and `me-central-1`.
+- **Better CloudWatch logs** with the new Monolog formatter enabled by default.
+- **[Bref Cloud](https://bref.sh/cloud)**: a simpler way to deploy Bref applications.
+
+What did we break? **Almost nothing**, the upgrade should be smooth. Here are the details:
+
+- PHP 8.2+ is now required (PHP 8.0 and 8.1 support is dropped).
+- The `vendor/bin/bref` CLI is removed (it was already 90% removed in v2).
+- The SOAP extension is now opt-in (it had very little usage).
+- If you deploy using container images, you'll need to update your Dockerfile.
+- If you use [`bref/extra-php-extensions`](https://github.com/brefphp/extra-php-extensions), update it from v1 to v3 (there is no v2 — v1 was for Bref v2, v3 is aligned with Bref v3).
+
+For a complete list of changes and instructions, check out the [**v3 upgrade guide**](../docs/upgrading/v3.mdx).
+
+## Faster Lambda cold starts
+
+The Bref layers for AWS Lambda have been optimized and their size reduced. It leaves more room for your code and should improve cold start times.
+
+- PHP 8.4: 69MB → 53MB
+- PHP 8.3: 65MB → 46MB
+
+This was achieved through several optimizations:
+
+- Stripping debug symbols from all libraries and PHP extensions.
+- Compiling PHP with size-optimization flags.
+- Disabling the rarely-used SOAP extension by default.
+- Bundling some PHP extensions directly into the PHP binary.
+
+## Amazon Linux 2023
+
+Bref 3.0 is built on **[Amazon Linux 2023](https://docs.aws.amazon.com/linux/al2023/ug/what-is-amazon-linux.html)** (AL2023), the latest version of Amazon's Linux distribution for AWS.
+
+The previous Bref versions were built on **Amazon Linux 2** (AL2), which has been deprecated by AWS. AWS Lambda will continue to support AL2 for some time, but it's recommended to migrate to AL2023 as soon as possible.
+
+This upgrade brings several benefits:
+
+- **Performance**: AL2023 is leaner than AL2, with more recent kernel and system libraries.
+- **Modern packages**: AL2023 ships with more recent package versions, simplifying the Bref build process.
+- **Long-term support**: AL2 will be deprecated in June 2026, while AL2023 will be supported at least until 2029.
+
+The migration happens automatically when you upgrade to Bref 3.0, no changes are needed on your end.
+
+## PHP 8.5 support
+
+Bref 3.0 adds support for **PHP 8.5** (which depended on an AL2023 system upgrade). You can start using it by setting the runtime in your `serverless.yml`:
+
+```yaml
+functions:
+    api:
+        handler: public/index.php
+        runtime: php-85-fpm
+```
+
+## Redis extension built-in
+
+The **Redis extension** is now included in Bref layers by default. Redis is one of the most used extensions by Bref users for caching and session storage.
+
+If you were using the Redis extension from [bref/extra-php-extensions](https://github.com/brefphp/extra-php-extensions), remove the layer from your `serverless.yml`:
+
+```diff filename="serverless.yml"
+functions:
+    api:
+        # ...
+        layers:
+-            - ${bref-extra:redis-php-84}
+```
+
+And enable the extension via a `php.ini` file in your project (`php/conf.d/php.ini`):
+
+```diff filename="php/conf.d/php.ini"
+extension=redis
+```
+
+If Redis was the only `bref/extra-php-extensions` extension you were using, you can uninstall the package:
+
+```bash
+composer remove bref/extra-php-extensions
+```
+
+## PostgreSQL enabled by default
+
+The **PostgreSQL PDO extension** is now enabled by default. If you're using PostgreSQL, you no longer need any additional configuration.
+
+If you had enabled it manually via a `php.ini` file, you can remove that line:
+
+```diff filename="php/conf.d/php.ini"
+-extension=pdo_pgsql
+```
+
+## Unified PHP runtime
+
+Bref 3.0 consolidates the three separate layer types (function, FPM, console) into a **single unified layer** per PHP version. This simplification makes maintenance easier and provides a simpler mental model for users.
+
+**Do you need to change anything?**
+
+- **If you use `runtime: php-84-fpm` in your `serverless.yml`**: nothing changes, you're all set!
+- **If you deploy using container images**: you need to update your `Dockerfile`, ⚠️ read the [upgrade guide](../docs/upgrading/v3.mdx#updating-your-dockerfile-for-bref-30).
+- **If you specify layers explicitly**: ⚠️ read the [upgrade guide](../docs/upgrading/v3.mdx#aws-lambda-layers-have-been-merged-into-a-single-layer).
+
+A single layer/image is how it should have been from the start, and I'm really glad we're getting there now!
+
+## Better CloudWatch logs
+
+The [Bref Monolog formatter](https://github.com/brefphp/monolog-bridge) is now **enabled by default** in the Laravel and Symfony bridges. This formatter outputs logs in a format optimized for CloudWatch, making them easier to read and filter.
+
+Before (plain text):
+```
+[2025-12-05 10:30:45] production.ERROR: Database connection failed
+```
+
+After (structured format):
+```json
+ERROR Database connection failed {"message":"Database connection failed","level":"ERROR","context":{...}}
+```
+
+This format makes logs easier to read in CloudWatch and enables powerful filtering with CloudWatch Logs Insights (e.g., filter by log level or exception class).
+
+**Exception handling is also greatly improved:** Previously, exception stack traces were split across multiple CloudWatch log records (one per line), making them difficult to read and browse. Now, the entire exception (including stack trace) is grouped in a single JSON object, making debugging much easier.
+
+That new logging approach also allows reading all the logs of a single request, by filtering via the AWS request ID.
+
+## New regions
+
+Bref layers are now available in two additional regions:
+
+- `ap-southeast-3` (Asia Pacific - Jakarta)
+- `me-central-1` (Middle East - UAE)
+
+## The `vendor/bin/bref` CLI is removed
+
+The `vendor/bin/bref` CLI has been completely removed in Bref 3.0. This is a minor change since the CLI was already 90% removed in Bref 2.0 - only the `bref init` command remained for bootstrapping new projects.
+
+We now have better onboarding with improved documentation and the `serverless` CLI commands. Here are the alternatives:
+
+- **Scaffolding new projects**: Follow the [getting started guide](https://bref.sh/docs/setup) to create your `serverless.yml` manually.
+- **Layer versions**: Visit [runtimes.bref.sh](https://runtimes.bref.sh/) or run `serverless bref:layers`.
+- **Running console commands**: Use `serverless bref:cli` (this existed in v2).
+- **Local development**: Use [Docker-based local development](https://bref.sh/docs/local-development).
+
+## Upgrading
+
+Check out the [**v3 Upgrade Guide**](../docs/upgrading/v3.mdx) for a complete list of changes and instructions to upgrade your projects.
+
+## Thanks
+
+A huge thanks to the [Bref contributors](https://github.com/brefphp/bref/graphs/contributors), to the community for supporting the project, and to the open-source sponsors:
+
+**Premium sponsors:**
+
+- [Craft CMS](https://craftcms.com/?ref=bref.sh)
+- [Voxie](https://voxie.com/?ref=bref)
+- [MyBuilder](https://www.mybuilder.com/?ref=bref.sh)
+
+**Gold sponsors:**
+
+- [Depot](https://depot.dev/?ref=bref.sh)
+- [SecuMailer](https://secumailer.com/?ref=bref.sh)
+- [Ecomail](https://ecomail.cz/?ref=bref.sh)
+- [Spreaker](https://www.spreaker.com/?ref=bref)
+- [Runs On](https://runs-on.com/?ref=bref)
+- [Playable](https://playable.com/?ref=bref)
+
+And [many other personal sponsors](https://github.com/sponsors/mnapoli#sponsors)!
+
+Thank you all!
+
+## One more thing
+
+Check out **[Bref Cloud](https://bref.sh/cloud)** for a simpler way to deploy and monitor your Bref applications!
+
+<a href="https://bref.sh/cloud" target="_blank">
+    <Image className="mt-6 rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-all border"
+           src={cloudScreenshot} />
+</a>
+
+
+## That's it!
+
+Hope you enjoy Bref v3!
+
+There is a complete [**v3 Upgrade Guide**](../docs/upgrading/v3.mdx) that you can follow.
+
+Head to the docs to [**get started with Bref**](../), or check out the documentation for [Laravel](../docs/laravel/getting-started.mdx) or [Symfony](../docs/symfony/getting-started.mdx).
+
+You can also join the community [in Slack](/docs/community.md), post details about your project in [Built with Bref](https://github.com/brefphp/bref/issues/267), or share your experience online and mention [@brefphp](https://twitter.com/brefphp) on Twitter.
+
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+    <a href="/docs" className="rounded-md shadow px-8 py-8 border text-center font-bold hover:bg-gray-100">What is Bref and serverless?</a>
+    <a href="/docs/setup" className="rounded-md shadow px-8 py-8 border text-center font-bold hover:bg-gray-100">Get started with Bref</a>
+</div>

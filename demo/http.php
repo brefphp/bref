@@ -2,6 +2,10 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 
+if (isset($_GET['crash'])) {
+    throw new \Exception('Crash!');
+}
+
 if (isset($_GET['sleep'])) {
     error_log('This is a log');
     sleep(10);

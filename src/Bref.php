@@ -12,11 +12,6 @@ class Bref
 {
     private static ?Closure $containerProvider = null;
     private static ?ContainerInterface $container = null;
-    /** @deprecated Use Bref::events()->subscribe() instead */
-    private static array $hooks = [
-        'beforeStartup' => [],
-        'beforeInvoke' => [],
-    ];
     private static EventDispatcher $eventDispatcher;
 
     /**
@@ -35,46 +30,6 @@ class Bref
             self::$eventDispatcher = new EventDispatcher;
         }
         return self::$eventDispatcher;
-    }
-
-    /**
-     * Register a hook to be executed before the runtime starts.
-     *
-     * Warning: hooks are low-level extension points to be used by framework
-     * integrations. For user code, it is not recommended to use them. Use your
-     * framework's extension points instead.
-     *
-     * @deprecated Use Bref::events()->subscribe() instead.
-     */
-    public static function beforeStartup(Closure $hook): void
-    {
-        self::$hooks['beforeStartup'][] = $hook;
-    }
-
-    /**
-     * Register a hook to be executed before any Lambda invocation.
-     *
-     * Warning: hooks are low-level extension points to be used by framework
-     * integrations. For user code, it is not recommended to use them. Use your
-     * framework's extension points instead.
-     *
-     * @deprecated Use Bref::events()->subscribe() instead.
-     */
-    public static function beforeInvoke(Closure $hook): void
-    {
-        self::$hooks['beforeInvoke'][] = $hook;
-    }
-
-    /**
-     * @param 'beforeStartup'|'beforeInvoke' $hookName
-     *
-     * @internal Used by the Bref runtime
-     */
-    public static function triggerHooks(string $hookName): void
-    {
-        foreach (self::$hooks[$hookName] as $hook) {
-            $hook();
-        }
     }
 
     /**
@@ -103,10 +58,6 @@ class Bref
     {
         self::$containerProvider = null;
         self::$container = null;
-        self::$hooks = [
-            'beforeStartup' => [],
-            'beforeInvoke' => [],
-        ];
         self::$eventDispatcher = new EventDispatcher;
     }
 }
