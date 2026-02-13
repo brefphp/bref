@@ -34,6 +34,7 @@ abstract class RuntimeTestCase extends TestCase
                 [
                     'lambda-runtime-aws-request-id' => '1',
                     'lambda-runtime-invoked-function-arn' => 'test-function-name',
+                    'lambda-runtime-trace-id' => 'Root=1-67891233-abcdef012345678912345678',
                 ],
                 json_encode($event, JSON_THROW_ON_ERROR)
             ),
