@@ -37,7 +37,7 @@ const sections = [
             { name: 'Deploy multiple environments (prod, staging…)', tiers: { bref: true, cloud: true } },
             { name: 'Simple deployments from GitHub Actions', tiers: { bref: false, cloud: true }, description: '<a class="underline" href="/docs/cloud-deploy#deploying-from-github-actions">Documentation</a>' },
             { name: 'Simplified creation and management of databases', tiers: { bref: false, cloud: true } },
-            { name: 'Simplified creation of private networks', tiers: { bref: false, cloud: 'Coming soon' } },
+            { name: 'Simplified creation of private networks', tiers: { bref: false, cloud: true } },
             { name: 'AWS deployment security', tiers: {
                     bref: {
                         title: 'Your responsibility',
