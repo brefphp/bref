@@ -76,6 +76,10 @@ At the moment, we deployed our local codebase to Lambda. When deploying for prod
 
 Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details about deploying in general.
 
+<Callout type="warning">
+    Most Laravel applications use `aws/aws-sdk-php` (pulled in by packages like SQS queues, S3 storage, etc.). This package is **very large** (100MB+) and can push your deployment over Lambda's 250MB size limit. Make sure to [remove unused AWS services](/docs/deploy.md#reducing-package-size) to reduce the deployment size.
+</Callout>
+
 Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying.
 
 <Callout type="warning">
