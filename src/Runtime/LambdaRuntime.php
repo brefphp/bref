@@ -35,10 +35,8 @@ use Throwable;
  */
 final class LambdaRuntime
 {
-    /** @var resource|CurlHandle|null */
-    private $curlHandleNext;
-    /** @var resource|CurlHandle|null */
-    private $curlHandleResult;
+    private ?CurlHandle $curlHandleNext = null;
+    private ?CurlHandle $curlHandleResult = null;
     private string $apiUrl;
     private Invoker $invoker;
     private string $layer;
