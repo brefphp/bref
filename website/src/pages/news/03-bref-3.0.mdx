@@ -39,6 +39,7 @@ Here's a summary, we'll dive into the details below:
 - **Unified PHP runtime**: one layer and one container image instead of three.
 - **New regions**: `ap-southeast-3` and `me-central-1`.
 - **Better CloudWatch logs** with the new Monolog formatter enabled by default.
+- **Lambda request ID and trace ID** exposed as environment variables for easier logging.
 - **[Bref Cloud](https://bref.sh/cloud)**: a simpler way to deploy Bref applications.
 
 What did we break? **Almost nothing**, the upgrade should be smooth. Here are the details:
@@ -157,6 +158,15 @@ This format makes logs easier to read in CloudWatch and enables powerful filteri
 **Exception handling is also greatly improved:** Previously, exception stack traces were split across multiple CloudWatch log records (one per line), making them difficult to read and browse. Now, the entire exception (including stack trace) is grouped in a single JSON object, making debugging much easier.
 
 That new logging approach also allows reading all the logs of a single request, by filtering via the AWS request ID.
+
+## Lambda request ID and trace ID
+
+Bref now exposes the **Lambda request ID** and **X-Ray trace ID** as environment variables on every invocation:
+
+- `LAMBDA_REQUEST_ID`: the current AWS Lambda request ID.
+- `_X_AMZN_TRACE_ID`: the [AWS X-Ray](/xray) trace ID.
+
+These are useful for logging and tracing purposes, for example to group all logs of the same invocation in CloudWatch.
 
 ## New regions
 

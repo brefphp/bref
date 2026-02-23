@@ -82,6 +82,9 @@ final class LambdaRuntime
 
         // Expose the context in an environment variable
         $this->setEnv('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
+        // These are used for logging/tracing purposes
+        $this->setEnv('LAMBDA_REQUEST_ID', $context->getAwsRequestId());
+        $this->setEnv('_X_AMZN_TRACE_ID', $context->getTraceId());
 
         try {
             ColdStartTracker::invocationStarted();
