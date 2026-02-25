@@ -248,6 +248,10 @@ You first need to install the AWS PHP SDK by running
 $ composer require aws/aws-sdk-php
 ```
 
+<Callout type="info">
+    The `aws/aws-sdk-php` package is very large (100MB+). To avoid hitting Lambda's 250MB size limit, [remove unused AWS services from the package](/docs/deploy.md#reducing-package-size).
+</Callout>
+
 ```php
 $lambda = new \Aws\Lambda\LambdaClient([
     'version' => 'latest',

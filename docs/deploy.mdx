@@ -41,10 +41,6 @@ Instead, let's remove development dependencies and optimize Composer's autoloade
 composer install --prefer-dist --optimize-autoloader --no-dev
 ```
 
-<Callout>
-    Using [aws/aws-sdk-php](https://github.com/aws/aws-sdk-php/tree/master/src/Script/Composer) or [google/apiclient](https://github.com/googleapis/google-api-php-client#cleaning-up-unused-services)? See the links for reducing deployment size by removing unused services
-</Callout>
-
 Now is also the best time to configure your project for production, as well as build any file cache if necessary.
 
 Once your project is ready, you can deploy via the following command:
@@ -61,6 +57,46 @@ Once your project is ready, you can deploy via the following command:
         ```
     </Tab>
 </Tabs>
+
+### Reducing package size
+
+AWS Lambda has a **250MB size limit** for deployed applications (unzipped). Large Composer dependencies can push your project over this limit and also lead to slower cold starts.
+
+The most common offender is `aws/aws-sdk-php`: it ships clients for **every** AWS service, adding over 100MB to your vendor directory. If you only use a few services (e.g. S3, SQS, DynamoDB), you can remove the rest.
+
+Add the following to your `composer.json`:
+
+```json
+{
+    "scripts": {
+        "pre-autoload-dump": [
+            "Aws\\Script\\Composer\\Composer::removeUnusedServices"
+        ]
+    },
+    "extra": {
+        "aws/aws-sdk-php": [
+            "Lambda",
+            "S3",
+            "Sqs",
+            "DynamoDb"
+        ]
+    }
+}
+```
+
+Then run `composer install` (or `composer update`) to apply the changes. Adjust the list to keep only the AWS services your application actually uses. Note: `S3`, `Kms`, `SSO`, and `Sts` cannot be removed as they are required by the SDK core.
+
+[Read more in the `aws/aws-sdk-php` documentation.](https://github.com/aws/aws-sdk-php/tree/master/src/Script/Composer)
+
+<Callout type="info">
+    As an alternative, you can replace `aws/aws-sdk-php` with [AsyncAws](https://async-aws.com/), a lighter SDK that only installs the services you need.
+</Callout>
+
+Using `google/apiclient`? A similar approach is available: [see the documentation to remove unused Google API services](https://github.com/googleapis/google-api-php-client#cleaning-up-unused-services).
+
+To further reduce deployment size, exclude non-essential files (tests, assets, node_modules) from the package. [Read more in the serverless.yml exclusions documentation.](environment/serverless-yml.mdx#exclusions)
+
+If your application still exceeds the 250MB limit, you can [deploy via Docker images instead](deploy/docker.mdx).
 
 ## Environments
 
