@@ -209,6 +209,15 @@ No changes to your `serverless.yml` or project configuration are needed. The CLI
 
 **We recommend all Bref users to migrate to this fork.**
 
+## New observability packages
+
+Also not part of Bref v3, but worth mentioning: two new packages were released in 2025 to help monitor PHP applications on AWS Lambda:
+
+- [**Bref X-Ray**](https://bref.sh/xray): integrates AWS X-Ray with Bref for performance monitoring and distributed tracing. It tracks cold starts, database queries, HTTP calls, AWS SDK calls, and more. It supports both Laravel and Symfony.
+- [**Bref Sentry**](https://bref.sh/sentry): extends Sentry for AWS Lambda, capturing errors outside of PHP-FPM (such as timeouts or oversized responses), adding exception tracking to event-driven handlers (SQS, EventBridge, S3…), and tracking cold starts and AWS SDK calls.
+
+These are commercial packages (not part of the open-source project) that help fill the observability gap for serverless PHP.
+
 ## Thanks
 
 A huge thanks to the [Bref contributors](https://github.com/brefphp/bref/graphs/contributors), to the community for supporting the project, and to the open-source sponsors:
