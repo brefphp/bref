@@ -25,7 +25,7 @@ import cloudXrayFiltersAnnotations from '../docs/monitoring/cloud-xray-filters-a
     author="Matthieu Napoli"
     authorGitHub="mnapoli" />
 
-Bref 3.0 is here! Since Bref 2.0, we've grown from 10 billion to **40 billion Lambda executions** (aka requests) every month. The package has been installed more than **8 million times**, and we've crossed **4,000 commits** across all Bref repositories.
+Bref 3.0 is here! Since Bref 2.0, we've grown from 10 billion to **40 billion Lambda executions** (aka requests) every month. The package has been installed more than **9 million times**, and we've reached **4,000 commits** across all Bref repositories.
 
 Today, we celebrate these achievements and **the release of Bref 3.0** 🎉
 
@@ -58,7 +58,7 @@ For a complete list of changes and instructions, check out the [**v3 upgrade gui
 
 ## Faster Lambda cold starts
 
-The Bref layers for AWS Lambda have been optimized and their size reduced. It leaves more room for your code and should improve cold start times.
+The Bref layers for AWS Lambda have been optimized and their size reduced. This leaves more room for your code and should improve cold start times.
 
 - PHP 8.4: 69MB → 53MB
 - PHP 8.3: 65MB → 46MB
@@ -74,7 +74,7 @@ This was achieved through plenty of tests leading to these optimizations:
 
 Bref 3.0 is built on **[Amazon Linux 2023](https://docs.aws.amazon.com/linux/al2023/ug/what-is-amazon-linux.html)** (AL2023), the latest version of Amazon's Linux distribution for AWS.
 
-The previous Bref versions were built on **Amazon Linux 2** (AL2), which has been deprecated by AWS. AWS Lambda will continue to support AL2 for some time, but it's recommended to migrate to AL2023 as soon as possible.
+The previous Bref versions were built on **Amazon Linux 2** (AL2), which is reaching end of life soon. AWS Lambda will continue to support AL2 for some time, but it's recommended to migrate to AL2023 as soon as possible.
 
 This upgrade brings several benefits:
 
@@ -99,7 +99,7 @@ functions:
 
 The **Redis extension** is now included in Bref layers by default. Redis is one of the most used extensions by Bref users for caching and session storage.
 
-If you were using the Redis extension from [bref/extra-php-extensions](https://github.com/brefphp/extra-php-extensions), remove the layer from your `serverless.yml`:
+If you were using the Redis extension from [`bref/extra-php-extensions`](https://github.com/brefphp/extra-php-extensions), remove the layer from your `serverless.yml`:
 
 ```diff filename="serverless.yml"
 functions:
@@ -161,7 +161,7 @@ This format makes logs easier to read in CloudWatch and enables powerful filteri
 
 **Exception handling is also greatly improved:** Previously, exception stack traces were split across multiple CloudWatch log records (one per line), making them difficult to read and browse. Now, the entire exception (including stack trace) is grouped in a single JSON object, making debugging much easier.
 
-That new logging approach also allows reading all the logs of a single request, by filtering via the AWS request ID.
+That new logging approach also lets you read all the logs of a single request, by filtering via the AWS request ID.
 
 ## Lambda request ID and trace ID
 
@@ -244,13 +244,13 @@ Combined with the [improved CloudWatch logs](#better-cloudwatch-logs) and the [L
 
 ## Community Serverless Framework
 
-While not directly related to Bref v3, this is worth mentioning: the original [Serverless Framework](https://www.serverless.com/) is no longer fully open-source with its v4 and requires a paid license. Since most of the Bref community relies on the `serverless` CLI to deploy their applications, this was a problem.
+While not directly related to Bref v3, this is worth mentioning: the original [Serverless Framework](https://www.serverless.com/) is no longer fully open-source with its v4 and requires a paid license. Since most of the Bref community relies on the `serverless` CLI to deploy their applications, this was a problem for many.
 
 That's why we now maintain [**a community fork of Serverless Framework v3**](https://github.com/oss-serverless/serverless), which is fully open-source (MIT) and free to use without any limitations. The fork is stable, mature, and actively maintained by Bref maintainers and the community. It includes security fixes, dependency updates, and up-to-date support for new AWS Lambda runtimes.
 
 On top of that, the CLI has been made lighter and faster by removing obsolete features like the Serverless Dashboard integration and Tencent Cloud support.
 
-Migrating is straightforward since it's a drop-in replacement:
+Migration is straightforward since it's a drop-in replacement:
 
 ```bash
 npm remove serverless
@@ -267,7 +267,7 @@ No changes to your `serverless.yml` or project configuration are needed. The CLI
 Also not part of Bref v3, but worth mentioning: two new packages were released in 2025 to help monitor PHP applications on AWS Lambda:
 
 - [**Bref X-Ray**](https://bref.sh/xray): integrates AWS X-Ray with Bref for performance monitoring and distributed tracing. It tracks cold starts, database queries, HTTP calls, AWS SDK calls, and more. It supports both Laravel and Symfony.
-- [**Bref Sentry**](https://bref.sh/sentry): extends Sentry for AWS Lambda, capturing errors outside of PHP-FPM (such as timeouts or oversized responses), adding exception tracking to event-driven handlers (SQS, EventBridge, S3…), and tracking cold starts and AWS SDK calls.
+- [**Bref Sentry**](https://bref.sh/sentry): extends Sentry's capabilities for AWS Lambda, capturing errors outside of PHP-FPM (such as timeouts or oversized responses), adding exception tracking to event-driven handlers (SQS, EventBridge, S3…), and tracking cold starts and AWS SDK calls.
 
 These are commercial packages (not part of the open-source project) that help fill the observability gap for serverless PHP.
 
