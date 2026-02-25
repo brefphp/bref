@@ -190,6 +190,25 @@ We now have better onboarding with improved documentation and the `serverless` C
 
 Check out the [**v3 Upgrade Guide**](../docs/upgrading/v3.mdx) for a complete list of changes and instructions to upgrade your projects.
 
+## Community Serverless Framework
+
+While not directly related to Bref v3, this is worth knowing about: the original [Serverless Framework](https://www.serverless.com/) is no longer fully open-source with its v4 and requires a paid license. Since many Bref users rely on the Serverless Framework to deploy their applications, this was a concern.
+
+That's why we now maintain [**a community fork of Serverless Framework v3**](https://github.com/oss-serverless/serverless), which is fully open-source (MIT) and free to use without any limitations. The fork is stable, mature, and actively maintained by the Bref team and the community. It includes security fixes, dependency updates, and up-to-date support for new AWS Lambda runtimes.
+
+On top of that, the CLI has been made lighter and faster by removing obsolete features like the Serverless Dashboard integration and Tencent Cloud support.
+
+Migrating is straightforward since it's a drop-in replacement:
+
+```bash
+npm remove serverless
+npm install -g osls
+```
+
+No changes to your `serverless.yml` or project configuration are needed. The CLI command remains `serverless` (or `osls` if you want to have both the old and new CLI).
+
+**We recommend all Bref users to migrate to this fork.**
+
 ## Thanks
 
 A huge thanks to the [Bref contributors](https://github.com/brefphp/bref/graphs/contributors), to the community for supporting the project, and to the open-source sponsors:
