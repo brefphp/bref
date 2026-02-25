@@ -1,7 +1,11 @@
 import ArticleHeader from '../../components/news/ArticleHeader';
 import { NextSeo } from 'next-seo';
 import Image from 'next/image';
-import cloudScreenshot from './03/cloud-screenshot.png';
+import cloudOverview from '../docs/monitoring/cloud-overview.png';
+import cloudXrayTrace from '../docs/monitoring/cloud-xray-trace.png';
+import cloudNetworkCreate from './03/cloud-vpc.png';
+import cloudXrayFiltersGeneral from '../docs/monitoring/cloud-xray-filters-general.png';
+import cloudXrayFiltersAnnotations from '../docs/monitoring/cloud-xray-filters-annotations.png';
 
 <NextSeo description="Bref 3.0 is released and reaches 40 billion invocations every month."
          openGraph={{
@@ -17,7 +21,7 @@ import cloudScreenshot from './03/cloud-screenshot.png';
 
 <ArticleHeader
     subTitle="Celebrating 40 billion executions per month"
-    date="December 2025"
+    date="February 2026"
     author="Matthieu Napoli"
     authorGitHub="mnapoli" />
 
@@ -42,13 +46,13 @@ Here's a summary, we'll dive into the details below:
 - **Lambda request ID and trace ID** exposed as environment variables for easier logging.
 - **[Bref Cloud](https://bref.sh/cloud)**: a simpler way to deploy Bref applications.
 
-What did we break? **Almost nothing**, the upgrade should be smooth. Here are the details:
+What did we break? **Almost nothing**, the upgrade should be smooth. Here's an overview:
 
 - PHP 8.2+ is now required (PHP 8.0 and 8.1 support is dropped).
 - The `vendor/bin/bref` CLI is removed (it was already 90% removed in v2).
 - The SOAP extension is now opt-in (it had very little usage).
 - If you deploy using container images, you'll need to update your Dockerfile.
-- If you use [`bref/extra-php-extensions`](https://github.com/brefphp/extra-php-extensions), update it from v1 to v3 (there is no v2 — v1 was for Bref v2, v3 is aligned with Bref v3).
+- If you use [`bref/extra-php-extensions`](https://github.com/brefphp/extra-php-extensions), update it from v1 to v3 (there's no v2, versions are aligned with Bref now).
 
 For a complete list of changes and instructions, check out the [**v3 upgrade guide**](../docs/upgrading/v3.mdx).
 
@@ -59,7 +63,7 @@ The Bref layers for AWS Lambda have been optimized and their size reduced. It le
 - PHP 8.4: 69MB → 53MB
 - PHP 8.3: 65MB → 46MB
 
-This was achieved through several optimizations:
+This was achieved through plenty of tests leading to these optimizations:
 
 - Stripping debug symbols from all libraries and PHP extensions.
 - Compiling PHP with size-optimization flags.
@@ -133,7 +137,7 @@ Bref 3.0 consolidates the three separate layer types (function, FPM, console) in
 
 **Do you need to change anything?**
 
-- **If you use `runtime: php-84-fpm` in your `serverless.yml`**: nothing changes, you're all set!
+- **If you use `runtime: php-xxx` in `serverless.yml`** (for example `runtime: php-84-fpm`): no changes are needed!
 - **If you deploy using container images**: you need to update your `Dockerfile`, ⚠️ read the [upgrade guide](../docs/upgrading/v3.mdx#updating-your-dockerfile-for-bref-30).
 - **If you specify layers explicitly**: ⚠️ read the [upgrade guide](../docs/upgrading/v3.mdx#aws-lambda-layers-have-been-merged-into-a-single-layer).
 
@@ -186,15 +190,63 @@ We now have better onboarding with improved documentation and the `serverless` C
 - **Running console commands**: Use `serverless bref:cli` (this existed in v2).
 - **Local development**: Use [Docker-based local development](https://bref.sh/docs/local-development).
 
+
 ## Upgrading
 
 Check out the [**v3 Upgrade Guide**](../docs/upgrading/v3.mdx) for a complete list of changes and instructions to upgrade your projects.
 
+
+## Bref Cloud
+
+Launched in 2025, **[Bref Cloud](https://bref.sh/cloud)** is the simplest way to deploy and monitor PHP applications on AWS Lambda. It replaces the AWS console with an intuitive dashboard to manage everything.
+
+Here's an overview of the Bref Cloud features that launched recently:
+
+**Application diagrams with live metrics**
+
+Bref Cloud now shows a **diagram of your application's architecture**: CloudFront CDN, API Gateway, Lambda functions, SQS queues, S3 buckets. All that with live metrics: number of requests, response times, queue depth, storage usage, and errors across every component.
+
+<Image className="mt-3 rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-all border"
+       src={cloudOverview} alt="Bref Cloud application overview with architecture diagram and metrics" />
+
+**Private networks and databases**
+
+You can now create private networks (VPC) from Bref Cloud. No AWS networking expertise required: Bref Cloud handles the VPC configuration, subnets, security groups, and connectivity (like NAT Gateway) so your databases are only accessible from your Lambda functions.
+
+<Image className="mt-3 rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-all border"
+       src={cloudNetworkCreate} alt="Create a private network in Bref Cloud" />
+
+### X-Ray performance tracing
+
+With the release of Bref v3, I am super happy to release **tracing support in Bref Cloud via X-Ray**.
+
+Bref already provided an [X-Ray integration](/xray) via an extra package. This integration is now available for free to all Bref Cloud users: [set it up](/docs/monitoring#bref-cloud) and start tracing your PHP code.
+
+Once set up, Bref Cloud lets you explore X-Ray traces with a simple UI. Unlike AWS's native X-Ray console, which is generic and complex, Bref Cloud's UI is designed specifically for PHP: you can filter traces by controller, route, CLI command, or job class, and quickly drill down into individual requests to find bottlenecks.
+
+<div className="flex gap-4 mt-3 items-start">
+    <Image className="rounded-lg shadow-md border h-auto" style={{maxHeight: 350, width: 'auto'}} src={cloudXrayFiltersGeneral} alt="X-Ray trace filters in Bref Cloud" />
+    <Image className="rounded-lg shadow-md border h-auto" style={{maxHeight: 350, width: 'auto'}} src={cloudXrayFiltersAnnotations} alt="X-Ray trace annotation filters in Bref Cloud" />
+</div>
+
+Traces are enriched by Bref with annotations to understand where time is spent in your application: cold starts, database queries, HTTP calls, AWS SDK calls, and more:
+
+<Image className="mt-3 rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-all border"
+       src={cloudXrayTrace} alt="X-Ray trace explorer in Bref Cloud" />
+
+Combined with the [improved CloudWatch logs](#better-cloudwatch-logs) and the [Lambda request ID](#lambda-request-id-and-trace-id) exposed in Bref v3, Bref Cloud gives you **complete observability** for your serverless PHP applications out of the box.
+
+<a href="https://bref.sh/cloud" target="_blank"
+   className="mt-4 inline-block rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+    Learn more about Bref Cloud →
+</a>
+
+
 ## Community Serverless Framework
 
-While not directly related to Bref v3, this is worth knowing about: the original [Serverless Framework](https://www.serverless.com/) is no longer fully open-source with its v4 and requires a paid license. Since many Bref users rely on the Serverless Framework to deploy their applications, this was a concern.
+While not directly related to Bref v3, this is worth mentioning: the original [Serverless Framework](https://www.serverless.com/) is no longer fully open-source with its v4 and requires a paid license. Since most of the Bref community relies on the `serverless` CLI to deploy their applications, this was a problem.
 
-That's why we now maintain [**a community fork of Serverless Framework v3**](https://github.com/oss-serverless/serverless), which is fully open-source (MIT) and free to use without any limitations. The fork is stable, mature, and actively maintained by the Bref team and the community. It includes security fixes, dependency updates, and up-to-date support for new AWS Lambda runtimes.
+That's why we now maintain [**a community fork of Serverless Framework v3**](https://github.com/oss-serverless/serverless), which is fully open-source (MIT) and free to use without any limitations. The fork is stable, mature, and actively maintained by Bref maintainers and the community. It includes security fixes, dependency updates, and up-to-date support for new AWS Lambda runtimes.
 
 On top of that, the CLI has been made lighter and faster by removing obsolete features like the Serverless Dashboard integration and Tencent Cloud support.
 
@@ -209,6 +261,7 @@ No changes to your `serverless.yml` or project configuration are needed. The CLI
 
 **We recommend all Bref users to migrate to this fork.**
 
+
 ## New observability packages
 
 Also not part of Bref v3, but worth mentioning: two new packages were released in 2025 to help monitor PHP applications on AWS Lambda:
@@ -217,6 +270,9 @@ Also not part of Bref v3, but worth mentioning: two new packages were released i
 - [**Bref Sentry**](https://bref.sh/sentry): extends Sentry for AWS Lambda, capturing errors outside of PHP-FPM (such as timeouts or oversized responses), adding exception tracking to event-driven handlers (SQS, EventBridge, S3…), and tracking cold starts and AWS SDK calls.
 
 These are commercial packages (not part of the open-source project) that help fill the observability gap for serverless PHP.
+
+
+
 
 ## Thanks
 
@@ -241,19 +297,12 @@ And [many other personal sponsors](https://github.com/sponsors/mnapoli#sponsors)
 
 Thank you all!
 
-## One more thing
-
-Check out **[Bref Cloud](https://bref.sh/cloud)** for a simpler way to deploy and monitor your Bref applications!
-
-<a href="https://bref.sh/cloud" target="_blank">
-    <Image className="mt-6 rounded-lg shadow-md hover:shadow-xl overflow-hidden transition-all border"
-           src={cloudScreenshot} />
-</a>
-
 
 ## That's it!
 
-Hope you enjoy Bref v3!
+I hope you enjoy Bref v3!
+
+If you want to support the project, consider [sponsoring on GitHub](https://github.com/sponsors/mnapoli), subscribing to [Bref Pro support](/support), or trying out [Bref Cloud](/cloud). Bref has been thriving for 8 years thanks to the support of the community, and I hope it will continue to thrive for many more years to come ❤️
 
 There is a complete [**v3 Upgrade Guide**](../docs/upgrading/v3.mdx) that you can follow.
 
