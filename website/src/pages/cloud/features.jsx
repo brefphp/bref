@@ -84,6 +84,17 @@ const sections = [
                     cloud: true,
                 }
             },
+            { name: 'X-Ray tracing', tiers: {
+                    bref: {
+                        title: false,
+                        description: 'AWS CloudWatch (advanced) <br> + extra <a class="underline" href="/xray">Bref X-Ray</a> license',
+                    },
+                    cloud: {
+                        title: true,
+                        description: 'Trace explorer optimized for PHP apps. <br> No extra license needed.',
+                    },
+                }
+            },
             { name: 'Queue jobs management', tiers: { bref: false, cloud: true } },
             { name: 'Secrets management', tiers: {
                     bref: {
