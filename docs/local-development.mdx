@@ -118,7 +118,7 @@ docker-compose run app php bin/console ...
 
 ### Xdebug
 
-The development container (`bref/php-<version>-fpm-dev`) comes with Xdebug pre-installed.
+The development container (`bref/php-<version>-dev`) comes with Xdebug pre-installed.
 
 To enable it, create a `php/conf.dev.d/php.ini` file in your project containing:
 
@@ -142,25 +142,3 @@ xdebug.remote_enable = 1
 xdebug.remote_autostart = 0
 xdebug.remote_host = 'host.docker.internal'
 ```
-
-### Blackfire
-
-The development container (`bref/php-<version>-fpm-dev`) comes with the [blackfire](https://www.blackfire.io/) extension. When using docker compose, you can add the following service for the blackfire agent:
-
-```yml filename="docker-compose.yml"
-services:
-    blackfire:
-        image: blackfire/blackfire
-        environment:
-            BLACKFIRE_SERVER_ID: server-id
-            BLACKFIRE_SERVER_TOKEN: server-token
-```
-
-In order to enable the probe you can create a folder `php/conf.dev.d` in your project and include an ini file enabling blackfire:
-
-```ini filename="php/conf.dev.d/php.ini"
-extension=blackfire
-blackfire.agent_socket=tcp://blackfire:8707
-```
-
-For more details about using blackfire in a docker environment see the [blackfire docs](https://blackfire.io/docs/integrations/docker)

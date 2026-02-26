@@ -40,7 +40,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
             # ...
             resizeImage:
                 handler: App\MyHandler
-                runtime: php-82
+                runtime: php-84
                 events:
                     - s3: photos
         ```
@@ -53,7 +53,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
             # ...
             resizeImage:
                 handler: App\MyHandler
-                runtime: php-82
+                runtime: php-84
                 events:
                     - s3: photos
         ```
@@ -66,7 +66,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
             # ...
             resizeImage:
                 handler: handler.php
-                runtime: php-82
+                runtime: php-84
                 events:
                     - s3: photos
         ```
@@ -94,7 +94,7 @@ constructs:
 functions:
     resizeImage:
         handler: handler.php
-        runtime: php-82
+        runtime: php-84
         events:
             - s3:
                 bucket: ${construct:reports-bucket.bucketName}
