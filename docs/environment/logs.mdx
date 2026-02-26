@@ -33,51 +33,16 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
     <Tab>
-        If you use Laravel, Bref will automatically configure Laravel to log to CloudWatch via `stderr` (`LOG_CHANNEL=stderr`). You don't have to do anything.
+        If you use Laravel, Bref will automatically configure Laravel to log to CloudWatch via `stderr` (`LOG_CHANNEL=stderr`) with the `Bref\Monolog\CloudWatchFormatter` formatter. You don't have to do anything.
 
-        If you have a custom log setup (e.g. using the `stack` channel), you should ensure that the `stderr` channel is included in your stack.
+        If you have a custom log setup (e.g. using the `stack` channel), you should ensure that the `stderr` channel is included in your stack with the `Bref\Monolog\CloudWatchFormatter` formatter.
 
-        It is also recommended you enable Bref's logs formatter optimized for CloudWatch:
-
-        ```yaml filename="serverless.yml"
-        provider:
-            environment:
-                LOG_STDERR_FORMATTER: Bref\Monolog\CloudWatchFormatter
-        ```
-
-        <Callout>
-            This formatter will be enabled by default in Bref v3.
-        </Callout>
-
-        With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level, exception class, or anything in the [Laravel Context](https://laravel.com/docs/12.x/context).
+        With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
     </Tab>
     <Tab>
-        If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr`. You don't have to do anything.
+        If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr` with the `Bref\Monolog\CloudWatchFormatter` formatter. You don't have to do anything.
 
-        If you have a custom log setup, you should ensure that logs are sent to `stderr` (e.g. using the `stream` handler with `php://stderr`).
-
-        It is also recommended you enable Bref's logs formatter optimized for CloudWatch, for example:
-
-        ```yaml filename="config/packages/prod/monolog.yaml"
-        monolog:
-            handlers:
-                main:
-                    type: stream
-                    level: info
-                    path: php://stderr
-                    formatter: 'Bref\Monolog\CloudWatchFormatter'
-        ```
-
-        If you do use that formatter, you also need to declare the service in your `services.yaml` (a pull request in [the Symfony bridge](https://github.com/brefphp/symfony-bridge) to do this automatically is welcome!):
-
-        ```yaml filename="config/services.yaml"
-        services:
-            Bref\Monolog\CloudWatchFormatter: ~
-        ```
-
-        <Callout>
-            This formatter will be enabled by default in Bref v3.
-        </Callout>
+        If you have a custom log setup, you should ensure that logs are sent to `stderr` (e.g. using the `stream` handler with `php://stderr`) with the `Bref\Monolog\CloudWatchFormatter` formatter (`bref.cloudwatch_formatter` service).
 
         With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
     </Tab>
