@@ -16,7 +16,7 @@ Here are some of the database services offered by RDS:
 
 - MySQL
 - PostgreSQL
-- [Aurora MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/): closed-source database compatible with MySQL or PostgreSQL
+- [Aurora MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/): AWS-managed database compatible with MySQL or PostgreSQL
 - [Aurora Serverless v2 MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/serverless/): similar to Aurora but scales automatically on-demand
 
 <Callout>
@@ -33,7 +33,7 @@ Here are some of the database services offered by RDS:
 | Extra cost | None | ~$32/month for NAT Gateway |
 | Access from your machine | Direct connection | Via SSH tunnel ([7777](https://port7777.com)) |
 
-Start with an internet-accessible database to get going quickly, then switch to a VPC database when you need stronger isolation.
+An internet-accessible database is the simplest option and works well for most projects. Use a VPC database when you need stronger network isolation.
 
 ## Internet-accessible databases
 
@@ -45,7 +45,7 @@ Start with an internet-accessible database to get going quickly, then switch to 
 
         <Image className="mt-3" src={cloudDbCreate} alt="Bref Cloud create database form" />
 
-        The `serverless.yml` configuration with credentials [securely stored in AWS SSM](./variables.mdx) will be displayed once the database is created.
+        The configuration with credentials securely stored in SSM will be displayed once the database is created.
     </Tab>
     <Tab>
         In the [RDS console](https://console.aws.amazon.com/rds/home):
@@ -90,7 +90,7 @@ Start with an internet-accessible database to get going quickly, then switch to 
 
         You can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12) to set up a NAT Gateway, use [the serverless VPC plugin](https://github.com/smoketurner/serverless-vpc-plugin), or use the complete example in [Serverless Visually Explained](https://serverless-visually-explained.com/).
 
-        You can use one VPC and one NAT Gateway for multiple projects. To avoid the NAT Gateway cost, you can also access AWS services via [private VPC endpoints](https://docs.aws.amazon.com/en_pv/vpc/latest/userguide/vpc-endpoints-access.html).
+        You can use one VPC and one NAT Gateway for multiple projects. You can also access some AWS services (S3, SQS, etc.) without a NAT Gateway via [private VPC endpoints](https://docs.aws.amazon.com/en_pv/vpc/latest/userguide/vpc-endpoints-access.html), but this does not replace a NAT Gateway for external APIs.
 
         ### Creating a database
 
@@ -147,11 +147,13 @@ Start with an internet-accessible database to get going quickly, then switch to 
     </Tab>
 </Tabs>
 
-You can learn more from the AWS documentation about [configuring a Lambda to access resources in a VPC](https://docs.aws.amazon.com/lambda/latest/dg/vpc.html).
+Learn more in the AWS documentation about [configuring a Lambda to access resources in a VPC](https://docs.aws.amazon.com/lambda/latest/dg/vpc.html).
 
 ## Connecting from PHP
 
-[Bref Cloud](https://bref.sh/cloud) automatically creates SSM parameters for your database credentials and configures the environment variables. If you are using the Serverless Framework, store credentials securely using SSM parameters ([read more](./variables.mdx#secrets)).
+[Bref Cloud](https://bref.sh/cloud) automatically creates SSM parameters for your database credentials and provides the environment variables to set up.
+
+If you are not using Bref Cloud, store credentials in SSM parameters ([read more](./variables.mdx#secrets)) and configure the environment variables in `serverless.yml`:
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
     <Tab>
@@ -228,7 +230,9 @@ Also refer to the [Extensions](/docs/environment/php.mdx#extensions) section to 
 
 ## Accessing the database from your machine
 
-A private database in a VPC cannot be accessed from the internet directly. To connect from your machine (e.g. with TablePlus or DBeaver), use an SSH tunnel.
+**Internet-accessible databases** can be connected to directly from your machine using tools like TablePlus, DBeaver, or any database client.
+
+**VPC databases** cannot be accessed from the internet directly. To connect from your machine, use an SSH tunnel.
 
 To create an SSH tunnel easily and securely, **[check out 7777](https://port7777.com/?utm_source=bref)**, made by Bref maintainers:
 
