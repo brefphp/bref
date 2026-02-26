@@ -191,6 +191,12 @@ We now have better onboarding with improved documentation and the `serverless` C
 - **Running console commands**: Use `serverless bref:cli` (this existed in v2).
 - **Local development**: Use [Docker-based local development](https://bref.sh/docs/local-development).
 
+## Improved Laravel onboarding
+
+The [**`serverless.yml` template**](https://github.com/brefphp/laravel-bridge/blob/master/stubs/serverless.yml) that ships with the Laravel bridge has been greatly expanded to cover all the common building blocks of a Laravel application: HTTP API, artisan commands, SQS queues, S3 file storage, CloudFront CDN, database configuration, and more. Everything is documented with comments and links to the relevant documentation.
+
+This should make the onboarding much simpler for new Laravel applications. If you have a Laravel application and are wondering what it would look like to run it on AWS Lambda with Bref, check out [the new template](https://github.com/brefphp/laravel-bridge/blob/master/stubs/serverless.yml) and the [getting started guide](https://bref.sh/docs/laravel/getting-started.mdx) for Laravel.
+
 
 ## Upgrading
 
