@@ -3,11 +3,12 @@
 ## Supported Versions
 
 | Version | Supported          |
-| ------- | ------------------ |
+|---------| ------------------ |
+| 3.x     | :white_check_mark: |
 | 2.x     | :white_check_mark: |
 | 1.x     | :x:                |
 
-Version 1.x is no longer supported. You should upgrade to v2.
+Version 1.x is no longer supported. You should upgrade to v3.
 
 If you prefer to stay on v1 and need long term support for v1 (or need help upgrading), get in touch for enterprise support: https://bref.sh/support
 
