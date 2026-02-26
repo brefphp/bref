@@ -66,3 +66,6 @@ jobs:
                     branch: new-layer-versions-v3
                     base: v3 # temporary until v3 becomes the main branch
                     delete-branch: true # delete after merging or closing the PR
+                    # https://github.com/actions/checkout/issues/13#issuecomment-724415212
+                    committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+                    author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
