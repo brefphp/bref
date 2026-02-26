@@ -6,10 +6,13 @@ on:
         inputs:
             release_url:
                 type: string
+                description: The URL of the GitHub release that triggered this workflow
             release_html_url:
                 type: string
+                description: The URL of the GitHub release that triggered this workflow
             release_name:
                 type: string
+                description: The name of the GitHub release that triggered this workflow
 
 # Necessary to connect to AWS using OIDC
 # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
@@ -24,7 +27,7 @@ jobs:
         name: Update layer versions
         runs-on: ubuntu-22.04
         steps:
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v6
                 with:
                     ref: master
 
@@ -40,9 +43,9 @@ jobs:
                 with:
                     php-version: '8.3'
                     tools: composer
+                    coverage: none
 
-            -   name: Install Composer dependencies
-                run: composer install --prefer-dist
+            -   run: composer install --prefer-dist
 
             -   run: make layers.json
 
