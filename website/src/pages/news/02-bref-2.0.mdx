@@ -70,7 +70,7 @@ functions:
         handler: public/index.php
         # ...
         layers:
-            - ${bref:layer.php-81-fpm}
+            - ${bref:layer.php-84-fpm}
 ```
 
 After (Bref v2 syntax):
@@ -82,10 +82,10 @@ functions:
     api:
         handler: public/index.php
         # ...
-        runtime: php-81-fpm
+        runtime: php-84-fpm
 ```
 
-As you can see, we no longer have to set `runtime: provided.al2` and add the Bref layers. We can now directly set a PHP runtime (`php-81`, `php-81-fpm`, `php-81-console`) and Bref will transform this into the proper runtime + layers configuration.
+As you can see, we no longer have to set `runtime: provided.al2` and add the Bref layers. We can now directly set a PHP runtime (`php-84`, `php-84-fpm`, `php-84-console`) and Bref will transform this into the proper runtime + layers configuration.
 
 This works for all the Bref runtimes ([FPM](https://bref.sh/docs/runtimes/http.html), [function](https://bref.sh/docs/runtimes/function.html) and [console](https://bref.sh/docs/runtimes/console.html)) and all supported PHP versions (`80`, `81`, and `82` at the moment). Here's a recap:
 
@@ -93,24 +93,24 @@ This works for all the Bref runtimes ([FPM](https://bref.sh/docs/runtimes/http.h
 # PHP-FPM runtime (web apps)
 runtime: provided.al2
 layers:
-    - ${bref:layer.php-81-fpm}
+    - ${bref:layer.php-84-fpm}
 # becomes:
-runtime: php-81-fpm
+runtime: php-84-fpm
 
 # Function runtime
 runtime: provided.al2
 layers:
-    - ${bref:layer.php-81}
+    - ${bref:layer.php-84}
 # becomes:
-runtime: php-81
+runtime: php-84
 
 # Console runtime
 runtime: provided.al2
 layers:
-    - ${bref:layer.php-81}
+    - ${bref:layer.php-84}
     - ${bref:layer.console}
 # becomes:
-runtime: php-81-console
+runtime: php-84-console
 ```
 
 The Bref documentation has been updated to reflect these changes.
@@ -174,7 +174,7 @@ functions:
         # ...
         layers:
             # Add the `-arm` prefix in layers 👇
-            - ${bref:layer.arm-php-81-fpm}
+            - ${bref:layer.arm-php-84-fpm}
 ```
 
 ## Faster deployments

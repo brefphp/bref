@@ -30,7 +30,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ob_end_clean();
     }
 
-    public function provide API Gateway versions(): array
+    public static function provide API Gateway versions(): array
     {
         return [
             'v1' => [1],
@@ -480,7 +480,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function provideHttpMethodsWithRequestBodySupport(): array
+    public static function provideHttpMethodsWithRequestBodySupport(): array
     {
         return [
             'POST v1' => [
@@ -883,12 +883,6 @@ Year,Make,Model
             'HTTP_RAW_BODY' => '',
         ];
 
-        if (\PHP_VERSION_ID < 80100) {
-            // full_path was introduced in PHP 8.1, remove it for lower versions
-            unset($expectedGlobalVariables['$_FILES']['foo']['full_path']);
-            unset($expectedGlobalVariables['$_FILES']['bar']['full_path']);
-        }
-
         $this->assertGlobalVariables($event, $expectedGlobalVariables);
     }
 
@@ -1139,7 +1133,7 @@ Year,Make,Model
         self::assertEquals($expectedStatusCode, $statusCode);
     }
 
-    public function provideStatusCodes(): array
+    public static function provideStatusCodes(): array
     {
         return [[200], [301], [302], [400], [401], [403], [404], [500], [504]];
     }

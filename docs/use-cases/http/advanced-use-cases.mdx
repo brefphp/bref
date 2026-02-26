@@ -189,7 +189,7 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         functions:
             # ...
             handler: App\MyHttpHandler
-            runtime: php-81
+            runtime: php-84
             # Lambda Function URL
             url: true
             # Or API Gateway
@@ -207,7 +207,7 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         functions:
             # ...
             handler: App\MyHttpHandler
-            runtime: php-81
+            runtime: php-84
             # Lambda Function URL
             url: true
             # Or API Gateway
@@ -225,7 +225,7 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         functions:
             # ...
             handler: handler.php
-            runtime: php-81
+            runtime: php-84
             # Lambda Function URL
             url: true
             # Or API Gateway
@@ -254,12 +254,12 @@ Since a handler is a controller for a specific route, we can use the API Gateway
 functions:
     create-article:
         handler: App\CreateArticleController
-        runtime: php-81
+        runtime: php-84
         events:
             - httpApi: 'POST /articles'
     get-article:
         handler: App\GetArticleController
-        runtime: php-81
+        runtime: php-84
         events:
             - httpApi: 'GET /articles/{id}'
 ```

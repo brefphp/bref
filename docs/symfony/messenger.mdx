@@ -84,7 +84,7 @@ constructs:
         type: queue
         worker:
             handler: bin/consumer.php
-            runtime: php-81
+            runtime: php-84
             timeout: 60 # in seconds
 ```
 
@@ -193,7 +193,7 @@ functions:
     worker:
         handler: bin/consumer.php
         timeout: 20 # in seconds
-        runtime: php-81
+        runtime: php-84
         events:
             # Read more at https://www.serverless.com/framework/docs/providers/aws/events/sns/
             - sns:
@@ -269,7 +269,7 @@ functions:
     worker:
         handler: bin/consumer.php
         timeout: 20 # in seconds
-        runtime: php-81
+        runtime: php-84
         events:
             # Read more at https://www.serverless.com/framework/docs/providers/aws/events/event-bridge/
             -   eventBridge:

@@ -35,10 +35,8 @@ use Throwable;
  */
 final class LambdaRuntime
 {
-    /** @var resource|CurlHandle|null */
-    private $curlHandleNext;
-    /** @var resource|CurlHandle|null */
-    private $curlHandleResult;
+    private ?CurlHandle $curlHandleNext = null;
+    private ?CurlHandle $curlHandleResult = null;
     private string $apiUrl;
     private Invoker $invoker;
     private string $layer;
@@ -84,11 +82,13 @@ final class LambdaRuntime
 
         // Expose the context in an environment variable
         $this->setEnv('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
+        // These are used for logging/tracing purposes
+        $this->setEnv('LAMBDA_REQUEST_ID', $context->getAwsRequestId());
+        $this->setEnv('_X_AMZN_TRACE_ID', $context->getTraceId());
 
         try {
             ColdStartTracker::invocationStarted();
 
-            Bref::triggerHooks('beforeInvoke');
             Bref::events()->beforeInvoke($handler, $event, $context);
 
             $this->ping();
@@ -337,7 +337,6 @@ final class LambdaRuntime
     private function closeCurlHandleNext(): void
     {
         if ($this->curlHandleNext !== null) {
-            curl_close($this->curlHandleNext);
             $this->curlHandleNext = null;
         }
     }
@@ -345,7 +344,6 @@ final class LambdaRuntime
     private function closeCurlHandleResult(): void
     {
         if ($this->curlHandleResult !== null) {
-            curl_close($this->curlHandleResult);
             $this->curlHandleResult = null;
         }
     }

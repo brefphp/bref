@@ -1,33 +1,4 @@
-# Monitoring
-
-By default, AWS Lambda publishes all logs and general metrics (HTTP response time, code execution duration, etc.) to AWS CloudWatch.
-
-It is possible to view these logs and metrics directly in the [AWS console](https://us-east-1.console.aws.amazon.com/cloudwatch/home?region=us-east-1). However, the CloudWatch UI can be complex and overwhelming.
-
-As an alternative, we can use [Bref Cloud](/cloud) or the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) to view these logs and metrics. It provides a simpler UI designed for serverless PHP applications.
-
-For advanced metrics and profiling, we can use [Tideways](https://tideways.com/?ref=bref), or [Sentry's performance monitoring](/sentry). Note that [Serverless.com's Dashboard](https://www.serverless.com/) is not compatible with PHP.
-
-To summarize:
-
-- **General monitoring**: [Bref Cloud](/cloud), CloudWatch, or [Bref Dashboard](https://dashboard.bref.sh/?ref=bref)
-- **Advanced monitoring and profiling**: [Tideways](https://tideways.com/?ref=bref), [Sentry](/sentry)
-
-## Bref Cloud
-
-[Bref Cloud](/cloud) is an all-in-one platform for serverless PHP applications. It provides a simple UI to view logs, metrics, and errors, and it is designed specifically for PHP applications running on AWS Lambda.
-
-[Learn more about Bref Cloud](/cloud).
-
-## Bref Dashboard
-
-As mentioned above, the [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) fetches data from AWS CloudWatch (which is published by default by all serverless applications). As such, it requires no setup in AWS and can be used straight away.
-
-[![Bref Dashboard](./monitoring/bref-dashboard.png)](https://dashboard.bref.sh/?ref=bref)
-
-## Tideways
-
-> Disclaimer: Tideways is a Bref sponsor ❤️
+# Monitoring with Tideways
 
 To use [Tideways](https://tideways.com/?ref=bref) with Bref, we first need to [create a Tideways account](https://app.tideways.io/register/).
 
@@ -38,17 +9,17 @@ Next, we will need to set up two pieces:
 
 Indeed, the PHP extension runs in the same process as the PHP application and collects traces and advanced metrics. It then sends this data to a Tideways daemon, that will collect it and forward it to tideways.com. That ensures the PHP extension does not add latency to the PHP application.
 
-![](./monitoring/tideways-schema.svg)
+![](./tideways-schema.svg)
 
 The connexion between the PHP extension and the daemon needs to be secured. This is why the PHP lambda and the EC2 instance need to run in a VPC (virtual private network), and the EC2 instance should only be reachable from inside the VPC.
 
-### Complete example
+## Complete example
 
 The sections below describe how to set up the daemon and PHP extension manually.
 
 Alernatively, you can have a look at a complete and deployable example: [github.com/tideways/bref-tideways-example](https://github.com/tideways/bref-tideways-example). In this example, we deploy the PHP application, the VPC and the daemon in one command via `serverless.yml`.
 
-### Setting up the daemon
+## Setting up the daemon
 
 Assuming we already have a VPC set up (the [serverless-vpc-plugin](https://github.com/smoketurner/serverless-vpc-plugin) is a good solution to create one), the daemon must be started in the VPC.
 
@@ -73,7 +44,7 @@ Assuming we already have a VPC set up (the [serverless-vpc-plugin](https://githu
 
 Once the daemon has started, copy its "Private IP DNS name", we will use it to configure the PHP application.
 
-### Setting up the PHP application
+## Setting up the PHP application
 
 First, let's install the Tideways PHP extension (it is distributed via the Bref extra extensions):
 
@@ -97,9 +68,9 @@ functions:
     my-function:
         handler: index.php
         layers:
-            - ${bref:layer.php-81-fpm}
+            - ${bref:layer.php-84-fpm}
             # Add this line:
-            - ${bref-extra:tideways-php-81}
+            - ${bref-extra:tideways-php-84}
 ```
 
 > Make sure to use the same PHP version as the one for the PHP layer.
@@ -125,7 +96,7 @@ provider:
 ```
 
 > **Note**:
-> 
+>
 > The `TIDEWAYS_CONNECTION` variable should contain the "Private IP DNS name" of the Tideways daemon (for example `tcp://ip-172-31-4-74.eu-west-1.compute.internal:9135`). This is the value you retrieved in the previous section.
 
 Don't forget to redeploy the application:

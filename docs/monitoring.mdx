@@ -1,0 +1,74 @@
+import Image from 'next/image';
+import cloudXrayTrace from './monitoring/cloud-xray-trace.png';
+import cloudXrayFiltersGeneral from './monitoring/cloud-xray-filters-general.png';
+import cloudXrayFiltersAnnotations from './monitoring/cloud-xray-filters-annotations.png';
+import cloudOverview from './monitoring/cloud-overview.png';
+import cloudLogs from './monitoring/cloud-logs.png';
+
+# Monitoring
+
+By default, AWS Lambda publishes PHP logs and metrics to [AWS CloudWatch](https://aws.amazon.com/cloudwatch/). These include HTTP response times, code execution duration, error rates, and more.
+
+Here is a summary of recommended tools for monitoring Bref applications:
+
+- **Logs and metrics**: CloudWatch (built-in), [Bref Cloud](/cloud)
+- **Error tracking**: [Sentry](https://sentry.io) and similar services
+- **Performance tracing**: [Bref Cloud](/cloud) with [X-Ray](/xray)
+
+Let's dive into the details of each of them.
+
+## Sentry
+
+[Sentry](https://sentry.io) is a popular error tracking service. It works well out of the box with Bref for HTTP applications: install the [Sentry SDK for PHP](https://docs.sentry.io/platforms/php/) (or the [Laravel](https://docs.sentry.io/platforms/php/guides/laravel/) or [Symfony](https://docs.sentry.io/platforms/php/guides/symfony/) integrations) and errors will be tracked automatically.
+
+For more advanced use cases, such as tracking Lambda errors outside of PHP-FPM (timeouts, oversized responses…), monitoring event-driven handlers (SQS, EventBridge, S3…), or tracking cold starts and AWS SDK calls, the [Bref Sentry package](/sentry) extends Sentry's capabilities for AWS Lambda. It is available as a [separate license](/sentry).
+
+## Bref Cloud
+
+[Bref Cloud](/cloud) provides an all-in-one monitoring experience for serverless PHP applications:
+
+<Image className="mt-3 rounded-lg shadow-md border" src={cloudOverview} alt="Bref Cloud application overview" />
+
+- **Logs**: view and search CloudWatch logs in a simplified UI.
+
+<Image className="mt-3 rounded-lg shadow-md border" src={cloudLogs} alt="Log viewer in Bref Cloud" />
+
+- **Metrics**: monitor Lambda invocations, duration, errors, and more.
+- **Traces**: visualize X-Ray traces to understand the performance of your application, including database queries, HTTP calls, and AWS SDK calls.
+
+<Image className="mt-3 rounded-lg shadow-md border" src={cloudXrayTrace} alt="X-Ray trace in Bref Cloud" />
+
+With the [Bref X-Ray](/xray) package, traces are enriched with annotations that you can use to filter and search. For example, you can filter traces by specific controller, route, CLI command, or job class:
+
+<div className="flex gap-4 mt-3 items-start">
+    <Image className="rounded-lg shadow-md border h-auto" style={{maxHeight: 350, width: 'auto'}} src={cloudXrayFiltersGeneral} alt="X-Ray trace filters in Bref Cloud" />
+    <Image className="rounded-lg shadow-md border h-auto" style={{maxHeight: 350, width: 'auto'}} src={cloudXrayFiltersAnnotations} alt="X-Ray trace annotation filters in Bref Cloud" />
+</div>
+
+Bref Cloud users get a **free [Bref X-Ray](/xray) license** included in their plan to enable performance tracing. To activate it, contact support via [bref.cloud/support](https://bref.cloud/support) or [Slack](https://bref.sh/slack).
+
+[Learn more about Bref Cloud](/cloud).
+
+## X-Ray
+
+[AWS X-Ray](https://aws.amazon.com/xray/) provides distributed tracing for Lambda applications. The [Bref X-Ray package](/xray) integrates X-Ray with PHP, tracking cold starts, database queries, HTTP calls, AWS SDK calls, and more. It supports both Laravel and Symfony.
+
+The package can be used with or without Bref Cloud. Bref Cloud users get a free license (see above), while others can [purchase a standalone license](/xray).
+
+## Sentry Lambda package
+
+As mentioned above, the standard Sentry SDK works great for HTTP applications. The [Bref Sentry package](/sentry) goes further by adding Lambda-specific capabilities: tracking errors outside of PHP-FPM, monitoring event-driven handlers, and tracking cold starts.
+
+The package can be used with or without Bref Cloud. It is available as a [standalone license](/sentry).
+
+## Bref Dashboard
+
+The [Bref Dashboard](https://dashboard.bref.sh/?ref=bref) is an alternative for projects that do not use Bref Cloud. It fetches data from AWS CloudWatch and provides a simple UI for logs and metrics. It requires no setup in AWS and can be used straight away.
+
+[![Bref Dashboard](./monitoring/bref-dashboard.png)](https://dashboard.bref.sh/?ref=bref)
+
+## Tideways
+
+[Tideways](https://tideways.com/?ref=bref) is a PHP-specific monitoring and profiling tool that can be used with Bref. It requires setting up a daemon on an EC2 instance in a VPC.
+
+[Learn more about using Tideways with Bref](./monitoring/tideways.md).

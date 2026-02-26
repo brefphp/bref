@@ -11,7 +11,7 @@ To run the HTTP application with [Laravel Octane](https://laravel.com/docs/10.x/
 functions:
     web:
         handler: Bref\LaravelBridge\Http\OctaneHandler
-        runtime: php-81
+        runtime: php-84
         environment:
             BREF_LOOP_MAX: 250
         # ...
@@ -40,7 +40,7 @@ You can keep database connections persistent across requests to make your applic
 functions:
     web:
       handler: Bref\LaravelBridge\Http\OctaneHandler
-      runtime: php-81
+      runtime: php-84
       environment:
           BREF_LOOP_MAX: 250
           OCTANE_PERSIST_DATABASE_SESSIONS: 1

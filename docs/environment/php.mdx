@@ -73,6 +73,7 @@ The following extensions are installed and enabled by default in Bref runtimes:
     <li><a className="underline" href="https://www.php.net/manual/en/book.pdo.php">PDO</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/ref.pdo-sqlite.php">pdo_sqlite</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/ref.pdo-mysql.php">pdo_mysql</a></li>
+    <li><a className="underline" href="https://www.php.net/manual/en/ref.pdo-pgsql.php">pdo_pgsql</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.phar.php">Phar</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.posix.php">posix</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.readline.php">readline</a></li>
@@ -98,14 +99,16 @@ The following extensions are installed in Bref runtimes, but disabled by default
 
 - **[intl](https://www.php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
 - **[APCu](https://www.php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
-- **[PostgreSQL PDO Driver](https://www.php.net/manual/en/ref.pdo-pgsql.php)** -  PDO_PGSQL is a driver that implements the PHP Data Objects (PDO) interface to enable access from PHP to PostgreSQL databases.
+- **[Redis](https://github.com/phpredis/phpredis)** - A PHP extension for interfacing with Redis.
+- **[soap](https://www.php.net/manual/en/book.soap.php)** - SOAP client and server for PHP
 
 You can enable these extensions by loading them in `php/conf.d/php.ini` (as mentioned in [the section above](#phpini)), for example:
 
 ```ini filename="php/conf.d/php.ini"
 extension=intl
 extension=apcu
-extension=pdo_pgsql
+extension=redis
+extension=soap
 ```
 
 ### Extra extensions
@@ -133,7 +136,7 @@ To create your custom layer, you will need to:
 To compile the extension, Bref provides the `bref/build-php-*` Docker images. Here is an example with Blackfire:
 
 ```dockerfile
-FROM bref/build-php-80:2
+FROM bref/build-php-84:2
 
 RUN curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-74.so"
 

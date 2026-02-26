@@ -15,12 +15,12 @@ Bref runtimes are distributed as [AWS Lambda layers](https://docs.aws.amazon.com
 The layer names (aka "[ARN](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html)") follow this pattern:
 
 ```
-arn:aws:lambda:<region>:534081306603:layer:<layer-name>:<layer-version>
+arn:aws:lambda:<region>:873528684822:layer:<layer-name>:<layer-version>
 ```
 
 For example:
 ```
-arn:aws:lambda:us-east-1:534081306603:layer:php-80:21
+arn:aws:lambda:us-east-1:873528684822:layer:php-84:21
 ```
 
 You can use layers via their full ARN, for example in `serverless.yml`:
@@ -32,9 +32,9 @@ provider:
 functions:
     hello:
         # ...
-        runtime: provided.al2
+        runtime: provided.al2023
         layers:
-            - 'arn:aws:lambda:us-east-1:534081306603:layer:php-80:21'
+            - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:21'
 ```
 
 Or if you are using [SAM's `template.yaml`](https://aws.amazon.com/serverless/sam/):
@@ -47,9 +47,9 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             # ...
-            Runtime: provided.al2
+            Runtime: provided.al2023
             Layers:
-                - 'arn:aws:lambda:us-east-1:534081306603:layer:php-80:21'
+                - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:21'
 ```
 
 Bref layers work with AWS Lambda regardless of the tool you use to deploy your application: Serverless, SAM, CloudFormation, Terraform, AWS CDK, etc.
@@ -79,6 +79,15 @@ serverless bref:layers
 ### Layers NPM package
 
 You can use [the `@bref.sh/layers.js` NPM package](https://github.com/brefphp/layers.js) to get up-to-date layer ARNs in Node applications, for example with the AWS CDK.
+
+## Environment variables
+
+Bref exposes the following environment variables on every Lambda invocation:
+
+- **`LAMBDA_REQUEST_ID`**: the current AWS Lambda request ID. This is useful for logging and tracing purposes, for example to group all logs of the same invocation.
+- **`_X_AMZN_TRACE_ID`**: the [AWS X-Ray](https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html) trace ID. This is a standard AWS Lambda variable that is normally set by native runtimes.
+
+These variables are refreshed on every invocation.
 
 ## Telemetry ping
 

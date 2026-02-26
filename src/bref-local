@@ -22,11 +22,17 @@ $opts = getopt('', ['path:']);
 
 if (isset($opts['path'])) {
     if (! file_exists($opts['path'])) {
-        throw new Exception('The file ' . $opts['path'] . ' could not be found.');
+        error_log('The file ' . $opts['path'] . ' could not be found.');
+        exit(1);
     }
 
     $handler = $argv[array_key_last($argv)];
     $data = file_get_contents($opts['path']);
+}
+
+if (!$handler) {
+    error_log('You must provide the handler to invoke as the first argument.');
+    exit(1);
 }
 
 try {
@@ -38,7 +44,8 @@ try {
 try {
     $event = $data ? json_decode($data, true, 512, JSON_THROW_ON_ERROR) : null;
 } catch (JsonException $e) {
-    throw new Exception('The JSON provided for the event data is invalid JSON.');
+    error_log('The JSON provided for the event data is invalid JSON.');
+    exit(1);
 }
 
 // Same configuration as the Bref runtime on Lambda

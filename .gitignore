@@ -6,8 +6,7 @@
 /website/node_modules/
 .DS_Store
 /.serverless/
-.phpunit.result.cache
+.phpunit.cache
 node_modules/
 package-lock.json
-/.phpunit.cache/test-results
 /.claude
