@@ -72,7 +72,7 @@ You will also want to add `.serverless` to your `.gitignore`.
 
 You still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and logs are stored in the `src/Kernel.php` file. This is automatically done by the bridge, you just need to use the `BrefKernel` class instead of the default `BaseKernel`:
+Since [the filesystem is readonly](/docs/environment/storage.mdx) except for `/tmp` we need to customize where the cache and logs are stored in the `src/Kernel.php` file. This is automatically done by the bridge, you just need to use the `BrefKernel` class instead of the default `BaseKernel`:
 
 ```diff filename="src/Kernel.php"
 namespace App;
@@ -183,13 +183,13 @@ class Kernel extends BrefKernel
 
 ## Troubleshooting
 
-In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
+In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.mdx).
 
 ## Logs
 
 Thanks to the Bref integration, Symfony will automatically log to CloudWatch via `stderr`. You don't have to do anything.
 
-You can learn more about logs in the [Logs guide](../environment/logs.md).
+You can learn more about logs in the [Logs guide](../environment/logs.mdx).
 
 ## Website assets
 
@@ -230,7 +230,7 @@ For more details follow [the "Console" guide](../runtimes/console.mdx).
 
 ## Logs
 
-By default, Symfony logs to `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.md).
+By default, Symfony logs to `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.mdx).
 
 However, if your application is using Monolog, you need to configure it to log to `stderr` as well:
 

@@ -11,13 +11,13 @@ Indeed, the PHP extension runs in the same process as the PHP application and co
 
 ![](./tideways-schema.svg)
 
-The connexion between the PHP extension and the daemon needs to be secured. This is why the PHP lambda and the EC2 instance need to run in a VPC (virtual private network), and the EC2 instance should only be reachable from inside the VPC.
+The connection between the PHP extension and the daemon needs to be secured. This is why the PHP lambda and the EC2 instance need to run in a VPC (virtual private network), and the EC2 instance should only be reachable from inside the VPC.
 
 ## Complete example
 
 The sections below describe how to set up the daemon and PHP extension manually.
 
-Alernatively, you can have a look at a complete and deployable example: [github.com/tideways/bref-tideways-example](https://github.com/tideways/bref-tideways-example). In this example, we deploy the PHP application, the VPC and the daemon in one command via `serverless.yml`.
+Alternatively, you can have a look at a complete and deployable example: [github.com/tideways/bref-tideways-example](https://github.com/tideways/bref-tideways-example). In this example, we deploy the PHP application, the VPC and the daemon in one command via `serverless.yml`.
 
 ## Setting up the daemon
 

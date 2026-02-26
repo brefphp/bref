@@ -195,7 +195,7 @@ functions:
         timeout: 20 # in seconds
         runtime: php-84
         events:
-            # Read more at https://www.serverless.com/framework/docs/providers/aws/events/sns/
+            # Read more at https://github.com/oss-serverless/serverless/blob/main/docs/events/sns.md
             - sns:
                 arn: arn:aws:sns:us-east-1:1234567890:my_sns_topic
 ```
@@ -271,7 +271,7 @@ functions:
         timeout: 20 # in seconds
         runtime: php-84
         events:
-            # Read more at https://www.serverless.com/framework/docs/providers/aws/events/event-bridge/
+            # Read more at https://github.com/oss-serverless/serverless/blob/main/docs/events/event-bridge.md
             -   eventBridge:
                     # In case of you change bus name in config/packages/messenger.yaml (i.e eventbridge://myapp?event_bus_name=custom-bus) you need to set bus name like below
                     # eventBus: custom-bus

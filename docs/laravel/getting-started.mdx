@@ -34,7 +34,7 @@ By default, the Laravel-Bref package will automatically configure Laravel to wor
 
 If you are curious, the package will automatically:
 
-- enable the `stderr` log driver, to send logs to CloudWatch ([read more about logs](../environment/logs.md))
+- enable the `stderr` log driver, to send logs to CloudWatch ([read more about logs](../environment/logs.mdx))
 - enable the [`cookie` session driver](https://laravel.com/docs/session#configuration) (if you prefer, you can configure sessions to be stored in database, DynamoDB or Redis)
 - move the storage directory to `/tmp` (because the default storage directory is read-only on Lambda)
 - adjust a few more settings ([have a look at the `BrefServiceProvider` for details](https://github.com/brefphp/laravel-bridge/blob/master/src/BrefServiceProvider.php))
@@ -96,13 +96,13 @@ Specifically for Laravel, Bref will automatically cache the configuration on "co
 
 ## Troubleshooting
 
-In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
+In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.mdx).
 
 ## Logs
 
 Thanks to the Bref integration, Laravel will automatically log to CloudWatch via `stderr`. You don't have to do anything.
 
-You can learn more about logs in the [Logs guide](../environment/logs.md).
+You can learn more about logs in the [Logs guide](../environment/logs.mdx).
 
 ## Website assets
 

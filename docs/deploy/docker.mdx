@@ -16,7 +16,7 @@ We don't recommend starting out with containers, as it is less practical and req
 
 You should consider deploying using Docker when:
 
-- Your code size is [larger than the 250MB limit when unzipped](../environment/storage.md)
+- Your code size is [larger than the 250MB limit when unzipped](../environment/storage.mdx)
 - You reached the limit of 5 Lambda layers (e.g. for extra PHP extensions)
 - You need custom binaries/resources installed locally (e.g. mysqldump, wkhtmltopdf)
 
@@ -129,7 +129,7 @@ Like with non-Docker deployments, the filesystem for Docker on AWS Lambda is als
 
 The `/tmp` folder will always be empty on cold starts. Avoid writing content to `/tmp` in your Dockerfile because that content will **not be available** for your Lambda function.
 
-[Read more about file storage in Lambda](../environment/storage.md).
+[Read more about file storage in Lambda](../environment/storage.mdx).
 
 ## Docker Registry
 

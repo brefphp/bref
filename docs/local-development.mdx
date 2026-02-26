@@ -38,8 +38,6 @@ To keep things simple, you can run your applications locally like you did withou
 In order to run the application locally in an environment closer to production, you can run your application using the [Bref Docker images](https://hub.docker.com/u/bref). For example, create the following `docker-compose.yml`:
 
 ```yml filename="docker-compose.yml"
-version: "3.5"
-
 services:
     app:
         image: bref/php-84-dev:3
@@ -138,7 +136,7 @@ Edit the `php/conf.dev.d/php.ini` file:
 zend_extension=xdebug.so
 
 [xdebug]
-xdebug.remote_enable = 1
-xdebug.remote_autostart = 0
-xdebug.remote_host = 'host.docker.internal'
+xdebug.mode = debug
+xdebug.start_with_request = yes
+xdebug.client_host = 'host.docker.internal'
 ```

@@ -221,7 +221,7 @@ A PHP function must be invoked via the AWS Lambda API, either manually or by int
 
 ### CLI
 
-A PHP function can be triggered manually from the CLI using the [`serverless invoke` command](https://serverless.com/framework/docs/providers/aws/cli-reference/invoke/):
+A PHP function can be triggered manually from the CLI using the [`serverless invoke` command](https://github.com/oss-serverless/serverless/blob/main/docs/cli-reference/invoke.md):
 
 ```bash
 $ serverless invoke -f <function-name>
@@ -249,7 +249,7 @@ $ composer require aws/aws-sdk-php
 ```
 
 <Callout type="info">
-    The `aws/aws-sdk-php` package is very large (100MB+). To avoid hitting Lambda's 250MB size limit, [remove unused AWS services from the package](/docs/deploy.md#reducing-package-size).
+    The `aws/aws-sdk-php` package is very large (100MB+). To avoid hitting Lambda's 250MB size limit, [remove unused AWS services from the package](/docs/deploy.mdx#reducing-package-size).
 </Callout>
 
 ```php
