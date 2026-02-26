@@ -29,7 +29,7 @@ jobs:
         steps:
             -   uses: actions/checkout@v6
                 with:
-                    ref: v3 # temporary until v3 becomes the main branch
+                    ref: master
 
             -   name: Set AWS credentials
                 uses: aws-actions/configure-aws-credentials@v4
@@ -64,7 +64,7 @@ jobs:
                         
                         If you are using AWS Lambda layer ARNs, check out [runtimes.bref.sh](https://runtimes.bref.sh/) to see the latest ARNs.
                     branch: new-layer-versions-v3
-                    base: v3 # temporary until v3 becomes the main branch
+                    base: master
                     delete-branch: true # delete after merging or closing the PR
                     # https://github.com/actions/checkout/issues/13#issuecomment-724415212
                     committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
