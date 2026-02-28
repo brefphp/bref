@@ -7,7 +7,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.651.1",
+    "@aws-sdk/client-cloudwatch": "^3.995.0",
     "@docsearch/css": "^3.5.2",
     "@docsearch/react": "^3.5.2",
     "@headlessui/react": "^2.2.0",
