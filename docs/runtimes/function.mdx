@@ -158,14 +158,47 @@ It is also possible to directly define PHP classes as AWS Lambda handlers.
                 handler: MyApp\Handler
         ```
     </Tab>
-    <Tab>
-        Set the class name as the `handler` and Bref will retrieve that class from Symfony's service container.
+    <Tab>        
+        Create a file that returns the Symfony Kernel (MUST be located at `public/index.php`)
+        ```php filename="public/index.php"
+        <?php 
+
+        use App\Kernel;
+        
+        require __DIR__ . '/vendor/autoload.php';
+        
+        return function () {
+            return new Kernel(
+                debug: (bool) $_SERVER['APP_DEBUG'],
+                environment: $_SERVER['APP_ENV'],
+            );
+        };
+        ```
+
+        Next, set the class name as the `handler` and Bref will retrieve that class from Symfony's service container.
 
         ```yml filename="serverless.yml"
         functions:
             hello:
                 handler: MyApp\Handler
         ```
+
+        Make sure the handler has been registered as public or you will get an error that the service or alias has been removed.
+        ```diff filename="src/Handler.php"
+        namespace App;
+
+        use Bref\Context\Context;
+        + use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+        
+        + #[Autoconfigure(public: true)]
+        class Handler implements \Bref\Event\Handler
+        {
+            public function handle($event, Context $context): string
+            {
+                // ...
+            }    
+        }
+        ```        
     </Tab>
     <Tab>
         To achieve that, you must integrate Bref with your framework's Dependency Injection Container.
