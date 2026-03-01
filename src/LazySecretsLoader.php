@@ -19,6 +19,11 @@ final class LazySecretsLoader
 {
     public static function loadSecretEnvironmentVariables(): void
     {
+
+        if (class_exists(Secrets::class)) {
+            Secrets::loadSecretEnvironmentVariables();
+        }
+
         if (! self::areThereSecretsToLoad()) {
             return;
         }
@@ -27,7 +32,6 @@ final class LazySecretsLoader
             throw new Exception('The "bref/secrets-loader" package is required to load SSM parameters via the "bref-ssm:xxx" syntax in environment variables. Please add it to your "require" section in composer.json.');
         }
 
-        Secrets::loadSecretEnvironmentVariables();
     }
 
     /**
