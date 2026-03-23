@@ -10,5 +10,6 @@
     "display": "hidden"
   },
   "aws-credentials": "AWS credentials",
+  "cold-starts": "Cold starts",
   "performances": "Performance"
 }

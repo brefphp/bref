@@ -292,19 +292,6 @@ $requestContext = $request->getAttribute('lambda-event')->getRequestContext();
 
 ## Cold starts
 
-AWS Lambda automatically destroys Lambda containers that have been unused for 10 minutes. Warming up a new container can take 250ms or more, especially if your application is large. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).
+On applications with regular traffic, cold starts only represent about **0.1% of requests**. For low-traffic applications, you can pre-warm your HTTP function to avoid them.
 
-To mitigate cold starts for HTTP applications, you can periodically send an event to your Lambda including a `{warmer: true}` payload. This will trigger the Lambda function. Bref recognizes this event and immediately responds with a `Status: 100` without executing your code.
-
-You can set up such events using a schedule ([read this article for more details](https://www.jeremydaly.com/lambda-warmer-optimize-aws-lambda-function-cold-starts/)):
-
-```yml filename="serverless.yml"
-        events:
-            - httpApi: '*'
-            - schedule:
-                rate: rate(5 minutes)
-                input:
-                    warmer: true
-```
-
-You can learn more how AWS Lambda scales and runs in the [Serverless Visually Explained](https://serverless-visually-explained.com/) course.
+Read the full [Cold starts documentation](/docs/environment/cold-starts) for details and the warming configuration.
