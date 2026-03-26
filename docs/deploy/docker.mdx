@@ -119,7 +119,54 @@ When running `serverless deploy`, the CLI will:
 - Push the newly built Docker image
 - Deploy the Lambda function pointing to the Docker image
 
-Note that you can create multiple images in the same `serverless.yml` file. For example, you can have one image for the HTTP handler and another image for a worker.
+### Using one image for all functions (recommended)
+
+A major benefit of deploying with Docker is that you can use **a single Docker image** for all your functions (web, console, queues, etc.). Instead of setting `BREF_RUNTIME` in the Dockerfile, set it per function via the `environment` variables in `serverless.yml`:
+
+```dockerfile filename="Dockerfile"
+FROM bref/php-84:3
+
+COPY . /var/task
+
+# No BREF_RUNTIME or CMD set here
+```
+
+```yml filename="serverless.yml" {5-9,15,21,27}
+provider:
+    name: aws
+    ecr:
+        images:
+            my-app:
+                path: ./
+                file: Dockerfile
+                platform: linux/amd64
+
+functions:
+    web:
+        image:
+            name: my-app
+        environment:
+            BREF_RUNTIME: fpm
+        events:
+            - httpApi: '*'
+
+    console:
+        image:
+            name: my-app
+        environment:
+            BREF_RUNTIME: console
+
+    worker:
+        image:
+            name: my-app
+        environment:
+            BREF_RUNTIME: function
+        events:
+            - sqs:
+                arn: !GetAtt MyQueue.Arn
+```
+
+This simplifies your deployment pipeline: a single Docker image is built and pushed, and each function uses the appropriate runtime.
 
 You can read the detailed documentation about [all options available in the Serverless documentation](https://github.com/oss-serverless/serverless/blob/main/docs/guides/functions.md#referencing-container-image-as-a-target).
 
