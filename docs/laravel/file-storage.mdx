@@ -29,7 +29,29 @@ provider:
 constructs:
     storage:
         type: storage
+        extensions:
+            bucket:
+                Properties:
+                    OwnershipControls:
+                        Rules:
+                            -   ObjectOwnership: BucketOwnerPreferred
 ```
+
+<Callout>
+    **S3 ACLs**: Since April 2023, S3 buckets have ACLs disabled by default. However, Laravel's storage layer ([Flysystem](https://github.com/thephpleague/flysystem)) sends ACL headers on every S3 operation (`put`, `copy`, `move`…). Without the `OwnershipControls` configuration above, **these operations will fail silently** — data won't be written to S3 but no error will be raised.
+
+    To avoid silent failures, we also recommend setting `'throw' => true` on your S3 disk in `config/filesystems.php`:
+
+    ```php filename="config/filesystems.php"
+    's3' => [
+        'driver' => 's3',
+        // ...
+        'throw' => true,
+    ],
+    ```
+
+    The `BucketOwnerPreferred` setting lets the bucket accept ACL headers while keeping the bucket owner in full control. Read more in the [AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html).
+</Callout>
 
 That's it! Lift automatically:
 
@@ -53,6 +75,36 @@ $request->file('document')->store('documents');
 
 AWS Lambda has a **6MB request payload limit**. For larger files, you must upload directly to S3 from the browser using **presigned URLs**.
 
+Since the browser uploads directly to S3 (cross-origin), you need to configure **CORS** on the bucket and add a **lifecycle rule** to clean up temporary files. Here is a complete `storage` construct configuration:
+
+```yaml filename="serverless.yml"
+constructs:
+    storage:
+        type: storage
+        lifecycleRules:
+            # Temporary upload files will be cleaned after 1 day
+            -   prefix: tmp/
+                expirationInDays: 1
+        extensions:
+            bucket:
+                Properties:
+                    OwnershipControls:
+                        Rules:
+                            -   ObjectOwnership: BucketOwnerPreferred
+                    CorsConfiguration:
+                        CorsRules:
+                            -   AllowedOrigins:
+                                    - ${construct:website.url}
+                                AllowedHeaders:
+                                    - '*'
+                                AllowedMethods:
+                                    - PUT
+```
+
+<Callout>
+    If you are not using the `website` construct, replace `${construct:website.url}` with your application's URL, or use `'*'` during development.
+</Callout>
+
 How it works:
 
 1. Your frontend requests a presigned upload URL from your backend
@@ -60,7 +112,9 @@ How it works:
 1. The frontend uploads the file directly to S3
 1. The frontend sends the S3 key back to your backend to save in the database
 
-Backend - Generate presigned URL:
+**Backend** - Generate presigned URL:
+
+`temporaryUploadUrl` returns an array with the URL and the headers that must be forwarded to S3 (they contain the request signature):
 
 ```php
 use Illuminate\Support\Facades\Storage;
@@ -71,32 +125,45 @@ public function presignedUploadUrl(): JsonResponse
     $key = 'tmp/' . Str::uuid() . '.pdf';
 
     // Generate a presigned PUT URL valid for 15 minutes
-    $url = Storage::temporaryUploadUrl($key, now()->addMinutes(15));
+    $uploadUrl = Storage::temporaryUploadUrl($key, now()->addMinutes(15), [
+        // Optional: we restrict to PDF files here
+        'ContentType' => 'application/pdf',
+    ]);
+
+    // PSR-7 headers are string[] values and include Host, which browsers forbid
+    $headers = collect($uploadUrl['headers'])
+        ->except(['Host'])
+        ->map(fn (array $values): string => implode(', ', $values))
+        ->all();
 
     return response()->json([
-        'url' => $url,
+        'url' => $uploadUrl['url'],
+        'headers' => $headers,
         'key' => $key,
     ]);
 }
 ```
 
-Frontend - Upload to S3:
+**Frontend** - Upload to S3:
 
 ```js
 // 1. Get presigned URL from your backend
-const { url, key } = await fetch('/api/presigned-upload-url', {
+const { url, headers, key } = await fetch('/api/presigned-upload-url', {
     method: 'POST',
     headers: { 'X-CSRF-TOKEN': csrfToken },
 }).then(r => r.json());
 
-// 2. Upload directly to S3
+// 2. Upload directly to S3, forwarding the presigned headers
 await fetch(url, {
     method: 'PUT',
     body: file,
-    headers: { 'Content-Type': file.type },
+    headers: {
+        'Content-Type': file.type,
+        ...headers,
+    },
 });
 
-// 3. Put the key in your form or send the key to your backend to save
+// 3. Send the S3 key to your backend (via a form field, API call, etc.)
 await fetch('/api/documents', {
     method: 'POST',
     headers: {
@@ -107,7 +174,7 @@ await fetch('/api/documents', {
 });
 ```
 
-Backend - Move file to final location:
+**Backend** - Move file to final location:
 
 ```php
 public function store(Request $request)
@@ -124,20 +191,6 @@ public function store(Request $request)
     $document->update(['file_path' => $finalPath]);
 }
 ```
-
-<Callout>
-    **Cleanup temporary files**: Files uploaded to `tmp/` but never moved (e.g., user abandons the form) will accumulate. Add an S3 lifecycle rule to auto-delete them:
-
-    ```yaml filename="serverless.yml"
-    constructs:
-        storage:
-            type: storage
-            lifecycleRules:
-                # Files in the `tmp/` folder are will be cleaned after 1 day
-                -   prefix: tmp/
-                    expirationInDays: 1
-    ```
-</Callout>
 
 ## Downloading files
 
