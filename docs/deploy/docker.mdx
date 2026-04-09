@@ -145,6 +145,7 @@ functions:
     web:
         image:
             name: my-app
+            command: public/index.php # a PHP file path or class name
         environment:
             BREF_RUNTIME: fpm
         events:
@@ -153,12 +154,14 @@ functions:
     console:
         image:
             name: my-app
+            command: bin/console # an executable file path
         environment:
             BREF_RUNTIME: console
 
     worker:
         image:
             name: my-app
+            command: Acme\QueueWorker # a PHP file path or class name
         environment:
             BREF_RUNTIME: function
         events:
