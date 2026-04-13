@@ -29,17 +29,12 @@ provider:
 constructs:
     storage:
         type: storage
-        extensions:
-            bucket:
-                Properties:
-                    OwnershipControls:
-                        Rules:
-                            -   ObjectOwnership: BucketOwnerPreferred
+        allowAcl: true
 ```
 
-<Callout>
-    **S3 ACLs**: Since April 2023, S3 buckets have ACLs disabled by default. However, Laravel's storage layer ([Flysystem](https://github.com/thephpleague/flysystem)) sends ACL headers on every S3 operation (`put`, `copy`, `move`…). Without the `OwnershipControls` configuration above, **these operations will fail silently** — data won't be written to S3 but no error will be raised.
+The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that this files in the bucket are still completely private, there is no change in the security of the bucket.
 
+<Callout>
     To avoid silent failures, we also recommend setting `'throw' => true` on your S3 disk in `config/filesystems.php`:
 
     ```php filename="config/filesystems.php"
@@ -49,8 +44,6 @@ constructs:
         'throw' => true,
     ],
     ```
-
-    The `BucketOwnerPreferred` setting lets the bucket accept ACL headers while keeping the bucket owner in full control. Read more in the [AWS documentation](https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html).
 </Callout>
 
 That's it! Lift automatically:
@@ -85,20 +78,10 @@ constructs:
             # Temporary upload files will be cleaned after 1 day
             -   prefix: tmp/
                 expirationInDays: 1
-        extensions:
-            bucket:
-                Properties:
-                    OwnershipControls:
-                        Rules:
-                            -   ObjectOwnership: BucketOwnerPreferred
-                    CorsConfiguration:
-                        CorsRules:
-                            -   AllowedOrigins:
-                                    - ${construct:website.url}
-                                AllowedHeaders:
-                                    - '*'
-                                AllowedMethods:
-                                    - PUT
+        allowAcl: true
+        # CORS is required for uploading files from the browser via presigned URLs, put the URL of your website here
+        # See https://github.com/getlift/lift/blob/master/docs/storage.md#cors
+        cors: ${construct:website.url}
 ```
 
 <Callout>

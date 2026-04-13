@@ -40,15 +40,10 @@ provider:
 constructs:
     reports-bucket:
         type: storage
-        extensions:
-            bucket:
-                Properties:
-                    OwnershipControls:
-                        Rules:
-                            -   ObjectOwnership: BucketOwnerPreferred
+        allowAcl: true
 ```
 
-The `OwnershipControls` configuration is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `BucketOwnerPreferred` setting lets the bucket accept these headers while keeping the bucket owner in full control.
+The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that this files in the bucket are still completely private, there is no change in the security of the bucket.
 
 Read more [in the Lift documentation](https://github.com/getlift/lift/blob/master/docs/storage.md). If you use Laravel, check out the [Laravel file storage documentation](/docs/laravel/file-storage) for a complete guide including presigned uploads, CORS configuration, and common pitfalls.
 
