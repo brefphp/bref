@@ -69,6 +69,27 @@ class SqsRecord
     }
 
     /**
+     * Returns the full URL of the SQS queue that contains the message.
+     * Reconstructed from the event source ARN, so it can be used with the SQS API (e.g. DeleteMessage, SendMessage)
+     * without an extra API call or the need for the user to configure the account ID.
+     */
+    public function getQueueUrl(): string
+    {
+        // ARN format: arn:<partition>:sqs:<region>:<account>:<queue-name>
+        [, $partition, , $region, $account, $queueName] = explode(':', $this->record['eventSourceARN']);
+
+        // Each AWS partition has its own DNS suffix. Default to the standard suffix for unknown partitions.
+        $tld = match ($partition) {
+            'aws-cn' => 'amazonaws.com.cn',
+            'aws-eusc' => 'amazonaws.eu',
+            default => 'amazonaws.com',
+        // @phpcs:disable
+        };
+
+        return "https://sqs.{$region}.{$tld}/{$account}/{$queueName}";
+    }
+
+    /**
      * Returns the record original data as an array.
      *
      * Use this method if you want to access data that is not returned by a method in this class.
