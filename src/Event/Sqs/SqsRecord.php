@@ -83,6 +83,7 @@ class SqsRecord
             'aws-cn' => 'amazonaws.com.cn',
             'aws-eusc' => 'amazonaws.eu',
             default => 'amazonaws.com',
+        // @phpcs:disable
         };
 
         return "https://sqs.{$region}.{$tld}/{$account}/{$queueName}";
