@@ -7,6 +7,39 @@ const {warnIfUsingSecretsWithoutTheBrefDependency} = require('./plugin/secrets')
 const fs = require('fs');
 const path = require('path');
 
+const ciEnvironmentVariables = [
+    'BUILD_ID', // Jenkins, Cloudbees
+    'BUILD_NUMBER', // Jenkins, TeamCity
+    'CI', // Travis CI, CircleCI, GitLab CI, etc.
+    'CI_APP_ID', // Appflow
+    'CI_BUILD_ID', // Appflow
+    'CI_BUILD_NUMBER', // Appflow
+    'CI_NAME', // Codeship and others
+    'CONTINUOUS_INTEGRATION', // Travis CI, Cirrus CI
+    'RUN_ID', // TaskCluster, dsari
+    'GITHUB_ACTIONS',
+    'GITLAB_CI',
+    'CIRCLECI',
+    'TRAVIS',
+    'APPVEYOR',
+    'BUILDKITE',
+    'CODEBUILD_BUILD_ARN',
+    'TF_BUILD', // Azure Pipelines
+    'TEAMCITY_VERSION',
+    'JENKINS_URL',
+    'BITBUCKET_COMMIT',
+    'DRONE',
+    'NETLIFY',
+    'VERCEL',
+    'CF_PAGES', // Cloudflare Pages
+    'RENDER',
+    'BITRISE_IO',
+];
+
+function isCiEnvironment(env) {
+    return env.CI !== 'false' && ciEnvironmentVariables.some((name) => Boolean(env[name]));
+}
+
 // Disable `sls` promoting the Serverless Console because it's not compatible with PHP, it's tripping users up
 if (!process.env.SLS_NOTIFICATIONS_MODE) {
     process.env.SLS_NOTIFICATIONS_MODE = 'upgrades-only';
@@ -281,10 +314,6 @@ class ServerlessPlugin {
         /** @type {{ get: (string) => string }} */
         // @ts-ignore
         const userConfig = require.main.require('@serverless/utils/config');
-        /** @type {typeof import('ci-info')} */
-        // @ts-ignore
-        const ci = require.main.require('ci-info');
-
         let command = 'unknown';
         if (this.serverless.processedInput && this.serverless.processedInput.commands) {
             command = this.serverless.processedInput.commands.join(' ');
@@ -301,7 +330,7 @@ class ServerlessPlugin {
             cli: 'sls',
             v: 2, // Bref version
             c: command,
-            ci: ci.isCI,
+            ci: isCiEnvironment(process.env),
             install: userConfig.get('meta.created_at'),
             uid: userConfig.get('frameworkId'), // anonymous user ID created by the Serverless Framework
             tz: timezone,
