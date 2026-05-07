@@ -47,6 +47,7 @@ class ColdStartTracker
         // so we are no longer in the cold start invocation anymore
         if (self::$hasFirstInvocationStarted) {
             self::$currentInvocationIsColdStart = false;
+            self::$wasProactiveInitialization = false;
             return;
         }
 
