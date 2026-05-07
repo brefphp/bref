@@ -8,6 +8,8 @@ use ReflectionProperty;
 
 class ColdStartTrackerTest extends TestCase
 {
+    private const COLD_START_FILE = '/tmp/.bref-cold-start';
+
     protected function setUp(): void
     {
         $this->resetColdStartTracker();
@@ -40,11 +42,24 @@ class ColdStartTrackerTest extends TestCase
         $this->assertFalse(ColdStartTracker::wasProactiveInitialization());
     }
 
-    public function test_proactive_initialization_annotation_does_not_leak_to_warm_invocations(): void
+    public function test_first_invocation_more_than_one_hundred_milliseconds_after_initialization_is_proactive(): void
     {
         ColdStartTracker::init();
         ColdStartTracker::coldStartFinished();
-        $this->setColdStartTrackerProperty('coldStartEndedTime', microtime(true) - 0.2);
+
+        usleep(150_000);
+
+        ColdStartTracker::invocationStarted();
+
+        $this->assertTrue(ColdStartTracker::currentInvocationIsColdStart());
+        $this->assertFalse(ColdStartTracker::currentInvocationIsUserFacingColdStart());
+        $this->assertTrue(ColdStartTracker::wasProactiveInitialization());
+    }
+
+    public function test_second_invocation_after_user_facing_cold_start_is_warm(): void
+    {
+        ColdStartTracker::init();
+        ColdStartTracker::coldStartFinished();
 
         ColdStartTracker::invocationStarted();
         ColdStartTracker::invocationStarted();
@@ -54,10 +69,58 @@ class ColdStartTrackerTest extends TestCase
         $this->assertFalse(ColdStartTracker::wasProactiveInitialization());
     }
 
+    public function test_proactive_initialization_annotation_does_not_leak_to_warm_invocations(): void
+    {
+        ColdStartTracker::init();
+        ColdStartTracker::coldStartFinished();
+        $this->setColdStartTrackerProperty('coldStartEndedTime', microtime(true) - 0.2);
+
+        ColdStartTracker::invocationStarted();
+
+        $this->assertTrue(ColdStartTracker::currentInvocationIsColdStart());
+        $this->assertFalse(ColdStartTracker::currentInvocationIsUserFacingColdStart());
+        $this->assertTrue(ColdStartTracker::wasProactiveInitialization());
+
+        ColdStartTracker::invocationStarted();
+
+        $this->assertFalse(ColdStartTracker::currentInvocationIsColdStart());
+        $this->assertFalse(ColdStartTracker::currentInvocationIsUserFacingColdStart());
+        $this->assertFalse(ColdStartTracker::wasProactiveInitialization());
+    }
+
+    public function test_process_restart_inside_same_sandbox_is_a_warm_start(): void
+    {
+        touch(self::COLD_START_FILE);
+
+        ColdStartTracker::init();
+        ColdStartTracker::coldStartFinished();
+        ColdStartTracker::invocationStarted();
+
+        $this->assertFalse(ColdStartTracker::currentInvocationIsColdStart());
+        $this->assertFalse(ColdStartTracker::currentInvocationIsUserFacingColdStart());
+        $this->assertFalse(ColdStartTracker::wasProactiveInitialization());
+    }
+
+    public function test_records_cold_start_timestamps(): void
+    {
+        $beforeInit = microtime(true);
+        ColdStartTracker::init();
+        $afterInit = microtime(true);
+
+        $beforeFinished = microtime(true);
+        ColdStartTracker::coldStartFinished();
+        $afterFinished = microtime(true);
+
+        $this->assertGreaterThanOrEqual($beforeInit, ColdStartTracker::getColdStartBeginningTime());
+        $this->assertLessThanOrEqual($afterInit, ColdStartTracker::getColdStartBeginningTime());
+        $this->assertGreaterThanOrEqual($beforeFinished, ColdStartTracker::getColdStartEndedTime());
+        $this->assertLessThanOrEqual($afterFinished, ColdStartTracker::getColdStartEndedTime());
+    }
+
     private function resetColdStartTracker(): void
     {
-        if (file_exists('/tmp/.bref-cold-start')) {
-            unlink('/tmp/.bref-cold-start');
+        if (file_exists(self::COLD_START_FILE)) {
+            unlink(self::COLD_START_FILE);
         }
 
         $this->setColdStartTrackerProperty('currentInvocationIsColdStart', false);
