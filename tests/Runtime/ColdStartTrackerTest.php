@@ -42,12 +42,12 @@ class ColdStartTrackerTest extends TestCase
         $this->assertFalse(ColdStartTracker::wasProactiveInitialization());
     }
 
-    public function test_first_invocation_more_than_one_hundred_milliseconds_after_initialization_is_proactive(): void
+    public function test_first_invocation_more_than_fifty_milliseconds_after_initialization_is_proactive(): void
     {
         ColdStartTracker::init();
         ColdStartTracker::coldStartFinished();
 
-        usleep(150_000);
+        usleep(75_000);
 
         ColdStartTracker::invocationStarted();
 
@@ -73,7 +73,7 @@ class ColdStartTrackerTest extends TestCase
     {
         ColdStartTracker::init();
         ColdStartTracker::coldStartFinished();
-        $this->setColdStartTrackerProperty('coldStartEndedTime', microtime(true) - 0.2);
+        $this->setColdStartTrackerProperty('coldStartEndedTime', microtime(true) - 0.075);
 
         ColdStartTracker::invocationStarted();
 

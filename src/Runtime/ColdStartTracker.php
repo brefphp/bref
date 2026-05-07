@@ -10,6 +10,7 @@ namespace Bref\Runtime;
 class ColdStartTracker
 {
     private const FILE = '/tmp/.bref-cold-start';
+    private const PROACTIVE_INITIALIZATION_IDLE_THRESHOLD_SECONDS = 0.05;
 
     private static bool $currentInvocationIsColdStart = false;
     private static ?float $coldStartBeginningTime = null;
@@ -56,11 +57,11 @@ class ColdStartTracker
         if (self::$currentInvocationIsColdStart) {
             // There was a cold start, let's figure out if it was a proactive initialization
             $timeElapsedSinceColdStartEnded = microtime(true) - self::$coldStartEndedTime;
-            // If more than 100ms have passed since the cold start ended, we can assume the
+            // If more than 50ms have passed since the cold start ended, we can assume the
             // Lambda sandbox was paused/frozen between the cold start and the first invocation
-            // (100ms is an arbitrary value, we could use a lower value but I want to be conservative)
+            // (50ms is an arbitrary value, we could use a lower value but I want to be conservative)
             // That means the Lambda sandbox was initialized proactively
-            self::$wasProactiveInitialization = $timeElapsedSinceColdStartEnded > 0.1;
+            self::$wasProactiveInitialization = $timeElapsedSinceColdStartEnded > self::PROACTIVE_INITIALIZATION_IDLE_THRESHOLD_SECONDS;
         } else {
             // There was no cold start, we are in a warm start
             self::$wasProactiveInitialization = false;
