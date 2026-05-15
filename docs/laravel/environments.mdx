@@ -1,0 +1,153 @@
+import { Callout, Tab, Tabs } from 'nextra/components';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Configure Laravel environments and deployment environments with Bref." />
+
+# Laravel environments
+
+Bref lets you deploy the same application multiple times in separate [environments](../deploy.mdx#environments), for example `dev`, `staging`, `prod`, or one environment per pull request.
+
+The Bref Cloud CLI calls them **environments** (`bref deploy --env=prod`), while the `serverless` CLI calls them **stages** (`serverless deploy --stage=prod`). This is just a vocabulary difference.
+
+Laravel also has an *application environment*, configured with the `APP_ENV` environment variable. These concepts are related, but they do not have to use the exact same name.
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tab>
+        ```bash
+        bref deploy --env=prod
+        ```
+    </Tab>
+    <Tab>
+        ```bash
+        serverless deploy --stage=prod
+        ```
+    </Tab>
+</Tabs>
+
+In `serverless.yml`, the deployment environment is available as `${sls:stage}` for both CLIs:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        APP_ENV: ${param:appEnv}
+
+params:
+    default:
+        appEnv: ${sls:stage}
+    prod:
+        appEnv: production
+```
+
+In this example, most deployment environments use their name as `APP_ENV`, but the `prod` deployment environment is mapped to Laravel's `production` environment.
+
+<Callout type="warning">
+    Laravel treats `production` as the production environment. For example, `app()->isProduction()` returns `true` only when `APP_ENV=production`.
+
+    Using `prod` as a deployment environment name is common because it is short and appears in AWS resource names such as Lambda functions and CloudFormation stacks. If you use `prod`, map it to `APP_ENV=production` for Laravel.
+</Callout>
+
+## Configure each environment
+
+[Parameters](../environment/serverless-yml.mdx#stage-parameters) are a convenient way to configure values that change between deployment environments.
+
+You can use them for Laravel environment variables:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        APP_ENV: ${param:appEnv}
+        APP_DEBUG: ${param:debug}
+
+        DB_CONNECTION: mysql
+        DB_HOST: ${param:databaseHost}
+        DB_DATABASE: ${param:databaseName}
+        DB_USERNAME: root
+        DB_PASSWORD: ${ssm:/my-app/${sls:stage}/db-password}
+
+params:
+    default:
+        appEnv: ${sls:stage}
+        debug: 0
+        databaseHost: shared-dev.cluster-abc123.eu-west-1.rds.amazonaws.com
+        databaseName: my_app_dev
+
+    staging:
+        databaseName: my_app_staging
+
+    prod:
+        appEnv: production
+        databaseHost: prod.cluster-def456.eu-west-1.rds.amazonaws.com
+        databaseName: my_app_prod
+```
+
+Parameters can also configure non-environment-variable values in `serverless.yml`, such as custom domains, certificates, VPC settings, or existing resource names:
+
+```yml filename="serverless.yml"
+provider:
+    vpc: ${param:vpc, ''}
+
+constructs:
+    website:
+        type: server-side-website
+        domain: ${param:domain, ''}
+        certificate: ${param:certificate, ''}
+
+params:
+    default:
+        domain: ''
+        certificate: ''
+    prod:
+        domain: example.com
+        certificate: arn:aws:acm:us-east-1:123456789012:certificate/...
+        vpc:
+            securityGroupIds:
+                - sg-0123456789abcdef0
+            subnetIds:
+                - subnet-0123456789abcdef0
+                - subnet-abcdef0123456789
+```
+
+This keeps the configuration in one file while making the differences between environments explicit.
+
+## Production isolation
+
+It is possible, and often recommended, to deploy production in a separate AWS account from development and staging environments.
+
+This gives production stronger isolation:
+
+- production data and resources are separated from test environments
+- permissions can be stricter for production deployments
+- experimental environments are less likely to affect production quotas or resources
+
+If you use Bref Cloud, you can connect multiple AWS accounts and deploy each environment to the right account without dealing with multiple credentials.
+
+## Reusing resources
+
+Each deployment environment creates its own Lambda functions and CloudFormation stack. However, not every environment needs its own database, VPC, NAT gateway, or other expensive infrastructure.
+
+For staging, development, and preview environments, you can reuse shared resources by referencing them through parameters:
+
+```yml filename="serverless.yml"
+params:
+    default:
+        databaseHost: shared-dev.cluster-abc123.eu-west-1.rds.amazonaws.com
+        vpc:
+            securityGroupIds:
+                - sg-shareddev
+            subnetIds:
+                - subnet-shareddev-a
+                - subnet-shareddev-b
+
+    prod:
+        databaseHost: prod.cluster-def456.eu-west-1.rds.amazonaws.com
+        vpc:
+            securityGroupIds:
+                - sg-production
+            subnetIds:
+                - subnet-production-a
+                - subnet-production-b
+```
+
+Preview environments can also share a development database cluster while using a different database name, schema, or prefix per environment.
+
+This approach reduces AWS costs and makes deployments faster because Serverless does not need to create a full VPC and database for every temporary environment.
