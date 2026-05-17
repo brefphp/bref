@@ -423,6 +423,41 @@ Year,Make,Model
     /**
      * @dataProvider provide API Gateway versions
      */
+    public function test POST request with multipart form data containing structured arrays(int $version)
+    {
+        var_dump($version);
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart-structured-arrays.json");
+
+        $this->assertContentType('multipart/form-data; boundary=testBoundary');
+        $this->assertMethod('POST');
+        $this->assertParsedBody([
+            'content' => '<h1>Test content</h1>',
+            'some_id' => '3034',
+            'references' => [
+                [
+                    'other_id' => '4390954279',
+                    'url' => '',
+                ],
+                [
+                    'other_id' => '4313323164',
+                    'url' => '',
+                ],
+                [
+                    'other_id' => '',
+                    'url' => 'https://someurl.com/node/745911',
+                ],
+            ],
+            'tags' => [
+                'public health',
+                'public finance',
+            ],
+            '_method' => 'PATCH',
+        ]);
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
     public function test request with cookies(int $version)
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-cookies.json");
