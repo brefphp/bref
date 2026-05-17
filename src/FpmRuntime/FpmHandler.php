@@ -12,6 +12,7 @@ use Bref\FpmRuntime\FastCgi\Timeout;
 use Exception;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Exceptions\TimedoutException;
+use hollodotme\FastCGI\Exceptions\WriteFailedException;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
@@ -172,17 +173,39 @@ final class FpmHandler extends HttpHandler
             // - the 500 response is the same as if an exception happened in Bref
             throw new Timeout($timeoutDelayInMs, $context->getAwsRequestId());
         } catch (Throwable $e) {
-            printf(
-                "Error communicating with PHP-FPM to read the HTTP response. Bref will restart PHP-FPM now. Original exception message: %s %s\n",
-                get_class($e),
-                $e->getMessage()
-            );
-
             // Restart PHP-FPM: in some cases PHP-FPM is borked, that's the only way we can recover
             $this->stop();
             $this->start();
 
-            throw new FastCgiCommunicationFailed;
+            // On WriteFailedException (broken pipe), the request never reached PHP-FPM so it is
+            // safe to retry once against the freshly restarted FPM process. This avoids returning
+            // a 500 error to the caller for a transient FPM socket failure.
+            // Other exceptions (e.g. ReadFailedException) mean the request may have already been
+            // processed by PHP, so retrying could cause double-execution.
+            if ($e instanceof WriteFailedException) {
+                try {
+                    $socketId = $this->client->sendAsyncRequest($this->connection, $request);
+                    $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
+                } catch (Throwable $retryException) {
+                    printf(
+                        "Error communicating with PHP-FPM to read the HTTP response. Bref will restart PHP-FPM now. Original exception message: %s %s | Retry exception: %s %s\n",
+                        get_class($e),
+                        $e->getMessage(),
+                        get_class($retryException),
+                        $retryException->getMessage()
+                    );
+                    $this->stop();
+                    $this->start();
+                    throw new FastCgiCommunicationFailed;
+                }
+            } else {
+                printf(
+                    "Error communicating with PHP-FPM to read the HTTP response. Bref will restart PHP-FPM now. Original exception message: %s %s\n",
+                    get_class($e),
+                    $e->getMessage()
+                );
+                throw new FastCgiCommunicationFailed;
+            }
         }
 
         $responseHeaders = $this->getResponseHeaders($response);
