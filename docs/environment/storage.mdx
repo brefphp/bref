@@ -26,7 +26,7 @@ On top of that, the filesystem is not shared between instances of a lambda when 
 
 Application data **must not** be stored in `/tmp` because of the behavior described above.
 
-Instead, data can be stored in [databases](/docs/environment/database.md) or in storage services like AWS S3.
+Instead, data can be stored in [databases](/docs/environment/database.mdx) or in storage services like AWS S3.
 
 ### S3 storage
 
@@ -40,9 +40,12 @@ provider:
 constructs:
     reports-bucket:
         type: storage
+        allowAcl: true
 ```
 
-Read more [in the Lift documentation](https://github.com/getlift/lift/blob/master/docs/storage.md).
+The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that this files in the bucket are still completely private, there is no change in the security of the bucket.
+
+Read more [in the Lift documentation](https://github.com/getlift/lift/blob/master/docs/storage.md). If you use Laravel, check out the [Laravel file storage documentation](/docs/laravel/file-storage) for a complete guide including presigned uploads, CORS configuration, and common pitfalls.
 
 ## Application cache
 

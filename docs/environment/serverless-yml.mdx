@@ -6,7 +6,7 @@ import { NextSeo } from 'next-seo';
 
 Your application is deployed using the Serverless framework based on the `serverless.yml` configuration file.
 
-This page introduces a few advanced concepts of the `serverless.yml` format. You can learn more in the [official Serverless documentation](https://serverless.com/framework/docs/providers/aws/).
+This page introduces a few advanced concepts of the `serverless.yml` format. You can learn more in the [`serverless` documentation](https://github.com/oss-serverless/serverless/blob/main/docs/guides).
 
 ## Overview
 
@@ -38,7 +38,7 @@ resources:
 service: app
 ```
 
-The [service](https://serverless.com/framework/docs/providers/aws/guide/services/) is simply the name of your project.
+The [service](https://github.com/oss-serverless/serverless/blob/main/docs/guides/services.md) is simply the name of your project.
 
 Since Serverless lets us deploy a project in [multiple stages](../deploy.mdx#stages) (prod, dev, staging…), CloudFormation stacks will contain both the service name and the stage: `app-prod`, `app-dev`, etc.
 
@@ -103,13 +103,11 @@ plugins:
     - ./vendor/bref/bref
 ```
 
-[Serverless plugins](https://serverless.com/framework/docs/providers/aws/guide/plugins/) are JavaScript plugins that extend the behavior of the Serverless framework.
+[Serverless plugins](https://github.com/oss-serverless/serverless/blob/main/docs/guides/plugins.md) are JavaScript plugins that extend the behavior of the Serverless framework.
 
 Bref provides a plugin via the Composer package, which explains why the path is a relative path into the `vendor` directory. This plugin provides [support for the Bref runtimes and layers](../runtimes/#usage), it is necessary to include it.
 
-Most other Serverless plugins [are installed via `npm`](https://serverless.com/framework/docs/providers/aws/guide/plugins/).
-
-You can find the list of [all Serverless plugins here](https://serverless.com/plugins/).
+Most other Serverless plugins [are installed via `npm`](https://github.com/oss-serverless/serverless/blob/main/docs/guides/plugins.md).
 
 ## Exclusions
 
@@ -126,9 +124,9 @@ This has the following benefits:
 
 - faster deployments
 - less risk of hitting [Lambda's size limit](https://docs.aws.amazon.com/lambda/latest/dg/limits.html)
-- [faster cold starts](performances.md)
+- [faster cold starts](performances.mdx)
 
-Read more about the `package` configuration [in the serverless.yml documentation](https://www.serverless.com/framework/docs/providers/aws/guide/packaging#patterns).
+Read more about the `package` configuration [in the serverless.yml documentation](https://github.com/oss-serverless/serverless/blob/main/docs/guides/packaging.md#patterns).
 
 ## Functions
 
@@ -142,7 +140,7 @@ functions:
         runtime: php-84
 ```
 
-Functions are AWS Lambda functions. You can find all options available [in this Serverless documentation page](https://serverless.com/framework/docs/providers/aws/guide/functions/).
+Functions are AWS Lambda functions. You can find all options available [in this Serverless documentation page](https://github.com/oss-serverless/serverless/blob/main/docs/guides/functions.md).
 
 Note that it is possible to mix PHP functions with functions written in other languages in the same `serverless.yml` config.
 
@@ -176,7 +174,7 @@ provider:
         APP_DOMAIN: ${param:domain}
 ```
 
-Read the full [Serverless documentation about stage parameters](https://github.com/serverless/serverless/blob/v3/docs/guides/dashboard/parameters.md#stage-parameters).
+Read the full [Serverless documentation about stage parameters](https://github.com/oss-serverless/serverless/blob/main/docs/guides/parameters.md#stage-parameters).
 
 ## Resources
 
@@ -191,7 +189,7 @@ resources:
 
 The `resources` section contains raw [CloudFormation syntax](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-reference.html). This lets us define any kind of AWS resource other than Lambda functions.
 
-Read more in the [Serverless documentation about resources](https://serverless.com/framework/docs/providers/aws/guide/resources/).
+Read more in the [Serverless documentation about resources](https://github.com/oss-serverless/serverless/blob/main/docs/guides/resources.md).
 
 Be careful, the CloudFormation resources must be defined in the `resources.Resources` sub-section:
 

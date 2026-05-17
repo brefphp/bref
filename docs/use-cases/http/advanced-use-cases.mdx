@@ -63,13 +63,13 @@ functions:
 
 That works well with frameworks like Symfony or Laravel that have a single entrypoint (e.g. `public/index.php`) combined with the [PHP-FPM runtime](../../runtimes/fpm-runtime.mdx).
 
-You can look at more advanced API Gateway routing options in the [serverless documentation](https://www.serverless.com/framework/docs/providers/aws/events/http-api).
+You can look at more advanced API Gateway routing options in the [serverless documentation](https://github.com/oss-serverless/serverless/blob/main/docs/events/http-api.md).
 
 ### Lambda Function URLs
 
 Since 2022, AWS Lambda can respond to HTTP requests via [Lambda Function URLs](https://aws.amazon.com/blogs/aws/announcing-aws-lambda-function-urls-built-in-https-endpoints-for-single-function-microservices/). This is a new way to invoke Lambda functions via HTTP without using API Gateway.
 
-You can deploy a Lambda Function URL [via the following configuration](https://www.serverless.com/framework/docs/providers/aws/guide/functions#lambda-function-urls):
+You can deploy a Lambda Function URL [via the following configuration](https://github.com/oss-serverless/serverless/blob/main/docs/guides/functions.md#lambda-function-urls):
 
 ```yml filename="serverless.yml"
 functions:
@@ -93,7 +93,7 @@ functions:
             - http: 'ANY /{proxy+}'
 ```
 
-Learn more [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/apigateway).
+Learn more [in the Serverless Framework documentation](https://github.com/oss-serverless/serverless/blob/main/docs/events/apigateway.md).
 
 ### Application Load Balancer
 
@@ -112,7 +112,7 @@ functions:
                         path: '/*'
 ```
 
-Learn more [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/alb).
+Learn more [in the Serverless Framework documentation](https://github.com/oss-serverless/serverless/blob/main/docs/events/alb.md).
 
 ## PHP handlers
 
@@ -270,7 +270,7 @@ Path parameters (e.g. `{id}` in the example above) are available as request attr
 $id = $request->getAttribute('id');
 ```
 
-[Full reference of HTTP events in `serverless.yml`](https://www.serverless.com/framework/docs/providers/aws/events/http-api/).
+[Full reference of HTTP events in `serverless.yml`](https://github.com/oss-serverless/serverless/blob/main/docs/events/http-api.md).
 
 #### Lambda event and context
 
@@ -292,19 +292,6 @@ $requestContext = $request->getAttribute('lambda-event')->getRequestContext();
 
 ## Cold starts
 
-AWS Lambda automatically destroys Lambda containers that have been unused for 10 minutes. Warming up a new container can take 250ms or more, especially if your application is large. This delay is called [cold start](https://mikhail.io/serverless/coldstarts/aws/).
+On applications with regular traffic, cold starts only represent about **0.1% of requests**. For low-traffic applications, you can pre-warm your HTTP function to avoid them.
 
-To mitigate cold starts for HTTP applications, you can periodically send an event to your Lambda including a `{warmer: true}` payload. This will trigger the Lambda function. Bref recognizes this event and immediately responds with a `Status: 100` without executing your code.
-
-You can set up such events using a schedule ([read this article for more details](https://www.jeremydaly.com/lambda-warmer-optimize-aws-lambda-function-cold-starts/)):
-
-```yml filename="serverless.yml"
-        events:
-            - httpApi: '*'
-            - schedule:
-                rate: rate(5 minutes)
-                input:
-                    warmer: true
-```
-
-You can learn more how AWS Lambda scales and runs in the [Serverless Visually Explained](https://serverless-visually-explained.com/) course.
+Read the full [Cold starts documentation](/docs/environment/cold-starts) for details and the warming configuration.

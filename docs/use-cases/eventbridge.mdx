@@ -40,7 +40,7 @@ Then, create a Lambda function that listens to EventBridge events with the handl
             # ...
             resizeImage:
                 handler: App\MyHandler
-                runtime: php-83
+                runtime: php-84
                 events:
                     - eventBridge:
                         pattern:
@@ -56,7 +56,7 @@ Then, create a Lambda function that listens to EventBridge events with the handl
             # ...
             resizeImage:
                 handler: App\MyHandler
-                runtime: php-83
+                runtime: php-84
                 events:
                     - eventBridge:
                         pattern:
@@ -72,7 +72,7 @@ Then, create a Lambda function that listens to EventBridge events with the handl
             # ...
             resizeImage:
                 handler: handler.php
-                runtime: php-83
+                runtime: php-84
                 events:
                     - eventBridge:
                         pattern:
@@ -96,4 +96,4 @@ You can learn more about messaging with EventBridge in [Serverless Visually Expl
 
 [![](./eventbridge.png)](https://serverless-visually-explained.com/)
 
-Learn more about all the options available for EventBridge in `serverless.yml` [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/event-bridge/).
+Learn more about all the options available for EventBridge in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/serverless/blob/main/docs/events/event-bridge.md).

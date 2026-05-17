@@ -10,7 +10,7 @@ It is possible to run **event-driven functions** locally.
 
 ## With Serverless Framework
 
-The `serverless bref:local` command invokes your [PHP functions](/docs/runtimes/function.md) locally, using PHP installed on your machine. You can provide an event if your function expects one.
+The `serverless bref:local` command invokes your [PHP functions](/docs/runtimes/function.mdx) locally, using PHP installed on your machine. You can provide an event if your function expects one.
 
 <Callout type="info">
     The `serverless bref:local` command is a simpler alternative to the native `serverless invoke local` command, which tries to run PHP using Docker with very little success. Use `serverless bref:local` instead of `serverless invoke local`.
@@ -95,7 +95,6 @@ $ docker run --rm -it -v $(PWD):/var/task:ro bref/php-84-dev:3 vendor/bin/bref-l
 You can also use Docker Compose, like described in [Local development for HTTP applications](../local-development.mdx):
 
 ```yml filename="docker-compose.yml"
-version: "3.5"
 services:
     app:
         image: bref/php-84-dev:3
@@ -111,6 +110,6 @@ $ docker-compose run app vendor/bin/bref-local my-function.php
 
 ## API Gateway local development
 
-If you build HTTP applications with [API Gateway HTTP events](../function/handlers.md#api-gateway-http-events), `serverless bref:local` is a bit unpractical because you need to manually craft HTTP events in JSON.
+If you build HTTP applications with [API Gateway HTTP events](/docs/runtimes/fpm-runtime.mdx), `serverless bref:local` is a bit unpractical because you need to manually craft HTTP events in JSON.
 
 Instead, you can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate API Gateway locally.

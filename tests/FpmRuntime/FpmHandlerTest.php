@@ -30,7 +30,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ob_end_clean();
     }
 
-    public function provide API Gateway versions(): array
+    public static function provide API Gateway versions(): array
     {
         return [
             'v1' => [1],
@@ -480,7 +480,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    public function provideHttpMethodsWithRequestBodySupport(): array
+    public static function provideHttpMethodsWithRequestBodySupport(): array
     {
         return [
             'POST v1' => [
@@ -1133,7 +1133,7 @@ Year,Make,Model
         self::assertEquals($expectedStatusCode, $statusCode);
     }
 
-    public function provideStatusCodes(): array
+    public static function provideStatusCodes(): array
     {
         return [[200], [301], [302], [400], [401], [403], [404], [500], [504]];
     }
@@ -1173,7 +1173,7 @@ Year,Make,Model
     {
         $cookieHeader = $this->get('cookies.php')['headers']['Set-Cookie'];
 
-        // Dependending on the PHP version the date formatting is slightly different
+        // Depending on the PHP version the date formatting is slightly different
         $cookieHeader = str_replace('12 Jan 2018', '12-Jan-2018', $cookieHeader);
 
         self::assertEquals('MyCookie=MyValue; expires=Fri, 12-Jan-2018 08:32:03 GMT; Max-Age=0; path=/hello/; domain=example.com; secure; HttpOnly', $cookieHeader);
@@ -1187,7 +1187,7 @@ Year,Make,Model
             'multiValueHeaders' => [],
         ])['multiValueHeaders']['Set-Cookie'];
 
-        // Dependending on the PHP version the date formatting is slightly different
+        // Depending on the PHP version the date formatting is slightly different
         $cookieHeader[0] = str_replace('12 Jan 2018', '12-Jan-2018', $cookieHeader[0]);
         $cookieHeader[1] = str_replace('12 Jan 2018', '12-Jan-2018', $cookieHeader[1]);
 

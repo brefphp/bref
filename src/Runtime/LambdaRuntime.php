@@ -35,10 +35,8 @@ use Throwable;
  */
 final class LambdaRuntime
 {
-    /** @var resource|CurlHandle|null */
-    private $curlHandleNext;
-    /** @var resource|CurlHandle|null */
-    private $curlHandleResult;
+    private ?CurlHandle $curlHandleNext = null;
+    private ?CurlHandle $curlHandleResult = null;
     private string $apiUrl;
     private Invoker $invoker;
     private string $layer;
@@ -84,6 +82,9 @@ final class LambdaRuntime
 
         // Expose the context in an environment variable
         $this->setEnv('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
+        // These are used for logging/tracing purposes
+        $this->setEnv('LAMBDA_REQUEST_ID', $context->getAwsRequestId());
+        $this->setEnv('_X_AMZN_TRACE_ID', $context->getTraceId());
 
         try {
             ColdStartTracker::invocationStarted();

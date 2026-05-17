@@ -16,7 +16,7 @@ We don't recommend starting out with containers, as it is less practical and req
 
 You should consider deploying using Docker when:
 
-- Your code size is [larger than the 250MB limit when unzipped](../environment/storage.md)
+- Your code size is [larger than the 250MB limit when unzipped](../environment/storage.mdx)
 - You reached the limit of 5 Lambda layers (e.g. for extra PHP extensions)
 - You need custom binaries/resources installed locally (e.g. mysqldump, wkhtmltopdf)
 
@@ -98,6 +98,8 @@ provider:
             hello-world:
                 # Path to the `Dockerfile` file
                 path: ./
+                file: Dockerfile
+                platform: linux/amd64
 
 functions:
     hello:
@@ -117,7 +119,59 @@ When running `serverless deploy`, the CLI will:
 - Push the newly built Docker image
 - Deploy the Lambda function pointing to the Docker image
 
-Note that you can create multiple images in the same `serverless.yml` file. For example, you can have one image for the HTTP handler and another image for a worker.
+### Using one image for all functions (recommended)
+
+A major benefit of deploying with Docker is that you can use **a single Docker image** for all your functions (web, console, queues, etc.). Instead of setting `BREF_RUNTIME` in the Dockerfile, set it per function via the `environment` variables in `serverless.yml`:
+
+```dockerfile filename="Dockerfile"
+FROM bref/php-84:3
+
+COPY . /var/task
+
+# No BREF_RUNTIME or CMD set here
+```
+
+```yml filename="serverless.yml" {5-9,15,21,27}
+provider:
+    name: aws
+    ecr:
+        images:
+            my-app:
+                path: ./
+                file: Dockerfile
+                platform: linux/amd64
+
+functions:
+    web:
+        image:
+            name: my-app
+            command: public/index.php # a PHP file path or class name
+        environment:
+            BREF_RUNTIME: fpm
+        events:
+            - httpApi: '*'
+
+    console:
+        image:
+            name: my-app
+            command: bin/console # an executable file path
+        environment:
+            BREF_RUNTIME: console
+
+    worker:
+        image:
+            name: my-app
+            command: Acme\QueueWorker # a PHP file path or class name
+        environment:
+            BREF_RUNTIME: function
+        events:
+            - sqs:
+                arn: !GetAtt MyQueue.Arn
+```
+
+This simplifies your deployment pipeline: a single Docker image is built and pushed, and each function uses the appropriate runtime.
+
+You can read the detailed documentation about [all options available in the Serverless documentation](https://github.com/oss-serverless/serverless/blob/main/docs/guides/functions.md#referencing-container-image-as-a-target).
 
 ## Filesystem
 
@@ -125,7 +179,7 @@ Like with non-Docker deployments, the filesystem for Docker on AWS Lambda is als
 
 The `/tmp` folder will always be empty on cold starts. Avoid writing content to `/tmp` in your Dockerfile because that content will **not be available** for your Lambda function.
 
-[Read more about file storage in Lambda](../environment/storage.md).
+[Read more about file storage in Lambda](../environment/storage.mdx).
 
 ## Docker Registry
 

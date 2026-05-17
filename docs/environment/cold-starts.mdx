@@ -1,0 +1,71 @@
+import { Callout } from 'nextra/components';
+import { NextSeo } from 'next-seo';
+
+<NextSeo description="Understanding and mitigating cold starts in serverless PHP applications on AWS Lambda with Bref." />
+
+# Cold starts
+
+If your application cannot tolerate any response above 300ms (e.g. real-time trading, multiplayer gaming), Lambda is not the right fit.
+
+For everything else, cold starts are often the most overestimated concern when moving to serverless. On applications with regular traffic, cold starts represent about **0.1% of requests**. For the vast majority of applications, their impact is negligible.
+
+## What is a cold start?
+
+AWS Lambda runs code on-demand. When a new Lambda instance boots to handle a request, the initialization time is called a *cold start*.
+
+Once initialized, the instance stays warm and handles subsequent requests with no cold start. Lambda keeps instances alive for several minutes after the last request. As long as your application receives regular traffic, most requests are handled by warm instances.
+
+You can learn more about how Bref and Lambda work in [How Bref works](/docs/how-it-works), and about how Lambda scales in [Serverless Visually Explained](https://serverless-visually-explained.com/).
+
+## Cold start duration
+
+Bref's PHP runtimes add a cold start of about **250ms** on average. The rest depends on the size of your application.
+
+To put it differently: on average (application with traffic), out of 1000 requests, 999 are as fast as on a traditional server. 1 request has an extra 250ms of latency.
+
+This is on-par with [cold starts in other languages](https://mikhail.io/serverless/coldstarts/aws/) like JavaScript, Python or Go. AWS is [regularly reducing the duration of cold starts](https://levelup.gitconnected.com/aws-lambda-cold-start-language-comparisons-2019-edition-%EF%B8%8F-1946d32a0244), and Bref's runtimes are optimized as much as possible.
+
+## Warming for low-traffic applications
+
+If your application has very low traffic (e.g. a new project or an internal tool), your Lambda functions might scale down to 0 instances. Cold starts will then happen more often.
+
+You can pre-warm your HTTP function by adding a scheduled event in `serverless.yml`:
+
+```yml filename="serverless.yml"
+functions:
+    web:
+        handler: public/index.php
+        runtime: php-83-fpm
+        timeout: 15
+        events:
+            - httpApi: '*'
+            - schedule:
+                rate: rate(5 minutes)
+                input:
+                    warmer: true
+```
+
+Bref recognizes the `warmer` event and responds with a `Status: 100` in a few milliseconds without executing your application code. This keeps the Lambda instance warm.
+
+You can also use external services like [Pingdom](https://www.pingdom.com/) to ping your application regularly.
+
+## Provisioned concurrency
+
+AWS offers [provisioned concurrency](https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html) to keep a set number of Lambda instances initialized at all times. This completely eliminates cold starts for those instances.
+
+This is useful for applications that need consistently low latency but is more expensive since you pay for the instances even when they are idle. For most applications, the warming approach above is simpler and sufficient.
+
+## Reducing cold start duration
+
+The codebase size can increase the cold start duration. When deploying, exclude unnecessary files in `serverless.yml`:
+
+```yml filename="serverless.yml"
+package:
+    patterns:
+        - '!assets/**'
+        - '!node_modules/**'
+        - '!tests/**'
+        - ...
+```
+
+Read more about this [in the serverless.yml documentation](serverless-yml.mdx#exclusions).
