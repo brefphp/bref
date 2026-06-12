@@ -84,7 +84,7 @@ constructs:
         type: queue
         worker:
             handler: bin/consumer.php
-            runtime: php-81
+            runtime: php-84
             timeout: 60 # in seconds
 ```
 
@@ -193,9 +193,9 @@ functions:
     worker:
         handler: bin/consumer.php
         timeout: 20 # in seconds
-        runtime: php-81
+        runtime: php-84
         events:
-            # Read more at https://www.serverless.com/framework/docs/providers/aws/events/sns/
+            # Read more at https://github.com/oss-serverless/serverless/blob/main/docs/events/sns.md
             - sns:
                 arn: arn:aws:sns:us-east-1:1234567890:my_sns_topic
 ```
@@ -269,9 +269,9 @@ functions:
     worker:
         handler: bin/consumer.php
         timeout: 20 # in seconds
-        runtime: php-81
+        runtime: php-84
         events:
-            # Read more at https://www.serverless.com/framework/docs/providers/aws/events/event-bridge/
+            # Read more at https://github.com/oss-serverless/serverless/blob/main/docs/events/event-bridge.md
             -   eventBridge:
                     # In case of you change bus name in config/packages/messenger.yaml (i.e eventbridge://myapp?event_bus_name=custom-bus) you need to set bus name like below
                     # eventBus: custom-bus
@@ -311,7 +311,7 @@ services:
         arguments:
             # Pass the transport name used in config/packages/messenger.yaml
             $transportName: 'async'
-            # Optionnally, if you have different buses in config/packages/messenger.yaml, set $bus like below:
+            # Optionally, if you have different buses in config/packages/messenger.yaml, set $bus like below:
             # $bus: '@event.bus'
 ```
 

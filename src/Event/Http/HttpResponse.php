@@ -21,7 +21,7 @@ final class HttpResponse
         $this->statusCode = $statusCode;
     }
 
-    public function toApiGatewayFormat(bool $multiHeaders = false): array
+    public function toApiGatewayFormat(bool $multiHeaders = false, ?string $awsRequestId = null): array
     {
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
@@ -37,6 +37,8 @@ final class HttpResponse
                 $headers[$name] = is_array($values) ? end($values) : $values;
             }
         }
+
+        $this->checkHeadersSize($headers, $awsRequestId);
 
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
@@ -58,7 +60,7 @@ final class HttpResponse
     /**
      * See https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.response
      */
-    public function toApiGatewayFormatV2(): array
+    public function toApiGatewayFormatV2(?string $awsRequestId = null): array
     {
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
@@ -75,6 +77,11 @@ final class HttpResponse
                 $headers[$name] = is_array($values) ? implode(', ', $values) : $values;
             }
         }
+
+        $this->checkHeadersSize(array_merge(
+            $headers,
+            ['Set-Cookie' => $cookies], // include cookies in the size check
+        ), $awsRequestId);
 
         // The headers must be a JSON object. If the PHP array is empty it is
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
@@ -97,5 +104,32 @@ final class HttpResponse
         $name = str_replace('-', ' ', $name);
         $name = ucwords($name);
         return str_replace(' ', '-', $name);
+    }
+
+    /**
+     * API Gateway v1 and v2 have a headers total max size of 10 KB.
+     * ALB has a max size of 32 KB.
+     * It's hard to calculate the exact size of headers here, so we just
+     * estimate it roughly: if above 9.5 KB we log a warning.
+     *
+     * @param array<string|string[]> $headers
+     */
+    private function checkHeadersSize(array $headers, ?string $awsRequestId): void
+    {
+        $estimatedHeadersSize = 0;
+        foreach ($headers as $name => $values) {
+            $estimatedHeadersSize += strlen($name);
+            if (is_array($values)) {
+                foreach ($values as $value) {
+                    $estimatedHeadersSize += strlen($value);
+                }
+            } else {
+                $estimatedHeadersSize += strlen($values);
+            }
+        }
+
+        if ($estimatedHeadersSize > 9_500) {
+            echo "$awsRequestId\tWARNING\tThe total size of HTTP response headers is estimated to be above 10 KB, which is the API Gateway limit. If the limit is reached, the HTTP response will be a 500 error.\n";
+        }
     }
 }

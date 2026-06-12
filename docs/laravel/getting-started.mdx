@@ -34,7 +34,7 @@ By default, the Laravel-Bref package will automatically configure Laravel to wor
 
 If you are curious, the package will automatically:
 
-- enable the `stderr` log driver, to send logs to CloudWatch ([read more about logs](../environment/logs.md))
+- enable the `stderr` log driver, to send logs to CloudWatch ([read more about logs](../environment/logs.mdx))
 - enable the [`cookie` session driver](https://laravel.com/docs/session#configuration) (if you prefer, you can configure sessions to be stored in database, DynamoDB or Redis)
 - move the storage directory to `/tmp` (because the default storage directory is read-only on Lambda)
 - adjust a few more settings ([have a look at the `BrefServiceProvider` for details](https://github.com/brefphp/laravel-bridge/blob/master/src/BrefServiceProvider.php))
@@ -76,6 +76,10 @@ At the moment, we deployed our local codebase to Lambda. When deploying for prod
 
 Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details about deploying in general.
 
+<Callout type="warning">
+    Most Laravel applications use `aws/aws-sdk-php` (pulled in by packages like SQS queues, S3 storage, etc.). This package is **very large** (100MB+) and can push your deployment over Lambda's 250MB size limit. Make sure to [remove unused AWS services](/docs/deploy.md#reducing-package-size) to reduce the deployment size.
+</Callout>
+
 Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying.
 
 <Callout type="warning">
@@ -92,27 +96,13 @@ Specifically for Laravel, Bref will automatically cache the configuration on "co
 
 ## Troubleshooting
 
-In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
+In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.mdx).
 
 ## Logs
 
 Thanks to the Bref integration, Laravel will automatically log to CloudWatch via `stderr`. You don't have to do anything.
 
-You can learn more about logs in the [Logs guide](../environment/logs.md).
-
-It is recommended you enable Bref's logs formatter optimized for CloudWatch:
-
-```yaml filename="serverless.yml"
-provider:
-    environment:
-        LOG_STDERR_FORMATTER: Bref\Monolog\CloudWatchFormatter
-```
-
-<Callout>
-    This formatter will be enabled by default in Bref v3.
-</Callout>
-
-With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level, exception class, or anything in the [Laravel Context](https://laravel.com/docs/12.x/context).
+You can learn more about logs in the [Logs guide](../environment/logs.mdx).
 
 ## Website assets
 
@@ -168,7 +158,7 @@ bref tinker --env=production
 ![](./tinker.png)
 
 <Callout>
-    Make sure to update the `bref/laravel-bridge` package to version 2.7 or higher to use this feature.
+    Make sure to update the `bref/laravel-bridge` package to version 3.0 or higher to use this feature.
 </Callout>
 
 If you are not using Bref Cloud, you can check out this community package: [sls-tinker](https://github.com/datpmwork/sls-tinker).

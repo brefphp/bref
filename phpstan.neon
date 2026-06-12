@@ -1,7 +1,6 @@
 parameters:
   level: 5
   paths:
-    - bref
     - src
     - tests
   excludePaths:

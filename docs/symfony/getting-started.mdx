@@ -21,17 +21,58 @@ Next, in an existing Symfony project, install Bref and the [Symfony Bridge packa
 composer require bref/bref bref/symfony-bridge --update-with-dependencies
 ```
 
-Next, create a `serverless.yml` configuration file at the root of your project by running:
+Next, create a `serverless.yml` configuration file at the root of your project:
 
-```bash
-vendor/bin/bref init symfony
+```yml filename="serverless.yml"
+service: app # your application name (lowercase without spaces)
+
+bref:
+    # Uncomment and set your team ID if you are using Bref Cloud
+    #team: bref-team-id
+
+provider:
+    name: aws
+    region: us-east-1 # AWS region to deploy to
+    environment: # Environment variables
+        APP_ENV: prod
+
+functions:
+    # This function runs the Symfony website/API
+    web:
+        handler: public/index.php
+        runtime: php-84-fpm
+        timeout: 28 # in seconds (API Gateway has a max timeout of 29 seconds)
+        events:
+            -   httpApi: '*'
+    # This function let us run console commands in Lambda
+    console:
+        handler: bin/console
+        runtime: php-84-console
+        timeout: 120 # in seconds
+
+package:
+    patterns:
+        # Excluded files and folders for deployment
+        - '!assets/**'
+        - '!node_modules/**'
+        - '!public/build/**'
+        - '!tests/**'
+        - '!var/**'
+        # If you want to include files and folders that are part of excluded folders,
+        # add them at the end
+        - 'var/cache/prod/**'
+        - 'public/build/entrypoints.json'
+        - 'public/build/manifest.json'
+
+plugins:
+    - ./vendor/bref/bref
 ```
 
-(you can preview that file [here](https://github.com/brefphp/bref/blob/master/template/http/serverless.yml))
+You will also want to add `.serverless` to your `.gitignore`.
 
 You still have a few modifications to do on the application to make it compatible with AWS Lambda.
 
-Since [the filesystem is readonly](/docs/environment/storage.md) except for `/tmp` we need to customize where the cache and logs are stored in the `src/Kernel.php` file. This is automatically done by the bridge, you just need to use the `BrefKernel` class instead of the default `BaseKernel`:
+Since [the filesystem is readonly](/docs/environment/storage.mdx) except for `/tmp` we need to customize where the cache and logs are stored in the `src/Kernel.php` file. This is automatically done by the bridge, you just need to use the `BrefKernel` class instead of the default `BaseKernel`:
 
 ```diff filename="src/Kernel.php"
 namespace App;
@@ -142,30 +183,13 @@ class Kernel extends BrefKernel
 
 ## Troubleshooting
 
-In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.md).
+In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.mdx).
 
 ## Logs
 
 Thanks to the Bref integration, Symfony will automatically log to CloudWatch via `stderr`. You don't have to do anything.
 
-You can learn more about logs in the [Logs guide](../environment/logs.md).
-
-It is recommended you enable Bref's logs formatter optimized for CloudWatch:
-
-```yaml filename="config/packages/prod/monolog.yaml"
-monolog:
-    handlers:
-        file:
-            type: stream
-            level: info
-            formatter: 'Bref\Monolog\CloudWatchFormatter'
-```
-
-<Callout>
-    This formatter will be enabled by default in Bref v3.
-</Callout>
-
-With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
+You can learn more about logs in the [Logs guide](../environment/logs.mdx).
 
 ## Website assets
 
@@ -206,7 +230,7 @@ For more details follow [the "Console" guide](../runtimes/console.mdx).
 
 ## Logs
 
-By default, Symfony logs to `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.md).
+By default, Symfony logs to `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.mdx).
 
 However, if your application is using Monolog, you need to configure it to log to `stderr` as well:
 

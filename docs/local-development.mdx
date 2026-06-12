@@ -38,11 +38,9 @@ To keep things simple, you can run your applications locally like you did withou
 In order to run the application locally in an environment closer to production, you can run your application using the [Bref Docker images](https://hub.docker.com/u/bref). For example, create the following `docker-compose.yml`:
 
 ```yml filename="docker-compose.yml"
-version: "3.5"
-
 services:
     app:
-        image: bref/php-81-fpm-dev:2
+        image: bref/php-84-dev:3
         ports: [ '8000:8000' ]
         volumes:
             - .:/var/task
@@ -62,7 +60,7 @@ The application will be available at [http://localhost:8000/](http://localhost:8
 
 The `HANDLER` environment variable lets you define which PHP file will be handling all HTTP requests. This should be the same handler that you have defined in `serverless.yml` for your HTTP function.
 
-> Currently, the Docker image support only one PHP handler. If you have multiple HTTP functions in `serverless.yml`, you can duplicate the service in `docker-compose.yml` to have one container per lambda function.
+> Currently, the Docker image supports only one PHP handler. If you have multiple HTTP functions in `serverless.yml`, you can duplicate the service in `docker-compose.yml` to have one container per lambda function.
 
 ### Read-only filesystem
 
@@ -118,7 +116,7 @@ docker-compose run app php bin/console ...
 
 ### Xdebug
 
-The development container (`bref/php-<version>-fpm-dev`) comes with Xdebug pre-installed.
+The development container (`bref/php-<version>-dev`) comes with Xdebug pre-installed.
 
 To enable it, create a `php/conf.dev.d/php.ini` file in your project containing:
 
@@ -138,29 +136,7 @@ Edit the `php/conf.dev.d/php.ini` file:
 zend_extension=xdebug.so
 
 [xdebug]
-xdebug.remote_enable = 1
-xdebug.remote_autostart = 0
-xdebug.remote_host = 'host.docker.internal'
+xdebug.mode = debug
+xdebug.start_with_request = yes
+xdebug.client_host = 'host.docker.internal'
 ```
-
-### Blackfire
-
-The development container (`bref/php-<version>-fpm-dev`) comes with the [blackfire](https://www.blackfire.io/) extension. When using docker compose, you can add the following service for the blackfire agent:
-
-```yml filename="docker-compose.yml"
-services:
-    blackfire:
-        image: blackfire/blackfire
-        environment:
-            BLACKFIRE_SERVER_ID: server-id
-            BLACKFIRE_SERVER_TOKEN: server-token
-```
-
-In order to enable the probe you can create a folder `php/conf.dev.d` in your project and include an ini file enabling blackfire:
-
-```ini filename="php/conf.dev.d/php.ini"
-extension=blackfire
-blackfire.agent_socket=tcp://blackfire:8707
-```
-
-For more details about using blackfire in a docker environment see the [blackfire docs](https://blackfire.io/docs/integrations/docker)

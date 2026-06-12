@@ -19,8 +19,8 @@ functions:
 +        handler: App\Kernel
         layers:
             # Switch from PHP-FPM to the "function" runtime:
--            - ${bref:layer.php-81-fpm}
-+            - ${bref:layer.php-81}
+-            - ${bref:layer.php-84-fpm}
++            - ${bref:layer.php-84}
         environment:
 +            # The Symfony process will restart every 100 requests
 +            BREF_LOOP_MAX: 100

@@ -130,6 +130,9 @@ jobs:
                 with:
                     composer-options: '--optimize-autoloader --no-dev'
 
+            # You may need to build your frontend application here
+            # -   run: npm run build
+
             -   run: bref deploy --env=prod
                 env:
                     BREF_TOKEN: ${{ secrets.BREF_TOKEN }}
