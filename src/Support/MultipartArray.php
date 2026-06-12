@@ -39,6 +39,10 @@ final class MultipartArray
      */
     private static function setMultipartArrayValue(array $array, string $name, mixed $value): array
     {
+        if (self::hasMalformedSegment($name)) {
+            return self::setValueUsingParseStr($array, $name, $value);
+        }
+
         $segments = explode('[', $name);
 
         $pointer = &$array;
@@ -48,12 +52,6 @@ final class MultipartArray
                 $pointer = &$pointer[$segment];
 
                 continue;
-            }
-
-            if (self::malformedMultipartSegment($segment)) {
-                $array[$name] = $value;
-
-                return $array;
             }
 
             $segment = substr($segment, 0, -1);
@@ -73,6 +71,30 @@ final class MultipartArray
     private static function malformedMultipartSegment(string $segment): bool
     {
         return $segment === '' || substr($segment, -1) !== ']';
+    }
+
+    private static function hasMalformedSegment(string $name): bool
+    {
+        foreach (explode('[', $name) as $key => $segment) {
+            if ($key > 0 && self::malformedMultipartSegment($segment)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array<string, mixed> $array
+     * @return array<string, mixed>
+     */
+    private static function setValueUsingParseStr(array $array, string $name, mixed $value): array
+    {
+        $parsed = [];
+        parse_str(urlencode($name) . '=__bref__', $parsed);
+        array_walk_recursive($parsed, fn (&$v) => $v = $value);
+
+        return array_replace_recursive($array, $parsed);
     }
 
     /**

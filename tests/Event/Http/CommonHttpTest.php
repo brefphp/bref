@@ -425,7 +425,6 @@ Year,Make,Model
      */
     public function test POST request with multipart form data containing structured arrays(int $version)
     {
-        var_dump($version);
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart-structured-arrays.json");
 
         $this->assertContentType('multipart/form-data; boundary=testBoundary');
