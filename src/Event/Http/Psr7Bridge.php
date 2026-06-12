@@ -3,6 +3,7 @@
 namespace Bref\Event\Http;
 
 use Bref\Context\Context;
+use Bref\Support\MultipartArray;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\UploadedFile;
@@ -12,20 +13,6 @@ use Riverline\MultiPartParser\Part;
 use RuntimeException;
 
 use function str_starts_with;
-
-// Polyfill for array_is_list (PHP 8.1+) to support PHP 8.0
-if (! function_exists('array_is_list')) {
-    function array_is_list(array $array): bool
-    {
-        $i = 0;
-        foreach ($array as $key => $value) {
-            if ($key !== $i++) {
-                return false;
-            }
-        }
-        return true;
-    }
-}
 
 /**
  * Bridges PSR-7 requests and responses with API Gateway or ALB event/response formats.
@@ -138,100 +125,15 @@ final class Psr7Bridge
                 }
                 file_put_contents($tmpPath, $part->getBody());
                 $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
-                self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
+                $files = MultipartArray::setValue($files, $part->getName(), $file);
             } else {
                 if ($parsedBody === null) {
                     $parsedBody = [];
                 }
-                self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
+                $parsedBody = MultipartArray::setValue($parsedBody, $part->getName(), $part->getBody());
             }
         }
         return [$files, $parsedBody];
-    }
-
-    /**
-     * Parse a string key like "files[id_cards][jpg][]" and do $array['files']['id_cards']['jpg'][] = $value
-     */
-    private static function parseKeyAndInsertValueInArray(array &$array, string $key, mixed $value): void
-    {
-        $parsed = [];
-        // We use parse_str to parse the key in the same way PHP does natively
-        // We use "=mock" because the value can be an object (in case of uploaded files)
-        parse_str(urlencode($key) . '=mock', $parsed);
-        // Replace `mock` with the actual value
-        array_walk_recursive($parsed, fn (&$v) => $v = $value);
-
-        // Use a custom merge that handles both structured arrays and regular arrays
-        $array = self::mergeRecursivePreserveNumeric($array, $parsed);
-    }
-
-    private static function mergeRecursivePreserveNumeric(array $a, array $b): array
-    {
-        foreach ($b as $key => $bVal) {
-            if (! array_key_exists($key, $a)) {
-                $a[$key] = $bVal;
-                continue;
-            }
-
-            $aVal = $a[$key];
-
-            if (is_array($aVal) && is_array($bVal)) {
-                $aIsList = array_is_list($aVal);
-                $bIsList = array_is_list($bVal);
-
-                if ($aIsList && $bIsList) {
-                    // Determine whether list items are arrays (objects) -> merge-by-index
-                    $mergeByIndex = false;
-                    foreach ($aVal as $item) {
-                        if (is_array($item)) {
-                            $mergeByIndex = true;
-                            break;
-                        }
-                    }
-                    if (! $mergeByIndex) {
-                        foreach ($bVal as $item) {
-                            if (is_array($item)) {
-                                $mergeByIndex = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if ($mergeByIndex) {
-                        $max = max(count($aVal), count($bVal));
-                        $merged = [];
-                        for ($i = 0; $i < $max; $i++) {
-                            $hasA = array_key_exists($i, $aVal);
-                            $hasB = array_key_exists($i, $bVal);
-                            if ($hasA && $hasB) {
-                                if (is_array($aVal[$i]) && is_array($bVal[$i])) {
-                                    $merged[$i] = self::mergeRecursivePreserveNumeric($aVal[$i], $bVal[$i]);
-                                } else {
-                                    // if one is scalar, b wins
-                                    $merged[$i] = $bVal[$i];
-                                }
-                            } elseif ($hasA) {
-                                $merged[$i] = $aVal[$i];
-                            } else {
-                                $merged[$i] = $bVal[$i];
-                            }
-                        }
-                        $a[$key] = $merged;
-                    } else {
-                        // both lists of scalars -> append
-                        $a[$key] = array_merge($aVal, $bVal);
-                    }
-                } else {
-                    // At least one side is associative -> merge recursively by key
-                    $a[$key] = self::mergeRecursivePreserveNumeric($aVal, $bVal);
-                }
-            } else {
-                // Non-array or conflicting types -> b wins
-                $a[$key] = $bVal;
-            }
-        }
-
-        return $a;
     }
 
     /**
