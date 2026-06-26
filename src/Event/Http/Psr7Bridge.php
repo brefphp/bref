@@ -3,6 +3,7 @@
 namespace Bref\Event\Http;
 
 use Bref\Context\Context;
+use Bref\Support\MultipartArray;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\UploadedFile;
@@ -124,30 +125,15 @@ final class Psr7Bridge
                 }
                 file_put_contents($tmpPath, $part->getBody());
                 $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
-                self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
+                $files = MultipartArray::setValue($files, $part->getName(), $file);
             } else {
                 if ($parsedBody === null) {
                     $parsedBody = [];
                 }
-                self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
+                $parsedBody = MultipartArray::setValue($parsedBody, $part->getName(), $part->getBody());
             }
         }
         return [$files, $parsedBody];
-    }
-
-    /**
-     * Parse a string key like "files[id_cards][jpg][]" and do $array['files']['id_cards']['jpg'][] = $value
-     */
-    private static function parseKeyAndInsertValueInArray(array &$array, string $key, mixed $value): void
-    {
-        $parsed = [];
-        // We use parse_str to parse the key in the same way PHP does natively
-        // We use "=mock" because the value can be an object (in case of uploaded files)
-        parse_str(urlencode($key) . '=mock', $parsed);
-        // Replace `mock` with the actual value
-        array_walk_recursive($parsed, fn (&$v) => $v = $value);
-        // Merge recursively into the main array to avoid overwriting existing values
-        $array = array_merge_recursive($array, $parsed);
     }
 
     /**
