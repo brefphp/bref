@@ -11,6 +11,7 @@ on:
 jobs:
 
     php-tests:
+        if: github.event_name != 'schedule' || github.repository == 'brefphp/bref'
         name: Tests - PHP ${{ matrix.php }} ${{ matrix.dependency-version }}
         runs-on: ubuntu-22.04
         timeout-minutes: 15

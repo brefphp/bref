@@ -121,11 +121,14 @@ class Server
                 );
                 $requestUri = $response->getUri()->withScheme('http');
                 $hostHeader = $response->getHeaderLine('host');
-                if ($hostHeader !== '' && ($parsed = Rfc7230::parseHostHeader($hostHeader)) !== null) {
-                    [$host, $port] = $parsed;
-                    $requestUri = $requestUri->withHost($host);
-                    if ($port !== null) {
-                        $requestUri = $requestUri->withPort($port);
+                if ($hostHeader !== '') {
+                    $parsed = Rfc7230::parseHostHeader($hostHeader);
+                    if ($parsed !== null) {
+                        [$host, $port] = $parsed;
+                        $requestUri = $requestUri->withHost($host);
+                        if ($port !== null) {
+                            $requestUri = $requestUri->withPort($port);
+                        }
                     }
                 }
                 return $response->withUri($requestUri);
