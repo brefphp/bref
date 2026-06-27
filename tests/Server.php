@@ -26,6 +26,7 @@ namespace Bref\Test;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\Rfc7230;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -118,11 +119,16 @@ class Server
                     $message['body'],
                     $message['version']
                 );
-                return $response->withUri(
-                    $response->getUri()
-                        ->withScheme('http')
-                        ->withHost($response->getHeaderLine('host'))
-                );
+                $requestUri = $response->getUri()->withScheme('http');
+                $hostHeader = $response->getHeaderLine('host');
+                if ($hostHeader !== '' && ($parsed = Rfc7230::parseHostHeader($hostHeader)) !== null) {
+                    [$host, $port] = $parsed;
+                    $requestUri = $requestUri->withHost($host);
+                    if ($port !== null) {
+                        $requestUri = $requestUri->withPort($port);
+                    }
+                }
+                return $response->withUri($requestUri);
             },
             $data
         );
