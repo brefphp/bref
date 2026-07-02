@@ -4,7 +4,7 @@ provider:
     runtime: php-83
 
 plugins:
-    - ../../index.js
+    - ./bref.js
 
 functions:
     function:

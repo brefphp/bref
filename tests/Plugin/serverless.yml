@@ -3,7 +3,7 @@ provider:
     name: aws
 
 plugins:
-    - ../../index.js
+    - ./bref.js
 
 functions:
     function:
