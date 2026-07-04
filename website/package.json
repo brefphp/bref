@@ -2,32 +2,32 @@
   "scripts": {
     "dev": "next dev -p 8000",
     "build": "next build",
-    "postbuild": "next-sitemap",
+    "postbuild": "next-sitemap && pagefind --site .next/server/app --output-path public/_pagefind",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.1016.0",
-    "@docsearch/css": "^3.5.2",
-    "@docsearch/react": "^3.5.2",
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.0.18",
     "@octokit/graphql": "^7.0.1",
-    "next": "^14.2.35",
-    "next-plausible": "^3.11.1",
-    "next-seo": "^6.1.0",
-    "next-sitemap": "^4.2.3",
-    "nextra": "^2.13.2",
-    "nextra-theme-docs": "^2.13.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "next": "^15.5.20",
+    "next-plausible": "^3.12.4",
+    "nextra": "^4.6.1",
+    "nextra-theme-docs": "^4.6.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "sharp": "^0.32.6"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.5",
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.5.10",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/postcss": "^4.0.0",
+    "next-sitemap": "^4.2.3",
+    "pagefind": "^1.5.2",
     "sync-directory": "^6.0.4",
-    "tailwindcss": "^3.3.2"
+    "tailwindcss": "^4.0.0"
+  },
+  "overrides": {
+    "zod": "4.3.0"
   }
 }

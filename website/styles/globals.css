@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+
+/* Custom blue palette moves from tailwind.config.js into @theme (Tailwind v4 CSS-first).
+   These become utilities like bg-blue-500 / text-blue-100 used across marketing pages. */
+@theme {
+    --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --color-blue-900: #25516A;
+    --color-blue-800: #266488;
+    --color-blue-700: #2381B8;
+    --color-blue-600: #258ECB;
+    --color-blue-500: #3AA9E9;
+    --color-blue-400: #5EBCF3;
+    --color-blue-300: #8CD0F8;
+    --color-blue-200: #BBE4FB;
+    --color-blue-100: #EBF8FF;
+}
+
+/* Nextra v4 primary color is driven by CSS vars, not a `primaryHue` prop (was primaryHue: 202). */
+:root {
+    --nextra-primary-hue: 202deg;
+    --nextra-primary-saturation: 80%;
+    --nextra-primary-lightness: 57%;
+}
+
+/* Custom helper classes used across the marketing + docs pages (ported from main.css) */
+.link {
+    @apply text-blue-600 hover:text-blue-800 font-semibold underline;
+}
+.inline-code {
+    @apply text-sm text-gray-600 font-semibold;
+}
+
+.home-container {
+    @apply mx-auto max-w-7xl px-6 lg:px-8;
+}
+.home-section {
+    @apply py-20 sm:py-28;
+}
+
+.mermaidHidden {
+    display: none;
+}
+.mermaidAwsColor span {
+    color: #fff !important;
+}
+.mermaidAwsColor > rect {
+    fill: #FF9900 !important;
+    stroke: #fff !important;
+    stroke-width: 1px !important;
+}
+.mermaidBlack span {
+    color: #fff !important;
+}
+.mermaidBlack > rect {
+    fill: #000 !important;
+    stroke: #fff !important;
+    stroke-width: 1px !important;
+}
+
+.maturity-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 9999px;
+    vertical-align: text-top;
+}
