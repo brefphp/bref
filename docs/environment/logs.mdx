@@ -1,10 +1,11 @@
-import { NextSeo } from 'next-seo';
-import { Tab, Tabs } from 'nextra/components';
+---
+description: Learn how to write and read PHP logs on AWS Lambda using Bref.
+---
+
+import { Tabs } from 'nextra/components';
 import { Callout } from 'nextra/components';
 import Image from 'next/image';
 import brefCloudLogs from '../cloud/logs.png';
-
-<NextSeo description="Learn how to write and read PHP logs on AWS Lambda using Bref." />
 
 # Logs
 
@@ -32,21 +33,21 @@ For all other logs, your application should write logs to CloudWatch:
 AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `stdout` for event-driven functions) to CloudWatch Logs in the background, **without performance impact**.
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         If you use Laravel, Bref will automatically configure Laravel to log to CloudWatch via `stderr` (`LOG_CHANNEL=stderr`) with the `Bref\Monolog\CloudWatchFormatter` formatter. You don't have to do anything.
 
         If you have a custom log setup (e.g. using the `stack` channel), you should ensure that the `stderr` channel is included in your stack with the `Bref\Monolog\CloudWatchFormatter` formatter.
 
         With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr` with the `Bref\Monolog\CloudWatchFormatter` formatter. You don't have to do anything.
 
         If you have a custom log setup, you should ensure that logs are sent to `stderr` (e.g. using the `stream` handler with `php://stderr`) with the `Bref\Monolog\CloudWatchFormatter` formatter (`bref.cloudwatch_formatter` service).
 
         With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         You can use [Monolog](https://github.com/Seldaek/monolog) to write logs to CloudWatch via `stderr`:
 
         ```php
@@ -78,7 +79,7 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
 
         $log->warning('This is a warning!');
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ### Reading logs

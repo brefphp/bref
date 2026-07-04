@@ -1,10 +1,11 @@
-import { Cards, Card, Tabs, Tab } from 'nextra/components';
-// Path relative to the copy in the `website/` folder
-import { LaravelIcon } from '../../../components/icons/LaravelIcon';
-import { SymfonyIcon } from '../../../components/icons/SymfonyIcon';
-import { NextSeo } from 'next-seo';
+---
+description: Run PHP serverless on AWS Lambda using Bref.
+---
 
-<NextSeo description="Run PHP serverless on AWS Lambda using Bref." />
+import { Cards, Tabs } from 'nextra/components';
+// Path relative to the copy in the `website/` folder
+import { LaravelIcon } from '../../../src/components/icons/LaravelIcon';
+import { SymfonyIcon } from '../../../src/components/icons/SymfonyIcon';
 
 # Getting started - Bref with any framework
 
@@ -13,8 +14,8 @@ This guide will help you deploy your first PHP application on AWS Lambda. The in
 If you are using Laravel or Symfony, check out the dedicated guides instead:
 
 <Cards num={2}>
-    <Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
-    <Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
+    <Cards.Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
+    <Cards.Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
 </Cards>
 
 ## Setup
@@ -82,16 +83,16 @@ You will also want to add `.serverless` to your `.gitignore`.
 To deploy, run:
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         serverless deploy
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         bref deploy
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 Once the command finishes, it should print a URL like this one:

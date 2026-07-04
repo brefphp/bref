@@ -1,7 +1,8 @@
-import { NextSeo } from 'next-seo';
-import { Tab, Tabs } from 'nextra/components';
+---
+description: Learn how to run serverless console commands on AWS Lambda with Symfony Console or Laravel Artisan.
+---
 
-<NextSeo description="Learn how to run serverless console commands on AWS Lambda with Symfony Console or Laravel Artisan." />
+import { Tabs } from 'nextra/components';
 
 # Console runtime
 
@@ -74,7 +75,7 @@ Read the dedicated documentation for [running cron tasks on AWS Lambda](../use-c
 To manually run a console command on AWS Lambda, run the following command on your computer:
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         serverless bref:cli --args="{arguments and options for the script}"
         ```
@@ -104,8 +105,8 @@ To manually run a console command on AWS Lambda, run the following command on yo
         ```
 
         The `bref:cli` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         bref command "{arguments and options for the script}"
         ```
@@ -131,7 +132,7 @@ To manually run a console command on AWS Lambda, run the following command on yo
         ```
 
         The `bref command` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ### Interactive terminal

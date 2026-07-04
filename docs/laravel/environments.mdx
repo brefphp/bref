@@ -1,7 +1,8 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: Configure Laravel environments and deployment environments with Bref.
+---
 
-<NextSeo description="Configure Laravel environments and deployment environments with Bref." />
+import { Callout, Tabs } from 'nextra/components';
 
 # Laravel environments
 
@@ -12,16 +13,16 @@ The Bref Cloud CLI calls them **environments** (`bref deploy --env=prod`), while
 Laravel also has an *application environment*, configured with the `APP_ENV` environment variable. These concepts are related, but they do not have to use the exact same name.
 
 <Tabs items={['Bref Cloud', 'Serverless CLI']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         bref deploy --env=prod
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         serverless deploy --stage=prod
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 In `serverless.yml`, the deployment environment is available as `${sls:stage}` for both CLIs:

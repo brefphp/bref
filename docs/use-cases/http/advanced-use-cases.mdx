@@ -1,4 +1,4 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
+import { Callout, Tabs } from 'nextra/components';
 
 # Advanced HTTP use-cases
 
@@ -184,7 +184,7 @@ class MyHttpHandler implements RequestHandlerInterface
 Then, create a Lambda function that listens to HTTP events with the handler you created:
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
@@ -201,8 +201,8 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         ```
 
         The `App\MyHttpHandler` class will be instantiated by Laravel's service container.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
@@ -219,8 +219,8 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         ```
 
         The `App\MyHttpHandler` class will be instantiated by Symfony's service container.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
@@ -245,7 +245,7 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
 
         return new MyHttpHandler();
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 Since a handler is a controller for a specific route, we can use the API Gateway routing to deploy multiple functions:

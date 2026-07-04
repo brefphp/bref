@@ -1,4 +1,4 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
+import { Callout, Tabs } from 'nextra/components';
 
 # S3 file processing
 
@@ -34,7 +34,7 @@ class MyHandler extends S3Handler
 Then, create a Lambda function that listens to S3 events with the handler you created:
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
@@ -46,8 +46,8 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
         ```
 
         The `App\MyHandler` class will be instantiated by Laravel's service container.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
@@ -59,8 +59,8 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
         ```
 
         The `App\MyHandler` class will be instantiated by Symfony's service container.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
@@ -80,7 +80,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
 
         return new MyHandler();
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 The S3 bucket will automatically be created on deployment. You can listen to an existing S3 bucket via [the `existing: true` option](https://github.com/oss-serverless/serverless/blob/main/docs/events/s3.md#using-existing-buckets).
@@ -101,7 +101,6 @@ functions:
                 existing: true
                 event: s3:ObjectCreated:*
 # ...
-
 
 ```
 

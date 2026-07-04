@@ -1,4 +1,4 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
+import { Callout, Tabs } from 'nextra/components';
 
 # SQS asynchronous tasks
 
@@ -45,7 +45,7 @@ class MyHandler extends SqsHandler
 Then, create a Lambda function that listens to SQS events with the handler you created:
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
@@ -59,8 +59,8 @@ Then, create a Lambda function that listens to SQS events with the handler you c
         ```
 
         The `App\MyHandler` class will be instantiated by Laravel's service container.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
@@ -74,8 +74,8 @@ Then, create a Lambda function that listens to SQS events with the handler you c
         ```
 
         The `App\MyHandler` class will be instantiated by Symfony's service container.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
@@ -97,7 +97,7 @@ Then, create a Lambda function that listens to SQS events with the handler you c
 
         return new MyHandler();
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ## Creating SQS queues

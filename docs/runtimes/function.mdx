@@ -1,7 +1,8 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: Run serverless event-driven PHP functions on AWS Lambda using Bref.
+---
 
-<NextSeo description="Run serverless event-driven PHP functions on AWS Lambda using Bref." />
+import { Callout, Tabs } from 'nextra/components';
 
 # PHP functions runtime for AWS Lambda
 
@@ -149,7 +150,7 @@ functions:
 It is also possible to directly define PHP classes as AWS Lambda handlers.
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         Set the class name as the `handler` and Bref will retrieve that class from Laravel's service container.
 
         ```yml filename="serverless.yml"
@@ -157,8 +158,8 @@ It is also possible to directly define PHP classes as AWS Lambda handlers.
             hello:
                 handler: MyApp\Handler
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         Set the class name as the `handler` and Bref will retrieve that class from Symfony's service container.
 
         ```yml filename="serverless.yml"
@@ -166,8 +167,8 @@ It is also possible to directly define PHP classes as AWS Lambda handlers.
             hello:
                 handler: MyApp\Handler
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         To achieve that, you must integrate Bref with your framework's Dependency Injection Container.
 
         First, create a file (for example `init.php`) that calls `Bref::setContainer()`:
@@ -208,7 +209,7 @@ It is also possible to directly define PHP classes as AWS Lambda handlers.
             hello:
                 handler: MyApp\Handler
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ## Invocation

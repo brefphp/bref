@@ -1,4 +1,4 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
+import { Callout, Tabs } from 'nextra/components';
 
 # Deployment
 
@@ -11,16 +11,16 @@ Bref can also work with any other deployment tool: Terraform, CloudFormation, SA
 To deploy to AWS an application configured with `serverless.yml`, run:
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         serverless deploy
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         bref deploy
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 A `.serverless/` directory will be created. You can add it to `.gitignore`.
@@ -46,16 +46,16 @@ Now is also the best time to configure your project for production, as well as b
 Once your project is ready, you can deploy via the following command:
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         serverless deploy
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         bref deploy
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ### Reducing package size
@@ -103,19 +103,19 @@ If your application still exceeds the 250MB limit, you can [deploy via Docker im
 We can deploy the same application multiple times in completely separated environments (also called "stages" by the Serverless CLI).
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         serverless deploy --stage=prod
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         bref deploy --env=prod
 
         # or
         bref deploy -e prod
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 The default environment is `dev`. The example above deploys a `prod` environment.
@@ -173,7 +173,7 @@ provider:
 You can delete a deployed environment using the `remove` command.
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         serverless remove
 
@@ -182,8 +182,8 @@ You can delete a deployed environment using the `remove` command.
         ```
 
         Note that because of the way Serverless Framework works, you will need to delete the contents of AWS S3 buckets manually before running this command.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         bref remove
 
@@ -192,7 +192,7 @@ You can delete a deployed environment using the `remove` command.
         ```
 
         Bref Cloud will automatically delete the contents of AWS S3 buckets.
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 **Deleting an environment destroys the AWS resources that were created for that environment.**

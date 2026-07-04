@@ -1,8 +1,9 @@
-import { Steps } from 'nextra/components';
-import { NextSeo } from 'next-seo';
-import { Tab, Tabs } from 'nextra/components';
+---
+description: Laravel Passport on AWS Lambda with Bref
+---
 
-<NextSeo description="Laravel Passport on AWS Lambda with Bref" />
+import { Steps } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 
 # Laravel Passport
 
@@ -40,16 +41,16 @@ Instead, here is what you need to do:
     You can now redeploy the application:
 
     <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-        <Tab>
+        <Tabs.Tab>
             ```bash
             serverless deploy
             ```
-        </Tab>
-        <Tab>
+        </Tabs.Tab>
+        <Tabs.Tab>
             ```bash
             bref deploy
             ```
-        </Tab>
+        </Tabs.Tab>
     </Tabs>
 
     Note, that during deployment the keys will be stored at `./storage` path, not at `/var/task/storage`. Workaround for this is to adjust Passport path with `Passport::loadKeysFrom('storage')`.
@@ -59,18 +60,18 @@ Instead, here is what you need to do:
     Finally, you can create the tokens (which is the second part of the `passport:install` command):
 
     <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-        <Tab>
+        <Tabs.Tab>
             ```bash
             serverless bref:cli --args="passport:client --personal --name 'Laravel Personal Access Client'"
             serverless bref:cli --args="passport:client --password --name 'Laravel Personal Access Client'"
             ```
-        </Tab>
-        <Tab>
+        </Tabs.Tab>
+        <Tabs.Tab>
             ```bash
             bref command "passport:client --personal --name 'Laravel Personal Access Client'"
             bref command "passport:client --password --name 'Laravel Personal Access Client'"
             ```
-        </Tab>
+        </Tabs.Tab>
     </Tabs>
 
 </Steps>
