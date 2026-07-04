@@ -42,7 +42,7 @@ serverless plugin install -n serverless-lift
     <Tab>
         Then add this configuration to `serverless.yml`:
 
-        ```yml filename="serverless.yml" {5,7-15}
+        ```yml filename="serverless.yml" {5,7-16}
         # ...
 
         plugins:
@@ -52,6 +52,7 @@ serverless plugin install -n serverless-lift
         constructs:
             website:
                 type: server-side-website
+                versionedAssets: true
                 assets:
                     '/build/*': public/build
                     '/vendor/*': public/vendor
@@ -59,6 +60,8 @@ serverless plugin install -n serverless-lift
                     '/robots.txt': public/robots.txt
                     # add here any file or directory that needs to be served from S3
         ```
+
+        We enable [`versionedAssets`](https://github.com/getlift/lift/blob/master/docs/server-side-website.md#versioned-assets) so that deployments are zero-downtime: Laravel + Vite generate asset file names with a unique hash, and Lift uploads the new hashed assets to S3 *before* the new PHP code is deployed. This guarantees that the assets referenced by the freshly-deployed code are already available.
 
         Before deploying, compile your assets:
 
@@ -69,7 +72,7 @@ serverless plugin install -n serverless-lift
     <Tab>
         Then add this configuration to `serverless.yml`:
 
-        ```yml filename="serverless.yml" {5,7-15}
+        ```yml filename="serverless.yml" {5,7-16}
         # ...
 
         plugins:
@@ -79,6 +82,7 @@ serverless plugin install -n serverless-lift
         constructs:
             website:
                 type: server-side-website
+                versionedAssets: true
                 assets:
                     '/bundles/*': public/bundles
                     '/build/*': public/build
@@ -86,6 +90,8 @@ serverless plugin install -n serverless-lift
                     '/robots.txt': public/robots.txt
                     # add here any file or directory that needs to be served from S3
         ```
+
+        We enable [`versionedAssets`](https://github.com/getlift/lift/blob/master/docs/server-side-website.md#versioned-assets) so that deployments are zero-downtime: Webpack Encore generates asset file names with a unique hash in production (`.enableVersioning()` is enabled by default in the Symfony recipe), and Lift uploads the new hashed assets to S3 *before* the new PHP code is deployed. This guarantees that the assets referenced by the freshly-deployed code are already available. Non-hashed files (like `/bundles/*`) are not affected: they are updated after the deployment, like by default.
 
         Because this construct sets the `X-Forwarded-Host` header by default, you should add it in your `trusted_headers` config, otherwise Symfony might generate wrong URLs.
 

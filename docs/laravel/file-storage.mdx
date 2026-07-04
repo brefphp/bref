@@ -192,74 +192,81 @@ For local development, Laravel's filesystem abstraction lets you use the same co
 
 ## Public files
 
-Laravel has a [special disk called `public`](https://laravel.com/docs/filesystem#the-public-disk): this disk stores files that we want to make public, like uploaded photos, generated PDF files, etc.
+Some files are meant to be publicly accessible: uploaded photos, generated PDF files, avatars, etc. Laravel traditionally uses a [special disk called `public`](https://laravel.com/docs/filesystem#the-public-disk) for this, but with S3 we can use a simpler convention: **store public files under a `public/` prefix on the default (S3) disk**, and let Lift expose that prefix publicly.
 
-Again, those files cannot be stored on Lambda, i.e. they cannot be stored in the default `storage/app/public` directory. You need to store those files on S3.
+### Expose the `public/` prefix with Lift
 
-<Callout>
-    Do not run `php artisan storage:link` in AWS Lambda: it is now useless, and it will fail because the filesystem is read-only in Lambda.
-</Callout>
+Add [`publicPath: public`](https://github.com/getlift/lift/blob/master/docs/storage.md#public-files) to the `storage` construct. Every file stored under the `public/` prefix becomes publicly readable over HTTPS (via a bucket policy), while the rest of the bucket stays completely private:
 
-To store public files on S3, you could replace the disk in the code:
-
-```diff
-- Storage::disk('public')->put('avatars/1', $fileContents);
-+ Storage::disk('s3')->put('avatars/1', $fileContents);
+```yaml filename="serverless.yml" {4}
+constructs:
+    storage:
+        type: storage
+        publicPath: public
+        allowAcl: true
 ```
 
-but doing this will not let your application work locally. A better solution, but more complex, involves making the `public` disk configurable. Let's change the following lines in `config/filesystems.php`:
+### Storing and reading public files
 
-```php filename="config/filesystems.php" {7,18,35-43}
-    /*
-    |--------------------------------------------------------------------------
-    | Default Public Filesystem Disk
-    |--------------------------------------------------------------------------
-    */
+Store public files under the `public/` prefix on the default disk. There is no need for a separate `public` disk, and no need to modify each file's visibility to `'public'` (this is useless with `publicPath`):
 
-   'public' => env('FILESYSTEM_DISK_PUBLIC', 'public_local'),
+```php
+// Store a public file
+Storage::put('public/avatars/1.png', $fileContents);
 
-    ...
+// Read its public URL
+$url = Storage::url('public/avatars/1.png');
+```
 
-    'disks' => [
+In production, set `AWS_URL` to the public bucket URL exposed by Lift so that `Storage::url()` returns the correct public URL:
 
-        'local' => [
-            'driver' => 'local',
-            'root' => storage_path('app'),
-        ],
+```yaml filename="serverless.yml"
+provider:
+    environment:
+        FILESYSTEM_DISK: s3
+        AWS_BUCKET: ${construct:storage.bucketName}
+        # Base URL used by `Storage::url()` to build public file URLs
+        AWS_URL: ${construct:storage.publicUrl}
+```
 
-        'public_local' => [ // Rename `public` to `public_local`
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
-            'visibility' => 'public',
-        ],
+### Making public files work locally
 
-        's3' => [
-            'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'token' => env('AWS_SESSION_TOKEN'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-        ],
+Locally, the default `local` disk stores files in `storage/app/private`, so files written under the `public/` prefix end up in `storage/app/private/public`. To make things work, you can point the storage symlink to that directory in `config/filesystems.php`:
 
-        's3_public' => [
-            'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'token' => env('AWS_SESSION_TOKEN'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_PUBLIC_BUCKET'),
-            'url' => env('AWS_URL'),
-        ],
-
+```diff
+    'links' => [
+-       public_path('storage') => storage_path('app/public'),
++       public_path('storage') => storage_path('app/private/public'),
     ],
 ```
 
-You can now configure the `public` disk to use S3 by changing `serverless.yml` or your production `.env`:
+If the `public/storage` symlink already exists, you need to remove it first so it can be recreated pointing to the new directory:
 
-```bash filename=".env"
-FILESYSTEM_DISK=s3
-FILESYSTEM_DISK_PUBLIC=s3
+```bash
+rm public/storage
+php artisan storage:link
 ```
+
+<Callout>
+    Do not run `php artisan storage:link` in AWS Lambda: it is useless there (files are served from S3), and it will fail because the filesystem is read-only.
+</Callout>
+
+### Migrating an existing application
+
+If your application already writes to the `public` disk and you don't want to change all those calls, keep the `public` disk but turn it into a [scoped disk](https://laravel.com/docs/filesystem#scoped-and-read-only-filesystems) of the default disk, scoped to the `public/` prefix. In `config/filesystems.php`:
+
+```php filename="config/filesystems.php"
+'public' => [
+    'driver' => 'scoped',
+    'disk' => env('FILESYSTEM_DISK', 'local'),
+    'prefix' => 'public',
+],
+```
+
+Scoped disks require the `league/flysystem-path-prefixing` package:
+
+```bash
+composer require league/flysystem-path-prefixing "^3.0"
+```
+
+With this, calls like `Storage::disk('public')->put('avatars/1.png', ...)` keep working: they now write to `public/avatars/1.png` on the default disk, which Lift exposes publicly.
