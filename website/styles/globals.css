@@ -71,3 +71,8 @@
     border-radius: 9999px;
     vertical-align: text-top;
 }
+
+/* Restore the v2 light-blue code block background (v4 default is neutral white/black). */
+.nextra-code pre {
+    background-color: var(--color-blue-100);
+}

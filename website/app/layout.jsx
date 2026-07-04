@@ -1,6 +1,6 @@
 /* eslint-env node */
 import { Layout, Navbar } from 'nextra-theme-docs'
-import { Banner, Head } from 'nextra/components'
+import { Banner, Head, Search } from 'nextra/components'
 import { getPageMap } from 'nextra/page-map'
 import { Inter } from 'next/font/google'
 import PlausibleProvider from 'next-plausible'
@@ -75,6 +75,7 @@ export default async function RootLayout({ children }) {
                         footer={<Footer />}
                         pageMap={pageMap}
                         docsRepositoryBase="https://github.com/brefphp/bref/blob/main"
+                        search={<Search placeholder="Search docs" />}
                         sidebar={{ defaultMenuCollapseLevel: 1 }}
                         darkMode={false}
                         nextThemes={{ defaultTheme: 'light', forcedTheme: 'light' }}
