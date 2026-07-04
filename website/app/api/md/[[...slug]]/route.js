@@ -6,14 +6,23 @@ import path from 'path'
 // (NextSeo is gone in v4, so the old <NextSeo> stripper is replaced by a frontmatter strip).
 export async function GET(req, { params }) {
     const { slug } = await params
-    const slugPath = Array.isArray(slug) ? slug.join('/') : slug
+    const slugPath = Array.isArray(slug) ? slug.join('/') : (slug ?? '')
 
     const docsDir = path.join(process.cwd(), 'content/docs')
-    let filePath = path.join(docsDir, `${slugPath}.mdx`)
-    if (!fs.existsSync(filePath)) {
-        filePath = path.join(docsDir, slugPath, 'index.mdx')
-    }
-    if (!fs.existsSync(filePath)) {
+    const candidates = slugPath
+        ? [
+              path.join(docsDir, `${slugPath}.mdx`),
+              path.join(docsDir, `${slugPath}.md`),
+              path.join(docsDir, slugPath, 'index.mdx'),
+          ]
+        : [path.join(docsDir, 'index.mdx')]
+
+    // Reject any path that escapes content/docs (e.g. via `..` segments).
+    const resolvedDocsDir = path.resolve(docsDir) + path.sep
+    let filePath = candidates.find(
+        candidate => path.resolve(candidate).startsWith(resolvedDocsDir) && fs.existsSync(candidate)
+    )
+    if (!filePath) {
         return new Response(JSON.stringify({ error: 'Page not found' }), {
             status: 404,
             headers: { 'Content-Type': 'application/json' },

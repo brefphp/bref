@@ -10,11 +10,16 @@ const withNextra = nextra({
     defaultShowCopyCode: true,
 })
 
-const redirectList = Object.entries(redirects).map(([source, destination]) => ({
-    source,
-    destination,
-    permanent: true,
-}))
+// Entries with a `#` are hash-anchor redirects: the server never sees the
+// hash, so they can't match here. They're handled client-side by
+// src/components/HashRedirects.jsx instead.
+const redirectList = Object.entries(redirects)
+    .filter(([source]) => !source.includes('#'))
+    .map(([source, destination]) => ({
+        source,
+        destination,
+        permanent: true,
+    }))
 
 export default withNextra(withPlausibleProxy()({
     outputFileTracingRoot: import.meta.dirname,
@@ -35,6 +40,10 @@ export default withNextra(withPlausibleProxy()({
             {
                 source: '/docs/:path*.md',
                 destination: '/api/md/:path*',
+            },
+            {
+                source: '/docs.md',
+                destination: '/api/md',
             },
         ]
     },

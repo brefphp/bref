@@ -21,7 +21,7 @@ export async function generateMetadata(props) {
     const mdxPath = params.mdxPath ?? []
     const { metadata } = await importPage(mdxPath)
     const isHome = mdxPath.length === 0
-    const isDocsPage = mdxPath[0] === 'docs'
+    const isDocsPage = mdxPath[0] === 'docs' && mdxPath.length > 1
     return {
         ...metadata,
         ...(isHome
