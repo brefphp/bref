@@ -2,7 +2,7 @@
   "scripts": {
     "dev": "next dev -p 8000",
     "build": "next build",
-    "postbuild": "next-sitemap && pagefind --site .next/server/app --output-path public/_pagefind",
+    "postbuild": "next-sitemap && pagefind --site .next/server/app --glob \"{docs.html,docs/**/*.html}\" --output-path public/_pagefind",
     "start": "next start",
     "lint": "next lint"
   },

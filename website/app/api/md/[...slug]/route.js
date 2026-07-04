@@ -25,6 +25,8 @@ export async function GET(req, { params }) {
     content = content.replace(/^---\n[\s\S]*?\n---\n/, '')
     // Strip import statements
     content = content.replace(/^import\s+.*?(?:from\s+['"].*?['"])?;?\s*$/gm, '')
+    // Strip JSX comments (invisible when rendered, but not valid Markdown)
+    content = content.replace(/\{\/\*[\s\S]*?\*\/\}\n?/g, '')
     // Clean up excessive blank lines at the start
     content = content.replace(/^\s*\n+/, '')
 
