@@ -1,3 +1,5 @@
+'use client';
+
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import { BookOpenIcon, BugAntIcon } from '@heroicons/react/24/solid';
 import { usePlausible } from 'next-plausible';

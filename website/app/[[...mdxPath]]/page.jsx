@@ -3,6 +3,11 @@ import { useMDXComponents as getMDXComponents } from '../../mdx-components'
 
 export const generateStaticParams = generateStaticParamsFor('mdxPath')
 
+// All content pages are prerendered at build time. Any path not produced by
+// generateStaticParams renders the not-found boundary (app/not-found.jsx) with
+// a 404, instead of the optional catch-all swallowing unknown URLs.
+export const dynamicParams = false
+
 // ISR route-segment config on the catch-all. Applies to ALL content/ MDX routes.
 // Per-datasource control is better done via fetch(url, { next: { revalidate } }).
 export const revalidate = 3600
