@@ -1,0 +1,6 @@
+export default {
+  "getting-started": "Getting started",
+  "messenger": "Symfony Messenger",
+  "caching": "",
+  "keep-alive": "Keeping the Kernel alive"
+}
