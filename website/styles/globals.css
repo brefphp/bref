@@ -1,6 +1,11 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 
+/* website/.gitignore excludes content/docs (copied in at build time), so Tailwind v4's
+   automatic source detection skips it. Re-include it so doc-only utilities (e.g. the
+   maturity-matrix bg-green-400/bg-yellow-400/bg-red-400 dots) are generated. */
+@source '../content/docs';
+
 /* Custom blue palette moves from tailwind.config.js into @theme (Tailwind v4 CSS-first).
    These become utilities like bg-blue-500 / text-blue-100 used across marketing pages. */
 @theme {

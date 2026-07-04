@@ -12,6 +12,7 @@ export default {
             pagination: false,
             timestamp: false,
             footer: true,
+            copyPage: false,
         },
     },
     docs: {
@@ -34,6 +35,7 @@ export default {
             breadcrumb: false,
             pagination: false,
             timestamp: false,
+            copyPage: false,
         },
     },
     support: {
@@ -46,12 +48,22 @@ export default {
             breadcrumb: false,
             pagination: false,
             timestamp: false,
+            copyPage: false,
         },
     },
     credits: {
         type: 'page',
         title: 'Credits',
         display: 'hidden',
+        theme: {
+            layout: 'full',
+            sidebar: false,
+            toc: false,
+            breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
     },
     sentry: {
         type: 'page',
@@ -64,6 +76,7 @@ export default {
             breadcrumb: false,
             pagination: false,
             timestamp: false,
+            copyPage: false,
         },
     },
     xray: {
@@ -77,6 +90,7 @@ export default {
             breadcrumb: false,
             pagination: false,
             timestamp: false,
+            copyPage: false,
         },
     },
 }

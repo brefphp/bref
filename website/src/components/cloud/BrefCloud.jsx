@@ -44,7 +44,7 @@ export default function BrefCloud() {
                         <div className="flex justify-center">
                             <Image src={logo} className="w-32" alt="Bref Cloud" />
                         </div>
-                        <h1 className="mt-3 text-pretty text-4xl sm:text-5xl font-black tracking-tight text-gray-900">
+                        <h1 className="mt-3 text-pretty text-4xl sm:text-5xl font-black leading-tight tracking-tight text-gray-900">
                             Deploy, monitor, and run
                             <span className="lg:hidden">&nbsp;</span>
                             <br className="hidden lg:block" />
