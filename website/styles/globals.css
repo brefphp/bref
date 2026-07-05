@@ -22,11 +22,15 @@
     --color-blue-100: #EBF8FF;
 }
 
-/* Nextra v4 primary color is driven by CSS vars, not a `primaryHue` prop (was primaryHue: 202). */
-:root {
-    --nextra-primary-hue: 202deg;
-    --nextra-primary-saturation: 80%;
-    --nextra-primary-lightness: 57%;
+/* Nextra v4 primary color (Bref blue-500 = hsl(202,80%,57%) = #3AA9E9) and the white
+   page background are set via the <Head color=.. backgroundColor=..> props in
+   app/layout.jsx. Nextra's <Head> injects its own :root { --nextra-primary-* / --nextra-bg }
+   block that overrides globals.css, so the props are the only place these take effect. */
+
+/* <Head backgroundColor> paints html white; body is transparent by default. Make body
+   explicitly track the themed background so the whole page is pure white (no grey). */
+body {
+    background-color: rgb(var(--nextra-bg));
 }
 
 /* Full-bleed marketing pages (home, cloud, support, ...): the catch-all route tags

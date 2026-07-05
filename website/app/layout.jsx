@@ -59,7 +59,10 @@ export default async function RootLayout({ children }) {
     const pageMap = await getPageMap()
     return (
         <html lang="en" dir="ltr" className={inter.variable} suppressHydrationWarning>
-            <Head>
+            <Head
+                backgroundColor={{ light: '#fff', dark: '#111' }}
+                color={{ hue: 202, saturation: 80, lightness: 57 }}
+            >
                 <link rel="icon" type="image/x-icon" href="/favicon.ico" />
                 <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
                 <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
