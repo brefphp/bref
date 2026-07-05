@@ -205,7 +205,7 @@ export default function Features() {
                                                 </div>
                                                 <div className="rounded bg-white ring-1 ring-gray-900/10 py-2 grid grid-cols-2 text-center divide-x divide-gray-200">
                                                     {tiers.map((tier) => (
-                                                        <div className="px-1.5">
+                                                        <div key={tier.id} className="px-1.5">
                                                             {(typeof feature.tiers[tier.id] === 'string' || typeof feature.tiers[tier.id]?.title === 'string') && (
                                                                 <span
                                                                     className={classNames(
