@@ -1,4 +1,6 @@
 import { generateStaticParamsFor, importPage } from 'nextra/pages'
+import { getPageMap } from 'nextra/page-map'
+import { normalizePages } from 'nextra/normalize-pages'
 import { useMDXComponents as getMDXComponents } from '../../mdx-components'
 
 export const generateStaticParams = generateStaticParamsFor('mdxPath')
@@ -42,9 +44,25 @@ const Wrapper = getMDXComponents().wrapper
 
 export default async function Page(props) {
     const params = await props.params
+    const mdxPath = params.mdxPath ?? []
     const { default: MDXContent, toc, metadata, sourceCode } = await importPage(params.mdxPath)
+
+    // Marketing pages set `theme.layout: 'full'` in _meta.js to render edge-to-edge
+    // (home, cloud, support, ...). In Nextra v4 `layout: 'full'` only drops the TOC
+    // reservation — the theme's MDX wrapper still constrains content to
+    // --nextra-content-width (90rem). Resolve the active layout the same way the
+    // theme does (normalizePages) and tag full pages so globals.css can unconstrain
+    // the content-width container and remove the article's horizontal padding,
+    // letting hero backgrounds bleed to the viewport edges. Navbar/footer keep the
+    // 90rem inner width because they are not descendants of this container.
+    const { activeThemeContext } = normalizePages({
+        list: await getPageMap(),
+        route: '/' + mdxPath.join('/'),
+    })
+    const fullLayoutProps = activeThemeContext.layout === 'full' ? { 'data-full-layout': '' } : {}
+
     return (
-        <Wrapper toc={toc} metadata={metadata} sourceCode={sourceCode}>
+        <Wrapper toc={toc} metadata={metadata} sourceCode={sourceCode} {...fullLayoutProps}>
             <MDXContent {...props} params={params} />
         </Wrapper>
     )

@@ -29,6 +29,21 @@
     --nextra-primary-lightness: 57%;
 }
 
+/* Full-bleed marketing pages (home, cloud, support, ...): the catch-all route tags
+   pages whose _meta.js sets `theme.layout: 'full'` with `data-full-layout`. Nextra's
+   `layout: 'full'` alone still wraps content in a max-w-(--nextra-content-width) (90rem)
+   container with px-4/md:px-12 article padding. Override the documented content-width
+   variable on the container itself (100% = viewport-wide) and drop the article's
+   horizontal padding so hero backgrounds reach the window edges — sections manage their
+   own inner width via .home-container. Navbar/footer keep 90rem: they are rendered by
+   <Layout> outside this container, so they don't inherit the override. */
+[data-full-layout] {
+    --nextra-content-width: 100%;
+}
+[data-full-layout] article {
+    padding-inline: 0;
+}
+
 /* Custom helper classes used across the marketing + docs pages (ported from main.css) */
 .link {
     @apply text-blue-600 hover:text-blue-800 font-semibold underline;
