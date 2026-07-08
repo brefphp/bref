@@ -101,7 +101,7 @@ final class HttpResponse
      */
     private function capitalizeHeaderName(string $name): string
     {
-        $name = str_replace('-', ' ', $name);
+        $name = str_replace('-', ' ', strtolower($name));
         $name = ucwords($name);
         return str_replace(' ', '-', $name);
     }
