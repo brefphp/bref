@@ -312,6 +312,12 @@ final class LambdaRuntime
         ]);
 
         $body = curl_exec($this->curlHandleResult);
+        if (curl_errno($this->curlHandleResult) > 0) {
+            $message = curl_error($this->curlHandleResult);
+            // Re-open the connection in case of failure to start from a clean state
+            $this->closeCurlHandleResult();
+            throw new Exception('Error while calling the Lambda runtime API: ' . $message);
+        }
 
         $statusCode = curl_getinfo($this->curlHandleResult, CURLINFO_HTTP_CODE);
         if ($statusCode >= 400) {
