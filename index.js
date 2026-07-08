@@ -160,7 +160,7 @@ class ServerlessPlugin {
                         type: 'string',
                     },
                     path: {
-                        usage: 'Path to JSON or YAML file holding input data (use either this or --data)',
+                        usage: 'Path to JSON file holding input data (use either this or --data)',
                         shortcut: 'p',
                         type: 'string',
                     },
