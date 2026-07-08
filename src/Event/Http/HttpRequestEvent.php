@@ -185,7 +185,7 @@ final class HttpRequestEvent implements LambdaEvent
             // Multiple "Cookie" headers are not authorized
             // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
             $cookieHeader = $this->headers['cookie'][0];
-            $cookieParts = explode('; ', $cookieHeader);
+            $cookieParts = array_map('trim', explode(';', $cookieHeader));
         }
 
         $cookies = [];

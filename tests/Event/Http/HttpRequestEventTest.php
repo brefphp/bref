@@ -155,6 +155,18 @@ class HttpRequestEventTest extends CommonHttpTest
         new HttpRequestEvent(null);
     }
 
+    public function test cookies without a space after the semicolon()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Cookie' => 'a=1;b=2; c=3',
+            ],
+        ]);
+
+        $this->assertSame(['a' => '1', 'b' => '2', 'c' => '3'], $event->getCookies());
+    }
+
     /**
      * @dataProvider provide query strings
      */
