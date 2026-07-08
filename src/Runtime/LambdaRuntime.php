@@ -149,7 +149,7 @@ final class LambdaRuntime
             }
             [$name, $value] = preg_split('/:\s*/', $header, 2);
             $name = strtolower($name);
-            $value = trim($value);
+            $value = trim($value, " \t\r\n");
             if ($name === 'lambda-runtime-aws-request-id') {
                 $contextBuilder->setAwsRequestId($value);
             }

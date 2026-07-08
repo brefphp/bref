@@ -170,6 +170,18 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertSame(['user', ''], $event->getBasicAuthCredentials());
     }
 
+    public function test basic auth with whitespace around the header value()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => "\t Basic " . base64_encode('user:password') . " \t",
+            ],
+        ]);
+
+        $this->assertSame(['user', 'password'], $event->getBasicAuthCredentials());
+    }
+
     public function test basic auth without a colon is rejected()
     {
         $event = new HttpRequestEvent([
@@ -198,6 +210,18 @@ class HttpRequestEventTest extends CommonHttpTest
             'httpMethod' => 'GET',
             'headers' => [
                 'Cookie' => 'a=1;b=2; c=3',
+            ],
+        ]);
+
+        $this->assertSame(['a' => '1', 'b' => '2', 'c' => '3'], $event->getCookies());
+    }
+
+    public function test cookies with whitespace around the pairs()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Cookie' => "a=1 ;\tb=2\t; c=3",
             ],
         ]);
 
