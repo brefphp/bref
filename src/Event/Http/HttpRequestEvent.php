@@ -6,6 +6,7 @@ use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
 use Crwlr\QueryString\Query;
 
+use function str_contains;
 use function str_starts_with;
 
 /**
@@ -106,9 +107,9 @@ final class HttpRequestEvent implements LambdaEvent
             return [null, null];
         }
 
-        $auth = base64_decode(trim(explode(' ', $authorizationHeader)[1]));
+        $auth = base64_decode(trim(explode(' ', $authorizationHeader)[1]), true);
 
-        if (! $auth || ! strpos($auth, ':')) {
+        if ($auth === false || ! str_contains($auth, ':')) {
             return [null, null];
         }
 

@@ -145,6 +145,43 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertEquals($expected, $pass);
     }
 
+    public function test basic auth with an empty username()
+    {
+        // `:password` is valid per RFC 7617: the username can be empty
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode(':password'),
+            ],
+        ]);
+
+        $this->assertSame(['', 'password'], $event->getBasicAuthCredentials());
+    }
+
+    public function test basic auth with an empty password()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode('user:'),
+            ],
+        ]);
+
+        $this->assertSame(['user', ''], $event->getBasicAuthCredentials());
+    }
+
+    public function test basic auth without a colon is rejected()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode('foobar'),
+            ],
+        ]);
+
+        $this->assertSame([null, null], $event->getBasicAuthCredentials());
+    }
+
     public function test empty invocation will have friendly error message()
     {
         $message = "This handler expected to be invoked with a API Gateway or ALB event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data: null";
