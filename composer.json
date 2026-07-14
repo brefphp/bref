@@ -21,7 +21,6 @@
     "require": {
         "php": ">=8.2",
         "ext-curl": "*",
-        "ext-json": "*",
         "crwlr/query-string": "^1.0.3",
         "hollodotme/fast-cgi-client": "^3.0.1",
         "nyholm/psr7": "^1.4.1",
