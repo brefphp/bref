@@ -25,10 +25,18 @@ PHP will automatically include any `*.ini` file found in `php/conf.d/` in your p
 
 ### Customizing php.ini using a custom path
 
-If you want PHP to scan a different directory than `php/conf.d/` in your project, you can override the path by setting it in the [`PHP_INI_SCAN_DIR`](https://www.php.net/manual/en/configuration.file.php#configuration.file.scan) environment variable.
+If you want PHP to scan a different directory than `php/conf.d/` in your project, you can add it with the [`PHP_INI_SCAN_DIR`](https://www.php.net/manual/en/configuration.file.php#configuration.file.scan) environment variable:
+
+```yaml filename="serverless.yml"
+provider:
+    environment:
+        PHP_INI_SCAN_DIR: '/opt/bref/etc/php/conf.d:/var/task/my/different/dir'
+```
 
 <Callout>
-    `PHP_INI_SCAN_DIR` must contain an absolute path. Since your code is placed in `/var/task` on AWS Lambda, the environment variable should contain something like `/var/task/my/different/dir`.
+    Keep `/opt/bref/etc/php/conf.d` in the value so that Bref continues to load its configuration.
+    Setting only your custom directory would prevent `/opt/bref/etc/php/conf.d/bref.ini` from
+    loading.
 </Callout>
 
 Learn how to declare environment variables by reading the [Environment Variables](variables.mdx) guide.
