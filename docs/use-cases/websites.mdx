@@ -1,7 +1,8 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: Learn how to deal with assets and static files to deploy serverless PHP websites.
+---
 
-<NextSeo description="Learn how to deal with assets and static files to deploy serverless PHP websites." />
+import { Callout, Tabs } from 'nextra/components';
 
 # Serverless PHP websites
 
@@ -39,7 +40,7 @@ serverless plugin install -n serverless-lift
 ```
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         Then add this configuration to `serverless.yml`:
 
         ```yml filename="serverless.yml" {5,7-16}
@@ -68,8 +69,8 @@ serverless plugin install -n serverless-lift
         ```bash
         npm run prod
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         Then add this configuration to `serverless.yml`:
 
         ```yml filename="serverless.yml" {5,7-16}
@@ -107,8 +108,8 @@ serverless plugin install -n serverless-lift
         # if using Webpack Encore, additionally run
         yarn encore production
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         Then add this configuration to `serverless.yml`:
 
         ```yml filename="serverless.yml" {5,7-15}
@@ -130,7 +131,7 @@ serverless plugin install -n serverless-lift
         ```
 
         If you need to compile your assets, make sure to run the command before deploying.
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 Now deploy everything:
@@ -148,9 +149,8 @@ You can access your website using the URL that Lift outputs at the end the deplo
 
 ## Assets in templates
 
-
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         Assets referenced in Blade templates should be via the `asset()` helper:
 
         ```blade
@@ -163,18 +163,18 @@ You can access your website using the URL that Lift outputs at the end the deplo
         - <img src="/images/logo.png"/>
         + <img src="{{ asset('images/logo.png') }}"/>
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         For the above configuration to work, assets must be referenced in Twig templates via the `asset()` helper as [recommended by Symfony](https://symfony.com/doc/current/templates.html#linking-to-css-javascript-and-image-assets):
 
         ```diff
         - <img src="/images/logo.png"/>
         + <img src="{{ asset('images/logo.png') }}"/>
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         If your `serverless.yml` configuration has different CloudFront routes for assets than the directory layout in your codebase, you may need to update your templates to use the correct paths.
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ## Custom domain name

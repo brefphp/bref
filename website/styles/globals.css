@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+
+/* website/.gitignore excludes content/docs (copied in at build time), so Tailwind v4's
+   automatic source detection skips it. Re-include it so doc-only utilities (e.g. the
+   maturity-matrix bg-green-400/bg-yellow-400/bg-red-400 dots) are generated. */
+@source '../content/docs';
+
+/* Custom blue palette moves from tailwind.config.js into @theme (Tailwind v4 CSS-first).
+   These become utilities like bg-blue-500 / text-blue-100 used across marketing pages. */
+@theme {
+    --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --color-blue-900: #25516A;
+    --color-blue-800: #266488;
+    --color-blue-700: #2381B8;
+    --color-blue-600: #258ECB;
+    --color-blue-500: #3AA9E9;
+    --color-blue-400: #5EBCF3;
+    --color-blue-300: #8CD0F8;
+    --color-blue-200: #BBE4FB;
+    --color-blue-100: #EBF8FF;
+}
+
+/* Nextra v4 primary color (Bref blue-500 = hsl(202,80%,57%) = #3AA9E9) and the white
+   page background are set via the <Head color=.. backgroundColor=..> props in
+   app/layout.jsx. Nextra's <Head> injects its own :root { --nextra-primary-* / --nextra-bg }
+   block that overrides globals.css, so the props are the only place these take effect. */
+
+/* <Head backgroundColor> paints html white; body is transparent by default. Make body
+   explicitly track the themed background so the whole page is pure white (no grey). */
+body {
+    background-color: rgb(var(--nextra-bg));
+}
+
+/* Full-bleed marketing pages (home, cloud, support, ...): the catch-all route tags
+   pages whose _meta.js sets `theme.layout: 'full'` with `data-full-layout`. Nextra's
+   `layout: 'full'` alone still wraps content in a max-w-(--nextra-content-width) (90rem)
+   container with px-4/md:px-12 article padding. Override the documented content-width
+   variable on the container itself (100% = viewport-wide) and drop the article's
+   horizontal padding so hero backgrounds reach the window edges — sections manage their
+   own inner width via .home-container. Navbar/footer keep 90rem: they are rendered by
+   <Layout> outside this container, so they don't inherit the override. */
+[data-full-layout] {
+    --nextra-content-width: 100%;
+}
+[data-full-layout] article {
+    padding-inline: 0;
+}
+
+/* Custom helper classes used across the marketing + docs pages (ported from main.css) */
+.link {
+    @apply text-blue-600 hover:text-blue-800 font-semibold underline;
+}
+.inline-code {
+    @apply text-sm text-gray-600 font-semibold;
+}
+
+.home-container {
+    @apply mx-auto max-w-7xl px-6 lg:px-8;
+}
+.home-section {
+    @apply py-20 sm:py-28;
+}
+
+.mermaidHidden {
+    display: none;
+}
+.mermaidAwsColor span {
+    color: #fff !important;
+}
+.mermaidAwsColor > rect {
+    fill: #FF9900 !important;
+    stroke: #fff !important;
+    stroke-width: 1px !important;
+}
+.mermaidBlack span {
+    color: #fff !important;
+}
+.mermaidBlack > rect {
+    fill: #000 !important;
+    stroke: #fff !important;
+    stroke-width: 1px !important;
+}
+
+.maturity-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 9999px;
+    vertical-align: text-top;
+}
+
+/* Restore the v2 light-blue code block background (v4 default is neutral white/black). */
+.nextra-code pre {
+    background-color: var(--color-blue-100);
+}

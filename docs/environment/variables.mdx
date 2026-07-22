@@ -1,7 +1,8 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: Define environment variables for your Bref application.
+---
 
-<NextSeo description="Define environment variables for your Bref application." />
+import { Callout, Tabs } from 'nextra/components';
 
 # Environment variables
 
@@ -43,7 +44,7 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
 ### Creating secrets
 
 <Tabs items={['Bref Cloud', 'Serverless CLI']}>
-    <Tab>
+    <Tabs.Tab>
         Create secrets via [Bref Cloud](https://bref.cloud).
 
         If you have **not** deployed the application yet, go to the root "Secrets" section in Bref Cloud and create a new secret there ([bref.cloud/secrets/create](https://bref.cloud/secrets/create)). Provide the target application and environment name when creating the secret.
@@ -59,8 +60,8 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
         ```
 
         You can also run the command outside of a project: `bref secret:create --app=app-name --env=env-name --team=team-slug`.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         Create a parameter via the [AWS SSM console](https://console.aws.amazon.com/systems-manager/parameters) or the `aws` CLI:
 
         ```bash
@@ -76,7 +77,7 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
         It is recommended to prefix the parameter name with your application name, for example: `/my-app/my-parameter`.
 
         SSM also allows to store a SecureString parameter, which is encrypted with AWS KMS. To use a SecureString, simply change the `--type` argument to `--type SecureString`. Bref takes care of decrypting the value.
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ### Retrieving secrets

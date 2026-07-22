@@ -1,12 +1,13 @@
+---
+description: Configure Bref to use a database in your PHP application on AWS Lambda.
+---
+
 import { Callout } from 'nextra/components';
-import { NextSeo } from 'next-seo';
-import { Tab, Tabs } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 import cloudDbCreate from './database/cloud-db-create.png';
 import cloudVpc from './database/cloud-vpc.png';
 import banner7777 from './database/7777.png';
 import Image from 'next/image';
-
-<NextSeo description="Configure Bref to use a database in your PHP application on AWS Lambda." />
 
 # Using a database
 
@@ -38,7 +39,7 @@ An internet-accessible database is the simplest option and works well for most p
 ## Internet-accessible databases
 
 <Tabs items={['Bref Cloud', 'AWS console']}>
-    <Tab>
+    <Tabs.Tab>
         In the Bref Cloud dashboard, open the "Databases" page and [click "Create database"](https://bref.cloud/databases/create).
 
         Fill in the form and click "Create":
@@ -46,8 +47,8 @@ An internet-accessible database is the simplest option and works well for most p
         <Image className="mt-3" src={cloudDbCreate} alt="Bref Cloud create database form" />
 
         The configuration with credentials securely stored in SSM will be displayed once the database is created.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         In the [RDS console](https://console.aws.amazon.com/rds/home):
 
         - switch to the region of your application
@@ -64,13 +65,13 @@ An internet-accessible database is the simplest option and works well for most p
         - for non-critical databases you can disable replication
         - switch storage to "General Purpose (SSD)" for lower costs
         - you can disable "enhanced monitoring" to avoid the associated costs
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ## VPC databases (private network)
 
 <Tabs items={['Bref Cloud', 'AWS console']}>
-    <Tab>
+    <Tabs.Tab>
         Bref Cloud handles VPC creation, subnets, security groups, and NAT Gateway configuration for you.
 
         **1. Create a network** in the Bref Cloud dashboard:
@@ -82,8 +83,8 @@ An internet-accessible database is the simplest option and works well for most p
         **2. Create a database** and select the network you created.
 
         **3. Deploy** — Bref Cloud automatically adds the VPC configuration to your deployment. No changes to `serverless.yml` are needed.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         <Callout type="warning">
             Lambda functions in a VPC **lose internet access**. This can cause timeouts. You need a NAT Gateway to restore internet access (~$32/month). Alternatively, you can use [a NAT instance](https://fck-nat.dev/) (from $3/month).
         </Callout>
@@ -144,7 +145,7 @@ An internet-accessible database is the simplest option and works well for most p
         - in the "Inbound" tab click "Edit"
         - add a rule: select MySQL/Aurora (or PostgreSQL) and set a "custom" source: select the security group itself (type `sg-` and use the autocompletion)
         - save
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 Learn more in the AWS documentation about [configuring a Lambda to access resources in a VPC](https://docs.aws.amazon.com/lambda/latest/dg/vpc.html).
@@ -156,7 +157,7 @@ Learn more in the AWS documentation about [configuring a Lambda to access resour
 If you are not using Bref Cloud, store credentials in SSM parameters ([read more](./variables.mdx#secrets)) and configure the environment variables in `serverless.yml`:
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         provider:
             environment:
@@ -167,8 +168,8 @@ If you are not using Bref Cloud, store credentials in SSM parameters ([read more
         ```
 
         Laravel reads these environment variables automatically to configure the database connection.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         provider:
             environment:
@@ -176,14 +177,14 @@ If you are not using Bref Cloud, store credentials in SSM parameters ([read more
         ```
 
         Doctrine is auto-configured by Symfony using the `DATABASE_URL` environment variable.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         Connect to the database using the endpoint, for example with PDO:
 
         ```
         mysql://user:password@dbname.e2sctvp0nqos.us-east-1.rds.amazonaws.com/dbname
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 Also refer to the [Extensions](/docs/environment/php.mdx#extensions) section to see if you need to enable any database-specific extensions.
@@ -191,37 +192,37 @@ Also refer to the [Extensions](/docs/environment/php.mdx#extensions) section to 
 ## Running database migrations
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         <Tabs items={['Bref Cloud', 'Serverless Framework']}>
-            <Tab>
+            <Tabs.Tab>
                 ```bash
                 bref command "migrate --force"
                 ```
-            </Tab>
-            <Tab>
+            </Tabs.Tab>
+            <Tabs.Tab>
                 ```bash
                 serverless bref:cli --args="migrate --force"
                 ```
-            </Tab>
+            </Tabs.Tab>
         </Tabs>
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         <Tabs items={['Bref Cloud', 'Serverless Framework']}>
-            <Tab>
+            <Tabs.Tab>
                 ```bash
                 bref command "doctrine:migrations:migrate --no-interaction"
                 ```
-            </Tab>
-            <Tab>
+            </Tabs.Tab>
+            <Tabs.Tab>
                 ```bash
                 serverless bref:cli --args="doctrine:migrations:migrate --no-interaction"
                 ```
-            </Tab>
+            </Tabs.Tab>
         </Tabs>
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         You can run any CLI script via the console runtime. Read the [Console runtime documentation](../runtimes/console.mdx) to learn more.
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 <Callout>

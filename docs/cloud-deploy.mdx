@@ -1,10 +1,11 @@
-import { Callout, Steps, Cards, Card } from 'nextra/components';
-// Path relative to the copy in the `website/` folder
-import { LaravelIcon } from '../../components/icons/LaravelIcon';
-import { SymfonyIcon } from '../../components/icons/SymfonyIcon';
-import { NextSeo } from 'next-seo';
+---
+description: How to deploy Bref application using Bref Cloud.
+---
 
-<NextSeo description="How to deploy Bref application using Bref Cloud." />
+import { Callout, Steps, Cards } from 'nextra/components';
+// Path relative to the copy in the `website/` folder
+import { LaravelIcon } from '../../src/components/icons/LaravelIcon';
+import { SymfonyIcon } from '../../src/components/icons/SymfonyIcon';
 
 # Deployment
 
@@ -13,9 +14,9 @@ Bref Cloud deploys application using Bref's `serverless.yml` file.
 If you haven't gotten started with Bref, follow the guide corresponding to your framework:
 
 <Cards num={2}>
-    <Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
-    <Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
-    <Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
+    <Cards.Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
+    <Cards.Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
+    <Cards.Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
 </Cards>
 
 The main difference with Bref Cloud is that you don't deploy by running `serverless deploy`. Instead, you deploy by running:
