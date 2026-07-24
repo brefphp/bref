@@ -21,7 +21,7 @@
     "nextra-theme-docs": "^2.13.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sharp": "^0.32.6"
+    "sharp": "^0.35.0"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.5",
