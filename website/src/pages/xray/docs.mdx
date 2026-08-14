@@ -1,5 +1,8 @@
 import Breadcrumbs from '../../components/Breadcrumbs';
 import { Callout } from 'nextra/components';
+import Image from 'next/image';
+import transactionSearchEnable from './transaction-search-enable.png';
+import transactionSearchSettings from './transaction-search-settings.png';
 
 <Breadcrumbs pages={[
     { name: 'X-Ray', href: '/xray' },
@@ -95,17 +98,49 @@ return [
 
 Send me a Slack message or an email (matthieu@bref.sh) if you have any trouble, I can help you set it up!
 
+## Enabling AWS Transaction Search
+
+[AWS Transaction Search](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Transaction-Search.html) is an AWS service that indexes X-Ray traces and replaces "X-Ray classic" search.
+
+**Enable it** and Bref Cloud tracing gets much better:
+
+- up to 30 days of traces instead of only 6 hours
+- filter traces by route, job, command, cold start, etc.
+- search all spans rather than only the percentage indexed by "classic X-Ray"
+
+Downsides:
+
+- Classic X-Ray traces load fast, while Transaction Search can take a few seconds.
+- Transaction Search is enabled for the whole region. Check whether another team or tool depends on classic X-Ray.
+
+The change is reversible. To enable Transaction Search ([official guide](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Enable-TransactionSearch.html)):
+
+1. Open [CloudWatch](https://console.aws.amazon.com/cloudwatch/) in the right region.
+
+    <Image className="mt-3 rounded-lg shadow-md border" src={transactionSearchEnable} alt="Enable Transaction Search in the AWS CloudWatch console" />
+2. Go to **Transaction Search** and click **Enable Transaction Search**.
+3. Check the box and click **Save**.
+
+    <Image className="mt-3 rounded-lg shadow-md border" src={transactionSearchSettings} alt="Transaction Search settings for X-Ray users" />
+
+The indexing percentage does _not_ impact Bref Cloud (it is **not** the Lambda sampling rate mentioned in [Costs](#costs) below), leave it at 1% by default. Increase it only if you still use classic X-Ray.
+
+It can take up to 10 minutes to activate Transaction Search and see it in Bref Cloud.
+
 ## Costs
 
-AWS X-Ray is a paid service. You can find the pricing details on the [AWS X-Ray pricing page](https://aws.amazon.com/xray/pricing/). The free tier includes 100k traces per month. Beyond that, it is $5 per million traces.
+AWS X-Ray is a paid service. You can find the pricing details on the [AWS CloudWatch pricing page](https://aws.amazon.com/cloudwatch/pricing/).
 
-One trace is one AWS Lambda invocation, i.e. one request or one job. X-Ray applies a sampling rate out of the box for AWS Lambda traces, so you will not be charged for all traces:
+- Classic X-Ray: $5 per million traces (100k free per month).
+- Transaction Search: $0.35/GB of trace data stored → roughly $5 per million traces for a typical PHP app (though it depends on the size of each trace).
+
+One trace is one Lambda invocation, i.e. one request or one job. X-Ray applies a sampling rate out of the box, so you will not be charged for all traces:
 
 > The sampling rate is 1 request per second and 5 percent of additional requests.
 
-This is quite useful: when an application has low traffic, most requests/invocations will be traced. However when traffic ramps up, X-Ray costs don't scale linearly with traffic because only a percentage of requests will be traced.
+That sampling applies to X-Ray classic _and_ Transaction Search, no difference.
 
-For applications with a lot of traffic in production, enabling X-Ray in development and staging environments can be a great way to help debug and troubleshoot issues without incurring high costs.
+This is quite useful: when an application has low traffic, most requests/invocations will be traced. However, when traffic ramps up, X-Ray costs don't scale linearly with traffic because only a percentage of requests will be traced. Enabling X-Ray in dev and staging environments can also be a great way to debug and troubleshoot issues with almost no costs.
 
 ## Usage
 
