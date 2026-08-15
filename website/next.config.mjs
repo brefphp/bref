@@ -8,6 +8,15 @@ const withNextra = nextra({
     // Show the copy button on all code blocks
     // https://nextra.site/docs/guide/syntax-highlighting#copy-button
     defaultShowCopyCode: true,
+    mdxOptions: {
+        rehypePrettyCodeOptions: {
+            // Syntax highlighting theme, pick from https://shiki.style/themes
+            theme: {
+                light: 'min-light',
+                dark: 'min-dark',
+            },
+        },
+    },
 })
 
 export default withNextra(withPlausibleProxy()({
