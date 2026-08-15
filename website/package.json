@@ -3,8 +3,7 @@
     "dev": "next dev -p 8000",
     "build": "next build",
     "postbuild": "next-sitemap",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.1109.0",
@@ -13,21 +12,21 @@
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "@octokit/graphql": "^7.1.1",
-    "next": "^14.2.35",
+    "next": "^15.5.23",
     "next-plausible": "^3.12.5",
     "next-seo": "^6.8.0",
     "next-sitemap": "^4.2.3",
-    "nextra": "^2.13.4",
-    "nextra-theme-docs": "^2.13.4",
+    "nextra": "^3.3.1",
+    "nextra-theme-docs": "^3.3.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "sharp": "^0.33.5"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",
     "autoprefixer": "^10.5.4",
     "postcss": "^8.5.26",
     "sync-directory": "^6.0.5",
-    "tailwindcss": "^3.4.19"
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3"
   }
 }

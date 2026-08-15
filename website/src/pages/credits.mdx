@@ -1,4 +1,4 @@
-import { useData } from 'nextra/data';
+import { useData } from 'nextra/hooks';
 import { getContributors, mergeAndSortContributors } from '../github/contributors';
 import { getSponsors } from '../github/sponsors';
 import { NextSeo } from 'next-seo';
@@ -48,6 +48,12 @@ export const SponsorsList = ({ sponsors }) => {
         // Fill missing names with the login
         .map(sponsor => {
             sponsor.sponsorEntity.name = sponsor.sponsorEntity.name ?? sponsor.sponsorEntity.login;
+            // GitHub allows website URLs without a protocol (e.g. `example.com`),
+            // which the browser would treat as relative links
+            const websiteUrl = sponsor.sponsorEntity.websiteUrl;
+            if (websiteUrl && !/^https?:\/\//.test(websiteUrl)) {
+                sponsor.sponsorEntity.websiteUrl = `https://${websiteUrl}`;
+            }
             return sponsor;
         })
         // Sport organizations first, then alphabetically by name second

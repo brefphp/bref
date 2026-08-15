@@ -1,4 +1,4 @@
-{
+export default {
   "serverless-yml": "serverless.yml",
   "variables": "Environment variables",
   "php": "",

@@ -11,7 +11,7 @@ Amongst other features, it offers the following benefits compared to running a d
 
 - Simple to set up: no VPC (virtual private network) to set up, no instances to configure.
 - Runs [the Vitess clustering system](https://planetscale.com/blog/vitess-for-the-rest-of-us), which offers great scalability and supports a lot more concurrent connections [via built-in connection pooling](https://planetscale.com/blog/one-million-connections).
-- Since it does not require a VPC, we do not need to set up and pay [for a NAT Gateway](database.mdx#accessing-the-internet).
+- Since it does not require a VPC, we do not need to set up and pay [for a NAT Gateway](database.mdx#vpc-databases-private-network).
 
 One extra feature worth mentioning is [the branching concept](https://planetscale.com/docs/concepts/branching): it enables testing schema changes before deploying them in production without downtime.
 
@@ -258,7 +258,7 @@ To deploy DB migrations in production, you can work with two environments:
 - A **production** environment: our application deployed in the `prod` stage and configured to use the `production` PlanetScale branch. 
 - A **dev** environment: our application deployed in the `dev` stage and configured to use the `development` PlanetScale branch. 
 
-You can [deploy our applications to different stages](../deploy.mdx#stages) via the `--stage` option. Each stage is completely isolated from the others.
+You can [deploy our applications to different stages](../deploy.mdx#environments) via the `--stage` option. Each stage is completely isolated from the others.
 
 ```bash
 # Deploy the "dev" environment:

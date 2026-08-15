@@ -61,7 +61,7 @@ For example, we can run the [Symfony Console](https://symfony.com/doc/master/com
 
 To use a runtime, set it on each function in `serverless.yml`:
 
-```yaml
+```yml filename="serverless.yml"
 service: app
 provider:
     name: aws
@@ -100,7 +100,7 @@ Bref currently provides runtimes for PHP 8.2, 8.3, 8.4, and 8.5:
 
 Make sure to always include the Bref plugin in your `serverless.yml` config:
 
-```yaml
+```yml filename="serverless.yml"
 plugins:
     - ./vendor/bref/bref
 ```
@@ -113,12 +113,12 @@ It is possible to run AWS Lambda functions on [ARM-based AWS Graviton processors
 
 You can deploy to ARM by using the `arm64` architecture:
 
-```diff
+```yml filename="serverless.yml" {5}
 functions:
     api:
         handler: public/index.php
         runtime: php-84-fpm
-+       architecture: arm64
+        architecture: arm64
 ```
 
 The Bref plugin will detect that change and automatically use the Bref ARM Lambda layers.

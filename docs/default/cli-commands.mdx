@@ -1,4 +1,4 @@
-import { Tab, Tabs } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 
 # CLI commands
 
@@ -16,31 +16,31 @@ The function uses the [Console runtime](../runtimes/console.mdx).
 To execute the script on Lambda, run the command below:
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         serverless bref:cli
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         bref command
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 We can also pass arguments to the script:
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         serverless bref:cli --args="extra command line arguments and options"
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         bref command "extra command line arguments and options"
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 Our script will be invoked inside AWS Lambda and the result will be printed to the console.

@@ -1,4 +1,4 @@
-{
+export default {
   "custom-domains": "Custom domains",
   "binary-requests-responses": "Binary requests and responses",
   "advanced-use-cases": "Advanced HTTP use cases"

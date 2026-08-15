@@ -20,6 +20,21 @@ body {
     @apply text-sm text-gray-600 font-semibold;
 }
 
+/*
+ * Code blocks: restore the Nextra v2 look, i.e. a background tinted with the
+ * primary color instead of Nextra v3's white background with a gray border.
+ */
+.nextra-code pre {
+    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 33% / 0.05);
+    /* Remove the gray border (a Tailwind "ring", i.e. a box-shadow) */
+    box-shadow: none;
+}
+/* Code block filename header */
+.nextra-code > div:first-child:not(pre) {
+    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 33% / 0.1);
+    border: none;
+}
+
 .home-container {
     @apply mx-auto max-w-7xl px-6 lg:px-8;
 }
