@@ -16,14 +16,22 @@ export default function MyApp({ Component, pageProps }) {
     // This runs client-side to redirect anchor tags
     const router = useRouter();
     useEffect(() => {
+        // On the initial page load, the ongoing render can cancel our redirect
+        // ("Cancel rendering route" error): retry once after it finished
+        const replace = (url) => router.replace(url).catch((e) => {
+            if (!e.cancelled) throw e;
+            return router.replace(url).catch((e) => {
+                if (!e.cancelled) throw e;
+            });
+        });
         // For the initial page load
         if (redirects[router.asPath]) {
-            router.replace(redirects[router.asPath]);
+            replace(redirects[router.asPath]);
         }
         // For client-side routing
         const onRouteChange = (url) => {
             if (redirects[url]) {
-                router.replace(redirects[url]);
+                replace(redirects[url]);
             }
         }
         router.events.on('routeChangeStart', onRouteChange)
