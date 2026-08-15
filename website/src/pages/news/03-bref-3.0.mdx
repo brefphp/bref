@@ -140,7 +140,7 @@ Bref 3.0 consolidates the three separate layer types (function, FPM, console) in
 **Do you need to change anything?**
 
 - **If you use `runtime: php-xxx` in `serverless.yml`** (for example `runtime: php-84-fpm`): no changes are needed!
-- **If you deploy using container images**: you need to update your `Dockerfile`, ⚠️ read the [upgrade guide](../docs/upgrading/v3.mdx#updating-your-dockerfile-for-bref-30).
+- **If you deploy using container images**: you need to update your `Dockerfile`, ⚠️ read the [upgrade guide](../docs/upgrading/v3.mdx#container-image-changes).
 - **If you specify layers explicitly**: ⚠️ read the [upgrade guide](../docs/upgrading/v3.mdx#aws-lambda-layers-have-been-merged-into-a-single-layer).
 
 A single layer/image is how it should have been from the start, and I'm really glad we're getting there now!
