@@ -40,6 +40,9 @@ const withNextra = nextra({
 })
 
 export default withNextra(withPlausibleProxy()({
+    // Silence a Next.js warning: it detects lockfiles in other directories
+    // (e.g. link-checker/) and can infer a wrong workspace root
+    outputFileTracingRoot: import.meta.dirname,
     // Redirect old .html links
     async redirects() {
         const redirectList = Object.entries(redirectsFile.redirects)
