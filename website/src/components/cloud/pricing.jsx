@@ -8,21 +8,21 @@ const frequencies = [
 ]
 const tiers = [
     {
-        name: 'Indie maker',
-        id: 'tier-indie-maker',
+        name: 'Personal',
+        id: 'tier-free',
         href: 'https://bref.cloud/register',
-        price: { monthly: '$15', annually: '$150' },
-        description: 'For solo devs who want to focus on building instead of hosting.',
+        price: 'Free',
+        description: 'Deploy and host your personal projects.',
         features: [
             '1 user',
             '2 applications',
             '1 AWS account',
             'Unlimited deployments',
             'Unlimited environments',
-            'Slack + email support & consulting',
+            'Non-commercial applications only',
         ],
         featured: false,
-        cta: 'Start free trial',
+        cta: 'Get started',
     },
     {
         name: 'Startup',
@@ -79,7 +79,7 @@ const tiers = [
         featured: true,
         cta: 'Get in touch',
     },
-]
+];
 
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -116,8 +116,7 @@ export default function Pricing() {
                         </RadioGroup>
                     </fieldset>
                 </div>
-                <div
-                    className="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-6 lg:mx-0 lg:max-w-none lg:grid-cols-4">
+                <div className="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-6 lg:mx-0 lg:max-w-none lg:grid-cols-4">
                     {tiers.map((tier) => (
                         <div
                             key={tier.id}
@@ -188,6 +187,22 @@ export default function Pricing() {
                     ))}
                 </div>
 
+                <div className="mt-6 flex flex-col items-start gap-x-8 gap-y-6 rounded-3xl p-8 ring-1 ring-gray-900/10 sm:gap-y-10 lg:col-span-2 lg:flex-row lg:items-center">
+                    <div className="lg:min-w-0 lg:flex-1">
+                        <h3 className="text-base/7 font-semibold text-blue-500">Indie maker</h3>
+                        <p className="mt-1 text-base/7 text-gray-600">
+                            Working solo on your projects? Get a discounted price that allows
+                            commercial projects on the "Personal" plan.
+                        </p>
+                    </div>
+                    <a
+                        href="https://bref.cloud/register"
+                        className="rounded-md px-3.5 py-2 text-sm/6 font-semibold text-blue-600 ring-1 ring-inset ring-blue-200 hover:ring-blue-500 hover:bg-blue-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                    >
+                        Get started at $15/month
+                    </a>
+                </div>
+
                 <p className="mt-6 text-xs text-gray-500 text-center">
                     All prices are excluding taxes.
                     You can remove VAT on checkout by adding your VAT ID.
@@ -195,5 +210,5 @@ export default function Pricing() {
 
             </div>
         </div>
-    )
+    );
 }
