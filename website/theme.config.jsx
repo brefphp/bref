@@ -45,6 +45,10 @@ export default {
     color: {
         hue: 202,
     },
+    // Restore the pure white background of Nextra v2 (v3 defaults to a slight gray)
+    backgroundColor: {
+        light: '255,255,255',
+    },
     sidebar: {
         defaultMenuCollapseLevel: 1,
         // Hide the collapse button
