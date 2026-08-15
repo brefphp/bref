@@ -1,5 +1,4 @@
 import {Command, Option, runExit} from 'clipanion';
-import fetch from 'node-fetch';
 import { Parser } from "htmlparser2";
 import urls from './urls.js';
 
@@ -48,7 +47,15 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
     // Cache the page to avoid fetching it twice when it is linked via anchor tags
     const urlWithoutAnchor = url.split('#')[0];
     if (pageCache[urlWithoutAnchor] === undefined) {
-        const response = await fetch(url);
+        let response;
+        try {
+            response = await fetch(url);
+        } catch (e) {
+            stdout.write(`Error fetching ${url}: ${e.cause?.message ?? e.message}\n`);
+            pageCache[urlWithoutAnchor] = false;
+            brokenLinks.add(url);
+            return;
+        }
         // Ignore redirects to other domains (e.g. https://bref.sh/slack)
         const originalDomain = new URL(url).hostname;
         const finalDomain = new URL(response.url).hostname;
@@ -88,8 +95,9 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
                 // but avoid double slashes
                 newLink = new URL(newLink, url).toString();
                 // Ignore external links on a different domain
-                const domain = new URL(url).hostname;
-                if (! newLink.startsWith(`http://${domain}`) && ! newLink.startsWith(`https://${domain}`)) {
+                // (compare the host incl. the port so that e.g. a documentation link
+                // to http://localhost:8000 is "external" when crawling localhost:3001)
+                if (new URL(newLink).host !== new URL(url).host) {
                     return;
                 }
                 if (links[newLink] !== undefined) {

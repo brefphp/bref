@@ -16,5 +16,7 @@ src/pages/docs:
 node_modules:
 	npm install
 
+# Usage: `make check-links` or `make check-links URL=http://localhost:8000`
+check-links: URL ?= https://bref-website.vercel.app
 check-links:
-	node link-checker/index.js https://bref-website.vercel.app > links.log
+	node link-checker/index.js $(URL) > links.log
