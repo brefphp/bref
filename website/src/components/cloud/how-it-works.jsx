@@ -1,5 +1,5 @@
-import brefCloudIcon from '../../components/icon.svg';
-import awsIcon from '../../components/icons/AWS.svg';
+import brefCloudIcon from '../icon.svg';
+import awsIcon from '../icons/AWS.svg';
 import Image from 'next/image';
 import { useState } from 'react';
 

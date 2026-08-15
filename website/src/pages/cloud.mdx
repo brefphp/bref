@@ -2,15 +2,15 @@ import mainScreenshot from './cloud/bref-cloud.png';
 import logo from './cloud/bref-cloud-logo.svg';
 import authorPhoto from './cloud/author.jpg';
 import { NextSeo } from 'next-seo';
-import Pricing from './cloud/pricing';
+import Pricing from '../components/cloud/pricing';
 import { CheckCircleIcon } from '@heroicons/react/20/solid';
-import Features from './cloud/features';
-import Faq from './cloud/faq';
-import CaseStudies from './cloud/case-studies';
-import HowItWorks from './cloud/how-it-works';
+import Features from '../components/cloud/features';
+import Faq from '../components/cloud/faq';
+import CaseStudies from '../components/cloud/case-studies';
+import HowItWorks from '../components/cloud/how-it-works';
 import Image from 'next/image';
 import { useState } from 'react';
-import HeroBg from './cloud/hero-bg';
+import HeroBg from '../components/cloud/hero-bg';
 import { usePlausible } from 'next-plausible';
 
 <NextSeo
@@ -241,7 +241,7 @@ export function BrefCloud() {
                             </p>
                         </div>
                         <div className="aspect-square flex-none rounded-full w-32 h-32 md:w-64 md:h-64 lg:w-80 lg:h-80 border border-gray-500 shadow-lg overflow-hidden">
-                            <img src={authorPhoto} alt="Matthieu Napoli" className="object-cover h-full w-full" />
+                            <Image src={authorPhoto} alt="Matthieu Napoli" className="object-cover h-full w-full" />
                         </div>
                     </div>
                 </div>
