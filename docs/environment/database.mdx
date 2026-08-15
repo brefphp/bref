@@ -31,7 +31,7 @@ Here are some of the database services offered by RDS:
 | Best for | Non-critical projects | Projects requiring strong isolation |
 | Complexity | Simple | Requires VPC + NAT Gateway |
 | Extra cost | None | ~$32/month for NAT Gateway |
-| Access from your machine | Direct connection | Via SSH tunnel ([7777](https://port7777.com)) |
+| Access from your machine | Direct connection | Via SSH tunnel (e.g. [7777](https://port7777.com)) |
 
 An internet-accessible database is the simplest option and works well for most projects. Use a VPC database when you need stronger network isolation.
 
@@ -40,6 +40,8 @@ An internet-accessible database is the simplest option and works well for most p
 <Tabs items={['Bref Cloud', 'AWS console']}>
     <Tabs.Tab>
         In the Bref Cloud dashboard, open the "Databases" page and [click "Create database"](https://bref.cloud/databases/create).
+
+        Bref Cloud can create classic RDS databases as well as serverless databases ([Aurora Serverless v2](https://aws.amazon.com/rds/aurora/serverless/)), in both MySQL and PostgreSQL flavors. Serverless databases scale automatically with traffic and can auto-pause when unused.
 
         Fill in the form and click "Create":
 
