@@ -1,4 +1,4 @@
-{
+export default {
   "http": "HTTP applications",
   "websites": "Websites",
   "static-websites": "Static websites",

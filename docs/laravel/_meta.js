@@ -1,4 +1,4 @@
-{
+export default {
   "getting-started": "Getting started",
   "environments": "Environments",
   "file-storage": "",

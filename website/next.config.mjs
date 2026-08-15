@@ -1,6 +1,8 @@
-const { withPlausibleProxy } = require('next-plausible')
+import nextra from 'nextra'
+import { withPlausibleProxy } from 'next-plausible'
+import redirectsFile from './redirects.js'
 
-const withNextra = require('nextra')({
+const withNextra = nextra({
     theme: 'nextra-theme-docs',
     themeConfig: './theme.config.jsx',
     // Show the copy button on all code blocks
@@ -8,11 +10,10 @@ const withNextra = require('nextra')({
     defaultShowCopyCode: true,
 })
 
-module.exports = withNextra(withPlausibleProxy()({
+export default withNextra(withPlausibleProxy()({
     // Redirect old .html links
     async redirects() {
-        const { redirects } = require('./redirects');
-        const redirectList = Object.entries(redirects)
+        const redirectList = Object.entries(redirectsFile.redirects)
             .map(([source, destination]) => ({
                 source,
                 destination,
@@ -37,6 +38,3 @@ module.exports = withNextra(withPlausibleProxy()({
         ]
     },
 }));
-
-// If you have other Next.js configurations, you can pass them as the parameter:
-// module.exports = withNextra({ /* other next.js config */ })

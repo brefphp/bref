@@ -1,4 +1,4 @@
-{
+export default {
   "index": "What is Bref and serverless?",
   "-- Getting started": {
     "type": "separator",

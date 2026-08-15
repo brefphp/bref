@@ -1,5 +1,6 @@
 // https://nextra.site/docs/docs-theme/theme-configuration
 import { useRouter } from 'next/router';
+import { useConfig } from 'nextra-theme-docs';
 import { AnimatedLogo } from './src/components/AnimatedLogo';
 import Footer from './src/components/Footer';
 import { DocSearch } from '@docsearch/react';
@@ -12,38 +13,11 @@ export default {
     },
     banner: {
         key: 'v3',
-        text: (
+        content: (
             <a href="/news/03-bref-3.0">
                 🎉 Bref 3.0 is released. Read more →
             </a>
         ),
-    },
-    useNextSeoProps() {
-        const { asPath } = useRouter();
-        // On SSG the path is `/index` instead of `/` for some reason
-        if (asPath === '/' || asPath === '/index') {
-            return {
-                titleTemplate: 'Bref – Simple and scalable PHP with serverless',
-                openGraph: {
-                    images: [
-                        {
-                            url: 'https://bref.sh/social-card.png',
-                        },
-                    ],
-                },
-            };
-        } else {
-            return {
-                titleTemplate: '%s – Bref',
-                openGraph: {
-                    images: [
-                        {
-                            url: 'https://bref.sh/social-card.png',
-                        },
-                    ],
-                },
-            };
-        }
     },
     chat: {
         link: 'https://bref.sh/slack',
@@ -68,15 +42,28 @@ export default {
         defaultTheme: 'light',
         forcedTheme: 'light',
     },
-    primaryHue: 202,
+    color: {
+        hue: 202,
+    },
     sidebar: {
         defaultMenuCollapseLevel: 1,
+        // Hide the collapse button
+        toggleButton: false,
     },
     head: function Head() {
         const { asPath } = useRouter();
+        const { title: pageTitle } = useConfig();
         const isDocsPage = asPath.startsWith('/docs/');
+        // On SSG the path is `/index` instead of `/` for some reason
+        const isHome = asPath === '/' || asPath === '/index';
+        const title = isHome
+            ? 'Bref – Simple and scalable PHP with serverless'
+            : `${pageTitle} – Bref`;
         return (
             <>
+                <title>{title}</title>
+                <meta property="og:title" content={title} />
+                <meta property="og:image" content="https://bref.sh/social-card.png" />
                 <link rel="icon" type="image/x-icon" href="/favicon.ico" />
                 <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
                 <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
@@ -110,7 +97,7 @@ export default {
     },
     footer: {
         component: Footer,
-        text: (
+        content: (
             <span>
                 MIT {new Date().getFullYear()} © <a href="https://mnapoli.fr">Matthieu Napoli</a>.
             </span>

@@ -1,4 +1,4 @@
-{
+export default {
   "aws-keys": {
     "display": "hidden"
   },
