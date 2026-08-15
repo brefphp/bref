@@ -1,6 +1,7 @@
 import nextra from 'nextra'
 import { withPlausibleProxy } from 'next-plausible'
 import redirectsFile from './redirects.js'
+import minLight from 'shiki/themes/min-light.mjs'
 
 const withNextra = nextra({
     theme: 'nextra-theme-docs',
@@ -12,7 +13,26 @@ const withNextra = nextra({
         rehypePrettyCodeOptions: {
             // Syntax highlighting theme, pick from https://shiki.style/themes
             theme: {
-                light: 'min-light',
+                light: {
+                    ...minLight,
+                    // min-light doesn't color `diff` code blocks: add colors
+                    // for these, reusing the min-light color palette
+                    tokenColors: [
+                        ...minLight.tokenColors,
+                        {
+                            scope: ['markup.deleted', 'punctuation.definition.deleted'],
+                            settings: { foreground: '#D32F2F' },
+                        },
+                        {
+                            scope: ['markup.inserted', 'punctuation.definition.inserted'],
+                            settings: { foreground: '#22863A' },
+                        },
+                        {
+                            scope: ['meta.diff.range', 'meta.diff.header'],
+                            settings: { foreground: '#1976D2' },
+                        },
+                    ],
+                },
                 dark: 'min-dark',
             },
         },
