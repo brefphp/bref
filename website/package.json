@@ -3,8 +3,7 @@
     "dev": "next dev -p 8000",
     "build": "next build",
     "postbuild": "next-sitemap",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "next start"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.1109.0",
