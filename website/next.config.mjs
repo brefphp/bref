@@ -4,8 +4,6 @@ import redirectsFile from './redirects.js'
 import minLight from 'shiki/themes/min-light.mjs'
 
 const withNextra = nextra({
-    theme: 'nextra-theme-docs',
-    themeConfig: './theme.config.jsx',
     // Show the copy button on all code blocks
     // https://nextra.site/docs/guide/syntax-highlighting#copy-button
     defaultShowCopyCode: true,
@@ -39,18 +37,23 @@ const withNextra = nextra({
     },
 })
 
+// Entries with a `#` are hash-anchor redirects: the server never sees the
+// hash, so they can't match here. They're handled client-side by
+// src/components/HashRedirects.jsx instead.
+const redirectList = Object.entries(redirectsFile.redirects)
+    .filter(([source]) => !source.includes('#'))
+    .map(([source, destination]) => ({
+        source,
+        destination,
+        permanent: true,
+    }))
+
 export default withNextra(withPlausibleProxy()({
     // Silence a Next.js warning: it detects lockfiles in other directories
     // (e.g. link-checker/) and can infer a wrong workspace root
     outputFileTracingRoot: import.meta.dirname,
-    // Redirect old .html links
+    // Redirect old .html links + the entries from redirects.js
     async redirects() {
-        const redirectList = Object.entries(redirectsFile.redirects)
-            .map(([source, destination]) => ({
-                source,
-                destination,
-                permanent: true,
-            }));
         return [
             {
                 source: '/docs/:path*.html',
@@ -66,6 +69,10 @@ export default withNextra(withPlausibleProxy()({
             {
                 source: '/docs/:path*.md',
                 destination: '/api/md/:path*',
+            },
+            {
+                source: '/docs.md',
+                destination: '/api/md',
             },
         ]
     },

@@ -1,3 +1,5 @@
+'use client';
+
 import brefCloudIcon from '../icon.svg';
 import awsIcon from '../icons/AWS.svg';
 import Image from 'next/image';

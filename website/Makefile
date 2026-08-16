@@ -2,16 +2,16 @@ preview: node_modules
 	$(MAKE) preview-parallel-jobs -j2
 preview-parallel-jobs: live-sync-doc-files next-dev
 live-sync-doc-files:
-	npx sync-directory ../docs src/pages/docs --deleteOrphaned --watch
+	npx sync-directory ../docs content/docs --deleteOrphaned --watch
 next-dev:
 	npm run dev
 
 # Generate and deploy the production version of the website
-website: node_modules src/pages/docs
+website: node_modules content/docs
 	npm run build
 
-src/pages/docs:
-	cp -r ../docs src/pages/docs
+content/docs:
+	cp -r ../docs content/docs
 
 node_modules:
 	npm install
