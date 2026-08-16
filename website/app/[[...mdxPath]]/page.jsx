@@ -47,6 +47,19 @@ export async function generateMetadata(props) {
 
 const Wrapper = getMDXComponents().wrapper
 
+// "Edit this page" URLs: metadata.filePath points into content/, but content/docs is
+// a build-time copy of the real sources in <repo>/docs (and the rest of content/ lives
+// under website/ in the repo), so docsRepositoryBase + filePath never matches a real
+// GitHub file. The theme uses filePath verbatim when it is already a full URL
+// (toc.js), so rewrite it to the true source location.
+const GITHUB_BLOB = 'https://github.com/brefphp/bref/blob/master'
+function editUrl(filePath) {
+    if (!filePath?.startsWith('content/')) return filePath
+    return filePath.startsWith('content/docs/')
+        ? `${GITHUB_BLOB}/docs/${filePath.slice('content/docs/'.length)}`
+        : `${GITHUB_BLOB}/website/${filePath}`
+}
+
 export default async function Page(props) {
     const params = await props.params
     const mdxPath = params.mdxPath ?? []
@@ -67,7 +80,12 @@ export default async function Page(props) {
     const fullLayoutProps = activeThemeContext.layout === 'full' ? { 'data-full-layout': '' } : {}
 
     return (
-        <Wrapper toc={toc} metadata={metadata} sourceCode={sourceCode} {...fullLayoutProps}>
+        <Wrapper
+            toc={toc}
+            metadata={{ ...metadata, filePath: editUrl(metadata.filePath) }}
+            sourceCode={sourceCode}
+            {...fullLayoutProps}
+        >
             <MDXContent {...props} params={params} />
         </Wrapper>
     )

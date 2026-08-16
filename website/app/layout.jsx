@@ -77,7 +77,7 @@ export default async function RootLayout({ children }) {
                         navbar={navbar}
                         footer={<Footer />}
                         pageMap={pageMap}
-                        docsRepositoryBase="https://github.com/brefphp/bref/blob/main"
+                        docsRepositoryBase="https://github.com/brefphp/bref/blob/master"
                         search={<Search placeholder="Search docs" />}
                         sidebar={{ defaultMenuCollapseLevel: 1 }}
                         darkMode={false}
