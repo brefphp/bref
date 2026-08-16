@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 
+/* Tailwind v4 defaults the dark: variant to prefers-color-scheme; v3 used
+   darkMode: 'class'. The site forces the light theme (no .dark class is ever set), so
+   with the v4 default, dark: styles (e.g. the h1's dark:text-slate-100) would wrongly
+   apply to users whose OS is in dark mode. Restore the class-based behavior. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* website/.gitignore excludes content/docs (copied in at build time), so Tailwind v4's
    automatic source detection skips it. Re-include it so doc-only utilities (e.g. the
    maturity-matrix bg-green-400/bg-yellow-400/bg-red-400 dots) are generated. */
@@ -60,6 +66,23 @@ body {
 }
 [data-full-layout] article {
     padding: 0;
+}
+
+/* The navbar search is a real <input type=search> (Pagefind) — @tailwindcss/forms
+   gives it a border that v3's Algolia search button never had. */
+.nextra-search input {
+    border: none;
+}
+
+/* Nextra v4 derives its light primary shades by ADDING to the primary lightness
+   (primary-100 = lightness + 49%). Bref's primary lightness is 57%, so the light
+   shades clamp to ~white — e.g. the active sidebar item's pill (bg-primary-100)
+   became invisible. Pin them to absolute lightness values instead (globals.css is
+   imported after nextra-theme-docs/style.css, so these :root definitions win). */
+:root {
+    --x-color-primary-50: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 97%);
+    --x-color-primary-100: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 92%);
+    --x-color-primary-200: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 85%);
 }
 
 /* Custom helper classes used across the marketing + docs pages (ported from main.css) */
