@@ -91,7 +91,17 @@ body {
     vertical-align: text-top;
 }
 
-/* Restore the v2 light-blue code block background (v4 default is neutral white/black). */
+/*
+ * Code blocks: restore the Nextra v2 look, i.e. a background tinted with the
+ * primary color instead of Nextra v4's white background with a gray border.
+ */
 .nextra-code pre {
-    background-color: var(--color-blue-100);
+    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 33% / 0.05);
+    /* Remove the gray border (a Tailwind "ring", i.e. a box-shadow) */
+    box-shadow: none;
+}
+/* Code block filename header */
+.nextra-code > div:first-child:not(pre) {
+    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 33% / 0.1);
+    border: none;
 }
