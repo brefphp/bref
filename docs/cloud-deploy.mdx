@@ -2,7 +2,7 @@
 description: "How to deploy Bref application using Bref Cloud."
 ---
 
-import { Callout, Steps, Cards } from 'nextra/components';
+import { Steps, Cards } from 'nextra/components';
 // Path relative to the copy in the `website/` folder
 import { LaravelIcon } from '../../src/components/icons/LaravelIcon';
 import { SymfonyIcon } from '../../src/components/icons/SymfonyIcon';
@@ -139,9 +139,9 @@ jobs:
                     BREF_TOKEN: ${{ secrets.BREF_TOKEN }}
 ```
 
-<Callout>
-    Depending on your framework, you may need to add extra steps to build your application. For example with Laravel or Symfony you may want to build assets before deploying.
-</Callout>
+> [!TIP]
+>
+> Depending on your framework, you may need to add extra steps to build your application. For example with Laravel or Symfony you may want to build assets before deploying.
 
 Finally, you need to add the `BREF_TOKEN` secret to your repository:
 

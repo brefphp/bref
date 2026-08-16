@@ -1,12 +1,11 @@
-import { Callout } from 'nextra/components';
 
 # Runtimes in details
 
-<Callout type="warning">
-    This section is only useful if you want to learn more, or if you want to use Bref with another deployment tool than Serverless Framework.
-
-    You can skip it for now if you just want to get started with Bref.
-</Callout>
+> [!NOTE]
+>
+> This section is only useful if you want to learn more, or if you want to use Bref with another deployment tool than Serverless Framework.
+>
+> You can skip it for now if you just want to get started with Bref.
 
 ## AWS Lambda layers
 
@@ -54,9 +53,9 @@ Resources:
 
 Bref layers work with AWS Lambda regardless of the tool you use to deploy your application: Serverless, SAM, CloudFormation, Terraform, AWS CDK, etc.
 
-<Callout>
-    Remember: the layer ARN contains a region. **You need to use the same region as the rest of your application** else Lambda will not find the layer.
-</Callout>
+> [!WARNING]
+>
+> Remember: the layer ARN contains a region. **You need to use the same region as the rest of your application** else Lambda will not find the layer.
 
 ## Layer versions
 
@@ -72,9 +71,9 @@ You can also find the appropriate ARN/version for your current Bref version by r
 serverless bref:layers
 ```
 
-<Callout type="warning">
-    If you use a layer ARN directly, you will need to update the ARN regularly (the `version` part).
-</Callout>
+> [!WARNING]
+>
+> If you use a layer ARN directly, you will need to update the ARN regularly (the `version` part).
 
 ### Layers NPM package
 
@@ -144,8 +143,8 @@ Given that it is much much less than even 1 milli-second, we consider that overh
 
 The ping can be disabled by setting a `BREF_PING_DISABLE` environment variable to `1`.
 
-<Callout>
-    If your company policy requires disabling the ping, it would be extremely beneficial to the project (and transitively to your company) to report privately a rough number of invocations. You can send me a direct email at [matthieu@bref.sh](mailto:matthieu@bref.sh).
-
-    Such data is collected privately and is not shared publicly on its own. I include it in the total number of invocations that I share publicly.
-</Callout>
+> [!TIP]
+>
+> If your company policy requires disabling the ping, it would be extremely beneficial to the project (and transitively to your company) to report privately a rough number of invocations. You can send me a direct email at [matthieu@bref.sh](mailto:matthieu@bref.sh).
+>
+> Such data is collected privately and is not shared publicly on its own. I include it in the total number of invocations that I share publicly.

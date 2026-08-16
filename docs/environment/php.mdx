@@ -2,7 +2,6 @@
 description: "Configure PHP versions, extensions and options for your serverless application using Bref."
 ---
 
-import { Callout } from 'nextra/components';
 
 # Configuring PHP
 
@@ -34,11 +33,11 @@ provider:
         PHP_INI_SCAN_DIR: '/opt/bref/etc/php/conf.d:/var/task/my/different/dir'
 ```
 
-<Callout>
-    Keep `/opt/bref/etc/php/conf.d` in the value so that Bref continues to load its configuration.
-    Setting only your custom directory would prevent `/opt/bref/etc/php/conf.d/bref.ini` from
-    loading.
-</Callout>
+> [!WARNING]
+>
+> Keep `/opt/bref/etc/php/conf.d` in the value so that Bref continues to load its configuration.
+> Setting only your custom directory would prevent `/opt/bref/etc/php/conf.d/bref.ini` from
+> loading.
 
 Learn how to declare environment variables by reading the [Environment Variables](variables.mdx) guide.
 

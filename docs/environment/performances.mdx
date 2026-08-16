@@ -2,7 +2,6 @@
 description: "Performance tuning and optimizations for serverless PHP applications on AWS Lambda."
 ---
 
-import { Callout } from 'nextra/components';
 
 # Performance
 
@@ -92,9 +91,9 @@ In the example above, the PHP process will restart only every 100 invocations, r
 
 In that case, be careful with clearing in-memory data between every event.
 
-<Callout>
-    Note: the PHP process will be restarted in case of a failed invocation (PHP exception thrown in the handler).
-</Callout>
+> [!TIP]
+>
+> Note: the PHP process will be restarted in case of a failed invocation (PHP exception thrown in the handler).
 
 ## Cold starts
 

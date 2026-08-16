@@ -2,7 +2,6 @@
 description: "Run Symfony Messenger on AWS Lambda with SQS using Bref."
 ---
 
-import { Callout } from 'nextra/components';
 
 # Symfony Messenger
 
@@ -103,9 +102,9 @@ framework:
 
 With that configuration, anytime a message is pushed to Symfony Messenger, it will be sent to SQS, and SQS will automatically invoke our "worker" Lambda function so that it is processed.
 
-<Callout>
-    With Lift, AWS credentials (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) are automatically set up with the appropriate permissions for Messenger to use the SQS queue.
-</Callout>
+> [!TIP]
+>
+> With Lift, AWS credentials (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`) are automatically set up with the appropriate permissions for Messenger to use the SQS queue.
 
 We now need to create the handler script (`bin/consumer.php`):
 
@@ -181,9 +180,9 @@ MESSENGER_TRANSPORT_DSN=sns://arn:aws:sns:us-east-1:1234567890:foobar
 
 That's it, messages will be dispatched to that topic.
 
-<Callout>
-    When running Symfony on AWS Lambda, it is not necessary to configure credentials. The AWS client will read them [from environment variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime) automatically.
-</Callout>
+> [!TIP]
+>
+> When running Symfony on AWS Lambda, it is not necessary to configure credentials. The AWS client will read them [from environment variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime) automatically.
 
 To consume messages from SNS:
 
@@ -257,9 +256,9 @@ MESSENGER_TRANSPORT_DSN=eventbridge://myapp?event_bus_name=arn:aws:events:us-eas
 
 That's it, messages will be dispatched to EventBridge.
 
-<Callout>
-    When running Symfony on AWS Lambda, it is not necessary to configure credentials. The AWS client will read them [from environment variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime) automatically.
-</Callout>
+> [!TIP]
+>
+> When running Symfony on AWS Lambda, it is not necessary to configure credentials. The AWS client will read them [from environment variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime) automatically.
 
 To consume messages from EventBridge:
 

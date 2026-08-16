@@ -4,7 +4,6 @@ description: Documentation for the Bref X-Ray integration for PHP on AWS Lambda.
 ---
 
 import Breadcrumbs from '../../src/components/Breadcrumbs';
-import { Callout } from 'nextra/components';
 import Image from 'next/image';
 import transactionSearchEnable from './transaction-search-enable.png';
 import transactionSearchSettings from './transaction-search-settings.png';
@@ -20,9 +19,9 @@ This package provides an advanced integration between Bref applications and [AWS
 
 Check out the documentation below for screenshots and more details. View the [changelog](/xray/changelog) for the latest updates and releases.
 
-<Callout type="info">
-    **Bref Cloud users** get a free X-Ray license included in their plan. You can view traces directly in the [Bref Cloud dashboard](/docs/monitoring#bref-cloud). To activate your free license, contact support via [bref.cloud/support](https://bref.cloud/support) or [Slack](https://bref.sh/slack).
-</Callout>
+> [!NOTE]
+>
+> **Bref Cloud users** get a free X-Ray license included in their plan. You can view traces directly in the [Bref Cloud dashboard](/docs/monitoring#bref-cloud). To activate your free license, contact support via [bref.cloud/support](https://bref.cloud/support) or [Slack](https://bref.sh/slack).
 
 ## Installation
 
@@ -45,9 +44,9 @@ Once you have your license, enable Packagist.com in your `composer.json` by addi
 }
 ```
 
-<Callout>
-    Make sure to replace the URL with the one provided with the license you purchased.
-</Callout>
+> [!TIP]
+>
+> Make sure to replace the URL with the one provided with the license you purchased.
 
 Next, configure the Packagist.com **token** (provided with the license you purchased).
 
@@ -62,9 +61,9 @@ Next, configure the Packagist.com **token** (provided with the license you purch
   COMPOSER_AUTH='{"http-basic": {"bref.repo.packagist.com": {"username": "token", "password": "<token-here>"}}}'
   ```
 
-<Callout>
-    The token is for your whole organization, you can share it with your team.
-</Callout>
+> [!TIP]
+>
+> The token is for your whole organization, you can share it with your team.
 
 ### 2. Install the package
 
@@ -263,13 +262,13 @@ Proactive initializations are also annotated by Bref:
 
 ![](./proactive-initialization-annotation.png)
 
-<Callout type="info">
-    X-Ray does not handle proactive invocations well: it includes the initialization time **and the duration when Lambda was not used** in a trace. As such, it is possible to see Lambda invocations with a duration of several minutes. This in an AWS X-Ray bug/limitation, Bref unfortunately cannot do anything about it. This is why Bref annotates proactive invocations, so that you can spot them in X-Ray.
-
-    Here is an example: the Lambda instance was proactively started by AWS Lambda 2 minutes before it is actually used. The real invocation duration is very short, but X-Ray wrongly shows the duration as 2 minutes.
-
-    ![](./proactive-initialization-timeline.png)
-</Callout>
+> [!NOTE]
+>
+> X-Ray does not handle proactive invocations well: it includes the initialization time **and the duration when Lambda was not used** in a trace. As such, it is possible to see Lambda invocations with a duration of several minutes. This in an AWS X-Ray bug/limitation, Bref unfortunately cannot do anything about it. This is why Bref annotates proactive invocations, so that you can spot them in X-Ray.
+>
+> Here is an example: the Lambda instance was proactively started by AWS Lambda 2 minutes before it is actually used. The real invocation duration is very short, but X-Ray wrongly shows the duration as 2 minutes.
+>
+> ![](./proactive-initialization-timeline.png)
 
 ### Tracing code
 

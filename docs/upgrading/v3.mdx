@@ -2,7 +2,6 @@
 introduction: Upgrading guide to go from Bref 2.x to Bref 3.0.
 ---
 
-import { Callout } from 'nextra/components';
 
 # Upgrading to Bref 3.0
 
@@ -27,13 +26,13 @@ Update all Bref packages in your `composer.json` file from `^2` to `^3`, for exa
 }
 ```
 
-<Callout>
-    Only update the versions for the packages you actually have in your project.
-</Callout>
+> [!TIP]
+>
+> Only update the versions for the packages you actually have in your project.
 
-<Callout>
-    If you use [`bref/extra-php-extensions`](https://github.com/brefphp/extra-php-extensions), note that it jumps from v1 to v3 (there is no v2). The v1 version was used with Bref v2, and v3 is aligned with Bref v3.
-</Callout>
+> [!TIP]
+>
+> If you use [`bref/extra-php-extensions`](https://github.com/brefphp/extra-php-extensions), note that it jumps from v1 to v3 (there is no v2). The v1 version was used with Bref v2, and v3 is aligned with Bref v3.
 
 Then run:
 

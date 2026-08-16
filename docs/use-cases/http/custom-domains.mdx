@@ -2,7 +2,6 @@
 description: "Configure custom domain names for your web applications."
 ---
 
-import { Callout } from 'nextra/components';
 
 # Custom domain names
 
@@ -14,9 +13,9 @@ https://<random>.execute-api.<region>.amazonaws.com/
 
 It is possible to replace those URLs by a custom domain.
 
-<Callout>
-    This guides assume you already own the domain name you will want to use.
-</Callout>
+> [!TIP]
+>
+> This guides assume you already own the domain name you will want to use.
 
 The first thing to do is register the domain in **ACM** (AWS Certificate Manager) to get an HTTPS certificate. This step is not optional.
 
@@ -41,9 +40,9 @@ After validating the domain and the certificate we can now link the custom domai
 
 After waiting for the DNS change to propagate (sometimes up to several hours) your website is now accessible via your custom domain.
 
-<Callout>
-    You can also take a look at the plugin [serverless-domain-manager](https://www.serverless.com/plugins/serverless-domain-manager).
-    It handles the custom domain creation and optionally adds the Route53 record if asked. It is still necessary to create the ACM certificate manually.
-
-    A basic implementation is proposed here : https://www.serverless.com/blog/serverless-api-gateway-domain#create-a-custom-domain-in-api-gateway
-</Callout>
+> [!TIP]
+>
+> You can also take a look at the plugin [serverless-domain-manager](https://www.serverless.com/plugins/serverless-domain-manager).
+> It handles the custom domain creation and optionally adds the Route53 record if asked. It is still necessary to create the ACM certificate manually.
+>
+> A basic implementation is proposed here : https://www.serverless.com/blog/serverless-api-gateway-domain#create-a-custom-domain-in-api-gateway

@@ -4,7 +4,6 @@ description: Documentation for the Bref Sentry integration for PHP on AWS Lambda
 ---
 
 import Breadcrumbs from '../../src/components/Breadcrumbs';
-import { Callout } from 'nextra/components';
 
 <Breadcrumbs pages={[
     { name: 'Sentry', href: '/sentry' },
@@ -47,9 +46,9 @@ Once you have your license, enable Packagist.com in your `composer.json` by addi
 }
 ```
 
-<Callout>
-    Make sure to replace the URL with the one provided with the license you purchased.
-</Callout>
+> [!TIP]
+>
+> Make sure to replace the URL with the one provided with the license you purchased.
 
 Next, configure the Packagist.com **token** (provided with the license you purchased).
 
@@ -64,9 +63,9 @@ Next, configure the Packagist.com **token** (provided with the license you purch
   COMPOSER_AUTH='{"http-basic": {"bref.repo.packagist.com": {"username": "token", "password": "<token-here>"}}}'
   ```
 
-<Callout>
-    The token is for your whole organization, you can share it with your team.
-</Callout>
+> [!TIP]
+>
+> The token is for your whole organization, you can share it with your team.
 
 ### 2. Install the package
 
@@ -120,9 +119,9 @@ Cold starts will appear in transactions in Sentry performance tracing (named `la
 
 ![Cold start in Sentry](./cold-start.png)
 
-<Callout type="info">
-    Note: because of technical limitation, the cold start span doesn't include the exact total time it takes for the AWS Lambda instance to boot (a few hundred milliseconds are missing).
-</Callout>
+> [!NOTE]
+>
+> Note: because of technical limitation, the cold start span doesn't include the exact total time it takes for the AWS Lambda instance to boot (a few hundred milliseconds are missing).
 
 #### Bref startup tracing
 

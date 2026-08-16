@@ -1,12 +1,12 @@
-import { Callout, Tabs } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 
 # Advanced HTTP use-cases
 
-<Callout>
-    If you are getting started with Bref, read the guides for **Laravel** ([Get started](../../laravel/getting-started.mdx)), **Symfony** ([Get started](../../symfony/getting-started.mdx)), or other PHP frameworks ([Get started](../../default/getting-started.mdx)).
-
-    This documentation is for advanced use-cases.
-</Callout>
+> [!TIP]
+>
+> If you are getting started with Bref, read the guides for **Laravel** ([Get started](../../laravel/getting-started.mdx)), **Symfony** ([Get started](../../symfony/getting-started.mdx)), or other PHP frameworks ([Get started](../../default/getting-started.mdx)).
+>
+> This documentation is for advanced use-cases.
 
 ## Alternative AWS architectures
 
@@ -21,11 +21,11 @@ However, there are other ways to run HTTP applications on AWS Lambda: using [API
 
 Bref supports all 4, but API Gateway v2 "HTTP" is the default because it is the simplest option that supports both HTTP APIs and websites with custom domains.
 
-<Callout>
-    If you are getting started, **stay with the defaults**. The documentation and integrations will be much simpler to follow.
-
-    You can change the architecture later if you need to.
-</Callout>
+> [!TIP]
+>
+> If you are getting started, **stay with the defaults**. The documentation and integrations will be much simpler to follow.
+>
+> You can change the architecture later if you need to.
 
 Here is a summary of the differences between the 4 options:
 
@@ -116,11 +116,11 @@ Learn more [in the Serverless Framework documentation](https://github.com/oss-se
 
 ## PHP handlers
 
-<Callout>
-    This section applies to all 4 approaches: API Gateway v1, v2, ALB, and Function URLs.
-
-    Bref abstracts the differences so that the same code can be used with all 4 solutions.
-</Callout>
+> [!TIP]
+>
+> This section applies to all 4 approaches: API Gateway v1, v2, ALB, and Function URLs.
+>
+> Bref abstracts the differences so that the same code can be used with all 4 solutions.
 
 There are two ways to handle HTTP events with PHP:
 
@@ -154,9 +154,9 @@ This is more advanced, as PHP does not run in a traditional PHP-FPM environment.
 
 When used with a framework, understand that the whole HTTP stack (like HTTP middlewares) of the framework does not run. You are responsible for invoking the PHP code that should run.
 
-<Callout>
-    Note: this approach is used to run Laravel Octane or Symfony with a keep-alive process (like Roadrunner/Swoole). These use cases are not detailed here, read [about Laravel Octane](../../laravel/octane.mdx) or [about Symfony "Keep-Alive"](../../symfony/keep-alive.mdx) instead.
-</Callout>
+> [!TIP]
+>
+> Note: this approach is used to run Laravel Octane or Symfony with a keep-alive process (like Roadrunner/Swoole). These use cases are not detailed here, read [about Laravel Octane](../../laravel/octane.mdx) or [about Symfony "Keep-Alive"](../../symfony/keep-alive.mdx) instead.
 
 The `handler` must be a PHP function, or a PSR-15 implementation. Indeed, Bref natively supports the [PSR-15](https://www.php-fig.org/psr/psr-15/#2-interfaces) and [PSR-7](https://www.php-fig.org/psr/psr-7/) standards. Here is an example:
 

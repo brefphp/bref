@@ -3,7 +3,7 @@ asIndexPage: true
 description: "Getting ready to use Bref."
 ---
 
-import { Callout, Steps, Cards } from 'nextra/components';
+import { Steps, Cards } from 'nextra/components';
 // Path relative to the copy in the `website/` folder
 import { LaravelIcon } from '../../../src/components/icons/LaravelIcon';
 import { SymfonyIcon } from '../../../src/components/icons/SymfonyIcon';
@@ -89,17 +89,17 @@ To use Bref with the Serverless CLI, you will need an AWS account, the `serverle
     npm install -g osls
     ```
 
-    <Callout type="info">
-        The original [Serverless Framework](https://serverless.com/) is no longer open-source. An open-source alternative is [OSS Serverless](https://github.com/oss-serverless/serverless), created and maintained by Bref maintainers. This is a drop-in replacement for the original CLI and is used throughout this documentation.
-    </Callout>
+    > [!NOTE]
+    >
+    > The original [Serverless Framework](https://serverless.com/) is no longer open-source. An open-source alternative is [OSS Serverless](https://github.com/oss-serverless/serverless), created and maintained by Bref maintainers. This is a drop-in replacement for the original CLI and is used throughout this documentation.
 
     ### AWS credentials
 
     Finally, we need AWS credentials so that the `serverless` CLI can deploy to AWS.
 
-    <Callout type="info">
-        If you have already set up AWS credentials on your machine (for example if you use the `aws` CLI), you can skip this step.
-    </Callout>
+    > [!NOTE]
+    >
+    > If you have already set up AWS credentials on your machine (for example if you use the `aws` CLI), you can skip this step.
 
     - [Create AWS access keys](./setup/aws-keys.mdx)
 
@@ -128,7 +128,7 @@ That's it, you're ready to use Bref with the Serverless CLI!
     <Cards.Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
 </Cards>
 
-<Callout type="info">
-    Bref is compatible with PHP 8.2 or greater.
-    If you are using PHP 8.0 or 8.1, Bref v2 (previous major version) will be installed instead.
-</Callout>
+> [!NOTE]
+>
+> Bref is compatible with PHP 8.2 or greater.
+> If you are using PHP 8.0 or 8.1, Bref v2 (previous major version) will be installed instead.

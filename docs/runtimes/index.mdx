@@ -3,7 +3,6 @@ asIndexPage: true
 description: "PHP runtimes for PHP on AWS Lambda, provided by the Bref open-source project."
 ---
 
-import { Callout } from 'nextra/components';
 
 # PHP runtimes for AWS Lambda
 
@@ -43,9 +42,9 @@ The Bref "function" runtime lets you create Lambda functions in PHP like with an
 
 This runtime works great to create **event-driven micro-services**.
 
-<Callout>
-    If you are getting started, we highly recommend using the FPM runtime instead. It's "PHP as usual" (like on any server), with all the benefits of serverless (simplicity, scaling, etc.).
-</Callout>
+> [!TIP]
+>
+> If you are getting started, we highly recommend using the FPM runtime instead. It's "PHP as usual" (like on any server), with all the benefits of serverless (simplicity, scaling, etc.).
 
 [Learn more about the Function runtime](./runtimes/function.mdx).
 
@@ -94,9 +93,9 @@ Bref currently provides runtimes for PHP 8.2, 8.3, 8.4, and 8.5:
 - `php-83-console`
 - `php-82-console`
 
-<Callout>
-    `php-84` means PHP 8.4.\*. It is not possible to require a specific "patch" version. The latest Bref versions always aim to support the latest PHP versions, so upgrade via Composer frequently to keep PHP up to date.
-</Callout>
+> [!TIP]
+>
+> `php-84` means PHP 8.4.\*. It is not possible to require a specific "patch" version. The latest Bref versions always aim to support the latest PHP versions, so upgrade via Composer frequently to keep PHP up to date.
 
 ### The Bref plugin for serverless.yml
 
@@ -125,9 +124,9 @@ functions:
 
 The Bref plugin will detect that change and automatically use the Bref ARM Lambda layers.
 
-<Callout>
-    The `bref-extra-extensions` package is not available for ARM processors yet.
-</Callout>
+> [!NOTE]
+>
+> The `bref-extra-extensions` package is not available for ARM processors yet.
 
 ### AWS Lambda layers
 
@@ -189,6 +188,6 @@ The `${...}` notation is the [syntax to use variables](https://github.com/oss-se
 
 Bref ARM layers are the same as the x86 layers, but with the `arm-` prefix in their name, for example `${bref:layer.arm-php-82}`. The only exception is `${bref:layer.console}` (this is the same layer for both x86 and ARM).
 
-<Callout>
-    To be clear, it is easier and recommended to use the `runtime: php-xxx` option instead of setting `layers` directly.
-</Callout>
+> [!TIP]
+>
+> To be clear, it is easier and recommended to use the `runtime: php-xxx` option instead of setting `layers` directly.

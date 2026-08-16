@@ -2,7 +2,7 @@
 description: "Configure Laravel environments and deployment environments with Bref."
 ---
 
-import { Callout, Tabs } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 
 # Laravel environments
 
@@ -41,11 +41,11 @@ params:
 
 In this example, most deployment environments use their name as `APP_ENV`, but the `prod` deployment environment is mapped to Laravel's `production` environment.
 
-<Callout type="warning">
-    Laravel treats `production` as the production environment. For example, `app()->isProduction()` returns `true` only when `APP_ENV=production`.
-
-    Using `prod` as a deployment environment name is common because it is short and appears in AWS resource names such as Lambda functions and CloudFormation stacks. If you use `prod`, map it to `APP_ENV=production` for Laravel.
-</Callout>
+> [!WARNING]
+>
+> Laravel treats `production` as the production environment. For example, `app()->isProduction()` returns `true` only when `APP_ENV=production`.
+>
+> Using `prod` as a deployment environment name is common because it is short and appears in AWS resource names such as Lambda functions and CloudFormation stacks. If you use `prod`, map it to `APP_ENV=production` for Laravel.
 
 ## Configure each environment
 

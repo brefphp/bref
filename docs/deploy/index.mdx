@@ -2,7 +2,7 @@
 asIndexPage: true
 ---
 
-import { Callout, Tabs } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 
 # Deployment
 
@@ -92,9 +92,9 @@ Then run `composer install` (or `composer update`) to apply the changes. Adjust 
 
 [Read more in the `aws/aws-sdk-php` documentation.](https://github.com/aws/aws-sdk-php/tree/master/src/Script/Composer)
 
-<Callout type="info">
-    As an alternative, you can replace `aws/aws-sdk-php` with [AsyncAws](https://async-aws.com/), a lighter SDK that only installs the services you need.
-</Callout>
+> [!NOTE]
+>
+> As an alternative, you can replace `aws/aws-sdk-php` with [AsyncAws](https://async-aws.com/), a lighter SDK that only installs the services you need.
 
 Using `google/apiclient`? A similar approach is available: [see the documentation to remove unused Google API services](https://github.com/googleapis/google-api-php-client#cleaning-up-unused-services).
 
@@ -168,9 +168,9 @@ provider:
     ...
 ```
 
-<Callout>
-    If you are a first time user, using the `us-east-1` region (the default region) is recommended for the first projects. It simplifies commands and avoids a lot of mistakes when discovering AWS.
-</Callout>
+> [!TIP]
+>
+> If you are a first time user, using the `us-east-1` region (the default region) is recommended for the first projects. It simplifies commands and avoids a lot of mistakes when discovering AWS.
 
 ## Deletion
 
