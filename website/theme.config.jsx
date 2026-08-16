@@ -56,18 +56,25 @@ export default {
     },
     head: function Head() {
         const { asPath } = useRouter();
-        const { title: pageTitle } = useConfig();
+        const { title: pageTitle, frontMatter } = useConfig();
         const isDocsPage = asPath.startsWith('/docs/');
         // On SSG the path is `/index` instead of `/` for some reason
         const isHome = asPath === '/' || asPath === '/index';
-        const title = isHome
+        // seoTitle overrides the <title> without affecting the sidebar label
+        const title = frontMatter.seoTitle ?? (isHome
             ? 'Bref – Simple and scalable PHP with serverless'
-            : `${pageTitle} – Bref`;
+            : `${pageTitle} – Bref`);
         return (
             <>
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
-                <meta property="og:image" content="https://bref.sh/social-card.png" />
+                {frontMatter.description && (
+                    <meta name="description" content={frontMatter.description} />
+                )}
+                {frontMatter.description && (
+                    <meta property="og:description" content={frontMatter.description} />
+                )}
+                <meta property="og:image" content={frontMatter.ogImage ?? 'https://bref.sh/social-card.png'} />
                 <link rel="icon" type="image/x-icon" href="/favicon.ico" />
                 <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
                 <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />

@@ -1,23 +1,16 @@
+---
+seoTitle: "Sentry for PHP on AWS Lambda"
+description: "Sentry integration for PHP applications running on AWS Lambda. Track cold starts, event-driven invocations, and more."
+ogImage: "https://bref.sh/sentry.png"
+---
+
 import { BugAntIcon, ClockIcon, CodeBracketSquareIcon, FingerPrintIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import sentry from './sentry/sentry.png';
 import Image from 'next/image';
 import Breadcrumbs from '../components/Breadcrumbs';
 import { CheckIcon } from '@heroicons/react/20/solid'
-import { NextSeo } from 'next-seo';
 import SentryCheckout from '../components/sentry/SentryCheckout';
 import { useState } from 'react';
-
-<NextSeo
-    title="Sentry for PHP on AWS Lambda"
-    description="Sentry integration for PHP applications running on AWS Lambda. Track cold starts, event-driven invocations, and more."
-    openGraph={{
-        images: [
-            {
-                url: 'https://bref.sh/sentry.png',
-            }
-        ]
-    }}
-/>
 
 <Sentry />
 

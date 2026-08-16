@@ -1,11 +1,10 @@
-import Breadcrumbs from '../../components/Breadcrumbs';
-import { NextSeo } from 'next-seo';
-import { getReleases } from '../../github/releases';
+---
+seoTitle: "X-Ray Integration Changelog"
+description: "Latest updates and releases for the Bref X-Ray integration package"
+---
 
-<NextSeo
-    title="X-Ray Integration Changelog"
-    description="Latest updates and releases for the Bref X-Ray integration package"
-/>
+import Breadcrumbs from '../../components/Breadcrumbs';
+import { getReleases } from '../../github/releases';
 
 export async function getStaticProps() {
     const releases = await getReleases('brefphp/xray-integration', 20);

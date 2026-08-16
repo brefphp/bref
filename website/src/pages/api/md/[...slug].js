@@ -20,11 +20,11 @@ export default function handler(req, res) {
 
     let content = fs.readFileSync(filePath, 'utf8');
 
+    // Strip the frontmatter block
+    content = content.replace(/^---\n[\s\S]*?\n---\n/, '');
+
     // Strip import statements at the top of the file
     content = content.replace(/^import\s+.*?(?:from\s+['"].*?['"])?;?\s*$/gm, '');
-
-    // Strip <NextSeo ... /> tags
-    content = content.replace(/<NextSeo[\s\S]*?\/>/g, '');
 
     // Clean up excessive blank lines at the start
     content = content.replace(/^\s*\n+/, '');

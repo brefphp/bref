@@ -1,22 +1,16 @@
+---
+seoTitle: "Bref 3.0 is released 🎉"
+description: "Bref 3.0 is released and reaches 40 billion invocations every month."
+ogImage: "https://bref.sh/news/03-social-card.png"
+---
+
 import ArticleHeader from '../../components/news/ArticleHeader';
-import { NextSeo } from 'next-seo';
 import Image from 'next/image';
 import cloudOverview from '../docs/monitoring/cloud-overview.png';
 import cloudXrayTrace from '../docs/monitoring/cloud-xray-trace.png';
 import cloudNetworkCreate from './03/cloud-vpc.png';
 import cloudXrayFiltersGeneral from '../docs/monitoring/cloud-xray-filters-general.png';
 import cloudXrayFiltersAnnotations from '../docs/monitoring/cloud-xray-filters-annotations.png';
-
-<NextSeo description="Bref 3.0 is released and reaches 40 billion invocations every month."
-         title="Bref 3.0 is released 🎉"
-         openGraph={{
-             images: [
-                 {
-                     url: 'https://bref.sh/news/03-social-card.png',
-                 },
-             ],
-         }}
-/>
 
 # Bref 3.0 is released 🎉
 
@@ -198,11 +192,9 @@ The [**`serverless.yml` template**](https://github.com/brefphp/laravel-bridge/bl
 
 This should make the onboarding much simpler for new Laravel applications. If you have a Laravel application and are wondering what it would look like to run it on AWS Lambda with Bref, check out [the new template](https://github.com/brefphp/laravel-bridge/blob/master/stubs/serverless.yml) and the [getting started guide](https://bref.sh/docs/laravel/getting-started.mdx) for Laravel.
 
-
 ## Upgrading
 
 Check out the [**v3 Upgrade Guide**](../docs/upgrading/v3.mdx) for a complete list of changes and instructions to upgrade your projects.
-
 
 ## Bref Cloud
 
@@ -249,7 +241,6 @@ Combined with the [improved CloudWatch logs](#better-cloudwatch-logs) and the [L
     Learn more about Bref Cloud →
 </a>
 
-
 ## Community Serverless Framework
 
 While not directly related to Bref v3, this is worth mentioning: the original [Serverless Framework](https://www.serverless.com/) is no longer fully open-source with its v4 and requires a paid license. Since most of the Bref community relies on the `serverless` CLI to deploy their applications, this was a problem for many.
@@ -269,7 +260,6 @@ No changes to your `serverless.yml` or project configuration are needed. The CLI
 
 **We recommend all Bref users to migrate to this fork.**
 
-
 ## New observability packages
 
 Also not part of Bref v3, but worth mentioning: two new packages were released in 2025 to help monitor PHP applications on AWS Lambda:
@@ -278,9 +268,6 @@ Also not part of Bref v3, but worth mentioning: two new packages were released i
 - [**Bref Sentry**](https://bref.sh/sentry): extends Sentry's capabilities for AWS Lambda, capturing errors outside of PHP-FPM (such as timeouts or oversized responses), adding exception tracking to event-driven handlers (SQS, EventBridge, S3…), and tracking cold starts and AWS SDK calls.
 
 These are commercial packages (not part of the open-source project) that help fill the observability gap for serverless PHP.
-
-
-
 
 ## Thanks
 
@@ -304,7 +291,6 @@ A huge thanks to the [Bref contributors](https://github.com/brefphp/bref/graphs/
 And [many other personal sponsors](https://github.com/sponsors/mnapoli#sponsors)!
 
 Thank you all!
-
 
 ## That's it!
 
