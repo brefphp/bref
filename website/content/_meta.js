@@ -55,8 +55,9 @@ export default {
         type: 'page',
         title: 'Credits',
         display: 'hidden',
+        // Default layout (not 'full'): centered prose column like v3, but with
+        // all the docs chrome (sidebar, TOC, breadcrumb...) stripped
         theme: {
-            layout: 'full',
             sidebar: false,
             toc: false,
             breadcrumb: false,
