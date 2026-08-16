@@ -1,12 +1,13 @@
 /* eslint-env node */
 import { Layout, Navbar } from 'nextra-theme-docs'
-import { Banner, Head, Search } from 'nextra/components'
+import { Banner, Head } from 'nextra/components'
 import { getPageMap } from 'nextra/page-map'
 import { Inter } from 'next/font/google'
 import PlausibleProvider from 'next-plausible'
 import { AnimatedLogo } from '../src/components/AnimatedLogo'
 import Footer from '../src/components/Footer'
 import HashRedirects from '../src/components/HashRedirects'
+import DocsSearch from '../src/components/DocsSearch'
 import 'nextra-theme-docs/style.css'
 import '../styles/globals.css'
 
@@ -78,7 +79,7 @@ export default async function RootLayout({ children }) {
                         footer={<Footer />}
                         pageMap={pageMap}
                         docsRepositoryBase="https://github.com/brefphp/bref/blob/master"
-                        search={<Search placeholder="Search docs" />}
+                        search={<DocsSearch />}
                         sidebar={{ defaultMenuCollapseLevel: 1 }}
                         darkMode={false}
                         nextThemes={{ defaultTheme: 'light', forcedTheme: 'light' }}
