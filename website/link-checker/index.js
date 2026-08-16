@@ -9,7 +9,7 @@ runExit(class HelloCommand extends Command {
         /** @type {Record<string, boolean>} */
         const links = {};
         const brokenLinks = new Set();
-        /** @type {Record<string, string|false>} */
+        /** @type {Record<string, {body: string, finalUrl: string}|false>} */
         const pageCache = {};
         await scan(this.context.stdout, this.url, links, brokenLinks, pageCache);
 
@@ -32,7 +32,7 @@ runExit(class HelloCommand extends Command {
  * @param {string} url
  * @param {Record<string, boolean>} links
  * @param {Set<string>} brokenLinks
- * @param {Record<string, string|false>} pageCache
+ * @param {Record<string, {body: string, finalUrl: string}|false>} pageCache
  * @returns {Promise<void>}
  */
 async function scan(stdout, url, links, brokenLinks, pageCache) {
@@ -67,16 +67,22 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
         if (! response.ok) {
             pageCache[urlWithoutAnchor] = false;
         } else {
-            pageCache[urlWithoutAnchor] = await response.text();
+            // Keep the final URL (after redirects): relative links must be
+            // resolved against it, like browsers do after a redirect
+            pageCache[urlWithoutAnchor] = {
+                body: await response.text(),
+                finalUrl: response.url,
+            };
         }
     }
-    const pageBody = pageCache[urlWithoutAnchor];
+    const cachedPage = pageCache[urlWithoutAnchor];
 
-    if (pageBody === false) {
+    if (cachedPage === false) {
         // stdout.write(`Error: ${url}\n`);
         brokenLinks.add(url);
         return;
     }
+    const { body: pageBody, finalUrl } = cachedPage;
 
     // Extract the anchor link from the url
     const anchorLink = url.split('#')[1] ?? undefined;
@@ -93,7 +99,7 @@ async function scan(stdout, url, links, brokenLinks, pageCache) {
             if (name === 'a' && newLink) {
                 // Turn the relative link into an absolute one
                 // but avoid double slashes
-                newLink = new URL(newLink, url).toString();
+                newLink = new URL(newLink, finalUrl).toString();
                 // Ignore external links on a different domain
                 // (compare the host incl. the port so that e.g. a documentation link
                 // to http://localhost:8000 is "external" when crawling localhost:3001)
