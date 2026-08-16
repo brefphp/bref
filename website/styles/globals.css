@@ -6,6 +6,19 @@
    maturity-matrix bg-green-400/bg-yellow-400/bg-red-400 dots) are generated. */
 @source '../content/docs';
 
+/* Tailwind v4 changed the default border color from gray-200 to currentColor. Lots of
+   content (news post buttons, docs screenshot frames...) uses a bare `border` class
+   written against the v3 default: restore it, per the official v4 upgrade guide. */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, #e5e7eb);
+    }
+}
+
 /* Custom blue palette moves from tailwind.config.js into @theme (Tailwind v4 CSS-first).
    These become utilities like bg-blue-500 / text-blue-100 used across marketing pages. */
 @theme {
