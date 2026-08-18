@@ -1,7 +1,7 @@
-import { Callout } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: "Configure Bref to use a PlanetScale database in your PHP application on AWS Lambda."
+---
 
-<NextSeo description="Configure Bref to use a PlanetScale database in your PHP application on AWS Lambda." />
 
 # Using PlanetScale with Bref on AWS Lambda
 
@@ -25,9 +25,9 @@ Then, create a database in the same region as your Bref application.
 
 ![](./database/planetscale-create.png)
 
-<Callout>
-    The database is created with an initial development branch: `main`. PlanetScale [has a branching concept](https://planetscale.com/docs/concepts/branching) that lets you test schema changes in a development branch, then promote it to production, or even create new branches (isolated copies of the production schema) off of production to use for development.
-</Callout>
+> [!TIP]
+>
+> The database is created with an initial development branch: `main`. PlanetScale [has a branching concept](https://planetscale.com/docs/concepts/branching) that lets you test schema changes in a development branch, then promote it to production, or even create new branches (isolated copies of the production schema) off of production to use for development.
 
 You can now click the **Connect** button and select "Connect with: PHP (PDO)". That will let you retrieve the host, database name, user and password.
 
@@ -55,9 +55,9 @@ In Bref, the file is located here: `/opt/bref/ssl/cert.pem`.
 
 ## Laravel
 
-<Callout>
-    This guide assumes you have already set up a Laravel application by following [the Bref documentation for Laravel](../laravel/getting-started.mdx).
-</Callout>
+> [!TIP]
+>
+> This guide assumes you have already set up a Laravel application by following [the Bref documentation for Laravel](../laravel/getting-started.mdx).
 
 To configure Laravel to use the PlanetScale database, you need to set it up via environment variables.
 
@@ -108,9 +108,9 @@ That's it! Our database is ready to use.
 
 ## Symfony
 
-<Callout>
-    This guide assumes you have already set up a Symfony application by following [the Bref documentation for Symfony](../symfony/getting-started.mdx).
-</Callout>
+> [!TIP]
+>
+> This guide assumes you have already set up a Symfony application by following [the Bref documentation for Symfony](../symfony/getting-started.mdx).
 
 First, make sure you have installed Doctrine, or [follow these docs to do so](https://symfony.com/doc/current/doctrine.html#installing-doctrine).
 

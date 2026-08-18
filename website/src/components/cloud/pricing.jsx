@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { Radio, RadioGroup } from '@headlessui/react'
 import { CheckIcon } from '@heroicons/react/20/solid'

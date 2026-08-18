@@ -1,4 +1,3 @@
-import { Callout } from 'nextra/components';
 
 # File storage
 
@@ -34,17 +33,17 @@ constructs:
 
 The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that this files in the bucket are still completely private, there is no change in the security of the bucket.
 
-<Callout>
-    To avoid silent failures, we also recommend setting `'throw' => true` on your S3 disk in `config/filesystems.php`:
-
-    ```php filename="config/filesystems.php"
-    's3' => [
-        'driver' => 's3',
-        // ...
-        'throw' => true,
-    ],
-    ```
-</Callout>
+> [!TIP]
+>
+> To avoid silent failures, we also recommend setting `'throw' => true` on your S3 disk in `config/filesystems.php`:
+>
+> ```php filename="config/filesystems.php"
+> 's3' => [
+>     'driver' => 's3',
+>     // ...
+>     'throw' => true,
+> ],
+> ```
 
 That's it! Lift automatically:
 
@@ -84,9 +83,9 @@ constructs:
         cors: ${construct:website.url}
 ```
 
-<Callout>
-    If you are not using the `website` construct, replace `${construct:website.url}` with your application's URL, or use `'*'` during development.
-</Callout>
+> [!TIP]
+>
+> If you are not using the `website` construct, replace `${construct:website.url}` with your application's URL, or use `'*'` during development.
 
 How it works:
 
@@ -247,9 +246,9 @@ rm public/storage
 php artisan storage:link
 ```
 
-<Callout>
-    Do not run `php artisan storage:link` in AWS Lambda: it is useless there (files are served from S3), and it will fail because the filesystem is read-only.
-</Callout>
+> [!WARNING]
+>
+> Do not run `php artisan storage:link` in AWS Lambda: it is useless there (files are served from S3), and it will fail because the filesystem is read-only.
 
 ### Migrating an existing application
 

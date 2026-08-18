@@ -1,10 +1,9 @@
-import { Callout } from 'nextra/components';
 
 # Keeping the Symfony Kernel alive between requests
 
-<Callout type="warning">
-    This is an **advanced approach** aimed at optimizing performance. If you are just starting with Bref, this approach is not recommended because it is more complex to set up and can lead to unexpected issues.
-</Callout>
+> [!WARNING]
+>
+> This is an **advanced approach** aimed at optimizing performance. If you are just starting with Bref, this approach is not recommended because it is more complex to set up and can lead to unexpected issues.
 
 By default, Bref uses PHP-FPM to handle HTTP requests. This means that the Symfony Kernel is restarted for every request. This is not a problem for most applications, but if you want to optimize performance, you can keep the Symfony Kernel alive between requests. This approach is similar to [Laravel Octane](../laravel/octane), or running Symfony with [RoadRunner](https://roadrunner.dev/).
 

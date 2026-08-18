@@ -1,16 +1,12 @@
-import { Callout } from 'nextra/components';
-import { NextSeo } from 'next-seo';
-import { Tabs } from 'nextra/components';
+---
+description: "Run Laravel serverless on AWS Lambda using Bref."
+---
 
-<NextSeo description="Run Laravel serverless on AWS Lambda using Bref." />
+import { Tabs } from 'nextra/components';
 
 # Serverless Laravel - Getting started
 
 This guide helps you run Laravel applications on AWS Lambda using Bref. These instructions are kept up to date to target the latest Laravel version.
-
-<Callout>
-    A demo application is available on GitHub at [github.com/brefphp/examples](https://github.com/brefphp/examples).
-</Callout>
 
 ## Setup
 
@@ -76,23 +72,23 @@ At the moment, we deployed our local codebase to Lambda. When deploying for prod
 
 Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details about deploying in general.
 
-<Callout type="warning">
-    Most Laravel applications use `aws/aws-sdk-php` (pulled in by packages like SQS queues, S3 storage, etc.). This package is **very large** (100MB+) and can push your deployment over Lambda's 250MB size limit. Make sure to [remove unused AWS services](/docs/deploy.md#reducing-package-size) to reduce the deployment size.
-</Callout>
+> [!WARNING]
+>
+> Most Laravel applications use `aws/aws-sdk-php` (pulled in by packages like SQS queues, S3 storage, etc.). This package is **very large** (100MB+) and can push your deployment over Lambda's 250MB size limit. Make sure to [remove unused AWS services](/docs/deploy.md#reducing-package-size) to reduce the deployment size.
 
 Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying.
 
-<Callout type="warning">
-    You could improve the cold start time by pre-generating the config cache before deploying:
-
-    ```bash
-    php artisan config:clear && php artisan config:cache
-    ```
-
-    However Laravel will **hardcode** absolute paths and environment variables in the cached configuration. To deploy a valid cached configuration, you would need to run the commands above in Docker with the application mounted in `/var/task` (the same path as on AWS Lambda), with production environment variables available.
-
-    For most applications we do not recommend this approach. Instead, let Bref cache the config in AWS Lambda on cold starts.
-</Callout>
+> [!WARNING]
+>
+> You could improve the cold start time by pre-generating the config cache before deploying:
+>
+> ```bash
+> php artisan config:clear && php artisan config:cache
+> ```
+>
+> However Laravel will **hardcode** absolute paths and environment variables in the cached configuration. To deploy a valid cached configuration, you would need to run the commands above in Docker with the application mounted in `/var/task` (the same path as on AWS Lambda), with production environment variables available.
+>
+> For most applications we do not recommend this approach. Instead, let Bref cache the config in AWS Lambda on cold starts.
 
 ## Troubleshooting
 
@@ -157,9 +153,9 @@ bref tinker --env=production
 
 ![](./tinker.png)
 
-<Callout>
-    Make sure to update the `bref/laravel-bridge` package to version 3.0 or higher to use this feature.
-</Callout>
+> [!TIP]
+>
+> Make sure to update the `bref/laravel-bridge` package to version 3.0 or higher to use this feature.
 
 If you are not using Bref Cloud, you can check out this community package: [sls-tinker](https://github.com/datpmwork/sls-tinker).
 

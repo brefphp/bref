@@ -1,20 +1,19 @@
-import { Callout } from 'nextra/components';
 
 # Local development for functions
 
 It is possible to run **event-driven functions** locally.
 
-<Callout>
-    To run **HTTP applications** (like Laravel or Symfony) locally, read [Local development for HTTP applications](../local-development.mdx) instead.
-</Callout>
+> [!TIP]
+>
+> To run **HTTP applications** (like Laravel or Symfony) locally, read [Local development for HTTP applications](../local-development.mdx) instead.
 
 ## With Serverless Framework
 
 The `serverless bref:local` command invokes your [PHP functions](/docs/runtimes/function.mdx) locally, using PHP installed on your machine. You can provide an event if your function expects one.
 
-<Callout type="info">
-    The `serverless bref:local` command is a simpler alternative to the native `serverless invoke local` command, which tries to run PHP using Docker with very little success. Use `serverless bref:local` instead of `serverless invoke local`.
-</Callout>
+> [!NOTE]
+>
+> The `serverless bref:local` command is a simpler alternative to the native `serverless invoke local` command, which tries to run PHP using Docker with very little success. Use `serverless bref:local` instead of `serverless invoke local`.
 
 For example, given this function:
 
@@ -48,12 +47,12 @@ $ serverless bref:local -f hello --path=event.json
 Hello Jane
 ```
 
-<Callout type="warning">
-    On Windows PowerShell, you must escape the "double quote" char if you write JSON directly in the CLI. Example:
-    ```bash
-    $ serverless bref:local -f hello --data '{\"name\": \"Bill\"}'
-    ```
-</Callout>
+> [!WARNING]
+>
+> On Windows PowerShell, you must escape the "double quote" char if you write JSON directly in the CLI. Example:
+> ```bash
+> $ serverless bref:local -f hello --data '{\"name\": \"Bill\"}'
+> ```
 
 The `serverless bref:local` command runs using the local PHP installation. If you prefer to use **Docker**, check out the "Without Serverless Framework" section below.
 

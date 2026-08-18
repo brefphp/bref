@@ -1,12 +1,12 @@
-import { Callout } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: "Configure Bref to use a database in your PHP application on AWS Lambda."
+---
+
 import { Tabs } from 'nextra/components';
 import cloudDbCreate from './database/cloud-db-create.png';
 import cloudVpc from './database/cloud-vpc.png';
 import banner7777 from './database/7777.png';
 import Image from 'next/image';
-
-<NextSeo description="Configure Bref to use a database in your PHP application on AWS Lambda." />
 
 # Using a database
 
@@ -19,9 +19,9 @@ Here are some of the database services offered by RDS:
 - [Aurora MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/): AWS-managed database compatible with MySQL or PostgreSQL
 - [Aurora Serverless v2 MySQL/PostgreSQL](https://aws.amazon.com/rds/aurora/serverless/): similar to Aurora but scales automatically on-demand
 
-<Callout>
-    Aurora Serverless can be configured to scale down to 0 when unused (which costs $0), however be careful with this option: the database can take up to 15 seconds to un-pause.
-</Callout>
+> [!TIP]
+>
+> Aurora Serverless can be configured to scale down to 0 when unused (which costs $0), however be careful with this option: the database can take up to 15 seconds to un-pause.
 
 ## Internet-accessible vs VPC databases
 
@@ -86,9 +86,9 @@ An internet-accessible database is the simplest option and works well for most p
         **3. Deploy** — Bref Cloud automatically adds the VPC configuration to your deployment. No changes to `serverless.yml` are needed.
     </Tabs.Tab>
     <Tabs.Tab>
-        <Callout type="warning">
-            Lambda functions in a VPC **lose internet access**. This can cause timeouts. You need a NAT Gateway to restore internet access (~$32/month). Alternatively, you can use [a NAT instance](https://fck-nat.dev/) (from $3/month).
-        </Callout>
+        > [!WARNING]
+        >
+        > Lambda functions in a VPC **lose internet access**. This can cause timeouts. You need a NAT Gateway to restore internet access (~$32/month). Alternatively, you can use [a NAT instance](https://fck-nat.dev/) (from $3/month).
 
         You can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12) to set up a NAT Gateway, use [the serverless VPC plugin](https://github.com/smoketurner/serverless-vpc-plugin), or use the complete example in [Serverless Visually Explained](https://serverless-visually-explained.com/).
 
@@ -112,9 +112,9 @@ An internet-accessible database is the simplest option and works well for most p
 
         To retrieve the information needed to let AWS Lambda access the database, go into [the RDS dashboard](https://console.aws.amazon.com/rds/home#databases:) and open the database you created.
 
-        <Callout>
-            It may take a few minutes for the database to be created.
-        </Callout>
+        > [!NOTE]
+        >
+        > It may take a few minutes for the database to be created.
 
         Find:
 
@@ -226,9 +226,9 @@ Also refer to the [Extensions](/docs/environment/php.mdx#extensions) section to 
     </Tabs.Tab>
 </Tabs>
 
-<Callout>
-    A console function must be defined in your `serverless.yml`. Check the "Getting started" guide corresponding to your framework for an example.
-</Callout>
+> [!TIP]
+>
+> A console function must be defined in your `serverless.yml`. Check the "Getting started" guide corresponding to your framework for an example.
 
 ## Accessing the database from your machine
 

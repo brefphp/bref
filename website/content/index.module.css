@@ -1,0 +1,41 @@
+/*
+ * Note: no theme() here — Tailwind v4's PostCSS plugin does not resolve theme()
+ * in standalone CSS modules, silently leaving invalid declarations that the
+ * browser drops. Use the theme CSS variables (with hex fallbacks) instead.
+ */
+.homeCode {
+    color: var(--color-gray-200, #e5e7eb);
+}
+
+/*
+ * Nextra inlines a light and a dark color on every syntax token and applies
+ * the light one (the website forces the light theme). The hero code block is
+ * on a dark background: force the dark theme colors instead.
+ */
+.homeCode span[style*='--shiki'] {
+    color: var(--shiki-dark);
+}
+/*
+ * Map the min-light theme colors to the same palette as Nextra 2
+ * (white YAML keys, blue values).
+ */
+.homeCode span[style*='--shiki-light:#D32F2F'] {
+    color: var(--color-gray-200, #e5e7eb);
+}
+.homeCode span[style*='--shiki-light:#22863A'] {
+    color: var(--color-blue-400, #5EBCF3);
+}
+.homeCode span[style*='--shiki-light:#24292E'] {
+    color: var(--color-gray-300, #d1d5db);
+}
+
+/*
+ * Restore the Nextra 2 font metrics.
+ * They must be set on the `pre`: it drives the minimum height of each line,
+ * setting a smaller line-height on `code` has no effect.
+ */
+.homeCode pre {
+    background: none;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}

@@ -1,4 +1,4 @@
 export default {
-  "getting-started": "",
+  "getting-started": "Getting started",
   "cli-commands": "CLI commands"
 }

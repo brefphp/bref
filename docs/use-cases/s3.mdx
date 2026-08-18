@@ -1,4 +1,4 @@
-import { Callout, Tabs } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 
 # S3 file processing
 
@@ -102,11 +102,10 @@ functions:
                 event: s3:ObjectCreated:*
 # ...
 
-
 ```
 
 Learn more about all the options available for S3 in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/serverless/blob/main/docs/events/s3.md).
 
-<Callout type="warning">
-    Watch out for recursive triggers: if your Lambda function writes files to the same S3 bucket, it will trigger itself again. You can avoid this by using a different bucket for the output files, or by using a prefix for the output files.
-</Callout>
+> [!CAUTION]
+>
+> Watch out for recursive triggers: if your Lambda function writes files to the same S3 bucket, it will trigger itself again. You can avoid this by using a different bucket for the output files, or by using a prefix for the output files.

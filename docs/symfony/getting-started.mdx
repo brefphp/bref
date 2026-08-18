@@ -1,15 +1,12 @@
-import { Callout, Tabs } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: "Run Symfony serverless on AWS Lambda using Bref."
+---
 
-<NextSeo description="Run Symfony serverless on AWS Lambda using Bref." />
+import { Tabs } from 'nextra/components';
 
 # Serverless Symfony - Getting started
 
 This guide helps you run Symfony applications on AWS Lambda using Bref. These instructions are kept up to date to target the latest Symfony version.
-
-<Callout>
-    A demo application is available on GitHub at [github.com/brefphp/examples](https://github.com/brefphp/examples).
-</Callout>
 
 ## Setup
 
@@ -265,9 +262,9 @@ in [the Cloudfront distribution deployed by Lift](../use-cases/websites.mdx)).
 
 You can get more details in the [Symfony documentation](https://symfony.com/doc/current/deployment/proxies.html).
 
-<Callout>
-    Be careful with these settings if your app is also executed outside a Lambda environment (for example on a public server).
-</Callout>
+> [!TIP]
+>
+> Be careful with these settings if your app is also executed outside a Lambda environment (for example on a public server).
 
 ### Getting the user IP
 

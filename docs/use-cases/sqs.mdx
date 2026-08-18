@@ -1,4 +1,4 @@
-import { Callout, Tabs } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 
 # SQS asynchronous tasks
 
@@ -12,12 +12,12 @@ SQS -->|job| Lambda(Lambda):::mermaidAwsColor;
 
 Whenever a new message (job) is sent to SQS, Lambda is invoked with the message data. That means that there is no need to poll SQS, or run daemon/long-running processes to wait for messages. Lambda is invoked only when there are messages to process.
 
-<Callout>
-    If you are using Laravel or Symfony, you should look at the Laravel Queues integration or Symfony Messenger integration instead of integrating with SQS events directly:
-
-    - [Laravel Queues integration](/docs/laravel/queues)
-    - [Symfony Messenger integration](/docs/symfony/messenger)
-</Callout>
+> [!TIP]
+>
+> If you are using Laravel or Symfony, you should look at the Laravel Queues integration or Symfony Messenger integration instead of integrating with SQS events directly:
+>
+> - [Laravel Queues integration](/docs/laravel/queues)
+> - [Symfony Messenger integration](/docs/symfony/messenger)
 
 ## Handling SQS events
 
