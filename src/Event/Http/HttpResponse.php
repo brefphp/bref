@@ -21,7 +21,7 @@ final class HttpResponse
         $this->statusCode = $statusCode;
     }
 
-    public function toApiGatewayFormat(bool $multiHeaders = false, ?string $awsRequestId = null): array\Generator
+    public function toApiGatewayFormat(bool $multiHeaders = false, ?string $awsRequestId = null): array|\Generator
     {
         $isStreamedMode = (bool) getenv('BREF_STREAMED_MODE');
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
