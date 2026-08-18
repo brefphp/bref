@@ -1,7 +1,8 @@
-import { NextSeo } from 'next-seo';
-import { Tab, Tabs } from 'nextra/components';
+---
+description: "Learn how to run serverless console commands on AWS Lambda with Symfony Console or Laravel Artisan."
+---
 
-<NextSeo description="Learn how to run serverless console commands on AWS Lambda with Symfony Console or Laravel Artisan." />
+import { Tabs } from 'nextra/components';
 
 # Console runtime
 
@@ -35,10 +36,10 @@ plugins:
 functions:
     hello:
         handler: the-php-script-to-run.php
-        runtime: php-81-console
+        runtime: php-84-console
 ```
 
-Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-81` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](../runtimes.mdx)).
+Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-84` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](../runtimes.mdx)).
 
 ## Running commands
 
@@ -48,7 +49,7 @@ When invoked, the "Console" runtime executes the `handler` script in a sub-proce
 functions:
     hello:
         handler: the-php-script-to-run.php
-        runtime: php-81-console
+        runtime: php-84-console
 ```
 
 Then the following command would run in Lambda every time the function is invoked:
@@ -74,7 +75,7 @@ Read the dedicated documentation for [running cron tasks on AWS Lambda](../use-c
 To manually run a console command on AWS Lambda, run the following command on your computer:
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         serverless bref:cli --args="{arguments and options for the script}"
         ```
@@ -104,8 +105,8 @@ To manually run a console command on AWS Lambda, run the following command on yo
         ```
 
         The `bref:cli` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         bref command "{arguments and options for the script}"
         ```
@@ -131,7 +132,7 @@ To manually run a console command on AWS Lambda, run the following command on yo
         ```
 
         The `bref command` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ### Interactive terminal

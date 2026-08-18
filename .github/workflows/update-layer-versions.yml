@@ -1,4 +1,4 @@
-name: Update layer versions (Bref v2)
+name: Update layer versions
 
 # Triggered manually or automatically when new Bref layers published
 on:
@@ -6,10 +6,13 @@ on:
         inputs:
             release_url:
                 type: string
+                description: The URL of the GitHub release that triggered this workflow
             release_html_url:
                 type: string
+                description: The URL of the GitHub release that triggered this workflow
             release_name:
                 type: string
+                description: The name of the GitHub release that triggered this workflow
 
 # Necessary to connect to AWS using OIDC
 # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
@@ -24,14 +27,14 @@ jobs:
         name: Update layer versions
         runs-on: ubuntu-22.04
         steps:
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v6
                 with:
                     ref: master
 
             -   name: Set AWS credentials
                 uses: aws-actions/configure-aws-credentials@v4
                 with:
-                    role-to-assume: arn:aws:iam::534081306603:role/bref-github-actions
+                    role-to-assume: arn:aws:iam::873528684822:role/bref-github-actions
                     role-session-name: bref-github-actions
                     aws-region: us-east-1
 
@@ -40,17 +43,17 @@ jobs:
                 with:
                     php-version: '8.3'
                     tools: composer
+                    coverage: none
 
-            -   name: Install Composer dependencies
-                run: composer install --prefer-dist
+            -   run: composer install --prefer-dist
 
             -   run: make layers.json
 
             -   name: Create Pull Request
-                uses: peter-evans/create-pull-request@v5
+                uses: peter-evans/create-pull-request@v7
                 with:
                     commit-message: Update layer versions
-                    title: Update Lambda layers [${{ inputs.release_name }}](${{ inputs.release_html_url }})
+                    title: Update v3 layers [${{ inputs.release_name }}](${{ inputs.release_html_url }})
                     body: |
                         New AWS Lambda layers [have been released](https://github.com/brefphp/aws-lambda-layers/releases):
                         
@@ -60,7 +63,8 @@ jobs:
                         After merging, a new Bref release needs to be created.
                         
                         If you are using AWS Lambda layer ARNs, check out [runtimes.bref.sh](https://runtimes.bref.sh/) to see the latest ARNs.
-                    branch: new-layer-versions
+                    branch: new-layer-versions-v3
+                    base: master
                     delete-branch: true # delete after merging or closing the PR
                     # https://github.com/actions/checkout/issues/13#issuecomment-724415212
                     committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>

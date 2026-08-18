@@ -11,18 +11,22 @@ env:
 jobs:
 
     deploy:
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-latest
+        concurrency: deploy-prod # Avoid deploying concurrently
         permissions:
             contents: read
         defaults:
             run:
                 working-directory: ./website
+        environment:
+            name: prod
+            url: https://bref.sh
         steps:
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v6
                 with:
                     fetch-depth: 0 # fetch all history for "latest modified time"
             -   run: npm install --global vercel@latest
-            -   run: make src/pages/docs
+            -   run: make content/docs
             -   name: Pull Vercel Environment Information
                 run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
             -   name: Build

@@ -1,7 +1,8 @@
-src/pages/docs
+content/docs
 .next
 .vercel
 public/robots.txt
 public/sitemap.xml
 public/sitemap-*.xml
+public/_pagefind
 links.log

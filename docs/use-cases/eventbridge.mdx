@@ -1,4 +1,4 @@
-import { Tab, Tabs } from 'nextra/components';
+import { Tabs } from 'nextra/components';
 
 # EventBridge event bus
 
@@ -34,13 +34,13 @@ class MyHandler extends EventBridgeHandler
 Then, create a Lambda function that listens to EventBridge events with the handler you created:
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
             resizeImage:
                 handler: App\MyHandler
-                runtime: php-83
+                runtime: php-84
                 events:
                     - eventBridge:
                         pattern:
@@ -49,14 +49,14 @@ Then, create a Lambda function that listens to EventBridge events with the handl
         ```
 
         The `App\MyHandler` class will be instantiated by Laravel's service container.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
             resizeImage:
                 handler: App\MyHandler
-                runtime: php-83
+                runtime: php-84
                 events:
                     - eventBridge:
                         pattern:
@@ -65,14 +65,14 @@ Then, create a Lambda function that listens to EventBridge events with the handl
         ```
 
         The `App\MyHandler` class will be instantiated by Symfony's service container.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```yml filename="serverless.yml"
         functions:
             # ...
             resizeImage:
                 handler: handler.php
-                runtime: php-83
+                runtime: php-84
                 events:
                     - eventBridge:
                         pattern:
@@ -89,11 +89,11 @@ Then, create a Lambda function that listens to EventBridge events with the handl
 
         return new MyHandler();
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 You can learn more about messaging with EventBridge in [Serverless Visually Explained](https://serverless-visually-explained.com/).
 
 [![](./eventbridge.png)](https://serverless-visually-explained.com/)
 
-Learn more about all the options available for EventBridge in `serverless.yml` [in the Serverless Framework documentation](https://www.serverless.com/framework/docs/providers/aws/events/event-bridge/).
+Learn more about all the options available for EventBridge in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/serverless/blob/main/docs/events/event-bridge.md).

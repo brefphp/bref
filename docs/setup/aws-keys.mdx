@@ -1,7 +1,7 @@
-import { Callout } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: "How to create AWS access keys for Bref"
+---
 
-<NextSeo description="How to create AWS access keys for Bref" />
 
 # Creating AWS access keys
 
@@ -17,10 +17,10 @@ To create AWS access key for Bref and the `serverless` CLI tool follow these ste
 
     ![](./aws-keys-step-2.png)
 
-    <Callout type="warning">
-        The "AdministratorAccess" policy grants **full access** to your AWS account. This is simpler when starting with AWS and Bref. However, it is recommended to restrict permissions further eventually (especially if you create access to other members of your team). Here is an example of an [IAM policy with stricter permissions](./minimal-aws-policy.mdx), use it as a starting point. <br/>
-        Alternatively, you can check out [Bref Cloud](/cloud): it lets you deploy without creating AWS access keys, and lets you manage access to team members via simple permissions (read-only, write, admin).
-    </Callout>
+    > [!WARNING]
+    >
+    > The "AdministratorAccess" policy grants **full access** to your AWS account. This is simpler when starting with AWS and Bref. However, it is recommended to restrict permissions further eventually (especially if you create access to other members of your team). Here is an example of an [IAM policy with stricter permissions](./minimal-aws-policy.mdx), use it as a starting point. <br/>
+    > Alternatively, you can check out [Bref Cloud](/cloud): it lets you deploy without creating AWS access keys, and lets you manage access to team members via simple permissions (read-only, write, admin).
 
 1. Finish creating the user.
 

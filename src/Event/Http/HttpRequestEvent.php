@@ -6,6 +6,7 @@ use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
 use Crwlr\QueryString\Query;
 
+use function str_contains;
 use function str_starts_with;
 
 /**
@@ -100,15 +101,15 @@ final class HttpRequestEvent implements LambdaEvent
      */
     public function getBasicAuthCredentials(): array
     {
-        $authorizationHeader = trim($this->headers['authorization'][0] ?? '');
+        $authorizationHeader = trim($this->headers['authorization'][0] ?? '', " \t");
 
         if (! str_starts_with($authorizationHeader, 'Basic ')) {
             return [null, null];
         }
 
-        $auth = base64_decode(trim(explode(' ', $authorizationHeader)[1]));
+        $auth = base64_decode(trim(explode(' ', $authorizationHeader)[1], " \t"), true);
 
-        if (! $auth || ! strpos($auth, ':')) {
+        if ($auth === false || ! str_contains($auth, ':')) {
             return [null, null];
         }
 
@@ -185,7 +186,7 @@ final class HttpRequestEvent implements LambdaEvent
             // Multiple "Cookie" headers are not authorized
             // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
             $cookieHeader = $this->headers['cookie'][0];
-            $cookieParts = explode('; ', $cookieHeader);
+            $cookieParts = array_map(fn (string $part) => trim($part, " \t"), explode(';', $cookieHeader));
         }
 
         $cookies = [];

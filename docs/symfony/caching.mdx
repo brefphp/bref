@@ -1,8 +1,8 @@
 # Symfony Caching
 
-As explained in the [Storage documentation](../environment/storage.md), the filesystem is readonly on AWS Lambda except for `/tmp`.
+As explained in the [Storage documentation](../environment/storage.mdx), the filesystem is readonly on AWS Lambda except for `/tmp`.
 
-However, the `/tmp` directory isn't shared across Lambda instances. If you Lambda function scales up or is redeployed, the cache will be empty in new instances.
+However, the `/tmp` directory isn't shared across Lambda instances. If your Lambda function scales up or is redeployed, the cache will be empty in new instances.
 
 If you want the cache to be shared across all Lambda instances, for example if your application caches a lot of data or if you use it for locking mechanisms (like API rate limiting), you can instead use Redis or DynamoDB.
 

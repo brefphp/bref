@@ -144,6 +144,21 @@ class HttpResponseTest extends TestCase
         ], $response->toApiGatewayFormatV2());
     }
 
+    public function test cookies are detected regardless of the header case()
+    {
+        $response = new HttpResponse('', [
+            'SET-COOKIE' => ['foo', 'bar'],
+        ]);
+
+        self::assertEquals([
+            'cookies' => ['foo', 'bar'],
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => new stdClass,
+            'body' => '',
+        ], $response->toApiGatewayFormatV2());
+    }
+
     public function test response with multiple cookies()
     {
         $response = new HttpResponse('', [

@@ -32,6 +32,23 @@ class Psr7BridgeTest extends CommonHttpTest
         ], $response->toApiGatewayFormat());
     }
 
+    public function test falsy server params are not dropped()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Content-Length' => '0',
+                'Authorization' => 'Basic ' . base64_encode('user:'),
+            ],
+        ]);
+        $request = Psr7Bridge::convertRequest($event, Context::fake());
+
+        $serverParams = $request->getServerParams();
+        self::assertSame('0', $serverParams['CONTENT_LENGTH']);
+        self::assertSame('user', $serverParams['PHP_AUTH_USER']);
+        self::assertSame('', $serverParams['PHP_AUTH_PW']);
+    }
+
     protected function fromFixture(string $file): void
     {
         $event = new HttpRequestEvent(json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR));

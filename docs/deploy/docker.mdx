@@ -1,12 +1,11 @@
-import { Callout } from 'nextra/components';
 
 # Deploying container images
 
-<Callout type="warning">
-    Are you starting with Bref? Deploy **without Docker first**. It's easier and faster. You can always switch to Docker later.
-
-    [Read the "Deployment" guide](../deploy)
-</Callout>
+> [!TIP]
+>
+> Are you starting with Bref? Deploy **without Docker first**. It's easier and faster. You can always switch to Docker later.
+>
+> [Read the "Deployment" guide](../deploy)
 
 By default, Bref deploys to AWS Lambda using zip archives, which Lambda will run in an Amazon Linux environment. This is how AWS Lambda works out of the box, and it works great.
 
@@ -16,23 +15,26 @@ We don't recommend starting out with containers, as it is less practical and req
 
 You should consider deploying using Docker when:
 
-- Your code size is [larger than the 250MB limit when unzipped](../environment/storage.md)
+- Your code size is [larger than the 250MB limit when unzipped](../environment/storage.mdx)
 - You reached the limit of 5 Lambda layers (e.g. for extra PHP extensions)
 - You need custom binaries/resources installed locally (e.g. mysqldump, wkhtmltopdf)
 
-<Callout type="warning">
-    This documentation page assumes that you have familiarized yourself with Bref first.
-</Callout>
+> [!NOTE]
+>
+> This documentation page assumes that you have familiarized yourself with Bref first.
 
 ## Docker Image
 
 Bref helps you deploy using Docker images by offering base images that work on AWS Lambda. Here is an example of a Dockerfile you can use:
 
 ```dockerfile filename="Dockerfile"
-FROM bref/php-81-fpm:2
+FROM bref/php-84:3
 
 # Copy the source code in the image
 COPY . /var/task
+
+# In this example we're serving an HTTP application with php-fpm
+ENV BREF_RUNTIME=fpm
 
 # Configure the handler file (the entrypoint that receives all HTTP requests)
 CMD ["public/index.php"]
@@ -40,46 +42,45 @@ CMD ["public/index.php"]
 
 The `CMD` instruction let us specify the entrypoint that will handle all requests. This is the equivalent of the `handler` in the `serverless.yml` file.
 
-<Callout>
-    Always specify the major version of the Bref image you want to use. That avoids breaking changes when a new major version is released.
+> [!TIP]
+>
+> Always specify the major version of the Bref image you want to use. That avoids breaking changes when a new major version is released.
+>
+> For example `bref/php-84:3` points to Bref v3.
 
-    For example `bref/php-81-fpm:2` points to Bref v2.
-</Callout>
+The `ENV BREF_RUNTIME=fpm` let's us specify which [runtime](../runtimes.mdx) to use. As a reminder, Bref offers the following runtimes:
 
-Bref offers the following base images:
+- `fpm`: [uses PHP-FPM to serve web applications](../runtimes/fpm-runtime.mdx)
+- `function`: [to run PHP code](../runtimes/function.mdx)
+- `console`: [to run CLI commands](../runtimes/console.mdx)
 
-- `bref/php-xx-fpm:2`: PHP-FPM to run HTTP applications
-- `bref/php-xx-console:2`: to run PHP CLI commands
-- `bref/php-xx:2`: to run [PHP functions](../runtimes/function.mdx)
-
-<Callout type="warning">
-    The `CMD` instruction in `Dockerfile` must contain a valid JSON array. This is why you must escape any `\` character. This is important for PHP class names, for example when using Laravel Octane:
-
-    ```dockerfile filename="Dockerfile"
-    CMD ["Bref\\LaravelBridge\\Http\\OctaneHandler"]
-    ```
-</Callout>
+> [!WARNING]
+>
+> The `CMD` instruction in `Dockerfile` must contain a valid JSON array. This is why you must escape any `\` character. This is important for PHP class names, for example when using Laravel Octane:
+>
+> ```dockerfile filename="Dockerfile"
+> CMD ["Bref\\LaravelBridge\\Http\\OctaneHandler"]
+> ```
 
 ### Extra PHP extensions
 
 You can enable additional PHP extensions by pulling them from [Bref Extra Extensions](https://github.com/brefphp/extra-php-extensions):
 
 ```dockerfile filename="Dockerfile" {3-4}
-FROM bref/php-81-fpm:2
+FROM bref/php-84:3
 
-COPY --from=bref/extra-redis-php-81:1 /opt /opt
-COPY --from=bref/extra-gmp-php-81:1 /opt /opt
+COPY --from=bref/extra-gmp-php-84:3 /opt /opt
 
 COPY . /var/task
 
 CMD ["public/index.php"]
 ```
 
-<Callout>
-    Like the Bref images, always specify the major version of the Bref Extra Extensions images: `bref/extra-*:1` points to Bref Extra Extensions v1.
-
-    Note that Bref v2 is compatible with Bref Extra Extensions v1 (yes that's confusing, sorry about that, we will fix that in Bref v3 to have matching versions).
-</Callout>
+> [!TIP]
+>
+> Like the Bref images, always specify the major version of the Bref Extra Extensions images: `bref/extra-*:3` points to Bref Extra Extensions v3.
+>
+> Note that Bref v3 is compatible with Bref Extra Extensions v3.
 
 ## Deployment
 
@@ -95,6 +96,8 @@ provider:
             hello-world:
                 # Path to the `Dockerfile` file
                 path: ./
+                file: Dockerfile
+                platform: linux/amd64
 
 functions:
     hello:
@@ -114,7 +117,59 @@ When running `serverless deploy`, the CLI will:
 - Push the newly built Docker image
 - Deploy the Lambda function pointing to the Docker image
 
-Note that you can create multiple images in the same `serverless.yml` file. For example, you can have one image for the HTTP handler and another image for a worker.
+### Using one image for all functions (recommended)
+
+A major benefit of deploying with Docker is that you can use **a single Docker image** for all your functions (web, console, queues, etc.). Instead of setting `BREF_RUNTIME` in the Dockerfile, set it per function via the `environment` variables in `serverless.yml`:
+
+```dockerfile filename="Dockerfile"
+FROM bref/php-84:3
+
+COPY . /var/task
+
+# No BREF_RUNTIME or CMD set here
+```
+
+```yml filename="serverless.yml" {5-9,15,21,27}
+provider:
+    name: aws
+    ecr:
+        images:
+            my-app:
+                path: ./
+                file: Dockerfile
+                platform: linux/amd64
+
+functions:
+    web:
+        image:
+            name: my-app
+            command: public/index.php # a PHP file path or class name
+        environment:
+            BREF_RUNTIME: fpm
+        events:
+            - httpApi: '*'
+
+    console:
+        image:
+            name: my-app
+            command: bin/console # an executable file path
+        environment:
+            BREF_RUNTIME: console
+
+    worker:
+        image:
+            name: my-app
+            command: Acme\QueueWorker # a PHP file path or class name
+        environment:
+            BREF_RUNTIME: function
+        events:
+            - sqs:
+                arn: !GetAtt MyQueue.Arn
+```
+
+This simplifies your deployment pipeline: a single Docker image is built and pushed, and each function uses the appropriate runtime.
+
+You can read the detailed documentation about [all options available in the Serverless documentation](https://github.com/oss-serverless/serverless/blob/main/docs/guides/functions.md#referencing-container-image-as-a-target).
 
 ## Filesystem
 
@@ -122,10 +177,10 @@ Like with non-Docker deployments, the filesystem for Docker on AWS Lambda is als
 
 The `/tmp` folder will always be empty on cold starts. Avoid writing content to `/tmp` in your Dockerfile because that content will **not be available** for your Lambda function.
 
-[Read more about file storage in Lambda](../environment/storage.md).
+[Read more about file storage in Lambda](../environment/storage.mdx).
 
 ## Docker Registry
 
-AWS Lambda only support AWS ECR as the source location for Docker images.
+AWS Lambda only supports AWS ECR as the source location for Docker images.
 
 AWS Lambda will use the image digest as the unique identifier. This means that even if you overwrite the exact same tag on ECR, your lambda will still run the previous image code until you actually redeploy using the new image.

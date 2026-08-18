@@ -1,5 +1,5 @@
 module.exports.redirects = {
-    '/slack': 'https://join.slack.com/t/brefworkspace/shared_invite/enQtNTcwMjU2NTcxNjAxLTIxYmM2MmRjMDkzYjdjYTNkMmE5NGI3YTcyZjc2ZGRjNTFmNjFmYzk5NWQ1YmVhMDkwNzExNzhjZThkZWM0ODE',
+    '/slack': 'https://join.slack.com/t/brefworkspace/shared_invite/zt-3c5ihg8n9-2oA~2DMB9YYnufTzHih5OQ',
     '/#ecosystem': '/support',
     '/#plans': '/support',
     '/#enterprise': '/support',
@@ -36,7 +36,8 @@ module.exports.redirects = {
     '/docs/installation/aws-keys': '/docs/setup/aws-keys',
     '/docs/environment/custom-domains': '/docs/use-cases/http/custom-domains',
     '/docs/aws-cdk': '/docs/deploy/aws-cdk',
-    '/docs/web-apps/index#assets': '/docs/use-cases/websites',
+    '/docs/web-apps/index': '/docs/use-cases/websites',
+    '/docs/web-apps': '/docs/use-cases/websites',
     '/docs/function/local-development': '/docs/local-development/event-driven-functions',
     '/docs/frameworks/laravel': '/docs/laravel/getting-started',
     '/docs/laravel/getting-started#assets': '/docs/laravel/getting-started#website-assets',
@@ -66,4 +67,7 @@ module.exports.redirects = {
     '/docs/runtimes/console#configuration': '/docs/runtimes/console#usage',
     '/docs/runtimes/console#usage-without-serverless-framework': '/docs/runtimes/console#without-serverless-framework',
     '/docs/function/cron': '/docs/use-cases/cron#cron-functions',
+    '/docs/getting-started': '/docs/setup',
+    '/docs/deploy#stages': '/docs/deploy#environments',
+    '/docs/environment/database#accessing-the-internet': '/docs/environment/database#vpc-databases-private-network'
 };

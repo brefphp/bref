@@ -48,7 +48,7 @@ final class Psr7Bridge
             'REQUEST_URI' => $event->getUri(),
             'PHP_AUTH_USER' => $user,
             'PHP_AUTH_PW' => $password,
-        ]);
+        ], fn ($value) => $value !== null);
 
         foreach ($headers as $name => $values) {
             $server['HTTP_' . strtoupper(str_replace('-', '_', (string) $name))] = $values[0];
