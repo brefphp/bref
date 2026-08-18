@@ -26,7 +26,7 @@ jobs:
                 with:
                     fetch-depth: 0 # fetch all history for "latest modified time"
             -   run: npm install --global vercel@latest
-            -   run: make src/pages/docs
+            -   run: make content/docs
             -   name: Pull Vercel Environment Information
                 run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
             -   name: Build
