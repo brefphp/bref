@@ -7,7 +7,7 @@ use Bref\Event\Handler;
 
 abstract class HttpHandler implements Handler
 {
-    abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse|StreamedHttpResponse;
+    abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse;
 
     /** {@inheritDoc} */
     public function handle($event, Context $context): array|\Generator

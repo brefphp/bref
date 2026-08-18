@@ -99,8 +99,6 @@ final class LambdaRuntime
 
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (Throwable $e) {
-            $this->logError($e, $context->getAwsRequestId());
-
             $this->signalFailure($context->getAwsRequestId(), $e);
 
             try {
@@ -314,69 +312,45 @@ final class LambdaRuntime
             ...$headers,
         ]);
 
-        if (PHP_VERSION_ID < 80100) {
-            $buffer = '';
-            curl_setopt(
-                $this->curlStreamedHandleResult,
-                CURLOPT_READFUNCTION,
-                function ($ch, $fd, $length) use (&$data, &$buffer) {
-                    if (strlen($buffer) < $length && $data->valid()) {
-                        $buffer .= (string) $data->current();
+        $buffer = '';
+        /*
+        * We use Fibers so we can suspend the yields and read data as needed.
+        * That way we don't block the response as more data comes.
+        */
+        $fiber = new \Fiber(
+            function () use (&$data): void {
+                foreach ($data as $dataChunk) {
+                    \Fiber::suspend((string) $dataChunk);
+                }
 
-                        /*
-                        As this method needs to return an string, we need to wait for the next generator item to yield.
-                        This can lead to the initial part of the buffer taking longer to load if the next chunk takes longer.
-                        */
-                        $data->next();
+                \Fiber::suspend(PHP_INT_MIN);
+            }
+        );
+
+        curl_setopt(
+            $this->curlStreamedHandleResult,
+            CURLOPT_READFUNCTION,
+            function ($ch, $fd, $length) use (&$fiber, &$buffer) {
+                if ($buffer === '') {
+                    if ($fiber->isStarted() || $fiber->isSuspended()) {
+                        $fiberChunk = $fiber->resume();
+                    } elseif (! $fiber->isTerminated()) {
+                        $fiberChunk = $fiber->start();
+                    } else {
+                        $fiberChunk = PHP_INT_MIN;
                     }
 
-                    $chunk = substr($buffer, 0, $length);
-                    $buffer = substr($buffer, strlen($chunk));
-
-                    return $chunk;
-                }
-            );
-        } else {
-            $buffer = '';
-            /*
-            * We use Fibers so we can suspend the yields and read data as needed.
-            * That way we don't block the response as more data comes.
-            */
-            $fiber = new \Fiber(
-                function () use (&$data): void {
-                    foreach ($data as $dataChunk) {
-                        \Fiber::suspend((string) $dataChunk);
+                    if ($fiberChunk !== PHP_INT_MIN) {
+                        $buffer .= $fiberChunk;
                     }
-
-                    \Fiber::suspend(PHP_INT_MIN);
                 }
-            );
 
-            curl_setopt(
-                $this->curlStreamedHandleResult,
-                CURLOPT_READFUNCTION,
-                function ($ch, $fd, $length) use (&$fiber, &$buffer) {
-                    if ($buffer === '') {
-                        if ($fiber->isStarted() || $fiber->isSuspended()) {
-                            $fiberChunk = $fiber->resume();
-                        } elseif (! $fiber->isTerminated()) {
-                            $fiberChunk = $fiber->start();
-                        } else {
-                            $fiberChunk = PHP_INT_MIN;
-                        }
+                $chunk = substr($buffer, 0, $length);
+                $buffer = substr($buffer, strlen($chunk));
 
-                        if ($fiberChunk !== PHP_INT_MIN) {
-                            $buffer .= $fiberChunk;
-                        }
-                    }
-
-                    $chunk = substr($buffer, 0, $length);
-                    $buffer = substr($buffer, strlen($chunk));
-
-                    return $chunk;
-                }
-            );
-        }
+                return $chunk;
+            }
+        );
 
         $body = curl_exec($this->curlStreamedHandleResult);
 
@@ -477,7 +451,6 @@ final class LambdaRuntime
     private function closeCurlStreamedHandleResult(): void
     {
         if ($this->curlStreamedHandleResult !== null) {
-            curl_close($this->curlStreamedHandleResult);
             $this->curlStreamedHandleResult = null;
         }
     }

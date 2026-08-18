@@ -2,6 +2,9 @@
 
 namespace Bref\Event\Http;
 
+use Bref\Bref;
+use Generator;
+
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
  */
@@ -9,12 +12,12 @@ final class HttpResponse
 {
     private int $statusCode;
     private array $headers;
-    private string $body;
+    private string|\Generator $body;
 
     /**
      * @param array<string|string[]> $headers
      */
-    public function __construct(string $body, array $headers = [], int $statusCode = 200)
+    public function __construct(string|\Generator $body, array $headers = [], int $statusCode = 200)
     {
         $this->body = $body;
         $this->headers = $headers;
@@ -23,7 +26,7 @@ final class HttpResponse
 
     public function toApiGatewayFormat(bool $multiHeaders = false, ?string $awsRequestId = null): array|\Generator
     {
-        $isStreamedMode = (bool) getenv('BREF_STREAMED_MODE');
+        $isStreamedMode = Bref::isRunningInStreamingMode();
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
         $headers = [];
@@ -52,22 +55,18 @@ final class HttpResponse
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
 
         if ($isStreamedMode) {
-            yield json_encode([
+            return $this->yieldBody([
                 'statusCode' => $this->statusCode,
                 $headersKey => $headers,
             ]);
-
-            yield "\0\0\0\0\0\0\0\0";
-
-            yield $this->body;
-        } else {
-            return [
-                'isBase64Encoded' => $base64Encoding,
-                'statusCode' => $this->statusCode,
-                $headersKey => $headers,
-                'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
-            ];
         }
+
+        return [
+            'isBase64Encoded' => $base64Encoding,
+            'statusCode' => $this->statusCode,
+            $headersKey => $headers,
+            'body' => $base64Encoding ? base64_encode($this->getBodyAsString()) : $this->getBodyAsString(),
+        ];
     }
 
     /**
@@ -75,7 +74,7 @@ final class HttpResponse
      */
     public function toApiGatewayFormatV2(?string $awsRequestId = null): array|\Generator
     {
-        $isStreamedMode = (bool) getenv('BREF_STREAMED_MODE');
+        $isStreamedMode = Bref::isRunningInStreamingMode();
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
         $headers = [];
@@ -102,24 +101,58 @@ final class HttpResponse
         $headers = empty($headers) ? new \stdClass : $headers;
 
         if ($isStreamedMode) {
-            yield json_encode([
+            return $this->yieldBody([
                 'cookies' => $cookies,
                 'statusCode' => $this->statusCode,
                 'headers' => $headers,
             ]);
-
-            yield "\0\0\0\0\0\0\0\0";
-
-            yield $this->body;
-        } else {
-            return [
-                'cookies' => $cookies,
-                'isBase64Encoded' => $base64Encoding,
-                'statusCode' => $this->statusCode,
-                'headers' => $headers,
-                'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
-            ];
         }
+
+        return [
+            'cookies' => $cookies,
+            'isBase64Encoded' => $base64Encoding,
+            'statusCode' => $this->statusCode,
+            'headers' => $headers,
+            'body' => $base64Encoding ? base64_encode($this->getBodyAsString()) : $this->getBodyAsString(),
+        ];
+    }
+
+    /**
+     * Yields the metadata, the null-byte separator and the body chunks in the
+     * Lambda Streaming Format.
+     *
+     * @param array $metadata
+     */
+    private function yieldBody(array $metadata): Generator
+    {
+        yield json_encode($metadata);
+
+        yield "\0\0\0\0\0\0\0\0";
+
+        if ($this->body instanceof Generator) {
+            foreach ($this->body as $dataChunk) {
+                yield $dataChunk;
+            }
+        } else {
+            yield $this->body;
+        }
+    }
+
+    private function getBodyAsString(): string
+    {
+        if ($this->body instanceof Generator) {
+            $dataChunk = '';
+
+            while ($this->body->valid()) {
+                $dataChunk .= $this->body->current();
+
+                $this->body->next();
+            }
+
+            return $dataChunk;
+        }
+
+        return $this->body;
     }
 
     /**
