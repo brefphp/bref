@@ -1,9 +1,9 @@
 export default {
   "serverless-yml": "serverless.yml",
   "variables": "Environment variables",
-  "php": "",
-  "storage": "",
-  "logs": "",
+  "php": "PHP",
+  "storage": "Storage",
+  "logs": "Logs",
   "database": "Databases",
   "database-planetscale": "Databases - PlanetScale",
   "database-public": {
