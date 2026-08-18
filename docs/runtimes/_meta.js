@@ -1,0 +1,6 @@
+export default {
+  "fpm-runtime": "PHP-FPM runtime",
+  "function": "Function runtime",
+  "console": "Console runtime",
+  "runtimes-details": "Runtimes in details"
+}

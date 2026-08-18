@@ -9,7 +9,7 @@ module.exports = {
         ecmaVersion: 2019,
     },
     root: true,
-    ignorePatterns: ['src/**', 'tests/**', 'website/**', 'vendor/**'],
+    ignorePatterns: ['src/**', 'tests/**', 'website/**', 'docs/**', 'vendor/**'],
     plugins: ['import', '@typescript-eslint'],
     overrides: [
         // Rules specific for TypeScript

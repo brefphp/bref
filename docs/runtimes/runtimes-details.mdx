@@ -1,12 +1,11 @@
-import { Callout } from 'nextra/components';
 
 # Runtimes in details
 
-<Callout type="warning">
-    This section is only useful if you want to learn more, or if you want to use Bref with another deployment tool than Serverless Framework.
-
-    You can skip it for now if you just want to get started with Bref.
-</Callout>
+> [!NOTE]
+>
+> This section is only useful if you want to learn more, or if you want to use Bref with another deployment tool than Serverless Framework.
+>
+> You can skip it for now if you just want to get started with Bref.
 
 ## AWS Lambda layers
 
@@ -15,12 +14,12 @@ Bref runtimes are distributed as [AWS Lambda layers](https://docs.aws.amazon.com
 The layer names (aka "[ARN](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html)") follow this pattern:
 
 ```
-arn:aws:lambda:<region>:534081306603:layer:<layer-name>:<layer-version>
+arn:aws:lambda:<region>:873528684822:layer:<layer-name>:<layer-version>
 ```
 
 For example:
 ```
-arn:aws:lambda:us-east-1:534081306603:layer:php-80:21
+arn:aws:lambda:us-east-1:873528684822:layer:php-84:21
 ```
 
 You can use layers via their full ARN, for example in `serverless.yml`:
@@ -32,9 +31,9 @@ provider:
 functions:
     hello:
         # ...
-        runtime: provided.al2
+        runtime: provided.al2023
         layers:
-            - 'arn:aws:lambda:us-east-1:534081306603:layer:php-80:21'
+            - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:21'
 ```
 
 Or if you are using [SAM's `template.yaml`](https://aws.amazon.com/serverless/sam/):
@@ -47,16 +46,16 @@ Resources:
         Type: AWS::Serverless::Function
         Properties:
             # ...
-            Runtime: provided.al2
+            Runtime: provided.al2023
             Layers:
-                - 'arn:aws:lambda:us-east-1:534081306603:layer:php-80:21'
+                - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:21'
 ```
 
 Bref layers work with AWS Lambda regardless of the tool you use to deploy your application: Serverless, SAM, CloudFormation, Terraform, AWS CDK, etc.
 
-<Callout>
-    Remember: the layer ARN contains a region. **You need to use the same region as the rest of your application** else Lambda will not find the layer.
-</Callout>
+> [!WARNING]
+>
+> Remember: the layer ARN contains a region. **You need to use the same region as the rest of your application** else Lambda will not find the layer.
 
 ## Layer versions
 
@@ -72,13 +71,22 @@ You can also find the appropriate ARN/version for your current Bref version by r
 serverless bref:layers
 ```
 
-<Callout type="warning">
-    If you use a layer ARN directly, you will need to update the ARN regularly (the `version` part).
-</Callout>
+> [!WARNING]
+>
+> If you use a layer ARN directly, you will need to update the ARN regularly (the `version` part).
 
 ### Layers NPM package
 
 You can use [the `@bref.sh/layers.js` NPM package](https://github.com/brefphp/layers.js) to get up-to-date layer ARNs in Node applications, for example with the AWS CDK.
+
+## Environment variables
+
+Bref exposes the following environment variables on every Lambda invocation:
+
+- **`LAMBDA_REQUEST_ID`**: the current AWS Lambda request ID. This is useful for logging and tracing purposes, for example to group all logs of the same invocation.
+- **`_X_AMZN_TRACE_ID`**: the [AWS X-Ray](https://docs.aws.amazon.com/lambda/latest/dg/services-xray.html) trace ID. This is a standard AWS Lambda variable that is normally set by native runtimes.
+
+These variables are refreshed on every invocation.
 
 ## Telemetry ping
 
@@ -99,11 +107,13 @@ On the month of the Bref 1.0 release, [Bref was powering 1 billion invocations p
 
 On the month of the Bref 2.0 release, [Bref was powering 10 billion invocations per month](../../news/02-bref-2.0.md).
 
+On the month of the Bref 3.0 release, [Bref was powering 40 billion invocations per month](../../news/03-bref-3.0.mdx).
+
 ### What is sent
 
 The data sent in the ping is completely anonymous. It does not contain any identifiable data about anything (the project, users, etc.).
 
-**The only data it contains is:** A Bref invocation happened with the layer XYZ (where XYZ is the name of the Bref layer, like "function", "fpm" or "console") and whether the invocation was a cold start.
+**The only data it contains is:** A Bref invocation happened with the runtime XYZ (where XYZ is the name of the Bref runtime, like "function", "fpm" or "console") and whether the invocation was a cold start.
 
 Here is an example payload:
 
@@ -133,8 +143,8 @@ Given that it is much much less than even 1 milli-second, we consider that overh
 
 The ping can be disabled by setting a `BREF_PING_DISABLE` environment variable to `1`.
 
-<Callout>
-    If your company policy requires disabling the ping, it would be extremely beneficial to the project (and transitively to your company) to report privately a rough number of invocations. You can send me a direct email at [matthieu@bref.sh](mailto:matthieu@bref.sh).
-
-    Such data is collected privately and is not shared publicly on its own. I include it in the total number of invocations that I share publicly.
-</Callout>
+> [!TIP]
+>
+> If your company policy requires disabling the ping, it would be extremely beneficial to the project (and transitively to your company) to report privately a rough number of invocations. You can send me a direct email at [matthieu@bref.sh](mailto:matthieu@bref.sh).
+>
+> Such data is collected privately and is not shared publicly on its own. I include it in the total number of invocations that I share publicly.

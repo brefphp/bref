@@ -145,6 +145,55 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertEquals($expected, $pass);
     }
 
+    public function test basic auth with an empty username()
+    {
+        // `:password` is valid per RFC 7617: the username can be empty
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode(':password'),
+            ],
+        ]);
+
+        $this->assertSame(['', 'password'], $event->getBasicAuthCredentials());
+    }
+
+    public function test basic auth with an empty password()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode('user:'),
+            ],
+        ]);
+
+        $this->assertSame(['user', ''], $event->getBasicAuthCredentials());
+    }
+
+    public function test basic auth with whitespace around the header value()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => "\t Basic " . base64_encode('user:password') . " \t",
+            ],
+        ]);
+
+        $this->assertSame(['user', 'password'], $event->getBasicAuthCredentials());
+    }
+
+    public function test basic auth without a colon is rejected()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode('foobar'),
+            ],
+        ]);
+
+        $this->assertSame([null, null], $event->getBasicAuthCredentials());
+    }
+
     public function test empty invocation will have friendly error message()
     {
         $message = "This handler expected to be invoked with a API Gateway or ALB event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data: null";
@@ -153,6 +202,30 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->expectExceptionMessage($message);
 
         new HttpRequestEvent(null);
+    }
+
+    public function test cookies without a space after the semicolon()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Cookie' => 'a=1;b=2; c=3',
+            ],
+        ]);
+
+        $this->assertSame(['a' => '1', 'b' => '2', 'c' => '3'], $event->getCookies());
+    }
+
+    public function test cookies with whitespace around the pairs()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Cookie' => "a=1 ;\tb=2\t; c=3",
+            ],
+        ]);
+
+        $this->assertSame(['a' => '1', 'b' => '2', 'c' => '3'], $event->getCookies());
     }
 
     /**
@@ -168,7 +241,7 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertEquals($expectedOutput, $result);
     }
 
-    public function provide query strings(): iterable
+    public static function provide query strings(): iterable
     {
         yield ['', []];
 
@@ -248,7 +321,7 @@ class HttpRequestEventTest extends CommonHttpTest
         self::assertSame($normalizedQs, $event->getQueryString());
     }
 
-    public function provide query strings for event(): array
+    public static function provide query strings for event(): array
     {
         return [
             [['foo' => 'bar'], 'foo=bar', 'foo=bar'],

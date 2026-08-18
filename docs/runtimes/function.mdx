@@ -1,7 +1,8 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: "Run serverless event-driven PHP functions on AWS Lambda using Bref."
+---
 
-<NextSeo description="Run serverless event-driven PHP functions on AWS Lambda using Bref." />
+import { Tabs } from 'nextra/components';
 
 # PHP functions runtime for AWS Lambda
 
@@ -32,9 +33,9 @@ exports.myHandler = async function (event, context) {
 Writing functions is very useful to process events and data from other AWS services.
 For example, this is perfect to implement **asynchronous workers, event handling, file processing**, etc. Plenty of examples are available in the "Use cases" section in the menu.
 
-<Callout>
-    If you are creating HTTP applications, the [PHP-FPM runtime](./fpm-runtime.mdx) is a simpler option.
-</Callout>
+> [!TIP]
+>
+> If you are creating HTTP applications, the [PHP-FPM runtime](./fpm-runtime.mdx) is a simpler option.
 
 ## Usage
 
@@ -49,7 +50,7 @@ plugins:
 functions:
     hello:
         handler: my-function.php
-        runtime: php-81
+        runtime: php-84
 ```
 
 ## PHP functions
@@ -149,7 +150,7 @@ functions:
 It is also possible to directly define PHP classes as AWS Lambda handlers.
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         Set the class name as the `handler` and Bref will retrieve that class from Laravel's service container.
 
         ```yml filename="serverless.yml"
@@ -157,8 +158,8 @@ It is also possible to directly define PHP classes as AWS Lambda handlers.
             hello:
                 handler: MyApp\Handler
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         Set the class name as the `handler` and Bref will retrieve that class from Symfony's service container.
 
         ```yml filename="serverless.yml"
@@ -166,8 +167,8 @@ It is also possible to directly define PHP classes as AWS Lambda handlers.
             hello:
                 handler: MyApp\Handler
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         To achieve that, you must integrate Bref with your framework's Dependency Injection Container.
 
         First, create a file (for example `init.php`) that calls `Bref::setContainer()`:
@@ -208,20 +209,20 @@ It is also possible to directly define PHP classes as AWS Lambda handlers.
             hello:
                 handler: MyApp\Handler
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ## Invocation
 
 A PHP function must be invoked via the AWS Lambda API, either manually or by integrating with other AWS services.
 
-<Callout>
-    If you instead want to write a classic **HTTP application**, use the [PHP-FPM runtime](./fpm-runtime.mdx) instead.
-</Callout>
+> [!TIP]
+>
+> If you instead want to write a classic **HTTP application**, use the [PHP-FPM runtime](./fpm-runtime.mdx) instead.
 
 ### CLI
 
-A PHP function can be triggered manually from the CLI using the [`serverless invoke` command](https://serverless.com/framework/docs/providers/aws/cli-reference/invoke/):
+A PHP function can be triggered manually from the CLI using the [`serverless invoke` command](https://github.com/oss-serverless/serverless/blob/main/docs/cli-reference/invoke.md):
 
 ```bash
 $ serverless invoke -f <function-name>
@@ -248,6 +249,10 @@ You first need to install the AWS PHP SDK by running
 $ composer require aws/aws-sdk-php
 ```
 
+> [!NOTE]
+>
+> The `aws/aws-sdk-php` package is very large (100MB+). To avoid hitting Lambda's 250MB size limit, [remove unused AWS services from the package](/docs/deploy.mdx#reducing-package-size).
+
 ```php
 $lambda = new \Aws\Lambda\LambdaClient([
     'version' => 'latest',
@@ -264,13 +269,13 @@ $result = $lambda->invoke([
 $result = json_decode($result->get('Payload')->getContents(), true);
 ```
 
-<Callout>
-    **Important**: When invoking Lambda functions, use the exact function name as it appears in the AWS console, not the function name from `serverless.yml`. For example, if your service is named `my-app` and your function is named `hello`, the actual Lambda function name will be `my-app-dev-hello` (or similar, depending on your stage).
-</Callout>
+> [!WARNING]
+>
+> When invoking Lambda functions, use the exact function name as it appears in the AWS console, not the function name from `serverless.yml`. For example, if your service is named `my-app` and your function is named `hello`, the actual Lambda function name will be `my-app-dev-hello` (or similar, depending on your stage).
 
-<Callout type="info">
-    A lighter alternative to the official AWS PHP SDK is the [AsyncAws Lambda](https://async-aws.com/clients/lambda.html) package.
-</Callout>
+> [!NOTE]
+>
+> A lighter alternative to the official AWS PHP SDK is the [AsyncAws Lambda](https://async-aws.com/clients/lambda.html) package.
 
 ### From other AWS services
 

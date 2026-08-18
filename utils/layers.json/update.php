@@ -13,27 +13,14 @@ use Aws\Sts\StsClient; // AsyncAWS doesn't support regional endpoints: https://g
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 const LAYER_NAMES = [
+    'php-85',
     'php-84',
-    'php-84-fpm',
     'php-83',
-    'php-83-fpm',
     'php-82',
-    'php-82-fpm',
-    'php-81',
-    'php-81-fpm',
-    'php-80',
-    'php-80-fpm',
+    'arm-php-85',
     'arm-php-84',
-    'arm-php-84-fpm',
     'arm-php-83',
-    'arm-php-83-fpm',
     'arm-php-82',
-    'arm-php-82-fpm',
-    'arm-php-81',
-    'arm-php-81-fpm',
-    'arm-php-80',
-    'arm-php-80-fpm',
-    'console',
 ];
 
 $regions = json_decode(file_get_contents(__DIR__ . '/regions.json'), true);
@@ -66,7 +53,7 @@ function lambdaClient(string $region): LambdaClient
         ]);
 
         $credentials = $stsClient->AssumeRole([
-            'RoleArn' => 'arn:aws:iam::534081306603:role/bref-layer-publisher',
+            'RoleArn' => 'arn:aws:iam::873528684822:role/bref-layer-publisher',
             'RoleSessionName' => 'bref-layer-builder',
         ]);
 
@@ -90,7 +77,7 @@ function listLayers(LambdaClient $lambda, string $selectedRegion): array
 
     foreach (LAYER_NAMES as $layerName) {
         $results[$layerName] = $lambda->listLayerVersions([
-            'LayerName' => sprintf('arn:aws:lambda:%s:534081306603:layer:%s', $selectedRegion, $layerName),
+            'LayerName' => sprintf('arn:aws:lambda:%s:873528684822:layer:%s', $selectedRegion, $layerName),
             'MaxItems' => 1,
         ]);
     }

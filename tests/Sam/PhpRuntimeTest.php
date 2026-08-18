@@ -258,7 +258,7 @@ LOGS;
         $stderr = preg_replace('/\x1b\[[0-9;]*m/', '', $stderr);
 
         // Extract the result from stdout
-        $output = explode("\n", trim($process->getOutput()));
+        $output = explode("\n", trim($process->getOutput(), " \t\n\r\0\x0B"));
         $lastLine = end($output);
         if (! empty($lastLine)) {
             $result = json_decode($lastLine, true, 512, JSON_THROW_ON_ERROR);
@@ -269,7 +269,7 @@ LOGS;
             $result = null;
             // Was there an error?
             preg_match('/REPORT RequestId: [^\n]*(.*)/s', $stderr, $matches);
-            $error = trim($matches[1] ?? '');
+            $error = trim($matches[1] ?? '', " \t\n\r\0\x0B");
             if ($error !== '') {
                 $result = json_decode($error, true, 512, JSON_THROW_ON_ERROR);
                 if (json_last_error()) {
@@ -314,7 +314,7 @@ LOGS;
         // Extract the only interesting log line
         $logLines = explode("\n", $logs);
         $logLines = array_filter($logLines, function (string $line): bool {
-            $line = trim($line);
+            $line = trim($line, " \t\n\r\0\x0B");
             return $line !== ''
                 && (strpos($line, 'START') !== 0)
                 && (strpos($line, 'END') !== 0)

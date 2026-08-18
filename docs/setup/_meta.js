@@ -1,0 +1,8 @@
+export default {
+  "aws-keys": {
+    "display": "hidden"
+  },
+  "minimal-aws-policy": {
+    "display": "hidden"
+  }
+}

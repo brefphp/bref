@@ -34,6 +34,7 @@ abstract class RuntimeTestCase extends TestCase
                 [
                     'lambda-runtime-aws-request-id' => '1',
                     'lambda-runtime-invoked-function-arn' => 'test-function-name',
+                    'lambda-runtime-trace-id' => 'Root=1-67891233-abcdef012345678912345678',
                 ],
                 json_encode($event, JSON_THROW_ON_ERROR)
             ),
@@ -80,7 +81,7 @@ abstract class RuntimeTestCase extends TestCase
     protected function assertErrorInLogs(string $errorClass, string $errorMessage): void
     {
         // Decode the logs from stdout
-        $stdout = $this->getActualOutput();
+        $stdout = $this->output();
 
         [$requestId, $message, $json] = explode("\t", $stdout);
 
@@ -108,7 +109,7 @@ abstract class RuntimeTestCase extends TestCase
     protected function assertPreviousErrorsInLogs(array $previousErrors): void
     {
         // Decode the logs from stdout
-        $stdout = $this->getActualOutput();
+        $stdout = $this->output();
 
         [, , $json] = explode("\t", $stdout);
 

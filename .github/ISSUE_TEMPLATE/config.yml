@@ -3,9 +3,12 @@ contact_links:
     - name: Community support
       url: https://github.com/brefphp/bref/discussions?discussions_q=category%3ASupport
       about: Please ask and answer questions in GitHub Discussions.
+    - name: Slack community
+      url: https://bref.sh/slack
+      about: Ask questions in the `#help` channel.
     - name: Professional support
-      url: https://bref.sh/#enterprise
+      url: https://bref.sh/support
       about: Get in touch with Null, the company behind Bref.
     - name: Sponsor a feature
-      url: https://bref.sh/#enterprise
+      url: https://bref.sh/support
       about: Sponsor the development of a new feature you want to see in Bref.
