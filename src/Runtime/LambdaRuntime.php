@@ -99,7 +99,14 @@ final class LambdaRuntime
 
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (Throwable $e) {
-            $this->signalFailure($context->getAwsRequestId(), $e);
+            if (isset($result) && $result instanceof Generator) {
+                // We cannot signal a failure once a streamed response has started: Lambda
+                // would reject the error report with an "InvalidStateTransition" error.
+                // The error is only logged, the caller will see a truncated response.
+                $this->logError($e, $context->getAwsRequestId());
+            } else {
+                $this->signalFailure($context->getAwsRequestId(), $e);
+            }
 
             try {
                 Bref::events()->afterInvoke($handler, $event, $context, null, $e);

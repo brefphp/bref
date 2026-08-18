@@ -454,7 +454,11 @@ ERROR;
             $this->givenAnEvent(['Hello' => 'world!']);
 
             $this->runtime->processNextEvent(function () {
-                return (new HttpResponse('<p>Hello world!</p>', [
+                $generator = (function () {
+                    yield '<p>Hello world!</p>';
+                })();
+
+                return (new HttpResponse($generator, [
                     'Content-Type' => 'text/html; charset=utf-8',
                 ]))->toApiGatewayFormatV2();
             });
@@ -479,5 +483,55 @@ ERROR;
         $this->assertStringContainsString('"statusCode":200', (string) $eventStreamResponse->getBody());
         $this->assertStringContainsString("\0\0\0\0\0\0\0\0", (string) $eventStreamResponse->getBody());
         $this->assertStringContainsString('<p>Hello world!</p>', (string) $eventStreamResponse->getBody());
+    }
+
+    public function test response with a string body is streamed in streamed mode()
+    {
+        putenv('BREF_STREAMED_MODE=1');
+        try {
+            $this->givenAnEvent(['Hello' => 'world!']);
+
+            $this->runtime->processNextEvent(function () {
+                return (new HttpResponse('<p>Hello world!</p>', [
+                    'Content-Type' => 'text/html; charset=utf-8',
+                ]))->toApiGatewayFormatV2();
+            });
+        } finally {
+            putenv('BREF_STREAMED_MODE=0');
+        }
+
+        $requests = Server::received();
+        $this->assertCount(2, $requests);
+        [$eventRequest, $eventResponse] = $requests;
+
+        $this->assertSame('GET', $eventRequest->getMethod());
+
+        $this->assertSame('POST', $eventResponse->getMethod());
+        $this->assertSame('streaming', $eventResponse->getHeaderLine('lambda-runtime-function-response-mode'));
+        $this->assertStringContainsString("\0\0\0\0\0\0\0\0", (string) $eventResponse->getBody());
+        $this->assertStringContainsString('<p>Hello world!</p>', (string) $eventResponse->getBody());
+    }
+
+    public function test an error during streaming does not signal a failure()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $this->runtime->processNextEvent(function () {
+            return (function () {
+                yield 'chunk-1';
+                throw new Exception('Boom during streaming');
+            })();
+        });
+
+        // No error response should be sent once the streaming has started
+        foreach (Server::received() as $request) {
+            $this->assertNotSame(
+                'http://localhost:8126/2018-06-01/runtime/invocation/1/error',
+                $request->getUri()->__toString(),
+                'an error must not be signaled once streaming has started'
+            );
+        }
+
+        $this->assertErrorInLogs('Exception', 'Boom during streaming');
     }
 }
