@@ -19,12 +19,6 @@ export default {
         type: 'page',
         title: 'Documentation',
     },
-    news: {
-        title: 'News',
-        type: 'page',
-        display: 'hidden',
-        theme: { typesetting: 'article' },
-    },
     cloud: {
         type: 'page',
         title: 'Bref Cloud',
@@ -46,6 +40,17 @@ export default {
             sidebar: false,
             toc: false,
             breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
+    },
+    news: {
+        type: 'page',
+        title: 'News',
+        theme: {
+            typesetting: 'article',
+            sidebar: false,
             pagination: false,
             timestamp: false,
             copyPage: false,
@@ -94,4 +99,4 @@ export default {
             copyPage: false,
         },
     },
-}
+};
