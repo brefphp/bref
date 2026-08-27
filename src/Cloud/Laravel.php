@@ -11,7 +11,6 @@ class Laravel
     public array $patterns = [
         '**',
         '!.idea/**',
-        '!.bref/**',
         '!.git/**',
         '!.serverless/**',
         '!database/*.sqlite',
