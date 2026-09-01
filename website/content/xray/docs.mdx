@@ -104,13 +104,15 @@ Send me a Slack message or an email (matthieu@bref.sh) if you have any trouble, 
 
 ## Enabling AWS Transaction Search
 
-[AWS Transaction Search](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Transaction-Search.html) is an AWS service that indexes X-Ray traces and replaces "X-Ray classic" search.
+[AWS Transaction Search](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Transaction-Search.html) is an AWS service that indexes X-Ray traces and replaces "X-Ray classic" search. It is opt-in, and **we recommend enabling it**, whether you explore traces in Bref Cloud or in the AWS console:
 
-**Enable it** and Bref Cloud tracing gets much better:
+- search up to 30 days of traces instead of only 6 hours
+- filter traces by route, job, command, cold start, or [any custom annotation](#custom-annotations)
+- spans are stored in CloudWatch Logs (the `aws/spans` log group), so you can also query them with CloudWatch Logs Insights, for example to aggregate durations by route or by SQL query
 
-- up to 30 days of traces instead of only 6 hours
-- filter traces by route, job, command, cold start, etc.
-- search all spans rather than only the percentage indexed by "classic X-Ray"
+In Bref Cloud, Transaction Search also unlocks the [Performance page](/docs/monitoring#performance): slowest database queries, latency per route, slowest jobs.
+
+If you don't use Bref Cloud, explore traces from the **Transaction Search** page of the CloudWatch console. The classic X-Ray console keeps working but only sees the indexed percentage (see below).
 
 Downsides:
 
@@ -127,9 +129,9 @@ The change is reversible. To enable Transaction Search ([official guide](https:/
 
     <Image className="mt-3 rounded-lg shadow-md border" src={transactionSearchSettings} alt="Transaction Search settings for X-Ray users" />
 
-The indexing percentage does _not_ impact Bref Cloud (it is **not** the Lambda sampling rate mentioned in [Costs](#costs) below), leave it at 1% by default. Increase it only if you still use classic X-Ray.
+**Leave the indexing percentage at 1%** unless you know what you are doing. It only affects the classic X-Ray console and APIs. It is not the Lambda sampling rate (see [Costs](#costs)), and it has no effect on Bref Cloud or on the Transaction Search page.
 
-It can take up to 10 minutes to activate Transaction Search and see it in Bref Cloud.
+It can take up to 10 minutes to activate Transaction Search and see spans show up, in Bref Cloud or in the CloudWatch console.
 
 ## Costs
 
@@ -150,11 +152,11 @@ This is quite useful: when an application has low traffic, most requests/invocat
 
 ### Laravel
 
-If you are using Laravel, the package automatically integrates with the Laravel service provider. You can see the traces in the AWS X-Ray console.
+If you are using Laravel, the package automatically integrates with the Laravel service provider. You can see the traces in [Bref Cloud](/docs/monitoring#bref-cloud) or in the AWS console.
 
 #### Request tracing
 
-The package automatically traces all requests to your application. You can see the traces in the AWS X-Ray console.
+The package automatically traces all requests to your application.
 
 #### Database queries
 
@@ -164,7 +166,7 @@ Eloquent queries are automatically traced and the SQL queries are added to metad
 
 #### Jobs
 
-The package automatically traces all jobs dispatched via the Laravel queue. You can see the traces in the AWS X-Ray console, and filter them by job name.
+The package automatically traces all jobs dispatched via the Laravel queue. Traces can be filtered by job name.
 
 ![](./laravel-jobs.png)
 
@@ -178,7 +180,7 @@ The package automatically traces all HTTP requests made via the Laravel HTTP cli
 
 ### Symfony
 
-If you are using Symfony, the package automatically integrates with the Symfony service provider. You can see the traces in the AWS X-Ray console.
+If you are using Symfony, the package automatically integrates with the Symfony service provider. You can see the traces in [Bref Cloud](/docs/monitoring#bref-cloud) or in the AWS console.
 
 #### Symfony Messenger
 
@@ -282,6 +284,51 @@ XRay::subSegment('doSomething', function () {
 });
 ```
 
+### Custom annotations
+
+Annotations are indexed key-value pairs attached to a trace. Bref adds `Route`, `Controller`, `Job`, `Command`, and cold start annotations automatically. You can add your own, for example the tenant or the plan of the current user:
+
+```php
+use Bref\Apm\XRay\XRay;
+
+XRay::trace()->addAnnotation('tenant', $tenant->slug);
+```
+
+Call it during the request or the job, for example from a middleware or an event listener. Do not call it at boot time (for example in the `boot()` method of a service provider): the trace is reset after every invocation, so an annotation added at boot is only attached to the first invocation of the Lambda instance.
+
+For example, with a Laravel middleware registered in the `web` middleware group:
+
+```php
+namespace App\Http\Middleware;
+
+use Bref\Apm\XRay\XRay;
+use Closure;
+use Illuminate\Http\Request;
+
+class AnnotateTrace
+{
+    public function handle(Request $request, Closure $next)
+    {
+        $tenant = $request->user()?->tenant;
+        if ($tenant) {
+            XRay::trace()->addAnnotation('tenant', $tenant->slug);
+        }
+
+        return $next($request);
+    }
+}
+```
+
+X-Ray has [constraints on annotations](https://docs.aws.amazon.com/xray/latest/devguide/xray-concepts.html#xray-concepts-annotations):
+
+- keys can only contain letters, numbers and underscores (`feature_flag` is valid, `feature-flag` is not)
+- values are strings
+- a trace can have at most 50 annotations
+
+The package does not validate these constraints, and AWS does not report invalid annotations back to your application.
+
+In Bref Cloud, every annotation becomes a filter in the trace explorer (with [Transaction Search](#enabling-aws-transaction-search) enabled). For example, you can list all the traces of a given tenant over the last 30 days. Keep the number of possible values limited (an identifier or a category, not free text).
+
 ### Tracing AWS SDK calls
 
 Trace AWS SDK calls with the `AwsSdkTracer::trace($client)` method.
@@ -297,7 +344,7 @@ AwsSdkTracer::trace($client);
 
 ![](./sdk-tracing.png)
 
-All calls will be traced and appear in the X-Ray console. However, only the first 10 requests will be sampled (i.e. will result in propagating tracing to the target AWS service). This is to avoid oversampling and hitting the X-Ray limit of 100 linked traces. For example, if a Lambda function sends 100 messages to SQS, only the first 10 Lambda invocations triggered by the SQS messages will create sub-traces. The other 90 invocations will appear as segments in the original trace, but will not create sub-traces.
+All calls will be traced and appear in the trace. However, only the first 10 requests will be sampled (i.e. will result in propagating tracing to the target AWS service). This is to avoid oversampling and hitting the X-Ray limit of 100 linked traces. For example, if a Lambda function sends 100 messages to SQS, only the first 10 Lambda invocations triggered by the SQS messages will create sub-traces. The other 90 invocations will appear as segments in the original trace, but will not create sub-traces.
 
 ### Tracing Async-AWS SDK calls
 
@@ -326,7 +373,7 @@ $httpClient = new TracedAsyncAwsHttpClient(HttpClient::create([
 $sqs = new SqsClient([ /* config */ ], null, $httpClient);
 ```
 
-All calls will be traced and appear in the X-Ray console. However, only the first 10 requests will be sampled (i.e. will result in propagating tracing to the target AWS service). This is to avoid oversampling and hitting the X-Ray limit of 100 linked traces. For example, if a Lambda function sends 100 messages to SQS, only the first 10 Lambda invocations triggered by the SQS messages will create sub-traces. The other 90 invocations will appear as segments in the original trace, but will not create sub-traces.
+All calls will be traced and appear in the trace. However, only the first 10 requests will be sampled (i.e. will result in propagating tracing to the target AWS service). This is to avoid oversampling and hitting the X-Ray limit of 100 linked traces. For example, if a Lambda function sends 100 messages to SQS, only the first 10 Lambda invocations triggered by the SQS messages will create sub-traces. The other 90 invocations will appear as segments in the original trace, but will not create sub-traces.
 
 ### Tracing Guzzle calls
 
