@@ -100,7 +100,7 @@ There are still a few serverless-specific constraints to be aware of:
 
     For queue workers, this is actually great: SQS and Lambda integrate natively so that we don't have to run workers (or even think about them). Bref does the rest of the job to integrate natively with Laravel Queues or Symfony Messenger. More on this in the rest of the Bref documentation.
 
-    For websocket servers, this means we cannot run servers like Ratchet or Laravel Reverb on Lambda. It is possible to run this on the side in an AWS EC2 server, or in a container in ECS, but this is extra setup. An alternative is to use the native API Gateway WebSocket feature; however, this is not well documented in Bref at the moment.
+    For websocket servers, this means we cannot run servers like Ratchet or Laravel Reverb on Lambda. It is possible to run this on the side in an AWS EC2 server, or in a container in ECS, but this is extra setup. An alternative is to use the native API Gateway WebSocket feature, see the [WebSockets guide](/docs/use-cases/websockets.mdx).
 
 - AWS Lambda has a maximum execution time limit of 15 minutes *per invocation*.
 
@@ -266,7 +266,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Websockets**
 
-    It is possible to integrate PHP applications with API Gateway WebSocket. This has been done by several Bref users; however, this is currently not documented in Bref directly. On top of that, there is currently no native integration with Laravel Echo.
+    It is possible to integrate PHP applications with API Gateway WebSocket, see the [WebSockets guide](/docs/use-cases/websockets.mdx). However, there is currently no native integration with Laravel Echo.
 
 - **Real-time applications**
 
