@@ -76,7 +76,7 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
 
         It is recommended to prefix the parameter name with your application name, for example: `/my-app/my-parameter`.
 
-        SSM also allows to store a SecureString parameter, which is encrypted with AWS KMS. To use a SecureString, simply change the `--type` argument to `--type SecureString`. Bref takes care of decrypting the value.
+        SSM also allows storing a SecureString parameter, which is encrypted with AWS KMS. To use a SecureString, simply change the `--type` argument to `--type SecureString`. Bref takes care of decrypting the value.
     </Tabs.Tab>
 </Tabs>
 
@@ -89,7 +89,7 @@ You can inject a secret in an environment variable:
 
 #### At deployment time
 
-Use the [`${ssm:<parameter>}` syntax](https://serverless.com/blog/serverless-secrets-api-keys/) to have the variable be replaced by the secret value on deployment:
+Use the [`${ssm:<parameter>}` syntax](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/variables.md#reference-variables-using-the-ssm-parameter-store) to have the variable be replaced by the secret value on deployment:
 
 ```yml filename="serverless.yml"
 provider:
@@ -154,7 +154,7 @@ Disadvantages:
 As an alternative, you can store secrets in [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/). This solution, while very similar to SSM, will provide:
 
 - better permission management using IAM
-- JSON values, allowing to store multiple values in one parameter
+- JSON values, allowing you to store multiple values in one parameter
 
 However, Secrets Manager is not free: [pricing details](https://aws.amazon.com/secrets-manager/pricing/).
 
@@ -177,4 +177,4 @@ serverless bref:local -f <function>
 
 While this page mentions environment variables, `serverless.yml` allows other types of variables to be used.
 
-Read the [`serverless.yml` variables](https://github.com/oss-serverless/serverless/blob/main/docs/guides/variables.md) documentation to learn more.
+Read the [`serverless.yml` variables](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/variables.md) documentation to learn more.

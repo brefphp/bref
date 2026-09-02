@@ -41,7 +41,7 @@ functions:
         timeout: 28 # in seconds (API Gateway has a max timeout of 29 seconds)
         events:
             -   httpApi: '*'
-    # This function let us run console commands in Lambda
+    # This function lets us run console commands in Lambda
     console:
         handler: bin/console
         runtime: php-84-console
@@ -76,16 +76,13 @@ namespace App;
 
 + use Bref\SymfonyBridge\BrefKernel;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
-use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\Config\Resource\FileResource;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 -use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-use Symfony\Component\Routing\RouteCollectionBuilder;
 
 - class Kernel extends BaseKernel
 + class Kernel extends BrefKernel
 {
-    // ...
+    use MicroKernelTrait;
+}
 ```
 
 ## Deployment
@@ -196,7 +193,7 @@ Have a look at the [Website guide](../use-cases/websites.mdx) to learn how to de
 
 As you may have noticed, we define a function named "console" in `serverless.yml`. That function is using the [Console runtime](../runtimes/console.mdx), which lets us run the Symfony Console on AWS Lambda.
 
-For example, to execute an `bin/console` command on Lambda, run the command below:
+For example, to execute a `bin/console` command on Lambda, run the command below:
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
     <Tabs.Tab>
@@ -225,21 +222,6 @@ For example, to execute an `bin/console` command on Lambda, run the command belo
 
 For more details follow [the "Console" guide](../runtimes/console.mdx).
 
-## Logs
-
-By default, Symfony logs to `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.mdx).
-
-However, if your application is using Monolog, you need to configure it to log to `stderr` as well:
-
-```yml filename="config/packages/prod/monolog.yaml" {6}
-monolog:
-  handlers:
-    # ...
-    nested:
-      type: stream
-      path: php://stderr
-```
-
 ## Trust API Gateway
 
 When hosting a website on Lambda, API Gateway acts as a proxy between the client and your Lambda function.
@@ -258,7 +240,7 @@ framework:
 
 Note that API Gateway doesn't set the `X-Forwarded-Host` header, so we don't trust it by default. You should only whitelist this header if you set it manually,
 for example in your CloudFront configuration (this is done automatically
-in [the Cloudfront distribution deployed by Lift](../use-cases/websites.mdx)).
+in [the CloudFront distribution deployed by Lift](../use-cases/websites.mdx)).
 
 You can get more details in the [Symfony documentation](https://symfony.com/doc/current/deployment/proxies.html).
 

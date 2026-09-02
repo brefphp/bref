@@ -30,7 +30,7 @@ Here are some of the database services offered by RDS:
 | Security | Password only | Network-isolated + password |
 | Best for | Non-critical projects | Projects requiring strong isolation |
 | Complexity | Simple | Requires VPC + NAT Gateway |
-| Extra cost | None | ~$32/month for NAT Gateway |
+| Extra cost | None | ~$33/month for NAT Gateway |
 | Access from your machine | Direct connection | Via SSH tunnel (e.g. [7777](https://port7777.com)) |
 
 An internet-accessible database is the simplest option and works well for most projects. Use a VPC database when you need stronger network isolation.
@@ -88,7 +88,7 @@ An internet-accessible database is the simplest option and works well for most p
     <Tabs.Tab>
         > [!WARNING]
         >
-        > Lambda functions in a VPC **lose internet access**. This can cause timeouts. You need a NAT Gateway to restore internet access (~$32/month). Alternatively, you can use [a NAT instance](https://fck-nat.dev/) (from $3/month).
+        > Lambda functions in a VPC **lose internet access**. This can cause timeouts. You need a NAT Gateway to restore internet access (~$33/month). Alternatively, you can use [a NAT instance](https://fck-nat.dev/) (from $3/month).
 
         You can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12) to set up a NAT Gateway, use [the serverless VPC plugin](https://github.com/smoketurner/serverless-vpc-plugin), or use the complete example in [Serverless Visually Explained](https://serverless-visually-explained.com/).
 
@@ -122,7 +122,7 @@ An internet-accessible database is the simplest option and works well for most p
         - The **security group ID** (in the "VPC security groups" section), e.g. `sg-03f68e1100481622b`.
         - The list of **subnets**, e.g. `subnet-12f4130e` (there are several, one per availability zone).
 
-        Add the VPC configuration to `serverless.yml` ([documentation](https://github.com/oss-serverless/serverless/blob/main/docs/guides/functions.md#vpc-configuration)):
+        Add the VPC configuration to `serverless.yml` ([documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#vpc-configuration)):
 
         ```yml filename="serverless.yml"
         functions:

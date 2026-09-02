@@ -58,7 +58,7 @@ The following extensions are installed and enabled by default in Bref runtimes:
 <ul className="grid grid-cols-2 md:grid-cols-3">
     <li>Core</li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.bc.php">bcmath</a></li>
-    <li><a className="underline" href="https://www.php.net/manual/en/intro.ctype.php">ctype</a></li>
+    <li><a className="underline" href="https://www.php.net/manual/en/book.ctype.php">ctype</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.curl.php">curl</a></li>
     <li>date</li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.dom.php">dom</a></li>
@@ -104,8 +104,8 @@ The following extensions are installed and enabled by default in Bref runtimes:
 
 The following extensions are installed in Bref runtimes, but disabled by default:
 
-- **[intl](https://www.php.net/manual/en/intro.intl.php)** - Internationalization extension (referred as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
-- **[APCu](https://www.php.net/manual/en/intro.apcu.php)** - APCu is APC stripped of opcode caching.
+- **[intl](https://www.php.net/manual/en/book.intl.php)** - Internationalization extension (referred to as Intl) is a wrapper for ICU library, enabling PHP programmers to perform various locale-aware operations.
+- **[APCu](https://www.php.net/manual/en/book.apcu.php)** - APCu is APC stripped of opcode caching.
 - **[Redis](https://github.com/phpredis/phpredis)** - A PHP extension for interfacing with Redis.
 - **[soap](https://www.php.net/manual/en/book.soap.php)** - SOAP client and server for PHP
 
@@ -120,11 +120,11 @@ extension=soap
 
 ### Extra extensions
 
-Due to space limitations in AWS Lambda, Bref runtimes cannot include every possible PHP extensions. These additional PHP extensions can be included as separate AWS Lambda layers.
+Due to space limitations in AWS Lambda, Bref runtimes cannot include every possible PHP extension. These additional PHP extensions can be included as separate AWS Lambda layers.
 
 All extra PHP extensions are found in [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions).
 
-Contributions to add more PHP extensions are welcomed.
+Contributions to add more PHP extensions are welcome.
 
 ### Custom extensions
 
@@ -137,7 +137,7 @@ To create your custom layer, you will need to:
 - compile the extension (and any required libraries) in the same environment as AWS Lambda and Bref
 - include the compiled extension (and required libraries) in a layer
 - upload the layer to AWS Lambda
-- include the in your project
+- include the layer in your project
 - enable the extension in a custom `php.ini`
 
 To compile the extension, Bref provides the `bref/build-php-*` Docker images. Here is an example with Blackfire:

@@ -31,7 +31,7 @@ constructs:
         allowAcl: true
 ```
 
-The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that this files in the bucket are still completely private, there is no change in the security of the bucket.
+The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that files in the bucket are still completely private, there is no change in the security of the bucket.
 
 > [!TIP]
 >
@@ -55,9 +55,9 @@ The AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TO
 
 ## Uploading files
 
-### Small files (< 6 MB)
+### Small files (< 4 MB)
 
-For files under 6 MB, you can upload directly through your Laravel application as usual:
+For files under 4 MB, you can upload directly through your Laravel application as usual:
 
 ```php
 $request->file('document')->store('documents');
@@ -65,7 +65,7 @@ $request->file('document')->store('documents');
 
 ### Large files
 
-AWS Lambda has a **6MB request payload limit**. For larger files, you must upload directly to S3 from the browser using **presigned URLs**.
+AWS Lambda has a **6 MB request payload limit**, which leaves about 4 MB for the file itself because of base64 encoding. For larger files, you must upload directly to S3 from the browser using **presigned URLs**.
 
 Since the browser uploads directly to S3 (cross-origin), you need to configure **CORS** on the bucket and add a **lifecycle rule** to clean up temporary files. Here is a complete `storage` construct configuration:
 

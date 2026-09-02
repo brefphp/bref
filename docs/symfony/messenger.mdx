@@ -157,7 +157,7 @@ constructs:
         fifo: true
 ```
 
-[Symfony Amazon SQS Messenger](https://symfony.com/doc/current/messenger.html#amazon-sqs)  will automatically calculate/set the `MessageGroupId` and `MessageDeduplicationId` parameters required for FIFO queues, but you can set them explicitly:
+[Symfony Amazon SQS Messenger](https://symfony.com/doc/current/messenger.html#amazon-sqs) will automatically calculate/set the `MessageGroupId` and `MessageDeduplicationId` parameters required for FIFO queues, but you can set them explicitly:
 
 ```php
 use Symfony\Component\Messenger\MessageBus;
@@ -195,7 +195,7 @@ functions:
         timeout: 20 # in seconds
         runtime: php-84
         events:
-            # Read more at https://github.com/oss-serverless/serverless/blob/main/docs/events/sns.md
+            # Read more at https://github.com/oss-serverless/osls/blob/4.x/docs/events/sns.md
             - sns:
                 arn: arn:aws:sns:us-east-1:1234567890:my_sns_topic
 ```
@@ -247,7 +247,7 @@ To use it, configure the DSN like so:
 # This source name will be reused in `serverless.yml` later.
 MESSENGER_TRANSPORT_DSN=eventbridge://myapp
 ```
-Optionally you can add set the [EventBusName](https://docs.aws.amazon.com/eventbridge/latest/APIReference/API_PutEventsRequestEntry.html#eventbridge-Type-PutEventsRequestEntry-EventBusName) via a `event_bus_name` query parameter, either the name or the ARN:
+Optionally you can set the [EventBusName](https://docs.aws.amazon.com/eventbridge/latest/APIReference/API_PutEventsRequestEntry.html#eventbridge-Type-PutEventsRequestEntry-EventBusName) via an `event_bus_name` query parameter, either the name or the ARN:
 
 ```dotenv
 MESSENGER_TRANSPORT_DSN=eventbridge://myapp?event_bus_name=custom-bus
@@ -271,9 +271,9 @@ functions:
         timeout: 20 # in seconds
         runtime: php-84
         events:
-            # Read more at https://github.com/oss-serverless/serverless/blob/main/docs/events/event-bridge.md
+            # Read more at https://github.com/oss-serverless/osls/blob/4.x/docs/events/event-bridge.md
             -   eventBridge:
-                    # In case of you change bus name in config/packages/messenger.yaml (i.e eventbridge://myapp?event_bus_name=custom-bus) you need to set bus name like below
+                    # If you changed the bus name in config/packages/messenger.yaml (e.g. eventbridge://myapp?event_bus_name=custom-bus), set it here too:
                     # eventBus: custom-bus
                     # This filters events we listen to: only events from the "myapp" source.
                     # This should be the same source defined in config/packages/messenger.yaml
@@ -329,7 +329,7 @@ By default, Lambda will retry failed messages 2 times.
 
 By default, AWS clients (SQS, SNS, EventBridge) are preconfigured to work on AWS Lambda (thanks to [environment variables populated by AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime)).
 
-However, it is possible customize the AWS clients, for example to use them outside of AWS Lambda (locally, on EC2…) or to mock them in tests. These clients are registered as Symfony services under the keys:
+However, it is possible to customize the AWS clients, for example to use them outside of AWS Lambda (locally, on EC2…) or to mock them in tests. These clients are registered as Symfony services under the keys:
 
 - `bref.messenger.sqs_client`
 - `bref.messenger.sns_client`
@@ -355,7 +355,7 @@ ensuring that the transport name is automatically passed to your message handler
 However, in scenarios where you need to manually specify the transport name or adjust the default behavior,
 you can do so by setting the `$transportName` parameter in your service definitions within the config/services.yaml file.
 This parameter should match the transport name defined in your config/packages/messenger.yaml.
-For instance, for a SNSConsumer, you would configure it as follows:
+For instance, for an `SnsConsumer`, you would configure it as follows:
 
 ```yaml
 # config/packages/messenger.yaml

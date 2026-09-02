@@ -1,5 +1,5 @@
 ---
-introduction: Upgrading guide to go from Bref 2.x to Bref 3.0.
+description: Upgrading guide to go from Bref 2.x to Bref 3.0.
 ---
 
 
@@ -347,14 +347,6 @@ If you need the SOAP extension, you can enable it by creating a `php.ini` file i
 extension=soap
 ```
 
-And reference it in your `serverless.yml`:
-
-```yml filename="serverless.yml"
-provider:
-    environment:
-        BREF_AUTOLOAD_PATH: php/conf.d
-```
-
 ### Laravel version compatibility
 
 If you are using Laravel with Bref, note that:
@@ -388,7 +380,7 @@ If you prefer the old format, you can disable the formatter in your Laravel or S
 
 ### Locale files from glibc langpacks are no longer included
 
-If you are using [`intl` / ICU](https://www.php.net/manual/en/intro.intl.php) for locale-aware formatting (dates, numbers, currencies) or translations, you don't need to do anything as ICU is fully supported in Bref v3. **Modern frameworks (Laravel, Symfony…) use ICU, not `gettext`**. That means most users are not affected.
+If you are using [`intl` / ICU](https://www.php.net/manual/en/book.intl.php) for locale-aware formatting (dates, numbers, currencies) or translations, you don't need to do anything as ICU is fully supported in Bref v3. **Modern frameworks (Laravel, Symfony…) use ICU, not `gettext`**. That means most users are not affected.
 
 If you are using PHP's native [`gettext`](https://www.php.net/manual/en/book.gettext.php) functions or rely on `setlocale()` with specific locales (e.g. for
 `strftime()`), glibc locale files are no longer included in Amazon Linux 2023 (AL2023). These will no longer work in Bref v3. You may either:

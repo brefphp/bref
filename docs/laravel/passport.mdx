@@ -53,7 +53,7 @@ Instead, here is what you need to do:
         </Tabs.Tab>
     </Tabs>
 
-    Note, that during deployment the keys will be stored at `./storage` path, not at `/var/task/storage`. Workaround for this is to adjust Passport path with `Passport::loadKeysFrom('storage')`.
+    Note that during deployment the keys will be stored at the `./storage` path, not at `/var/task/storage`. The workaround is to adjust the Passport path with `Passport::loadKeysFrom('storage')`.
 
     ### Create tokens
 
@@ -63,13 +63,13 @@ Instead, here is what you need to do:
         <Tabs.Tab>
             ```bash
             serverless bref:cli --args="passport:client --personal --name 'Laravel Personal Access Client'"
-            serverless bref:cli --args="passport:client --password --name 'Laravel Personal Access Client'"
+            serverless bref:cli --args="passport:client --password --name 'Laravel Password Grant Client'"
             ```
         </Tabs.Tab>
         <Tabs.Tab>
             ```bash
             bref command "passport:client --personal --name 'Laravel Personal Access Client'"
-            bref command "passport:client --password --name 'Laravel Personal Access Client'"
+            bref command "passport:client --password --name 'Laravel Password Grant Client'"
             ```
         </Tabs.Tab>
     </Tabs>

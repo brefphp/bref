@@ -7,7 +7,7 @@ description: "Understanding and mitigating cold starts in serverless PHP applica
 
 If your application cannot tolerate any response above 300ms (e.g. real-time trading, multiplayer gaming), Lambda is not the right fit.
 
-For everything else, cold starts are often the most overestimated concern when moving to serverless. On applications with regular traffic, cold starts represent about **0.1% of requests**. For the vast majority of applications, their impact is negligible.
+For everything else, cold starts are often the most overestimated concern when moving to serverless. On applications with regular traffic, cold starts represent about **0.2% of requests**. For the vast majority of applications, their impact is negligible.
 
 ## What is a cold start?
 
@@ -21,9 +21,9 @@ You can learn more about how Bref and Lambda work in [How Bref works](/docs/how-
 
 Bref's PHP runtimes add a cold start of about **250ms** on average. The rest depends on the size of your application.
 
-To put it differently: on average (application with traffic), out of 1000 requests, 999 are as fast as on a traditional server. 1 request has an extra 250ms of latency.
+To put it differently: on average (application with traffic), out of 1000 requests, 998 are as fast as on a traditional server. 2 requests have an extra cold start latency.
 
-This is on-par with [cold starts in other languages](https://mikhail.io/serverless/coldstarts/aws/) like JavaScript, Python or Go. AWS is [regularly reducing the duration of cold starts](https://levelup.gitconnected.com/aws-lambda-cold-start-language-comparisons-2019-edition-%EF%B8%8F-1946d32a0244), and Bref's runtimes are optimized as much as possible.
+This is on par with [cold starts in other languages](https://mikhail.io/serverless/coldstarts/aws/) like JavaScript, Python or Go, and Bref's runtimes are optimized as much as possible.
 
 ## Warming for low-traffic applications
 
@@ -35,7 +35,7 @@ You can pre-warm your HTTP function by adding a scheduled event in `serverless.y
 functions:
     web:
         handler: public/index.php
-        runtime: php-83-fpm
+        runtime: php-84-fpm
         timeout: 15
         events:
             - httpApi: '*'

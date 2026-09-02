@@ -63,13 +63,13 @@ functions:
 
 That works well with frameworks like Symfony or Laravel that have a single entrypoint (e.g. `public/index.php`) combined with the [PHP-FPM runtime](../../runtimes/fpm-runtime.mdx).
 
-You can look at more advanced API Gateway routing options in the [serverless documentation](https://github.com/oss-serverless/serverless/blob/main/docs/events/http-api.md).
+You can look at more advanced API Gateway routing options in the [serverless documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/http-api.md).
 
 ### Lambda Function URLs
 
 Since 2022, AWS Lambda can respond to HTTP requests via [Lambda Function URLs](https://aws.amazon.com/blogs/aws/announcing-aws-lambda-function-urls-built-in-https-endpoints-for-single-function-microservices/). This is a new way to invoke Lambda functions via HTTP without using API Gateway.
 
-You can deploy a Lambda Function URL [via the following configuration](https://github.com/oss-serverless/serverless/blob/main/docs/guides/functions.md#lambda-function-urls):
+You can deploy a Lambda Function URL [via the following configuration](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#lambda-function-urls):
 
 ```yml filename="serverless.yml"
 functions:
@@ -93,7 +93,7 @@ functions:
             - http: 'ANY /{proxy+}'
 ```
 
-Learn more [in the Serverless Framework documentation](https://github.com/oss-serverless/serverless/blob/main/docs/events/apigateway.md).
+Learn more [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/apigateway.md).
 
 ### Application Load Balancer
 
@@ -112,7 +112,7 @@ functions:
                         path: '/*'
 ```
 
-Learn more [in the Serverless Framework documentation](https://github.com/oss-serverless/serverless/blob/main/docs/events/alb.md).
+Learn more [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/alb.md).
 
 ## PHP handlers
 
@@ -138,7 +138,7 @@ Here is a full comparison between both approaches:
 | How to read the request?                           | `$_GET`, `$_POST`, etc.                                                                                                        | The `$request` parameter (PSR-7 request).                                                                               |
 | How to write a response?                           | `echo`, `header()` function, etc.                                                                                              | Returning a PSR-7 response from the handler class.                                                                      |
 | How does it work?                                  | Bref turns an API Gateway event into a FastCGI (PHP-FPM) request.                                                              | Bref turns an API Gateway event into a PSR-7 request.                                                                   |
-| Is each request handled in a separate PHP process? | Yes (that's how PHP-FPM works).                                                                                                | Yes by default (Bref replicates that to avoid surprises) but can be disabled for optimal performances.                  |
+| Is each request handled in a separate PHP process? | Yes (that's how PHP-FPM works).                                                                                                | Yes by default (Bref replicates that to avoid surprises) but can be disabled for optimal performance.                  |
 
 ### With the PHP-FPM runtime
 
@@ -188,16 +188,17 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         ```yml filename="serverless.yml"
         functions:
             # ...
-            handler: App\MyHttpHandler
-            runtime: php-84
-            # Lambda Function URL
-            url: true
-            # Or API Gateway
-            events:
-                # API Gateway v2
-                - httpApi: 'GET /hello'
-                # API Gateway v1
-                - http: 'GET hello'
+            hello:
+                handler: App\MyHttpHandler
+                runtime: php-84
+                # Lambda Function URL
+                url: true
+                # Or API Gateway
+                events:
+                    # API Gateway v2
+                    - httpApi: 'GET /hello'
+                    # API Gateway v1
+                    - http: 'GET hello'
         ```
 
         The `App\MyHttpHandler` class will be instantiated by Laravel's service container.
@@ -206,16 +207,17 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         ```yml filename="serverless.yml"
         functions:
             # ...
-            handler: App\MyHttpHandler
-            runtime: php-84
-            # Lambda Function URL
-            url: true
-            # Or API Gateway
-            events:
-                # API Gateway v2
-                - httpApi: 'GET /hello'
-                # API Gateway v1
-                - http: 'GET hello'
+            hello:
+                handler: App\MyHttpHandler
+                runtime: php-84
+                # Lambda Function URL
+                url: true
+                # Or API Gateway
+                events:
+                    # API Gateway v2
+                    - httpApi: 'GET /hello'
+                    # API Gateway v1
+                    - http: 'GET hello'
         ```
 
         The `App\MyHttpHandler` class will be instantiated by Symfony's service container.
@@ -224,16 +226,17 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         ```yml filename="serverless.yml"
         functions:
             # ...
-            handler: handler.php
-            runtime: php-84
-            # Lambda Function URL
-            url: true
-            # Or API Gateway
-            events:
-                # API Gateway v2
-                - httpApi: 'GET /hello'
-                # API Gateway v1
-                - http: 'GET hello'
+            hello:
+                handler: handler.php
+                runtime: php-84
+                # Lambda Function URL
+                url: true
+                # Or API Gateway
+                events:
+                    # API Gateway v2
+                    - httpApi: 'GET /hello'
+                    # API Gateway v1
+                    - http: 'GET hello'
         ```
 
         The file `handler.php` should return the handler instance:
@@ -270,7 +273,7 @@ Path parameters (e.g. `{id}` in the example above) are available as request attr
 $id = $request->getAttribute('id');
 ```
 
-[Full reference of HTTP events in `serverless.yml`](https://github.com/oss-serverless/serverless/blob/main/docs/events/http-api.md).
+[Full reference of HTTP events in `serverless.yml`](https://github.com/oss-serverless/osls/blob/4.x/docs/events/http-api.md).
 
 #### Lambda event and context
 
@@ -292,6 +295,6 @@ $requestContext = $request->getAttribute('lambda-event')->getRequestContext();
 
 ## Cold starts
 
-On applications with regular traffic, cold starts only represent about **0.1% of requests**. For low-traffic applications, you can pre-warm your HTTP function to avoid them.
+On applications with regular traffic, cold starts only represent about **0.2% of requests**. For low-traffic applications, you can pre-warm your HTTP function to avoid them.
 
 Read the full [Cold starts documentation](/docs/environment/cold-starts) for details and the warming configuration.

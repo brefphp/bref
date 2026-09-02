@@ -15,7 +15,7 @@ Amongst other features, it offers the following benefits compared to running a d
 
 One extra feature worth mentioning is [the branching concept](https://planetscale.com/docs/concepts/branching): it enables testing schema changes before deploying them in production without downtime.
 
-[Plans](https://planetscale.com/pricing) start at $5/month for single-node PostgreSQL databases.
+[Plans](https://planetscale.com/pricing) start at $39/month for MySQL databases (PlanetScale also offers PostgreSQL databases, starting at $5/month).
 
 ## Getting started
 
@@ -102,7 +102,7 @@ Now that Laravel is configured, you can run `php artisan migrate` in AWS Lambda 
 serverless bref:cli --args="migrate --force"
 ```
 
-Note: PlanetScale does not support foreign key constraints. If your application uses foreign key constraints, you will have to remove them before running `php artisan migrate`. See the [MySQL compatibility section](#mysql-compatibility) for more information.
+Note: foreign key constraints are disabled by default on PlanetScale. If your migrations use them, enable them in the database settings before running `php artisan migrate`. See the [MySQL compatibility section](#mysql-compatibility) for more information.
 
 That's it! Our database is ready to use.
 
@@ -158,7 +158,7 @@ Now that Symfony is configured, you can run the `bin/console doctrine:migrations
 serverless bref:cli --args="doctrine:migrations:migrate"
 ```
 
-Note: PlanetScale does not support foreign key constraints. If your application uses foreign key constraints, you will have to remove them before running your migrations. See the [MySQL compatibility section](#mysql-compatibility) for more information.
+Note: foreign key constraints are disabled by default on PlanetScale. If your migrations use them, enable them in the database settings before running your migrations. See the [MySQL compatibility section](#mysql-compatibility) for more information.
 
 That's it! Our database is ready to use.
 
@@ -166,12 +166,14 @@ That's it! Our database is ready to use.
 
 PlanetScale is based on the Vitess clustering system, which was built for scaling MySQL. Because of that, Vitess doesn't support all MySQL features.
 
-The biggest change is that **foreign key constraints** are not supported. To be clear, it is possible to have references between rows of different tables and perform joins. But constraints are not enforced: foreign keys are no longer validated at the database level, and you cannot use `ON DELETE ...` statements.
+The biggest difference is about **foreign key constraints**. They are [supported since February 2024](https://planetscale.com/blog/foreign-key-constraints-are-now-generally-available) on unsharded databases, but they are **disabled by default**: enable them in the database settings ("Allow foreign key constraints") if your application needs them. Read about [their limitations](https://planetscale.com/docs/vitess/foreign-key-constraints) before doing so.
+
+If you keep them disabled, it is still possible to have references between rows of different tables and perform joins. But constraints are not enforced: foreign keys are not validated at the database level, and you cannot use `ON DELETE ...` statements.
 
 That means that you should take care of validating references between rows and handle cascade deletions. If you use an ORM, you should be in a good place:
 
 - **Laravel** DB migrations and Eloquent work fine. You can use [the `foreignId()` method](https://laravel.com/docs/migrations#foreign-key-constraints) to create relationships between tables, but you cannot enforce referential integrity with the `constrained()` method (and related methods like `onDelete('cascade')`).
-- [**Doctrine**](https://www.doctrine-project.org/) works fine, but you should not use [`onDelete="CASCADE"` which relies on foreign key constraints](https://www.doctrine-project.org/projects/doctrine-orm/en/2.14/reference/working-with-objects.html#removing-entities) (`cascade=REMOVE` or `cascade=ALL` is fine Doctrine performs the cascade in memory via PHP).
+- [**Doctrine**](https://www.doctrine-project.org/) works fine, but you should not use [`onDelete="CASCADE"` which relies on foreign key constraints](https://www.doctrine-project.org/projects/doctrine-orm/en/2.14/reference/working-with-objects.html#removing-entities) (`cascade=REMOVE` or `cascade=ALL` is fine as Doctrine performs the cascade in memory via PHP).
 
 You can read the [complete **MySQL compatibility table** on the PlanetScale website](https://planetscale.com/docs/reference/mysql-compatibility).
 
@@ -179,7 +181,7 @@ You can read the [complete **MySQL compatibility table** on the PlanetScale webs
 
 PlanetScale provides an automated import tool to import an existing database without downtime. Check out [the documentation](https://planetscale.com/docs/imports/database-imports) to get started.
 
-For simple scenarios, you can also use the [`mysqldump` tool](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-syntax) to export your existing database and import it later in PlanetScale. Note that there are [specific options you need to use for Vitess](https://vitess.io/docs/15.0/user-guides/configuration-basic/exporting-data/#mysqldump). You also need to export the schema and the data separately because you will need to remove foreign key constraints from the schema.
+For simple scenarios, you can also use the [`mysqldump` tool](https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#mysqldump-syntax) to export your existing database and import it later in PlanetScale. Note that there are [specific options you need to use for Vitess](https://vitess.io/docs/15.0/user-guides/configuration-basic/exporting-data/#mysqldump). If foreign key constraints are disabled on your PlanetScale database, you also need to export the schema and the data separately so that you can remove the constraints from the schema.
 
 Let's first export the schema and the data:
 
@@ -188,7 +190,7 @@ mysqldump -u <user> -p<password> -h <hostname> --set-gtid-purged=OFF --no-tables
 mysqldump -u <user> -p<password> -h <hostname> --set-gtid-purged=OFF --no-tablespaces --no-create-info <db-name> > data.sql
 ```
 
-Next, edit `schema.sql` to remove all foreign key constraints ([learn more](https://planetscale.com/docs/learn/operating-without-foreign-key-constraints)), for example:
+Next, if foreign key constraints are disabled, edit `schema.sql` to remove them ([learn more](https://planetscale.com/docs/vitess/operating-without-foreign-key-constraints)), for example:
 
 ```diff filename="schema.sql"
 CREATE TABLE products (
@@ -247,16 +249,16 @@ Later, you can apply schema changes (aka DB migrations) to the production databa
 4. Test the changes in the dev environment.
 5. In PlanetScale, deploy the DB changes to the production branch via a "deploy request".
 
-Let's dive through these steps in the next section.
+Let's dive into these steps in the next section.
 
 #### Deploying DB migrations in detail
 
-PlanetScale works with **branches**, which matches with the concept of **stages** in Serverless Framework.
+PlanetScale works with **branches**, which matches the concept of **stages** in Serverless Framework.
 
 To deploy DB migrations in production, you can work with two environments:
 
-- A **production** environment: our application deployed in the `prod` stage and configured to use the `production` PlanetScale branch. 
-- A **dev** environment: our application deployed in the `dev` stage and configured to use the `development` PlanetScale branch. 
+- A **production** environment: our application deployed in the `prod` stage and configured to use the `production` PlanetScale branch.
+- A **dev** environment: our application deployed in the `dev` stage and configured to use the `development` PlanetScale branch.
 
 You can [deploy our applications to different stages](../deploy.mdx#environments) via the `--stage` option. Each stage is completely isolated from the others.
 
@@ -268,7 +270,7 @@ serverless deploy
 serverless deploy --stage=prod
 ```
 
-You want each "stage" of our application to connect to a different PlanetScale branch. You can achieve that in `serverless.yml` via [stage parameters](https://github.com/oss-serverless/serverless/blob/main/docs/guides/parameters.md#stage-parameters):
+You want each "stage" of our application to connect to a different PlanetScale branch. You can achieve that in `serverless.yml` via [stage parameters](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/parameters.md#stage-parameters):
 
 ```yml filename="serverless.yml"
 provider:

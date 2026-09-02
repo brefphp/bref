@@ -27,7 +27,7 @@ This lets us host everything under the same domain and support both HTTP and HTT
 
 > [!TIP]
 >
-> If you don't want to use Cloudfront, you can read the [older version of this documentation](https://github.com/brefphp/bref/blob/d1dd690d020cd03f134010db456bb61a6d0ffafb/docs/websites.md#architectures) which featured running PHP and the assets on two different domains.
+> If you don't want to use CloudFront, you can read the [older version of this documentation](https://github.com/brefphp/bref/blob/d1dd690d020cd03f134010db456bb61a6d0ffafb/docs/websites.md#architectures) which featured running PHP and the assets on two different domains.
 
 ## Setup
 
@@ -67,7 +67,7 @@ serverless plugin install -n serverless-lift
         Before deploying, compile your assets:
 
         ```bash
-        npm run prod
+        npm run build
         ```
     </Tabs.Tab>
     <Tabs.Tab>
@@ -141,7 +141,7 @@ serverless deploy
 ```
 
 Lift will create all the required resources and take care of uploading your assets to S3 automatically.
-You can access your website using the URL that Lift outputs at the end the deployment.
+You can access your website using the URL that Lift outputs at the end of the deployment.
 
 > [!TIP]
 >
@@ -211,10 +211,10 @@ constructs:
 
 The last step will be to point your domain name DNS records to the CloudFront domain:
 
-- copy the domain outputted by Lift during `serverless deploy`  (or run `serverless info` to retrieve it)
+- copy the domain outputted by Lift during `serverless deploy` (or run `serverless info` to retrieve it)
 - create a CNAME to point your domain name to this URL
     - if you use Route53 you can read [the official guide](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-to-cloudfront-distribution.html)
-    - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [CloudFlare allows this with a technique called CNAME flattening](https://support.cloudflare.com/hc/en-us/articles/200169056-Understand-and-configure-CNAME-Flattening))
+    - if you use another registrar and you want to point your root domain (without `www.`) to CloudFront, you will need to use a registrar that supports this (for example [Cloudflare allows this with a technique called CNAME flattening](https://developers.cloudflare.com/dns/cname-flattening/))
 
 Lift supports more advanced use cases like multiple domains, root domain to `www` redirects, and more. Check out [the Lift documentation](https://github.com/getlift/lift/blob/master/docs/server-side-website.md).
 
@@ -246,9 +246,10 @@ class CompressResponse
             return $response;
         }
 
-        $response->setContent(gzencode($content, 9));
+        $compressed = gzencode($content, 9);
+        $response->setContent($compressed);
         $response->headers->set('Content-Encoding', 'gzip');
-        $response->headers->set('Content-Length', (string) strlen($content));
+        $response->headers->set('Content-Length', (string) strlen($compressed));
 
         return $response;
     }

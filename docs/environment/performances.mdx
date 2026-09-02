@@ -13,7 +13,7 @@ The main factor affecting performance is memory size. Indeed, [the amount of mem
 
 In other words, **more memory means a more powerful CPU**. A 1024M lambda has a CPU two times more powerful than a 512M lambda.
 
-From 64M to 1,792M, applications run with up to one CPU (1,792M gives 1 full CPU). From 1,856M to 3,008M, applications run with 2 CPU (3,008M gives 2 full CPU). Since PHP is single-threaded and one lambda handles only 1 request at a time, using 2 CPU usually does not provide any benefit.
+From 128M to 1,769M, applications run with up to one vCPU (1,769M gives 1 full vCPU). Memory can go up to 10,240M, which provides up to 6 vCPUs. Since PHP is single-threaded and one lambda handles only 1 request at a time, using more than 1 vCPU usually does not provide any benefit.
 
 **It is recommended to use 1024M** for PHP applications, or at least to start with that. This is what Serverless deploys by default, so there is nothing to do.
 
@@ -37,7 +37,7 @@ For comparison, `bench.php` runs in 1.3s on a 512M [Digital Ocean](https://www.d
 
 ### Costs
 
-AWS Lambda bills the number of events + the execution time. The more memory configured for a lambda, [the more expensive is the execution time](https://aws.amazon.com/lambda/pricing/).
+AWS Lambda bills the number of events + the execution time. The more memory configured for a lambda, [the more expensive the execution time is](https://aws.amazon.com/lambda/pricing/).
 
 It might be tempting to lower the memory to save money. However, a function might run slower on a smaller lambda, canceling the cost savings. For example, both of these scenarios cost the same thing:
 
@@ -97,6 +97,6 @@ In that case, be careful with clearing in-memory data between every event.
 
 ## Cold starts
 
-On applications with regular traffic, cold starts only represent about **0.1% of requests**. Bref's PHP runtimes add a cold start of about **250ms** on average, which is on-par with other languages.
+On applications with regular traffic, cold starts only represent about **0.2% of requests**. Bref's PHP runtimes add a cold start of about **250ms** on average, which is on-par with other languages.
 
 Read more in the [Cold starts documentation](cold-starts.mdx).

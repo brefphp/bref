@@ -78,7 +78,7 @@ Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more
 
 Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying.
 
-> [!WARNING]
+> [!NOTE]
 >
 > You could improve the cold start time by pre-generating the config cache before deploying:
 >
@@ -148,7 +148,7 @@ bref tinker
 The usual flags work, for example to run Tinker in the production environment:
 
 ```bash
-bref tinker --env=production
+bref tinker --env=prod
 ```
 
 ![](./tinker.png)
@@ -161,4 +161,4 @@ If you are not using Bref Cloud, you can check out this community package: [sls-
 
 ## Inertia
 
-Laravel with Inertia runs without issue, like any other website. Follow the [Websites guide](../use-cases/websites.mdx) to learn how to deploy a Laravel with assets with Bref.
+Laravel with Inertia runs without issue, like any other website. Follow the [Websites guide](../use-cases/websites.mdx) to learn how to deploy a Laravel application with assets.

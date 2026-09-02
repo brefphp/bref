@@ -1,5 +1,5 @@
 ---
-description: "How to deploy Bref application using Bref Cloud."
+description: "How to deploy Bref applications using Bref Cloud."
 ---
 
 import { Steps, Cards } from 'nextra/components';
@@ -9,7 +9,7 @@ import { SymfonyIcon } from '../../src/components/icons/SymfonyIcon';
 
 # Deployment
 
-Bref Cloud deploys application using Bref's `serverless.yml` file.
+Bref Cloud deploys applications using Bref's `serverless.yml` file.
 
 If you haven't gotten started with Bref, follow the guide corresponding to your framework:
 
@@ -40,7 +40,7 @@ When you run `bref deploy`, Bref Cloud runs the `serverless deploy` command for 
 
 The `bref` CLI uses AWS credentials from AWS accounts connected in [Bref Cloud](https://bref.cloud/aws-accounts). That means that it will ignore AWS credentials configured on your machine.
 
-The `bref` CLI also uses the [open-source fork of Serverless Framework](https://github.com/oss-serverless/serverless), which is a fork of Serverless Framework v3, the last free and open-source version. This fork is maintained by Bref and ensures that the CLI is maintained and stable in the long run.
+The `bref` CLI also uses the [open-source fork of Serverless Framework](https://github.com/oss-serverless/osls), which is a fork of Serverless Framework v3, the last free and open-source version. This fork is maintained by Bref and ensures that the CLI is maintained and stable in the long run.
 
 Finally, the `bref` CLI uses "**environments**" instead of "**stages**". This is just a vocabulary change. That means that you should use the `--env` option instead of the `--stage` option:
 
@@ -104,9 +104,9 @@ jobs:
         steps:
             -   uses: actions/checkout@v4
 
-            -   uses: actions/setup-node@v2
+            -   uses: actions/setup-node@v4
                 with:
-                    node-version: '18'
+                    node-version: '20'
 
             -   name: Cache NPM dependencies
                 uses: actions/cache@v4
@@ -122,7 +122,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: '8.2'
+                    php-version: '8.4'
                     coverage: none
                     # Install the Bref CLI as a global tool
                     tools: bref/cli
