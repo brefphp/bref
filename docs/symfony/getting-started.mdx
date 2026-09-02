@@ -225,21 +225,6 @@ For example, to execute a `bin/console` command on Lambda, run the command below
 
 For more details follow [the "Console" guide](../runtimes/console.mdx).
 
-## Logs
-
-By default, Symfony logs to `stderr`. That is great because Bref [automatically forwards `stderr` to AWS CloudWatch](/docs/environment/logs.mdx).
-
-However, if your application is using Monolog, you need to configure it to log to `stderr` as well:
-
-```yml filename="config/packages/prod/monolog.yaml" {6}
-monolog:
-  handlers:
-    # ...
-    nested:
-      type: stream
-      path: php://stderr
-```
-
 ## Trust API Gateway
 
 When hosting a website on Lambda, API Gateway acts as a proxy between the client and your Lambda function.
