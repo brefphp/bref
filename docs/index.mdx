@@ -89,7 +89,7 @@ If your application is currently not set up like this, good news: preparing for 
 
 There are still a few serverless-specific constraints to be aware of:
 
-- About 0.3% of all requests in production are ["cold starts"](/docs/environment/performances.mdx#cold-starts), i.e. slower requests (AWS Lambda scaling up) that can add 200 ms to 500 ms (or even more on very large applications) to the HTTP response time.
+- About 0.2% of all requests in production are ["cold starts"](/docs/environment/performances.mdx#cold-starts), i.e. slower requests (AWS Lambda scaling up) that can add 200 ms to 500 ms (or even more on very large applications) to the HTTP response time.
 
     If your application cannot tolerate that occasional latency at the p99 metric, then serverless might not be the best fit.
 - AWS Lambda has a limit of ~4 MB for HTTP requests/uploaded files.
@@ -244,7 +244,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
     APIs run on AWS Lambda without problems. Performance is now similar to what you could expect on a traditional VPS.
 
-    The main difference to account for is that about 0.5% of HTTP requests are cold starts. If your use case requires that _all_ requests are handled in under 10 ms, serverless might not be a good fit.
+    The main difference to account for is that about 0.2% of HTTP requests are cold starts. If your use case requires that _all_ requests are handled in under 10 ms, serverless might not be a good fit.
 
 - **Website**
 
@@ -270,7 +270,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
 - **Real-time applications**
 
-    Warm Lambda invocations are very fast (can be as low as 1 ms), but cold starts can take 200 ms or more. Cold starts are rare on most applications (less than 0.5% of invocations) and can be further mitigated with [provisioned concurrency](https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html), but it's unlikely you can ensure they will _never_ happen. This makes Lambda a poor choice for real-time applications where latency **must** be below 100 ms for 100% of requests.
+    Warm Lambda invocations are very fast (can be as low as 1 ms), but cold starts can take 200 ms or more. Cold starts are rare on most applications (about 0.2% of invocations) and can be further mitigated with [provisioned concurrency](https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html), but it's unlikely you can ensure they will _never_ happen. This makes Lambda a poor choice for real-time applications where latency **must** be below 100 ms for 100% of requests.
 
 ## Getting started
 
