@@ -88,7 +88,7 @@ To serve these dynamic preview domains, Craft Cloud uses the Cloudflare CDN, wit
 
 ![](./craft-cloud/cdn.svg)
 
-Cloudflare Workers are serverless functions written in JavaScript and running in edge locations (unlike AWS Lambda’s default behavior which runs in data centers). Workers also come with [Workers KV](https://www.cloudflare.com/developer-platform/workers-kv/), a simple and fast key-value storage. Workers are in essence limited: they can only run a subset of JavaScript, do not get access to a filesystem, etc. But these limits allow running Workers in edge locations, close to users, without cold starts, and with very low latency. This makes them very useful for doing dynamic routing: exactly what Craft Cloud does.
+Cloudflare Workers are serverless functions written in JavaScript and running in edge locations (unlike AWS Lambda’s default behavior which runs in data centers). Workers also come with [Workers KV](https://developers.cloudflare.com/kv/), a simple and fast key-value storage. Workers are in essence limited: they can only run a subset of JavaScript, do not get access to a filesystem, etc. But these limits allow running Workers in edge locations, close to users, without cold starts, and with very low latency. This makes them very useful for doing dynamic routing: exactly what Craft Cloud does.
 
 Whenever a new project environment is created, the Craft Cloud API creates a new Worker KV storage entry. Then, on every request to `xxx.preview.craft.cloud`, a Worker compares the domain name to the KV database, retrieves the entry for the project/environment, and invokes the AWS Lambda function that runs the Craft CMS project.
 
