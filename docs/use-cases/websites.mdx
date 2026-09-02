@@ -246,9 +246,10 @@ class CompressResponse
             return $response;
         }
 
-        $response->setContent(gzencode($content, 9));
+        $compressed = gzencode($content, 9);
+        $response->setContent($compressed);
         $response->headers->set('Content-Encoding', 'gzip');
-        $response->headers->set('Content-Length', (string) strlen($content));
+        $response->headers->set('Content-Length', (string) strlen($compressed));
 
         return $response;
     }

@@ -188,16 +188,17 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         ```yml filename="serverless.yml"
         functions:
             # ...
-            handler: App\MyHttpHandler
-            runtime: php-84
-            # Lambda Function URL
-            url: true
-            # Or API Gateway
-            events:
-                # API Gateway v2
-                - httpApi: 'GET /hello'
-                # API Gateway v1
-                - http: 'GET hello'
+            hello:
+                handler: App\MyHttpHandler
+                runtime: php-84
+                # Lambda Function URL
+                url: true
+                # Or API Gateway
+                events:
+                    # API Gateway v2
+                    - httpApi: 'GET /hello'
+                    # API Gateway v1
+                    - http: 'GET hello'
         ```
 
         The `App\MyHttpHandler` class will be instantiated by Laravel's service container.
@@ -206,16 +207,17 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         ```yml filename="serverless.yml"
         functions:
             # ...
-            handler: App\MyHttpHandler
-            runtime: php-84
-            # Lambda Function URL
-            url: true
-            # Or API Gateway
-            events:
-                # API Gateway v2
-                - httpApi: 'GET /hello'
-                # API Gateway v1
-                - http: 'GET hello'
+            hello:
+                handler: App\MyHttpHandler
+                runtime: php-84
+                # Lambda Function URL
+                url: true
+                # Or API Gateway
+                events:
+                    # API Gateway v2
+                    - httpApi: 'GET /hello'
+                    # API Gateway v1
+                    - http: 'GET hello'
         ```
 
         The `App\MyHttpHandler` class will be instantiated by Symfony's service container.
@@ -224,16 +226,17 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
         ```yml filename="serverless.yml"
         functions:
             # ...
-            handler: handler.php
-            runtime: php-84
-            # Lambda Function URL
-            url: true
-            # Or API Gateway
-            events:
-                # API Gateway v2
-                - httpApi: 'GET /hello'
-                # API Gateway v1
-                - http: 'GET hello'
+            hello:
+                handler: handler.php
+                runtime: php-84
+                # Lambda Function URL
+                url: true
+                # Or API Gateway
+                events:
+                    # API Gateway v2
+                    - httpApi: 'GET /hello'
+                    # API Gateway v1
+                    - http: 'GET hello'
         ```
 
         The file `handler.php` should return the handler instance:

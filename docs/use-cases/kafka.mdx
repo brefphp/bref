@@ -5,9 +5,9 @@ To handle [Kafka events](https://docs.aws.amazon.com/lambda/latest/dg/with-kafka
 ```php
 use Bref\Context\Context;
 use Bref\Event\Kafka\KafkaEvent;
-use Bref\Event\Kafka\KafkaEventHandler;
+use Bref\Event\Kafka\KafkaHandler;
 
-class Handler extends KafkaEvent
+class Handler extends KafkaHandler
 {
     public function handleKafka(KafkaEvent $event, Context $context): void
     {

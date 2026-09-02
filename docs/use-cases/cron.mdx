@@ -140,7 +140,7 @@ On top of running CLI cron tasks with the `php-xx-console` runtime, we can also 
         {
             public function handle($event, Context $context): void
             {
-                echo 'Hello ' . $event['name'] ?? 'world';
+                echo 'Hello ' . ($event['name'] ?? 'world');
             }
         }
         ```
@@ -183,7 +183,7 @@ On top of running CLI cron tasks with the `php-xx-console` runtime, we can also 
         {
             public function handle($event, Context $context): void
             {
-                echo 'Hello ' . $event['name'] ?? 'world';
+                echo 'Hello ' . ($event['name'] ?? 'world');
             }
         }
         ```
@@ -209,7 +209,7 @@ On top of running CLI cron tasks with the `php-xx-console` runtime, we can also 
             # ...
             cron:
                 handler: function.php
-                runtime: php-84-console
+                runtime: php-84
                 events:
                     - schedule:
                         rate: rate(1 hour)
