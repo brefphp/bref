@@ -3,7 +3,8 @@
     "dev": "next dev -p 8000",
     "build": "next build",
     "postbuild": "next-sitemap && pagefind --site .next/server/app --glob \"{docs.html,docs/**/*.html}\" --output-path public/_pagefind",
-    "start": "next start"
+    "start": "next start",
+    "test": "node --test \"src/**/*.test.js\""
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.1109.0",

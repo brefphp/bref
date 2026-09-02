@@ -63,16 +63,21 @@ export default withNextra(withPlausibleProxy()({
             ...redirectList,
         ]
     },
-    // Serve Markdown versions of docs for AI crawlers
+    // Serve Markdown versions of docs and news pages for AI agents
+    // (see also middleware.js for the `Accept: text/markdown` content negotiation)
     async rewrites() {
         return [
             {
                 source: '/docs/:path*.md',
-                destination: '/api/md/:path*',
+                destination: '/api/md/docs/:path*',
             },
             {
                 source: '/docs.md',
-                destination: '/api/md',
+                destination: '/api/md/docs',
+            },
+            {
+                source: '/news/:path*.md',
+                destination: '/api/md/news/:path*',
             },
         ]
     },
