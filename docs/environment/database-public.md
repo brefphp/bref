@@ -1,5 +1,5 @@
 ---
-introduction: Configure RDS to expose a RDS database publicly so that you can access it from your computer.
+description: Configure RDS to expose an RDS database publicly so that you can access it from your computer.
 ---
 
 # Exposing an RDS database on the internet
