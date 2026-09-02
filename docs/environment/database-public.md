@@ -2,7 +2,7 @@
 introduction: Configure RDS to expose a RDS database publicly so that you can access it from your computer.
 ---
 
-# Exposing a RDS database on the internet
+# Exposing an RDS database on the internet
 
 [&#9664; Back to the "Databases" documentation](database.mdx).
 

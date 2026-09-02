@@ -171,7 +171,7 @@ The biggest change is that **foreign key constraints** are not supported. To be 
 That means that you should take care of validating references between rows and handle cascade deletions. If you use an ORM, you should be in a good place:
 
 - **Laravel** DB migrations and Eloquent work fine. You can use [the `foreignId()` method](https://laravel.com/docs/migrations#foreign-key-constraints) to create relationships between tables, but you cannot enforce referential integrity with the `constrained()` method (and related methods like `onDelete('cascade')`).
-- [**Doctrine**](https://www.doctrine-project.org/) works fine, but you should not use [`onDelete="CASCADE"` which relies on foreign key constraints](https://www.doctrine-project.org/projects/doctrine-orm/en/2.14/reference/working-with-objects.html#removing-entities) (`cascade=REMOVE` or `cascade=ALL` is fine Doctrine performs the cascade in memory via PHP).
+- [**Doctrine**](https://www.doctrine-project.org/) works fine, but you should not use [`onDelete="CASCADE"` which relies on foreign key constraints](https://www.doctrine-project.org/projects/doctrine-orm/en/2.14/reference/working-with-objects.html#removing-entities) (`cascade=REMOVE` or `cascade=ALL` is fine as Doctrine performs the cascade in memory via PHP).
 
 You can read the [complete **MySQL compatibility table** on the PlanetScale website](https://planetscale.com/docs/reference/mysql-compatibility).
 
@@ -247,16 +247,16 @@ Later, you can apply schema changes (aka DB migrations) to the production databa
 4. Test the changes in the dev environment.
 5. In PlanetScale, deploy the DB changes to the production branch via a "deploy request".
 
-Let's dive through these steps in the next section.
+Let's dive into these steps in the next section.
 
 #### Deploying DB migrations in detail
 
-PlanetScale works with **branches**, which matches with the concept of **stages** in Serverless Framework.
+PlanetScale works with **branches**, which matches the concept of **stages** in Serverless Framework.
 
 To deploy DB migrations in production, you can work with two environments:
 
-- A **production** environment: our application deployed in the `prod` stage and configured to use the `production` PlanetScale branch. 
-- A **dev** environment: our application deployed in the `dev` stage and configured to use the `development` PlanetScale branch. 
+- A **production** environment: our application deployed in the `prod` stage and configured to use the `production` PlanetScale branch.
+- A **dev** environment: our application deployed in the `dev` stage and configured to use the `development` PlanetScale branch.
 
 You can [deploy our applications to different stages](../deploy.mdx#environments) via the `--stage` option. Each stage is completely isolated from the others.
 

@@ -138,7 +138,7 @@ Here is a full comparison between both approaches:
 | How to read the request?                           | `$_GET`, `$_POST`, etc.                                                                                                        | The `$request` parameter (PSR-7 request).                                                                               |
 | How to write a response?                           | `echo`, `header()` function, etc.                                                                                              | Returning a PSR-7 response from the handler class.                                                                      |
 | How does it work?                                  | Bref turns an API Gateway event into a FastCGI (PHP-FPM) request.                                                              | Bref turns an API Gateway event into a PSR-7 request.                                                                   |
-| Is each request handled in a separate PHP process? | Yes (that's how PHP-FPM works).                                                                                                | Yes by default (Bref replicates that to avoid surprises) but can be disabled for optimal performances.                  |
+| Is each request handled in a separate PHP process? | Yes (that's how PHP-FPM works).                                                                                                | Yes by default (Bref replicates that to avoid surprises) but can be disabled for optimal performance.                  |
 
 ### With the PHP-FPM runtime
 

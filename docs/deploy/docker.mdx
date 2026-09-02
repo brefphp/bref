@@ -40,7 +40,7 @@ ENV BREF_RUNTIME=fpm
 CMD ["public/index.php"]
 ```
 
-The `CMD` instruction let us specify the entrypoint that will handle all requests. This is the equivalent of the `handler` in the `serverless.yml` file.
+The `CMD` instruction lets us specify the entrypoint that will handle all requests. This is the equivalent of the `handler` in the `serverless.yml` file.
 
 > [!TIP]
 >
@@ -48,7 +48,7 @@ The `CMD` instruction let us specify the entrypoint that will handle all request
 >
 > For example `bref/php-84:3` points to Bref v3.
 
-The `ENV BREF_RUNTIME=fpm` let's us specify which [runtime](../runtimes.mdx) to use. As a reminder, Bref offers the following runtimes:
+The `ENV BREF_RUNTIME=fpm` lets us specify which [runtime](../runtimes.mdx) to use. As a reminder, Bref offers the following runtimes:
 
 - `fpm`: [uses PHP-FPM to serve web applications](../runtimes/fpm-runtime.mdx)
 - `function`: [to run PHP code](../runtimes/function.mdx)

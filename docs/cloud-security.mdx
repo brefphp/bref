@@ -18,7 +18,7 @@ graph LR
     cloud -->|AWS API| user[User's AWS Account];
 ```
 
-"Accessing an AWS account" means that Bref Cloud perform actions in the account, like creating a Lambda function or an S3 bucket. Practically, this is done via the AWS API using the AWS SDK.
+"Accessing an AWS account" means that Bref Cloud performs actions in the account, like creating a Lambda function or an S3 bucket. Practically, this is done via the AWS API using the AWS SDK.
 
 To use the AWS API, Bref Cloud needs **AWS credentials** that give access to the target account.
 
@@ -71,7 +71,7 @@ The `BrefCloudAccessor` role is an additional layer of security: instead of dire
 
 The reasons for this are:
 
-- We can very tightly restrict access to this role (principle of least privilege). For example Bref AWS account administrators (IAM users) do not have access the `BrefCloudAccessor` role.
+- We can very tightly restrict access to this role (principle of least privilege). For example Bref AWS account administrators (IAM users) do not have access to the `BrefCloudAccessor` role.
 - The PHP application is deployed often, but the `BrefCloudAccessor` role should almost never change. Separating those helps avoid accidental unwanted changes.
 
 ### What permissions does the `BrefCloudAccess` role have?

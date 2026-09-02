@@ -72,7 +72,7 @@ $ vendor/bin/bref-local my-function.php '{"name": "Jane"}'
 Hello Jane
 
 # With a path to a file containing a JSON event.
-$cat event.json
+$ cat event.json
 {
     "name": "Alex"
 }
@@ -109,6 +109,6 @@ $ docker-compose run app vendor/bin/bref-local my-function.php
 
 ## API Gateway local development
 
-If you build HTTP applications with [API Gateway HTTP events](/docs/runtimes/fpm-runtime.mdx), `serverless bref:local` is a bit unpractical because you need to manually craft HTTP events in JSON.
+If you build HTTP applications with [API Gateway HTTP events](/docs/runtimes/fpm-runtime.mdx), `serverless bref:local` is a bit impractical because you need to manually craft HTTP events in JSON.
 
 Instead, you can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate API Gateway locally.

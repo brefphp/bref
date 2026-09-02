@@ -1,9 +1,9 @@
 
-# Runtimes in details
+# Runtimes in detail
 
 > [!NOTE]
 >
-> This section is only useful if you want to learn more, or if you want to use Bref with another deployment tool than Serverless Framework.
+> This section is only useful if you want to learn more, or if you want to use Bref with a deployment tool other than Serverless Framework.
 >
 > You can skip it for now if you just want to get started with Bref.
 
@@ -127,12 +127,12 @@ Anyone can inspect the code and the data sent by checking the [`Bref\Runtime\Lam
 
 The data is sent via the [statsd](https://github.com/statsd/statsd) protocol, over [UDP](https://en.wikipedia.org/wiki/User_Datagram_Protocol).
 
-Unlike TCP, UDP does not check that the message correctly arrived to the server.
+Unlike TCP, UDP does not check that the message correctly arrived at the server.
 It doesn't even establish a connection. That means that **UDP is extremely fast**:
 the data is sent over the network and the code moves on to the next line.
 When actually sending data, the overhead of that ping takes about 150 micro-seconds.
 
-However, this function actually sends data every 100 invocation, because we don't
+However, this function actually sends data every 100 invocations, because we don't
 need to measure *all* invocations. We only need an approximation.
 That means that 99% of the time, no data is sent, and the function takes 30 micro-seconds.
 If we average all executions, the overhead of that ping is about **31 micro-seconds**.

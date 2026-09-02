@@ -30,7 +30,7 @@ Instead, data can be stored in [databases](/docs/environment/database.mdx) or in
 
 ### S3 storage
 
-It is possible to deploy a S3 bucket in `serverless.yml` using the [`Storage` feature of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/storage.md). For example:
+It is possible to deploy an S3 bucket in `serverless.yml` using the [`Storage` feature of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/storage.md). For example:
 
 ```yml filename="serverless.yml"
 provider:
@@ -43,7 +43,7 @@ constructs:
         allowAcl: true
 ```
 
-The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that this files in the bucket are still completely private, there is no change in the security of the bucket.
+The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that files in the bucket are still completely private, there is no change in the security of the bucket.
 
 Read more [in the Lift documentation](https://github.com/getlift/lift/blob/master/docs/storage.md). If you use Laravel, check out the [Laravel file storage documentation](/docs/laravel/file-storage) for a complete guide including presigned uploads, CORS configuration, and common pitfalls.
 
@@ -59,7 +59,7 @@ The following solutions can be used instead:
 
 ### Pre-generating the cache
 
-Some frameworks allow to pre-generate some caches. For example in Symfony the container can be compiled via `bin/console cache:warmup`, or in Laravel the config cache can be generated before deploying.
+Some frameworks allow pre-generating some caches. For example in Symfony the container can be compiled via `bin/console cache:warmup`, or in Laravel the config cache can be generated before deploying.
 
 When possible **this is the best solution**: no generation will occur in production, and reading from the filesystem will be fast.
 
@@ -91,7 +91,7 @@ This solution is ideal for cache data that can change during the life of the app
 
 #### Deploying DynamoDB tables
 
-As any service, DynamoDB tables can be deployed via CloudFormation using the `resources` key in `serverless.yml`:
+Like any service, DynamoDB tables can be deployed via CloudFormation using the `resources` key in `serverless.yml`:
 
 ```yml filename="serverless.yml"
 service: app

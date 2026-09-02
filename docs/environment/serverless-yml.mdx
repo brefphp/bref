@@ -105,7 +105,7 @@ plugins:
 
 [Serverless plugins](https://github.com/oss-serverless/serverless/blob/main/docs/guides/plugins.md) are JavaScript plugins that extend the behavior of the Serverless framework.
 
-Bref provides a plugin via the Composer package, which explains why the path is a relative path into the `vendor` directory. This plugin provides [support for the Bref runtimes and layers](../runtimes/#usage), it is necessary to include it.
+Bref provides a plugin via the Composer package, which explains why the path is a relative path into the `vendor` directory. This plugin provides [support for the Bref runtimes and layers](../runtimes/#usage), so it is necessary to include it.
 
 Most other Serverless plugins [are installed via `npm`](https://github.com/oss-serverless/serverless/blob/main/docs/guides/plugins.md).
 
@@ -203,7 +203,7 @@ resources:
 
 The CloudFormation `!Ref`, `!GetAtt` and `!Sub` functions can be used.
 
-Here is an example where we define a S3 bucket and a policy that references it. It uses both the `!Ref MyBucket` and `!Sub '${MyBucket.Arn}'` syntaxes:
+Here is an example where we define an S3 bucket and a policy that references it. It uses both the `!Ref MyBucket` and `!Sub '${MyBucket.Arn}'` syntaxes:
 
 ```yml filename="serverless.yml"
 #...

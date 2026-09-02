@@ -41,7 +41,7 @@ functions:
         timeout: 28 # in seconds (API Gateway has a max timeout of 29 seconds)
         events:
             -   httpApi: '*'
-    # This function let us run console commands in Lambda
+    # This function lets us run console commands in Lambda
     console:
         handler: bin/console
         runtime: php-84-console
@@ -196,7 +196,7 @@ Have a look at the [Website guide](../use-cases/websites.mdx) to learn how to de
 
 As you may have noticed, we define a function named "console" in `serverless.yml`. That function is using the [Console runtime](../runtimes/console.mdx), which lets us run the Symfony Console on AWS Lambda.
 
-For example, to execute an `bin/console` command on Lambda, run the command below:
+For example, to execute a `bin/console` command on Lambda, run the command below:
 
 <Tabs items={['Serverless CLI', 'Bref Cloud']}>
     <Tabs.Tab>
@@ -258,7 +258,7 @@ framework:
 
 Note that API Gateway doesn't set the `X-Forwarded-Host` header, so we don't trust it by default. You should only whitelist this header if you set it manually,
 for example in your CloudFront configuration (this is done automatically
-in [the Cloudfront distribution deployed by Lift](../use-cases/websites.mdx)).
+in [the CloudFront distribution deployed by Lift](../use-cases/websites.mdx)).
 
 You can get more details in the [Symfony documentation](https://symfony.com/doc/current/deployment/proxies.html).
 
