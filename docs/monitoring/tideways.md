@@ -67,8 +67,8 @@ Edit all your functions to add the Tideways extension layer:
 functions:
     my-function:
         handler: index.php
+        runtime: php-84-fpm
         layers:
-            - ${bref:layer.php-84-fpm}
             # Add this line:
             - ${bref-extra:tideways-php-84}
 ```

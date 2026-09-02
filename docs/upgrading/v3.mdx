@@ -347,14 +347,6 @@ If you need the SOAP extension, you can enable it by creating a `php.ini` file i
 extension=soap
 ```
 
-And reference it in your `serverless.yml`:
-
-```yml filename="serverless.yml"
-provider:
-    environment:
-        BREF_AUTOLOAD_PATH: php/conf.d
-```
-
 ### Laravel version compatibility
 
 If you are using Laravel with Bref, note that:
