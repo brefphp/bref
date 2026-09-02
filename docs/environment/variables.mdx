@@ -89,7 +89,7 @@ You can inject a secret in an environment variable:
 
 #### At deployment time
 
-Use the [`${ssm:<parameter>}` syntax](https://serverless.com/blog/serverless-secrets-api-keys/) to have the variable be replaced by the secret value on deployment:
+Use the [`${ssm:<parameter>}` syntax](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/variables.md#reference-variables-using-the-ssm-parameter-store) to have the variable be replaced by the secret value on deployment:
 
 ```yml filename="serverless.yml"
 provider:
