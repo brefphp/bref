@@ -23,7 +23,8 @@ export async function generateMetadata(props) {
     const mdxPath = params.mdxPath ?? []
     const { metadata } = await importPage(mdxPath)
     const isHome = mdxPath.length === 0
-    const isDocsPage = mdxPath[0] === 'docs' && mdxPath.length > 1
+    // Pages that have a Markdown version (see src/lib/markdown.js)
+    const hasMarkdown = (mdxPath[0] === 'docs' && mdxPath.length > 1) || (mdxPath[0] === 'news' && mdxPath.length > 1)
     // `seoTitle` frontmatter sets the exact <title> (no "– Bref" suffix) without
     // affecting the sidebar label; `ogImage` overrides the default social card.
     const seoTitle = metadata.seoTitle
@@ -38,9 +39,9 @@ export async function generateMetadata(props) {
             images: [{ url: ogImage ?? 'https://bref.sh/social-card.png' }],
             ...(metadata.openGraph || {}),
         },
-        // Per-docs-page alternate markdown link (was theme.config.head conditional)
-        ...(isDocsPage
-            ? { alternates: { types: { 'text/markdown': `/docs/${mdxPath.slice(1).join('/')}.md` } } }
+        // Alternate Markdown version of the page, for AI agents
+        ...(hasMarkdown
+            ? { alternates: { types: { 'text/markdown': `/${mdxPath.join('/')}.md` } } }
             : {}),
     }
 }

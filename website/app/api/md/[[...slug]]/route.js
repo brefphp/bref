@@ -1,46 +1,28 @@
-import fs from 'fs'
-import path from 'path'
+import { readMarkdown, routeToUrl } from '../../../../src/lib/markdown'
 
-// App Router Route Handler replacing pages/api/md/[...slug].js.
-// Reads raw MDX from content/docs and strips imports + YAML frontmatter
-// (NextSeo is gone in v4, so the old <NextSeo> stripper is replaced by a frontmatter strip).
+// Markdown version of docs and news pages, for AI agents. Reached via:
+// - /docs/<page>.md and /news/<page>.md (rewrites in next.config.mjs)
+// - `Accept: text/markdown` on the HTML URL (middleware.js)
 export async function GET(req, { params }) {
     const { slug } = await params
-    const slugPath = Array.isArray(slug) ? slug.join('/') : (slug ?? '')
+    const route = Array.isArray(slug) ? slug.join('/') : (slug ?? '')
 
-    const docsDir = path.join(process.cwd(), 'content/docs')
-    const candidates = slugPath
-        ? [
-              path.join(docsDir, `${slugPath}.mdx`),
-              path.join(docsDir, `${slugPath}.md`),
-              path.join(docsDir, slugPath, 'index.mdx'),
-          ]
-        : [path.join(docsDir, 'index.mdx')]
-
-    // Reject any path that escapes content/docs (e.g. via `..` segments).
-    const resolvedDocsDir = path.resolve(docsDir) + path.sep
-    let filePath = candidates.find(
-        candidate => path.resolve(candidate).startsWith(resolvedDocsDir) && fs.existsSync(candidate)
-    )
-    if (!filePath) {
-        return new Response(JSON.stringify({ error: 'Page not found' }), {
+    const content = readMarkdown(route)
+    if (content === null) {
+        return new Response('Page not found', {
             status: 404,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain; charset=utf-8' },
         })
     }
 
-    let content = fs.readFileSync(filePath, 'utf8')
-    // Strip YAML frontmatter
-    content = content.replace(/^---\n[\s\S]*?\n---\n/, '')
-    // Strip import statements
-    content = content.replace(/^import\s+.*?(?:from\s+['"].*?['"])?;?\s*$/gm, '')
-    // Strip JSX comments (invisible when rendered, but not valid Markdown)
-    content = content.replace(/\{\/\*[\s\S]*?\*\/\}\n?/g, '')
-    // Clean up excessive blank lines at the start
-    content = content.replace(/^\s*\n+/, '')
-
     return new Response(content, {
         status: 200,
-        headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
+        headers: {
+            'Content-Type': 'text/markdown; charset=utf-8',
+            // The HTML page is the canonical version of this content
+            Link: `<${routeToUrl(route)}>; rel="canonical"`,
+            // The same URL serves HTML or Markdown depending on the Accept header
+            Vary: 'Accept',
+        },
     })
 }

@@ -3,6 +3,9 @@ module.exports.redirects = {
     '/#ecosystem': '/support',
     '/#plans': '/support',
     '/#enterprise': '/support',
+    // URLs that people (and AI agents) guess
+    '/pricing': '/cloud#pricing',
+    '/cloud/pricing': '/cloud#pricing',
     '/docs/news': '/news',
     '/docs/news/01-bref-1.0': '/news/01-bref-1.0',
     '/docs/news/02-bref-2.0': '/news/02-bref-2.0',
