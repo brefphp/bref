@@ -12,12 +12,24 @@ const MAILCOACH_SUBSCRIBE_URL = 'https://bref.mailcoach.app/subscribe/be83c960-8
 // - `tag`: Mailcoach subscriber tag, to measure where subscribers come from.
 // - `label`: visible label above the field. Without it the form is a single row
 //   (placeholder + button).
+// - `onDark`: styles for a dark background (the homepage section), instead of
+//   following the site theme.
 // - The migration email links to /news/subscribe?email=... : the address is
 //   prefilled but nothing is submitted until the reader clicks the button, so
 //   email prefetchers (which only GET the link) cannot subscribe anyone.
 // - Mailcoach sends its double opt-in email and redirects to the bref.sh
 //   result pages below.
-export default function SubscribeForm({ tag, label, className = 'my-8' }) {
+const INPUT_CLASS = {
+    light: 'text-gray-900 ring-gray-300 placeholder:text-gray-400 focus:ring-blue-500 dark:bg-white/5 dark:text-white dark:ring-white/10 dark:placeholder:text-white/50',
+    dark: 'bg-white/10 text-white ring-white/10 placeholder:text-white/75 focus:ring-white',
+}
+const BUTTON_CLASS = {
+    light: 'bg-blue-500 hover:bg-blue-400',
+    dark: '!bg-gray-500 hover:!bg-gray-400',
+}
+
+export default function SubscribeForm({ tag, label, onDark = false, className = 'my-8' }) {
+    const variant = onDark ? 'dark' : 'light'
     const emailRef = useRef(null)
     const honeypotRef = useRef(null)
 
@@ -66,11 +78,11 @@ export default function SubscribeForm({ tag, label, className = 'my-8' }) {
                     autoComplete="email"
                     aria-label={label ? undefined : 'Email'}
                     placeholder="you@example.com"
-                    className="min-w-0 flex-auto rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 dark:bg-white/5 dark:text-white dark:ring-white/10 dark:placeholder:text-white/50"
+                    className={`min-w-0 flex-auto rounded-md border-0 px-3.5 py-2 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6 ${INPUT_CLASS[variant]}`}
                 />
                 <button
                     type="submit"
-                    className="flex-none rounded-md bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                    className={`flex-none rounded-md px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 ${BUTTON_CLASS[variant]}`}
                 >
                     Subscribe to the Bref newsletter
                 </button>
