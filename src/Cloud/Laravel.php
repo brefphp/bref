@@ -42,12 +42,14 @@ class Laravel
 
     /**
      * @param '8.2'|'8.3'|'8.4'|'8.5' $php The PHP version to use.
+     * @param string|null $region The AWS region to deploy to, e.g. 'eu-west-3'. Defaults to us-east-1.
      * @param string[] $patterns Path patterns to include or exclude from the deployment.
      * @param array<string, mixed> $variables Environment variables to set in the Lambda.
      */
     public function __construct(
         public string $name,
         public string $php,
+        public ?string $region = null,
         public string $rootPath = '.',
         array $patterns = [],
         public string $assets = 'public',
@@ -86,6 +88,7 @@ class Laravel
             'name' => $this->name,
             'type' => 'laravel',
             'php' => $this->php,
+            'region' => $this->region,
             'package' => Cloud::package($this->rootPath, $this->patterns),
             'variables' => $this->variables,
             'memory' => $this->memory,
