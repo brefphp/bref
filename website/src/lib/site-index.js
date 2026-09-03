@@ -43,8 +43,10 @@ export async function getDocsSections() {
  */
 export async function getNewsPages() {
     const pages = (await getPageMap('/news'))
-        // Skip the /news index page, keep the articles
-        .filter(item => item.route && item.route !== '/news' && 'frontMatter' in item)
+        // Keep the articles: their file names start with a number (01-bref-1.0,
+        // 02-bref-2.0...). This skips the /news index and the newsletter subscribe
+        // landing pages (/news/subscribe/...).
+        .filter(item => item.route && /^\/news\/\d+-/.test(item.route) && 'frontMatter' in item)
         .map(item => ({
             title: item.frontMatter?.title ?? item.title,
             route: item.route,
