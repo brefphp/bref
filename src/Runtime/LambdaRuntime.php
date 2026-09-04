@@ -8,6 +8,7 @@ use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
 use CurlHandle;
 use Exception;
+use Generator;
 use JsonException;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
@@ -37,6 +38,7 @@ final class LambdaRuntime
 {
     private ?CurlHandle $curlHandleNext = null;
     private ?CurlHandle $curlHandleResult = null;
+    private ?CurlHandle $curlStreamedHandleResult = null;
     private string $apiUrl;
     private Invoker $invoker;
     private string $layer;
@@ -97,7 +99,14 @@ final class LambdaRuntime
 
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (Throwable $e) {
-            $this->signalFailure($context->getAwsRequestId(), $e);
+            if (isset($result) && $result instanceof Generator) {
+                // We cannot signal a failure once a streamed response has started: Lambda
+                // would reject the error report with an "InvalidStateTransition" error.
+                // The error is only logged, the caller will see a truncated response.
+                $this->logError($e, $context->getAwsRequestId());
+            } else {
+                $this->signalFailure($context->getAwsRequestId(), $e);
+            }
 
             try {
                 Bref::events()->afterInvoke($handler, $event, $context, null, $e);
@@ -201,7 +210,12 @@ final class LambdaRuntime
     private function sendResponse(string $invocationId, mixed $responseData): void
     {
         $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/response";
-        $this->postJson($url, $responseData);
+
+        if ($responseData instanceof Generator) {
+            $this->postStreamed($url, $responseData);
+        } else {
+            $this->postJson($url, $responseData);
+        }
     }
 
     /**
@@ -286,6 +300,93 @@ final class LambdaRuntime
      * @throws Exception
      * @throws ResponseTooBig
      */
+    private function postStreamed(string $url, Generator $data, array $headers = []): void
+    {
+        if ($this->curlStreamedHandleResult === null) {
+            $this->curlStreamedHandleResult = curl_init();
+            curl_setopt($this->curlStreamedHandleResult, CURLOPT_UPLOAD, true);
+            curl_setopt($this->curlStreamedHandleResult, CURLOPT_CUSTOMREQUEST, 'POST');
+            curl_setopt($this->curlStreamedHandleResult, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            curl_setopt($this->curlStreamedHandleResult, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($this->curlStreamedHandleResult, CURLOPT_INFILESIZE, -1);
+        }
+
+        curl_setopt($this->curlStreamedHandleResult, CURLOPT_URL, $url);
+        curl_setopt($this->curlStreamedHandleResult, CURLOPT_HTTPHEADER, [
+            'Lambda-Runtime-Function-Response-Mode: streaming',
+            'Content-Type: application/vnd.awslambda.http-integration-response',
+            'Transfer-Encoding: chunked',
+            ...$headers,
+        ]);
+
+        $buffer = '';
+        /*
+        * We use Fibers so we can suspend the yields and read data as needed.
+        * That way we don't block the response as more data comes.
+        */
+        $fiber = new \Fiber(
+            function () use (&$data): void {
+                foreach ($data as $dataChunk) {
+                    \Fiber::suspend((string) $dataChunk);
+                }
+
+                \Fiber::suspend(PHP_INT_MIN);
+            }
+        );
+
+        curl_setopt(
+            $this->curlStreamedHandleResult,
+            CURLOPT_READFUNCTION,
+            function ($ch, $fd, $length) use (&$fiber, &$buffer) {
+                if ($buffer === '') {
+                    if ($fiber->isStarted() || $fiber->isSuspended()) {
+                        $fiberChunk = $fiber->resume();
+                    } elseif (! $fiber->isTerminated()) {
+                        $fiberChunk = $fiber->start();
+                    } else {
+                        $fiberChunk = PHP_INT_MIN;
+                    }
+
+                    if ($fiberChunk !== PHP_INT_MIN) {
+                        $buffer .= $fiberChunk;
+                    }
+                }
+
+                $chunk = substr($buffer, 0, $length);
+                $buffer = substr($buffer, strlen($chunk));
+
+                return $chunk;
+            }
+        );
+
+        $body = curl_exec($this->curlStreamedHandleResult);
+
+        $statusCode = curl_getinfo($this->curlStreamedHandleResult, CURLINFO_HTTP_CODE);
+        if ($statusCode >= 400) {
+            // Re-open the connection in case of failure to start from a clean state
+            $this->closeCurlStreamedHandleResult();
+
+            if ($statusCode === 413) {
+                throw new ResponseTooBig;
+            }
+
+            try {
+                $error = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+                $errorMessage = "{$error['errorType']}: {$error['errorMessage']}";
+            } catch (JsonException) {
+                // In case we didn't get any JSON
+                $errorMessage = 'unknown error';
+            }
+
+            throw new Exception("Error $statusCode while calling the Lambda runtime API: $errorMessage");
+        }
+    }
+
+    /**
+     * @param string[] $headers
+     * @throws Exception
+     * @throws ResponseTooBig
+     */
     private function postJson(string $url, mixed $data, array $headers = []): void
     {
         /** @noinspection JsonEncodingApiUsageInspection */
@@ -351,6 +452,13 @@ final class LambdaRuntime
     {
         if ($this->curlHandleResult !== null) {
             $this->curlHandleResult = null;
+        }
+    }
+
+    private function closeCurlStreamedHandleResult(): void
+    {
+        if ($this->curlStreamedHandleResult !== null) {
+            $this->curlStreamedHandleResult = null;
         }
     }
 
