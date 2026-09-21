@@ -11,13 +11,13 @@
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "@octokit/graphql": "^7.1.1",
-    "next": "^15.5.23",
+    "next": "^15.5.25",
     "next-plausible": "^3.12.5",
     "nextra": "^4.6.1",
     "nextra-theme-docs": "^4.6.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "sharp": "^0.32.6"
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.11",
