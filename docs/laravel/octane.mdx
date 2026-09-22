@@ -7,7 +7,7 @@ description: "Run Laravel with Octane on AWS Lambda using Bref."
 
 To run the HTTP application with [Laravel Octane](https://laravel.com/docs/octane) instead of PHP-FPM, change the following options in the `web` function:
 
-```yml
+```yml filename="serverless.yml" {3-4,6}
 functions:
     web:
         handler: Bref\LaravelBridge\Http\OctaneHandler
@@ -36,7 +36,7 @@ Keep the following details in mind:
 
 You can keep database connections persistent across requests to make your application even faster. To do so, set the `OCTANE_PERSIST_DATABASE_SESSIONS` environment variable:
 
-```yml
+```yml filename="serverless.yml" {7}
 functions:
     web:
         handler: Bref\LaravelBridge\Http\OctaneHandler

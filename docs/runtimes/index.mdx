@@ -20,7 +20,7 @@ Bref provides 3 PHP runtimes:
 
 These runtimes are used by the Laravel & Symfony framework integrations to run web applications, console/artisan commands, queues, and more.
 
-The runtimes are available as AWS Lambda layers that you can use (explained below). They are also published as Docker images so that you can run your applications locally (more on that later).
+The runtimes are available as AWS Lambda layers and as Docker images, [as explained below](#lambda-layers-or-docker-images).
 
 ### PHP-FPM runtime for web apps
 
@@ -57,6 +57,15 @@ This runtime lets you run CLI console commands on Lambda.
 For example, we can run the [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Laravel Artisan](https://laravel.com/docs/artisan).
 
 [Learn more about the Console runtime](./runtimes/console.mdx).
+
+## Lambda layers or Docker images?
+
+Bref runtimes are distributed in two forms:
+
+- **AWS Lambda layers**: this is the default. Your code is deployed as a zip archive and the Bref runtime is added to the function as a Lambda layer. This is what `runtime: php-84` does in `serverless.yml`, as explained in the [Usage](#usage) section below and in [Runtimes in detail](./runtimes/runtimes-details.mdx).
+- **Docker images**: the same runtimes are also published as Docker images (`bref/php-84`, `bref/php-84-dev`, etc.). Use them to [deploy container images to Lambda](./deploy/docker.mdx) instead of zip archives, or to [run your application locally](./local-development.mdx).
+
+If you are getting started, use Lambda layers: it is simpler and faster. Docker is useful when your code exceeds the 250MB limit or when you need custom system binaries.
 
 ## Usage
 
