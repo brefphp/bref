@@ -87,65 +87,59 @@ constructs:
 >
 > If you are not using the `website` construct, replace `${construct:website.url}` with your application's URL, or use `'*'` during development.
 
-How it works:
+The `bref/laravel-bridge` package provides everything else (update it to the latest version):
 
-1. Your frontend requests a presigned upload URL from your backend
-1. Your backend generates a temporary presigned URL using Laravel's Storage
-1. The frontend uploads the file directly to S3
-1. The frontend sends the S3 key back to your backend to save in the database
+1. A route (`/signed-upload-url`) that generates presigned upload URLs.
+1. A JavaScript helper that uploads the file directly to S3, with progress.
+1. The `UploadedToS3` validation rule to validate the uploaded file.
 
-**Backend** - Generate presigned URL:
+**Authorize uploads**: the route is protected by the `uploadFiles` gate. Define it in a service provider (for example `AppServiceProvider`):
 
-`temporaryUploadUrl` returns an array with the URL and the headers that must be forwarded to S3 (they contain the request signature):
+```php filename="app/Providers/AppServiceProvider.php"
+use Illuminate\Support\Facades\Gate;
 
-```php
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+// Allow all authenticated users to upload files
+Gate::define('uploadFiles', fn (User $user) => true);
+```
 
-public function presignedUploadUrl(): JsonResponse
+**Frontend**: the package ships a JavaScript helper (`bref-upload.js`), it has no dependency and works with any framework. Either import it from the Composer package, so that it always matches the installed version of `bref/laravel-bridge`, by adding an alias in `vite.config.js`:
+
+```js filename="vite.config.js"
+import path from 'path';
+
+export default defineConfig({
+    // ...
+    resolve: {
+        alias: {
+            'bref-upload': path.resolve('vendor/bref/laravel-bridge/resources/js/bref-upload.js'),
+        },
+    },
+});
+```
+
+TypeScript applications also need the mapping in `tsconfig.json`, without the `.js` extension so that the type declarations (`bref-upload.d.ts`) are found:
+
+```json filename="tsconfig.json"
 {
-    $key = 'tmp/' . Str::uuid() . '.pdf';
-
-    // Generate a presigned PUT URL valid for 15 minutes
-    $uploadUrl = Storage::temporaryUploadUrl($key, now()->addMinutes(15), [
-        // Optional: we restrict to PDF files here
-        'ContentType' => 'application/pdf',
-    ]);
-
-    // PSR-7 headers are string[] values and include Host, which browsers forbid
-    $headers = collect($uploadUrl['headers'])
-        ->except(['Host'])
-        ->map(fn (array $values): string => implode(', ', $values))
-        ->all();
-
-    return response()->json([
-        'url' => $uploadUrl['url'],
-        'headers' => $headers,
-        'key' => $key,
-    ]);
+    "compilerOptions": {
+        "paths": {
+            "bref-upload": ["./vendor/bref/laravel-bridge/resources/js/bref-upload"]
+        }
+    }
 }
 ```
 
-**Frontend** - Upload to S3:
+Or copy it into your application with `php artisan vendor:publish --tag=bref-upload` (it is copied to `resources/js/bref-upload.js` along with its type declarations, that copy will not change when the package is updated) and import it with `import { upload } from './bref-upload';` instead.
 
 ```js
-// 1. Get presigned URL from your backend
-const { url, headers, key } = await fetch('/api/presigned-upload-url', {
-    method: 'POST',
-    headers: { 'X-CSRF-TOKEN': csrfToken },
-}).then(r => r.json());
+import { upload } from 'bref-upload';
 
-// 2. Upload directly to S3, forwarding the presigned headers
-await fetch(url, {
-    method: 'PUT',
-    body: file,
-    headers: {
-        'Content-Type': file.type,
-        ...headers,
-    },
+// 1. Get a presigned URL from the backend and upload the file directly to S3
+const { key } = await upload(file, {
+    progress: (ratio) => console.log(`${Math.round(ratio * 100)}%`),
 });
 
-// 3. Send the S3 key to your backend (via a form field, API call, etc.)
+// 2. Send the S3 key to your backend (via a form field, API call, etc.)
 await fetch('/api/documents', {
     method: 'POST',
     headers: {
@@ -156,22 +150,115 @@ await fetch('/api/documents', {
 });
 ```
 
-**Backend** - Move file to final location:
+**With Inertia**: upload the file as soon as it is selected, keep the returned key in the form, and submit the form as usual. The server validation error on the key shows up like any other field error. Here is a Vue example (the React version is the same, with `useForm` from `@inertiajs/react`):
+
+```vue filename="resources/js/Pages/Documents/Create.vue"
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { upload } from 'bref-upload';
+
+const form = useForm({
+    title: '',
+    file_key: null,
+    file_name: null,
+});
+const uploading = ref(false);
+const progress = ref(0);
+const uploadError = ref(null);
+
+async function onFileSelected(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    uploading.value = true;
+    uploadError.value = null;
+    try {
+        // Uploads directly to S3, the Laravel application only receives the key
+        const { key } = await upload(file, {
+            progress: (ratio) => (progress.value = Math.round(ratio * 100)),
+        });
+        form.file_key = key;
+        form.file_name = file.name;
+    } catch (error) {
+        uploadError.value = 'The upload failed, please try again.';
+    } finally {
+        uploading.value = false;
+    }
+}
+</script>
+
+<template>
+    <form @submit.prevent="form.post('/documents')">
+        <input v-model="form.title" type="text" />
+
+        <input type="file" accept=".pdf" :disabled="uploading" @change="onFileSelected" />
+        <span v-if="uploading">Uploading… {{ progress }}%</span>
+        <span v-else-if="form.file_name">{{ form.file_name }}</span>
+        <span v-if="uploadError || form.errors.file_key">{{ uploadError || form.errors.file_key }}</span>
+
+        <!-- Block the submission while the file is uploading -->
+        <button type="submit" :disabled="uploading || form.processing">Save</button>
+    </form>
+</template>
+```
+
+**Backend**: validate the key and copy the file to its final location:
 
 ```php
+use Bref\LaravelBridge\Upload\UploadedToS3;
+use Illuminate\Support\Facades\Storage;
+
 public function store(Request $request)
 {
     $validated = $request->validate([
-        'file_key' => 'required|string',
+        // Checks that the file was uploaded by the current user, exists, and matches the extension and size
+        // (pass `extensions: null` to accept any file type)
+        'file_key' => ['required', new UploadedToS3(extensions: ['pdf'], maxSize: 10 * 1024 * 1024)],
     ]);
 
-    // Move from temporary location to final location
+    // Copy from the temporary location to the final location
     $finalPath = "documents/{$document->id}.pdf";
-    Storage::move($validated['file_key'], $finalPath);
+    Storage::copy($validated['file_key'], $finalPath);
 
     // Save the final path in the database
     $document->update(['file_path' => $finalPath]);
 }
+```
+
+There is no need to delete the temporary file: the lifecycle rule configured above removes everything under `tmp/` after one day.
+
+`upload()` resolves with `{ uuid, key, bucket, url, headers, extension }` and rejects with an `UploadError` whose `status` property contains the HTTP status code. It accepts the following options:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `url` | `/signed-upload-url` | The route returning presigned URLs |
+| `contentType` | `file.type` | The MIME type of the file |
+| `progress` | | Callback receiving the upload progress, from 0 to 1 |
+| `headers` | `{}` | Extra headers for the request to the backend route (e.g. `Authorization`) |
+| `csrfToken` | | The CSRF token, sent as `X-CSRF-TOKEN`. By default the `XSRF-TOKEN` cookie set by Laravel is sent as `X-XSRF-TOKEN` (like axios and Inertia do), or else the `<meta name="csrf-token">` tag is used |
+| `signal` | | An `AbortSignal` to cancel the upload |
+| `httpClient` | | An axios-compatible client (e.g. `axios`) to use instead of `fetch`, like `Vapor.store()`. The client then handles CSRF and authentication |
+
+Files are uploaded under `tmp/{user id}/` (the prefix cleaned up by the lifecycle rule above), so that a user cannot reference another user's upload. To allow uploads from guests (for example a public form), remove the `auth` middleware in the configuration below and accept a nullable user in the gate (`fn (?User $user) => true`): guest uploads are stored under `tmp/` directly.
+
+The feature can be configured in the `uploads` section of `config/bref.php` (`php artisan vendor:publish --tag=bref-config`):
+
+```php filename="config/bref.php"
+'uploads' => [
+    // Route that returns presigned upload URLs. Set to null to disable the feature.
+    'route' => '/signed-upload-url',
+    // To allow uploads from guests, remove `auth` and accept a nullable user in the `uploadFiles` gate
+    'middleware' => ['web', 'auth'],
+    // Disk used for uploads (null = default disk). Must be an S3 disk.
+    'disk' => null,
+    // Prefix of temporary uploads. Configure an S3 lifecycle rule to expire this prefix.
+    'prefix' => 'tmp',
+    // Validity of presigned URLs, in minutes
+    'expires' => 5,
+    // Maximum size in bytes, checked by the validation rule (null = no limit)
+    'max_size' => 50 * 1024 * 1024, // 50 MB
+],
 ```
 
 ## Downloading files
