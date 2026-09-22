@@ -120,11 +120,58 @@ extension=soap
 
 ### Extra extensions
 
-Due to space limitations in AWS Lambda, Bref runtimes cannot include every possible PHP extension. These additional PHP extensions can be included as separate AWS Lambda layers.
+Due to space limitations in AWS Lambda, Bref runtimes cannot include every possible PHP extension. These additional PHP extensions are provided by the [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions) project, as separate AWS Lambda layers and Docker images.
 
-All extra PHP extensions are found in [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions).
+The most popular extra extensions are:
 
-Contributions to add more PHP extensions are welcome.
+- **[gd](https://github.com/brefphp/extra-php-extensions/tree/master/layers/gd)** - image processing with the GD library
+- **[imagick](https://github.com/brefphp/extra-php-extensions/tree/master/layers/imagick)** - image manipulation with ImageMagick
+- **[gmp](https://github.com/brefphp/extra-php-extensions/tree/master/layers/gmp)** - GNU Multiple Precision arithmetic
+- **[mongodb](https://github.com/brefphp/extra-php-extensions/tree/master/layers/mongodb)** - MongoDB driver
+- **[sqlsrv](https://github.com/brefphp/extra-php-extensions/tree/master/layers/sqlsrv)** - Microsoft SQL Server driver (pdo_sqlsrv)
+- **[memcached](https://github.com/brefphp/extra-php-extensions/tree/master/layers/memcached)** - Memcached client
+- **[rdkafka](https://github.com/brefphp/extra-php-extensions/tree/master/layers/rdkafka)** - Apache Kafka client (librdkafka)
+- **[amqp](https://github.com/brefphp/extra-php-extensions/tree/master/layers/amqp)** - RabbitMQ and AMQP client
+- **[grpc](https://github.com/brefphp/extra-php-extensions/tree/master/layers/grpc)** and **[protobuf](https://github.com/brefphp/extra-php-extensions/tree/master/layers/protobuf)** - gRPC and Protocol Buffers
+- **[ldap](https://github.com/brefphp/extra-php-extensions/tree/master/layers/ldap)** - LDAP directory access
+- **[imap](https://github.com/brefphp/extra-php-extensions/tree/master/layers/imap)** - IMAP mail access
+- **[xdebug](https://github.com/brefphp/extra-php-extensions/tree/master/layers/xdebug)** - debugging and profiling
+- **[pcov](https://github.com/brefphp/extra-php-extensions/tree/master/layers/pcov)** - code coverage
+- **[blackfire](https://github.com/brefphp/extra-php-extensions/tree/master/layers/blackfire)**, **[tideways](https://github.com/brefphp/extra-php-extensions/tree/master/layers/tideways)**, **[datadog](https://github.com/brefphp/extra-php-extensions/tree/master/layers/datadog)**, **[newrelic](https://github.com/brefphp/extra-php-extensions/tree/master/layers/newrelic)** - APM and profiling agents
+
+And many more: [see the full list of extra extensions](https://github.com/brefphp/extra-php-extensions#available-layers). Contributions to add more PHP extensions are welcome.
+
+> [!NOTE]
+>
+> Bref extra extensions are contributed by the community. Feel free to contribute to the repository or get in touch for [Bref support](/support) if you want to ensure a specific extension is available and maintained.
+
+#### Using extra extensions with Lambda layers
+
+Install the `bref/extra-php-extensions` package, add its plugin to `serverless.yml` and reference the layer of each extension you need:
+
+```bash
+composer require bref/extra-php-extensions
+```
+
+```yml filename="serverless.yml" {3,10-11}
+plugins:
+    - ./vendor/bref/bref
+    - ./vendor/bref/extra-php-extensions
+
+functions:
+    api:
+        handler: public/index.php
+        runtime: php-84-fpm
+        layers:
+            - ${bref-extra:gd-php-84}
+            - ${bref-extra:imagick-php-84}
+```
+
+Keep in mind that AWS Lambda allows at most 5 layers per function, and that extra extensions are not available for ARM (`arm64`) yet.
+
+#### Using extra extensions with Docker
+
+If you [deploy using container images](../deploy/docker.mdx), each extra extension is also available as a Docker image (`bref/extra-gd-php-84`, `bref/extra-imagick-php-84`, etc.) that you can copy into your own image. [Read the "Extra PHP extensions" section of the Docker guide](../deploy/docker.mdx#extra-php-extensions).
 
 ### Custom extensions
 
