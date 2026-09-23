@@ -83,17 +83,35 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
 
 ### Reading logs
 
-You can view, search and tail logs in the [Bref Cloud](https://bref.sh/cloud) dashboard:
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        You can view, search and tail logs in the [Bref Cloud](https://bref.sh/cloud) dashboard:
 
-<a title="Bref Cloud" href="/cloud"><Image className="mt-6 border border-gray-200 rounded-lg shadow hover:shadow-lg" src={brefCloudLogs} /></a>
+        <a title="Bref Cloud" href="/cloud"><Image className="mt-6 border border-gray-200 rounded-lg shadow hover:shadow-lg" src={brefCloudLogs} /></a>
 
-If you don't use Bref Cloud, you can view logs in the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:).
+        You can also search logs from the terminal with `bref logs`:
 
-You can also use `serverless logs` to view them in the terminal:
+        ```bash
+        # Logs of the last hour
+        bref logs --env=prod
+        # Logs of the last day of the "web" function that contain "payment" and "failed"
+        bref logs --env=prod --since=1d --function=web --search="payment failed"
+        # Between two dates (UTC), with the stack traces of exceptions
+        bref logs --env=prod --since="2026-09-23 14:00" --until="2026-09-23 15:00" --full
+        ```
 
-```bash
-serverless logs -f <function-name>
+        `bref logs` shows one line per log entry. It hides the lines that Lambda and PHP-FPM write on every invocation (`START`, `END`, `REPORT`…), use `--all` to include them.
 
-# Tail logs:
-serverless logs -f <function-name> --tail
-```
+        Run `bref logs --help` for all the options. Add `--json` for machine-readable output. To use the command outside the project directory, set the application with `--app` and `--team`. `bref logs` is also designed for [AI agents](/docs/cloud#ai-agents).
+    </Tabs.Tab>
+    <Tabs.Tab>
+        You can view logs in the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:), or in the terminal with `serverless logs`:
+
+        ```bash
+        serverless logs -f <function-name>
+
+        # Tail logs:
+        serverless logs -f <function-name> --tail
+        ```
+    </Tabs.Tab>
+</Tabs>
