@@ -23,12 +23,12 @@ To get started, [create a Bref Cloud account](https://bref.cloud/register). Ther
 
 - **One command**: `bref deploy` from your machine or [from GitHub Actions](./cloud-deploy.mdx). No AWS credentials to create, distribute or rotate: Bref Cloud generates [short-lived credentials](./cloud-security.mdx) for every deployment.
 - **Databases and networks**: create MySQL or PostgreSQL databases (fixed instances, or serverless databases that scale and pause on their own) and private networks in a few clicks.
-- **Environments**: manage dev, staging and production across AWS accounts and regions from one dashboard, with the history of every deployment.
+- **Environments**: manage dev, staging and production across AWS accounts and regions from one dashboard, with the history of every deployment (also available from the terminal with [`bref deployments`](./cloud-deploy.mdx#deployment-history)).
 
 ### Monitor
 
 - **Overview**: a diagram of each environment's architecture with live metrics on every component.
-- **Logs**: search logs or tail them in real time.
+- **Logs**: search logs or tail them in real time in the dashboard, or search them from the terminal with [`bref logs`](/docs/environment/logs#reading-logs).
 - **Metrics**: Lambda invocations, concurrency, duration and errors, API Gateway, queues and dead-letter queues.
 - **Traces**: a trace explorer optimized for PHP applications, with a free [Bref X-Ray](/xray) license included. See database queries, HTTP calls and AWS calls inside each invocation, and filter traces by route, job, command, cold start, or your own annotations, over up to 30 days.
 - **Performance**: the slowest database queries, the latency of every route, and the slowest jobs of your application, computed from the last 30 days of traces.
@@ -42,6 +42,12 @@ To get started, [create a Bref Cloud account](https://bref.cloud/register). Ther
 - **Commands**: run console commands (Artisan, Symfony console…) on a deployed environment from the dashboard.
 - **Secrets**: create and manage secrets for all your applications.
 - **Files**: browse, upload, rename and delete files in S3 buckets.
+
+### AI agents
+
+AI agents like Claude Code, Cursor or Codex can read the logs and the deployments of your applications with the `bref` CLI: `bref logs`, `bref deployments`, `bref deployments:show` and `bref deployments:logs`. For example, an agent can look for the error behind a bug report, or find why a deployment failed.
+
+The CLI detects when an agent runs it and adapts its output: no colors or spinners, logs as compact text, and deployments as JSON.
 
 ### Team and security
 

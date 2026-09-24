@@ -77,6 +77,25 @@ bref deploy
 bref deploy --env production
 ```
 
+## Deployment history
+
+Bref Cloud keeps the history of the deployments of every environment, with their logs. You can see it in the dashboard, or from the terminal:
+
+```shell
+# The latest deployments of an environment
+bref deployments --env=production
+# The status, git commit, author and error of the latest deployment
+bref deployments:show --env=production
+# The logs of the latest deployment, for example to find why it failed
+bref deployments:logs --env=production
+
+# A specific deployment, by the ID that `bref deployments` shows
+bref deployments:show 42
+bref deployments:logs 42
+```
+
+When given a deployment ID, these commands work from any directory. Otherwise, they need the project's configuration file, or the `--app` and `--team` options. Add `--json` for machine-readable output.
+
 ## Deploying from GitHub Actions
 
 You can also deploy your application using GitHub Actions.
