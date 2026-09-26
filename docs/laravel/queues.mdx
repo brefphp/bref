@@ -85,7 +85,7 @@ SendWelcomeEmail::dispatch($user)->onQueue('emails');
 
 Add a `queue` construct for each queue in `serverless.yml`, and set `SQS_PREFIX`:
 
-```yml filename="serverless.yml"
+```yml filename="serverless.yml" {8-9,19-26}
 provider:
     # ...
     environment:
@@ -118,7 +118,7 @@ All workers use the same `QueueHandler` class, without extra configuration: a wo
 
 Lift names SQS queues `<stack>-<construct>`, for example `my-app-prod-emails`. Send the jobs of the `emails` queue to that SQS queue with [`Queue::forward()`](https://laravel.com/docs/queues#queue-routing) (Laravel 13.26 and later, see [below](#before-laravel-1326) for older versions), in `AppServiceProvider::boot()`:
 
-```php
+```php filename="app/Providers/AppServiceProvider.php"
 use Illuminate\Support\Facades\Queue;
 
 if ($stack = config('bref.stack_name')) {
@@ -134,7 +134,7 @@ For a FIFO queue, for example an `orders` construct with `fifo: true`, forward `
 
 On Laravel 13 and later, [`Queue::route()`](https://laravel.com/docs/queues#queue-routing) sends all the jobs of a class to a queue, without calling `onQueue()` on each dispatch:
 
-```php
+```php filename="app/Providers/AppServiceProvider.php"
 Queue::route(SendWelcomeEmail::class, queue: 'emails');
 ```
 
@@ -146,13 +146,13 @@ Jobs stay in their queue: a job that throws an exception is retried in the same 
 
 `Queue::forward()` is available since Laravel 13.26. On older versions, including Laravel 12, pass the URL of each queue to Laravel:
 
-```yml filename="serverless.yml"
+```yml filename="serverless.yml" {3}
 provider:
     environment:
         SQS_QUEUE_EMAILS: ${construct:emails.queueUrl}
 ```
 
-```php filename="config/queue.php"
+```php filename="config/queue.php" {4-7}
 return [
     // ...
 
