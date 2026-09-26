@@ -218,7 +218,7 @@ Vapor environments (`production`, `staging`) become Bref environments: `bref dep
 | `timeout`, `cli-timeout`, `queue-timeout` | `timeout` on each function (max 28 seconds for `web`, because of API Gateway). [Function configuration](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#configuration) |
 | `concurrency` | `reservedConcurrency` on the `web` function. [Function configuration](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#configuration) |
 | `queue-concurrency` | `maxConcurrency` on the queue construct. [Lift queue documentation](https://github.com/getlift/lift/blob/master/docs/queue.md#max-concurrency) |
-| `queues` | One `queue` construct per queue. [Laravel Queues](./queues.mdx) |
+| `queues` | One `queue` construct per queue, with `maxConcurrency` for a per-queue concurrency (`- emails: 10`). [Multiple queues](./queues.mdx#multiple-queues) |
 | `scheduler: true` | `schedule` event on the `artisan` function. [Cron tasks](../use-cases/cron.mdx) |
 | `warm` | `warmer` schedule event, or provisioned concurrency. [Cold starts](../environment/cold-starts.mdx) |
 | `database`, `cache`, `network`, `subnets`, `security-groups` | Environment variables and `provider.vpc`. [Database](#database) |
@@ -254,7 +254,7 @@ Vapor stores environment variables and secrets in its dashboard and injects them
 
 Go through the `.env.production` file pulled from Vapor and sort the variables into these two groups. **Keep the same `APP_KEY`**: it encrypts sessions, cookies and any encrypted data in your database.
 
-Drop the variables that Vapor injected or that only make sense for Vapor: `VAPOR_*`, `ASSET_URL`, `MIX_URL`, `SQS_PREFIX`, `DYNAMODB_CACHE_TABLE` (unless sessions are stored in DynamoDB, see [Cache and sessions](#cache-and-sessions)). Replace `SQS_QUEUE` with the URL of the new queue (see [Queues](#queues)).
+Drop the variables that Vapor injected or that only make sense for Vapor: `VAPOR_*`, `ASSET_URL`, `MIX_URL`, `SQS_PREFIX`, `SQS_SUFFIX`, `DYNAMODB_CACHE_TABLE` (unless sessions are stored in DynamoDB, see [Cache and sessions](#cache-and-sessions)). Replace `SQS_QUEUE` with the URL of the new queue, and with several queues, set `SQS_PREFIX` in `serverless.yml` (see [Queues](#queues)).
 
 **Without Bref Cloud**: create the SSM parameters with the AWS CLI or the AWS console, the `${ssm:...}` syntax works the same. [Read more about secrets](../environment/variables.mdx#secrets).
 
@@ -391,7 +391,7 @@ constructs:
         maxConcurrency: 50 # vapor.yml `queue-concurrency`
 ```
 
-Declare one construct per queue listed in `vapor.yml`, and `fifo: true` for FIFO queues ([Lift queue documentation](https://github.com/getlift/lift/blob/master/docs/queue.md)).
+With several queues in `vapor.yml`, declare one construct per queue, and forward the queue names used in your code to them with `Queue::forward()`, as explained in [Multiple queues](./queues.mdx#multiple-queues). Vapor processes all queues in a single function, Bref creates one worker function per queue. The code that dispatches jobs by name (`onQueue('emails')`) does not change, and `SQS_SUFFIX` is no longer needed.
 
 All Laravel Queues features work as usual: retries, `failed_jobs`, `queue:retry`, etc. The `vapor:work` command and the Vapor worker are no longer involved. Laravel Horizon is not applicable on Lambda, same as on Vapor.
 
