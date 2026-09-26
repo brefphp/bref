@@ -21,7 +21,7 @@ Then install the Lift plugin:
 npm install --save-dev serverless-lift
 ```
 
-Make sure `serverless-lift` is listed in the `plugins` section of `serverless.yml` (the file generated for Laravel already includes it). Then use [the `storage` construct](https://github.com/getlift/lift/blob/master/docs/storage.md) in `serverless.yml`:
+Enable it in the `plugins` section of `serverless.yml` (in the file generated for Laravel, uncomment the `- serverless-lift` line), then use [the `storage` construct](https://github.com/getlift/lift/blob/master/docs/storage.md) in `serverless.yml`:
 
 ```yaml filename="serverless.yml"
 provider:
