@@ -14,10 +14,10 @@ To make things simpler, we will use the [Serverless Lift](https://github.com/get
 First install the Lift plugin:
 
 ```bash
-serverless plugin install -n serverless-lift
+npm install --save-dev serverless-lift
 ```
 
-Then use [the Queue construct](https://github.com/getlift/lift/blob/master/docs/queue.md) in `serverless.yml`:
+Enable it in the `plugins` section of `serverless.yml` (in the file generated for Laravel, uncomment the `- serverless-lift` line), then use [the Queue construct](https://github.com/getlift/lift/blob/master/docs/queue.md) in `serverless.yml`:
 
 ```yml filename="serverless.yml"
 provider:
@@ -59,6 +59,8 @@ That's it! Anytime a job is pushed to Laravel Queues, it will be sent to SQS, an
 When integrated with AWS Lambda, SQS has a built-in retry mechanism and storage for failed messages. These features work slightly differently than Laravel Queues. The "Bref for Laravel" integration does **not** use these SQS features.
 
 Instead, "Bref for Laravel" makes all the features of Laravel Queues work out of the box, just like on any server. Read more in [the Laravel Queues documentation](https://laravel.com/docs/queues).
+
+Failed jobs are stored in the `failed_jobs` database table, like on any server. If your application has no database, set `QUEUE_FAILED_DRIVER: 'null'` in `provider.environment`: failed jobs are still logged, but not stored. Otherwise, storing the failed job fails as well, for example with `Database file at path [/var/task/database/database.sqlite] does not exist`.
 
 > [!TIP]
 >

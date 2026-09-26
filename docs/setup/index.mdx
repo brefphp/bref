@@ -35,11 +35,15 @@ To use Bref Cloud, you will need a [Bref Cloud](/cloud) account, an AWS account,
 
     Bref Cloud deploys your applications to your AWS account.
 
-    To create an AWS account, **go to [aws.amazon.com](https://aws.amazon.com/) and click *Sign up***. Bref Cloud will guide you through the process of creating an AWS account and connecting it to Bref Cloud.
+    To create an AWS account, **use the [AWS sign-up form](https://signin.aws.amazon.com/signup?request_type=register)** (*Sign up for AWS (advanced)*, the form that asks for a root user email address and an AWS account name). Bref Cloud will guide you through the process of creating an AWS account and connecting it to Bref Cloud.
+
+    > [!WARNING]
+    >
+    > Do not use *Sign up for AWS (new)*, where you log in with Google, GitHub, Apple or Amazon. It creates an "AWS project": a restricted AWS account that is not suited for production applications, and that Bref Cloud cannot connect to. [Learn why](#aws-projects).
 
     If you want to learn more about how Bref Cloud connects securely to your AWS account, read the ["Security" documentation](./cloud-security.mdx).
 
-    AWS has a generous free tier that will usually allow you to deploy your first serverless applications for free.
+    AWS has a generous free tier that will usually allow you to deploy your first serverless applications for free. If you choose the *Free plan* when signing up, AWS closes the account after 6 months (or once the free credits are used) unless you upgrade it to the *Paid plan*: upgrade before running production applications.
 
     ### Bref CLI
 
@@ -77,9 +81,13 @@ To use Bref with the Serverless CLI, you will need an AWS account, the `serverle
 
     ### AWS account
 
-    Bref deploys your applications to your AWS account. To create one, **go to [aws.amazon.com](https://aws.amazon.com/) and click *Sign up***.
+    Bref deploys your applications to your AWS account. To create one, **use the [AWS sign-up form](https://signin.aws.amazon.com/signup?request_type=register)** (*Sign up for AWS (advanced)*, the form that asks for a root user email address and an AWS account name).
 
-    AWS has a generous free tier that will usually allow you to deploy your first serverless applications for free.
+    > [!WARNING]
+    >
+    > Do not use *Sign up for AWS (new)*, where you log in with Google, GitHub, Apple or Amazon. It creates an "AWS project": a restricted AWS account that is not suited for production applications. [Learn why](#aws-projects).
+
+    AWS has a generous free tier that will usually allow you to deploy your first serverless applications for free. If you choose the *Free plan* when signing up, AWS closes the account after 6 months (or once the free credits are used) unless you upgrade it to the *Paid plan*: upgrade before running production applications.
 
     ### Serverless CLI
 
@@ -100,6 +108,8 @@ To use Bref with the Serverless CLI, you will need an AWS account, the `serverle
     > [!NOTE]
     >
     > If you have already set up AWS credentials on your machine (for example if you use the `aws` CLI), you can skip this step.
+    >
+    > If those credentials are stored in a named profile (for example created with `aws login --profile my-project`), select it with the `AWS_PROFILE` environment variable (`export AWS_PROFILE=my-project`) or with the `--aws-profile` option of the `serverless` CLI. Otherwise, `serverless deploy` fails with `AWS provider credentials not found`.
 
     - [Create AWS access keys](./setup/aws-keys.mdx)
 
@@ -132,3 +142,34 @@ That's it, you're ready to use Bref with the Serverless CLI!
 >
 > Bref is compatible with PHP 8.2 or greater.
 > If you are using PHP 8.0 or 8.1, Bref v2 (previous major version) will be installed instead.
+
+## AWS projects
+
+**Do not use AWS projects: create AWS accounts with *Sign up for AWS (advanced)*.**
+
+AWS offers two ways to sign up:
+
+- *Sign up for AWS (advanced)*: the [sign-up form](https://signin.aws.amazon.com/signup?request_type=register) that asks for a root user email address and an AWS account name. It creates a standard AWS account that you fully control.
+- *Sign up for AWS (new)*: you log in with Google, GitHub, Apple or Amazon, and AWS creates a "project". A project is an AWS account in an AWS Organization that AWS manages on your behalf, with restrictions that you cannot change.
+
+Projects make the first steps on AWS easier, but they do not fit how companies run applications in production. Companies run production in an AWS Organization that they control, with separate AWS accounts for production, staging and development, their own security policies, and permissions for each team (see [AWS best practices](https://docs.aws.amazon.com/whitepapers/latest/organizing-your-aws-environment/organizing-your-aws-environment.html)). In a project:
+
+- AWS manages the security policies of the organization (resource control policies and service control policies): you cannot define your own.
+- Every team member gets administrator access: permissions cannot be restricted per person or per team.
+- Services that access your AWS account through a cross-account IAM role do not work: monitoring, security or deployment services, including [Bref Cloud](/cloud). AWS denies access to projects from AWS accounts outside of their organization.
+- CI/CD pipelines cannot use OIDC federation to deploy without long-lived access keys (for example from GitHub Actions): AWS denies the creation of identity providers.
+- Applications can only run in one AWS region, chosen by AWS based on your country, and only a subset of AWS services is available.
+- With a spend limit, AWS blocks the creation of resources when the project gets close to the limit, then stops the application once the limit is reached (Lambda invocations are blocked).
+
+AWS gives the same advice: do not use *Sign up for AWS (new)* if you need your own policies, fine-grained permissions, the full set of AWS services, or if you have regulated workloads (see [Compare sign-up options](https://docs.aws.amazon.com/accounts/latest/reference/sign-up-for-aws.html)).
+
+Leaving these restrictions later requires "activating advanced features" in AWS Settings, which cannot be undone, and then removing the policies set by AWS yourself. Starting with a standard AWS account avoids that migration.
+
+### Deploying to an existing AWS project
+
+Bref Cloud cannot connect to AWS projects: AWS shows "Region United States (N. Virginia) unavailable" when creating the connection, or Bref Cloud reports that it is not authorized to assume its role.
+
+With the Serverless CLI, deployments work with the following changes:
+
+- Set `region` in `serverless.yml` to the region of your project, shown in [AWS Settings](https://settings.aws.com) (in the "Additional info" of the project). The examples in this documentation use `us-east-1`: deploying to a region other than the project's fails with an error ending with `with an explicit deny in a service control policy`.
+- AWS credentials are provided by `aws login`, in a named profile (for example `aws login --profile my-project`). Select that profile when deploying: `export AWS_PROFILE=my-project`. These sessions expire after 12 hours: run `aws login --profile my-project` again to renew them.
