@@ -2,6 +2,7 @@
 
 namespace Bref\FpmRuntime;
 
+use Bref\Bref;
 use Bref\Context\Context;
 use Bref\Event\Http\HttpHandler;
 use Bref\Event\Http\HttpRequestEvent;
@@ -10,6 +11,7 @@ use Bref\FpmRuntime\FastCgi\FastCgiCommunicationFailed;
 use Bref\FpmRuntime\FastCgi\FastCgiRequest;
 use Bref\FpmRuntime\FastCgi\Timeout;
 use Exception;
+use Generator;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Exceptions\TimedoutException;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
@@ -129,23 +131,160 @@ final class FpmHandler extends HttpHandler
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
      *
+     * When the Lambda function is configured for streaming responses (`BREF_STREAMED_MODE=1`),
+     * the response body is streamed as PHP-FPM writes it.
+     *
      * @throws FastCgiCommunicationFailed
      * @throws Timeout
      * @throws Exception
      */
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
-        $request = $this->eventToFastCgiRequest($event, $context);
+        $isHttpApiEvent = array_key_exists('http', $event->getRequestContext());
+        $streamingEnabled = Bref::isRunningInStreamingMode()
+            && ! (bool) getenv('BREF_STREAM_NO_FIBER')
+            // Streaming responses are only supported for API Gateway HTTP APIs (not ALB nor REST APIs)
+            && $isHttpApiEvent;
 
-        // The script will timeout 1 second before the remaining time
-        // to allow some time for Bref/PHP-FPM to recover and cleanup
-        $margin = 1000;
-        $timeoutDelayInMs = max(1000, $context->getRemainingTimeInMillis() - $margin);
+        if ($streamingEnabled) {
+            return $this->handleStreamedRequest($event, $context);
+        }
+
+        $response = $this->sendRequestToFastCgi($event, $context);
+
+        if ($response === null) {
+            // Cannot happen: reading a FastCGI response always returns one
+            throw new RuntimeException('PHP-FPM returned no response');
+        }
+
+        $responseHeaders = $this->getResponseHeaders($response);
+
+        // Extract the status code
+        if (isset($responseHeaders['status'])) {
+            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
+            unset($responseHeaders['status']);
+        }
+
+        $this->ensureStillRunning();
+
+        return new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
+    }
+
+    /**
+     * Stream the response of PHP-FPM back to Lambda as PHP-FPM writes it.
+     *
+     * The response body is a generator that yields the FastCGI STDOUT chunks as they
+     * are received. We use a Fiber to suspend the socket reading loop of the FastCGI
+     * client whenever a chunk arrives, and the generator resumes the Fiber each time
+     * Lambda asks for more data.
+     *
+     * @throws FastCgiCommunicationFailed
+     * @throws Timeout
+     * @throws Exception
+     */
+    private function handleStreamedRequest(HttpRequestEvent $event, Context $context): HttpResponse
+    {
+        $responseFiber = new \Fiber(function () use ($event, $context): void {
+            $this->sendRequestToFastCgi(
+                $event,
+                $context,
+                function (string $stdOut = '', string $stdErr = ''): void {
+                    if ($stdOut !== '') {
+                        \Fiber::suspend(['stdout', $stdOut]);
+                    } elseif ($stdErr !== '') {
+                        \Fiber::suspend(['stderr', $stdErr]);
+                    }
+                },
+                false
+            );
+        });
+
+        // Read chunks from the fiber until we have the full HTTP headers, so that we can
+        // return the status code and headers along with the streamed body
+        $outputAccumulator = '';
+        $headerEnd = null;
+        while ($headerEnd === null && ! $responseFiber->isTerminated()) {
+            [$chunkType, $fiberChunk] = $this->nextFiberChunk($responseFiber);
+
+            if ($fiberChunk === '') {
+                continue;
+            }
+
+            if ($chunkType === 'stderr') {
+                fwrite(STDERR, $fiberChunk);
+                continue;
+            }
+
+            $outputAccumulator .= $fiberChunk;
+
+            $position = strpos($outputAccumulator, "\r\n\r\n");
+            if ($position !== false) {
+                $headerEnd = $position;
+            }
+        }
+
+        if ($headerEnd !== null) {
+            $headerBlock = substr($outputAccumulator, 0, $headerEnd);
+            $bodyStart = substr($outputAccumulator, $headerEnd + 4);
+        } else {
+            $headerBlock = $outputAccumulator;
+            $bodyStart = '';
+        }
+
+        [$status, $responseHeaders] = $this->parseResponseHeaders($headerBlock);
+
+        $this->ensureStillRunning();
+
+        return new HttpResponse(
+            (function () use ($responseFiber, $bodyStart): Generator {
+                if ($bodyStart !== '') {
+                    yield $bodyStart;
+                }
+
+                while (! $responseFiber->isTerminated()) {
+                    [$chunkType, $fiberChunk] = $this->nextFiberChunk($responseFiber);
+
+                    if ($chunkType === 'stderr') {
+                        fwrite(STDERR, $fiberChunk);
+                    } elseif ($fiberChunk !== '') {
+                        // We must never yield an empty string: it would be interpreted
+                        // as the end of the streamed response body
+                        yield $fiberChunk;
+                    }
+                }
+            })(),
+            $responseHeaders,
+            $status
+        );
+    }
+
+    /**
+     * Send the FastCGI request to PHP-FPM and read its response.
+     *
+     * When a $passThroughCallback is provided and $readResponse is false, the response is
+     * not accumulated: the callback is invoked with each chunk of data as it is received.
+     *
+     * @throws FastCgiCommunicationFailed
+     * @throws Timeout
+     */
+    private function sendRequestToFastCgi(
+        HttpRequestEvent $event,
+        Context $context,
+        ?callable $passThroughCallback = null,
+        bool $readResponse = true,
+    ): ?ProvidesResponseData {
+        $request = $this->eventToFastCgiRequest($event, $context, $passThroughCallback);
 
         try {
             $socketId = $this->client->sendAsyncRequest($this->connection, $request);
 
-            $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
+            if ($readResponse) {
+                return $this->client->readResponse($socketId, $this->getRequestTimeoutInMs($context));
+            }
+
+            $this->client->waitForResponse($socketId, $this->getRequestTimeoutInMs($context));
+
+            return null;
         } catch (TimedoutException) {
             $invocationId = $context->getAwsRequestId();
             echo "$invocationId The PHP script timed out. Bref will now restart PHP-FPM to start from a clean slate and flush the PHP logs.\nTimeouts can happen for example when trying to connect to a remote API or database, if this happens continuously check for those.\nIf you are using a RDS database, read this: https://bref.sh/docs/environment/database.html#accessing-the-internet\n";
@@ -170,7 +309,7 @@ final class FpmHandler extends HttpHandler
             // - this is reported as a Lambda execution error ("error rate" metrics are accurate)
             // - the CloudWatch logs correctly reflect that an execution error occurred
             // - the 500 response is the same as if an exception happened in Bref
-            throw new Timeout($timeoutDelayInMs, $context->getAwsRequestId());
+            throw new Timeout($this->getRequestTimeoutInMs($context), $context->getAwsRequestId());
         } catch (Throwable $e) {
             printf(
                 "Error communicating with PHP-FPM to read the HTTP response. Bref will restart PHP-FPM now. Original exception message: %s %s\n",
@@ -184,18 +323,64 @@ final class FpmHandler extends HttpHandler
 
             throw new FastCgiCommunicationFailed;
         }
+    }
 
-        $responseHeaders = $this->getResponseHeaders($response);
+    private function getRequestTimeoutInMs(Context $context): int
+    {
+        // The script will timeout 1 second before the remaining time
+        // to allow some time for Bref/PHP-FPM to recover and cleanup
+        $margin = 1000;
 
-        // Extract the status code
-        if (isset($responseHeaders['status'])) {
-            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
-            unset($responseHeaders['status']);
+        return max(1000, $context->getRemainingTimeInMillis() - $margin);
+    }
+
+    /**
+     * Start or resume the fiber and return the next chunk it suspends with.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function nextFiberChunk(\Fiber $fiber): array
+    {
+        if ($fiber->isTerminated()) {
+            return ['', ''];
         }
 
-        $this->ensureStillRunning();
+        $result = $fiber->isStarted() || $fiber->isSuspended() ? $fiber->resume() : $fiber->start();
 
-        return new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
+        return is_array($result) ? $result : ['', ''];
+    }
+
+    /**
+     * Parse a raw FastCGI header block into a status code and a list of headers.
+     *
+     * @return array{0: int, 1: array<string, string>}
+     */
+    private function parseResponseHeaders(string $headerBlock): array
+    {
+        $status = 200;
+        $headers = [];
+
+        $normalized = str_replace(["\r\n", "\r"], "\n", $headerBlock);
+        foreach (explode("\n", $normalized) as $line) {
+            if (preg_match('/^Status:\s*(\d{3})/i', $line, $matches) === 1) {
+                $status = (int) $matches[1];
+                continue;
+            }
+
+            $separator = strpos($line, ':');
+            if ($separator === false) {
+                continue;
+            }
+
+            $name = strtolower(trim(substr($line, 0, $separator)));
+            $value = trim(substr($line, $separator + 1));
+
+            if ($name !== '') {
+                $headers[$name] = $value;
+            }
+        }
+
+        return [$status, $headers];
     }
 
     /**
@@ -240,7 +425,7 @@ final class FpmHandler extends HttpHandler
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(HttpRequestEvent $event, Context $context): ProvidesRequestData
+    private function eventToFastCgiRequest(HttpRequestEvent $event, Context $context, ?callable $passThroughCallback = null): ProvidesRequestData
     {
         $request = new FastCgiRequest($event->getMethod(), $this->handler, $event->getBody());
         $request->setRequestUri($event->getUri());
@@ -254,6 +439,10 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('QUERY_STRING', $event->getQueryString());
         $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext(), JSON_THROW_ON_ERROR));
+
+        if ($passThroughCallback !== null) {
+            $request->addPassThroughCallbacks($passThroughCallback);
+        }
 
         $contentType = $event->getContentType();
         if ($contentType) {

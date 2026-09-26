@@ -192,4 +192,42 @@ class HttpResponseTest extends TestCase
             'body' => '',
         ], $response->toApiGatewayFormatV2());
     }
+
+    public function test non streamed response with a generator body concatenates the chunks()
+    {
+        putenv('BREF_STREAMED_MODE=0');
+
+        $response = new HttpResponse($this->createBodyGenerator(), [
+            'Content-Type' => 'text/html; charset=utf-8',
+        ]);
+
+        self::assertEquals([
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => [
+                'Content-Type' => 'text/html; charset=utf-8',
+            ],
+            'body' => '<p>Hello world!</p>',
+        ], $response->toApiGatewayFormat());
+
+        $responseV2 = new HttpResponse($this->createBodyGenerator(), [
+            'Content-Type' => 'text/html; charset=utf-8',
+        ]);
+
+        self::assertEquals([
+            'cookies' => [],
+            'isBase64Encoded' => false,
+            'statusCode' => 200,
+            'headers' => [
+                'Content-Type' => 'text/html; charset=utf-8',
+            ],
+            'body' => '<p>Hello world!</p>',
+        ], $responseV2->toApiGatewayFormatV2());
+    }
+
+    private function createBodyGenerator(): \Generator
+    {
+        yield '<p>Hello ';
+        yield 'world!</p>';
+    }
 }

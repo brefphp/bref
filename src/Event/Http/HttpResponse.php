@@ -2,6 +2,9 @@
 
 namespace Bref\Event\Http;
 
+use Bref\Bref;
+use Generator;
+
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
  */
@@ -9,20 +12,21 @@ final class HttpResponse
 {
     private int $statusCode;
     private array $headers;
-    private string $body;
+    private string|\Generator $body;
 
     /**
      * @param array<string|string[]> $headers
      */
-    public function __construct(string $body, array $headers = [], int $statusCode = 200)
+    public function __construct(string|\Generator $body, array $headers = [], int $statusCode = 200)
     {
         $this->body = $body;
         $this->headers = $headers;
         $this->statusCode = $statusCode;
     }
 
-    public function toApiGatewayFormat(bool $multiHeaders = false, ?string $awsRequestId = null): array
+    public function toApiGatewayFormat(bool $multiHeaders = false, ?string $awsRequestId = null): array|\Generator
     {
+        $isStreamedMode = Bref::isRunningInStreamingMode();
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
         $headers = [];
@@ -49,19 +53,28 @@ final class HttpResponse
 
         // This is the format required by the AWS_PROXY lambda integration
         // See https://stackoverflow.com/questions/43708017/aws-lambda-api-gateway-error-malformed-lambda-proxy-response
+
+        if ($isStreamedMode) {
+            return $this->yieldBody([
+                'statusCode' => $this->statusCode,
+                $headersKey => $headers,
+            ]);
+        }
+
         return [
             'isBase64Encoded' => $base64Encoding,
             'statusCode' => $this->statusCode,
             $headersKey => $headers,
-            'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
+            'body' => $base64Encoding ? base64_encode($this->getBodyAsString()) : $this->getBodyAsString(),
         ];
     }
 
     /**
      * See https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.response
      */
-    public function toApiGatewayFormatV2(?string $awsRequestId = null): array
+    public function toApiGatewayFormatV2(?string $awsRequestId = null): array|\Generator
     {
+        $isStreamedMode = Bref::isRunningInStreamingMode();
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
         $headers = [];
@@ -87,13 +100,59 @@ final class HttpResponse
         // serialized to `[]` (we want `{}`) so we force it to an empty object.
         $headers = empty($headers) ? new \stdClass : $headers;
 
+        if ($isStreamedMode) {
+            return $this->yieldBody([
+                'cookies' => $cookies,
+                'statusCode' => $this->statusCode,
+                'headers' => $headers,
+            ]);
+        }
+
         return [
             'cookies' => $cookies,
             'isBase64Encoded' => $base64Encoding,
             'statusCode' => $this->statusCode,
             'headers' => $headers,
-            'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
+            'body' => $base64Encoding ? base64_encode($this->getBodyAsString()) : $this->getBodyAsString(),
         ];
+    }
+
+    /**
+     * Yields the metadata, the null-byte separator and the body chunks in the
+     * Lambda Streaming Format.
+     *
+     * @param array $metadata
+     */
+    private function yieldBody(array $metadata): Generator
+    {
+        yield json_encode($metadata);
+
+        yield "\0\0\0\0\0\0\0\0";
+
+        if ($this->body instanceof Generator) {
+            foreach ($this->body as $dataChunk) {
+                yield $dataChunk;
+            }
+        } else {
+            yield $this->body;
+        }
+    }
+
+    private function getBodyAsString(): string
+    {
+        if ($this->body instanceof Generator) {
+            $dataChunk = '';
+
+            while ($this->body->valid()) {
+                $dataChunk .= $this->body->current();
+
+                $this->body->next();
+            }
+
+            return $dataChunk;
+        }
+
+        return $this->body;
     }
 
     /**
