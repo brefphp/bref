@@ -43,6 +43,15 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
     <Tabs.Tab>
         If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr` with the `Bref\Monolog\CloudWatchFormatter` formatter. You don't have to do anything.
 
+        This is done by the `Bref\SymfonyBridge\BrefSymfonyBridgeBundle` bundle, which Symfony Flex adds to `config/bundles.php` when installing `bref/symfony-bridge`. If it is missing from that file, add it:
+
+        ```php filename="config/bundles.php"
+        return [
+            // ...
+            Bref\SymfonyBridge\BrefSymfonyBridgeBundle::class => ['all' => true],
+        ];
+        ```
+
         If you have a custom log setup, you should ensure that logs are sent to `stderr` (e.g. using the `stream` handler with `php://stderr`) with the `Bref\Monolog\CloudWatchFormatter` formatter (`bref.cloudwatch_formatter` service).
 
         With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
