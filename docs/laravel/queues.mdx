@@ -63,3 +63,108 @@ Instead, "Bref for Laravel" makes all the features of Laravel Queues work out of
 > [!TIP]
 >
 > The "Bref-Laravel bridge" v1 used to do the opposite. We changed that behavior in Bref v2 in order to make the experience smoother for Laravel users.
+
+## Multiple queues
+
+On a server, one worker can process several queues by priority (`php artisan queue:work --queue=high,default`). On Lambda, each SQS queue has its own worker function: all queues are processed at the same time, and each worker scales on its own. There is no priority between queues.
+
+Multiple queues are useful when some jobs need different settings, for example:
+
+- a longer timeout or more memory, for jobs like report generation,
+- a limited concurrency, to stay below the rate limit of an API or to avoid overloading the database,
+- a separate queue for urgent jobs, so that a burst of bulk jobs does not delay them,
+- a [FIFO queue](https://laravel.com/docs/queues#sqs-fifo-and-fair-queues), for jobs that must be processed in order.
+
+If all jobs can use the same settings, a single queue is simpler.
+
+Jobs are dispatched to a queue by name, like on any Laravel application:
+
+```php
+SendWelcomeEmail::dispatch($user)->onQueue('emails');
+```
+
+Add a `queue` construct for each queue in `serverless.yml`, and set `SQS_PREFIX`:
+
+```yml filename="serverless.yml" {8-9,19-26}
+provider:
+    # ...
+    environment:
+        # ...
+        QUEUE_CONNECTION: sqs
+        # The default queue
+        SQS_QUEUE: ${construct:jobs.queueUrl}
+        # Base URL of the other queues
+        SQS_PREFIX: https://sqs.${aws:region}.amazonaws.com/${aws:accountId}
+
+constructs:
+    jobs:
+        type: queue
+        worker:
+            handler: Bref\LaravelBridge\Queue\QueueHandler
+            runtime: php-84
+            timeout: 60 # seconds
+
+    emails:
+        type: queue
+        # At most 5 jobs of this queue run at the same time
+        maxConcurrency: 5
+        worker:
+            handler: Bref\LaravelBridge\Queue\QueueHandler
+            runtime: php-84
+            timeout: 20 # seconds
+```
+
+All workers use the same `QueueHandler` class, without extra configuration: a worker processes the jobs of the queue that invokes it. Settings like `maxConcurrency`, `batchSize` or `fifo` are set on each construct, see the [Lift queue documentation](https://github.com/getlift/lift/blob/master/docs/queue.md#configuration-reference).
+
+Lift names SQS queues `<stack>-<construct>`, for example `my-app-prod-emails`. Send the jobs of the `emails` queue to that SQS queue with [`Queue::forward()`](https://laravel.com/docs/queues#queue-routing) (Laravel 13.26 and later, see [below](#before-laravel-1326) for older versions), in `AppServiceProvider::boot()`:
+
+```php filename="app/Providers/AppServiceProvider.php"
+use Illuminate\Support\Facades\Queue;
+
+if ($stack = config('bref.stack_name')) {
+    Queue::forward([
+        'emails' => "$stack-emails",
+    ], connection: 'sqs');
+}
+```
+
+`config('bref.stack_name')` contains the name of the CloudFormation stack on AWS Lambda, and is `null` in local development. Keep the `if`: `connection: 'sqs'` also moves the jobs of the forwarded queues to the SQS connection, which would break local development.
+
+For a FIFO queue, for example an `orders` construct with `fifo: true`, forward `'orders.fifo' => "$stack-orders.fifo"`: Lift adds `.fifo` to the name of FIFO queues.
+
+On Laravel 13 and later, [`Queue::route()`](https://laravel.com/docs/queues#queue-routing) sends all the jobs of a class to a queue, without calling `onQueue()` on each dispatch:
+
+```php filename="app/Providers/AppServiceProvider.php"
+Queue::route(SendWelcomeEmail::class, queue: 'emails');
+```
+
+Jobs dispatched without a queue go to the default queue (`SQS_QUEUE`), even when they are dispatched by a job that runs in another queue.
+
+Jobs stay in their queue: a job that throws an exception is retried in the same queue. Failed jobs also remember their queue, so `php artisan queue:retry` (or the "Retry" button in the Bref Cloud dashboard) sends them back to the queue they came from.
+
+### Before Laravel 13.26
+
+`Queue::forward()` is available since Laravel 13.26. On older versions, including Laravel 12, pass the URL of each queue to Laravel:
+
+```yml filename="serverless.yml" {3}
+provider:
+    environment:
+        SQS_QUEUE_EMAILS: ${construct:emails.queueUrl}
+```
+
+```php filename="config/queue.php" {4-7}
+return [
+    // ...
+
+    'queues' => [
+        // SQS queue URL on Lambda, queue name in local development
+        'emails' => env('SQS_QUEUE_EMAILS', 'emails'),
+    ],
+];
+```
+
+Then dispatch jobs with that URL:
+
+```php
+SendWelcomeEmail::dispatch($user)->onQueue(config('queue.queues.emails'));
+```
