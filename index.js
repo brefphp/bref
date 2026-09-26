@@ -177,6 +177,7 @@ class ServerlessPlugin {
         this.hooks = {
             'initialize': () => {
                 this.processPhpRuntimes();
+                this.exposeStackName();
                 warnIfUsingSecretsWithoutTheBrefDependency(this.serverless, utils.log);
                 try {
                     this.telemetry();
@@ -290,6 +291,19 @@ class ServerlessPlugin {
             if (f) {
                 configureFunctionRuntime(f);
             }
+        }
+    }
+
+    /**
+     * Set the `BREF_STACK_NAME` environment variable on all functions (including Docker images and Lift workers).
+     */
+    exposeStackName() {
+        const provider = this.serverless.service.provider;
+        if (!provider.environment) {
+            provider.environment = {};
+        }
+        if (!provider.environment.BREF_STACK_NAME) {
+            provider.environment.BREF_STACK_NAME = this.provider.naming.getStackName();
         }
     }
 
