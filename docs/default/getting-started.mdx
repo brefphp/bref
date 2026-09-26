@@ -63,6 +63,8 @@ plugins:
     - ./vendor/bref/bref
 ```
 
+The `region` key sets the AWS region to deploy to. If your AWS account is an [AWS project](../setup.mdx#aws-projects) (created with *Sign up for AWS (new)*), use your project's region instead of `us-east-1`.
+
 If your `index.php` entrypoint is in a different folder, feel free to adjust the `handler` key. For example if it is in `public/index.php`:
 
 ```yml

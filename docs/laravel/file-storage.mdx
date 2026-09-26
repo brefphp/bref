@@ -9,13 +9,19 @@ When running on Lambda, you will need to use the **`s3` adapter** to store files
 
 The easiest way to set up S3 storage is using [Serverless Lift](https://github.com/getlift/lift):
 
-First install the Lift plugin:
+First install the Flysystem S3 adapter, which Laravel's `s3` disk requires (without it, any file operation fails with `Class "League\Flysystem\AwsS3V3\PortableVisibilityConverter" not found`):
 
 ```bash
-serverless plugin install -n serverless-lift
+composer require league/flysystem-aws-s3-v3
 ```
 
-Then use [the `storage` construct](https://github.com/getlift/lift/blob/master/docs/storage.md) in `serverless.yml`:
+Then install the Lift plugin:
+
+```bash
+npm install --save-dev serverless-lift
+```
+
+Make sure `serverless-lift` is listed in the `plugins` section of `serverless.yml` (the file generated for Laravel already includes it). Then use [the `storage` construct](https://github.com/getlift/lift/blob/master/docs/storage.md) in `serverless.yml`:
 
 ```yaml filename="serverless.yml"
 provider:

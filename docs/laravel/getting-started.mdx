@@ -28,6 +28,14 @@ Then let's create a [`serverless.yml` configuration file](../environment/serverl
 php artisan vendor:publish --tag=serverless-config
 ```
 
+This `serverless.yml` file uses the [Serverless Lift](https://github.com/getlift/lift) plugin, which creates the resources for [queues](./queues.mdx), [file storage](./file-storage.mdx) and [website assets](../use-cases/websites.mdx). Install it in your project:
+
+```bash
+npm install --save-dev serverless-lift
+```
+
+The application is deployed to the AWS region set in `provider.region` (`us-east-1` by default). If your AWS account is an [AWS project](../setup.mdx#aws-projects) (created with *Sign up for AWS (new)*), set it to your project's region.
+
 ### How it works
 
 By default, the Laravel-Bref package will automatically configure Laravel to work on AWS Lambda.

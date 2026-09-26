@@ -64,10 +64,10 @@ However, instead of creating the SQS queue and the worker manually, you can use 
 First install the Lift plugin:
 
 ```bash
-serverless plugin install -n serverless-lift
+npm install --save-dev serverless-lift
 ```
 
-Then use [the Queue construct](https://github.com/getlift/lift/blob/master/docs/queue.md) in `serverless.yml` to create a queue and a worker:
+Add `serverless-lift` to the `plugins` section of `serverless.yml`, after `./vendor/bref/bref`. Then use [the Queue construct](https://github.com/getlift/lift/blob/master/docs/queue.md) in `serverless.yml` to create a queue and a worker:
 
 ```yml filename="serverless.yml"
 provider:
