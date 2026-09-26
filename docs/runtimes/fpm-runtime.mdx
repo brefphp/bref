@@ -70,6 +70,8 @@ Here is an example to retrieve it:
 $lambdaContext = json_decode($_SERVER['LAMBDA_INVOCATION_CONTEXT'], true);
 ```
 
+The request ID of the invocation is also available directly in `$_SERVER['LAMBDA_REQUEST_ID']`, like in [the other runtimes](./runtimes-details.mdx#environment-variables).
+
 ### Request context
 
 API Gateway integrations can add information to the HTTP request via the *request context*.

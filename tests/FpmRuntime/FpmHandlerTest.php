@@ -1325,6 +1325,7 @@ Year,Make,Model
             'SCRIPT_FILENAME' => __DIR__ . '/fixtures/request.php',
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'FCGI_ROLE' => 'RESPONDER',
+            'LAMBDA_REQUEST_ID' => 'abc',
         ];
 
         // Allow to override some keys

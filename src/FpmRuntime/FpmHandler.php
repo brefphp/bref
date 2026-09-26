@@ -253,6 +253,8 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('PATH_INFO', $event->getPath());
         $request->setCustomVar('QUERY_STRING', $event->getQueryString());
         $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
+        // Same variable as in the other runtimes, see LambdaRuntime::processNextEvent()
+        $request->setCustomVar('LAMBDA_REQUEST_ID', $context->getAwsRequestId());
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext(), JSON_THROW_ON_ERROR));
 
         $contentType = $event->getContentType();
