@@ -160,6 +160,14 @@ However, Secrets Manager is not free: [pricing details](https://aws.amazon.com/s
 
 SSM is good enough for most projects.
 
+## Variables set by Bref
+
+Bref sets these environment variables on all functions:
+
+- `BREF_STACK_NAME`: the name of the CloudFormation stack, for example `my-app-prod`. Laravel applications can read it with `config('bref.stack_name')`.
+
+AWS Lambda also sets [its own variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime), like `AWS_REGION` or `AWS_LAMBDA_FUNCTION_NAME`.
+
 ## Local development
 
 When [developing locally using `serverless bref:local`](/docs/local-development.mdx), you can set environment variables using bash:
