@@ -148,7 +148,10 @@ final class FpmHandler extends HttpHandler
             $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
         } catch (TimedoutException) {
             $invocationId = $context->getAwsRequestId();
-            echo "$invocationId The PHP script timed out. Bref will now restart PHP-FPM to start from a clean slate and flush the PHP logs.\nTimeouts can happen for example when trying to connect to a remote API or database, if this happens continuously check for those.\nIf you are using a RDS database, read this: https://bref.sh/docs/environment/database.html#accessing-the-internet\n";
+            // A single line: Lambda turns each line into a separate log event, and only this one starts with the request ID
+            echo "$invocationId The PHP script timed out. Bref will now restart PHP-FPM to start from a clean slate and flush the PHP logs. "
+                . 'Timeouts can happen for example when trying to connect to a remote API or database, if this happens continuously check for those. '
+                . "If you are using a RDS database, read this: https://bref.sh/docs/environment/database#vpc-databases-private-network\n";
 
             /**
              * Restart FPM so that the blocked script is 100% terminated and that its logs are flushed to stderr.

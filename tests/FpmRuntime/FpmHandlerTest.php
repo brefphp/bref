@@ -1221,6 +1221,9 @@ Year,Make,Model
             ], $this->fakeContext);
             $this->fail('No exception was thrown');
         } catch (Timeout $e) {
+            // A single line starting with the request ID: Lambda turns each line into a separate log event
+            self::assertMatchesRegularExpression('/^abc The PHP script timed out\. [^\n]+\n$/', ob_get_contents());
+
             // PHP-FPM should work after that
             $statusCode = $this->fpm->handle([
                 'version' => '1.0',
