@@ -5,6 +5,7 @@ description: "Learn how to write and read PHP logs on AWS Lambda using Bref."
 import { Tabs } from 'nextra/components';
 import Image from 'next/image';
 import brefCloudLogs from '../cloud/logs.png';
+import brefCloudTraceLogs from '../monitoring/cloud-trace-logs.png';
 
 # Logs
 
@@ -115,3 +116,45 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
         ```
     </Tabs.Tab>
 </Tabs>
+
+### Logs of a single request
+
+Every Lambda invocation (an HTTP request, a queue job, a console command…) has a **request ID**. Lambda writes it in its `START`, `END` and `REPORT` lines, and the `Bref\Monolog\CloudWatchFormatter` formatter starts every log line with it:
+
+```
+8f507cfc-8b35-4e7e-9f26-f2a3a6e7e1a2	ERROR	Payment failed	{"message":"Payment failed","level":"ERROR",...}
+```
+
+Search for a request ID to see everything that happened during that invocation: the application logs, Bref's errors (for example a timeout), and Lambda's `REPORT` line with the duration and the memory used.
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        In the [Bref Cloud](https://bref.sh/cloud) dashboard, click the request ID next to a log line to see all the logs of that request. The [X-Ray trace](/docs/monitoring#traces) of a request also shows its logs:
+
+        <a title="Bref Cloud" href="/cloud"><Image className="mt-6 border border-gray-200 rounded-lg shadow hover:shadow-lg" src={brefCloudTraceLogs} alt="The logs of a request below its X-Ray trace in Bref Cloud" /></a>
+
+        From the terminal, search for the request ID with `bref logs`. Its first 8 characters are enough, like in the dashboard:
+
+        ```bash
+        bref logs --env=prod --search=8f507cfc --all
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        In CloudWatch Logs Insights, select the log group of the function and filter on the `@requestId` field:
+
+        ```
+        fields @timestamp, @message
+        | filter @requestId = '8f507cfc-8b35-4e7e-9f26-f2a3a6e7e1a2'
+        | sort @timestamp asc
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+If you use another log formatter, the request ID of the current invocation is available in `$_SERVER['LAMBDA_REQUEST_ID']`. For example, to add it to every Monolog record:
+
+```php
+$logger->pushProcessor(function (Monolog\LogRecord $record) {
+    $record->extra['requestId'] = $_SERVER['LAMBDA_REQUEST_ID'] ?? null;
+    return $record;
+});
+```
