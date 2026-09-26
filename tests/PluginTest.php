@@ -100,6 +100,15 @@ class PluginTest extends TestCase
         ]);
     }
 
+    public function test the plugin exposes the stack name(): void
+    {
+        $output = $this->slsPrint('serverless.yml');
+        self::assertSame('bref-dev', $output['provider']['environment']['BREF_STACK_NAME']);
+
+        $output = $this->slsPrint('serverless-stack-name.yml');
+        self::assertSame('my-custom-stack', $output['provider']['environment']['BREF_STACK_NAME']);
+    }
+
     private function slsPrint(string $configFile): array
     {
         $process = (new Process(
