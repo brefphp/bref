@@ -64,7 +64,9 @@ Once your project is ready, you can deploy via the following command:
 
 ### Reducing package size
 
-AWS Lambda has a **250MB size limit** for deployed applications (unzipped). Large Composer dependencies can push your project over this limit and also lead to slower cold starts.
+AWS Lambda has a **250MB size limit** for deployed applications (unzipped). The limit counts the application code **and** the Lambda layers: Bref's PHP runtime layer takes about 80MB of it, so your code has roughly 170MB. Large Composer dependencies can push your project over this limit and also lead to slower cold starts.
+
+A deployment over the limit fails with the AWS error `Unzipped size must be smaller than 262144000 bytes`.
 
 The most common offender is `aws/aws-sdk-php`: it ships clients for **every** AWS service, adding over 100MB to your vendor directory. If you only use a few services (e.g. S3, SQS, DynamoDB), you can remove the rest.
 
