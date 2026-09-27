@@ -70,7 +70,7 @@ Here is an example to retrieve it:
 $lambdaContext = json_decode($_SERVER['LAMBDA_INVOCATION_CONTEXT'], true);
 ```
 
-The request ID of the invocation is also available directly in `$_SERVER['LAMBDA_REQUEST_ID']`, like in [the other runtimes](./runtimes-details.mdx#environment-variables).
+The request ID of the invocation is also available directly in `$_SERVER['LAMBDA_REQUEST_ID']`, and the X-Ray trace ID in `$_SERVER['_X_AMZN_TRACE_ID']`, like in [the other runtimes](./runtimes-details.mdx#environment-variables).
 
 ### Request context
 

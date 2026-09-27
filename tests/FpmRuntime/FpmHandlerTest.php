@@ -1329,6 +1329,7 @@ Year,Make,Model
             'GATEWAY_INTERFACE' => 'FastCGI/1.0',
             'FCGI_ROLE' => 'RESPONDER',
             'LAMBDA_REQUEST_ID' => 'abc',
+            '_X_AMZN_TRACE_ID' => 'abc',
         ];
 
         // Allow to override some keys
