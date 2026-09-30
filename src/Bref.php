@@ -32,6 +32,11 @@ class Bref
         return self::$eventDispatcher;
     }
 
+    public static function isRunningInStreamingMode(): bool
+    {
+        return (bool) getenv('BREF_STREAMED_MODE');
+    }
+
     /**
      * @internal Used by the Bref runtime
      */
