@@ -3,6 +3,7 @@
 namespace Bref\Event\Http;
 
 use Bref\Context\Context;
+use LogicException;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\UploadedFile;
@@ -109,8 +110,21 @@ final class Psr7Bridge
             return [[], $parsedBody];
         }
 
-        // Parse the body as multipart/form-data
-        $document = new Part("Content-type: $contentType\r\n\r\n" . $event->getBody());
+        try {
+            return self::parseMultipartBody($contentType, $event->getBody());
+        } catch (LogicException) {
+            // The parser throws on malformed bodies (empty form, missing boundary, truncated body…)
+            // PHP ignores these instead of failing the request, so we do the same
+            return [[], null];
+        }
+    }
+
+    /**
+     * @return array{0: array<string, UploadedFile>, 1: array<string, mixed>|null}
+     */
+    private static function parseMultipartBody(string $contentType, string $body): array
+    {
+        $document = new Part("Content-type: $contentType\r\n\r\n" . $body);
         if (! $document->isMultiPart()) {
             return [[], null];
         }

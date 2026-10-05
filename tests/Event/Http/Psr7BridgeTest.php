@@ -49,6 +49,37 @@ class Psr7BridgeTest extends CommonHttpTest
         self::assertSame('', $serverParams['PHP_AUTH_PW']);
     }
 
+    /**
+     * @dataProvider provideMalformedMultipartBodies
+     */
+    public function test malformed multipart bodies are ignored like PHP does(string $contentType, string $body)
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => $contentType,
+            ],
+            'body' => $body,
+        ]);
+        $request = Psr7Bridge::convertRequest($event, Context::fake());
+
+        self::assertNull($request->getParsedBody());
+        self::assertSame([], $request->getUploadedFiles());
+        self::assertSame($body, $request->getBody()->getContents());
+    }
+
+    public static function provideMalformedMultipartBodies(): array
+    {
+        return [
+            // Sent by browsers for a FormData with no fields
+            'empty form' => ['multipart/form-data; boundary=testBoundary', "--testBoundary--\r\n"],
+            'empty body' => ['multipart/form-data; boundary=testBoundary', ''],
+            'no closing boundary' => ['multipart/form-data; boundary=testBoundary', "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\n\r\nbar\r\n"],
+            'no boundary in the content type' => ['multipart/form-data', "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\n\r\nbar\r\n--testBoundary--\r\n"],
+            'nested multipart/mixed part' => ['multipart/form-data; boundary=testBoundary', "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\nContent-Type: multipart/mixed; boundary=nested\r\n\r\n--nested\r\nContent-Disposition: file; filename=\"foo.txt\"\r\n\r\nbar\r\n--nested--\r\n\r\n--testBoundary--\r\n"],
+        ];
+    }
+
     protected function fromFixture(string $file): void
     {
         $event = new HttpRequestEvent(json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR));
