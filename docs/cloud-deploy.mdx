@@ -51,6 +51,14 @@ bref deploy --env production
 serverless deploy --stage production
 ```
 
+### Parameters
+
+To set [Serverless Framework parameters](https://www.serverless.com/framework/docs/guides/parameters) (`${param:...}` variables in `serverless.yml`) when deploying, use the `--param` option, like with `serverless deploy`. It can be repeated:
+
+```shell
+bref deploy --param="domain=example.com" --param="queue=orders"
+```
+
 ## Deploying with Bref Cloud
 
 To deploy an application using Bref Cloud, you need to add your Bref Cloud team to the `serverless.yml` file:
