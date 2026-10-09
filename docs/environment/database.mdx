@@ -23,6 +23,8 @@ Here are some of the database services offered by RDS:
 >
 > Aurora Serverless can be configured to scale down to 0 when unused (which costs $0), however be careful with this option: the database can take up to 15 seconds to un-pause.
 
+AWS also offers [Aurora DSQL](./database-dsql.mdx), a serverless database compatible with PostgreSQL: it needs no VPC, no password, and costs nothing while idle. Read [when to use it](./database-dsql.mdx#when-to-use-aurora-dsql) rather than an RDS database.
+
 ## Internet-accessible vs VPC databases
 
 | | Internet-accessible | VPC (private network) |

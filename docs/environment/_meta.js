@@ -5,6 +5,7 @@ export default {
   "storage": "Storage",
   "logs": "Logs",
   "database": "Databases",
+  "database-dsql": "Databases - Aurora DSQL",
   "database-planetscale": "Databases - PlanetScale",
   "database-public": {
     "display": "hidden"

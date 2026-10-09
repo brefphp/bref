@@ -1,0 +1,253 @@
+---
+description: "Use an Aurora DSQL serverless database in your PHP application on AWS Lambda."
+---
+
+import { Tabs } from 'nextra/components';
+import cloudDsqlCreate from './database/cloud-dsql-create.png';
+import Image from 'next/image';
+
+# Using Aurora DSQL with Bref
+
+[Aurora DSQL](https://aws.amazon.com/rds/aurora/dsql/) is a serverless database from AWS, compatible with PostgreSQL.
+
+Compared to [RDS databases](./database.mdx), Aurora Serverless included, Aurora DSQL is truly serverless:
+
+- **No instance**: Aurora Serverless scales the capacity of a database instance up and down, while Aurora DSQL has no instance at all. It scales with the traffic, and down to zero without cold starts: a paused Aurora Serverless database takes up to 15 seconds to resume.
+- **Billed per request**: Aurora DSQL is billed for the requests it serves, measured in "DPUs", and for the data it stores. Nothing is billed while the database is idle, whereas RDS and Aurora Serverless instances are billed per hour while they run. The [AWS free tier](https://aws.amazon.com/rds/aurora/dsql/pricing/) includes 100,000 DPUs and 1 GB of storage per month.
+- **Multi-AZ**: Aurora DSQL runs across three Availability Zones, with no failover to manage. RDS and Aurora Serverless databases run on an instance in a single Availability Zone, unless you pay for more instances in other zones to fail over to.
+
+On AWS Lambda, it also needs:
+
+- No VPC (virtual private network) and no NAT Gateway: Lambda functions connect to a public endpoint, over TLS.
+- No password: applications authenticate with their IAM role.
+
+## When to use Aurora DSQL
+
+Aurora DSQL is a good fit for:
+
+- **New applications**: their schema and code can take [the differences with PostgreSQL](#differences-with-postgresql) into account from the start.
+- **Side projects and small applications**: with no fixed cost, an application with little traffic can run on AWS Lambda for $0, or a few cents per month.
+- **Irregular traffic**: Aurora DSQL scales with the traffic and costs nothing when idle, with no cold start.
+- **Applications that need high availability** without paying for standby instances.
+
+Prefer [an RDS or Aurora Serverless database](./database.mdx) for:
+
+- **Existing applications** with a complex schema, or that rely on PostgreSQL features Aurora DSQL doesn't support: triggers, extensions (like PostGIS), full-text search, changing the type of columns, etc.
+- **MySQL applications**: Aurora DSQL is only compatible with PostgreSQL.
+- **Large data changes in one transaction**: imports, batch updates or cascading deletes that change more than 3,000 rows at once must be split into several transactions.
+- **Many concurrent writes to the same rows**, like a global counter: with Aurora DSQL, [they conflict](#conflicts-between-requests) instead of waiting for each other.
+- **Reporting and analytics**: Aurora DSQL is designed for transactional workloads (many short queries), not for heavy queries over large amounts of data.
+
+> [!NOTE]
+>
+> Aurora DSQL is a recent service (generally available since 2025), and it evolves quickly: some of these limitations may be lifted in the future.
+
+## Creating a database
+
+<Tabs items={['Bref Cloud', 'AWS CLI']}>
+    <Tabs.Tab>
+        In the Bref Cloud dashboard, open the "Databases" page, [click "Create database"](https://bref.cloud/databases/create) and select "Aurora DSQL". Create it in the same AWS account and region as your application.
+
+        <Image className="mt-3" src={cloudDsqlCreate} alt="Bref Cloud create Aurora DSQL database form" style={{maxWidth: 500}} />
+
+        Aurora DSQL has no snapshots: Bref Cloud backs up the database every day with [AWS Backup](https://aws.amazon.com/backup/), and keeps the backups 7 days by default (set 0 to disable daily backups). Every backup is a full copy of the data, billed per GB: the form estimates what the database will cost, backups included. Bref Cloud also takes a final backup when the database is deleted.
+
+        Once the database is created, its page shows its endpoint and the configuration to add to `serverless.yml`.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        Create a cluster in the region of your application:
+
+        ```bash
+        aws dsql create-cluster --region us-east-1 --deletion-protection-enabled
+        ```
+
+        The command returns the identifier of the cluster and its endpoint: `<cluster-id>.dsql.<region>.on.aws`.
+
+        Creating the cluster outside of `serverless.yml` keeps its data independent from the application: removing the application does not delete the database.
+
+        Aurora DSQL has no automatic backups: back up the cluster [with AWS Backup](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/backup-aurora-dsql.html).
+    </Tabs.Tab>
+</Tabs>
+
+## Differences with PostgreSQL
+
+Aurora DSQL is compatible with PostgreSQL 16, with [some differences](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/working-with-postgresql-compatibility.html). The main ones are:
+
+- **Concurrency**: when two requests change the same rows at the same time, PostgreSQL makes the second one wait for the first one. Aurora DSQL never waits: both requests run, and the second one to commit fails with a conflict error (SQLSTATE `40001`). Nothing it changed is saved, and it has to run again. This applies to transactions, and to queries run outside of a transaction too, which are a transaction on their own. Conflicts are much more likely in transactions: the longer a transaction lasts, the more likely another request changes the same rows in the meantime. [The Laravel package handles part of it](#conflicts-between-requests).
+- **Schema changes**: a transaction can contain a single schema change, and no data change. Indexes are built in the background (`CREATE INDEX ASYNC`). A column added to an existing table must be nullable, without a default value. The type of a column can't be changed, and a column can't become `NOT NULL` after the table is created. The primary key is declared when the table is created, and can't be changed afterwards. A foreign key added to an existing table doesn't check the rows that already exist (`NOT VALID`).
+- **Auto-increment**: there are no `SERIAL` columns, identity columns (`BIGINT GENERATED BY DEFAULT AS IDENTITY`) replace them.
+- **Limits**: a transaction can change up to 3,000 rows (including cascades) and 10 MB of data, and last up to 5 minutes. A cluster accepts [at most 100 new connections per second](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/CHAP_quotas.html) (with bursts up to 1,000).
+- **Collation**: strings are sorted by byte (collation `C`): accented letters come after `z`, and `lower()`/`upper()` only change ASCII letters.
+- **Not supported**: savepoints, `TRUNCATE`, `SELECT … FOR SHARE`, full-text search, temporary tables, triggers, PL/pgSQL (functions can only be written in SQL), advisory locks and PostgreSQL extensions.
+
+## Laravel
+
+Install the [`bref/laravel-dsql`](https://github.com/brefphp/laravel-dsql) package:
+
+```bash
+composer require bref/laravel-dsql
+```
+
+It adds a `dsql` database connection to Laravel, which generates an IAM authentication token for each connection and adapts migrations to Aurora DSQL.
+
+> [!WARNING]
+>
+> If your `composer.json` [removes unused AWS services](../deploy/index.mdx#reducing-package-size) from the AWS SDK, add `DSQL` to the services it keeps, then run `composer install`. The package uses it to generate the authentication tokens.
+>
+> ```json filename="composer.json"
+> "extra": {
+>     "aws/aws-sdk-php": [
+>         "Sqs",
+>         "DSQL"
+>     ]
+> }
+> ```
+
+Configure the connection, and allow the application to connect to the database, in `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        DB_CONNECTION: dsql
+        DB_HOST: <cluster-id>.dsql.<region>.on.aws
+    iam:
+        role:
+            statements:
+                -   Effect: Allow
+                    Action: dsql:DbConnectAdmin
+                    Resource: arn:aws:dsql:<region>:${aws:accountId}:cluster/<cluster-id>
+```
+
+Bref Cloud shows this configuration with the values of your database on the database page.
+
+The package signs the IAM token with the AWS credentials of the environment: the IAM role of the Lambda function, or `AWS_PROFILE` when running locally. The token is signed locally, without any API call.
+
+The application connects as the `admin` database role. To connect with [another role](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/using-database-and-iam-roles.html), set `DB_USERNAME` and allow the `dsql:DbConnect` action instead.
+
+You can now [run the database migrations](./database.mdx#running-database-migrations).
+
+### Configuration
+
+The package adds this `dsql` connection, unless `config/database.php` already defines one:
+
+```php
+'dsql' => [
+    'driver' => 'dsql',
+    'host' => env('DB_HOST'),
+    'port' => '5432',
+    'database' => 'postgres',
+    'username' => env('DB_USERNAME', 'admin'),
+    'charset' => 'utf8',
+    'prefix' => '',
+    'prefix_indexes' => true,
+    'search_path' => 'public',
+    'sslmode' => 'verify-full',
+    'sslrootcert' => env('DB_SSLROOTCERT', 'system'),
+],
+```
+
+To change it, copy it into the `connections` of `config/database.php`. The connection also accepts a `region`, for endpoints that don't include one, such as VPC endpoints.
+
+### Connections and Octane
+
+With PHP-FPM, Laravel opens a new database connection for every request. With Aurora DSQL, opening a connection (TLS and IAM authentication) adds latency to the request, and a cluster accepts [at most 100 new connections per second](https://docs.aws.amazon.com/aurora-dsql/latest/userguide/CHAP_quotas.html) (with bursts up to 1,000).
+
+For applications with more than a few requests per second, run them with [Laravel Octane](../laravel/octane.mdx), and keep [the database connection open between requests](../laravel/octane.mdx#persistent-database-connections) with `OCTANE_PERSIST_DATABASE_SESSIONS`:
+
+```yml filename="serverless.yml"
+functions:
+    web:
+        handler: Bref\LaravelBridge\Http\OctaneHandler
+        runtime: php-84
+        environment:
+            BREF_LOOP_MAX: 250
+            OCTANE_PERSIST_DATABASE_SESSIONS: 1
+        events:
+            - httpApi: '*'
+```
+
+### Migrations
+
+The package adapts Laravel migrations to [the differences between Aurora DSQL and PostgreSQL](#differences-with-postgresql):
+
+- Migrations don't run in a transaction, since a transaction can only contain one schema change: each statement is committed on its own. A migration that fails halfway leaves the changes it made before.
+- The primary key, unique keys and foreign keys of a new table are declared in its `create table` statement. A unique index added to an existing table enforces uniqueness once it is built in the background.
+- Auto-incrementing columns (`$table->id()`) are `bigint` identity columns.
+- To add a column with a default value to an existing table, add it as nullable first, then set its default in a second step. Rows that already exist keep `null`: fill them in batches, since a transaction can change at most 3,000 rows. Each batch runs in its own transaction, since migrations don't run in a transaction:
+
+    ```php
+    Schema::table('posts', function (Blueprint $table) {
+        $table->string('status')->nullable();
+    });
+    Schema::table('posts', function (Blueprint $table) {
+        $table->string('status')->nullable()->default('draft')->change();
+    });
+    DB::table('posts')->whereNull('status')->chunkById(1000, function ($posts) {
+        DB::table('posts')->whereIn('id', $posts->pluck('id'))->update(['status' => 'draft']);
+    });
+    ```
+
+- `->change()` can make a column nullable, and change its default value and its comment. The type given to `->change()` is ignored.
+
+The package throws an exception with an explanation when a migration asks for a change that Aurora DSQL doesn't support, before running any of its statements.
+
+### Conflicts between requests
+
+With Aurora DSQL, two requests that change the same rows at the same time conflict: the first one to commit wins, and the other one fails with an error. Nothing the failed request changed is saved. For example, two visitors buying the last item of a product at the same time.
+
+**Queries outside of a transaction**, such as `$product->save()` or `Product::where(…)->update(…)`, are run again by the package when they conflict, up to 3 times. You don't have anything to do: since the conflict cancelled the query entirely, running it again doesn't apply it twice.
+
+**Queries inside a transaction** can't be run again on their own: the conflict cancels the whole transaction, including the queries that ran before, and your code may have made decisions based on data that another request just changed. The whole transaction has to run again. Laravel does it when you give `DB::transaction()` a number of attempts:
+
+```php
+DB::transaction(function () use ($productId) {
+    $product = Product::findOrFail($productId);
+    abort_if($product->stock === 0, 409, 'Out of stock');
+
+    $product->decrement('stock');
+    $product->orders()->create(['user_id' => auth()->id()]);
+}, attempts: 3);
+```
+
+When the two visitors buy the last item at the same time, both transactions read a stock of 1 and decrement it, but only the first one commits. The second one runs again, reads a stock of 0, and the visitor gets the "Out of stock" error. Without `attempts`, the conflict throws an exception, and the request fails with an error.
+
+Keep in mind that:
+
+- The closure can run several times: send emails, dispatch jobs or call APIs after the transaction, not inside it.
+- The conflict is detected when the transaction commits, at the end of the closure, not on the query that changed the row.
+- Rows that the transaction only reads, without changing them, are not checked: if another request changes them, the transaction still commits, based on the value it read. Read them with `lockForUpdate()` when your code relies on them: it doesn't make other requests wait like in PostgreSQL, but the transaction then conflicts if another request changes these rows.
+- Many requests that change the same row, like a global counter, conflict often: spread the writes over several rows when you can.
+
+### Other differences
+
+- Without savepoints, a nested transaction is part of the transaction around it: rolling back the nested transaction rolls back nothing until the outer transaction is rolled back.
+- `truncate()` and `sharedLock()` are not supported.
+- The database cache store and its locks, the database queue and database sessions work.
+
+## Other PHP applications
+
+AWS provides [a connector for PDO](https://github.com/awslabs/aurora-dsql-php-pdo-pgsql) that generates the authentication token:
+
+```bash
+composer require awslabs/aurora-dsql-pdo-pgsql
+```
+
+```php
+use Aws\AuroraDsql\PdoPgsql\AuroraDsql;
+use Aws\AuroraDsql\PdoPgsql\DsqlConfig;
+
+$pdo = AuroraDsql::connect(new DsqlConfig(host: '<cluster-id>.dsql.<region>.on.aws'));
+```
+
+The Lambda function needs the same `dsql:DbConnectAdmin` permission as in the Laravel example above. The application then has to deal with [the differences with PostgreSQL](#differences-with-postgresql) itself, for example by retrying the transactions that conflict.
+
+## Monitoring
+
+<Tabs items={['Bref Cloud', 'CloudWatch']}>
+    <Tabs.Tab>
+        The database page in [Bref Cloud](https://bref.sh/cloud) shows the activity of the database: usage (DPUs), transactions, transactions aborted by conflicts, new connections per second, commit latency and storage. It also estimates the cost of the database over the last 30 days, and lists its backups.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        Aurora DSQL publishes its metrics in [CloudWatch](https://console.aws.amazon.com/cloudwatch/home), where you can explore them and set up alarms.
+    </Tabs.Tab>
+</Tabs>
