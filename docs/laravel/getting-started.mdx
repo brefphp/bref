@@ -94,6 +94,47 @@ Specifically for Laravel, Bref will automatically cache the configuration on "co
 >
 > For most applications we do not recommend this approach. Instead, let Bref cache the config in AWS Lambda on cold starts.
 
+### Compiling views before deploying
+
+Laravel compiles Blade views the first time they are rendered. On Lambda, the compiled views are stored in `/tmp`, which is empty after every cold start: each new Lambda instance compiles the views again. To avoid that, compile the views before deploying with `php artisan view:cache`.
+
+The compiled views are written to `storage/framework/views`, and their file names depend on the absolute path of each view. For Lambda to find them, enable `relative_hash` in `config/view.php` (if the file does not exist, create it with `php artisan config:publish view`):
+
+```php filename="config/view.php" {3}
+return [
+    // ...
+    'relative_hash' => true,
+];
+```
+
+Then compile the views before **every** deployment (in a zip package, outdated compiled views would still be used):
+
+```bash
+php artisan view:cache
+```
+
+Since `serverless.yml` excludes the `storage` directory, add the compiled views to the deployment:
+
+```yml filename="serverless.yml" {4}
+package:
+    patterns:
+        - '!storage/**'
+        - 'storage/framework/views/*.php'
+```
+
+If you deploy [container images](../deploy/docker.mdx), compile the views in the `Dockerfile` instead. The application is in `/var/task` there, like on Lambda, so `relative_hash` is not needed:
+
+```dockerfile filename="Dockerfile" {5-6}
+FROM bref/php-84:3
+
+COPY . /var/task
+
+# The directory may be excluded by .dockerignore
+RUN mkdir -p storage/framework/views && php artisan view:cache
+```
+
+Routes and events can also be cached before deploying, with `php artisan route:cache` and `php artisan event:cache`. Avoid `php artisan optimize`: it also caches the configuration (see the note above).
+
 ## Troubleshooting
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.mdx).
