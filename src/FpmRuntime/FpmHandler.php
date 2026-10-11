@@ -188,16 +188,12 @@ final class FpmHandler extends HttpHandler
         }
 
         $responseHeaders = $this->getResponseHeaders($response);
-
-        // Extract the status code
-        if (isset($responseHeaders['status'])) {
-            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
-            unset($responseHeaders['status']);
-        }
+        // The status code is returned separately, it is not an HTTP header
+        unset($responseHeaders['status']);
 
         $this->ensureStillRunning();
 
-        return new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
+        return new HttpResponse($response->getBody(), $responseHeaders, $response->getStatusCode());
     }
 
     /**
