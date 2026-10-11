@@ -218,6 +218,8 @@ Keep in mind that:
 - Rows that the transaction only reads, without changing them, are not checked: if another request changes them, the transaction still commits, based on the value it read. Read them with `lockForUpdate()` when your code relies on them: it doesn't make other requests wait like in PostgreSQL, but the transaction then conflicts if another request changes these rows.
 - Many requests that change the same row, like a global counter, conflict often: spread the writes over several rows when you can.
 
+**Transactions opened by Laravel or by packages** have a single attempt too, for example `saveOrFail()`, `deleteOrFail()`, or `syncOrFail()` and the other `…OrFail()` methods of relationships. When they can conflict, wrap the call in `DB::transaction()` with attempts: the inner transaction becomes part of the outer one, which runs again. The package already does it for the increments of [the `database` cache store](#cache-locks-and-queues), and for the job counters of [job batches](https://laravel.com/docs/queues#job-batching): two jobs of the same batch can finish at the same time.
+
 ### Cache, locks and queues
 
 The `database` cache store works with Aurora DSQL. Use [DynamoDB](../laravel/caching.mdx#dynamodb-cache) instead for a cache read on every request, for locks, or for rate limiters with a lot of traffic: when many requests change the same key at the same time, Aurora DSQL makes them conflict.
