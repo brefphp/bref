@@ -218,11 +218,19 @@ Keep in mind that:
 - Rows that the transaction only reads, without changing them, are not checked: if another request changes them, the transaction still commits, based on the value it read. Read them with `lockForUpdate()` when your code relies on them: it doesn't make other requests wait like in PostgreSQL, but the transaction then conflicts if another request changes these rows.
 - Many requests that change the same row, like a global counter, conflict often: spread the writes over several rows when you can.
 
+### Cache, locks and queues
+
+Laravel can store its cache, locks, sessions and queued jobs in the database. With Aurora DSQL:
+
+- **The `database` cache store** works, rate limiters included. Laravel increments a counter in a transaction: when two requests increment the same counter, the package runs the increment again after the conflict, like the queries outside of a transaction.
+- **Heavy use of the same keys conflicts**: when many requests change the same key at the same time, like a rate limiter shared by all visitors or a lock that many jobs wait for, most of them conflict, and requests fail once the retries run out. Every cache read is also a database query, billed in DPUs. Use [DynamoDB](../laravel/caching.mdx#dynamodb-cache) for a cache read on every request (`Cache::remember()`, `Cache::flexible()`), for locks (`Cache::lock()`, unique jobs, `WithoutOverlapping`) and for rate limiters with a lot of traffic: it increments counters and acquires locks in a single operation, without conflicts, and is billed per request.
+- **The database queue** reserves each job in a transaction: workers that poll the queue at the same time conflict, and report the error. On AWS Lambda, use [SQS](../laravel/queues.mdx) instead.
+- **Database sessions** work.
+
 ### Other differences
 
 - Without savepoints, a nested transaction is part of the transaction around it: rolling back the nested transaction rolls back nothing until the outer transaction is rolled back.
 - `truncate()` and `sharedLock()` are not supported.
-- The database cache store and its locks, the database queue and database sessions work.
 
 ## Other PHP applications
 
