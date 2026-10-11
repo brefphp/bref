@@ -11,7 +11,7 @@
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "@octokit/graphql": "^7.1.1",
-    "next": "^15.5.25",
+    "next": "^15.5.27",
     "next-plausible": "^3.12.5",
     "nextra": "^4.6.1",
     "nextra-theme-docs": "^4.6.1",
