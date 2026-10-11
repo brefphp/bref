@@ -1,0 +1,222 @@
+---
+description: "Send emails from a PHP application on AWS Lambda with Amazon SES."
+---
+
+import { Tabs } from 'nextra/components';
+
+# Sending emails
+
+Applications running on AWS Lambda can send emails with any email provider: Mailgun, Postmark, Resend, etc. are configured the same way as on a server. Bref does not require nor recommend a specific provider.
+
+This page documents how to use [Amazon SES](https://aws.amazon.com/ses/) (Simple Email Service), the email service of AWS. Unlike other AWS services in this documentation, like SQS or S3, using SES is entirely optional.
+
+Compared to other email providers, SES has some advantages on AWS Lambda:
+
+- **No API key**: the application sends emails with its IAM role, there is no secret to store.
+- **Same AWS account** as the application, billed per email ([$0.10 per 1,000 emails](https://aws.amazon.com/ses/pricing/)).
+
+But SES does not list sent emails, bounces or complaints in a dashboard out of the box. To track them, set up [event publishing](https://docs.aws.amazon.com/ses/latest/dg/monitor-using-event-publishing.html) to SNS or CloudWatch.
+
+## Verifying a domain
+
+SES only sends emails from verified domains or addresses. Create the domain identity **in the same region as your application**.
+
+We recommend sending from a subdomain, for example `mail.example.com`: its sending reputation is separate from the main domain, and the main domain keeps its MX records to receive emails.
+
+<Tabs items={['AWS console', 'AWS CLI']}>
+    <Tabs.Tab>
+        Open the [SES identities page](https://console.aws.amazon.com/ses/home#/identities) in the region of your application, and click "Create identity":
+
+        - select "Domain" and enter `mail.example.com`,
+        - check "Use a custom MAIL FROM domain" and enter `bounce` (the MAIL FROM domain is then `bounce.mail.example.com`),
+        - keep "Easy DKIM" selected.
+
+        The page of the identity then lists the DNS records to create.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        Create the domain identity:
+
+        ```bash
+        aws sesv2 create-email-identity --region eu-west-3 --email-identity mail.example.com
+        ```
+
+        SES signs emails with DKIM keys it manages ("Easy DKIM"). The command returns three DKIM tokens: each one is a CNAME record to create (see below).
+
+        Then set the MAIL FROM domain of the identity:
+
+        ```bash
+        aws sesv2 put-email-identity-mail-from-attributes --region eu-west-3 \
+            --email-identity mail.example.com \
+            --mail-from-domain bounce.mail.example.com \
+            --behavior-on-mx-failure USE_DEFAULT_VALUE
+        ```
+
+        The MAIL FROM domain is the address bounces are sent to (the `Return-Path` header). By default, SES uses a subdomain of `amazonses.com`, which means SPF does not align with your domain and does not count for DMARC. With `USE_DEFAULT_VALUE`, SES falls back to `amazonses.com` if the MX record of the MAIL FROM domain is missing, instead of rejecting emails.
+    </Tabs.Tab>
+</Tabs>
+
+Create the following DNS records. If you use Cloudflare, disable the proxy on the CNAME records ("DNS only").
+
+| Type | Name | Value |
+|---|---|---|
+| CNAME (×3) | `<token>._domainkey.mail.example.com` | `<token>.dkim.amazonses.com` |
+| MX (priority 10) | `bounce.mail.example.com` | `feedback-smtp.<region>.amazonses.com` |
+| TXT | `bounce.mail.example.com` | `"v=spf1 include:amazonses.com ~all"` |
+| TXT | `_dmarc.example.com` | `"v=DMARC1; p=none"` |
+
+The DMARC record applies to the main domain and all its subdomains. Skip it if your domain already has one. `p=none` only reports failures: once all the emails sent from your domain pass DMARC, you can switch to `p=quarantine` or `p=reject`.
+
+SES verifies the domain a few minutes after the DNS records are created. Both statuses returned by this command should be `SUCCESS`:
+
+```bash
+aws sesv2 get-email-identity --region eu-west-3 --email-identity mail.example.com \
+    --query '{dkim: DkimAttributes.Status, mailFrom: MailFromAttributes.MailFromDomainStatus}'
+```
+
+### Receiving replies
+
+The `mail.example.com` subdomain has no MX record, so it cannot receive emails. Set a `Reply-To` address on a domain that receives emails, for example `contact@example.com`. See [the Laravel example below](#laravel).
+
+## Allowing the application to send emails
+
+Allow the application to send emails from the domain identity in `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    iam:
+        role:
+            statements:
+                -   Effect: Allow
+                    Action:
+                        - ses:SendEmail
+                        - ses:SendRawEmail
+                    Resource: arn:aws:ses:${aws:region}:${aws:accountId}:identity/mail.example.com
+                    # Optional: restrict the sender address
+                    Condition:
+                        StringEquals:
+                            ses:FromAddress: contact@mail.example.com
+```
+
+`ses:SendRawEmail` is required even with the SES v2 API: Laravel and Symfony send the full MIME message (raw content), which AWS checks as `ses:SendRawEmail`. Without it, sending fails with:
+
+```
+User: arn:aws:sts::…:assumed-role/… is not authorized to perform: ses:SendRawEmail on resource: arn:aws:ses:…:identity/mail.example.com
+```
+
+> [!WARNING]
+>
+> While the AWS account is in the [SES sandbox](#leaving-the-ses-sandbox), AWS also checks the identity of the **recipient**: the policy above denies emails sent to verified test addresses. Add these addresses to `Resource` during tests (for example `arn:aws:ses:${aws:region}:${aws:accountId}:identity/test@example.com`), and remove them once the account has production access.
+
+## Laravel
+
+Laravel sends emails with SES through the AWS SDK:
+
+```bash
+composer require aws/aws-sdk-php
+```
+
+In `config/mail.php`, switch the transport of the `ses` mailer to `ses-v2`, to use the SES v2 API (the API AWS keeps evolving):
+
+```php filename="config/mail.php"
+'mailers' => [
+    // ...
+    'ses' => [
+        'transport' => 'ses-v2',
+    ],
+],
+```
+
+Then select the `ses` mailer, and set the sender address, in `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        MAIL_MAILER: ses
+        MAIL_FROM_ADDRESS: contact@mail.example.com
+        MAIL_FROM_NAME: My application
+```
+
+There is no need to change the `ses` configuration in `config/services.php`: on AWS Lambda, Bref's Laravel integration configures SES with the credentials of the Lambda function. The region is the region of the application.
+
+To receive replies (see [above](#receiving-replies)), set a global `Reply-To` address in `config/mail.php`:
+
+```php filename="config/mail.php"
+'reply_to' => [
+    'address' => env('MAIL_REPLY_TO_ADDRESS'),
+    'name' => env('MAIL_FROM_NAME'),
+],
+```
+
+> [!WARNING]
+>
+> If your `composer.json` [removes unused AWS services](../deploy/index.mdx#reducing-package-size) from the AWS SDK, add `SesV2` to the services it keeps, then run `composer install`. Otherwise, sending emails fails in production with `Class "Aws\SesV2\SesV2Client" not found`.
+>
+> ```json filename="composer.json"
+> "extra": {
+>     "aws/aws-sdk-php": [
+>         "Sqs",
+>         "SesV2"
+>     ]
+> }
+> ```
+>
+> Tests and local development don't catch this error if they install dependencies with `composer install --no-scripts`: the unused services are only removed when the scripts run.
+
+## Symfony
+
+> [!WARNING]
+>
+> This Symfony configuration has not been tested yet. If it works for you, please [send a pull request](https://github.com/brefphp/bref/edit/master/docs/environment/emails.mdx) that removes this warning to confirm it.
+
+Install the Amazon SES transport for Symfony Mailer:
+
+```bash
+composer require symfony/amazon-mailer
+```
+
+Configure it in `serverless.yml`, without access key in the DSN: the transport then uses the credentials of the Lambda function.
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        MAILER_DSN: ses+api://default?region=${aws:region}
+```
+
+Read more in the [Symfony Mailer documentation](https://symfony.com/doc/current/mailer.html#using-a-3rd-party-transport).
+
+## Other PHP applications
+
+Use the `SesV2Client` of the AWS SDK. On AWS Lambda, it uses the credentials and the region of the Lambda function:
+
+```php
+$ses = new \Aws\SesV2\SesV2Client([]);
+
+$ses->sendEmail([
+    'FromEmailAddress' => 'contact@mail.example.com',
+    'Destination' => [
+        'ToAddresses' => ['john@example.com'],
+    ],
+    'Content' => [
+        'Simple' => [
+            'Subject' => ['Data' => 'Hello'],
+            'Body' => [
+                'Text' => ['Data' => 'Hello world!'],
+            ],
+        ],
+    ],
+]);
+```
+
+## Leaving the SES sandbox
+
+In each region, a new AWS account starts in the [SES sandbox](https://docs.aws.amazon.com/ses/latest/dg/request-production-access.html): it can send up to 200 emails per 24 hours, and only to verified addresses.
+
+To send emails to anyone, open the [SES account dashboard](https://console.aws.amazon.com/ses/home#/account) in the region of your application, and click "Request production access". The region must have a verified identity.
+
+AWS usually replies within a day, often with questions about how you send emails. Answer all of them in one message to avoid back-and-forth:
+
+- the URL of the website: deploy the application on its real domain first, as reviewers look at it,
+- the type of emails (for example login links and notifications) and the expected volume,
+- how recipients sign up to receive them,
+- how bounces and complaints are handled: the account-level [suppression list](https://docs.aws.amazon.com/ses/latest/dg/sending-email-suppression-list.html) (enabled by default) stops sending to addresses that bounced or complained,
+- an example email.

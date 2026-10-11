@@ -7,6 +7,7 @@ export default {
   "database": "Databases",
   "database-dsql": "Databases - Aurora DSQL",
   "database-planetscale": "Databases - PlanetScale",
+  "emails": "Sending emails",
   "database-public": {
     "display": "hidden"
   },
