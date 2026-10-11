@@ -15,13 +15,13 @@ Compared to other email providers, SES has some advantages on AWS Lambda:
 - **No API key**: the application sends emails with its IAM role, there is no secret to store.
 - **Same AWS account** as the application, billed per email ([$0.10 per 1,000 emails](https://aws.amazon.com/ses/pricing/)).
 
-But SES does not list sent emails, bounces or complaints in a dashboard out of the box. To track them, set up [event publishing](https://docs.aws.amazon.com/ses/latest/dg/monitor-using-event-publishing.html) to SNS or CloudWatch.
+But SES does not list sent emails, bounces or complaints in a dashboard out of the box.
 
 ## Verifying a domain
 
 SES only sends emails from verified domains or addresses. Create the domain identity **in the same region as your application**.
 
-We recommend sending from a subdomain, for example `mail.example.com`: its sending reputation is separate from the main domain, and the main domain keeps its MX records to receive emails.
+Send emails from a subdomain, for example `mail.example.com`: its sending reputation is separate from the main domain, and the main domain keeps its MX records to receive emails.
 
 <Tabs items={['AWS console', 'AWS CLI']}>
     <Tabs.Tab>
