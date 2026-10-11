@@ -1,0 +1,17 @@
+version: 2
+updates:
+    # One pull request per week for the website dependencies
+    -   package-ecosystem: npm
+        directory: /website
+        schedule:
+            interval: weekly
+        allow:
+            # Also update transitive dependencies (lockfile only)
+            -   dependency-type: all
+        groups:
+            website:
+                patterns: [ '*' ]
+        ignore:
+            # Major versions (e.g. Next 16) are upgraded manually
+            -   dependency-name: '*'
+                update-types: [ 'version-update:semver-major' ]
