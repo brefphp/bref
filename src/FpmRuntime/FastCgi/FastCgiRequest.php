@@ -2,6 +2,7 @@
 
 namespace Bref\FpmRuntime\FastCgi;
 
+use hollodotme\FastCGI\Interfaces\ComposesRequestContent;
 use hollodotme\FastCGI\Requests\AbstractRequest;
 
 /**
@@ -15,7 +16,22 @@ final class FastCgiRequest extends AbstractRequest
         string $content
     ) {
         $this->method = $method;
-        parent::__construct($scriptFilename, $content);
+        parent::__construct($scriptFilename, new class($content) implements ComposesRequestContent {
+            public function __construct(private string $content)
+            {
+            }
+
+            public function getContentType(): string
+            {
+                // Same default as fast-cgi-client 3.x
+                return 'application/x-www-form-urlencoded';
+            }
+
+            public function getContent(): string
+            {
+                return $this->content;
+            }
+        });
     }
 
     public function getRequestMethod(): string
