@@ -360,6 +360,26 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
     /**
      * @dataProvider provide API Gateway versions
      */
+    public function test POST request with multipart form data containing indexed arrays(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart-indexed-arrays.json");
+
+        $this->assertContentType('multipart/form-data; boundary=testBoundary');
+        $this->assertParsedBody([
+            'users' => [
+                ['id' => '1', 'name' => 'Ada'],
+                ['id' => '2', 'name' => 'Grace'],
+            ],
+            'ids' => [
+                5 => 'a',
+                9 => 'b',
+            ],
+        ]);
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
     public function test POST request with malformed multipart form data(int $version)
     {
         $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart-arrays-malformed.json");
