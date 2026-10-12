@@ -220,12 +220,9 @@ Keep in mind that:
 
 ### Cache, locks and queues
 
-Laravel can store its cache, locks, sessions and queued jobs in the database. With Aurora DSQL:
+The `database` cache store works with Aurora DSQL. Use [DynamoDB](../laravel/caching.mdx#dynamodb-cache) instead for a cache read on every request, for locks, or for rate limiters with a lot of traffic: when many requests change the same key at the same time, Aurora DSQL makes them conflict.
 
-- **The `database` cache store** works, rate limiters included. Laravel increments a counter in a transaction: when two requests increment the same counter, the package runs the increment again after the conflict, like the queries outside of a transaction.
-- **Heavy use of the same keys conflicts**: when many requests change the same key at the same time, like a rate limiter shared by all visitors or a lock that many jobs wait for, most of them conflict, and requests fail once the retries run out. Every cache read is also a database query, billed in DPUs. Use [DynamoDB](../laravel/caching.mdx#dynamodb-cache) for a cache read on every request (`Cache::remember()`, `Cache::flexible()`), for locks (`Cache::lock()`, unique jobs, `WithoutOverlapping`) and for rate limiters with a lot of traffic: it increments counters and acquires locks in a single operation, without conflicts, and is billed per request.
-- **The database queue** reserves each job in a transaction: workers that poll the queue at the same time conflict, and report the error. On AWS Lambda, use [SQS](../laravel/queues.mdx) instead.
-- **Database sessions** work.
+For queues, use [SQS](../laravel/queues.mdx) rather than the database queue.
 
 ### Other differences
 
