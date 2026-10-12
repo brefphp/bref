@@ -46,4 +46,4 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN_READ }}
             -   name: Deploy
                 id: deploy
-                run: echo "url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})" >> "$GITHUB_OUTPUT"
+                run: echo "url=$(vercel deploy --prebuilt --archive=tgz --token=${{ secrets.VERCEL_TOKEN }})" >> "$GITHUB_OUTPUT"
