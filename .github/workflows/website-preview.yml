@@ -16,8 +16,8 @@ env:
 jobs:
 
     deploy:
-        # Pull requests from forks don't have access to the secrets
-        if: github.event.pull_request.head.repo.full_name == github.repository
+        # Pull requests from forks and from Dependabot don't have access to the secrets
+        if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
         runs-on: ubuntu-latest
         concurrency:
             group: website-preview-${{ github.event.pull_request.number }}
