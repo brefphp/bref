@@ -53,7 +53,6 @@ const sections = [
     {
         name: 'Bref integrations',
         features: [
-            { name: '<a href="/sentry" class="link">Sentry integration</a> license for unlimited projects', tiers: { Pro: true, Enterprise: true } },
             { name: '<a href="/xray" class="link">X-Ray integration</a> license for unlimited projects', tiers: { Pro: true, Enterprise: true } },
         ],
     },
