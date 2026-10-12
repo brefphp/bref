@@ -5,7 +5,8 @@ namespace Bref\Runtime;
 /**
  * Tracks cold starts.
  *
- * @internal
+ * Integrations (APM, error tracking…) can read the state of the current invocation from it.
+ * Only the Bref runtime updates it.
  */
 class ColdStartTracker
 {
@@ -18,6 +19,9 @@ class ColdStartTracker
     private static bool $hasFirstInvocationStarted = false;
     private static bool $wasProactiveInitialization = false;
 
+    /**
+     * @internal Called by the Bref runtime.
+     */
     public static function init(): void
     {
         self::$coldStartBeginningTime = microtime(true);
@@ -33,6 +37,8 @@ class ColdStartTracker
 
     /**
      * Signals that the cold start has finished.
+     *
+     * @internal Called by the Bref runtime.
      */
     public static function coldStartFinished(): void
     {
@@ -41,6 +47,8 @@ class ColdStartTracker
 
     /**
      * Signals that a Lambda invocation has started.
+     *
+     * @internal Called by the Bref runtime.
      */
     public static function invocationStarted(): void
     {
