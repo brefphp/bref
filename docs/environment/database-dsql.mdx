@@ -218,11 +218,16 @@ Keep in mind that:
 - Rows that the transaction only reads, without changing them, are not checked: if another request changes them, the transaction still commits, based on the value it read. Read them with `lockForUpdate()` when your code relies on them: it doesn't make other requests wait like in PostgreSQL, but the transaction then conflicts if another request changes these rows.
 - Many requests that change the same row, like a global counter, conflict often: spread the writes over several rows when you can.
 
+### Cache, locks and queues
+
+The `database` cache store works with Aurora DSQL. Use [DynamoDB](../laravel/caching.mdx#dynamodb-cache) instead for a cache read on every request, for locks, or for rate limiters with a lot of traffic: when many requests change the same key at the same time, Aurora DSQL makes them conflict.
+
+For queues, use [SQS](../laravel/queues.mdx) rather than the database queue.
+
 ### Other differences
 
 - Without savepoints, a nested transaction is part of the transaction around it: rolling back the nested transaction rolls back nothing until the outer transaction is rolled back.
 - `truncate()` and `sharedLock()` are not supported.
-- The database cache store and its locks, the database queue and database sessions work.
 
 ## Other PHP applications
 
