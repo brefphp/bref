@@ -11,7 +11,11 @@
     <file>tests</file>
 
     <!-- Import the Doctrine coding standard -->
-    <rule ref="Doctrine"/>
+    <rule ref="Doctrine">
+        <!-- Deprecated in PHP_CodeSniffer 3.3, replaced by the Generic sniff below -->
+        <exclude name="Squiz.WhiteSpace.LanguageConstructSpacing"/>
+    </rule>
+    <rule ref="Generic.WhiteSpace.LanguageConstructSpacing"/>
 
     <!-- Allow long lines -->
     <rule ref="Generic.Files.LineLength.TooLong">
