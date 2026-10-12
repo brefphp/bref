@@ -235,7 +235,6 @@ class HttpRequestEventTest extends CommonHttpTest
     {
         $reflection = new \ReflectionClass(HttpRequestEvent::class);
         $method = $reflection->getMethod('queryStringToArray');
-        $method->setAccessible(true);
         $result = $method->invokeArgs($reflection->newInstanceWithoutConstructor(), [$query]);
 
         $this->assertEquals($expectedOutput, $result);
