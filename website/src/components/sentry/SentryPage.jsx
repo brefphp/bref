@@ -1,61 +1,11 @@
 'use client';
 
-import { BugAntIcon, ClockIcon, CodeBracketSquareIcon, FingerPrintIcon, MagnifyingGlassIcon, CheckIcon } from '@heroicons/react/20/solid';
+import { BugAntIcon, ClockIcon, CodeBracketSquareIcon, FingerPrintIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import sentry from './sentry.png';
 import Image from 'next/image';
 import Breadcrumbs from '../Breadcrumbs';
-import SentryCheckout from './SentryCheckout';
-import { useState } from 'react';
 
 export default function SentryPage() {
-    const [openCheckout, setOpenCheckout] = useState(false);
-    const [checkoutPrice, setCheckoutPrice] = useState(['']);
-    const [checkoutLinkSingle, setCheckoutLinkSingle] = useState('');
-    const [checkoutLinkSubscription, setCheckoutLinkSubscription] = useState('');
-
-    function classNames(...classes) {
-        return classes.filter(Boolean).join(' ')
-    }
-
-    function doOpenCheckout(price, linkSingle, linkSubscription) {
-        setOpenCheckout(true);
-        setCheckoutPrice(price);
-        setCheckoutLinkSingle(linkSingle);
-        setCheckoutLinkSubscription(linkSubscription);
-    }
-
-    const tiers = [
-        {
-            name: 'Single project',
-            id: 'single-license',
-            linkSingle: 'https://bref.lemonsqueezy.com/checkout/buy/7ca29229-57a7-4bc7-8a06-18b1c025008a',
-            linkSubscription: 'https://bref.lemonsqueezy.com/checkout/buy/5179f3c6-d018-49ff-9439-c991e0830fd7',
-            price: ['79', '69'],
-            features: [
-                'Single project',
-                'Unlimited users',
-                'Composer package & documentation',
-                'Free updates for one year',
-            ],
-            featured: false,
-        },
-        {
-            name: 'Unlimited',
-            id: 'unlimited-license',
-            linkSingle: 'https://bref.lemonsqueezy.com/checkout/buy/3294cae7-dc1f-4e98-b754-9a6431ba3c20',
-            linkSubscription: 'https://bref.lemonsqueezy.com/checkout/buy/5dd9918f-1fe3-429f-ae74-717674f59200',
-            price: ['199', '179'],
-            features: [
-                'Unlimited projects',
-                'Unlimited users',
-                'Composer package & documentation',
-                'Free updates for one year',
-                'Email support',
-            ],
-            featured: true,
-        },
-    ];
-
     const features = [
         {
             name: 'Advanced error tracking.',
@@ -90,26 +40,6 @@ export default function SentryPage() {
             answer: 'You can find more information about each feature in <a href="/sentry/docs" class="link">the documentation</a>.',
         },
         {
-            question: 'What is a considered a "project"?',
-            answer: 'You can use a "Single Project" license on one "service" or "application" (for example a Laravel or a Symfony project). If one application is deployed to multiple environments (like "dev", "staging", "production"…), it counts as a single project (non-production environments are ignored). If one application contains multiple AWS Lambda functions, it still counts as a single project. <br/> However, if you deploy multiple applications, multiple services (e.g. with <strong>microservices</strong>), or deploy the same application for multiple customers (aka multi-tenant) or to multiple regions, you need an "Unlimited" license (or a license for each application).',
-        },
-        {
-            question: 'Do I get invoices?',
-            answer: 'Yes, you will receive an invoice by email after your purchase.',
-        },
-        {
-            question: 'What is the refund policy?',
-            answer: '7-days, full refund if the package is not working out for you.',
-        },
-        {
-            question: 'Can I use an unlimited license for all of my client projects?',
-            answer: 'Not exactly. An unlimited license provides you unlimited access for all of <em>your</em> projects, but it doesn\'t mean your client is also allowed to use your license. Your clients will need their own license to use the Sentry integration for their projects.',
-        },
-        {
-            question: 'Are there any bulk pricing options?',
-            answer: 'That is possible, please get in touch.',
-        },
-        {
             question: 'What are the terms of service?',
             answer: 'Please follow the following link to read the <a href="/sentry/terms" class="link">Terms of service</a> for the Sentry integration.',
         },
@@ -117,9 +47,6 @@ export default function SentryPage() {
 
     return (
         <div>
-            <SentryCheckout open={openCheckout} setOpen={setOpenCheckout} price={checkoutPrice}
-                            linkSingle={checkoutLinkSingle} linkSubscription={checkoutLinkSubscription} />
-
             <div className="py-8 pb-12">
                 <div className="mx-auto max-w-7xl px-6 lg:px-8">
                     <div className="mx-auto max-w-2xl sm:text-center">
@@ -139,8 +66,8 @@ export default function SentryPage() {
                             >
                                 Documentation
                             </a>
-                            <a href="#pricing" className="text-sm font-semibold leading-6 text-gray-900">
-                                Pricing <span aria-hidden="true">→</span>
+                            <a href="#access" className="text-sm font-semibold leading-6 text-gray-900">
+                                Get access <span aria-hidden="true">→</span>
                             </a>
                         </div>
                     </div>
@@ -174,73 +101,15 @@ export default function SentryPage() {
                 </div>
             </div>
 
-            <div id="pricing" className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
-                <div className="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl" aria-hidden="true">
-                    <div
-                        className="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-blue-100 to-blue-500 opacity-30"
-                        style={{
-                            clipPath:
-                                'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-                        }}
-                    />
-                </div>
-                <div className="mx-auto max-w-2xl text-center lg:max-w-4xl">
+            <div id="access" className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
+                <div className="mx-auto max-w-2xl text-center">
                     <div className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                        Simple pricing
+                        Changes are coming
                     </div>
-                </div>
-                <div className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
-                    The license is a <strong>one-time purchase</strong> and includes free updates for a year.
-                    If you prefer to get all future updates, you can enable automatic license renewals.
-                </div>
-                <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
-                    {tiers.map((tier, tierIdx) => (
-                        <div
-                            key={tier.id}
-                            className={classNames(
-                                tier.featured ? 'relative bg-white shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0',
-                                tier.featured
-                                    ? ''
-                                    : tierIdx === 0
-                                        ? 'rounded-t-3xl sm:rounded-b-none lg:rounded-tr-none lg:rounded-bl-3xl'
-                                        : 'sm:rounded-t-none lg:rounded-tr-3xl lg:rounded-bl-none',
-                                'rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10'
-                            )}
-                        >
-                            <h3 id={tier.id} className="text-base font-semibold leading-7 text-blue-600">
-                                {tier.name}
-                            </h3>
-                            <div className="mt-4 flex items-baseline gap-x-2">
-                                <span className="text-5xl font-bold tracking-tight text-gray-900">{tier.price[0]}€</span>
-                                <span className="text-xs text-gray-500">one-time payment</span>
-                            </div>
-                            <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600 sm:mt-10">
-                                {tier.features.map((feature) => (
-                                    <li key={feature} className="flex gap-x-3">
-                                        <CheckIcon className="h-6 w-5 flex-none text-blue-600" aria-hidden="true" />
-                                        {feature}
-                                    </li>
-                                ))}
-                                <li>10% discount with yearly license renewal enabled</li>
-                            </ul>
-                            <button
-                                type="button"
-                                onClick={() => doOpenCheckout(tier.price, tier.linkSingle, tier.linkSubscription)}
-                                aria-describedby={tier.id}
-                                className={classNames(
-                                    tier.featured
-                                        ? '!bg-blue-500 text-white shadow hover:!bg-blue-600'
-                                        : 'text-blue-600 ring-1 ring-inset ring-blue-200 hover:ring-blue-300',
-                                    'mt-8 block w-full rounded-md py-2.5 px-3.5 text-center text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 sm:mt-10'
-                                )}
-                            >
-                                Get started
-                            </button>
-                        </div>
-                    ))}
-                </div>
-                <div className="mx-auto mt-12 grid max-w-lg text-gray-500 text-sm">
-                    Invoices and receipts available for easy company reimbursement.
+                    <div className="mt-6 text-lg leading-8 text-gray-600">
+                        We are making changes to the Sentry integration, and new licenses are not available for purchase at the moment.
+                        To get access to the Sentry integration, <a href="mailto:matthieu@bref.sh?subject=Sentry%20integration" className="font-semibold text-blue-600 hover:text-blue-500">contact matthieu@bref.sh</a>.
+                    </div>
                 </div>
             </div>
 
