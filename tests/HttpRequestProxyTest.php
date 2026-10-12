@@ -43,6 +43,8 @@ interface HttpRequestProxyTest
 
     public function test POST request with multipart form data containing arrays(int $version);
 
+    public function test POST request with multipart form data containing indexed arrays(int $version);
+
     public function test POST request with multipart file uploads(int $version);
 
     public function test request with cookies(int $version);
