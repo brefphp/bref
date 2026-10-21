@@ -58,7 +58,15 @@ The Docker images are updated too: `bref/php-82` to `bref/php-85`, `bref/arm-php
 
 ### Bref 2
 
-The Bref 2 layers (version 2.3.45, PHP 8.2 to 8.4) are coming within the hour, along with the v2 Docker images (`bref/php-8x-fpm:2`, `bref/php-8x:2` and `bref/php-8x-console:2`). I will update this post when they are published, and you can follow [this GitHub issue](https://github.com/brefphp/bref/issues/2222).
+The Bref 2 layers are published too (version 2.3.45, PHP 8.2 to 8.4), one hour after php.net:
+
+| PHP | Layer version |
+|-----|---------------|
+| 8.4 | `php-84:43` and `php-84-fpm:43` |
+| 8.3 | `php-83:71` and `php-83-fpm:71` |
+| 8.2 | `php-82:115` and `php-82-fpm:115` |
+
+[`bref/bref` 2.4.22](https://github.com/brefphp/bref/releases/tag/2.4.22) uses these layers: run `composer update bref/bref` and redeploy, same as for Bref 3. The v2 Docker images (`bref/php-8x-fpm:2`, `bref/php-8x:2` and `bref/php-8x-console:2`) are updated as well, the `2` and `2.3.45` tags point to the new PHP versions.
 
 Bref 1 layers will not be rebuilt: Bref 1 is not maintained anymore. If you are still on Bref 1, now is a good time to upgrade.
 
