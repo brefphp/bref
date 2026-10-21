@@ -1,0 +1,124 @@
+---
+title: PHP security release of October 2026
+seoTitle: "Bref: PHP security release of October 2026"
+description: "PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35 fix two critical vulnerabilities. Bref layers and Docker images are updated: here is how to update your applications."
+---
+
+import ArticleHeader from '../../src/components/news/ArticleHeader';
+
+# PHP security release of October 2026
+
+<ArticleHeader
+    subTitle="Two critical vulnerabilities fixed in PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35"
+    date="October 21, 2026"
+    author="Matthieu Napoli"
+    authorGitHub="mnapoli" />
+
+PHP released a critical security update today. The Bref 3 layers and Docker images with the patched PHP versions are already published in all regions.
+
+**Update your applications now**:
+
+```bash
+composer update bref/bref
+```
+
+Then redeploy. That's it for most applications, the details are below.
+
+## What happened
+
+Yesterday, the PHP team announced a critical security release for today at 14:00 UTC: two vulnerabilities, rated 9.2 on the CVSS scale. The release came out a bit earlier, at 13:35 UTC: [PHP 8.5.12, 8.4.27, 8.3.36 and 8.2.35](https://www.php.net/archive/2026.php#2026-10-21-5).
+
+The two vulnerabilities:
+
+- **CVE-2026-109618**: remote code execution through state corruption when PHP runs out of memory while starting a request or parsing its body. Multipart requests can trigger it, whatever your application code does.
+- **CVE-2026-109619**: remote code execution through state left behind by a request and used by the next request on the same worker. Session upload progress is one confirmed path, validated on PHP-FPM.
+
+PHP lists PHP-FPM, mod_php, php-cgi, FrankenPHP and LiteSpeed as affected. And their advisory is very clear: "there are no complete mitigations, updating is the only safe choice".
+
+PHP 8.1 and older are end of life and don't get a fix. If you still run one of those, upgrade to PHP 8.2 or later.
+
+## What's updated in Bref
+
+PHP was released at 13:35 UTC. The pull requests to update the Bref layers were opened at 13:37, CI was green at 13:59, and the new layers and Docker images were published in every region at 14:06. That's 31 minutes after php.net.
+
+That was fast because we prepared everything in advance: the scripts to bump PHP versions were ready and the build cache was warm. All that was left was to wait for PHP, open the PRs and publish.
+
+The new Bref 3 layers (x86 and ARM, all regions):
+
+| PHP | Layer version |
+|-----|---------------|
+| 8.5 | `php-85:21` |
+| 8.4 | `php-84:24` |
+| 8.3 | `php-83:24` |
+| 8.2 | `php-82:26` |
+
+[`bref/bref` 3.0.14](https://packagist.org/packages/bref/bref) is on Packagist and uses these layers.
+
+The Docker images are updated too: `bref/php-82` to `bref/php-85`, `bref/arm-php-82` to `bref/arm-php-85`, as well as the `bref/php-8x-dev` and `bref/build-php-8x` images. The `3`, `3.0.10` and `latest` tags point to the new versions.
+
+### Bref 2
+
+The Bref 2 layers (version 2.3.45, PHP 8.2 to 8.4) are coming within the hour, along with the v2 Docker images (`bref/php-8x-fpm:2`, `bref/php-8x:2` and `bref/php-8x-console:2`). I will update this post when they are published, and you can follow [this GitHub issue](https://github.com/brefphp/bref/issues/2222).
+
+Bref 1 layers will not be rebuilt: Bref 1 is not maintained anymore. If you are still on Bref 1, now is a good time to upgrade.
+
+## How to update
+
+### With layers (`serverless.yml`)
+
+Update Bref to 3.0.14 or later, and redeploy:
+
+```bash
+composer update bref/bref
+serverless deploy
+```
+
+If you use layer ARNs directly instead of the Bref runtimes (e.g. `runtime: php-84-fpm`), get the new ARNs on [runtimes.bref.sh](https://runtimes.bref.sh).
+
+### With Docker images
+
+Your Docker cache still has the old base images with the old PHP version. Pull them again when building, then push the image and redeploy:
+
+```bash
+docker build --pull -t my-app .
+```
+
+(or run `docker pull bref/php-84:3` before building)
+
+### With Bref Cloud
+
+If you deploy Laravel applications with Bref Cloud, they will get the new layers on their next deploy once Bref Cloud is updated later today.
+
+### Check that it worked
+
+The function should use the new layer versions listed above:
+
+```bash
+aws lambda get-function-configuration --function-name my-function --query Layers
+```
+
+You can also check the PHP version with `php -v`, or in the `X-Powered-By` HTTP header: it should be 8.5.12, 8.4.27, 8.3.36 or 8.2.35.
+
+## Which functions are affected?
+
+The PHP-FPM runtime is squarely in scope: that's the `php-84-fpm` runtime (or `BREF_RUNTIME=fpm`), used for web applications with Laravel, Symfony, etc. Update these first.
+
+The function runtime, Laravel Octane, console commands and queue workers run `php-cli` in a single long-lived process. They are not in the attack paths described by PHP:
+
+- the CLI SAPI doesn't parse request bodies itself: Bref parses multipart requests in PHP code
+- a fatal error or running out of memory ends the process
+
+Update them anyway. The fix is in the Zend engine itself, and every layer was rebuilt. `composer update bref/bref` updates all your functions at once, so there is nothing extra to do.
+
+## What about mitigations?
+
+I don't recommend any mitigation instead of updating. Here is why:
+
+- `session.upload_progress.enabled=0` only covers part of one of the two vulnerabilities (PHP says so in the advisory).
+- `file_uploads=Off` and `post_max_size` do nothing here.
+
+If you need a few hours before you can deploy and your application doesn't handle file uploads, blocking multipart requests in your WAF or CDN can help as a stopgap. But then update.
+
+## Thanks
+
+Thank you to the PHP security team for the fix and the release, and to the people who reported these vulnerabilities (Wiz, lcfr-hax and others, see [the advisory](https://www.php.net/archive/2026.php#2026-10-21-5)).
