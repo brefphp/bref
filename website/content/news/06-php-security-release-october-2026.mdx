@@ -19,10 +19,10 @@ PHP released a critical security update today. The Bref 3 layers and Docker imag
 **Update your applications now**:
 
 ```bash
-composer update bref/bref
+composer update bref/bref -W
 ```
 
-Then redeploy. That's it for most applications, the details are below.
+Then redeploy. That's it for most applications, the details are below. (`-W` lets Composer update Bref's own dependencies too, without it the update can fail.)
 
 ## What happened
 
@@ -66,7 +66,7 @@ The Bref 2 layers are published too (version 2.3.45, PHP 8.2 to 8.4), one hour a
 | 8.3 | `php-83:71` and `php-83-fpm:71` |
 | 8.2 | `php-82:115` and `php-82-fpm:115` |
 
-[`bref/bref` 2.4.22](https://github.com/brefphp/bref/releases/tag/2.4.22) uses these layers: run `composer update bref/bref` and redeploy, same as for Bref 3. The v2 Docker images (`bref/php-8x-fpm:2`, `bref/php-8x:2` and `bref/php-8x-console:2`) are updated as well, the `2` and `2.3.45` tags point to the new PHP versions.
+[`bref/bref` 2.4.22](https://github.com/brefphp/bref/releases/tag/2.4.22) uses these layers: run `composer update bref/bref -W` and redeploy, same as for Bref 3. The v2 Docker images (`bref/php-8x-fpm:2`, `bref/php-8x:2` and `bref/php-8x-console:2`) are updated as well, the `2` and `2.3.45` tags point to the new PHP versions.
 
 Bref 1 layers will not be rebuilt: Bref 1 is not maintained anymore. If you are still on Bref 1, now is a good time to upgrade.
 
@@ -77,7 +77,7 @@ Bref 1 layers will not be rebuilt: Bref 1 is not maintained anymore. If you are 
 Update Bref to 3.0.14 or later, and redeploy:
 
 ```bash
-composer update bref/bref
+composer update bref/bref -W
 serverless deploy
 ```
 
@@ -116,7 +116,7 @@ The function runtime, Laravel Octane, console commands and queue workers run `ph
 - the CLI SAPI doesn't parse request bodies itself: Bref parses multipart requests in PHP code
 - a fatal error or running out of memory ends the process
 
-Update them anyway. The fix is in the Zend engine itself, and every layer was rebuilt. `composer update bref/bref` updates all your functions at once, so there is nothing extra to do.
+Update them anyway. The fix is in the Zend engine itself, and every layer was rebuilt. `composer update bref/bref -W` updates all your functions at once, so there is nothing extra to do.
 
 ## What about mitigations?
 
