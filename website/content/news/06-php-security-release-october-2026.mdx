@@ -43,6 +43,8 @@ PHP was released at 13:35 UTC. The pull requests to update the Bref layers were 
 
 That was fast because we prepared everything in advance: the scripts to bump PHP versions were ready and the build cache was warm. All that was left was to wait for PHP, open the PRs and publish.
 
+The layers are built on [Depot](https://depot.dev/?ref=bref.sh), a Bref sponsor: their remote builders and shared build cache are what made the builds this fast today. Without them we couldn't have reacted this quickly to the release. Thank you Depot, it really made a difference.
+
 The new Bref 3 layers (x86 and ARM, all regions):
 
 | PHP | Layer version |
@@ -122,3 +124,5 @@ If you need a few hours before you can deploy and your application doesn't handl
 ## Thanks
 
 Thank you to the PHP security team for the fix and the release, and to the people who reported these vulnerabilities (Wiz, lcfr-hax and others, see [the advisory](https://www.php.net/archive/2026.php#2026-10-21-5)).
+
+Days like today are possible thanks to the companies and people who sponsor Bref. If Bref matters to your company, consider [sponsoring the project](/support).
