@@ -7,16 +7,16 @@
     "test": "node --test \"src/**/*.test.js\""
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.1151.0",
+    "@aws-sdk/client-cloudwatch": "^3.1154.0",
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "@octokit/graphql": "^7.1.1",
-    "next": "^15.5.27",
+    "next": "^15.5.28",
     "next-plausible": "^3.12.5",
     "nextra": "^4.6.1",
     "nextra-theme-docs": "^4.6.1",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "sharp": "^0.35.5"
   },
   "devDependencies": {
