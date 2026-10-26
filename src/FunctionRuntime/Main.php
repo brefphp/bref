@@ -17,6 +17,12 @@ class Main
     {
         ColdStartTracker::init();
 
+        // OPcache doesn't cache files modified less than 2 seconds before the request started, and with BREF_LOOP_MAX
+        // the request starts with the process: files written later (e.g. compiled views) would never be cached
+        if (getenv('BREF_LOOP_MAX') > 1 && get_cfg_var('opcache.file_update_protection') === false) {
+            ini_set('opcache.file_update_protection', '0');
+        }
+
         LazySecretsLoader::loadSecretEnvironmentVariables();
 
         Bref::events()->beforeStartup();
