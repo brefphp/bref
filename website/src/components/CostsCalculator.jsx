@@ -89,8 +89,11 @@ export default function CostsCalculator() {
         'db.t4g.xlarge': '4 vCPU, 16GB RAM',
         'db.t4g.2xlarge': '8 vCPU, 32GB RAM',
     };
-    const natGatewayCost = 0.045 * 24 * 30;
-    const natInstanceCost = 0.0042 * 24 * 30;
+    // AWS bills every public IPv4 address, including the one a NAT needs to reach the internet
+    const publicIpCost = 0.005 * 24 * 30;
+    const natGatewayCost = 0.045 * 24 * 30 + publicIpCost;
+    // t4g.nano
+    const natInstanceCost = 0.0042 * 24 * 30 + publicIpCost;
 
     const [ httpRequests, setHttpRequests ] = useState(100000);
     const [ httpDuration, setHttpDuration ] = useState(100);
@@ -255,7 +258,7 @@ export default function CostsCalculator() {
                 </Field>}
                 {database && <div className="text-xs text-gray-500 pb-1.5 sm:pb-2">
                     NAT Gateway is necessary when using a database in a private VPC (virtual network).
-                    Data transfer cost is excluded.
+                    Includes its public IP address ($3.60/month). Data transfer cost is excluded.
                 </div>}
             </Section>
 
