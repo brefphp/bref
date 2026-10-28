@@ -31,8 +31,8 @@ AWS also offers [Aurora DSQL](./database-dsql.mdx), a serverless database compat
 |---|---|---|
 | Security | Password only | Network-isolated + password |
 | Best for | Non-critical projects | Projects requiring strong isolation |
-| Complexity | Simple | Requires VPC + NAT Gateway |
-| Extra cost | None | ~$33/month for NAT Gateway |
+| Complexity | Simple | Requires VPC + NAT |
+| Extra cost | None | ~$7/month (NAT instance) to ~$36/month (NAT Gateway) |
 | Access from your machine | Direct connection | Via SSH tunnel (e.g. [7777](https://port7777.com)) |
 
 An internet-accessible database is the simplest option and works well for most projects. Use a VPC database when you need stronger network isolation.
@@ -75,13 +75,18 @@ An internet-accessible database is the simplest option and works well for most p
 
 <Tabs items={['Bref Cloud', 'AWS console']}>
     <Tabs.Tab>
-        Bref Cloud handles VPC creation, subnets, security groups, and NAT Gateway configuration for you.
+        Bref Cloud handles VPC creation, subnets, security groups, and internet access (NAT) for you.
 
         **1. Create a network** in the Bref Cloud dashboard:
 
         <Image className="mt-3" src={cloudVpc} alt="Bref Cloud create network" style={{maxWidth: 500}} />
 
-        The network includes a VPC, subnets, security groups, and a NAT Gateway (~$33/month, shown in the dashboard). A single network can be reused across multiple applications and databases.
+        The network includes a VPC, subnets, security groups, and a NAT so that your applications can access the internet. Choose between:
+
+        - **NAT Gateway** (~$36/month + $0.045/GB): managed and scaled by AWS, for production.
+        - **NAT instance** (~$7/month): a single small EC2 instance, with limited bandwidth (~30 Mbps sustained) and no redundancy, for side projects and test environments.
+
+        You can switch a network from one to the other at any time in its settings. A single network can be reused across multiple applications and databases.
 
         **2. Create a database** and select the network you created.
 
@@ -90,7 +95,7 @@ An internet-accessible database is the simplest option and works well for most p
     <Tabs.Tab>
         > [!WARNING]
         >
-        > Lambda functions in a VPC **lose internet access**. This can cause timeouts. You need a NAT Gateway to restore internet access (~$33/month). Alternatively, you can use [a NAT instance](https://fck-nat.dev/) (from $3/month).
+        > Lambda functions in a VPC **lose internet access**. This can cause timeouts. You need a NAT Gateway to restore internet access (~$36/month). Alternatively, you can use [a NAT instance](https://fck-nat.dev/) (~$7/month).
 
         You can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12) to set up a NAT Gateway, use [the serverless VPC plugin](https://github.com/smoketurner/serverless-vpc-plugin), or use the complete example in [Serverless Visually Explained](https://serverless-visually-explained.com/).
 
