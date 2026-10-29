@@ -187,6 +187,11 @@ final class FpmHandler extends HttpHandler
             throw new FastCgiCommunicationFailed;
         }
 
+        // PHP-FPM sends no output when it fails to start the request, such as running out of memory parsing the body
+        if ($response->getOutput() === '') {
+            throw new FastCgiCommunicationFailed('PHP-FPM failed to start the request, the PHP-FPM logs contain the error');
+        }
+
         $responseHeaders = $this->getResponseHeaders($response);
         // The status code is returned separately, it is not an HTTP header
         unset($responseHeaders['status']);
