@@ -7,7 +7,7 @@
     "test": "node --test \"src/**/*.test.js\""
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch": "^3.1154.0",
+    "@aws-sdk/client-cloudwatch": "^3.1158.0",
     "@headlessui/react": "^2.2.10",
     "@heroicons/react": "^2.2.0",
     "@octokit/graphql": "^7.1.1",
