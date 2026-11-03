@@ -1,4 +1,5 @@
 export default {
+    '07-november-2026': 'November 2026: Aurora DSQL, cheaper networks, and emails with SES',
     '06-php-security-release-october-2026': 'PHP security release of October 2026',
     '05-october-2026': 'October 2026: simpler uploads, better logs, multiple queues, and Vapor migrations',
     '04-august-2026': 'August 2026: osls v4 and zero-downtime assets',
