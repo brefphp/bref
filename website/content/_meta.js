@@ -71,12 +71,11 @@ export default {
             copyPage: false,
         },
     },
+    // Only the terms of service of the former Sentry integration remain
     sentry: {
         type: 'page',
-        title: 'Sentry integration for PHP on AWS Lambda',
         display: 'hidden',
         theme: {
-            layout: 'full',
             sidebar: false,
             toc: false,
             breadcrumb: false,
