@@ -76,4 +76,5 @@ module.exports.redirects = {
     // The Sentry integration is now maintained by Sentry: sentry/sentry-bref
     '/sentry': 'https://docs.sentry.io/platforms/php/guides/bref/',
     '/sentry/docs': 'https://docs.sentry.io/platforms/php/guides/bref/',
+    '/sentry/terms': 'https://docs.sentry.io/platforms/php/guides/bref/',
 };

@@ -71,19 +71,6 @@ export default {
             copyPage: false,
         },
     },
-    // Only the terms of service of the former Sentry integration remain
-    sentry: {
-        type: 'page',
-        display: 'hidden',
-        theme: {
-            sidebar: false,
-            toc: false,
-            breadcrumb: false,
-            pagination: false,
-            timestamp: false,
-            copyPage: false,
-        },
-    },
     xray: {
         type: 'page',
         title: 'X-Ray integration for PHP',
