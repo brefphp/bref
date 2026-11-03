@@ -1,0 +1,82 @@
+---
+title: Aurora DSQL, cheaper networks, and emails with SES
+seoTitle: "Bref: Aurora DSQL, cheaper networks, and emails with SES"
+description: "Aurora DSQL databases, cheaper networks with a NAT instance, sending emails with SES, readable live logs, manual database snapshots, and PHP security fixes shipped in 31 minutes."
+---
+
+import ArticleHeader from '../../src/components/news/ArticleHeader';
+
+# November 2026: Aurora DSQL, cheaper networks, and emails with SES
+
+<ArticleHeader
+    subTitle="What's new with Bref in October 2026"
+    date="November 2026"
+    author="Matthieu Napoli"
+    authorGitHub="mnapoli" />
+
+- [Aurora DSQL databases](#aurora-dsql-databases): a serverless PostgreSQL database, with no VPC and no password
+- [Cheaper networks with a NAT instance](#cheaper-networks-with-a-nat-instance): around $7/month instead of $36/month
+- [Sending emails with Amazon SES](#sending-emails-with-amazon-ses)
+- [Readable live logs](#readable-live-logs)
+- [Manual database snapshots](#manual-database-snapshots)
+- [PHP security release: patched in 31 minutes](#php-security-release-patched-in-31-minutes)
+- [Also shipped](#also-shipped): uploaded files cleanup and smaller fixes
+
+## Aurora DSQL databases
+
+Bref Cloud can now create Aurora DSQL databases, next to RDS and Aurora Serverless. Bref makes it simpler to use them.
+
+Aurora DSQL is a serverless database from AWS, compatible with PostgreSQL. There is no instance to configure or resize, and no VPC or NAT to set up: applications connect to a public endpoint with their IAM role instead of a password (which is much simpler than it sounds). It is billed for the requests it serves and the data it stores, with no request costs while it is idle. A cluster is ready in under a minute.
+
+Laravel applications connect to it with the new `bref/laravel-dsql` open-source package, which manages the authentication and adapts migrations to Aurora DSQL:
+
+```bash
+composer require bref/laravel-dsql
+```
+
+Aurora DSQL is PostgreSQL with some small differences, check the docs for more details. It's a good fit for new applications and side projects.
+
+Docs: [bref.sh/docs/environment/database-dsql](/docs/environment/database-dsql)
+
+## Cheaper networks with a NAT instance
+
+A Bref Cloud network can now give your applications internet access through a NAT instance instead of a NAT Gateway. It's a small EC2 server that costs around $7/month instead of $36/month, with no charge per GB.
+
+It runs in a single availability zone so it suits side projects and small applications.
+
+Docs: [bref.sh/docs/environment/database#vpc-databases-private-network](/docs/environment/database#vpc-databases-private-network)
+
+## Sending emails with Amazon SES
+
+I wrote a new guide to send emails with Amazon SES: [bref.sh/docs/environment/emails](/docs/environment/emails)
+
+## Readable live logs
+
+Live logs in the Bref Cloud dashboard have been improved (like the rest of the logs): the level of each line in color, the message with its context, and exceptions reduced to their class and file, with the stack trace one click away.
+
+Click the request ID of a line to see all the logs of that request, and "trace" to open its X-Ray trace.
+
+## Manual database snapshots
+
+You can now take a snapshot of a database whenever you need one, for example before a risky migration: click "Create snapshot" on the database page.
+
+Manual snapshots are never deleted automatically: they stay in your AWS account, and are billed, until you delete them from the RDS console.
+
+## PHP security release: patched in 31 minutes
+
+On October 21, PHP released a fix for two critical remote code execution vulnerabilities (CVE-2026-109618 and CVE-2026-109619, rated 9.2). Bref published the patched versions (PHP 8.2.35, 8.3.36, 8.4.27 and 8.5.12) 31 minutes after php.net, in Bref 3.0.14 and 2.4.22. That's what we mean when we say Bref is a partner you can rely on. [Details here](/news/06-php-security-release-october-2026).
+
+Bref v4 is in active development, and it will let us ship fixes like this one even faster. Drastically faster, and for everyone 🤫
+
+## Also shipped
+
+- Uploaded files are now deleted after each request with Laravel Octane and the Symfony runtime. Before, they stayed in `/tmp` until it was full, and then everything that writes to `/tmp` failed. Update to Bref 3.0.13, `bref/laravel-bridge` 3.1.4 and `bref/symfony-bridge` 3.0.3.
+- `bref deploy --param="key=value"` sets `${param:...}` variables in `serverless.yml` (CLI 1.3.4, [docs](/docs/cloud-deploy)).
+- Laravel: when a failed job cannot be stored, both the storage error and the job's own exception are now reported. The `bref.request_context` option is deprecated.
+- `bref deploy` now reports a package above Lambda's 250 MB limit right away, instead of after 6 minutes of CloudFormation.
+- Live logs now show functions that had no logs yet when the tail started.
+- Large secret values are easier to read, and the team Secrets page no longer fills up with applications that have no environment.
+- "Move to queue" on a dead-letter queue no longer reloads the page.
+- osls 4.5 supports the Node.js 26 and Python 3.15 preview runtimes, and S3 as an `onFailure` destination.
+
+The detailed Bref Cloud changelog is here: [bref.cloud/changelog](https://bref.cloud/changelog)
