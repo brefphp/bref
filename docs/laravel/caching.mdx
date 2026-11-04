@@ -1,12 +1,20 @@
 # Caching
 
-By default, the Bref bridge will move Laravel's storage and cache directories to `/tmp`. This is because all the filesystem except `/tmp` is read-only.
+Since Laravel 11, Laravel's default cache store is `database`. If your application has no database, set the cache store in `serverless.yml`. The `serverless.yml` generated for Laravel uses the `array` store:
 
-However, the `/tmp` directory isn't shared across Lambda instances. If your Lambda function scales up or is redeployed, the cache will be empty in new instances.
+```yml filename="serverless.yml"
+provider:
+    environment:
+        CACHE_STORE: array
+```
 
-If you want the cache to be shared across all Lambda instances, for example if your application caches a lot of data or if you use it for locking mechanisms (like API rate limiting), you can instead use the database, Redis, or DynamoDB.
+The `array` store caches nothing between requests, so the cache can never be stale. Avoid the `file` store: it writes to `/tmp`, which each Lambda instance has its own copy of. Once your application runs on several instances, clearing a cache key only clears it in one instance, and the others keep serving the old value.
 
-If you are using a database already, using it as the cache driver is the simplest option. DynamoDB is a good alternative: fairly easy to set up, and "pay per use". Redis is a bit more complex as it requires a VPC and managing instances, but offers slightly faster response times.
+If you want a cache shared across all Lambda instances, for example if your application caches a lot of data or uses locks (like API rate limiting or `withoutOverlapping()`), use the database or DynamoDB.
+
+## Database Cache
+
+If your application uses a database, it is the simplest option. Set `CACHE_STORE: database` in `serverless.yml` (or remove `CACHE_STORE` to use Laravel's default), and make sure the `cache` table exists: it is created by the `create_cache_table` migration of new Laravel applications, or by `php artisan make:cache-table`.
 
 ## DynamoDB Cache
 
@@ -27,4 +35,6 @@ To use DynamoDB as a cache store, set the following lines in `config/cache.php`:
     ],
 ```
 
-Then follow [this section of the documentation](/docs/environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework.
+Then follow [this section of the documentation](/docs/environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework, and set `CACHE_STORE: dynamodb` and `DYNAMODB_CACHE_TABLE` in `serverless.yml`.
+
+The DynamoDB cache store requires the `aws/aws-sdk-php` package, which is large: [remove the AWS services you don't use](../deploy/index.mdx#reducing-package-size) to stay under Lambda's size limit.
