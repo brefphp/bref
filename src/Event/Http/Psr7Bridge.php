@@ -95,7 +95,7 @@ final class Psr7Bridge
     }
 
     /**
-     * @return array{0: array<string, UploadedFile>, 1: array<string, mixed>|null}
+     * @return array{0: array<array-key, mixed>, 1: array<array-key, mixed>|null} The uploaded files (UploadedFile instances, nested like the form keys) and the parsed body
      */
     private static function parseBodyAndUploadedFiles(HttpRequestEvent $event): array
     {
@@ -120,7 +120,7 @@ final class Psr7Bridge
     }
 
     /**
-     * @return array{0: array<string, UploadedFile>, 1: array<string, mixed>|null}
+     * @return array{0: array<array-key, mixed>, 1: array<array-key, mixed>|null} The uploaded files (UploadedFile instances, nested like the form keys) and the parsed body
      */
     private static function parseMultipartBody(string $contentType, string $body): array
     {
@@ -128,40 +128,45 @@ final class Psr7Bridge
         if (! $document->isMultiPart()) {
             return [[], null];
         }
-        $parsedBody = null;
-        $files = [];
+        $fields = [];
+        $fileFields = [];
+        $uploadedFiles = [];
         foreach ($document->getParts() as $part) {
+            $name = $part->getName();
+            if ($name === null) {
+                // PHP ignores parts without a name
+                continue;
+            }
             if ($part->isFile()) {
                 $tmpPath = tempnam(sys_get_temp_dir(), self::UPLOADED_FILES_PREFIX);
                 if ($tmpPath === false) {
                     throw new RuntimeException('Unable to create a temporary directory');
                 }
                 file_put_contents($tmpPath, $part->getBody());
-                $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
-                self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
+                // The value stands for the file until the keys are parsed below
+                $fileFields[] = urlencode($name) . '=' . count($uploadedFiles);
+                $uploadedFiles[] = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
             } else {
-                if ($parsedBody === null) {
-                    $parsedBody = [];
-                }
-                self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
+                $fields[] = urlencode($name) . '=' . urlencode($part->getBody());
             }
         }
-        return [$files, $parsedBody];
-    }
 
-    /**
-     * Parse a string key like "files[id_cards][jpg][]" and do $array['files']['id_cards']['jpg'][] = $value
-     */
-    private static function parseKeyAndInsertValueInArray(array &$array, string $key, mixed $value): void
-    {
-        $parsed = [];
-        // We use parse_str to parse the key in the same way PHP does natively
-        // We use "=mock" because the value can be an object (in case of uploaded files)
-        parse_str(urlencode($key) . '=mock', $parsed);
-        // Replace `mock` with the actual value
-        array_walk_recursive($parsed, fn (&$v) => $v = $value);
-        // Merge recursively into the main array to avoid overwriting existing values
-        $array = array_merge_recursive($array, $parsed);
+        // All the keys are parsed in one go, in order, with parse_str: the same way PHP does natively.
+        // Parsing them one at a time and merging the results with array_merge_recursive renumbered integer keys:
+        // "users[0][id]" and "users[0][name]" ended up in two different array items.
+        $parsedBody = null;
+        if ($fields !== []) {
+            $parsedBody = [];
+            parse_str(implode('&', $fields), $parsedBody);
+        }
+        $files = [];
+        if ($fileFields !== []) {
+            parse_str(implode('&', $fileFields), $files);
+            array_walk_recursive($files, function (&$value) use ($uploadedFiles): void {
+                $value = $uploadedFiles[(int) $value];
+            });
+        }
+        return [$files, $parsedBody];
     }
 
     /**

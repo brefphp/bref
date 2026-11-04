@@ -742,6 +742,79 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
     /**
      * @dataProvider provide API Gateway versions
      */
+    public function test POST request with multipart form data containing indexed arrays(int $version)
+    {
+        $body = "--testBoundary\r
+Content-Disposition: form-data; name=\"users[0][id]\"\r
+\r
+1\r
+--testBoundary\r
+Content-Disposition: form-data; name=\"users[0][name]\"\r
+\r
+Ada\r
+--testBoundary\r
+Content-Disposition: form-data; name=\"users[1][id]\"\r
+\r
+2\r
+--testBoundary\r
+Content-Disposition: form-data; name=\"users[1][name]\"\r
+\r
+Grace\r
+--testBoundary\r
+Content-Disposition: form-data; name=\"ids[5]\"\r
+\r
+a\r
+--testBoundary\r
+Content-Disposition: form-data; name=\"ids[9]\"\r
+\r
+b\r
+--testBoundary--\r
+";
+        $event = [
+            'version' => '1.0',
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+                'Content-Length' => mb_strlen($body),
+            ],
+            'body' => $body,
+        ];
+        $expectedPost = [
+            'users' => [
+                ['id' => '1', 'name' => 'Ada'],
+                ['id' => '2', 'name' => 'Grace'],
+            ],
+            'ids' => [
+                5 => 'a',
+                9 => 'b',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => $expectedPost,
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => $expectedPost,
+            '$_SERVER' => [
+                'CONTENT_LENGTH' => '460',
+                'CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'POST',
+                'QUERY_STRING' => '',
+                'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=testBoundary',
+                'HTTP_CONTENT_LENGTH' => '460',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    /**
+     * @dataProvider provide API Gateway versions
+     */
     public function test request with cookies(int $version)
     {
         $event = [
