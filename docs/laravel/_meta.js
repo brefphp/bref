@@ -5,5 +5,6 @@ export default {
     'file-storage': '',
     queues: 'Laravel Queues',
     octane: 'Laravel Octane',
+    websockets: 'WebSockets',
     passport: 'Laravel Passport',
 };

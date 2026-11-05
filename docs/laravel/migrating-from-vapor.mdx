@@ -35,6 +35,8 @@ The recommended strategy is to **keep the long-lived infrastructure and migrate 
 - **Keep**: the database (RDS or Aurora), the Redis cache (ElastiCache), the S3 storage bucket, the network (VPC and NAT gateway), the domain and its HTTPS certificate. Vapor created these resources in your AWS account and they will continue to work without Vapor.
 - **Recreate with Bref**: the Lambda functions, the HTTP layer (API Gateway and CloudFront), the SQS queues and the scheduler. These are cheap, stateless and quick to recreate.
 
+If you use Pusher or Ably for broadcasting, keep them: they work the same with Bref. To replace them with API Gateway, see [WebSockets with Laravel Broadcasting](/docs/laravel/websockets.mdx).
+
 The migration then happens without downtime (except in one case, see [Domain and DNS switch](#domain-and-dns-switch)):
 
 1. Deploy the application with Bref next to the Vapor environment, connected to the same database, cache and bucket, without the scheduler.

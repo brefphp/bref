@@ -17,6 +17,10 @@ B3(Browser):::mermaidBlack -->|WebSocket connection| API;
 API --> Lambda(Lambda):::mermaidAwsColor;
 ```
 
+> [!TIP]
+>
+> Using Laravel? Follow the [WebSockets with Laravel Broadcasting guide](/docs/laravel/websockets.mdx): Laravel Echo works out of the box, there is no handler to write.
+
 To handle WebSocket events, extend the `WebsocketHandler` class:
 
 ```php
