@@ -335,7 +335,7 @@ class MyEventSubscriber extends BrefEventSubscriber
 Bref::events()->subscribe(new MyEventSubscriber());
 ```
 
-The `BrefEventSubscriber` class provides additional hooks: `afterStartup()`, `beforeInvoke()`, and `afterInvoke()`. This refactor powers better integrations like the [Laravel bridge](https://github.com/brefphp/laravel-bridge), [X-Ray integration](https://bref.sh/xray), and [Sentry integration](https://bref.sh/sentry).
+The `BrefEventSubscriber` class provides additional hooks: `afterStartup()`, `beforeInvoke()`, and `afterInvoke()`. This refactor powers better integrations like the [Laravel bridge](https://github.com/brefphp/laravel-bridge), [X-Ray integration](https://bref.sh/xray), and [Sentry integration](https://docs.sentry.io/platforms/php/guides/bref/).
 
 ### SOAP extension is now disabled by default
 
