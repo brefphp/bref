@@ -167,7 +167,11 @@ functions:
             - ${bref-extra:imagick-php-84}
 ```
 
+Use these `${bref-extra:…}` variables rather than copying layer ARNs: the ARNs follow updates of the `bref/extra-php-extensions` package.
+
 Keep in mind that AWS Lambda allows at most 5 layers per function, and that extra extensions are not available for ARM (`arm64`) yet.
+
+Layers also count toward the [250MB size limit](../deploy/index.mdx#reducing-package-size) of Lambda functions. Some extensions are large: for example, `imagick` takes about 70MB unzipped (it includes Ghostscript). Deploy without development dependencies (`composer install --no-dev`) to leave room for them.
 
 #### Using extra extensions with Docker
 
