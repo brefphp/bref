@@ -218,6 +218,8 @@ Your events, channels and Echo code stay the same:
 
 A single server is a single point of failure: clients reconnect by themselves, but events sent during an outage are lost.
 
+With Bref Cloud, the **Metrics** page of an environment shows its WebSocket messages and their estimated cost, as well as new connections, errors and latency.
+
 ## Limits
 
 - Events over 128 KB throw a `BroadcastException`, because API Gateway refuses them. The size is measured once encoded, where quotes count twice, so a JSON payload can reach the limit at about 100 KB.
