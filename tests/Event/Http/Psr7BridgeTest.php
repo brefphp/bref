@@ -68,6 +68,25 @@ class Psr7BridgeTest extends CommonHttpTest
         self::assertSame($body, $request->getBody()->getContents());
     }
 
+    public function test multipart parts without a name are ignored like PHP does()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+            ],
+            'body' => "--testBoundary\r\nContent-Disposition: form-data\r\n\r\nignored\r\n"
+                . "--testBoundary\r\nContent-Disposition: form-data; filename=\"ignored.txt\"\r\n\r\nignored\r\n"
+                . "--testBoundary\r\n\r\nignored\r\n"
+                . "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\n\r\nbar\r\n"
+                . "--testBoundary--\r\n",
+        ]);
+        $request = Psr7Bridge::convertRequest($event, Context::fake());
+
+        self::assertSame(['foo' => 'bar'], $request->getParsedBody());
+        self::assertSame([], $request->getUploadedFiles());
+    }
+
     public function test uploaded files are deleted by the cleanup()
     {
         $event = new HttpRequestEvent([

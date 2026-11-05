@@ -131,6 +131,11 @@ final class Psr7Bridge
         $parsedBody = null;
         $files = [];
         foreach ($document->getParts() as $part) {
+            $name = $part->getName();
+            // PHP ignores parts without a name, so we do the same
+            if ($name === null) {
+                continue;
+            }
             if ($part->isFile()) {
                 $tmpPath = tempnam(sys_get_temp_dir(), self::UPLOADED_FILES_PREFIX);
                 if ($tmpPath === false) {
@@ -138,12 +143,12 @@ final class Psr7Bridge
                 }
                 file_put_contents($tmpPath, $part->getBody());
                 $file = new UploadedFile($tmpPath, filesize($tmpPath), UPLOAD_ERR_OK, $part->getFileName(), $part->getMimeType());
-                self::parseKeyAndInsertValueInArray($files, $part->getName(), $file);
+                self::parseKeyAndInsertValueInArray($files, $name, $file);
             } else {
                 if ($parsedBody === null) {
                     $parsedBody = [];
                 }
-                self::parseKeyAndInsertValueInArray($parsedBody, $part->getName(), $part->getBody());
+                self::parseKeyAndInsertValueInArray($parsedBody, $name, $part->getBody());
             }
         }
         return [$files, $parsedBody];
