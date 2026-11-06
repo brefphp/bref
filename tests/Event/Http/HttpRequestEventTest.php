@@ -194,6 +194,27 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertSame([null, null], $event->getBasicAuthCredentials());
     }
 
+    /**
+     * @dataProvider provideHeadersWithUnderscores
+     */
+    public function test headers with underscores are dropped(array $event)
+    {
+        $event = new HttpRequestEvent($event + ['httpMethod' => 'GET']);
+
+        self::assertSame(['x-foo' => ['proxy']], $event->getHeaders());
+    }
+
+    public static function provideHeadersWithUnderscores(): array
+    {
+        return [
+            'v1, before' => [['headers' => ['x_foo' => 'client', 'x-foo' => 'proxy']]],
+            'v1, after' => [['headers' => ['x-foo' => 'proxy', 'x_foo' => 'client']]],
+            'v1 multi-value' => [['multiValueHeaders' => ['x-foo' => ['proxy'], 'x_foo' => ['client']]]],
+            'v2' => [['version' => '2.0', 'requestContext' => ['http' => ['method' => 'GET']], 'headers' => ['x-foo' => 'proxy', 'x_foo' => 'client']]],
+            'uppercase' => [['headers' => ['X-Foo' => 'proxy', 'X_FOO' => 'client']]],
+        ];
+    }
+
     public function test empty invocation will have friendly error message()
     {
         $message = "This handler expected to be invoked with a API Gateway or ALB event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data: null";
