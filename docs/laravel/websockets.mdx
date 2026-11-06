@@ -6,9 +6,11 @@ import { Tabs } from 'nextra/components';
 
 # WebSockets with Laravel Broadcasting
 
-[Laravel Reverb](https://laravel.com/docs/reverb) cannot run on AWS Lambda, because it is a long-running process. With the [`bref/laravel-websockets`](https://github.com/brefphp/laravel-websockets) package, API Gateway holds the WebSocket connections instead, and there is no server to run.
+Laravel broadcasting works on AWS Lambda as described in [the Laravel documentation](https://laravel.com/docs/broadcasting): `ShouldBroadcast` events, `routes/channels.php`, and Laravel Echo with private channels, presence channels and client events (whispers).
 
-Laravel 12 or later is required. Broadcasting then works as described in [the Laravel documentation](https://laravel.com/docs/broadcasting): `ShouldBroadcast` events, `routes/channels.php`, and Laravel Echo with private channels, presence channels and client events (whispers).
+You don't need a [Reverb](https://laravel.com/docs/reverb) server. With the [`bref/laravel-websockets`](https://github.com/brefphp/laravel-websockets) package, API Gateway holds the WebSocket connections and Lambda runs your application when an event happens, so there is no server to manage.
+
+Laravel 12 or later is required.
 
 ## Installation
 
