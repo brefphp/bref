@@ -21,7 +21,7 @@ npm install laravel-echo pusher-js
 
 ### Enable broadcasting
 
-Declare the channels file in `bootstrap/app.php`:
+Do not run `php artisan install:broadcasting`: it requires choosing one of Laravel's drivers. Instead, declare the channels file in `bootstrap/app.php`:
 
 ```php filename="bootstrap/app.php"
 ->withRouting(
@@ -32,8 +32,6 @@ Declare the channels file in `bootstrap/app.php`:
 ```
 
 Then create `routes/channels.php` as described in [the Laravel documentation](https://laravel.com/docs/broadcasting#defining-authorization-callbacks).
-
-Do not run `php artisan install:broadcasting`: it requires choosing one of Laravel's drivers.
 
 ### Create the WebSocket API
 
