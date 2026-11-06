@@ -61,6 +61,12 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
 
         You can also run the command outside of a project: `bref secret:create --app=app-name --env=env-name --team=team-slug`.
 
+        If the environment is not deployed yet, the command needs the AWS account and region to deploy to. By default, it uses the region set in `serverless.yml` (`provider.region`) and the team's AWS account if there is only one. Set them with `--region` and `--aws-account` (the name of the AWS account in Bref Cloud) otherwise, for example in CI:
+
+        ```bash
+        bref secret:create APP_KEY "$APP_KEY" --env=prod --region=eu-west-3 --aws-account=production --no-interaction
+        ```
+
         Bref Cloud stores the secret as an SSM parameter in your AWS account, named `/<app>/<environment>/<secret-name>`. It is not injected into your application automatically: reference it in `serverless.yml`, as explained in [Retrieving secrets](#retrieving-secrets) below. For example:
 
         ```yml filename="serverless.yml"
