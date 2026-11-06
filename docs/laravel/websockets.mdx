@@ -75,7 +75,7 @@ The application stores which connection listens to which channel, in your databa
 | | Database (default) | DynamoDB |
 |---|---|---|
 | **Use it for** | Applications with a database and little traffic, back offices, preview environments | Many connections, frequent reconnections, or no database |
-| **Setup** | Run `php artisan migrate` | Add a table and permissions to `serverless.yml` |
+| **Setup** | Run `php artisan migrate` | Add the Lift plugin and a table to `serverless.yml` |
 | **Cost** | Nothing more | Less than $3 per month for 1000 connections |
 | **Time per operation** | 3 to 4 ms | 3 to 4 ms |
 | **First operation of a request** | 12 to 29 ms | 34 to 47 ms |
@@ -83,7 +83,13 @@ The application stores which connection listens to which channel, in your databa
 
 If your database pauses when idle (like Aurora Serverless), note that each browser tab left open writes to it every 2 hours, which keeps it awake.
 
-To use DynamoDB:
+To use DynamoDB, install the [Serverless Lift](https://github.com/getlift/lift) plugin:
+
+```bash
+npm install --save-dev serverless-lift
+```
+
+Then enable it and create the table in `serverless.yml`:
 
 ```yml filename="serverless.yml"
 provider:
@@ -91,38 +97,19 @@ provider:
     environment:
         # ...
         BREF_WEBSOCKET_STORE: dynamodb
-        BREF_WEBSOCKET_DYNAMODB_TABLE: !Ref WebsocketSubscriptions
-    iam:
-        role:
-            statements:
-                # ...
-                - Effect: Allow
-                  Action: [dynamodb:Query, dynamodb:GetItem, dynamodb:PutItem, dynamodb:DeleteItem]
-                  Resource:
-                      - !GetAtt WebsocketSubscriptions.Arn
-                      - !Sub '${WebsocketSubscriptions.Arn}/index/*'
+        BREF_WEBSOCKET_DYNAMODB_TABLE: ${construct:websocket-subscriptions.tableName}
 
-resources:
-    Resources:
-        WebsocketSubscriptions:
-            Type: AWS::DynamoDB::Table
-            Properties:
-                BillingMode: PAY_PER_REQUEST
-                AttributeDefinitions:
-                    - { AttributeName: channel, AttributeType: S }
-                    - { AttributeName: connectionId, AttributeType: S }
-                KeySchema:
-                    - { AttributeName: channel, KeyType: HASH }
-                    - { AttributeName: connectionId, KeyType: RANGE }
-                GlobalSecondaryIndexes:
-                    - IndexName: by-connection
-                      KeySchema:
-                          - { AttributeName: connectionId, KeyType: HASH }
-                      Projection: { ProjectionType: ALL }
-                TimeToLiveSpecification:
-                    AttributeName: expiresAt
-                    Enabled: true
+plugins:
+    # ...
+    - serverless-lift
+
+constructs:
+    websocket-subscriptions:
+        type: database/dynamodb-single-table
+        gsiCount: 1
 ```
+
+The table is kept when you remove the environment: delete it in the AWS console if you no longer need it.
 
 ### Connect Laravel Echo
 
