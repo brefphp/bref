@@ -6,7 +6,7 @@ import { Tabs } from 'nextra/components';
 
 # WebSockets with Laravel Broadcasting
 
-Laravel broadcasting works on AWS Lambda as described in [the Laravel documentation](https://laravel.com/docs/broadcasting): `ShouldBroadcast` events, `routes/channels.php`, and Laravel Echo with private channels, presence channels and client events (whispers).
+You can use WebSockets in Laravel on AWS Lambda. Laravel Broadcasting and Laravel Echo work just like in [the Laravel documentation](https://laravel.com/docs/broadcasting).
 
 You don't need a [Reverb](https://laravel.com/docs/reverb) server. With the [`bref/laravel-websockets`](https://github.com/brefphp/laravel-websockets) package, API Gateway holds the WebSocket connections and Lambda runs your application when an event happens, so there is no server to manage.
 
