@@ -1,0 +1,217 @@
+---
+description: "Use Laravel broadcasting and Laravel Echo with WebSockets on AWS Lambda, without running a Reverb server."
+---
+
+import { Tabs } from 'nextra/components';
+
+# WebSockets with Laravel Broadcasting
+
+You can use WebSockets in Laravel on AWS Lambda. Laravel Broadcasting and Laravel Echo work just like in [the Laravel documentation](https://laravel.com/docs/broadcasting).
+
+You don't need a [Reverb](https://laravel.com/docs/reverb) server. With the [`bref/laravel-websockets`](https://github.com/brefphp/laravel-websockets) package, API Gateway holds the WebSocket connections and Lambda runs your application when an event happens, so there is no server to manage.
+
+Laravel 12 or later is required.
+
+## Installation
+
+```bash
+composer require bref/laravel-websockets
+npm install laravel-echo pusher-js
+```
+
+### Enable broadcasting
+
+Do not run `php artisan install:broadcasting`: it requires choosing one of Laravel's drivers. Instead, declare the channels file in `bootstrap/app.php`:
+
+```php filename="bootstrap/app.php"
+->withRouting(
+    web: __DIR__.'/../routes/web.php',
+    channels: __DIR__.'/../routes/channels.php',
+    // ...
+)
+```
+
+Then create `routes/channels.php` as described in [the Laravel documentation](https://laravel.com/docs/broadcasting#defining-authorization-callbacks).
+
+### Create the WebSocket API
+
+Add this to `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    # ...
+    environment:
+        # ...
+        BROADCAST_CONNECTION: api-gateway
+        BREF_WEBSOCKET_API_ID: !Ref WebsocketsApi
+        BREF_WEBSOCKET_STAGE: ${sls:stage}
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Action: execute-api:ManageConnections
+                  Resource: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebsocketsApi}/*'
+                # The websocket function invokes itself when a connection opens
+                - Effect: Allow
+                  Action: lambda:InvokeFunction
+                  Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-websocket'
+
+functions:
+    # ...
+    websocket:
+        handler: Bref\LaravelWebsockets\Handler
+        runtime: php-84
+        timeout: 28
+        events:
+            - websocket: $connect
+            - websocket: $disconnect
+            - websocket: $default
+```
+
+### Store subscriptions in the database or DynamoDB
+
+The application stores which connection listens to which channel, in your database by default:
+
+| | Database (default) | DynamoDB |
+|---|---|---|
+| **Use it for** | Applications with a database and little traffic, back offices, preview environments | Many connections, frequent reconnections, or no database |
+| **Setup** | Run `php artisan migrate` | Add the Lift plugin and a table to `serverless.yml` |
+| **Cost** | Nothing more | Less than $3 per month for 1000 connections |
+| **Time per operation** | 3 to 4 ms | 3 to 4 ms |
+| **First operation of a request** | 12 to 29 ms | 34 to 47 ms |
+| **Reconnection bursts** | Load your database, with one SQL connection per concurrent Lambda | No impact on your database |
+
+If your database pauses when idle (like Aurora Serverless), note that each browser tab left open writes to it every 2 hours, which keeps it awake.
+
+To use DynamoDB, install the [Serverless Lift](https://github.com/getlift/lift) plugin:
+
+```bash
+npm install --save-dev serverless-lift
+```
+
+Then enable it and create the table in `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    # ...
+    environment:
+        # ...
+        BREF_WEBSOCKET_STORE: dynamodb
+        BREF_WEBSOCKET_DYNAMODB_TABLE: ${construct:websocket-subscriptions.tableName}
+
+plugins:
+    # ...
+    - serverless-lift
+
+constructs:
+    websocket-subscriptions:
+        type: database/dynamodb-single-table
+        gsiCount: 1
+```
+
+The table is kept when you remove the environment: delete it in the AWS console if you no longer need it.
+
+### Connect Laravel Echo
+
+Each environment has its own WebSocket API, so give its address to the frontend at runtime, in your layout:
+
+```blade
+@if (config('bref-websockets.api_id'))
+    <meta name="websocket-host" content="{{ config('bref-websockets.api_id') }}.execute-api.{{ config('bref-websockets.region') }}.amazonaws.com">
+    <meta name="websocket-stage" content="{{ config('bref-websockets.stage') }}">
+@endif
+```
+
+Then configure Echo:
+
+```js filename="resources/js/echo.js"
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+const host = document.querySelector('meta[name="websocket-host"]')?.content;
+const stage = document.querySelector('meta[name="websocket-stage"]')?.content;
+
+if (host) {
+    window.Pusher = Pusher;
+
+    window.Echo = new Echo({
+        broadcaster: 'reverb',
+        key: 'bref', // Any value
+        wsHost: host,
+        wsPath: `/${stage}?`, // The trailing "?" is required
+        wsPort: 80,
+        wssPort: 443,
+        forceTLS: true,
+        enabledTransports: ['ws', 'wss'],
+        // Ping every 9 minutes instead of 2: each ping costs a Lambda invocation and 2 messages
+        activityTimeout: 540000,
+    });
+}
+```
+
+### Deploy
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        ```bash
+        bref deploy
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        serverless deploy
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+With the database store, also run the migration: see [Laravel Artisan commands](/docs/laravel/getting-started#laravel-artisan).
+
+### Restrict origins
+
+By default, any website can open a connection. To allow only your domains:
+
+```yml filename="serverless.yml"
+provider:
+    # ...
+    environment:
+        # ...
+        BREF_WEBSOCKET_ALLOWED_ORIGINS: 'example.com,*.example.com'
+```
+
+### Local development
+
+The `api-gateway` driver needs AWS. Set `BROADCAST_CONNECTION=log` in your local `.env`: events are written to the logs, and Echo does not connect.
+
+## API Gateway or a Reverb server
+
+API Gateway charges for each message delivered: about $1.25 to $1.50 per million all included in `eu-west-3`, and almost nothing when idle. What counts is **connections × events**, more than the number of connections.
+
+| Use case | Messages per month | API Gateway | Use |
+|---|---|---|---|
+| Notifications: 20 connections, 1 event per minute | 0.9 million | $1 to $2 | API Gateway |
+| Live back office: 20 connections, 1 event per second, office hours | 12.7 million | $19 | API Gateway |
+| Dashboard on a screen: 20 connections, 1 event per second, 24/7 | 52 million | $78 | Either, depending on your budget |
+| Public website: 1000 connections, 10 events per minute | 432 million | $545 | A Reverb server |
+
+Start with API Gateway. Above about 50 million messages per month, or when an event regularly reaches many people, run Laravel Reverb on a small always-on server instead. An [Amazon Lightsail](https://aws.amazon.com/lightsail/) container (nano, $7 per month with 500 GB of transfer included) handled 1000 connections and 10 events per minute at about 1% CPU.
+
+Your events, channels and Echo code stay the same:
+
+- install the `uv` PHP extension in the Reverb container: without it, Reverb stops at about 1000 connections,
+- set `BROADCAST_CONNECTION=reverb` and the `REVERB_*` variables in the application,
+- in Echo, remove `wsPath` and set `wsHost` to the address of the server,
+- use queued broadcasts (`ShouldBroadcast`), because events cannot be sent while the server restarts.
+
+A single server is a single point of failure: clients reconnect by themselves, but events sent during an outage are lost.
+
+With Bref Cloud, the **Metrics** page of an environment shows its WebSocket messages and their estimated cost, as well as new connections, errors and latency.
+
+## Limits
+
+- Events over 128 KB throw a `BroadcastException`, because API Gateway refuses them. The size is measured once encoded, where quotes count twice, so a JSON payload can reach the limit at about 100 KB.
+- Messages are billed per 32 KB: a 33 KB event counts as two messages per connection.
+- [Encrypted private channels](https://laravel.com/docs/broadcasting#encrypted-private-channels) are not supported.
+- API Gateway closes connections after 2 hours. Echo reconnects and subscribes again by itself, but events sent during those few hundred milliseconds are lost.
+- API Gateway accepts 500 new connections per second by default, per account and region.
+- If Lambda throttles the `websocket` function, a subscription can be lost, and Echo does not retry it. Make sure your [concurrency limit](https://docs.aws.amazon.com/lambda/latest/dg/lambda-concurrency.html) leaves room for reconnections.
+- Events sent in parallel have no ordering guarantee.
