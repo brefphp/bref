@@ -51,6 +51,7 @@ provider:
                 - Effect: Allow
                   Action: execute-api:ManageConnections
                   Resource: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebsocketsApi}/*'
+                # The websocket function invokes itself when a connection opens
                 - Effect: Allow
                   Action: lambda:InvokeFunction
                   Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${self:service}-${sls:stage}-websocket'
@@ -66,8 +67,6 @@ functions:
             - websocket: $disconnect
             - websocket: $default
 ```
-
-If your application runs in a VPC, give this function the same `vpc` configuration as your other functions. Publishing events requires internet access, for example through a NAT Gateway.
 
 ### Store subscriptions in the database or DynamoDB
 
