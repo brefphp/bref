@@ -198,6 +198,8 @@ You can delete a deployed environment using the `remove` command.
         ```
 
         Bref Cloud will automatically delete the contents of AWS S3 buckets.
+
+        Secrets are kept in SSM Parameter Store under `/<app>/<env>/`, so that deploying the environment again reuses them (e.g. the same `APP_KEY`). To delete them too, use `bref remove --delete-secrets`, or check "Delete its secrets too" in the Bref Cloud dashboard.
     </Tabs.Tab>
 </Tabs>
 
