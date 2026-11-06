@@ -307,6 +307,9 @@ final class HttpRequestEvent implements LambdaEvent
                 return [$value];
             }, $headers);
         }
+        // Web servers like nginx and Apache drop these headers: `x_foo` would reach PHP
+        // as the same HTTP_X_FOO variable as `x-foo`, and replace the value set by a proxy
+        $headers = array_filter($headers, fn ($name) => ! str_contains((string) $name, '_'), ARRAY_FILTER_USE_KEY);
         $headers = array_change_key_case($headers, CASE_LOWER);
 
         $hasBody = ! empty($this->event['body']);
