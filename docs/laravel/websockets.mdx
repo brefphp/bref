@@ -188,6 +188,29 @@ provider:
 
 The `api-gateway` driver needs AWS. Set `BROADCAST_CONNECTION=log` in your local `.env`: events are written to the logs, and Echo does not connect.
 
+## Inertia live props
+
+[Inertia live props](https://inertiajs.com/docs/v3/data-props/live-props) work on API Gateway. Install the Echo package of your frontend framework, here for Vue:
+
+```bash
+npm install @laravel/echo-vue
+```
+
+Then give Inertia the Echo instance created above, instead of calling `configureEcho()`:
+
+```js filename="resources/js/app.js"
+import './echo';
+import { createInertiaApp } from '@inertiajs/vue3';
+import { echo } from '@inertiajs/vue3/echo';
+
+createInertiaApp({
+    live: echo({ resolve: () => window.Echo }),
+    // ...
+});
+```
+
+By default, each page listening to an event reloads the prop with an HTTP request, which means one more Lambda invocation per connection. When the value can be sent to all subscribers, put it in the event with [`Inertia::broadcastProps()`](https://inertiajs.com/docs/v3/data-props/live-props#broadcasting-values) to avoid those requests.
+
 ## API Gateway or a Reverb server
 
 API Gateway charges for each message delivered: about $1.25 to $1.50 per million all included in `eu-west-3`, and almost nothing when idle. What counts is **connections × events**, more than the number of connections.
