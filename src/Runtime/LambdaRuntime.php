@@ -217,17 +217,27 @@ final class LambdaRuntime
 
         $socket = $response->failuresInTrailer ? $this->openResponse($invocationId, $response->contentType) : null;
         $broken = false;
-        $write = function (string $chunk) use (&$socket, &$broken, $invocationId, $response): void {
+        $writeError = null;
+        // Never throws: it can run inside a framework's output handler (pushed bodies), where an exception
+        // would skip the end of the request (e.g. terminate callbacks). The rest of the body is dropped instead.
+        $write = function (string $chunk) use (&$socket, &$broken, &$writeError, $invocationId, $response): void {
             if ($chunk === '' || $broken) {
                 return;
             }
-            $socket ??= $this->openResponse($invocationId, $response->contentType);
-            // If the Runtime API stopped reading (e.g. the response is too big), the rest is dropped:
-            // its answer, read when closing, explains why
-            $broken = ! $this->writeChunk($socket, $chunk);
+            try {
+                $socket ??= $this->openResponse($invocationId, $response->contentType);
+                // If the Runtime API stopped reading (e.g. the response is too big), its answer explains why
+                $broken = ! $this->writeChunk($socket, $chunk);
+            } catch (Throwable $e) {
+                $writeError = $e;
+                $broken = true;
+            }
         };
         try {
             $response->writeTo($write);
+            if ($writeError) {
+                throw $writeError;
+            }
         } catch (Throwable $e) {
             if ($socket !== null) {
                 // Too late for the error endpoint: the error is reported in the trailers of the response,
