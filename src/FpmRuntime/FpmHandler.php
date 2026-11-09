@@ -140,10 +140,13 @@ final class FpmHandler extends HttpHandler
 
         $output = $this->readOutput($event, $context, $timeoutDelayInMs);
 
-        // Read until the end of the HTTP headers
+        // Read until the end of the HTTP headers (without waiting for the next chunk)
         $head = '';
-        while ($output->valid() && ! str_contains($head, "\r\n\r\n")) {
+        while ($output->valid()) {
             $head .= $output->current();
+            if (str_contains($head, "\r\n\r\n")) {
+                break;
+            }
             $output->next();
         }
         [$headers, $statusCode, $bodyStart] = $this->parseHead($head);
@@ -152,6 +155,7 @@ final class FpmHandler extends HttpHandler
             if ($bodyStart !== '') {
                 yield $bodyStart;
             }
+            $output->next();
             while ($output->valid()) {
                 yield $output->current();
                 $output->next();
