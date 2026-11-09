@@ -138,6 +138,9 @@ final class FpmHandlerLoadBalancerTest extends TestCase
     {
         $this->startFpm(__DIR__ . '/fixtures/' . $file);
 
+        // These tests read the body: no gzip
+        unset($event['headers']['accept-encoding'], $event['multiValueHeaders']['accept-encoding']);
+
         return $this->fpm->handle($event ?? [
             'version' => '1.0',
             'httpMethod' => 'GET',

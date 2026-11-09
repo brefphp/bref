@@ -33,10 +33,10 @@ abstract class HttpHandler implements Handler
         $response = $this->handleRequest($httpEvent, $context);
 
         if ($httpEvent->isFormatV2()) {
-            return $response->toApiGatewayFormatV2($context->getAwsRequestId());
+            return $response->toApiGatewayFormatV2($context->getAwsRequestId(), $this->acceptsGzip($httpEvent));
         }
 
-        return $response->toApiGatewayFormat($httpEvent->hasMultiHeader(), $context->getAwsRequestId());
+        return $response->toApiGatewayFormat($httpEvent->hasMultiHeader(), $context->getAwsRequestId(), $this->acceptsGzip($httpEvent));
     }
 
     /**

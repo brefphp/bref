@@ -330,6 +330,8 @@ ERROR;
         };
 
         $eventData = json_decode(file_get_contents(__DIR__ . '/../Event/Http/Fixture/ag-v1-simple.json'), true, 512, JSON_THROW_ON_ERROR);
+        // The body is checked as is: no gzip
+        unset($eventData['headers']['Accept-Encoding'], $eventData['multiValueHeaders']['Accept-Encoding']);
         $this->givenAnEvent($eventData);
 
         $this->runtime->processNextEvent($handler);

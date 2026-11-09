@@ -26,9 +26,14 @@ final class HttpResponse
         $this->statusCode = $statusCode;
     }
 
-    public function toApiGatewayFormat(bool $multiHeaders = false, ?string $awsRequestId = null): array
+    /**
+     * @param bool $acceptsGzip Whether the client accepts gzip: compressible bodies are then compressed
+     *                          (and base64-encoded), which also keeps more responses under Lambda's 6 MB limit.
+     */
+    public function toApiGatewayFormat(bool $multiHeaders = false, ?string $awsRequestId = null, bool $acceptsGzip = false): array
     {
-        $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
+        $gzip = $this->useGzip($acceptsGzip);
+        $base64Encoding = $gzip || getenv('BREF_BINARY_RESPONSES');
 
         $headers = [];
         foreach ($this->headers as $name => $values) {
@@ -58,16 +63,17 @@ final class HttpResponse
             'isBase64Encoded' => $base64Encoding,
             'statusCode' => $this->statusCode,
             $headersKey => $headers,
-            'body' => $base64Encoding ? base64_encode($this->bodyAsString()) : $this->bodyAsString(),
+            'body' => $this->encodedBody($gzip, $base64Encoding),
         ];
     }
 
     /**
      * See https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-develop-integrations-lambda.html#http-api-develop-integrations-lambda.response
      */
-    public function toApiGatewayFormatV2(?string $awsRequestId = null): array
+    public function toApiGatewayFormatV2(?string $awsRequestId = null, bool $acceptsGzip = false): array
     {
-        $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
+        $gzip = $this->useGzip($acceptsGzip);
+        $base64Encoding = $gzip || getenv('BREF_BINARY_RESPONSES');
 
         ['cookies' => $cookies, 'statusCode' => $statusCode, 'headers' => $headers] = $this->toApiGatewayFormatV2WithoutBody($awsRequestId);
 
@@ -76,7 +82,7 @@ final class HttpResponse
             'isBase64Encoded' => $base64Encoding,
             'statusCode' => $statusCode,
             'headers' => $headers,
-            'body' => $base64Encoding ? base64_encode($this->bodyAsString()) : $this->bodyAsString(),
+            'body' => $this->encodedBody($gzip, $base64Encoding),
         ];
     }
 
@@ -121,17 +127,7 @@ final class HttpResponse
      */
     public function toStreamedResponse(?string $awsRequestId = null, bool $acceptsGzip = false): StreamedResponse
     {
-        $gzip = $acceptsGzip && $this->isCompressible();
-        if ($gzip) {
-            $vary = $this->header('vary');
-            $this->headers = array_filter(
-                $this->headers,
-                fn ($name) => ! in_array(strtolower((string) $name), ['content-length', 'vary'], true),
-                ARRAY_FILTER_USE_KEY,
-            );
-            $this->headers['content-encoding'] = 'gzip';
-            $this->headers['vary'] = trim(($vary ?? '') . ', Accept-Encoding', ', ');
-        }
+        $gzip = $this->useGzip($acceptsGzip);
         $prelude = $this->toApiGatewayFormatV2WithoutBody($awsRequestId);
 
         return new StreamedResponse(
@@ -144,7 +140,7 @@ final class HttpResponse
                     return;
                 }
                 // Each chunk is flushed so that the client can decompress it right away (streaming keeps working)
-                $deflate = deflate_init(ZLIB_ENCODING_GZIP, ['level' => 1]);
+                $deflate = deflate_init(ZLIB_ENCODING_GZIP, ['level' => self::gzipLevel()]);
                 foreach ($body as $chunk) {
                     if ($chunk !== '') {
                         yield deflate_add($deflate, $chunk, ZLIB_SYNC_FLUSH);
@@ -153,6 +149,44 @@ final class HttpResponse
                 yield deflate_add($deflate, '', ZLIB_FINISH);
             })(),
         );
+    }
+
+    /**
+     * Decide whether to gzip the body, and set the headers accordingly.
+     */
+    private function useGzip(bool $acceptsGzip): bool
+    {
+        if (! $acceptsGzip || ! $this->isCompressible()) {
+            return false;
+        }
+        $vary = $this->header('vary');
+        $this->headers = array_filter(
+            $this->headers,
+            fn ($name) => ! in_array(strtolower((string) $name), ['content-length', 'vary'], true),
+            ARRAY_FILTER_USE_KEY,
+        );
+        $this->headers['content-encoding'] = 'gzip';
+        $this->headers['vary'] = trim(($vary ?? '') . ', Accept-Encoding', ', ');
+
+        return true;
+    }
+
+    private function encodedBody(bool $gzip, bool $base64): string
+    {
+        $body = $this->bodyAsString();
+        if ($gzip) {
+            $body = gzencode($body, self::gzipLevel());
+        }
+
+        return $base64 ? base64_encode($body) : $body;
+    }
+
+    /**
+     * Research only: the level is configurable to measure it.
+     */
+    private static function gzipLevel(): int
+    {
+        return (int) (getenv('BREF_GZIP_LEVEL') ?: 1);
     }
 
     private function isCompressible(): bool

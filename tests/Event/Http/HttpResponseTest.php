@@ -192,4 +192,26 @@ class HttpResponseTest extends TestCase
             'body' => '',
         ], $response->toApiGatewayFormatV2());
     }
+
+    public function test compressible responses are gzipped when the client accepts it()
+    {
+        $response = new HttpResponse('<p>Hello world!</p>', ['Content-Type' => 'text/html', 'Vary' => 'Cookie']);
+
+        $result = $response->toApiGatewayFormatV2(null, true);
+
+        self::assertTrue($result['isBase64Encoded']);
+        self::assertSame('gzip', $result['headers']['Content-Encoding']);
+        self::assertSame('Cookie, Accept-Encoding', $result['headers']['Vary']);
+        self::assertSame('<p>Hello world!</p>', gzdecode(base64_decode($result['body'])));
+    }
+
+    public function test binary responses are not gzipped()
+    {
+        $response = new HttpResponse('binary', ['Content-Type' => 'image/png']);
+
+        $result = $response->toApiGatewayFormatV2(null, true);
+
+        self::assertFalse($result['isBase64Encoded']);
+        self::assertSame('binary', $result['body']);
+    }
 }
