@@ -41,8 +41,8 @@ final class FpmHandler extends HttpHandler
     private const SIGTERM = 15;
 
     private FastCgiClient $client;
-    /** Until when the current invocation can run (timestamp), see waitUntilIdle(). */
-    private float $deadline = 0;
+    /** Until when the last request's invocation can run (timestamp), null once waitUntilIdle() has run. */
+    private ?float $deadline = null;
     private string $handler;
     private string $configFile;
     /** @var resource|null */
@@ -178,12 +178,18 @@ final class FpmHandler extends HttpHandler
      */
     public function waitUntilIdle(): void
     {
+        // No request since the last wait (e.g. a warmer invocation)
+        if ($this->deadline === null) {
+            return;
+        }
+        $deadline = $this->deadline;
+        $this->deadline = null;
         try {
             // Read the (empty) response until its end
             iterator_to_array($this->client->request([
                 'SCRIPT_FILENAME' => __DIR__ . '/idle.php',
                 'REQUEST_METHOD' => 'GET',
-            ], '', $this->deadline));
+            ], '', $deadline));
         } catch (Throwable $e) {
             echo "The PHP script was still running after its response when the Lambda invocation timed out ({$e->getMessage()}). Bref will now restart PHP-FPM.\n";
             $this->stop();

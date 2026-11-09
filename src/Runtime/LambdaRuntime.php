@@ -281,14 +281,26 @@ final class LambdaRuntime
         }
         $this->write($socket, $end . "\r\n");
 
+        // The Runtime API answers right away: never wait for it until the end of the invocation
+        stream_set_timeout($socket, 5);
         $statusLine = (string) fgets($socket);
         $contentLength = 0;
+        $chunked = false;
         while (($line = fgets($socket)) !== false && trim($line) !== '') {
             if (stripos($line, 'content-length:') === 0) {
                 $contentLength = (int) trim(substr($line, strlen('content-length:')));
             }
+            $chunked = $chunked || preg_match('/^transfer-encoding:\s*chunked/i', $line) === 1;
         }
-        $body = $contentLength > 0 ? (string) stream_get_contents($socket, $contentLength) : '';
+        $body = '';
+        if ($chunked) {
+            while (($size = hexdec(trim((string) fgets($socket)))) > 0) {
+                $body .= stream_get_contents($socket, (int) $size);
+                fgets($socket);
+            }
+        } elseif ($contentLength > 0) {
+            $body = (string) stream_get_contents($socket, $contentLength);
+        }
         fclose($socket);
 
         $statusCode = (int) (explode(' ', $statusLine)[1] ?? 0);
@@ -298,7 +310,11 @@ final class LambdaRuntime
         if ($statusCode < 200 || $statusCode >= 300) {
             // The response was refused: the error endpoint is the way to end the invocation
             $this->responseStarted = false;
-            throw new Exception("Error $statusCode while calling the Lambda runtime API: " . ($body ?: $statusLine));
+            $error = json_decode($body, true);
+            $errorMessage = isset($error['errorType'], $error['errorMessage'])
+                ? "{$error['errorType']}: {$error['errorMessage']}"
+                : ($body ?: trim($statusLine));
+            throw new Exception("Error $statusCode while calling the Lambda runtime API: $errorMessage");
         }
     }
 

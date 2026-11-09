@@ -123,13 +123,14 @@ final class HttpResponse
     {
         $gzip = $acceptsGzip && $this->isCompressible();
         if ($gzip) {
+            $vary = $this->header('vary');
             $this->headers = array_filter(
                 $this->headers,
                 fn ($name) => ! in_array(strtolower((string) $name), ['content-length', 'vary'], true),
                 ARRAY_FILTER_USE_KEY,
             );
             $this->headers['content-encoding'] = 'gzip';
-            $this->headers['vary'] = trim(($this->header('vary') ?? '') . ', Accept-Encoding', ', ');
+            $this->headers['vary'] = trim(($vary ?? '') . ', Accept-Encoding', ', ');
         }
         $prelude = $this->toApiGatewayFormatV2WithoutBody($awsRequestId);
 
@@ -156,7 +157,7 @@ final class HttpResponse
 
     private function isCompressible(): bool
     {
-        if ($this->header('content-encoding') !== null || in_array($this->statusCode, [204, 304], true)) {
+        if ($this->header('content-encoding') !== null || in_array($this->statusCode, [204, 206, 304], true)) {
             return false;
         }
 
