@@ -41,6 +41,8 @@ final class FpmHandler extends HttpHandler
     private const SIGTERM = 15;
 
     private FastCgiClient $client;
+    /** Until when the current invocation can run (timestamp), see waitUntilIdle(). */
+    private float $deadline = 0;
     private string $handler;
     private string $configFile;
     /** @var resource|null */
@@ -137,6 +139,7 @@ final class FpmHandler extends HttpHandler
         // to allow some time for Bref/PHP-FPM to recover and cleanup
         $margin = 1000;
         $timeoutDelayInMs = max(1000, $context->getRemainingTimeInMillis() - $margin);
+        $this->deadline = microtime(true) + $timeoutDelayInMs / 1000;
 
         $output = $this->readOutput($event, $context, $timeoutDelayInMs);
 
@@ -164,6 +167,31 @@ final class FpmHandler extends HttpHandler
         })();
 
         return new HttpResponse($body, $headers, $statusCode);
+    }
+
+    /**
+     * Wait until the PHP script of the last request has finished, even after it has sent its response.
+     *
+     * With `fastcgi_finish_request()`, the script keeps running after the response is complete.
+     * Lambda freezes the environment as soon as the next invocation is requested: the script must
+     * finish before that. PHP-FPM has a single worker, so it runs this request once the worker is free.
+     */
+    public function waitUntilIdle(): void
+    {
+        try {
+            foreach (
+                $this->client->request([
+                    'SCRIPT_FILENAME' => __DIR__ . '/idle.php',
+                    'REQUEST_METHOD' => 'GET',
+                ], '', $this->deadline) as $output
+            ) {
+                // Nothing to read
+            }
+        } catch (Throwable $e) {
+            echo "The PHP script was still running after its response when the Lambda invocation timed out ({$e->getMessage()}). Bref will now restart PHP-FPM.\n";
+            $this->stop();
+            $this->start();
+        }
     }
 
     /**

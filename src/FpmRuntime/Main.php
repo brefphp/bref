@@ -44,6 +44,8 @@ class Main
         /** @phpstan-ignore-next-line */
         while (true) {
             $lambdaRuntime->processNextEvent($phpFpm);
+            // Scripts can keep running after their response (fastcgi_finish_request())
+            $phpFpm->waitUntilIdle();
         }
     }
 }

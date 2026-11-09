@@ -53,7 +53,8 @@ abstract class HttpHandler implements Handler
 
                 throw $e;
             }
-            yield from $response->toStreamedResponse($context->getAwsRequestId())->chunks;
+            $acceptsGzip = str_contains(implode(',', $event->getHeaders()['accept-encoding'] ?? []), 'gzip');
+            yield from $response->toStreamedResponse($context->getAwsRequestId(), $acceptsGzip)->chunks;
         };
 
         return new StreamedResponse('application/vnd.awslambda.http-integration-response', $chunks());

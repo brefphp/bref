@@ -115,18 +115,66 @@ final class HttpResponse
     /**
      * The format of Lambda's streamed HTTP responses (Function URLs in `RESPONSE_STREAM` mode, API Gateway REST APIs
      * in `STREAM` mode): the status code and headers as JSON, 8 null bytes, then the body as is (binary included).
+     *
+     * @param bool $acceptsGzip Whether the client accepts gzip: compressible bodies are then compressed here,
+     *                          because CloudFront does not compress streamed responses.
      */
-    public function toStreamedResponse(?string $awsRequestId = null): StreamedResponse
+    public function toStreamedResponse(?string $awsRequestId = null, bool $acceptsGzip = false): StreamedResponse
     {
+        $gzip = $acceptsGzip && $this->isCompressible();
+        if ($gzip) {
+            $this->headers = array_filter(
+                $this->headers,
+                fn ($name) => ! in_array(strtolower((string) $name), ['content-length', 'vary'], true),
+                ARRAY_FILTER_USE_KEY,
+            );
+            $this->headers['content-encoding'] = 'gzip';
+            $this->headers['vary'] = trim(($this->header('vary') ?? '') . ', Accept-Encoding', ', ');
+        }
         $prelude = $this->toApiGatewayFormatV2WithoutBody($awsRequestId);
 
         return new StreamedResponse(
             'application/vnd.awslambda.http-integration-response',
-            (function () use ($prelude): Generator {
+            (function () use ($prelude, $gzip): Generator {
                 yield json_encode($prelude, JSON_THROW_ON_ERROR) . "\0\0\0\0\0\0\0\0";
-                yield from is_string($this->body) ? [$this->body] : $this->body;
+                $body = is_string($this->body) ? [$this->body] : $this->body;
+                if (! $gzip) {
+                    yield from $body;
+                    return;
+                }
+                // Each chunk is flushed so that the client can decompress it right away (streaming keeps working)
+                $deflate = deflate_init(ZLIB_ENCODING_GZIP, ['level' => 1]);
+                foreach ($body as $chunk) {
+                    if ($chunk !== '') {
+                        yield deflate_add($deflate, $chunk, ZLIB_SYNC_FLUSH);
+                    }
+                }
+                yield deflate_add($deflate, '', ZLIB_FINISH);
             })(),
         );
+    }
+
+    private function isCompressible(): bool
+    {
+        if ($this->header('content-encoding') !== null || in_array($this->statusCode, [204, 304], true)) {
+            return false;
+        }
+
+        return (bool) preg_match(
+            '#^(text/|application/(json|javascript|xml|[\w.-]+\+(json|xml))|image/svg\+xml)#i',
+            $this->header('content-type') ?? '',
+        );
+    }
+
+    private function header(string $name): ?string
+    {
+        foreach ($this->headers as $headerName => $values) {
+            if (strtolower((string) $headerName) === $name) {
+                return is_array($values) ? implode(', ', $values) : $values;
+            }
+        }
+
+        return null;
     }
 
     private function bodyAsString(): string
