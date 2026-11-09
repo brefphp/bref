@@ -179,14 +179,11 @@ final class FpmHandler extends HttpHandler
     public function waitUntilIdle(): void
     {
         try {
-            foreach (
-                $this->client->request([
-                    'SCRIPT_FILENAME' => __DIR__ . '/idle.php',
-                    'REQUEST_METHOD' => 'GET',
-                ], '', $this->deadline) as $output
-            ) {
-                // Nothing to read
-            }
+            // Read the (empty) response until its end
+            iterator_to_array($this->client->request([
+                'SCRIPT_FILENAME' => __DIR__ . '/idle.php',
+                'REQUEST_METHOD' => 'GET',
+            ], '', $this->deadline));
         } catch (Throwable $e) {
             echo "The PHP script was still running after its response when the Lambda invocation timed out ({$e->getMessage()}). Bref will now restart PHP-FPM.\n";
             $this->stop();
