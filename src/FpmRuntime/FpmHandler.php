@@ -6,15 +6,12 @@ use Bref\Context\Context;
 use Bref\Event\Http\HttpHandler;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\HttpResponse;
+use Bref\FpmRuntime\FastCgi\FastCgiClient;
 use Bref\FpmRuntime\FastCgi\FastCgiCommunicationFailed;
-use Bref\FpmRuntime\FastCgi\FastCgiRequest;
+use Bref\FpmRuntime\FastCgi\TimedOut;
 use Bref\FpmRuntime\FastCgi\Timeout;
 use Exception;
-use hollodotme\FastCGI\Client;
-use hollodotme\FastCGI\Exceptions\TimedoutException;
-use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
-use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
-use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
+use Generator;
 use RuntimeException;
 use Throwable;
 
@@ -43,8 +40,7 @@ final class FpmHandler extends HttpHandler
      */
     private const SIGTERM = 15;
 
-    private ?Client $client = null;
-    private UnixDomainSocket $connection;
+    private FastCgiClient $client;
     private string $handler;
     private string $configFile;
     /** @var resource|null */
@@ -96,8 +92,7 @@ final class FpmHandler extends HttpHandler
         }
         $this->fpm = $resource;
 
-        $this->client = new Client;
-        $this->connection = new UnixDomainSocket(self::SOCKET, 1000, 900000);
+        $this->client = new FastCgiClient(self::SOCKET);
 
         $this->waitUntilReady();
     }
@@ -129,24 +124,58 @@ final class FpmHandler extends HttpHandler
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
      *
+     * The status code and headers are read before returning, the body is read
+     * while it is sent to Lambda, as PHP-FPM writes it.
+     *
      * @throws FastCgiCommunicationFailed
      * @throws Timeout
      * @throws Exception
      */
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
-        $request = $this->eventToFastCgiRequest($event, $context);
-
         // The script will timeout 1 second before the remaining time
         // to allow some time for Bref/PHP-FPM to recover and cleanup
         $margin = 1000;
         $timeoutDelayInMs = max(1000, $context->getRemainingTimeInMillis() - $margin);
 
-        try {
-            $socketId = $this->client->sendAsyncRequest($this->connection, $request);
+        $output = $this->readOutput($event, $context, $timeoutDelayInMs);
 
-            $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
-        } catch (TimedoutException) {
+        // Read until the end of the HTTP headers
+        $head = '';
+        while ($output->valid() && ! str_contains($head, "\r\n\r\n")) {
+            $head .= $output->current();
+            $output->next();
+        }
+        [$headers, $statusCode, $bodyStart] = $this->parseHead($head);
+
+        $body = (function () use ($bodyStart, $output) {
+            if ($bodyStart !== '') {
+                yield $bodyStart;
+            }
+            while ($output->valid()) {
+                yield $output->current();
+                $output->next();
+            }
+            $this->ensureStillRunning();
+        })();
+
+        return new HttpResponse($body, $headers, $statusCode);
+    }
+
+    /**
+     * @return Generator<int, string>
+     * @throws FastCgiCommunicationFailed
+     * @throws Timeout
+     */
+    private function readOutput(HttpRequestEvent $event, Context $context, int $timeoutDelayInMs): Generator
+    {
+        try {
+            yield from $this->client->request(
+                $this->eventToFastCgiParams($event, $context),
+                $event->getBody(),
+                microtime(true) + $timeoutDelayInMs / 1000,
+            );
+        } catch (TimedOut) {
             $invocationId = $context->getAwsRequestId();
             echo "$invocationId The PHP script timed out. Bref will now restart PHP-FPM to start from a clean slate and flush the PHP logs. "
                 . 'Timeouts can happen for example when trying to connect to a remote API or database, if this happens continuously check for those. '
@@ -186,14 +215,31 @@ final class FpmHandler extends HttpHandler
 
             throw new FastCgiCommunicationFailed;
         }
+    }
 
-        $responseHeaders = $this->getResponseHeaders($response);
+    /**
+     * Same parsing as hollodotme/fast-cgi-client.
+     *
+     * @return array{0: array<string, string[]>, 1: int, 2: string} The headers (lowercase names), the status code and the beginning of the body.
+     */
+    private function parseHead(string $head): array
+    {
+        if (! preg_match('#\r?\n\r?\n#', $head, $matches, PREG_OFFSET_CAPTURE)) {
+            return [[], 200, $head];
+        }
+        $headers = [];
+        foreach (preg_split('#\r?\n#', substr($head, 0, $matches[0][1])) as $line) {
+            [$name, $value] = explode(':', $line, 2) + [1 => ''];
+            $headers[strtolower(trim($name))][] = trim($value);
+        }
+        $statusCode = 200;
+        if (preg_match('#^\s*(\d{3})(?:\s|$)#', $headers['status'][0] ?? '', $status)) {
+            $statusCode = (int) $status[1];
+        }
         // The status code is returned separately, it is not an HTTP header
-        unset($responseHeaders['status']);
+        unset($headers['status']);
 
-        $this->ensureStillRunning();
-
-        return new HttpResponse($response->getBody(), $responseHeaders, $response->getStatusCode());
+        return [$headers, $statusCode, substr($head, $matches[0][1] + strlen($matches[0][0]))];
     }
 
     /**
@@ -238,36 +284,41 @@ final class FpmHandler extends HttpHandler
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(HttpRequestEvent $event, Context $context): ProvidesRequestData
+    /**
+     * @return array<string, string|int>
+     */
+    private function eventToFastCgiParams(HttpRequestEvent $event, Context $context): array
     {
-        $request = new FastCgiRequest($event->getMethod(), $this->handler, $event->getBody());
-        $request->setRequestUri($event->getUri());
-        $request->setRemoteAddress('127.0.0.1');
-        $request->setRemotePort($event->getRemotePort());
-        $request->setServerAddress('127.0.0.1');
-        $request->setServerName($event->getServerName());
-        $request->setServerProtocol($event->getProtocol());
-        $request->setServerPort($event->getServerPort());
-        $request->setCustomVar('PATH_INFO', $event->getPath());
-        $request->setCustomVar('QUERY_STRING', $event->getQueryString());
-        $request->setCustomVar('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
-        // Same variables as in the other runtimes, see LambdaRuntime::processNextEvent()
-        $request->setCustomVar('LAMBDA_REQUEST_ID', $context->getAwsRequestId());
-        $request->setCustomVar('_X_AMZN_TRACE_ID', $context->getTraceId());
-        $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext(), JSON_THROW_ON_ERROR));
-
-        $contentType = $event->getContentType();
-        if ($contentType) {
-            $request->setContentType($contentType);
-        }
+        $params = [
+            'GATEWAY_INTERFACE' => 'FastCGI/1.0',
+            'REQUEST_METHOD' => $event->getMethod(),
+            'REQUEST_URI' => $event->getUri(),
+            'SCRIPT_FILENAME' => $this->handler,
+            'SERVER_SOFTWARE' => 'bref',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'REMOTE_PORT' => $event->getRemotePort(),
+            'SERVER_ADDR' => '127.0.0.1',
+            'SERVER_PORT' => $event->getServerPort(),
+            'SERVER_NAME' => $event->getServerName(),
+            'SERVER_PROTOCOL' => $event->getProtocol(),
+            'CONTENT_TYPE' => $event->getContentType() ?: 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => strlen($event->getBody()),
+            'PATH_INFO' => $event->getPath(),
+            'QUERY_STRING' => $event->getQueryString(),
+            'LAMBDA_INVOCATION_CONTEXT' => json_encode($context, JSON_THROW_ON_ERROR),
+            // Same variables as in the other runtimes, see LambdaRuntime::processNextEvent()
+            'LAMBDA_REQUEST_ID' => $context->getAwsRequestId(),
+            '_X_AMZN_TRACE_ID' => $context->getTraceId(),
+            'LAMBDA_REQUEST_CONTEXT' => json_encode($event->getRequestContext(), JSON_THROW_ON_ERROR),
+        ];
         foreach ($event->getHeaders() as $header => $values) {
             foreach ($values as $value) {
                 $key = 'HTTP_' . strtoupper(str_replace('-', '_', (string) $header));
-                $request->setCustomVar($key, $value);
+                $params[$key] = $value;
             }
         }
 
-        return $request;
+        return $params;
     }
 
     /**
@@ -341,14 +392,6 @@ final class FpmHandler extends HttpHandler
                 throw new Exception('Timeout while waiting for PHP-FPM to stop');
             }
         }
-    }
-
-    /**
-     * Return an array of the response headers.
-     */
-    private function getResponseHeaders(ProvidesResponseData $response): array
-    {
-        return array_change_key_case($response->getHeaders(), CASE_LOWER);
     }
 
     public function stopFpm(float $timeout): void

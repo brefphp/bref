@@ -2,6 +2,9 @@
 
 namespace Bref\Event\Http;
 
+use Bref\Runtime\StreamedResponse;
+use Generator;
+
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
  */
@@ -9,12 +12,14 @@ final class HttpResponse
 {
     private int $statusCode;
     private array $headers;
-    private string $body;
+    /** @var string|iterable<string> */
+    private string|iterable $body;
 
     /**
-     * @param array<string|string[]> $headers
+     * @param string|iterable<string> $body    The body, or its chunks when it is produced progressively.
+     * @param array<string|string[]>  $headers
      */
-    public function __construct(string $body, array $headers = [], int $statusCode = 200)
+    public function __construct(string|iterable $body, array $headers = [], int $statusCode = 200)
     {
         $this->body = $body;
         $this->headers = $headers;
@@ -53,7 +58,7 @@ final class HttpResponse
             'isBase64Encoded' => $base64Encoding,
             'statusCode' => $this->statusCode,
             $headersKey => $headers,
-            'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
+            'body' => $base64Encoding ? base64_encode($this->bodyAsString()) : $this->bodyAsString(),
         ];
     }
 
@@ -64,6 +69,19 @@ final class HttpResponse
     {
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
 
+        ['cookies' => $cookies, 'statusCode' => $statusCode, 'headers' => $headers] = $this->toApiGatewayFormatV2WithoutBody($awsRequestId);
+
+        return [
+            'cookies' => $cookies,
+            'isBase64Encoded' => $base64Encoding,
+            'statusCode' => $statusCode,
+            'headers' => $headers,
+            'body' => $base64Encoding ? base64_encode($this->bodyAsString()) : $this->bodyAsString(),
+        ];
+    }
+
+    private function toApiGatewayFormatV2WithoutBody(?string $awsRequestId): array
+    {
         $headers = [];
         $cookies = [];
         foreach ($this->headers as $name => $values) {
@@ -89,11 +107,39 @@ final class HttpResponse
 
         return [
             'cookies' => $cookies,
-            'isBase64Encoded' => $base64Encoding,
             'statusCode' => $this->statusCode,
             'headers' => $headers,
-            'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
         ];
+    }
+
+    /**
+     * The format of Lambda's streamed HTTP responses (Function URLs in `RESPONSE_STREAM` mode, API Gateway REST APIs
+     * in `STREAM` mode): the status code and headers as JSON, 8 null bytes, then the body as is (binary included).
+     */
+    public function toStreamedResponse(?string $awsRequestId = null): StreamedResponse
+    {
+        $prelude = $this->toApiGatewayFormatV2WithoutBody($awsRequestId);
+
+        return new StreamedResponse(
+            'application/vnd.awslambda.http-integration-response',
+            (function () use ($prelude): Generator {
+                yield json_encode($prelude, JSON_THROW_ON_ERROR) . "\0\0\0\0\0\0\0\0";
+                yield from is_string($this->body) ? [$this->body] : $this->body;
+            })(),
+        );
+    }
+
+    private function bodyAsString(): string
+    {
+        if (is_string($this->body)) {
+            return $this->body;
+        }
+        $body = '';
+        foreach ($this->body as $chunk) {
+            $body .= $chunk;
+        }
+
+        return $this->body = $body;
     }
 
     /**

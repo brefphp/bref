@@ -170,6 +170,14 @@ final class HttpRequestEvent implements LambdaEvent
         return self::queryStringToArray($this->queryString);
     }
 
+    /**
+     * Function URL events have the same format as HTTP API v2 events, only their domain differs.
+     */
+    public function isFunctionUrl(): bool
+    {
+        return str_contains($this->event['requestContext']['domainName'] ?? '', '.lambda-url.');
+    }
+
     public function getRequestContext(): array
     {
         return $this->event['requestContext'] ?? [];
