@@ -213,7 +213,7 @@ final class LambdaRuntime
             ? $result
             : new StreamedResponse('application/json', [$this->toJson($result)]);
 
-        $socket = null;
+        $socket = $response->failuresInTrailer ? $this->openResponse($invocationId, $response->contentType) : null;
         try {
             foreach ($response->chunks as $chunk) {
                 if ($chunk === '') {

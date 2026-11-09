@@ -66,7 +66,8 @@ class Main
                     }
                 };
 
-                return new StreamedResponse('text/plain', $output());
+                // A failing command is never retried by Lambda (e.g. scheduled commands), whether it printed something or not
+                return new StreamedResponse('text/plain', $output(), failuresInTrailer: true);
             });
         }
     }

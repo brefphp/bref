@@ -6,6 +6,7 @@ use Bref\ConsoleRuntime\CommandFailed;
 use Bref\ConsoleRuntime\Main;
 use Bref\Test\RuntimeTestCase;
 use Bref\Test\Server;
+use Psr\Http\Message\RequestInterface;
 
 class MainTest extends RuntimeTestCase
 {
@@ -27,10 +28,9 @@ class MainTest extends RuntimeTestCase
             // Needed because `run()` is an infinite loop and will fail eventually
         }
 
-        $this->assertInvocationResult([
-            'exitCode' => 0,
-            'output' => "Hello world!\n",
-        ]);
+        $response = $this->streamedResponse();
+        $this->assertSame("Hello world!\n", $response->getBody()->__toString());
+        $this->assertFalse($response->hasHeader('lambda-runtime-function-error-type'));
     }
 
     public function test failure()
@@ -43,10 +43,13 @@ class MainTest extends RuntimeTestCase
             // Needed because `run()` is an infinite loop and will fail eventually
         }
 
-        $this->assertInvocationErrorResult(CommandFailed::class, "Hello world!\nFailure\n");
+        // The output is sent, the failure is in the trailers: Lambda never retries a failing command
+        $response = $this->streamedResponse();
+        $this->assertSame("Hello world!\nFailure\n", $response->getBody()->__toString());
+        $this->assertSame(CommandFailed::class, $response->getHeaderLine('lambda-runtime-function-error-type'));
     }
 
-    public function test trims output to stay under the 6MB limit of Lambda()
+    public function test output above 6MB is sent whole()
     {
         $this->givenAnEvent('flood');
 
@@ -56,13 +59,18 @@ class MainTest extends RuntimeTestCase
             // Needed because `run()` is an infinite loop and will fail eventually
         }
 
+        // Lambda refuses it with buffered invocations, InvokeWithResponseStream accepts up to 200 MB
+        $this->assertSame(7 * 1024 * 1024, strlen($this->streamedResponse()->getBody()->__toString()));
+    }
+
+    private function streamedResponse(): RequestInterface
+    {
         $requests = Server::received();
         $this->assertCount(2, $requests);
+        [, $response] = $requests;
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $response->getUri()->__toString());
+        $this->assertSame('streaming', $response->getHeaderLine('lambda-runtime-function-response-mode'));
 
-        [, $eventResponse] = $requests;
-        $this->assertLessThan(6 * 1024 * 1024, strlen($eventResponse->getBody()->__toString()));
-        // Check the content of the result can be decoded
-        $result = json_decode($eventResponse->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertEquals(0, $result['exitCode']);
+        return $response;
     }
 }
