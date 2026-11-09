@@ -6,6 +6,8 @@ use Bref\Bref;
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
+use Bref\Event\Http\HttpRequestEvent;
+use Bref\Event\Http\HttpResponse;
 use CurlHandle;
 use Exception;
 use JsonException;
@@ -100,7 +102,7 @@ final class LambdaRuntime
 
             $this->sendResponse($context->getAwsRequestId(), $result);
         } catch (Throwable $e) {
-            $this->signalFailure($context->getAwsRequestId(), $e);
+            $this->signalFailure($context->getAwsRequestId(), $e, $event);
 
             try {
                 Bref::events()->afterInvoke($handler, $event, $context, null, $e);
@@ -337,9 +339,21 @@ final class LambdaRuntime
     /**
      * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-invokeerror
      */
-    private function signalFailure(string $invocationId, Throwable $error): void
+    private function signalFailure(string $invocationId, Throwable $error, mixed $event): void
     {
         $this->logError($error, $invocationId);
+
+        // A Function URL (streaming) would show the error, stack trace included, as the body of a 200 response
+        if (! $this->responseStarted && HttpRequestEvent::isFunctionUrlEvent($event)) {
+            $response = (new HttpResponse('Internal Server Error', ['content-type' => 'text/plain'], 500))->toStreamedResponse();
+            $socket = $this->openResponse($invocationId, $response->contentType);
+            foreach ($response->chunks as $chunk) {
+                $this->write($socket, dechex(strlen($chunk)) . "\r\n" . $chunk . "\r\n");
+            }
+            $this->closeResponse($socket, $error);
+
+            return;
+        }
 
         // Once the response has started, the Runtime API refuses errors (InvalidStateTransition)
         if (! $this->responseStarted) {

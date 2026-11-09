@@ -23,8 +23,7 @@ abstract class HttpHandler implements Handler
             return ['Lambda is warm'];
         }
 
-        // Function URL events have the same format as HTTP API v2 events, only their domain differs
-        if (str_contains($event['requestContext']['domainName'] ?? '', '.lambda-url.')) {
+        if (HttpRequestEvent::isFunctionUrlEvent($event)) {
             return $this->stream($event, $context);
         }
 

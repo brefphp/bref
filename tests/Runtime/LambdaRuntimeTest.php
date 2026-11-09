@@ -83,6 +83,26 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->assertErrorInLogs('RuntimeException', 'This is an exception');
     }
 
+    public function test errors on Function URLs are a 500 without details()
+    {
+        $this->givenAnEvent(['requestContext' => ['domainName' => 'abc.lambda-url.eu-west-3.on.aws']]);
+
+        $this->runtime->processNextEvent(function () {
+            throw new RuntimeException('Secret details');
+        });
+
+        $requests = Server::received();
+        $this->assertCount(2, $requests);
+        [, $response] = $requests;
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $response->getUri()->__toString());
+        $body = $response->getBody()->__toString();
+        $this->assertStringStartsWith('{"cookies":[],"statusCode":500', $body);
+        $this->assertStringEndsWith("\0\0\0\0\0\0\0\0Internal Server Error", $body);
+        $this->assertStringNotContainsString('Secret details', $body);
+        // The error is still reported to Lambda (metrics)
+        $this->assertSame('RuntimeException', $response->getHeaderLine('lambda-runtime-function-error-type'));
+    }
+
     public function test nested exceptions in the handler result in an invocation error()
     {
         $this->givenAnEvent(['Hello' => 'world!']);
