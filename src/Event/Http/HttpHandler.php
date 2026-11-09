@@ -5,7 +5,6 @@ namespace Bref\Event\Http;
 use Bref\Context\Context;
 use Bref\Event\Handler;
 use Bref\Runtime\StreamedResponse;
-use Generator;
 use Throwable;
 
 abstract class HttpHandler implements Handler
@@ -46,19 +45,20 @@ abstract class HttpHandler implements Handler
      */
     private function stream(array $rawEvent, Context $context): StreamedResponse
     {
-        $chunks = function () use ($rawEvent, $context): Generator {
-            try {
-                $event = new HttpRequestEvent($rawEvent);
-                $response = $this->handleRequest($event, $context);
-            } catch (Throwable $e) {
-                yield from (new HttpResponse('Internal Server Error', ['content-type' => 'text/plain'], 500))->toStreamedResponse()->chunks;
+        return new StreamedResponse(
+            'application/vnd.awslambda.http-integration-response',
+            function (callable $write) use ($rawEvent, $context): void {
+                try {
+                    $event = new HttpRequestEvent($rawEvent);
+                    $response = $this->handleRequest($event, $context);
+                } catch (Throwable $e) {
+                    (new HttpResponse('Internal Server Error', ['content-type' => 'text/plain'], 500))->toStreamedResponse()->writeTo($write);
 
-                throw $e;
-            }
-            yield from $response->toStreamedResponse($context->getAwsRequestId(), $this->acceptsGzip($event))->chunks;
-        };
-
-        return new StreamedResponse('application/vnd.awslambda.http-integration-response', $chunks());
+                    throw $e;
+                }
+                $response->toStreamedResponse($context->getAwsRequestId(), $this->acceptsGzip($event))->writeTo($write);
+            },
+        );
     }
 
     private function acceptsGzip(HttpRequestEvent $event): bool

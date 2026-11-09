@@ -216,17 +216,18 @@ final class LambdaRuntime
             : new StreamedResponse('application/json', [$this->toJson($result)]);
 
         $socket = $response->failuresInTrailer ? $this->openResponse($invocationId, $response->contentType) : null;
-        try {
-            foreach ($response->chunks as $chunk) {
-                if ($chunk === '') {
-                    continue;
-                }
-                $socket ??= $this->openResponse($invocationId, $response->contentType);
-                if (! $this->write($socket, dechex(strlen($chunk)) . "\r\n" . $chunk . "\r\n")) {
-                    // The Runtime API stopped reading (e.g. the response is too big), its answer explains why
-                    break;
-                }
+        $broken = false;
+        $write = function (string $chunk) use (&$socket, &$broken, $invocationId, $response): void {
+            if ($chunk === '' || $broken) {
+                return;
             }
+            $socket ??= $this->openResponse($invocationId, $response->contentType);
+            // If the Runtime API stopped reading (e.g. the response is too big), the rest is dropped:
+            // its answer, read when closing, explains why
+            $broken = ! $this->writeChunk($socket, $chunk);
+        };
+        try {
+            $response->writeTo($write);
         } catch (Throwable $e) {
             if ($socket !== null) {
                 // Too late for the error endpoint: the error is reported in the trailers of the response,
@@ -323,6 +324,14 @@ final class LambdaRuntime
     /**
      * @param resource $socket
      */
+    private function writeChunk($socket, string $chunk): bool
+    {
+        return $chunk === '' || $this->write($socket, dechex(strlen($chunk)) . "\r\n" . $chunk . "\r\n");
+    }
+
+    /**
+     * @param resource $socket
+     */
     private function write($socket, string $data): bool
     {
         while ($data !== '') {
@@ -347,9 +356,9 @@ final class LambdaRuntime
         if (! $this->responseStarted && HttpRequestEvent::isFunctionUrlEvent($event)) {
             $response = (new HttpResponse('Internal Server Error', ['content-type' => 'text/plain'], 500))->toStreamedResponse();
             $socket = $this->openResponse($invocationId, $response->contentType);
-            foreach ($response->chunks as $chunk) {
-                $this->write($socket, dechex(strlen($chunk)) . "\r\n" . $chunk . "\r\n");
-            }
+            $response->writeTo(function (string $chunk) use ($socket): void {
+                $this->writeChunk($socket, $chunk);
+            });
             $this->closeResponse($socket, $error);
 
             return;

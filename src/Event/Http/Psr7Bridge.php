@@ -93,11 +93,13 @@ final class Psr7Bridge
             $stream->rewind();
         }
         // Read progressively: a stream that generates its content is sent as it is generated
-        $body = (function () use ($stream) {
-            while (! $stream->eof()) {
-                yield $stream->read(65536);
-            }
-        })();
+        $body = $stream instanceof PushStream
+            ? fn (callable $write) => $stream->writeTo($write)
+            : (function () use ($stream) {
+                while (! $stream->eof()) {
+                    yield $stream->read(65536);
+                }
+            })();
 
         return new HttpResponse($body, $response->getHeaders(), $response->getStatusCode());
     }

@@ -3,7 +3,7 @@
 namespace Bref\Event\Http;
 
 use Bref\Runtime\StreamedResponse;
-use Generator;
+use Closure;
 
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
@@ -12,14 +12,15 @@ final class HttpResponse
 {
     private int $statusCode;
     private array $headers;
-    /** @var string|iterable<string> */
-    private string|iterable $body;
+    /** @var string|iterable<string>|Closure(callable(string): void): void */
+    private string|iterable|Closure $body;
 
     /**
-     * @param string|iterable<string> $body    The body, or its chunks when it is produced progressively.
-     * @param array<string|string[]>  $headers
+     * @param string|iterable<string>|Closure(callable(string): void): void $body    The body, or its chunks when it is
+     *           produced progressively: pulled (an iterable) or pushed (a function that writes them).
+     * @param array<string|string[]>                                        $headers
      */
-    public function __construct(string|iterable $body, array $headers = [], int $statusCode = 200)
+    public function __construct(string|iterable|Closure $body, array $headers = [], int $statusCode = 200)
     {
         $this->body = $body;
         $this->headers = $headers;
@@ -132,22 +133,21 @@ final class HttpResponse
 
         return new StreamedResponse(
             'application/vnd.awslambda.http-integration-response',
-            (function () use ($prelude, $gzip): Generator {
-                yield json_encode($prelude, JSON_THROW_ON_ERROR) . "\0\0\0\0\0\0\0\0";
-                $body = is_string($this->body) ? [$this->body] : $this->body;
+            function (callable $write) use ($prelude, $gzip): void {
+                $write(json_encode($prelude, JSON_THROW_ON_ERROR) . "\0\0\0\0\0\0\0\0");
                 if (! $gzip) {
-                    yield from $body;
+                    $this->writeBody($write);
                     return;
                 }
                 // Each chunk is flushed so that the client can decompress it right away (streaming keeps working)
                 $deflate = deflate_init(ZLIB_ENCODING_GZIP, ['level' => self::gzipLevel()]);
-                foreach ($body as $chunk) {
+                $this->writeBody(function (string $chunk) use ($write, $deflate): void {
                     if ($chunk !== '') {
-                        yield deflate_add($deflate, $chunk, ZLIB_SYNC_FLUSH);
+                        $write(deflate_add($deflate, $chunk, ZLIB_SYNC_FLUSH));
                     }
-                }
-                yield deflate_add($deflate, '', ZLIB_FINISH);
-            })(),
+                });
+                $write(deflate_add($deflate, '', ZLIB_FINISH));
+            },
         );
     }
 
@@ -218,11 +218,27 @@ final class HttpResponse
             return $this->body;
         }
         $body = '';
-        foreach ($this->body as $chunk) {
+        $this->writeBody(function (string $chunk) use (&$body): void {
             $body .= $chunk;
-        }
+        });
 
         return $this->body = $body;
+    }
+
+    /**
+     * @param callable(string): void $write
+     */
+    private function writeBody(callable $write): void
+    {
+        if (is_string($this->body)) {
+            $write($this->body);
+        } elseif ($this->body instanceof Closure) {
+            ($this->body)($write);
+        } else {
+            foreach ($this->body as $chunk) {
+                $write($chunk);
+            }
+        }
     }
 
     /**
