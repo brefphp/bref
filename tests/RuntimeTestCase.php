@@ -52,6 +52,9 @@ abstract class RuntimeTestCase extends TestCase
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
         $this->assertSame('POST', $eventResponse->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventResponse->getUri()->__toString());
+        // Every response is sent with the streaming mode, values are encoded to JSON
+        $this->assertSame('streaming', $eventResponse->getHeaderLine('lambda-runtime-function-response-mode'));
+        $this->assertSame('application/json', $eventResponse->getHeaderLine('Content-Type'));
         $this->assertEquals($result, json_decode($eventResponse->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR));
     }
 
