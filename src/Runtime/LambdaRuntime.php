@@ -40,8 +40,8 @@ final class LambdaRuntime
     private string $apiUrl;
     private Invoker $invoker;
     private string $layer;
-    /** The response of the current invocation, once it is being sent. */
-    private ?ResponseStream $response = null;
+    /** Sends the response of the current invocation. */
+    private ?ResponseSender $responseSender = null;
 
     public static function fromEnvironmentVariable(string $layer): self
     {
@@ -88,7 +88,7 @@ final class LambdaRuntime
         $this->setEnv('LAMBDA_REQUEST_ID', $context->getAwsRequestId());
         $this->setEnv('_X_AMZN_TRACE_ID', $context->getTraceId());
 
-        $this->response = null;
+        $this->responseSender = null;
         try {
             ColdStartTracker::invocationStarted();
 
@@ -208,13 +208,13 @@ final class LambdaRuntime
             ? $result
             : new StreamedResponse('application/json', [$this->toJson($result)]);
 
-        $this->response = new ResponseStream($this->apiUrl, $invocationId, $result->contentType);
+        $this->responseSender = new ResponseSender($this->apiUrl, $invocationId, $result->contentType);
         try {
-            $result->writeTo($this->response->write(...));
-            $this->response->end();
+            $result->writeTo($this->responseSender->write(...));
+            $this->responseSender->end();
         } catch (Throwable $e) {
             // Too late for the error endpoint if the response has started: the error goes in its trailers
-            $this->response->abort($e);
+            $this->responseSender->abort($e);
             throw $e;
         }
     }
@@ -227,7 +227,7 @@ final class LambdaRuntime
         $this->logError($error, $invocationId);
 
         // Once the response has started, the Runtime API refuses errors (InvalidStateTransition)
-        if ($this->response?->started()) {
+        if ($this->responseSender?->started()) {
             return;
         }
 
