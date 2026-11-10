@@ -172,6 +172,62 @@ class LambdaRuntimeTest extends RuntimeTestCase
         return $response;
     }
 
+    public function test an empty streamed response is sent()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', ['', '']));
+
+        $this->assertTrue($output);
+        $this->assertSame('', $this->streamedResponse()->getBody()->__toString());
+    }
+
+    public function test streamed chunks are sent intact()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+        // Looks like the end of a chunked body, and binary data
+        $tricky = "a\r\n0\r\n\r\nb\0c";
+        // The test server records text: a big body of random text
+        $big = bin2hex(random_bytes(150_000));
+
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('application/octet-stream', [$tricky, $big, $tricky]));
+
+        $this->assertSame($tricky . $big . $tricky, $this->streamedResponse()->getBody()->__toString());
+    }
+
+    public function test a streamed response refused for its size throws a clear error()
+    {
+        Server::enqueue([
+            new Response(200, ['lambda-runtime-aws-request-id' => '1'], '{ "Hello": "world!"}'),
+            new Response(413, [], '{"errorMessage": "Exceeded maximum allowed payload size (6291556 bytes).", "errorType": "RequestEntityTooLarge"}'),
+        ]);
+
+        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', ['Hello ', 'world!']));
+
+        $this->assertFalse($output);
+        // The response was sent: no error request (the Runtime API would refuse it)
+        $this->assertCount(2, Server::received());
+        $this->assertErrorInLogs(ResponseTooBig::class, 'The Lambda response is too big and above the limit');
+    }
+
+    public function test the invocation after a failed stream can report its own failure()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', (function () {
+            yield 'Hello';
+            throw new RuntimeException('Failure in the middle');
+        })()));
+        Server::flush();
+
+        // The next invocation fails before its first byte: the error endpoint is used again
+        $this->givenAnEvent(['Hello' => 'world!']);
+        $this->runtime->processNextEvent(function () {
+            throw new RuntimeException('Failure before the first byte');
+        });
+
+        $this->assertInvocationErrorResult('RuntimeException', 'Failure before the first byte');
+    }
+
     public function test an error is thrown if the runtime API returns a wrong response()
     {
         $this->expectExceptionMessageMatches('/Failed to fetch next Lambda invocation: The requested URL returned error: 404/');
