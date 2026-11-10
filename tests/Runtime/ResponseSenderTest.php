@@ -2,11 +2,11 @@
 
 namespace Bref\Test\Runtime;
 
-use Bref\Runtime\ResponseStream;
+use Bref\Runtime\ResponseSender;
 use Bref\Runtime\ResponseTooBig;
 use PHPUnit\Framework\TestCase;
 
-class ResponseStreamTest extends TestCase
+class ResponseSenderTest extends TestCase
 {
     /** @var resource|null */
     private $server = null;
@@ -23,28 +23,28 @@ class ResponseStreamTest extends TestCase
     {
         // Like the Runtime API with a response over 6 MB: it answers 413 and closes the connection
         $address = $this->startServer('HTTP/1.1 413 Request Entity Too Large', '{"errorMessage":"Exceeded maximum allowed payload size (6291556 bytes).","errorType":"RequestEntityTooLarge"}');
-        $stream = new ResponseStream($address, '1', 'text/plain');
+        $sender = new ResponseSender($address, '1', 'text/plain');
 
         $chunk = str_repeat('x', 1024 * 1024);
         for ($i = 0; $i < 20; $i++) {
             // Never throws, even once the connection is closed
-            $stream->write($chunk);
+            $sender->write($chunk);
         }
 
         $this->expectException(ResponseTooBig::class);
-        $stream->end();
+        $sender->end();
     }
 
     public function test a connection failure is thrown by end()
     {
         // Nothing listens on that port
-        $stream = new ResponseStream('127.0.0.1:1', '1', 'text/plain');
+        $sender = new ResponseSender('127.0.0.1:1', '1', 'text/plain');
 
-        $stream->write('Hello');
+        $sender->write('Hello');
 
-        $this->assertFalse($stream->started());
+        $this->assertFalse($sender->started());
         $this->expectExceptionMessage('Error while calling the Lambda runtime API');
-        $stream->end();
+        $sender->end();
     }
 
     /**

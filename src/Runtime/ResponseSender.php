@@ -15,7 +15,7 @@ use Throwable;
  * @internal
  * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-response-streaming
  */
-final class ResponseStream
+final class ResponseSender
 {
     /** @var resource|null */
     private $socket = null;
