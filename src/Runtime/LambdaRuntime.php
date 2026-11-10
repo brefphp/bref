@@ -227,14 +227,16 @@ final class LambdaRuntime
         $this->logError($error, $invocationId);
 
         // Once the response has started, the Runtime API refuses errors (InvalidStateTransition)
-        if (! $this->response?->started()) {
-            $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
-            $this->postJson($url, [
-                'errorType' => get_class($error),
-                'errorMessage' => $error->getMessage(),
-                'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
-            ]);
+        if ($this->response?->started()) {
+            return;
         }
+
+        $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
+        $this->postJson($url, [
+            'errorType' => get_class($error),
+            'errorMessage' => $error->getMessage(),
+            'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
+        ]);
     }
 
     private function toJson(mixed $data): string
