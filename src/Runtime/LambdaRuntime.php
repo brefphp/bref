@@ -236,9 +236,9 @@ final class LambdaRuntime
         // A Function URL (streaming) would show the error, stack trace included, as the body of a 200 response
         if (HttpRequestEvent::isFunctionUrlEvent($event)) {
             $response = (new HttpResponse('Internal Server Error', ['content-type' => 'text/plain'], 500))->toStreamedResponse();
-            $this->response = new ResponseStream($this->apiUrl, $invocationId, $response->contentType);
-            $response->writeTo($this->response->write(...));
-            $this->response->end($error);
+            $this->responseSender = new ResponseSender($this->apiUrl, $invocationId, $response->contentType);
+            $response->writeTo($this->responseSender->write(...));
+            $this->responseSender->end($error);
 
             return;
         }
