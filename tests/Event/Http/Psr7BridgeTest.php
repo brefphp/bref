@@ -32,6 +32,21 @@ class Psr7BridgeTest extends CommonHttpTest
         ], $response->toApiGatewayFormat());
     }
 
+    public function test HTTPS is set for HTTPS requests()
+    {
+        $https = Psr7Bridge::convertRequest(new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => ['X-Forwarded-Proto' => 'https'],
+        ]), Context::fake());
+        self::assertSame('on', $https->getServerParams()['HTTPS']);
+
+        $http = Psr7Bridge::convertRequest(new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => ['X-Forwarded-Proto' => 'http'],
+        ]), Context::fake());
+        self::assertArrayNotHasKey('HTTPS', $http->getServerParams());
+    }
+
     public function test falsy server params are not dropped()
     {
         $event = new HttpRequestEvent([

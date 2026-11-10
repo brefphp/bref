@@ -116,6 +116,14 @@ final class HttpRequestEvent implements LambdaEvent
         return explode(':', $auth, 2);
     }
 
+    /**
+     * API Gateway, Function URLs and load balancers set X-Forwarded-Proto: clients can't choose its value.
+     */
+    public function isHttps(): bool
+    {
+        return ($this->headers['x-forwarded-proto'][0] ?? null) === 'https';
+    }
+
     public function getServerPort(): int
     {
         return (int) ($this->headers['x-forwarded-port'][0] ?? 80);

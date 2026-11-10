@@ -286,6 +286,39 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
+    public function test HTTPS is set for HTTPS requests()
+    {
+        $event = [
+            'version' => '1.0',
+            'httpMethod' => 'GET',
+            'path' => '/',
+            'headers' => [
+                'X-Forwarded-Proto' => 'https',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => '',
+                'HTTP_X_FORWARDED_PROTO' => 'https',
+                'HTTPS' => 'on',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
     /**
      * @dataProvider provide API Gateway versions
      */
