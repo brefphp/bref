@@ -228,27 +228,27 @@ final class LambdaRuntime
     {
         $this->logError($error, $invocationId);
 
+        // Once the response has started, the Runtime API refuses errors (InvalidStateTransition)
+        if ($this->response?->started()) {
+            return;
+        }
+
         // A Function URL (streaming) would show the error, stack trace included, as the body of a 200 response
-        if (! $this->responseStarted && HttpRequestEvent::isFunctionUrlEvent($event)) {
+        if (HttpRequestEvent::isFunctionUrlEvent($event)) {
             $response = (new HttpResponse('Internal Server Error', ['content-type' => 'text/plain'], 500))->toStreamedResponse();
-            $socket = $this->openResponse($invocationId, $response->contentType);
-            $response->writeTo(function (string $chunk) use ($socket): void {
-                $this->writeChunk($socket, $chunk);
-            });
-            $this->closeResponse($socket, $error);
+            $this->response = new ResponseStream($this->apiUrl, $invocationId, $response->contentType);
+            $response->writeTo($this->response->write(...));
+            $this->response->end($error);
 
             return;
         }
 
-        // Once the response has started, the Runtime API refuses errors (InvalidStateTransition)
-        if (! $this->response?->started()) {
-            $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
-            $this->postJson($url, [
-                'errorType' => get_class($error),
-                'errorMessage' => $error->getMessage(),
-                'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
-            ]);
-        }
+        $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
+        $this->postJson($url, [
+            'errorType' => get_class($error),
+            'errorMessage' => $error->getMessage(),
+            'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
+        ]);
     }
 
     private function toJson(mixed $data): string
