@@ -172,6 +172,23 @@ class LambdaRuntimeTest extends RuntimeTestCase
         return $response;
     }
 
+    public function test errors on Function URLs are a 500 without details()
+    {
+        $this->givenAnEvent(['requestContext' => ['domainName' => 'abc.lambda-url.eu-west-3.on.aws']]);
+
+        $this->runtime->processNextEvent(function () {
+            throw new RuntimeException('Secret details');
+        });
+
+        // Not the error endpoint: a streaming Function URL would show the error as the body of a 200 response
+        $response = $this->streamedResponse();
+        $body = $response->getBody()->__toString();
+        $this->assertStringStartsWith('{"cookies":[],"statusCode":500', $body);
+        $this->assertStringEndsWith(str_repeat("\0", 8) . 'Internal Server Error', $body);
+        $this->assertStringNotContainsString('Secret details', $body);
+        $this->assertSame('RuntimeException', $response->getHeaderLine('lambda-runtime-function-error-type'));
+    }
+
     public function test an error is thrown if the runtime API returns a wrong response()
     {
         $this->expectExceptionMessageMatches('/Failed to fetch next Lambda invocation: The requested URL returned error: 404/');

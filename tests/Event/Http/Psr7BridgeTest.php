@@ -5,6 +5,7 @@ namespace Bref\Test\Event\Http;
 use Bref\Context\Context;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\Psr7Bridge;
+use GuzzleHttp\Psr7\PumpStream;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -251,5 +252,22 @@ class Psr7BridgeTest extends CommonHttpTest
     protected function assertBasicAuthPassword(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getServerParams()['PHP_AUTH_PW']);
+    }
+
+    public function test the response body is read progressively()
+    {
+        $reads = 0;
+        $stream = new PumpStream(function () use (&$reads) {
+            return $reads < 2 ? 'chunk ' . ++$reads : false;
+        });
+
+        $response = Psr7Bridge::convertResponse(new Response(200, [], $stream));
+        $this->assertSame(0, $reads, 'Nothing is read before the response is sent');
+
+        $chunks = [];
+        $response->toStreamedResponse()->writeTo(function (string $chunk) use (&$chunks) {
+            $chunks[] = $chunk;
+        });
+        $this->assertSame('chunk 1chunk 2', implode('', array_slice($chunks, 1)));
     }
 }
