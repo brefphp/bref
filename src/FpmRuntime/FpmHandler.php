@@ -256,6 +256,10 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('_X_AMZN_TRACE_ID', $context->getTraceId());
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext(), JSON_THROW_ON_ERROR));
 
+        if ($event->isHttps()) {
+            $request->setCustomVar('HTTPS', 'on');
+        }
+
         $contentType = $event->getContentType();
         if ($contentType) {
             $request->setContentType($contentType);
