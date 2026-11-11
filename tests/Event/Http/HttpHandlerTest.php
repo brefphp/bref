@@ -35,23 +35,13 @@ class HttpHandlerTest extends TestCase
         $this->assertSame('Hello world!', $result['body']);
     }
 
-    public function test errors on Function URLs are a 500 without details()
+    public function test errors on Function URLs are thrown before anything is sent()
     {
         $handler = $this->handler(fn () => throw new RuntimeException('Secret details'));
 
-        $chunks = [];
-
-        try {
-            $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context())
-                ->writeTo(function (string $chunk) use (&$chunks) {
-                    $chunks[] = $chunk;
-                });
-            $this->fail('The error must be thrown, to be reported to Lambda');
-        } catch (RuntimeException $e) {
-            $this->assertSame('Secret details', $e->getMessage());
-        }
-        $this->assertStringStartsWith('{"cookies":[],"statusCode":500', $chunks[0]);
-        $this->assertSame('Internal Server Error', $chunks[1]);
+        // Nothing is sent: the runtime turns it into a 500 without details (see LambdaRuntimeTest)
+        $this->expectExceptionMessage('Secret details');
+        $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
     }
 
     private function handler(callable $handleRequest): HttpHandler

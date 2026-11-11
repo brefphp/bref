@@ -239,6 +239,14 @@ class HttpResponseTest extends TestCase
         $this->assertSame($binary, $this->chunks($response->toStreamedResponse())[1]);
     }
 
+    public function test streamed format without headers()
+    {
+        $this->assertStringStartsWith(
+            '{"cookies":[],"statusCode":204,"headers":{}}',
+            $this->chunks((new HttpResponse('', [], 204))->toStreamedResponse())[0],
+        );
+    }
+
     /**
      * @return string[]
      */

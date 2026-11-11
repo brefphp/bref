@@ -28,11 +28,20 @@ final class StreamedResponse
      */
     public function writeTo(callable $write): void
     {
-        if ($this->chunks instanceof Closure) {
-            ($this->chunks)($write);
+        self::writeChunks($this->chunks, $write);
+    }
+
+    /**
+     * @param iterable<string>|Closure(callable(string): mixed): void $chunks
+     * @param callable(string): mixed                                 $write  Returns false when the rest is not wanted: chunks are no longer pulled.
+     */
+    public static function writeChunks(iterable|Closure $chunks, callable $write): void
+    {
+        if ($chunks instanceof Closure) {
+            $chunks($write);
             return;
         }
-        foreach ($this->chunks as $chunk) {
+        foreach ($chunks as $chunk) {
             if ($write($chunk) === false) {
                 return;
             }

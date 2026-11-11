@@ -85,6 +85,8 @@ final class HttpResponse
     /**
      * The format of Lambda's streamed HTTP responses (Function URLs in `RESPONSE_STREAM` mode): the status
      * code and headers as JSON, 8 null bytes, then the body as is (binary included, no base64).
+     *
+     * A body produced by an iterable can only be sent once.
      */
     public function toStreamedResponse(?string $awsRequestId = null): StreamedResponse
     {
@@ -149,15 +151,7 @@ final class HttpResponse
      */
     private function writeBody(callable $write): void
     {
-        if (is_string($this->body)) {
-            $write($this->body);
-        } elseif ($this->body instanceof Closure) {
-            ($this->body)($write);
-        } else {
-            foreach ($this->body as $chunk) {
-                $write($chunk);
-            }
-        }
+        StreamedResponse::writeChunks(is_string($this->body) ? [$this->body] : $this->body, $write);
     }
 
     /**

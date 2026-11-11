@@ -5,7 +5,6 @@ namespace Bref\Event\Http;
 use Bref\Context\Context;
 use Bref\Event\Handler;
 use Bref\Runtime\StreamedResponse;
-use Throwable;
 
 abstract class HttpHandler implements Handler
 {
@@ -39,24 +38,9 @@ abstract class HttpHandler implements Handler
 
     /**
      * Function URLs (in `RESPONSE_STREAM` mode) send the response to the client as it is produced.
-     *
-     * Lambda does not turn errors into a 502 response for streamed responses: the 500 is sent here
-     * (otherwise the error, stack trace included, would be the body of a 200 response).
      */
     private function stream(array $event, Context $context): StreamedResponse
     {
-        return new StreamedResponse(
-            'application/vnd.awslambda.http-integration-response',
-            function (callable $write) use ($event, $context): void {
-                try {
-                    $response = $this->handleRequest(new HttpRequestEvent($event), $context);
-                } catch (Throwable $e) {
-                    (new HttpResponse('Internal Server Error', ['content-type' => 'text/plain'], 500))->toStreamedResponse()->writeTo($write);
-
-                    throw $e;
-                }
-                $response->toStreamedResponse($context->getAwsRequestId())->writeTo($write);
-            },
-        );
+        return $this->handleRequest(new HttpRequestEvent($event), $context)->toStreamedResponse($context->getAwsRequestId());
     }
 }
