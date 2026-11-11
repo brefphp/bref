@@ -22,9 +22,9 @@ final class StreamedResponse
     }
 
     /**
-     * Pass each chunk to $write, as it is produced.
+     * Pass each chunk to $write, as it is produced. An iterable is single-use: a generator cannot be sent twice.
      *
-     * @param callable(string): void $write
+     * @param callable(string): mixed $write Returns false when the rest is not wanted: chunks are no longer pulled.
      */
     public function writeTo(callable $write): void
     {
@@ -33,7 +33,9 @@ final class StreamedResponse
             return;
         }
         foreach ($this->chunks as $chunk) {
-            $write($chunk);
+            if ($write($chunk) === false) {
+                return;
+            }
         }
     }
 }
