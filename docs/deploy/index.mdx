@@ -68,6 +68,8 @@ AWS Lambda has a **250MB size limit** for deployed applications (unzipped). The 
 
 A deployment over the limit fails with the AWS error `Unzipped size must be smaller than 262144000 bytes`.
 
+Extra layers, like [extra PHP extensions](environment/php.mdx#extra-extensions), count toward the limit too. When a deployment adds a layer and fails, deploying smaller code may keep failing with the same total: CloudFormation updates the function's layers before its code, so the size check still counts the previous code. Deploy in two steps instead: first the smaller code without the new layer, then add the layer.
+
 The most common offender is `aws/aws-sdk-php`: it ships clients for **every** AWS service, adding over 100MB to your vendor directory. If you only use a few services (e.g. S3, SQS, DynamoDB), you can remove the rest.
 
 Add the following to your `composer.json`:
