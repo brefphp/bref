@@ -3,6 +3,7 @@
 namespace Bref\Test\FpmRuntime;
 
 use Bref\Context\Context;
+use Bref\Event\Http\HttpRequestEvent;
 use Bref\FpmRuntime\FastCgi\Timeout;
 use Bref\FpmRuntime\FpmHandler;
 use Bref\Test\HttpRequestProxyTest;
@@ -1291,6 +1292,70 @@ Year,Make,Model
         $response = $this->get('large-logs.php');
 
         self::assertSame('Hello, world!', $response['body']);
+    }
+
+    public function test the body is streamed while the script runs()
+    {
+        $this->startFpm(__DIR__ . '/fixtures/streamed.php');
+        $file = sys_get_temp_dir() . '/bref-test-' . uniqid();
+        $event = new HttpRequestEvent([
+            'version' => '1.0',
+            'httpMethod' => 'GET',
+            'queryStringParameters' => ['file' => $file],
+        ]);
+        $context = new Context('abc', (time() + 30) * 1000, 'abc', 'abc');
+
+        $chunks = [];
+        $this->fpm->handleRequest($event, $context)->toStreamedResponse()->writeTo(function (string $chunk) use (&$chunks, $file) {
+            $chunks[] = $chunk;
+            // The script only sends the rest once the first chunk is received
+            if ($chunk === 'first') {
+                touch($file);
+            }
+        });
+        unlink($file);
+
+        // The status and headers, then the body chunk by chunk
+        self::assertSame(['first', 'second'], array_slice($chunks, 1));
+    }
+
+    public function test a timeout after the first bytes is thrown while reading the body()
+    {
+        $this->startFpm(__DIR__ . '/fixtures/streamed.php');
+        $event = new HttpRequestEvent([
+            'version' => '1.0',
+            'httpMethod' => 'GET',
+            // The script waits for a file that never comes, after its first output
+            'queryStringParameters' => ['file' => '/nonexistent'],
+        ]);
+        $response = $this->fpm->handleRequest($event, $this->fakeContext);
+
+        $chunks = [];
+        try {
+            $response->toStreamedResponse()->writeTo(function (string $chunk) use (&$chunks) {
+                $chunks[] = $chunk;
+            });
+            $this->fail('No exception was thrown');
+        } catch (Timeout) {
+            self::assertSame(['first'], array_slice($chunks, 1));
+        }
+
+        // PHP-FPM was restarted
+        $response = $this->fpm->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => __FILE__]], $this->fakeContext);
+        self::assertSame('firstsecond', $response['body']);
+    }
+
+    public function test a response not read to its end does not break the next one()
+    {
+        $this->startFpm(__DIR__ . '/fixtures/large-response.php');
+        $event = new HttpRequestEvent(['version' => '1.0', 'httpMethod' => 'GET']);
+
+        // Like the Runtime API refusing a response: the rest of the body is not read
+        $this->fpm->handleRequest($event, $this->fakeContext)->toStreamedResponse()->writeTo(fn () => false);
+
+        $response = $this->fpm->handle(['version' => '1.0', 'httpMethod' => 'GET'], $this->fakeContext);
+        self::assertStringEqualsFile(__DIR__ . '/fixtures/big-json.json', $response['body']);
+        self::assertStringContainsString('The previous response was not entirely read from PHP-FPM', ob_get_contents());
     }
 
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void

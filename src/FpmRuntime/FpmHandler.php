@@ -10,10 +10,11 @@ use Bref\FpmRuntime\FastCgi\FastCgiCommunicationFailed;
 use Bref\FpmRuntime\FastCgi\FastCgiRequest;
 use Bref\FpmRuntime\FastCgi\Timeout;
 use Exception;
+use Fiber;
+use Generator;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Exceptions\TimedoutException;
-use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
-use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
+use hollodotme\FastCGI\Responses\Response;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
 use RuntimeException;
 use Throwable;
@@ -49,6 +50,8 @@ final class FpmHandler extends HttpHandler
     private string $configFile;
     /** @var resource|null */
     private $fpm;
+    /** Reads the response of PHP-FPM, and hands over its output packet by packet (see readResponse()). */
+    private ?Fiber $reading = null;
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
@@ -129,14 +132,72 @@ final class FpmHandler extends HttpHandler
     /**
      * Proxy the API Gateway event to PHP-FPM and return its response.
      *
+     * The status and headers are read before returning, the body is read from PHP-FPM while it is sent.
+     *
      * @throws FastCgiCommunicationFailed
      * @throws Timeout
      * @throws Exception
      */
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
-        $request = $this->eventToFastCgiRequest($event, $context);
+        // The previous body was not read to its end (e.g. the Runtime API refused it): PHP-FPM may still be sending it
+        if ($this->reading?->isTerminated() === false) {
+            echo "The previous response was not entirely read from PHP-FPM. Bref will restart PHP-FPM now.\n";
+            $this->stop();
+            $this->start();
+        }
 
+        $request = $this->eventToFastCgiRequest($event, $context);
+        $request->addPassThroughCallbacks(function (string $output): void {
+            if ($output !== '') {
+                Fiber::suspend($output);
+            }
+        });
+        $this->reading = new Fiber(fn () => $this->readResponse($request, $context));
+
+        // Up to the end of the headers (or of the output)
+        $output = (string) $this->reading->start();
+        while (! $this->reading->isTerminated() && preg_match('#\r?\n\r?\n#', $output) !== 1) {
+            $output .= (string) $this->reading->resume();
+        }
+        $response = new Response($output, '', 0);
+
+        $responseHeaders = array_change_key_case($response->getHeaders(), CASE_LOWER);
+        // The status code is returned separately, it is not an HTTP header
+        unset($responseHeaders['status']);
+
+        return new HttpResponse($this->readBody($response->getBody()), $responseHeaders, $response->getStatusCode());
+    }
+
+    /**
+     * @return Generator<string>
+     * @throws FastCgiCommunicationFailed
+     * @throws Timeout
+     * @throws Exception
+     */
+    private function readBody(string $start): Generator
+    {
+        if ($start !== '') {
+            yield $start;
+        }
+        while (! $this->reading->isTerminated()) {
+            $output = $this->reading->resume();
+            if ($output !== null) {
+                yield $output;
+            }
+        }
+
+        $this->ensureStillRunning();
+    }
+
+    /**
+     * Runs in a Fiber, suspended each time PHP-FPM sends output.
+     *
+     * @throws FastCgiCommunicationFailed
+     * @throws Timeout
+     */
+    private function readResponse(FastCgiRequest $request, Context $context): void
+    {
         // The script will timeout 1 second before the remaining time
         // to allow some time for Bref/PHP-FPM to recover and cleanup
         $margin = 1000;
@@ -145,7 +206,7 @@ final class FpmHandler extends HttpHandler
         try {
             $socketId = $this->client->sendAsyncRequest($this->connection, $request);
 
-            $response = $this->client->readResponse($socketId, $timeoutDelayInMs);
+            $this->client->readResponse($socketId, $timeoutDelayInMs);
         } catch (TimedoutException) {
             $invocationId = $context->getAwsRequestId();
             echo "$invocationId The PHP script timed out. Bref will now restart PHP-FPM to start from a clean slate and flush the PHP logs. "
@@ -186,14 +247,6 @@ final class FpmHandler extends HttpHandler
 
             throw new FastCgiCommunicationFailed;
         }
-
-        $responseHeaders = $this->getResponseHeaders($response);
-        // The status code is returned separately, it is not an HTTP header
-        unset($responseHeaders['status']);
-
-        $this->ensureStillRunning();
-
-        return new HttpResponse($response->getBody(), $responseHeaders, $response->getStatusCode());
     }
 
     /**
@@ -238,7 +291,7 @@ final class FpmHandler extends HttpHandler
         return file_exists(self::SOCKET);
     }
 
-    private function eventToFastCgiRequest(HttpRequestEvent $event, Context $context): ProvidesRequestData
+    private function eventToFastCgiRequest(HttpRequestEvent $event, Context $context): FastCgiRequest
     {
         $request = new FastCgiRequest($event->getMethod(), $this->handler, $event->getBody());
         $request->setRequestUri($event->getUri());
@@ -341,14 +394,6 @@ final class FpmHandler extends HttpHandler
                 throw new Exception('Timeout while waiting for PHP-FPM to stop');
             }
         }
-    }
-
-    /**
-     * Return an array of the response headers.
-     */
-    private function getResponseHeaders(ProvidesResponseData $response): array
-    {
-        return array_change_key_case($response->getHeaders(), CASE_LOWER);
     }
 
     public function stopFpm(float $timeout): void
