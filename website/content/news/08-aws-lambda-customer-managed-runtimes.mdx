@@ -56,7 +56,7 @@ That's how the AWS runtimes for Node.js or Python have always worked: AWS patche
 
 Bref v4 runtimes will be published as customer-managed runtimes, one per PHP version, in all the regions Bref supports today.
 
-**The plan is to stop publishing AWS Lambda layers in Bref v4.** Container images will still be available for applications deployed as images.
+This will replace AWS Lambda layers entirely in Bref v4, as customer-managed runtimes are better on all fronts. Container images will still be available for applications deployed as images.
 
 Dropping layers will simplify how Bref builds and publishes runtimes a lot. Today, every Bref release publishes hundreds of layer versions (every PHP version × x86 and ARM × every region). With customer-managed runtimes, a release is a container image per PHP version.
 
