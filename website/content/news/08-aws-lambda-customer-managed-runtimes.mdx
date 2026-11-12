@@ -136,7 +136,7 @@ To isolate the effect of the delivery mechanism, I took the official Bref v3 lay
 
 <Image className="mt-6 rounded-lg shadow-md border" src={coldStarts} alt="PHP-FPM cold start: 279 ms with a layer vs 197 ms with a customer-managed runtime for the same PHP build, and 240 ms for Bref v3 vs 183 ms for the Bref v4 prototype" />
 
-**With the exact same PHP binaries, the cold start is 29% faster as a customer-managed runtime** (279 ms → 197 ms). My guess: AWS Lambda no longer has to download and extract the layer zip in each new environment, the image is cached and loaded lazily.
+**With the exact same PHP binaries, the cold start is 29% faster as a customer-managed runtime** (279 ms → 197 ms). Why? AWS Lambda no longer has to download and extract the layer zip in each new environment, the image is cached by AWS Lambda directly and loaded lazily when the files it contains are accessed.
 
 On a Laravel application, the Bref v4 prototype starts around 100 ms faster than Bref v3. It also uses less memory: 59 MB instead of 72 MB for PHP-FPM.
 
