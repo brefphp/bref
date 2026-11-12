@@ -193,6 +193,22 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->assertErrorInLogs(ResponseTimedOut::class, (new ResponseTimedOut)->getMessage());
     }
 
+    public function test big streamed responses are ended earlier before the timeout()
+    {
+        // 3 seconds left: enough for a small response, not for a big one throttled by Lambda
+        $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 3000);
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', ['small', ' response']));
+        $this->assertSame('small response', $this->streamedResponse()->getBody()->__toString());
+        Server::flush();
+
+        $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 3000);
+        $big = str_repeat('a', 7 * 1024 * 1024);
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', [$big, ' end']));
+        $response = $this->streamedResponse();
+        $this->assertSame(strlen($big), $response->getBody()->getSize());
+        $this->assertSame(ResponseTimedOut::class, $response->getHeaderLine('lambda-runtime-function-error-type'));
+    }
+
     public function test a response produced before the timeout is sent even close to it()
     {
         $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 500);
