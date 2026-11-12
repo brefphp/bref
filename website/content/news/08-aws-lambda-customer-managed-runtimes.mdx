@@ -58,7 +58,9 @@ Bref v4 runtimes will be published as customer-managed runtimes, one per PHP ver
 
 This will replace AWS Lambda layers entirely in Bref v4, as customer-managed runtimes are better on all fronts. Container images will still be available for applications deployed as images.
 
-Dropping layers will simplify how Bref builds and publishes runtimes a lot. Today, every Bref release publishes hundreds of layer versions (every PHP version × x86 and ARM × every region). With customer-managed runtimes, a release is a container image per PHP version.
+Dropping layers will simplify how Bref builds and publishes runtimes a lot. Today, every Bref release publishes hundreds of layer versions (every PHP version × x86 and ARM × every region). On top of that, the `bref/bref` package contains the list of layer versions for every region, so a new layer version or a new region requires a new Bref release.
+
+With customer-managed runtimes, a release is one image per PHP version (x86 and ARM in the same image), published as a new runtime version in each region. Functions reference the runtime by name, which doesn't change between releases. That also makes supporting new regions simpler.
 
 If layers matter to you and you see something that customer-managed runtimes don't cover, please [open a discussion](https://github.com/brefphp/bref/discussions): this is the moment to tell me.
 
