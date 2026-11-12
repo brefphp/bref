@@ -2,6 +2,7 @@
 
 namespace Bref\Runtime;
 
+use Bref\Context\Context;
 use Exception;
 use Throwable;
 
@@ -22,6 +23,11 @@ final class ResponseSender
      * never wait for it until the end of the invocation.
      */
     private const TIMEOUT_IN_SECONDS = 10;
+    /**
+     * A response still being sent this close to the Lambda timeout is ended with an error: a timeout would
+     * also discard the Lambda instance, and the next request would wait for a new one.
+     */
+    private const DEADLINE_MARGIN_IN_MS = 1000;
 
     /** @var resource|null */
     private $socket = null;
@@ -31,11 +37,17 @@ final class ResponseSender
     private ?string $failure = null;
     /** The connection to the Runtime API failed: nothing was sent. */
     private ?Throwable $connectionError = null;
+    /** The rest of the response is dropped because the Lambda timeout is close. */
+    private bool $outOfTime = false;
 
+    /**
+     * @param Context|null $context To end the response before the Lambda timeout.
+     */
     public function __construct(
         private string $apiUrl,
         private string $invocationId,
         private string $contentType,
+        private ?Context $context = null,
     ) {
     }
 
@@ -56,11 +68,16 @@ final class ResponseSender
      */
     public function write(string $chunk): bool
     {
-        if ($this->ended || $this->failure !== null || $this->connectionError !== null) {
+        if ($this->ended || $this->outOfTime || $this->failure !== null || $this->connectionError !== null) {
             return false;
         }
         if ($chunk === '') {
             return true;
+        }
+        // Never before the first byte: a response produced in time (e.g. JSON, in one chunk) is always sent
+        if ($this->started && $this->context !== null && $this->context->getRemainingTimeInMillis() < self::DEADLINE_MARGIN_IN_MS) {
+            $this->outOfTime = true;
+            return false;
         }
         try {
             $this->open();
@@ -84,6 +101,7 @@ final class ResponseSender
      *
      * @param Throwable|null $error Reported in the trailers of the response (counted in the function's error metrics).
      * @throws ResponseTooBig
+     * @throws ResponseTimedOut
      * @throws Exception
      */
     public function end(?Throwable $error = null): void
@@ -92,6 +110,11 @@ final class ResponseSender
             throw $this->connectionError;
         }
         $this->open();
+        if ($this->outOfTime) {
+            $error = new ResponseTimedOut;
+            $this->finish($error);
+            throw $error;
+        }
         $this->finish($error);
     }
 

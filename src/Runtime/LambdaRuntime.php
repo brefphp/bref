@@ -100,7 +100,7 @@ final class LambdaRuntime
 
             $result = $this->invoker->invoke($handler, $event, $context);
 
-            $this->sendResponse($context->getAwsRequestId(), $result);
+            $this->sendResponse($context, $result);
         } catch (Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e, $event);
 
@@ -204,13 +204,13 @@ final class LambdaRuntime
      * Every response is sent with the streaming mode of the Runtime API, whatever invokes the function:
      * invokers that do not stream (API Gateway, ALB, SQS, the Invoke API...) receive it buffered.
      */
-    private function sendResponse(string $invocationId, mixed $result): void
+    private function sendResponse(Context $context, mixed $result): void
     {
         $result = $result instanceof StreamedResponse
             ? $result
             : new StreamedResponse('application/json', [$this->toJson($result)]);
 
-        $this->responseSender = new ResponseSender($this->apiUrl, $invocationId, $result->contentType);
+        $this->responseSender = new ResponseSender($this->apiUrl, $context->getAwsRequestId(), $result->contentType, $context);
         try {
             $result->writeTo($this->responseSender->write(...));
             $this->responseSender->end();
