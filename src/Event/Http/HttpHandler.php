@@ -21,7 +21,7 @@ abstract class HttpHandler implements Handler
             return ['Lambda is warm'];
         }
 
-        if (HttpRequestEvent::isFunctionUrlEvent($event)) {
+        if (HttpRequestEvent::isStreamedFunctionUrl($event)) {
             return $this->stream($event, $context);
         }
 

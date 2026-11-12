@@ -12,6 +12,16 @@ use RuntimeException;
 
 class HttpHandlerTest extends TestCase
 {
+    public function setUp(): void
+    {
+        putenv('BREF_RESPONSE_STREAMING=1');
+    }
+
+    public function tearDown(): void
+    {
+        putenv('BREF_RESPONSE_STREAMING');
+    }
+
     public function test Function URL responses are streamed()
     {
         $handler = $this->handler(fn () => new HttpResponse('Hello world!', ['content-type' => 'text/plain']));
@@ -23,6 +33,18 @@ class HttpHandlerTest extends TestCase
             '{"cookies":[],"statusCode":200,"headers":{"Content-Type":"text\\/plain"}}' . str_repeat("\0", 8),
             'Hello world!',
         ], $this->chunks($result));
+    }
+
+    public function test Function URLs get the usual format without response streaming()
+    {
+        putenv('BREF_RESPONSE_STREAMING');
+        $handler = $this->handler(fn () => new HttpResponse('Hello world!', ['content-type' => 'text/plain']));
+
+        // The default mode of Function URLs (`BUFFERED`) would show an empty body with the streamed format
+        $result = $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
+
+        $this->assertIsArray($result);
+        $this->assertSame('Hello world!', $result['body']);
     }
 
     public function test other HTTP events get the usual format()

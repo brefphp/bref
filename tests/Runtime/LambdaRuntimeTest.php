@@ -48,6 +48,12 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->runtime = new LambdaRuntime('localhost:8126', 'phpunit');
     }
 
+    protected function tearDown(): void
+    {
+        putenv('BREF_RESPONSE_STREAMING');
+        parent::tearDown();
+    }
+
     public function test basic behavior()
     {
         $this->givenAnEvent(['Hello' => 'world!']);
@@ -176,6 +182,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
 
     public function test errors on Function URLs are a 500 without details()
     {
+        putenv('BREF_RESPONSE_STREAMING=1');
         $this->givenAnEvent(['requestContext' => ['domainName' => 'abc.lambda-url.eu-west-3.on.aws']]);
 
         $this->runtime->processNextEvent(function () {
@@ -247,8 +254,21 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->assertInvocationErrorResult('RuntimeException', 'Failure before the first byte');
     }
 
+    public function test errors on Function URLs without response streaming use the error endpoint()
+    {
+        $this->givenAnEvent(['requestContext' => ['domainName' => 'abc.lambda-url.eu-west-3.on.aws']]);
+
+        $this->runtime->processNextEvent(function () {
+            throw new RuntimeException('Failure');
+        });
+
+        // Like any buffered invoker: the Function URL answers an error status, without the details
+        $this->assertInvocationErrorResult('RuntimeException', 'Failure');
+    }
+
     public function test a Function URL response failing in the middle is truncated()
     {
+        putenv('BREF_RESPONSE_STREAMING=1');
         $this->givenAnEvent([
             'version' => '2.0',
             'rawPath' => '/',

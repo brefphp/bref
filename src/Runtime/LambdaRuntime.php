@@ -233,9 +233,9 @@ final class LambdaRuntime
             return;
         }
 
-        // A Function URL (streaming) would show the error, stack trace included, as the body of a 200 response.
+        // A streamed Function URL would show the error, stack trace included, as the body of a 200 response.
         // The only HTTP knowledge of the runtime: errors before the handler (e.g. in beforeInvoke) end here too.
-        if (HttpRequestEvent::isFunctionUrlEvent($event)) {
+        if (HttpRequestEvent::isStreamedFunctionUrl($event)) {
             $response = (new HttpResponse('Internal Server Error', ['content-type' => 'text/plain'], 500))->toStreamedResponse();
             $this->responseSender = new ResponseSender($this->apiUrl, $invocationId, $response->contentType);
             $response->writeTo($this->responseSender->write(...));
