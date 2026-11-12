@@ -101,6 +101,16 @@ class ResponseSenderTest extends TestCase
         $sender->end();
     }
 
+    public function test writing after the end is ignored()
+    {
+        $sender = new ResponseSender($this->startServer("HTTP/1.1 202 Accepted\r\nContent-Length: 0\r\n\r\n", true), '1', 'text/plain');
+        $sender->write('Hello');
+        $sender->end();
+
+        // E.g. a framework's output handler flushing late: nothing to write to anymore, and no exception
+        $this->assertFalse($sender->write('Too late'));
+    }
+
     private function endError(ResponseSender $sender): ?string
     {
         try {

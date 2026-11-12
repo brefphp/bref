@@ -56,7 +56,7 @@ final class ResponseSender
      */
     public function write(string $chunk): bool
     {
-        if ($this->failure !== null || $this->connectionError !== null) {
+        if ($this->ended || $this->failure !== null || $this->connectionError !== null) {
             return false;
         }
         if ($chunk === '') {
@@ -127,7 +127,10 @@ final class ResponseSender
                     'errorMessage' => $error->getMessage(),
                 ], JSON_INVALID_UTF8_SUBSTITUTE)) . "\r\n";
         }
-        $this->send($end . "\r\n");
+        // When the Runtime API stopped reading, its answer is already there: writing more would only wait for the timeout
+        if ($this->failure === null) {
+            $this->send($end . "\r\n");
+        }
 
         [$statusCode, $errorMessage] = $this->readAnswer();
         if ($statusCode === 0) {
@@ -159,7 +162,8 @@ final class ResponseSender
         if ($socket === false) {
             throw new Exception("Error while calling the Lambda runtime API: $errorMessage");
         }
-        // For writes and reads (the connection timeout above is only for connecting)
+        // For writes and reads (the connection timeout above is only for connecting).
+        // Writes are bounded on Linux (Lambda), not on macOS: a reader that stalls blocks there.
         stream_set_timeout($socket, self::TIMEOUT_IN_SECONDS);
         $this->socket = $socket;
         $sent = $this->send("POST /2018-06-01/runtime/invocation/$this->invocationId/response HTTP/1.1\r\n"
@@ -181,7 +185,8 @@ final class ResponseSender
     {
         while ($data !== '') {
             $written = @fwrite($this->socket, $data);
-            if ($written === false || $written === 0) {
+            // A partial write that timed out (Linux): retrying would wait for the timeout again
+            if ($written === false || $written === 0 || $this->timedOut()) {
                 return false;
             }
             $data = substr($data, $written);
