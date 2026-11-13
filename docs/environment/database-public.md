@@ -14,10 +14,12 @@ A secure alternative is to set up an SSH tunnel instead, for example **[using 77
 
 ## How to
 
+This only works if the database is in public subnets (subnets with a route to an internet gateway). A database in private subnets cannot be exposed this way: use an SSH tunnel.
+
 Open the RDS instance in the [RDS console](https://console.aws.amazon.com/rds/home#databases:):
 
 - click "Modify"
-- enable "Public accessibility"
+- under "Connectivity" → "Additional configuration", select "Publicly accessible"
 - click "Continue"
 - select "Apply immediately" (**do not skip this step**)
 - click "Modify DB Instance"
