@@ -66,6 +66,46 @@ class HttpHandlerTest extends TestCase
         $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
     }
 
+    public function test REST API responses are streamed()
+    {
+        $handler = $this->handler(fn () => new HttpResponse('Hello world!', ['content-type' => 'text/plain']));
+        $event = [
+            'resource' => '/',
+            'path' => '/',
+            'httpMethod' => 'GET',
+            'headers' => ['Host' => 'abc.execute-api.eu-west-3.amazonaws.com'],
+            'requestContext' => ['apiId' => 'abc', 'domainName' => 'abc.execute-api.eu-west-3.amazonaws.com', 'httpMethod' => 'GET'],
+            'body' => null,
+            'isBase64Encoded' => false,
+        ];
+
+        $result = $handler->handle($event, $this->context());
+
+        $this->assertInstanceOf(StreamedResponse::class, $result);
+    }
+
+    /**
+     * @dataProvider provide events
+     */
+    public function test which events are streamed(array $event, bool $streamed)
+    {
+        $this->assertSame($streamed, HttpRequestEvent::isStreamed($event));
+        putenv('BREF_RESPONSE_STREAMING');
+        $this->assertFalse(HttpRequestEvent::isStreamed($event));
+    }
+
+    public static function provide events(): array
+    {
+        return [
+            'Function URL' => [['version' => '2.0', 'requestContext' => ['apiId' => 'abc', 'domainName' => 'abc.lambda-url.eu-west-3.on.aws']], true],
+            'REST API' => [['httpMethod' => 'GET', 'requestContext' => ['apiId' => 'abc']], true],
+            'HTTP API v2' => [['version' => '2.0', 'requestContext' => ['apiId' => 'abc', 'domainName' => 'abc.execute-api.eu-west-3.amazonaws.com']], false],
+            'HTTP API v1' => [['version' => '1.0', 'httpMethod' => 'GET', 'requestContext' => ['apiId' => 'abc']], false],
+            'ALB' => [['httpMethod' => 'GET', 'requestContext' => ['elb' => ['targetGroupArn' => 'arn']]], false],
+            'WebSocket' => [['requestContext' => ['apiId' => 'abc', 'connectionId' => 'abc=', 'eventType' => 'MESSAGE']], false],
+        ];
+    }
+
     private function handler(callable $handleRequest): HttpHandler
     {
         return new class($handleRequest) extends HttpHandler {

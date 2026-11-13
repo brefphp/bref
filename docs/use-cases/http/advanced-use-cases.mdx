@@ -84,7 +84,7 @@ With this configuration, responses are streamed to the client as they are produc
 
 > [!WARNING]
 >
-> If you create the Function URL with other tools (AWS CDK, Terraform, the AWS console…), set the `BREF_RESPONSE_STREAMING` environment variable to `1` on the function along with the `RESPONSE_STREAM` invoke mode. With only one of them, pages are empty or show raw JSON.
+> If you create the Function URL with other tools (AWS CDK, Terraform, the AWS console…), set the `BREF_RESPONSE_STREAMING` environment variable to `1` on the function along with the `RESPONSE_STREAM` invoke mode (or the `STREAM` transfer mode of a REST API). With only one of them, pages are empty or show raw JSON.
 
 `url: true` (without streaming) works too, with the 6 MB limit.
 

@@ -15,3 +15,14 @@ functions:
         handler: index.php
         runtime: php-83-fpm
         url: true
+        events:
+            - http: 'ANY /'
+    streamed-rest-api:
+        handler: index.php
+        runtime: php-83-fpm
+        events:
+            - http:
+                  path: /
+                  method: ANY
+                  response:
+                      transferMode: STREAM

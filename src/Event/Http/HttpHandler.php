@@ -21,7 +21,7 @@ abstract class HttpHandler implements Handler
             return ['Lambda is warm'];
         }
 
-        if (HttpRequestEvent::isStreamedFunctionUrl($event)) {
+        if (HttpRequestEvent::isStreamed($event)) {
             return $this->stream($event, $context);
         }
 
@@ -37,7 +37,7 @@ abstract class HttpHandler implements Handler
     }
 
     /**
-     * Function URLs (in `RESPONSE_STREAM` mode) send the response to the client as it is produced.
+     * Streamed Function URLs and REST APIs send the response to the client as it is produced.
      */
     private function stream(array $event, Context $context): StreamedResponse
     {
