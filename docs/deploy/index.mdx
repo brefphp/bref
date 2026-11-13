@@ -14,15 +14,15 @@ Bref can also work with any other deployment tool: Terraform, CloudFormation, SA
 
 To deploy to AWS an application configured with `serverless.yml`, run:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
-        serverless deploy
+        bref deploy
         ```
     </Tabs.Tab>
     <Tabs.Tab>
         ```bash
-        bref deploy
+        serverless deploy
         ```
     </Tabs.Tab>
 </Tabs>
@@ -49,22 +49,22 @@ Now is also the best time to configure your project for production, as well as b
 
 Once your project is ready, you can deploy via the following command:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
-        serverless deploy
+        bref deploy
         ```
     </Tabs.Tab>
     <Tabs.Tab>
         ```bash
-        bref deploy
+        serverless deploy
         ```
     </Tabs.Tab>
 </Tabs>
 
 ### Reducing package size
 
-AWS Lambda has a **250MB size limit** for deployed applications (unzipped). The limit counts the application code **and** the Lambda layers: Bref's PHP runtime layer takes about 80MB of it, so your code has roughly 170MB. Large Composer dependencies can push your project over this limit and also lead to slower cold starts.
+AWS Lambda has a **250MB size limit** for deployed applications (unzipped). The limit counts the application code **and** the Lambda layers: Bref's PHP runtime layer takes about 90MB of it, so your code has roughly 160MB. Large Composer dependencies can push your project over this limit and also lead to slower cold starts.
 
 A deployment over the limit fails with the AWS error `Unzipped size must be smaller than 262144000 bytes`.
 
@@ -92,7 +92,7 @@ Add the following to your `composer.json`:
 }
 ```
 
-Then run `composer install` (or `composer update`) to apply the changes. Adjust the list to keep only the AWS services your application actually uses. Note: `S3`, `Kms`, `SSO`, and `Sts` cannot be removed as they are required by the SDK core.
+Then run `composer install` (or `composer update`) to apply the changes. Adjust the list to keep only the AWS services your application actually uses. The services required by the SDK core (like `S3` and `Sts`) are always kept.
 
 [Read more in the `aws/aws-sdk-php` documentation.](https://github.com/aws/aws-sdk-php/tree/master/src/Script/Composer)
 
@@ -110,18 +110,18 @@ If your application still exceeds the 250MB limit, you can [deploy via Docker im
 
 We can deploy the same application multiple times in completely separated environments (also called "stages" by the Serverless CLI).
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tabs.Tab>
-        ```bash
-        serverless deploy --stage=prod
-        ```
-    </Tabs.Tab>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
         bref deploy --env=prod
 
         # or
         bref deploy -e prod
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        serverless deploy --stage=prod
         ```
     </Tabs.Tab>
 </Tabs>
@@ -156,9 +156,58 @@ composer install --prefer-dist --optimize-autoloader --no-dev
 serverless deploy
 ```
 
-That will also mean creating AWS access keys so that the continuous integration is allowed to deploy.
+The CI also needs AWS credentials to deploy. With GitHub Actions, the recommended way is to let the workflow assume an IAM role through OpenID Connect (OIDC), without storing AWS access keys:
 
-You can find configuration examples for CI/CD tools in the [Bref examples repository](https://github.com/brefphp/examples).
+1. In your AWS account, [create an IAM role that GitHub Actions can assume](https://github.com/aws-actions/configure-aws-credentials#quick-start-oidc-recommended), with the permissions needed to deploy.
+2. Create a `.github/workflows/deploy.yml` workflow:
+
+```yaml
+name: Deploy
+
+on:
+    push:
+        branches: [ main ]
+
+permissions:
+    id-token: write # Required to assume the IAM role with OIDC
+    contents: read
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        concurrency: deploy-prod # Avoid deploying concurrently
+        steps:
+            -   uses: actions/checkout@v7
+
+            -   uses: actions/setup-node@v7
+                with:
+                    node-version: '24'
+
+            -   run: npm install -g osls
+
+            # You can remove this step if you don't have a `package.json` file
+            -   run: npm ci
+
+            -   uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.4'
+                    coverage: none
+
+            -   uses: ramsey/composer-install@v4
+                with:
+                    composer-options: '--optimize-autoloader --no-dev'
+
+            -   uses: aws-actions/configure-aws-credentials@v6
+                with:
+                    role-to-assume: arn:aws:iam::123456789012:role/github-actions-deploy
+                    aws-region: us-east-1
+
+            -   run: serverless deploy --stage=prod
+```
+
+Replace the role ARN with the ARN of the role you created, and `aws-region` with the region of your application.
+
+Other CI tools, like GitLab CI, also support OIDC with AWS. If yours doesn't, create AWS access keys and set them in the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables of the CI job.
 
 ## Regions
 
@@ -180,17 +229,7 @@ provider:
 
 You can delete a deployed environment using the `remove` command.
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tabs.Tab>
-        ```bash
-        serverless remove
-
-        # or remove a specific environment
-        serverless remove --stage=prod
-        ```
-
-        Note that because of the way Serverless Framework works, you will need to delete the contents of AWS S3 buckets manually before running this command.
-    </Tabs.Tab>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
         bref remove
@@ -202,6 +241,16 @@ You can delete a deployed environment using the `remove` command.
         Bref Cloud will automatically delete the contents of AWS S3 buckets.
 
         Secrets are kept in SSM Parameter Store under `/<app>/<env>/`, so that deploying the environment again reuses them (e.g. the same `APP_KEY`). To delete them too, use `bref remove --delete-secrets`, or check "Delete its secrets too" in the Bref Cloud dashboard.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        serverless remove
+
+        # or remove a specific environment
+        serverless remove --stage=prod
+        ```
+
+        Note that because of the way Serverless Framework works, you will need to delete the contents of AWS S3 buckets manually before running this command.
     </Tabs.Tab>
 </Tabs>
 
@@ -225,11 +274,9 @@ Stacks make it easy to group those resources together: the whole stack is update
 
 ### Zero-downtime deployments
 
-CloudFormation deploys using the [blue/green deployment strategy](https://docs.aws.amazon.com/whitepapers/latest/overview-deployment-options/bluegreen-deployments.html).
+CloudFormation updates the Lambda functions without downtime: requests keep using the previous version of the code until the new version is deployed. If the deployment fails at any point, CloudFormation rolls it back and the previous version keeps running.
 
-This means that when you deploy, a new version of your code is deployed alongside the old one. Once the new version is ready, the traffic switches to the new version. If the deployment fails at any point, the traffic stays on the old version and the deployment is rolled back.
-
-#### Limits to blue/green deployment
+#### Asynchronous code
 
 As soon as you introduce **asynchronous behaviors** (e.g. background jobs with SQS, event-driven microservices…) you may have in-flight messages (SQS jobs, EventBridge events…) created by the old version of your code that will be processed by the new version of your code.
 
@@ -237,7 +284,7 @@ Code that handles asynchronous events must be able to handle messages created by
 
 #### Database migrations
 
-Zero-downtime deployments mean that database migrations must run when code is running in production. That means either before or after the deployment (traffic switch) happens, and having a DB migration strategy compatible with that.
+Zero-downtime deployments mean that database migrations must run when code is running in production. That means either before or after the deployment happens, and having a DB migration strategy compatible with that.
 
 ### `serverless.yml`
 
