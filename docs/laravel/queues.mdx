@@ -60,11 +60,9 @@ When integrated with AWS Lambda, SQS has a built-in retry mechanism and storage 
 
 Instead, "Bref for Laravel" makes all the features of Laravel Queues work out of the box, just like on any server. Read more in [the Laravel Queues documentation](https://laravel.com/docs/queues).
 
-Failed jobs are stored in the `failed_jobs` database table, like on any server. If your application has no database, set `QUEUE_FAILED_DRIVER: 'null'` in `provider.environment`: failed jobs are still logged, but not stored. Otherwise, storing the failed job fails as well, for example with `Database file at path [/var/task/database/database.sqlite] does not exist`.
+Jobs that do not define `$tries` are attempted 3 times (`php artisan queue:work` attempts them once by default). Set `public $tries = 1;` on jobs that must not be retried.
 
-> [!TIP]
->
-> The "Bref-Laravel bridge" v1 used to do the opposite. We changed that behavior in Bref v2 in order to make the experience smoother for Laravel users.
+Failed jobs are stored in the `failed_jobs` database table, like on any server. If your application has no database, set `QUEUE_FAILED_DRIVER: 'null'` in `provider.environment`: failed jobs are still logged, but not stored. Otherwise, storing the failed job fails as well, for example with `Database file at path [/var/task/database/database.sqlite] does not exist`.
 
 ## Multiple queues
 

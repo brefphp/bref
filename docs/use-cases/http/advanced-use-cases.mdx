@@ -67,7 +67,7 @@ You can look at more advanced API Gateway routing options in the [serverless doc
 
 ### Lambda Function URLs
 
-Since 2022, AWS Lambda can respond to HTTP requests via [Lambda Function URLs](https://aws.amazon.com/blogs/aws/announcing-aws-lambda-function-urls-built-in-https-endpoints-for-single-function-microservices/). This is a new way to invoke Lambda functions via HTTP without using API Gateway.
+AWS Lambda can respond to HTTP requests via [Lambda Function URLs](https://aws.amazon.com/blogs/aws/announcing-aws-lambda-function-urls-built-in-https-endpoints-for-single-function-microservices/), without using API Gateway.
 
 You can deploy a Lambda Function URL [via the following configuration](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#lambda-function-urls):
 
@@ -243,6 +243,8 @@ Then, create a Lambda function that listens to HTTP events with the handler you 
 
         ```php filename="handler.php"
         <?php
+
+        use App\MyHttpHandler;
 
         require __DIR__ . '/vendor/autoload.php';
 

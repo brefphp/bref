@@ -1,3 +1,7 @@
+---
+description: "Choose a cache store for Laravel on AWS Lambda: array, database or DynamoDB."
+---
+
 # Caching
 
 Since Laravel 11, Laravel's default cache store is `database`. If your application has no database, set the cache store in `serverless.yml`. The `serverless.yml` generated for Laravel uses the `array` store:
@@ -10,7 +14,7 @@ provider:
 
 The `array` store caches nothing between requests, so the cache can never be stale. Avoid the `file` store: it writes to `/tmp`, which each Lambda instance has its own copy of. Once your application runs on several instances, clearing a cache key only clears it in one instance, and the others keep serving the old value.
 
-If you want a cache shared across all Lambda instances, for example if your application caches a lot of data or uses locks (like API rate limiting or `withoutOverlapping()`), use the database or DynamoDB.
+The `array` store also disables everything that relies on a shared cache: rate limiting (the `throttle` middleware and login throttling), atomic locks (`Cache::lock()`), unique jobs (`ShouldBeUnique`) and `withoutOverlapping()` (for scheduled tasks and jobs). If your application uses any of these, or caches a lot of data, use a cache shared across all Lambda instances: the database or DynamoDB.
 
 ## Database Cache
 

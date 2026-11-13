@@ -49,8 +49,9 @@ Then, create a Lambda function that listens to SQS events with the handler you c
         ```yml filename="serverless.yml"
         functions:
             # ...
-            resizeImage:
+            worker:
                 handler: App\MyHandler
+                runtime: php-84
                 events:
                     - sqs:
                         arn: arn:aws:sqs:eu-west-1:111111111111:queue-name
@@ -64,8 +65,9 @@ Then, create a Lambda function that listens to SQS events with the handler you c
         ```yml filename="serverless.yml"
         functions:
             # ...
-            resizeImage:
+            worker:
                 handler: App\MyHandler
+                runtime: php-84
                 events:
                     - sqs:
                         arn: arn:aws:sqs:eu-west-1:111111111111:queue-name
@@ -79,8 +81,9 @@ Then, create a Lambda function that listens to SQS events with the handler you c
         ```yml filename="serverless.yml"
         functions:
             # ...
-            resizeImage:
+            worker:
                 handler: handler.php
+                runtime: php-84
                 events:
                     - sqs:
                         arn: arn:aws:sqs:eu-west-1:111111111111:queue-name
@@ -110,18 +113,22 @@ constructs:
         type: queue
         worker:
             handler: handler.php
+            runtime: php-84
 ```
+
+The queue created by Lift comes with a dead letter queue and has [partial batch responses](#partial-batch-response) enabled.
 
 ## Partial Batch Response
 
 While handling a batch of records, you can mark it as partially successful to reprocess only the failed records.
 
-In your function declaration in `serverless.yml`, set `functionResponseType` to `ReportBatchItemFailures` to let your function return a partial success result if one or more messages in the batch have failed.
+In your function declaration in `serverless.yml`, set `functionResponseType` to `ReportBatchItemFailures` to let your function return a partial success result if one or more messages in the batch have failed (the Lift `queue` construct already does this).
 
 ```yml filename="serverless.yml"
 functions:
     worker:
         handler: handler.php
+        runtime: php-84
         events:
             - sqs:
                 arn: arn:aws:sqs:eu-west-1:111111111111:queue-name
@@ -143,11 +150,27 @@ In your PHP code, you can now use the `markAsFailed` method:
     }
 ```
 
+## Error handling
+
+If the handler throws an exception, the whole batch fails: all its messages go back to the queue and will be processed again, including the ones that were processed successfully. Use [partial batch responses](#partial-batch-response) to retry only the failed messages, or set `batchSize: 1`.
+
+Failed messages are retried until they are moved to a dead letter queue, or until they expire (4 days by default). Configure a dead letter queue on the SQS queue itself (a "redrive policy" with a maximum number of receives): the `onError` option of the function does not apply to SQS events. Queues created with the [Lift `queue` construct](#creating-sqs-queues) move messages to a dead letter queue after 3 failed attempts (`maxRetries` option).
+
+S3, SNS and EventBridge invoke functions asynchronously instead: Lambda retries a failed invocation twice, then drops the event. To keep failed events, send them to a [Lambda destination](https://docs.aws.amazon.com/lambda/latest/dg/invocation-async-retain-records.html) with the [`destinations.onFailure` option](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#destinations):
+
+```yml filename="serverless.yml"
+functions:
+    my-function:
+        # ...
+        destinations:
+            onFailure: arn:aws:sqs:eu-west-1:111111111111:failed-events
+```
+
 ## SQS polling and AWS costs
 
 AWS Lambda maintains a continuous "poller" for SQS that invokes our function when messages are available. This process, while eliminating the need for manual polling, still creates SQS requests, which can incur charges. A single SQS queue with Lambda will be free since it fits in the AWS free tier. However, if you plan on deploying a lot of SQS queues, you should be aware of potential costs (about $0.26/month per queue).
 
-If you want to reduce the number of SQS requests (and thus potential costs), you can use [the `MaximumBatchingWindowInSeconds` option](https://github.com/getlift/lift/blob/master/docs/queue.md#maximum-batching-window). This setting delays message delivery to the Lambda function when batching, aiming to assemble the largest possible batch within the specified timeframe, counted as a single SQS API request. Note that this technique introduces a delay in message processing, so be aware of the trade-off.
+If you want to reduce the number of SQS requests (and thus potential costs), you can set a maximum batching window: [the `maxBatchingWindow` option](https://github.com/getlift/lift/blob/master/docs/queue.md#maximum-batching-window) of the Lift `queue` construct, or [the `maximumBatchingWindow` option](https://github.com/oss-serverless/osls/blob/4.x/docs/events/sqs.md) of `sqs` events. This setting delays message delivery to the Lambda function when batching, aiming to assemble the largest possible batch within the specified timeframe, counted as a single SQS API request. Note that this technique introduces a delay in message processing, so be aware of the trade-off.
 
 ## Learn more
 

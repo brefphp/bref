@@ -47,7 +47,7 @@ Bref provides:
 
 The choice of AWS is deliberate: at the moment, AWS is the leading hosting provider, it is ahead in the serverless space in terms of features, performance, and reliability. AWS combines the advantages of being an extremely safe choice for hosting while providing the most advanced serverless solution.
 
-Bref configures and deploys applications to AWS using [the `serverless` CLI](https://github.com/oss-serverless/osls). Being the most popular tool, `serverless` comes with a huge community, a lot of examples online, and a simple configuration format.
+Applications are configured in a `serverless.yml` file and deployed to your AWS account with [Bref Cloud](/docs/cloud) (the `bref` CLI), or with [the open-source `serverless` CLI](https://github.com/oss-serverless/osls). Both use the same `serverless.yml` configuration format.
 
 If you want to learn [how AWS Lambda and Bref work, read more here](/docs/how-it-works).
 
@@ -89,7 +89,7 @@ If your application is currently not set up like this, good news: preparing for 
 
 There are still a few serverless-specific constraints to be aware of:
 
-- About 0.2% of all requests in production are ["cold starts"](/docs/environment/performances.mdx#cold-starts), i.e. slower requests (AWS Lambda scaling up) that can add 200 ms to 500 ms (or even more on very large applications) to the HTTP response time.
+- About 0.2% of all requests in production are ["cold starts"](/docs/environment/cold-starts), i.e. slower requests (AWS Lambda scaling up) that can add 200 ms to 500 ms (or even more on very large applications) to the HTTP response time.
 
     If your application cannot tolerate that occasional latency at the p99 metric, then serverless might not be the best fit.
 - AWS Lambda has a limit of ~4 MB for HTTP requests/uploaded files.

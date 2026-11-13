@@ -109,11 +109,7 @@ User: arn:aws:sts::…:assumed-role/… is not authorized to perform: ses:SendRa
 
 ## Laravel
 
-Laravel sends emails with SES through the AWS SDK:
-
-```bash
-composer require aws/aws-sdk-php
-```
+Laravel sends emails with SES through the AWS SDK, which `bref/laravel-bridge` already installs.
 
 In `config/mail.php`, switch the transport of the `ses` mailer to `ses-v2`, to use the SES v2 API (the API AWS keeps evolving):
 
@@ -145,6 +141,14 @@ To receive replies (see [above](#receiving-replies)), set a global `Reply-To` ad
     'address' => env('MAIL_REPLY_TO_ADDRESS'),
     'name' => env('MAIL_FROM_NAME'),
 ],
+```
+
+And set that address in `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        MAIL_REPLY_TO_ADDRESS: contact@example.com
 ```
 
 > [!WARNING]

@@ -87,7 +87,7 @@ php artisan vendor:publish --tag=serverless-config
 
 The `bref/laravel-bridge` package does what `laravel/vapor-core` did at runtime: it moves the storage directory to `/tmp`, sends logs to `stderr` (CloudWatch), trusts the API Gateway proxy headers, and uses the cookie session driver when the file driver is configured ([details](./getting-started.mdx#how-it-works)). No code change is needed for that.
 
-Vapor-specific files can be deleted once the migration is complete: `vapor.yml`, `config/vapor.php` and `.vaporignore`. Keep the `uploadFiles` method of your `UserPolicy` if you use [file uploads](#file-uploads), Bref uses the same gate.
+Vapor-specific files can be deleted once the migration is complete: `vapor.yml`, `config/vapor.php` and `.vaporignore`. If you use file uploads, keep the `uploadFiles` gate (a `UserPolicy::uploadFiles()` method must be registered as a gate, see [File uploads](#file-uploads)).
 
 ## From vapor.yml to serverless.yml
 
@@ -186,8 +186,6 @@ constructs:
 params:
     default:
         appEnv: ${sls:stage}
-    prod:
-        appEnv: production
 
 package:
     patterns: # replaces `.vaporignore`
@@ -415,7 +413,7 @@ functions:
                   input: '"schedule:run"'
 ```
 
-Like on Vapor, the scheduler is invoked once per minute, from a single place, so `onOneServer()` is not needed. A task that runs longer than a minute can still overlap with the next run: use `withoutOverlapping()` to prevent it. Sub-minute tasks work as long as the function `timeout` is longer than 60 seconds: `schedule:run` keeps running until the end of the minute.
+Like on Vapor, the scheduler is invoked once per minute, from a single place, so `onOneServer()` is not needed. A task that runs longer than a minute can still overlap with the next run: use `withoutOverlapping()` to prevent it (it requires a shared cache store, see [Caching](./caching.mdx)). Sub-minute tasks work as long as the function `timeout` is longer than 60 seconds: `schedule:run` keeps running until the end of the minute.
 
 > [!WARNING]
 >
@@ -453,11 +451,18 @@ This replaces the `storage` construct of the [File storage guide](./file-storage
 
 ### File uploads
 
-Vapor provides the `Vapor.store()` JavaScript helper to upload files from the browser to S3, because Lambda limits request payloads to about 4.5MB. It calls the `/vapor/signed-storage-url` route (provided by `laravel/vapor-core` and protected by the `uploadFiles` gate), uploads the file to a `tmp/` key in the bucket, and your code then moves the file with `Storage::copy()`.
+Vapor provides the `Vapor.store()` JavaScript helper to upload files from the browser to S3, because Lambda limits uploaded files to about 4 MB. It calls the `/vapor/signed-storage-url` route (provided by `laravel/vapor-core` and protected by the `uploadFiles` gate), uploads the file to a `tmp/` key in the bucket, and your code then moves the file with `Storage::copy()`.
 
 Bref has the same limit and the same solution, built into `bref/laravel-bridge` ([Large files](./file-storage.mdx#large-files)):
 
-- **Keep the `uploadFiles` gate** (or `UserPolicy::uploadFiles()`): the Bref route `/signed-upload-url` uses the same ability.
+- **Keep the `uploadFiles` gate**: the Bref route `/signed-upload-url` uses the same ability. If you defined it as a `UserPolicy::uploadFiles()` method, Bref's route does not call it: register it as a gate in `AppServiceProvider::boot()`:
+
+  ```php filename="app/Providers/AppServiceProvider.php"
+  use App\Policies\UserPolicy;
+  use Illuminate\Support\Facades\Gate;
+
+  Gate::define('uploadFiles', [UserPolicy::class, 'uploadFiles']);
+  ```
 - **Replace `Vapor.store()`** with the `store()` function of the `bref-upload.js` helper shipped by the package (import it from `vendor/` with a Vite alias or publish it with `php artisan vendor:publish --tag=bref-upload`, see [Large files](./file-storage.mdx#large-files)):
 
   ```js

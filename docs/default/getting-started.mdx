@@ -28,16 +28,14 @@ Next, in an empty directory, install Bref using Composer:
 composer require bref/bref
 ```
 
-Make sure that the version of Bref that was installed is 3.0 or greater.
-
 Then, create a `serverless.yml` file. This file will describe how to deploy your application.
 
 ```yml filename="serverless.yml"
 service: app # your application name (lowercase without spaces)
 
 bref:
-    # Uncomment and set your team ID if you are using Bref Cloud
-    #team: bref-team-id
+    # Uncomment and set your team slug if you are using Bref Cloud (`bref teams` lists them)
+    #team: my-team
 
 provider:
     name: aws
@@ -50,7 +48,7 @@ functions:
         # `index.php` is the entrypoint of your application
         handler: index.php
         runtime: php-84-fpm
-        timeout: 28 # in seconds (API Gateway has a max timeout of 29 seconds)
+        timeout: 28 # in seconds (API Gateway HTTP APIs have a max timeout of 30 seconds)
         events:
             -   httpApi: '*'
 
@@ -82,15 +80,15 @@ You will also want to add `.serverless` to your `.gitignore`.
 
 To deploy, run:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
-        serverless deploy
+        bref deploy
         ```
     </Tabs.Tab>
     <Tabs.Tab>
         ```bash
-        bref deploy
+        serverless deploy
         ```
     </Tabs.Tab>
 </Tabs>

@@ -1,5 +1,5 @@
 ---
-description: "Laravel Passport on AWS\u00a0Lambda with Bref"
+description: "Laravel Passport on AWS Lambda with Bref"
 ---
 
 import { Steps } from 'nextra/components';
@@ -7,28 +7,23 @@ import { Tabs } from 'nextra/components';
 
 # Laravel Passport
 
-Laravel Passport has a `passport:install` command. However, this command cannot be run in Lambda because it needs to write files to the `storage/` directory.
+Install Laravel Passport on your machine as explained in [the Passport documentation](https://laravel.com/docs/passport#installation). With Laravel 11 and later, run:
 
-Instead, here is what you need to do:
+```bash
+php artisan install:api --passport
+```
+
+This command generates the encryption keys in the `storage/` directory and runs the migrations locally. On AWS Lambda, the keys must be deployed with the application, and the migrations and OAuth clients must be created in the production database:
 
 <Steps>
 
-    ### Generate keys locally
+    ### Deploy the keys
 
-    Run the following command on your machine to generate key files:
-
-    ```bash
-    php artisan passport:keys
-    ```
-
-    This will generate the `storage/oauth-private.key` and `storage/oauth-public.key` files, which need to be deployed.
-
-    Depending on how you deploy your application (from your machine, or from CI), you may want to whitelist them in `serverless.yml`:
+    The key files (`storage/oauth-private.key` and `storage/oauth-public.key`) must be deployed. The `serverless.yml` file generated for Laravel excludes the `storage/` directory, include the keys in the package:
 
     ```yml filename="serverless.yml"
     package:
         patterns:
-            - ...
             # Exclude the 'storage' directory
             - '!storage/**'
             # Except the public and private keys required by Laravel Passport
@@ -36,44 +31,70 @@ Instead, here is what you need to do:
             - 'storage/oauth-public.key'
     ```
 
+    The keys are not committed to git: if you deploy from CI, make them available there (you can generate them with `php artisan passport:keys`).
+
+    On Lambda, Bref moves the storage directory (`storage_path()`) to `/tmp`, so Passport does not find the keys at their default location. Load them from the deployed `storage/` directory in `AppServiceProvider::boot()`:
+
+    ```php filename="app/Providers/AppServiceProvider.php"
+    use Laravel\Passport\Passport;
+
+    public function boot(): void
+    {
+        Passport::loadKeysFrom(base_path('storage'));
+    }
+    ```
+
     ### Deploy
 
     You can now redeploy the application:
 
-    <Tabs items={['Serverless CLI', 'Bref Cloud']}>
-        <Tabs.Tab>
-            ```bash
-            serverless deploy
-            ```
-        </Tabs.Tab>
+    <Tabs items={['Bref Cloud', 'Serverless CLI']}>
         <Tabs.Tab>
             ```bash
             bref deploy
             ```
         </Tabs.Tab>
-    </Tabs>
-
-    Note that during deployment the keys will be stored at the `./storage` path, not at `/var/task/storage`. The workaround is to adjust the Passport path with `Passport::loadKeysFrom('storage')`.
-
-    ### Create tokens
-
-    Finally, you can create the tokens (which is the second part of the `passport:install` command):
-
-    <Tabs items={['Serverless CLI', 'Bref Cloud']}>
         <Tabs.Tab>
             ```bash
-            serverless bref:cli --args="passport:client --personal --name 'Laravel Personal Access Client'"
-            serverless bref:cli --args="passport:client --password --name 'Laravel Password Grant Client'"
+            serverless deploy
             ```
         </Tabs.Tab>
+    </Tabs>
+
+    ### Run the migrations
+
+    Create the Passport tables in the production database:
+
+    <Tabs items={['Bref Cloud', 'Serverless CLI']}>
+        <Tabs.Tab>
+            ```bash
+            bref command "migrate --force"
+            ```
+        </Tabs.Tab>
+        <Tabs.Tab>
+            ```bash
+            serverless bref:cli --args="migrate --force"
+            ```
+        </Tabs.Tab>
+    </Tabs>
+
+    ### Create clients
+
+    Finally, create the OAuth clients your application needs, for example a personal access client:
+
+    <Tabs items={['Bref Cloud', 'Serverless CLI']}>
         <Tabs.Tab>
             ```bash
             bref command "passport:client --personal --name 'Laravel Personal Access Client'"
-            bref command "passport:client --password --name 'Laravel Password Grant Client'"
+            ```
+        </Tabs.Tab>
+        <Tabs.Tab>
+            ```bash
+            serverless bref:cli --args="passport:client --personal --name 'Laravel Personal Access Client'"
             ```
         </Tabs.Tab>
     </Tabs>
 
-</Steps>
+    Since Passport 12, the password grant is disabled by default: to create a password grant client (`passport:client --password`), first call `Passport::enablePasswordGrant()` in `AppServiceProvider::boot()` and deploy.
 
-All these steps were replacements of running the `passport:install` command [from the Passport documentation](https://laravel.com/docs/passport#installation).
+</Steps>
