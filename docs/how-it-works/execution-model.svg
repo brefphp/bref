@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="800" height="320">
+<style>text{font-family:Inter,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;fill:#1f2937;font-size:14px}.b{font-weight:600}.s{font-size:12px;fill:#6b7280}</style>
+<rect width="800" height="320" rx="12" fill="#fff"/>
+<line x1="330" y1="30" x2="330" y2="250" stroke="#9ca3af" stroke-dasharray="4 4"/><text x="336" y="26" class="s">traffic spike</text>
+<text x="20" y="58">Instance 1</text>
+<rect x="120" y="40" width="660" height="26" rx="4" fill="#e5e7eb"/>
+<rect x="120" y="40" width="28" height="26" rx="4" fill="#f5a25d"/>
+<rect x="148" y="40" width="30" height="26" fill="#3aa9e9"/>
+<rect x="200" y="40" width="22" height="26" fill="#3aa9e9"/>
+<rect x="260" y="40" width="40" height="26" fill="#3aa9e9"/>
+<rect x="340" y="40" width="22" height="26" fill="#3aa9e9"/>
+<rect x="380" y="40" width="40" height="26" fill="#3aa9e9"/>
+<rect x="470" y="40" width="30" height="26" fill="#3aa9e9"/>
+<rect x="560" y="40" width="30" height="26" fill="#3aa9e9"/>
+<rect x="650" y="40" width="40" height="26" fill="#3aa9e9"/>
+<rect x="720" y="40" width="25" height="26" fill="#3aa9e9"/>
+<text x="20" y="103">Instance 2</text>
+<rect x="330" y="85" width="450" height="26" rx="4" fill="#e5e7eb"/>
+<rect x="330" y="85" width="28" height="26" rx="4" fill="#f5a25d"/>
+<rect x="358" y="85" width="32" height="26" fill="#3aa9e9"/>
+<rect x="430" y="85" width="30" height="26" fill="#3aa9e9"/>
+<rect x="500" y="85" width="40" height="26" fill="#3aa9e9"/>
+<rect x="610" y="85" width="30" height="26" fill="#3aa9e9"/>
+<rect x="700" y="85" width="30" height="26" fill="#3aa9e9"/>
+<text x="20" y="148">Instance 3</text>
+<rect x="345" y="130" width="435" height="26" rx="4" fill="#e5e7eb"/>
+<rect x="345" y="130" width="28" height="26" rx="4" fill="#f5a25d"/>
+<rect x="373" y="130" width="27" height="26" fill="#3aa9e9"/>
+<rect x="450" y="130" width="30" height="26" fill="#3aa9e9"/>
+<rect x="540" y="130" width="20" height="26" fill="#3aa9e9"/>
+<rect x="640" y="130" width="40" height="26" fill="#3aa9e9"/>
+<rect x="740" y="130" width="30" height="26" fill="#3aa9e9"/>
+<text x="20" y="193">Instance 4</text>
+<rect x="360" y="175" width="420" height="26" rx="4" fill="#e5e7eb"/>
+<rect x="360" y="175" width="28" height="26" rx="4" fill="#f5a25d"/>
+<rect x="388" y="175" width="32" height="26" fill="#3aa9e9"/>
+<rect x="480" y="175" width="20" height="26" fill="#3aa9e9"/>
+<rect x="600" y="175" width="30" height="26" fill="#3aa9e9"/>
+<rect x="700" y="175" width="25" height="26" fill="#3aa9e9"/>
+<text x="20" y="238">Instance 5</text>
+<rect x="520" y="220" width="260" height="26" rx="4" fill="#e5e7eb"/>
+<rect x="520" y="220" width="28" height="26" rx="4" fill="#f5a25d"/>
+<rect x="548" y="220" width="32" height="26" fill="#3aa9e9"/>
+<rect x="660" y="220" width="30" height="26" fill="#3aa9e9"/>
+<line x1="110" y1="262" x2="776" y2="262" stroke="#4b5563" stroke-width="1.5"/><path d="M780,262l-9,-5v10z" fill="#4b5563"/><text x="780" y="282" text-anchor="end" class="s">time</text>
+<rect x="20" y="292" width="16" height="16" rx="3" fill="#f5a25d"/><text x="42" y="305">Cold start</text>
+<rect x="150" y="292" width="16" height="16" rx="3" fill="#3aa9e9"/><text x="172" y="305">Request being processed</text>
+<rect x="390" y="292" width="16" height="16" rx="3" fill="#e5e7eb"/><text x="412" y="305">Idle: frozen, not billed</text>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 260" width="800" height="260">
+<style>text{font-family:Inter,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;fill:#1f2937;font-size:14px}.b{font-weight:600}.s{font-size:12px;fill:#6b7280}.w{fill:#fff}.m{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}.aws{fill:#ec7211}.bref{fill:#1c7fc4}.inst{fill:#eff7fd;stroke:#7fbde6;stroke-dasharray:6 4}.l{stroke:#4b5563;stroke-width:1.5;fill:none}</style><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#4b5563"/></marker></defs>
+<rect width="800" height="260" rx="12" fill="#fff"/>
+<rect x="20" y="20" width="120" height="44" rx="8" class="aws"/><text x="80" y="47" text-anchor="middle" class="w b">S3</text>
+<rect x="20" y="80" width="120" height="44" rx="8" class="aws"/><text x="80" y="107" text-anchor="middle" class="w b">SQS</text>
+<rect x="20" y="140" width="120" height="44" rx="8" class="aws"/><text x="80" y="167" text-anchor="middle" class="w b">EventBridge</text>
+<rect x="20" y="200" width="120" height="44" rx="8" fill="#fff" stroke="#9ca3af" stroke-dasharray="6 4"/><text x="80" y="227" text-anchor="middle" class="s">and more…</text>
+<line x1="140" y1="42" x2="192" y2="118" class="l" marker-end="url(#a)"/>
+<line x1="140" y1="102" x2="192" y2="128" class="l" marker-end="url(#a)"/>
+<line x1="140" y1="162" x2="192" y2="140" class="l" marker-end="url(#a)"/>
+<line x1="140" y1="222" x2="192" y2="150" class="l" marker-end="url(#a)"/>
+<rect x="200" y="98" width="100" height="70" rx="8" class="aws"/>
+<text x="250" y="129" text-anchor="middle" class="w b">Lambda</text>
+<text x="250" y="149" text-anchor="middle" class="w b">API</text>
+<rect x="340" y="30" width="440" height="200" rx="10" class="inst"/>
+<text x="360" y="56" class="b">Lambda instance</text>
+<line x1="300" y1="133" x2="356" y2="133" class="l" marker-end="url(#a)"/>
+<rect x="360" y="98" width="110" height="70" rx="8" class="aws"/>
+<text x="415" y="138" text-anchor="middle" class="w b">Runtime API</text>
+<line x1="470" y1="133" x2="512" y2="133" class="l" marker-end="url(#a)" marker-start="url(#a)"/>
+<rect x="520" y="98" width="110" height="70" rx="8" class="bref"/>
+<text x="575" y="128" text-anchor="middle" class="w b">Bref</text>
+<text x="575" y="148" text-anchor="middle" class="w" style="font-size:12px">function runtime</text>
+<line x1="630" y1="133" x2="652" y2="133" class="l" marker-end="url(#a)"/>
+<rect x="660" y="106" width="104" height="54" rx="6" fill="#fff" stroke="#4b5563" stroke-width="1.5"/>
+<text x="712" y="129" text-anchor="middle" class="b" style="font-size:13px">Your handler</text>
+<text x="712" y="147" text-anchor="middle" class="s">PHP class</text>
+<text x="360" y="205" class="s">No PHP-FPM: Bref calls your handler in its own PHP process.</text>
+</svg>
