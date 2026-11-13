@@ -29,6 +29,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
+use Symfony\Component\Process\Process;
 
 /**
  * Tests the communication between `LambdaRuntime` and the Lambda Runtime HTTP API.
@@ -166,6 +167,35 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $error = json_decode(base64_decode($response->getHeaderLine('lambda-runtime-function-error-body')), true);
         $this->assertSame('Failure in the middle', $error['errorMessage']);
         $this->assertErrorInLogs('RuntimeException', 'Failure in the middle');
+    }
+
+    public function test init errors are reported without their stack trace()
+    {
+        Server::enqueue([new Response(202)]);
+
+        // It ends the process: run it in another one
+        $process = new Process([
+            PHP_BINARY,
+            '-r',
+            <<<'PHP'
+            require 'vendor/autoload.php';
+            (new Bref\Runtime\LambdaRuntime('localhost:8126', 'phpunit'))->failInitialization(new RuntimeException('Init failure'));
+            PHP,
+        ], dirname(__DIR__, 2));
+        $process->run();
+
+        $this->assertSame(1, $process->getExitCode());
+        [$request] = Server::received();
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/init/error', $request->getUri()->__toString());
+        // Function URLs in RESPONSE_STREAM mode show it to the client: no stack trace
+        $this->assertSame([
+            'errorMessage' => 'Init failure',
+            'errorType' => 'RuntimeException',
+            'stackTrace' => [],
+        ], json_decode($request->getBody()->__toString(), true));
+        // The stack trace is in the logs
+        $this->assertStringContainsString('Fatal error: RuntimeException: Init failure', $process->getOutput());
+        $this->assertStringContainsString('stackTrace', $process->getOutput());
     }
 
     private function streamedResponse(): RequestInterface
