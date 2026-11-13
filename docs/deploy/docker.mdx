@@ -171,6 +171,34 @@ This simplifies your deployment pipeline: a single Docker image is built and pus
 
 You can read the detailed documentation about [all options available in the Serverless documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#referencing-container-image-as-a-target).
 
+### ARM images
+
+To run functions on [ARM processors](/docs/runtimes.mdx#arm-runtimes), use the ARM images: they have the `arm-` prefix, for example `bref/arm-php-84:3` (and `bref/arm-php-84-dev:3` for local development). Build the image for the `linux/arm64` platform and set `architecture: arm64` on the functions:
+
+```dockerfile filename="Dockerfile"
+FROM bref/arm-php-84:3
+
+COPY . /var/task
+```
+
+```yml filename="serverless.yml" {8,13}
+provider:
+    name: aws
+    ecr:
+        images:
+            my-app:
+                path: ./
+                file: Dockerfile
+                platform: linux/arm64
+
+functions:
+    web:
+        # ...
+        architecture: arm64
+```
+
+The x86 images (`bref/php-84`) do not work on ARM functions. Bref Extra Extensions images are not available for ARM.
+
 ## Filesystem
 
 Like with non-Docker deployments, the filesystem for Docker on AWS Lambda is also readonly with a limited disk space under `/tmp` for read/write.
