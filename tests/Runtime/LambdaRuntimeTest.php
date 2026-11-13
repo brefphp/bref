@@ -18,6 +18,7 @@ use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Listener\BrefEventSubscriber;
 use Bref\Runtime\LambdaRuntime;
+use Bref\Runtime\ResponseTimedOut;
 use Bref\Runtime\ResponseTooBig;
 use Bref\Runtime\StreamedResponse;
 use Bref\Test\RuntimeTestCase;
@@ -166,6 +167,55 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $error = json_decode(base64_decode($response->getHeaderLine('lambda-runtime-function-error-body')), true);
         $this->assertSame('Failure in the middle', $error['errorMessage']);
         $this->assertErrorInLogs('RuntimeException', 'Failure in the middle');
+    }
+
+    public function test a streamed response still being sent close to the timeout is ended with an error()
+    {
+        // Less than 1 second left
+        $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 500);
+        $pulled = 0;
+
+        $chunks = (function () use (&$pulled) {
+            foreach (['Hello', ' world', '!'] as $chunk) {
+                $pulled++;
+                yield $chunk;
+            }
+        })();
+
+        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', $chunks));
+
+        $this->assertFalse($output);
+        // The first byte is always sent, then the response ends with the error in its trailers
+        $response = $this->streamedResponse();
+        $this->assertSame('Hello', $response->getBody()->__toString());
+        $this->assertSame(ResponseTimedOut::class, $response->getHeaderLine('lambda-runtime-function-error-type'));
+        $this->assertSame(2, $pulled);
+        $this->assertErrorInLogs(ResponseTimedOut::class, (new ResponseTimedOut)->getMessage());
+    }
+
+    public function test big streamed responses are ended earlier before the timeout()
+    {
+        // 3 seconds left: enough for a small response, not for a big one throttled by Lambda
+        $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 3000);
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', ['small', ' response']));
+        $this->assertSame('small response', $this->streamedResponse()->getBody()->__toString());
+        Server::flush();
+
+        $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 3000);
+        $big = str_repeat('a', 7 * 1024 * 1024);
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', [$big, ' end']));
+        $response = $this->streamedResponse();
+        $this->assertSame(strlen($big), $response->getBody()->getSize());
+        $this->assertSame(ResponseTimedOut::class, $response->getHeaderLine('lambda-runtime-function-error-type'));
+    }
+
+    public function test a response produced before the timeout is sent even close to it()
+    {
+        $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 500);
+
+        $this->runtime->processNextEvent(fn () => ['Hello' => 'world!']);
+
+        $this->assertInvocationResult(['Hello' => 'world!']);
     }
 
     private function streamedResponse(): RequestInterface
