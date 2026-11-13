@@ -7,8 +7,7 @@
 <line x1="98" y1="97" x2="168" y2="97" class="l" marker-end="url(#a)"/>
 <text x="133" y="88" text-anchor="middle" class="s">HTTP</text>
 <rect x="176" y="60" width="150" height="74" rx="8" class="aws"/>
-<text x="251" y="92" text-anchor="middle" class="w b">API Gateway</text>
-<text x="251" y="113" text-anchor="middle" class="w">or function URL</text>
+<text x="251" y="102" text-anchor="middle" class="w b">API Gateway</text>
 <text x="251" y="160" text-anchor="middle" class="s">turns HTTP into JSON</text>
 <line x1="334" y1="97" x2="474" y2="97" class="l" marker-end="url(#a)"/>
 <text x="404" y="88" text-anchor="middle">JSON event</text>

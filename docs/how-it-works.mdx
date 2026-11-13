@@ -18,9 +18,9 @@ When we deploy an application to AWS Lambda, nothing starts. There is no server 
 
 The only way to run code on Lambda is to *invoke* it through the [AWS Lambda API](https://docs.aws.amazon.com/lambda/latest/api/API_Invoke.html). This is an authenticated AWS API, like the Stripe or GitHub APIs: we send a `POST` request with AWS credentials, and the data to pass to our code is a JSON payload called an *event*.
 
-That's not how websites work, so for HTTP applications we put an HTTP service in front of Lambda: [API Gateway](https://aws.amazon.com/api-gateway/) or a [Lambda function URL](https://docs.aws.amazon.com/lambda/latest/dg/urls-configuration.html). They play the role Apache or Nginx usually play: they receive HTTP requests, turn them into JSON events, and invoke Lambda.
+That's not how websites work, so for HTTP applications we put [API Gateway](https://aws.amazon.com/api-gateway/) in front of Lambda. API Gateway plays the role Apache or Nginx usually play: it receives HTTP requests, turns them into JSON events, and invokes Lambda.
 
-![An HTTP request goes through API Gateway or a function URL, which invokes the Lambda API with a JSON event, which runs the code in a Lambda instance](./how-it-works/http-invocation.svg)
+![An HTTP request goes through API Gateway, which invokes the Lambda API with a JSON event, which runs the code in a Lambda instance](./how-it-works/http-invocation.svg)
 
 Here is a simplified example of the event Lambda receives for an HTTP request:
 
@@ -171,20 +171,9 @@ Since Lambda runs instances across all availability zones of a region, we get re
 
 ## Costs
 
-With Lambda, we don't pay for instances. Looking at the timeline above, we pay for the blue blocks, not for the gray bars: Lambda charges for the number of requests and for the duration of each request, per millisecond. Cold starts are billed as well. Idle instances are free, whether there is one or a thousand.
+Looking at the timeline above, we pay for the blue blocks, not for the gray bars: Lambda charges per request and per millisecond of execution, cold starts included. Idle instances are free, whether there is one or a thousand.
 
-That makes costs harder to predict at first. If you know how many requests your application receives and how long they take, the [cost calculator](./serverless-costs.mdx) gives an estimate.
-
-A few consequences of this model:
-
-- A traffic spike usually costs very little. Whether 1,000 requests arrive in one second or over a month, the price is the same. Going on the front page of Hacker News or on national TV typically costs a few dollars of Lambda.
-- Running jobs in parallel does not cost more. Processing 1,000 jobs of 1 second each costs the same with 1 instance (in 1,000 seconds) or with 1,000 instances (in 1 second).
-- If a server is busy 100% of the time, Lambda might not be cheaper. But most servers are over-provisioned to absorb traffic spikes, and that idle capacity is what we stop paying for.
-
-Sustained high traffic is where costs can grow. To keep them under control:
-
-- Set up an [AWS budget](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html) to get an alert when the costs, or the forecasted costs, go over a threshold.
-- Limit the maximum number of instances of a function with [reserved concurrency](https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html).
+Read more in [Serverless costs](./serverless-costs.mdx).
 
 ## Beyond HTTP: event-driven functions
 
@@ -227,19 +216,9 @@ By default, PHP boots the application from scratch on every request, like on any
 
 This does not change the execution model: an instance still handles one request at a time, it is still frozen between requests, and we still pay only while requests are processed.
 
-## Limits to know
+## Learn more
 
-A few Lambda limits shape how applications run:
-
-- A request, job or command can run for 15 minutes at most. Longer tasks need to be split into smaller tasks, or to run on a server or container.
-- HTTP requests and responses are limited to 6 MB, which means about 4 MB for uploaded files. Larger files are better uploaded to and served from S3 directly, for example using S3 pre-signed URLs or redirects to the files.
-- The application code, including Bref's runtime layer, is limited to 250 MB (unzipped). Applications that are larger can be [deployed as container images](./deploy/docker.mdx) (up to 10 GB).
-- The application code is read-only, only `/tmp` is writable, and each instance has its own `/tmp`.
-
-Bref's runtimes include the most common PHP extensions. More extensions are available as [extra extensions](./environment/php.mdx#extra-extensions), maintained by the community.
-
-## Is it a good fit?
-
-Most PHP applications can run on Lambda, as long as they don't need real-time response times or long-running processes. Both small websites (that often fit in the AWS free tier) and very large applications run on Bref in production. Read the [case studies](./case-studies.mdx) for real-world examples, with costs and migration stories.
-
-The technology is often not the deciding factor, the team is. If you are happy with how you run your applications today, there is no reason to change. Serverless is interesting when you reach the point where you need redundancy, scaling, or stronger security practices, and want a simpler alternative to managing servers or Kubernetes clusters yourself.
+- [Serverless-specific constraints](./index.mdx#serverless-specific-constraints) (execution time, upload size, read-only filesystem…)
+- [Cold starts](./environment/cold-starts.mdx)
+- [Serverless costs](./serverless-costs.mdx)
+- [Case studies](./case-studies.mdx)
