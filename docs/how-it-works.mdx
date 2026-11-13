@@ -126,6 +126,8 @@ Here is how instances handle requests over time. Each gray bar is an instance, e
 
 ![Timeline of 5 instances: when traffic increases, new instances start with a cold start, and each instance processes one request at a time](./how-it-works/execution-model.svg)
 
+To see it live, open [watch-aws-lambda-scale.com](https://watch-aws-lambda-scale.com/): it sends requests to a Lambda function and shows instances scaling in real time (this is the demo used in the talk).
+
 **An instance handles only one request at a time.** If 10 requests arrive at the same time, Lambda runs them in 10 instances, and starts new instances if needed.
 
 When a request comes in, Lambda sends it to an available instance. If none is available, Lambda starts a new one. AWS balances the load between instances, across all availability zones.
