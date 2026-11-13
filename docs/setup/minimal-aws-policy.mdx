@@ -1,8 +1,12 @@
+---
+description: "A starting point for an IAM policy that can deploy Bref applications with the Serverless CLI."
+---
+
 # Minimal AWS policy
 
-This is a minimal AWS policy that allows the user to deploy a serverless application using the Serverless Framework.
+This is a minimal AWS policy that allows the user to deploy a serverless application using the Serverless CLI.
 
-Note that this policy is not exhaustive and may not work for all use cases. It is intended to be used as a starting point for a minimal policy.
+This policy is a starting point, not an exhaustive list: it covers HTTP applications, queues (SQS), and `${ssm:...}` variables. Add the permissions of the other AWS services your application uses. For example, deploying a website with CloudFront (like the Lift `server-side-website` construct) also needs `cloudfront:*` permissions.
 
 Feel free to submit a PR if you have any suggestions for improvements.
 
@@ -113,6 +117,16 @@ Feel free to submit a PR if you have any suggestions for improvements.
                 "sns:SetTopicAttributes",
                 "sns:Subscribe",
                 "sns:Unsubscribe",
+                "sqs:CreateQueue",
+                "sqs:DeleteQueue",
+                "sqs:GetQueueAttributes",
+                "sqs:GetQueueUrl",
+                "sqs:ListQueueTags",
+                "sqs:SetQueueAttributes",
+                "sqs:TagQueue",
+                "sqs:UntagQueue",
+                "ssm:GetParameter",
+                "ssm:GetParameters",
                 "states:CreateStateMachine",
                 "states:DeleteStateMachine",
                 "states:TagResource"

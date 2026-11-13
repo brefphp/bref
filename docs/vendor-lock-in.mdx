@@ -33,6 +33,10 @@ The reason this is made easy is a combination of both native framework features 
 - Bref preconfigures logs to be sent to CloudWatch
 - Bref provides SQS + Lambda runtime integrations for Symfony Messenger and Laravel Queues
 
+## Bref Cloud
+
+Bref Cloud deploys the same `serverless.yml` configuration to your own AWS account, as standard CloudFormation stacks. If you stop using Bref Cloud, your applications keep running, and you can deploy them with the [`serverless` CLI](/docs/setup) instead of `bref deploy`.
+
 ## Choosing vendor lock-in
 
 Vendor lock-in is not a bad thing in itself. It's a trade-off.
