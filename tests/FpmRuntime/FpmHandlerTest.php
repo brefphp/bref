@@ -1410,6 +1410,45 @@ Year,Make,Model
         ];
     }
 
+    public function test the response is sent before the work after fastcgi finish request()
+    {
+        $this->startFpm(__DIR__ . '/fixtures/finish-request.php');
+        $file = sys_get_temp_dir() . '/bref-test-' . uniqid();
+        $context = new Context('abc', (time() + 30) * 1000, 'abc', 'abc');
+
+        $body = '';
+        $doneWhenSent = null;
+        $this->fpm->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => $file]], $context)
+            ->writeTo(function (string $chunk) use (&$body) {
+                $body .= $chunk;
+            }, function () use ($file, &$doneWhenSent) {
+                $doneWhenSent = file_exists($file);
+            });
+
+        // The client gets the response before the work that follows, the next invocation starts after it
+        self::assertSame('Response', json_decode($body, true)['body']);
+        self::assertFalse($doneWhenSent);
+        self::assertFileExists($file);
+        unlink($file);
+    }
+
+    public function test work after the response is stopped before the Lambda timeout()
+    {
+        $this->startFpm(__DIR__ . '/fixtures/finish-request.php');
+        $file = sys_get_temp_dir() . '/bref-test-' . uniqid();
+
+        // The work after the response lasts longer than the invocation (1 second left)
+        $response = $this->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => $file, 'ms' => 3000]], $this->fakeContext);
+
+        self::assertSame('Response', $response['body']);
+        self::assertStringContainsString('The PHP script was still running after its response', ob_get_contents());
+        // PHP-FPM was restarted: the script never finished
+        self::assertFileDoesNotExist($file);
+        $response = $this->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => $file, 'ms' => 0]], $this->fakeContext);
+        self::assertSame('Response', $response['body']);
+        unlink($file);
+    }
+
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
         $this->startFpm(__DIR__ . '/fixtures/request.php');

@@ -68,9 +68,9 @@ This section lists the differences between running on AWS Lambda and running on 
 
 There is no `.htaccess` or `nginx.conf` on AWS Lambda. Instead, you can use `serverless.yml` to configure the routing.
 
-#### No `fastcgi_finish_request()`
+#### Work after the response
 
-[`fastcgi_finish_request()`](https://www.php.net/manual/en/function.fastcgi-finish-request.php) is disabled by Bref, as it is not possible to run code after the response has been sent to the client. All frameworks are designed to work without it transparently, so you don't need to do anything.
+[`fastcgi_finish_request()`](https://www.php.net/manual/en/function.fastcgi-finish-request.php) sends the response to the client, then the rest of the script runs before the Lambda instance handles another request. Laravel and Symfony use it to run their "terminate" work (e.g. Laravel's `defer()`) after the response. That time counts toward the function's timeout and is billed.
 
 #### Differences in URI query parameters
 
