@@ -42,7 +42,14 @@ graph LR
     end
 ```
 
-When you connect an AWS account to Bref Cloud, Bref Cloud creates a `BrefCloudAccess` IAM role in your account (you can also create it manually if you prefer). This role:
+To connect an AWS account to Bref Cloud, you create a `BrefCloudAccess` IAM role in that account. The role is created by the `bref-cloud-connect` CloudFormation stack, deployed in the `us-east-1` region (IAM roles are global, so you can deploy applications to any region). You can deploy that stack:
+
+- from the Bref Cloud dashboard, which opens the AWS console with the stack ready to create,
+- or with the `bref connect` command, which uses the AWS credentials configured on your machine (use `--profile` to choose an AWS profile).
+
+You can also create the IAM role manually and paste its ARN in Bref Cloud.
+
+This role:
 
 - gives permissions to access specific resources in your account (like Lambda functions)
 - can only be "assumed" by the `BrefCloudAccessor` role from the Bref Cloud AWS account (called a "trust policy").
@@ -53,7 +60,7 @@ When Bref Cloud needs to access your account, it:
 2. uses this new role to assume the `BrefCloudAccess` role in your AWS account
 3. gets temporary credentials that have the permissions of the `BrefCloudAccess` role
 
-These credentials are valid for a short period of time. Bref Cloud uses them to perform the actions you requested (like retrieving logs). They are also passed to the `serverless deploy` command when deploying your application, so that the command uses these temporary credentials without you having to do anything.
+These credentials are valid for a short period of time. Bref Cloud uses them to perform the actions you requested (like retrieving logs). When you run `bref deploy`, they are also sent to the `bref` CLI, which runs `serverless deploy` with them on your machine or in your CI, without you having to configure AWS credentials.
 
 Bref Cloud does not store these credentials. They are only used for the duration of the operation.
 
@@ -63,7 +70,7 @@ IAM roles are the recommended way to grant access to AWS resources over long-liv
 
 Thanks to IAM roles, **Bref Cloud does not store AWS credentials**.
 
-You can also transparently review the permissions that Bref Cloud has in your account, adjust them (the IAM role lives in your account), or revoke access at any time by deleting the `BrefCloudAccess` role from your account.
+You can also transparently review the permissions that Bref Cloud has in your account, adjust them (the IAM role lives in your account), or revoke access at any time by deleting the `bref-cloud-connect` stack from your account.
 
 ### Why use a separate `BrefCloudAccessor` role?
 
@@ -79,6 +86,10 @@ The reasons for this are:
 By default, the `BrefCloudAccess` role has a set of permissions that allows Bref Cloud to deploy and manage your applications. For example, it can create AWS resources (like Lambda functions) via CloudFormation, read logs and metrics, etc. When you set up Bref Cloud, you can review these permissions in the IAM role that is created in your account.
 
 You can also customize the permissions of the `BrefCloudAccess` role if you want to restrict it further. Of course, all Bref Cloud features may not work correctly in some cases if you restrict the permissions too much.
+
+### Updating the permissions
+
+When new Bref Cloud features need new permissions, the "AWS accounts" page in Bref Cloud shows "permissions update available" next to the account. Click it to review the changes, then click "Update permissions": Bref Cloud updates the `bref-cloud-connect` stack in your account. Updating the stack can overwrite the changes you made manually to the role's permissions.
 
 ### How does Bref Cloud know which role to assume?
 
@@ -105,6 +116,8 @@ Note that nothing is foolproof, but having multiple layers of security helps mit
 
 Self-hosting means running Bref Cloud inside your own AWS account. This is useful for companies that have strict security requirements and do not want to give access to a third-party service to their AWS account.
 
+Self-hosting is available with the Enterprise plan: [contact us](https://calendly.com/bref-enterprise/intro).
+
 When you self-host Bref Cloud, cross-account access happens as usual but the big difference is that access happens from an AWS account that you own to another AWS account that you own.
 
 ```mermaid
@@ -125,7 +138,10 @@ graph LR
 
 ### Can I revoke Bref Cloud's access to my AWS account?
 
-Yes, you can revoke access at any time by deleting the `BrefCloudAccess` IAM role from your AWS account.
+Yes, you can revoke access at any time:
+
+1. Delete the `bref-cloud-connect` CloudFormation stack in the `us-east-1` region of your AWS account (or the IAM role, if you created it manually). Deleting only the role would leave the stack out of sync.
+2. Remove the AWS account from the "AWS accounts" page in Bref Cloud.
 
 ### How does Bref Cloud handle multi-account deployments?
 
@@ -133,11 +149,13 @@ If you need to deploy to multiple AWS accounts, you can connect each account to 
 
 ### How often are temporary credentials refreshed?
 
-Temporary credentials are only used for the duration of specific operations and are not stored. They typically have a short lifespan (usually 15 minutes), or even just the duration of an HTTP request.
+Temporary credentials are only used for the duration of specific operations and are not stored. They are valid for 30 minutes (1 hour when you sign in to the AWS console from Bref Cloud).
 
 ### Can I audit what actions Bref Cloud performs in my account?
 
 You can enable [AWS CloudTrail](https://aws.amazon.com/cloudtrail/) to log all actions made in your AWS account. This allows you to audit the actions performed by Bref Cloud.
+
+Bref Cloud also keeps an audit log of the actions of your team members: deployments, commands, secrets, databases, AWS accounts, team members, etc. Team admins can see it, and export it, in the "Audit logs" page of the Bref Cloud dashboard.
 
 ### Can I customize the permissions granted to Bref Cloud?
 

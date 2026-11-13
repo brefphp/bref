@@ -22,7 +22,7 @@ To get started, [create a Bref Cloud account](https://bref.cloud/register). Ther
 ### Deploy
 
 - **One command**: `bref deploy` from your machine or [from GitHub Actions](./cloud-deploy.mdx). No AWS credentials to create, distribute or rotate: Bref Cloud generates [short-lived credentials](./cloud-security.mdx) for every deployment.
-- **Databases and networks**: create MySQL or PostgreSQL databases (fixed instances, or serverless databases that scale and pause on their own) and private networks in a few clicks.
+- **Databases and networks**: create MySQL, PostgreSQL or [Aurora DSQL](/docs/environment/database-dsql) databases (fixed instances, or serverless databases that scale and pause on their own) and private networks in a few clicks.
 - **Environments**: manage dev, staging and production across AWS accounts and regions from one dashboard, with the history of every deployment (also available from the terminal with [`bref deployments`](./cloud-deploy.mdx#deployment-history)).
 
 ### Monitor
@@ -30,8 +30,8 @@ To get started, [create a Bref Cloud account](https://bref.cloud/register). Ther
 - **Overview**: a diagram of each environment's architecture with live metrics on every component.
 - **Logs**: search logs or tail them in real time in the dashboard, or search them from the terminal with [`bref logs`](/docs/environment/logs#reading-logs).
 - **Metrics**: Lambda invocations, concurrency, duration and errors, API Gateway, WebSocket APIs, queues and dead-letter queues.
-- **Traces**: a trace explorer optimized for PHP applications, with a free [Bref X-Ray](/xray) license included. See database queries, HTTP calls and AWS calls inside each invocation, and filter traces by route, job, command, cold start, or your own annotations, over up to 30 days.
-- **Performance**: the slowest database queries, the latency of every route, and the slowest jobs of your application, computed from the last 30 days of traces.
+- **Traces**: a trace explorer optimized for PHP applications, with a free [Bref X-Ray](/xray) license included. See database queries, HTTP calls and AWS calls inside each invocation, and filter traces by route, job, command, cold start, or your own annotations, over up to 30 days when [AWS Transaction Search](/xray/docs#enabling-aws-transaction-search) is enabled (6 hours otherwise).
+- **Performance**: the slowest database queries, the latency of every route, and the slowest jobs of your application, computed from the last 30 days of traces (requires AWS Transaction Search).
 - **Health checks**: verify that the database, the cache and the Lambda configuration of a deployed application are healthy (Laravel only for now).
 
 [Learn more about monitoring with Bref Cloud](/docs/monitoring#bref-cloud).

@@ -31,10 +31,16 @@ The benefits of deploying using Bref Cloud:
 
 - **Credentials**: You don't need to create AWS credentials or configure the `serverless` CLI, Bref Cloud handles this for you ([learn more](./cloud-security.mdx)).
 - **Deployment monitoring**: Bref Cloud provides a dashboard to view deployments of all your applications across all AWS accounts, regions, and environments.
-- **No need to install `serverless`**: Bref Cloud transparently installs and runs the `serverless` CLI.
+- **No need to install `serverless`**: the `bref` CLI downloads and runs the `serverless` CLI for you.
 - **Better UX**: the `bref` CLI has minimal output with verbose mode that can be enabled in real time.
 
-When you run `bref deploy`, Bref Cloud runs the `serverless deploy` command for you in the background.
+When you run `bref deploy`, the `bref` CLI gets temporary AWS credentials from Bref Cloud and runs `serverless deploy` with them, on your machine or in your CI. The deployment logs and status are sent to Bref Cloud.
+
+Because `serverless deploy` runs where you run `bref deploy`, that machine needs:
+
+- Node.js 20.19 or greater,
+- the NPM dependencies of your project installed (`npm ci`), for example Serverless plugins,
+- Docker, if you deploy [container images](./deploy/docker.mdx).
 
 ## Differences between `bref` and `serverless`
 
@@ -50,6 +56,32 @@ bref deploy --env production
 # is equivalent to
 serverless deploy --stage production
 ```
+
+The default environment is `dev`.
+
+### Options and limitations
+
+`bref deploy` passes only these options to `serverless deploy`:
+
+- `--param` (see [Parameters](#parameters) below),
+- `--config` (or `-c`), to deploy another configuration file, for example `bref deploy --config=serverless.worker.yml`,
+- `--force`.
+
+Other `serverless deploy` options, like `--region` or `--aws-profile`, are not available, and there is no equivalent of `serverless deploy function`.
+
+Bref Cloud reads the `service`, `provider.region` and `bref.team` fields of `serverless.yml` before `serverless` runs: these fields cannot contain variables (like `${env:AWS_REGION}` or `${param:region}`). Write their values directly.
+
+### Supported regions
+
+Bref Cloud can deploy to these AWS regions:
+
+- `us-east-1`, `us-east-2`, `us-west-1`, `us-west-2`
+- `ca-central-1`
+- `sa-east-1`
+- `eu-west-1`, `eu-west-2`, `eu-west-3`, `eu-north-1`, `eu-central-1`
+- `ap-south-1`, `ap-southeast-1`, `ap-southeast-2`, `ap-northeast-1`, `ap-northeast-2`, `ap-northeast-3`
+
+Deploying to another region fails with the error "The AWS region '…' is not supported by Bref Cloud yet".
 
 ### Parameters
 
@@ -74,7 +106,7 @@ bref:
     team: my-bref-cloud-team
 ```
 
-(you can find your team name [in Bref Cloud](https://bref.cloud/app/create))
+`bref.team` is the slug of your Bref Cloud team, not its display name. Run `bref teams` to list the slugs of your teams. The `--team` option overrides `bref.team`, for example `bref deploy --team=my-other-team`.
 
 Then, you can deploy using the `bref` CLI:
 
@@ -84,6 +116,14 @@ bref deploy
 # or for a specific environment
 bref deploy --env production
 ```
+
+### Choosing the AWS account
+
+When your team has a single AWS account connected, every environment is deployed to that account.
+
+When your team has several AWS accounts, the first `bref deploy` of a new environment asks which AWS account to deploy it to. The environment keeps that account for all the next deployments.
+
+This question cannot be answered in a non-interactive environment like CI: the deployment fails with "No AWS account selected". Deploy each new environment once from your terminal before deploying it from CI.
 
 ## Deployment history
 
@@ -129,14 +169,14 @@ jobs:
             # Optionally set a URL for the environment
             # url: https://example.com
         steps:
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v7
 
-            -   uses: actions/setup-node@v4
+            -   uses: actions/setup-node@v7
                 with:
-                    node-version: '20'
+                    node-version: '24'
 
             -   name: Cache NPM dependencies
-                uses: actions/cache@v4
+                uses: actions/cache@v6
                 with:
                     path: ~/.npm # npm cache files are stored in `~/.npm`
                     key: ${{ runner.OS }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -154,7 +194,7 @@ jobs:
                     # Install the Bref CLI as a global tool
                     tools: bref/cli
 
-            -   uses: ramsey/composer-install@v3
+            -   uses: ramsey/composer-install@v4
                 with:
                     composer-options: '--optimize-autoloader --no-dev'
 
@@ -172,11 +212,13 @@ jobs:
 
 Finally, you need to add the `BREF_TOKEN` secret to your repository:
 
-- [Create a "bot token" in your Bref Cloud team](https://bref.cloud/)
+- Create a bot in Bref Cloud: open the [Bref Cloud dashboard](https://bref.cloud), go to "Users", and click "Add a new bot" in the "Bots" section (only team admins can create bots). Copy the token that is displayed.
 - Go to your repository on GitHub
 - Click on "Settings" > "Secrets and variables" > "Actions" > "New repository secret"
 - Set the name to `BREF_TOKEN` and the value to the token you received after creating the bot token
 
 ![GitHub Actions secret](./cloud/github-actions-token.png)
 
-That's it! Your application will be deployed automatically when you push to the main branch. On the first deployment, the application will appear in the Bref Cloud dashboard.
+Bots have the "Write" role: anyone with the token can deploy the team's applications and run commands on them. If the token leaks, delete the bot in Bref Cloud.
+
+That's it! Your application will be deployed automatically when you push to the main branch. On the first deployment, the application will appear in the Bref Cloud dashboard. If your team has several AWS accounts, deploy the environment once from your terminal first (see [Choosing the AWS account](#choosing-the-aws-account)).

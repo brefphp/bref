@@ -1,5 +1,5 @@
 ---
-description: "Installing the Bref CLI."
+description: "Create a Bref Cloud account, install the bref CLI and connect it to Bref Cloud."
 ---
 
 
@@ -13,13 +13,13 @@ You will be guided through the process of creating an AWS account (if needed) an
 
 ## Installing the CLI
 
-To deploy PHP applications using Bref Cloud, you need to install the Bref CLI:
+To deploy PHP applications using Bref Cloud, you need to install the Bref CLI. It requires PHP 8.2 or greater, and Node.js 20.19 or greater (it runs the `serverless` CLI to deploy).
 
 ```shell
 composer global require bref/cli
 ```
 
-The [`global` option](https://getcomposer.org/doc/03-cli.md#global) ensures that the `bref` CLI is installed globally on your machine in the `~/.composer/vendor/bin` directory.
+The [`global` option](https://getcomposer.org/doc/03-cli.md#global) installs the `bref` CLI globally on your machine, in the `vendor/bin` directory of Composer's global directory.
 
 Make sure the command works by running:
 
@@ -30,10 +30,8 @@ bref --version
 If the `bref` command is not found, you need to add Composer's global bin directory to your `PATH`. Add this line to your shell configuration file (e.g. `~/.bashrc`, `~/.zshrc`, `~/.profile`):
 
 ```shell
-export PATH="$PATH:$HOME/.composer/vendor/bin"
+export PATH="$PATH:$(composer -n config --global home)/vendor/bin"
 ```
-
-If you want to find the location of the Composer's global installation directory, run `composer -n config --global home`.
 
 > [!TIP]
 >
@@ -52,4 +50,4 @@ This command will open a browser window where you can log in to your Bref Cloud 
 When running in a non-interactive environment (e.g. CI/CD, or a Docker container), you can set a `BREF_TOKEN` environment variable instead. You can create a token in the [Bref Cloud dashboard](https://bref.cloud):
 
 - either as a [personal token](https://bref.cloud/user/api-tokens), which makes the CLI act on your behalf, with your permissions
-- or as a "bot token", which represents a service or a CI/CD pipeline that is not tied to a specific user
+- or as a [bot token](./cloud-deploy.mdx#deploying-from-github-actions), which represents a service or a CI/CD pipeline that is not tied to a specific user
