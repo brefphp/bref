@@ -56,13 +56,23 @@ npm install --save-dev serverless-lift
                 versionedAssets: true
                 assets:
                     '/build/*': public/build
-                    '/vendor/*': public/vendor
+                    #'/vendor/*': public/vendor # Uncomment if public/vendor exists
                     '/favicon.ico': public/favicon.ico
                     '/robots.txt': public/robots.txt
                     # add here any file or directory that needs to be served from S3
         ```
 
         We enable [`versionedAssets`](https://github.com/getlift/lift/blob/master/docs/server-side-website.md#versioned-assets) so that deployments are zero-downtime: Laravel + Vite generate asset file names with a unique hash, and Lift uploads the new hashed assets to S3 *before* the new PHP code is deployed. This guarantees that the assets referenced by the freshly-deployed code are already available.
+
+        Uncomment the `/vendor/*` line if your application has a `public/vendor` directory (created when a package publishes its assets): Lift fails to deploy if a directory listed in `assets` does not exist.
+
+        Set `APP_URL` to the website URL, so that URLs generated outside of HTTP requests (for example in queued emails or Artisan commands) are correct:
+
+        ```yml filename="serverless.yml"
+        provider:
+            environment:
+                APP_URL: ${construct:website.url}
+        ```
 
         Before deploying, compile your assets:
 
@@ -157,13 +167,13 @@ You can access your website using the URL that Lift outputs at the end of the de
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
     <Tabs.Tab>
-        Assets referenced in Blade templates should be via the `asset()` helper:
+        Assets compiled by Vite are referenced with the `@vite` directive, as usual:
 
         ```blade
-        <script src="{{ asset('js/app.js') }}"></script>
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
         ```
 
-        If your templates reference some assets via direct path, you should edit them to use the `asset()` helper:
+        If your templates reference other assets (images, etc.) via direct path, you should edit them to use the `asset()` helper:
 
         ```diff
         - <img src="/images/logo.png"/>

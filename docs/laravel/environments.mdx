@@ -120,7 +120,7 @@ This gives production stronger isolation:
 - permissions can be stricter for production deployments
 - experimental environments are less likely to affect production quotas or resources
 
-If you use Bref Cloud, you can connect multiple AWS accounts and deploy each environment to the right account without dealing with multiple credentials.
+If you use Bref Cloud, you can [connect multiple AWS accounts](../cloud-security.mdx#how-does-bref-cloud-handle-multi-account-deployments) and deploy each environment to the right account without dealing with multiple credentials. When your team has several AWS accounts, the first `bref deploy --env=<environment>` of a new environment asks which AWS account to deploy to. The following deployments of that environment go to the same account.
 
 ## Reusing resources
 

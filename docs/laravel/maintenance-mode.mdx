@@ -1,3 +1,9 @@
+---
+description: "Put a Laravel application running on AWS Lambda into maintenance mode."
+---
+
+import { Tabs } from 'nextra/components';
+
 # Maintenance mode
 
 Similar to the `php artisan down` command, you may put your app into maintenance mode. All that's required is setting the `MAINTENANCE_MODE` environment variable:
@@ -10,14 +16,33 @@ provider:
 
 You can then deploy:
 
-```bash
-# Full deployment (goes through CloudFormation):
-serverless deploy --param="maintenance=1"
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        ```bash
+        bref deploy --param="maintenance=1"
 
-# Or quick update of the functions config only:
-serverless deploy function --function=web --update-config --param="maintenance=1"
-serverless deploy function --function=artisan --update-config --param="maintenance=1"
-serverless deploy function --function=<function-name> --update-config --param="maintenance=1"
-```
+        # For a specific environment:
+        bref deploy --env=prod --param="maintenance=1"
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        # Full deployment (goes through CloudFormation):
+        serverless deploy --param="maintenance=1"
+
+        # Or quick update of the functions config only:
+        serverless deploy function --function=web --update-config --param="maintenance=1"
+        serverless deploy function --function=artisan --update-config --param="maintenance=1"
+        serverless deploy function --function=<function-name> --update-config --param="maintenance=1"
+        ```
+    </Tabs.Tab>
+</Tabs>
 
 To take your app out of maintenance mode, redeploy without the `--param="maintenance=1"` option.
+
+## Maintenance page
+
+In maintenance mode, the application responds with an HTTP 503 error:
+
+- With the PHP-FPM runtime (the default), Laravel renders its 503 error page. Customize it with a `resources/views/errors/503.blade.php` view, like on any server.
+- With [Laravel Octane](./octane.mdx), Bref returns the `php/503.html` file (or `php/503.json` for JSON requests) from the root of your project. Without these files, Bref returns a default maintenance page.

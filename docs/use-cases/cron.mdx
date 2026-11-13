@@ -53,11 +53,14 @@ This is usually best when coupled with a framework like Laravel or Symfony, or w
             artisan:
                 handler: artisan
                 runtime: php-84-console
+                timeout: 720 # in seconds
                 events:
                     - schedule:
                         rate: rate(1 minute)
                         input: '"schedule:run"'
         ```
+
+        Set the function `timeout` above the duration of your longest scheduled task: the default timeout is 6 seconds. The scheduler is invoked once per minute from a single place, so `onOneServer()` is not needed. A task that runs longer than a minute can overlap with the next run: use `withoutOverlapping()` to prevent it (it requires a shared cache store, see [Laravel caching](../laravel/caching.mdx)).
     </Tabs.Tab>
     <Tabs.Tab>
         ```yml filename="serverless.yml"

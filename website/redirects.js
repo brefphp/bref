@@ -46,6 +46,7 @@ module.exports.redirects = {
     '/docs/laravel/getting-started#assets': '/docs/laravel/getting-started#website-assets',
     '/docs/laravel/getting-started#file-storage-on-s3': '/docs/laravel/file-storage',
     '/docs/laravel/getting-started#public-files': '/docs/laravel/file-storage#public-files',
+    '/docs/laravel/filesystem': '/docs/laravel/file-storage',
     '/docs/laravel/getting-started#laravel-queues': '/docs/laravel/queues',
     '/docs/laravel/getting-started#how-it-works-1': '/docs/laravel/queues#how-it-works',
     '/docs/laravel/getting-started#laravel-octane': '/docs/laravel/octane',
