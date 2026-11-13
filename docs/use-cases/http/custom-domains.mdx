@@ -13,13 +13,15 @@ https://<random>.execute-api.<region>.amazonaws.com/
 
 It is possible to replace those URLs by a custom domain.
 
+This page sets up the domain on API Gateway. For websites with assets served via CloudFront, the domain must be set up on CloudFront instead: follow the [Websites documentation](../websites.mdx#custom-domain-name).
+
 > [!TIP]
 >
 > This guide assumes you already own the domain name you will want to use.
 
 The first thing to do is register the domain in **ACM** (AWS Certificate Manager) to get an HTTPS certificate. This step is not optional.
 
-- Open [this link](https://console.aws.amazon.com/acm/home?region=us-east-1#/wizard/) or manually go in the ACM Console and click "Request a new certificate" in the `us-east-1` region (the region used for global "edge" certificates)
+- Open the [ACM Console](https://console.aws.amazon.com/acm/home), **switch to the region of your application**, and click "Request a certificate". The certificate must be in the same region as the API (`us-east-1` is only required for CloudFront).
 - Add your domain name and click "Next"
 - Choose the domain validation of your choice.
     - domain validation will require you to add CNAME entries to your DNS configuration
@@ -36,7 +38,7 @@ After validating the domain and the certificate we can now link the custom domai
 
   ![](./custom-domains-path-mapping.png)
 - After saving the "API mappings", find the `API Gateway domain name` in the "Configurations" tab
-- Create a CNAME entry in your DNS to point your domain name to this domain
+- Create a CNAME entry in your DNS to point your domain name to this domain. A root domain (without `www.`) cannot be a CNAME: use a Route53 alias record, or a DNS provider that supports CNAME flattening.
 
 After waiting for the DNS change to propagate (sometimes up to several hours) your website is now accessible via your custom domain.
 

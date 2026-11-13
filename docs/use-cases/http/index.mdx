@@ -23,15 +23,18 @@ Bref takes care of setting up everything so that your code runs the same way as 
 
 ## Usage
 
-HTTP applications are the default use case with Bref. That's why there is (almost) no documentation here.
-
-Instead, head to the **Getting started** guide for your framework:
+To deploy an HTTP application, follow the **Getting started** guide for your framework:
 
 <Cards num={2}>
     <Cards.Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
     <Cards.Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
     <Cards.Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
 </Cards>
+
+### Production setup
+
+- Websites (HTML pages with CSS, JavaScript, images…) should use CloudFront in front of API Gateway: it serves assets from S3 and hosts the custom domain. Read [Websites](/docs/use-cases/websites).
+- APIs can use a custom domain directly on API Gateway. Read [Custom domains](/docs/use-cases/http/custom-domains).
 
 ## How it works
 
@@ -42,11 +45,14 @@ functions:
     web:
         handler: public/index.php
         runtime: php-84-fpm
+        timeout: 28 # in seconds
         events:
             - httpApi: '*'
 ```
 
 This configuration deploys an API Gateway that forwards all routes (`*` is a wildcard) to AWS Lambda.
+
+The `timeout` is the maximum duration of a request. The default is 6 seconds. API Gateway stops waiting for a response after 30 seconds, so a higher value is useless.
 
 On Lambda, the `php-84-fpm` runtime starts PHP-FPM and forwards all requests to it. PHP-FPM then runs the PHP code.
 
@@ -66,7 +72,7 @@ This section lists the differences between running on AWS Lambda and running on 
 
 #### No `.htaccess` or `nginx.conf`
 
-There is no `.htaccess` or `nginx.conf` on AWS Lambda. Instead, you can use `serverless.yml` to configure the routing.
+There is no `.htaccess` or `nginx.conf` on AWS Lambda. Handle redirects, rewrites and custom headers in the application (or in CloudFront).
 
 #### No `fastcgi_finish_request()`
 
@@ -74,14 +80,11 @@ There is no `.htaccess` or `nginx.conf` on AWS Lambda. Instead, you can use `ser
 
 #### Differences in URI query parameters
 
-In a few edge cases, Bref parses some URI query parameters differently than PHP on a server with PHP-FPM. This is intentional, as this fixes very surprising behaviors from PHP. Here is an exhaustive list of differences:
+Bref rebuilds the query string before passing it to PHP-FPM. In a few edge cases, this gives different results than PHP on a server:
 
-- `?a.b=c` is parsed as:
-    - `['a_b' => 'c']` on a server with PHP-FPM (yes, the dot is replaced by an underscore)
-    - `['a.b' => 'c']` with Bref
-- `?a=1&a=2&a=3` is parsed as:
-    - `['a' => 3]` on a server with PHP-FPM
-    - `['a' => [1, 2, 3]]` with Bref
-- `?a=1&a=2&a[]=3&a[]=4` is parsed as:
-    - `['a' => [3, 4]]` on a server with PHP-FPM
-    - `['a' => [1, 2, 3, 4]]` with Bref
+- Repeated keys become arrays in `$_GET`:
+    - `?a=1&a=2&a=3` is parsed as `['a' => 3]` on a server with PHP-FPM, and as `['a' => [1, 2, 3]]` with Bref
+    - `?a=1&a=2&a[]=3&a[]=4` is parsed as `['a' => [3, 4]]` on a server with PHP-FPM, and as `['a' => [1, 2, 3, 4]]` with Bref
+- `$_SERVER['QUERY_STRING']` and `$_SERVER['REQUEST_URI']` contain the rebuilt and URL-encoded query string, not the raw query string sent by the client. For example, `?a=1&a=2` becomes `?a%5B0%5D=1&a%5B1%5D=2`.
+
+Dots in parameter names are kept in `$_SERVER['QUERY_STRING']`, but PHP replaces them with underscores in `$_GET`, like on any server: `?a.b=c` gives `['a_b' => 'c']`.
