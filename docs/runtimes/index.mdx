@@ -147,7 +147,7 @@ What the Bref plugin for `serverless.yml` (the one we include with `./vendor/bre
 functions:
     hello:
         # ...
-        runtime: php-84
+        runtime: php-84-fpm
 ```
 
 into this:
@@ -158,14 +158,16 @@ functions:
         # ...
         runtime: provided.al2023
         layers:
-            - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:21'
+            - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:25'
+        environment:
+            BREF_RUNTIME: Bref\FpmRuntime\Main
 ```
 
-☝️ `provided.al2023` [is the generic Linux environment for custom runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-use), and the `layers` config points to Bref's AWS Lambda layers.
+☝️ `provided.al2023` [is the generic Linux environment for custom runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-use), and the `layers` config points to Bref's AWS Lambda layer for PHP 8.4. There is one layer per PHP version: the same layer runs the FPM, function and console runtimes. The `BREF_RUNTIME` environment variable tells the layer which runtime to start.
 
 Thanks to the Bref plugin, our `serverless.yml` is simpler. It also automatically adapts to the AWS region in use, and automatically points to the correct layer version. You can learn more about "layers" [in this page](/docs/runtimes/runtimes-details.mdx).
 
-If you want to reference AWS Lambda layers directly (instead of using the simpler `runtime: php-84` syntax), the Bref plugin also provides simple `serverless.yml` variables. These were the default in Bref v1.x, so you may find this older syntax on tutorials and blog posts:
+If you want to reference AWS Lambda layers directly (instead of using the simpler `runtime: php-84` syntax), the Bref plugin also provides `serverless.yml` variables. In that case, you must set the `BREF_RUNTIME` environment variable yourself, to `function`, `fpm` or `console`:
 
 ```yaml
 service: app
@@ -179,8 +181,8 @@ functions:
         # ...
         layers:
             - ${bref:layer.php-84}
-            # or:
-            - ${bref:layer.php-84-fpm}
+        environment:
+            BREF_RUNTIME: fpm # or `function` or `console`
 ```
 
 The `${...}` notation is the [syntax to use variables](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/variables.md) in `serverless.yml`. The Bref plugin provides the following variables:
@@ -189,13 +191,8 @@ The `${...}` notation is the [syntax to use variables](https://github.com/oss-se
 - `${bref:layer.php-84}`
 - `${bref:layer.php-83}`
 - `${bref:layer.php-82}`
-- `${bref:layer.php-85-fpm}`
-- `${bref:layer.php-84-fpm}`
-- `${bref:layer.php-83-fpm}`
-- `${bref:layer.php-82-fpm}`
-- `${bref:layer.console}`
 
-Bref ARM layers are the same as the x86 layers, but with the `arm-` prefix in their name, for example `${bref:layer.arm-php-82}`. The only exception is `${bref:layer.console}` (this is the same layer for both x86 and ARM).
+Bref ARM layers are the same as the x86 layers, but with the `arm-` prefix in their name, for example `${bref:layer.arm-php-84}`.
 
 > [!TIP]
 >
