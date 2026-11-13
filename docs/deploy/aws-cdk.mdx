@@ -1,11 +1,11 @@
-{/* The content below is copied from the brefphp/constructs README (https://github.com/brefphp/constructs).
-     It is not fetched automatically: if that README changes, this file must be updated manually. */}
+{/* The content below is based on the brefphp/constructs README (https://github.com/brefphp/constructs).
+     It is not fetched automatically: keep both up to date manually. */}
 
 # AWS CDK constructs for PHP on AWS Lambda
 
 The [Bref](https://bref.sh/) CDK constructs let you deploy serverless PHP applications on AWS Lambda using the AWS CDK.
 
-By default, Bref [deploys using the Serverless Framework](https://bref.sh/docs/deploy.html). Using the AWS CDK is an alternative, but be aware that this is an advanced topic. If you are lost, follow the [Bref documentation](https://bref.sh/docs/) instead.
+By default, Bref [deploys using the Serverless Framework](/docs/deploy). Using the AWS CDK is an alternative, but be aware that this is an advanced topic. If you are lost, follow the [Bref documentation](/docs) instead.
 
 ## Installation
 
@@ -17,30 +17,82 @@ npm install @bref.sh/constructs
 
 ## Usage
 
-Simple example to deploy an HTTP application:
+Simple example to deploy an HTTP application behind an API Gateway HTTP API:
 
 ```typescript
 import { Construct } from 'constructs';
-import { App, Stack } from 'aws-cdk-lib';
+import { App, CfnOutput, Stack, StackProps } from 'aws-cdk-lib';
+import { HttpApi } from 'aws-cdk-lib/aws-apigatewayv2';
+import { HttpLambdaIntegration } from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import { PhpFpmFunction } from '@bref.sh/constructs';
 
 class MyStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
-        new PhpFpmFunction(this, 'Hello', {
+        const web = new PhpFpmFunction(this, 'Web', {
             handler: 'public/index.php',
         });
+
+        // Send all HTTP requests to the function
+        const api = new HttpApi(this, 'Api', {
+            defaultIntegration: new HttpLambdaIntegration('WebIntegration', web),
+        });
+        new CfnOutput(this, 'Url', { value: api.url! });
     }
 }
 
 const app = new App();
-new MyStack(app, 'test', {
+new MyStack(app, 'my-app', {
     env: {
+        // The region must be set explicitly
         region: 'eu-west-1',
     },
 });
 ```
+
+`PhpFpmFunction` only creates the Lambda function: it must be exposed over HTTP, here with an HTTP API. Alternatively, a [Lambda function URL](/docs/use-cases/http/advanced-use-cases#lambda-function-urls) works too:
+
+```typescript
+import { FunctionUrlAuthType } from 'aws-cdk-lib/aws-lambda';
+
+const url = web.addFunctionUrl({ authType: FunctionUrlAuthType.NONE });
+new CfnOutput(this, 'Url', { value: url.url });
+```
+
+The region of the stack must be set explicitly (`env.region`): Bref uses it to pick the Lambda layers of that region.
+
+Install the dependencies (`composer install --no-dev`) before deploying: the code is zipped from the current directory. Then deploy with the AWS CDK CLI:
+
+```bash
+# Once per AWS account and region
+npx cdk bootstrap
+
+npx cdk deploy
+```
+
+### Options
+
+All constructs accept the options of the AWS CDK [`Function` construct](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda.Function.html), plus `phpVersion`. For example:
+
+```typescript
+import { Architecture, LayerVersion } from 'aws-cdk-lib/aws-lambda';
+
+new PhpFpmFunction(this, 'Web', {
+    handler: 'public/index.php',
+    phpVersion: '8.5',
+    // Run on ARM processors: Bref picks the ARM layers
+    architecture: Architecture.ARM_64,
+    // Extra layers, for example extra PHP extensions, are added after the PHP layer
+    layers: [
+        LayerVersion.fromLayerVersionArn(this, 'Redis', '<layer ARN>'),
+    ],
+});
+```
+
+- `phpVersion`: `8.2`, `8.3`, `8.4` (default) or `8.5`.
+- `architecture`: `Architecture.X86_64` (default) or `Architecture.ARM_64`.
+- `layers`: extra layers, like [extra PHP extensions](/docs/environment/php#extra-extensions). Use the ARN of the layer for the same region, PHP version and architecture as the function.
 
 ## Constructs
 
@@ -48,7 +100,7 @@ new MyStack(app, 'test', {
 
 #### `PhpFpmFunction`
 
-This construct deploys a PHP function with the [HTTP runtime](https://bref.sh/docs/runtimes/http.html).
+This construct deploys a PHP function with the [PHP-FPM runtime](/docs/runtimes/fpm-runtime).
 
 ```typescript
 new PhpFpmFunction(this, 'MyFunction', {
@@ -81,11 +133,11 @@ The following paths are always excluded: `.git`, `.idea`, `cdk.out`, `node_modul
 
 The construct also adds the following options:
 
-- `phpVersion` (default: `8.4`): the PHP version to use.
+- `phpVersion` (default: `8.4`): the PHP version to use (`8.2`, `8.3`, `8.4` or `8.5`).
 
 #### `PhpFunction`
 
-This construct deploys a PHP function with the ["event-driven function" runtime](https://bref.sh/docs/runtimes/function.html).
+This construct deploys a PHP function with the ["event-driven function" runtime](/docs/runtimes/function).
 
 ```typescript
 new PhpFunction(this, 'MyFunction', {
@@ -118,11 +170,11 @@ The following paths are always excluded: `.git`, `.idea`, `cdk.out`, `node_modul
 
 The construct also adds the following options:
 
-- `phpVersion` (default: `8.4`): the PHP version to use.
+- `phpVersion` (default: `8.4`): the PHP version to use (`8.2`, `8.3`, `8.4` or `8.5`).
 
 #### `ConsoleFunction`
 
-This construct deploys a PHP function with the ["console" runtime](https://bref.sh/docs/runtimes/console.html).
+This construct deploys a PHP function with the ["console" runtime](/docs/runtimes/console).
 
 ```typescript
 new ConsoleFunction(this, 'Artisan', {
@@ -155,4 +207,4 @@ The following paths are always excluded: `.git`, `.idea`, `cdk.out`, `node_modul
 
 The construct also adds the following options:
 
-- `phpVersion` (default: `8.4`): the PHP version to use.
+- `phpVersion` (default: `8.4`): the PHP version to use (`8.2`, `8.3`, `8.4` or `8.5`).
