@@ -41,9 +41,9 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
         With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
     </Tabs.Tab>
     <Tabs.Tab>
-        If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr` with the `Bref\Monolog\CloudWatchFormatter` formatter. You don't have to do anything.
+        Symfony's default Monolog configuration logs to `php://stderr` in the `prod` environment, which sends logs to CloudWatch. The `Bref\SymfonyBridge\BrefSymfonyBridgeBundle` bundle sets the `Bref\Monolog\CloudWatchFormatter` formatter on all Monolog handlers that don't set a formatter. You don't have to do anything.
 
-        This is done by the `Bref\SymfonyBridge\BrefSymfonyBridgeBundle` bundle, which Symfony Flex adds to `config/bundles.php` when installing `bref/symfony-bridge`. If it is missing from that file, add it:
+        Symfony Flex adds the bundle to `config/bundles.php` when installing `bref/symfony-bridge`. If it is missing from that file, add it:
 
         ```php filename="config/bundles.php"
         return [
@@ -52,7 +52,7 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
         ];
         ```
 
-        If you have a custom log setup, you should ensure that logs are sent to `stderr` (e.g. using the `stream` handler with `php://stderr`) with the `Bref\Monolog\CloudWatchFormatter` formatter (`bref.cloudwatch_formatter` service).
+        If you have a custom log setup, make sure logs are sent to `stderr` (e.g. using the `stream` handler with `php://stderr`). To use another formatter on a handler, set its `formatter` option.
 
         With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
     </Tabs.Tab>
@@ -60,8 +60,12 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
         You can use [Monolog](https://github.com/Seldaek/monolog) to write logs to CloudWatch via `stderr`:
 
         ```php
-        $log = new Monolog\Logger('default');
-        $log->pushHandler(new StreamHandler('php://stderr', Logger::INFO));
+        use Monolog\Handler\StreamHandler;
+        use Monolog\Level;
+        use Monolog\Logger;
+
+        $log = new Logger('default');
+        $log->pushHandler(new StreamHandler('php://stderr', Level::Info));
 
         $log->warning('This is a warning!');
         ```
@@ -73,9 +77,14 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
         ```
 
         ```php
-        $log = new Monolog\Logger('default');
-        $handler = new StreamHandler('php://stderr', Logger::INFO);
-        $handler->setFormatter(new Bref\Monolog\CloudWatchFormatter);
+        use Bref\Monolog\CloudWatchFormatter;
+        use Monolog\Handler\StreamHandler;
+        use Monolog\Level;
+        use Monolog\Logger;
+
+        $log = new Logger('default');
+        $handler = new StreamHandler('php://stderr', Level::Info);
+        $handler->setFormatter(new CloudWatchFormatter);
         $log->pushHandler($handler);
 
         $log->warning('This is a warning!');
@@ -167,3 +176,14 @@ $logger->pushProcessor(function (Monolog\LogRecord $record) {
     return $record;
 });
 ```
+
+### Log retention
+
+CloudWatch bills the storage of logs. By default, the log groups of your functions never expire: whether you deploy with Bref Cloud or the Serverless CLI, they are created from `serverless.yml`. Set how many days logs are kept with the `logRetentionInDays` option:
+
+```yml filename="serverless.yml"
+provider:
+    logRetentionInDays: 30
+```
+
+Read the [Serverless CLI documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#log-group-resources) for more details.
