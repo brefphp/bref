@@ -1358,6 +1358,58 @@ Year,Make,Model
         self::assertStringContainsString('The previous response was not entirely read from PHP-FPM', ob_get_contents());
     }
 
+    public function test a streamed Function URL response keeps its status and headers and sends chunks as they are flushed()
+    {
+        putenv('BREF_RESPONSE_STREAMING=1');
+        $this->startFpm(__DIR__ . '/fixtures/streaming.php');
+
+        $chunks = [];
+        $times = [];
+        try {
+            $this->fpm->handle($this->functionUrlEvent(), $this->fakeContext)->writeTo(function (string $chunk) use (&$chunks, &$times) {
+                $chunks[] = $chunk;
+                $times[] = microtime(true);
+            });
+        } finally {
+            putenv('BREF_RESPONSE_STREAMING');
+        }
+
+        // The status code and headers first
+        $metadata = json_decode(substr($chunks[0], 0, -8), true, 512, JSON_THROW_ON_ERROR);
+        self::assertSame(201, $metadata['statusCode']);
+        self::assertSame('streamed-value', $metadata['headers']['X-Custom-Header']);
+        self::assertSame('text/plain;charset=UTF-8', $metadata['headers']['Content-Type']);
+        // Then the body, chunk by chunk as the script flushes them (200 ms apart)
+        self::assertSame(['chunk-1', 'chunk-2', 'chunk-3'], array_slice($chunks, 1));
+        self::assertGreaterThan(0.3, end($times) - $times[1]);
+    }
+
+    public function test the same response is buffered without response streaming()
+    {
+        $this->startFpm(__DIR__ . '/fixtures/streaming.php');
+
+        $response = $this->fpm->handle($this->functionUrlEvent(), $this->fakeContext);
+
+        self::assertSame(201, $response['statusCode']);
+        self::assertSame('chunk-1chunk-2chunk-3', $response['body']);
+        self::assertSame('streamed-value', $response['headers']['X-Custom-Header']);
+    }
+
+    private function functionUrlEvent(): array
+    {
+        return [
+            'version' => '2.0',
+            'rawPath' => '/',
+            'rawQueryString' => '',
+            'headers' => ['host' => 'abc.lambda-url.eu-west-3.on.aws'],
+            'requestContext' => [
+                'domainName' => 'abc.lambda-url.eu-west-3.on.aws',
+                'http' => ['method' => 'GET', 'path' => '/', 'protocol' => 'HTTP/1.1', 'sourceIp' => '1.2.3.4'],
+            ],
+            'isBase64Encoded' => false,
+        ];
+    }
+
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
         $this->startFpm(__DIR__ . '/fixtures/request.php');
