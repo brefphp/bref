@@ -7,21 +7,63 @@ It is possible to run **event-driven functions** locally.
 >
 > To run **HTTP applications** (like Laravel or Symfony) locally, read [Local development for HTTP applications](../local-development.mdx) instead.
 
-## With Serverless Framework
+## Running functions locally
 
-The `serverless bref:local` command invokes your [PHP functions](/docs/runtimes/function.mdx) locally, using PHP installed on your machine. You can provide an event if your function expects one.
-
-> [!NOTE]
->
-> The `serverless bref:local` command is a simpler alternative to the native `serverless invoke local` command, which tries to run PHP using Docker with very little success. Use `serverless bref:local` instead of `serverless invoke local`.
+The `vendor/bin/bref-local` command invokes your [PHP functions](/docs/runtimes/function.mdx) locally, using PHP installed on your machine. It works whether you deploy with Bref Cloud, the serverless CLI, or another tool. You can provide an event if your function expects one.
 
 For example, given this function:
 
 ```php filename="my-function.php"
-return function (array $event) {
+<?php
+
+require __DIR__ . '/vendor/autoload.php';
+
+return function ($event) {
     return 'Hello ' . ($event['name'] ?? 'world');
 };
 ```
+
+You can invoke it with or without event data:
+
+```bash
+$ vendor/bin/bref-local <handler> <event-data>
+
+# For example
+$ vendor/bin/bref-local my-function.php
+START
+END Duration: 1 ms Max Memory Used: 1 MB
+
+"Hello world"
+
+# With JSON event data
+$ vendor/bin/bref-local my-function.php '{"name": "Jane"}'
+START
+END Duration: 1 ms Max Memory Used: 1 MB
+
+"Hello Jane"
+
+# With a path to a file containing a JSON event
+$ vendor/bin/bref-local --path event.json my-function.php
+```
+
+The result returned by the function is displayed encoded as JSON, after the logs of the invocation.
+
+If your handler is a class [retrieved from the Laravel or Symfony container](/docs/runtimes/function.mdx#di-container-integration), use the class name as the handler:
+
+```bash
+$ vendor/bin/bref-local 'App\MyHandler' '{"name": "Jane"}'
+```
+
+> [!WARNING]
+>
+> On Windows PowerShell, you must escape the "double quote" char if you write JSON directly in the CLI. Example:
+> ```bash
+> $ vendor/bin/bref-local my-function.php '{\"name\": \"Bill\"}'
+> ```
+
+### With the serverless CLI
+
+If you use `serverless.yml`, the `serverless bref:local` command is a shortcut that finds the handler from the function name:
 
 ```yml filename="serverless.yml"
 # ...
@@ -32,63 +74,31 @@ functions:
         runtime: php-84
 ```
 
-You can invoke it with or without event data:
-
 ```bash
 $ serverless bref:local -f hello
-Hello world
 
 # With JSON event data
 $ serverless bref:local -f hello --data '{"name": "Jane"}'
-Hello Jane
 
 # With JSON in a file
 $ serverless bref:local -f hello --path=event.json
-Hello Jane
 ```
 
-> [!WARNING]
+> [!NOTE]
 >
-> On Windows PowerShell, you must escape the "double quote" char if you write JSON directly in the CLI. Example:
-> ```bash
-> $ serverless bref:local -f hello --data '{\"name\": \"Bill\"}'
-> ```
+> The `serverless bref:local` command is a simpler alternative to the native `serverless invoke local` command, which tries to run PHP using Docker with very little success. Use `serverless bref:local` instead of `serverless invoke local`.
 
-The `serverless bref:local` command runs using the local PHP installation. If you prefer to use **Docker**, check out the "Without Serverless Framework" section below.
-
-## Without Serverless Framework
-
-If you do not use `serverless.yml` but something else, like SAM/AWS CDK/Terraform, use the `vendor/bin/bref-local` command instead:
-
-```bash
-$ vendor/bin/bref-local <handler> <event-data>
-
-# For example
-$ vendor/bin/bref-local my-function.php
-Hello world
-
-# With JSON event data
-$ vendor/bin/bref-local my-function.php '{"name": "Jane"}'
-Hello Jane
-
-# With a path to a file containing a JSON event.
-$ cat event.json
-{
-    "name": "Alex"
-}
-$ vendor/bin/bref-local --path event.json my-function.php
-Hello Alex
-```
+These commands run using the local PHP installation. If you prefer to use **Docker**, check out the "With Docker" section below.
 
 ## With Docker
 
 If you want to run your function in Docker:
 
 ```bash
-$ docker run --rm -it --entrypoint= -v $(PWD):/var/task:ro bref/php-84:3 vendor/bin/bref-local my-function.php
+$ docker run --rm -it --entrypoint= -v $(pwd):/var/task:ro bref/php-84:3 vendor/bin/bref-local my-function.php
 
 # You can also use the `dev` images for a simpler command (and Xdebug in the image):
-$ docker run --rm -it -v $(PWD):/var/task:ro bref/php-84-dev:3 vendor/bin/bref-local my-function.php
+$ docker run --rm -it -v $(pwd):/var/task:ro bref/php-84-dev:3 vendor/bin/bref-local my-function.php
 ```
 
 You can also use Docker Compose, like described in [Local development for HTTP applications](../local-development.mdx):
@@ -109,6 +119,6 @@ $ docker compose run app vendor/bin/bref-local my-function.php
 
 ## API Gateway local development
 
-If you build HTTP applications with [API Gateway HTTP events](/docs/runtimes/fpm-runtime.mdx), `serverless bref:local` is a bit impractical because you need to manually craft HTTP events in JSON.
+If you build HTTP applications with [PSR-15 handlers and the event-driven function runtime](/docs/use-cases/http/advanced-use-cases.mdx#with-the-event-driven-function-runtime), `bref-local` is a bit impractical because you need to manually craft HTTP events in JSON.
 
-Instead, you can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate API Gateway locally.
+Instead, you can use the [`bref/dev-server`](https://github.com/brefphp/dev-server) package to emulate API Gateway locally. Note that `bref/dev-server` requires `symfony/console` 6 or lower: it cannot be installed in projects that use `symfony/console` 7 or greater (for example Laravel 11 and later, or Symfony 7 and later).

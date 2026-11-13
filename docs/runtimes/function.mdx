@@ -55,7 +55,7 @@ functions:
 
 ## PHP functions
 
-Functions that can run on Lambda can be an anonymous function or [any kind of callable supported by PHP](https://www.php.net/manual/en/language.types.callable.php).
+The handler file must return a closure, an array callable (`[$object, 'method']`) or an object (see [PHP classes](#php-classes) below).
 
 ```php
 <?php
@@ -73,6 +73,10 @@ The function:
 - can optionally return a result: the result must be serializable to JSON
 
 There can only be one function returned per PHP file.
+
+### Process lifecycle
+
+By default, each invocation runs in a new PHP process: nothing is kept in memory between invocations. To keep the PHP process alive between invocations and avoid the PHP startup overhead, set the `BREF_LOOP_MAX` environment variable (see [Performance](/docs/environment/performances.mdx#bref-for-event-driven-functions)). The process always restarts after a failed invocation.
 
 ### Context
 
@@ -94,7 +98,7 @@ The `Context` object is inspired by the [`context` parameter in other languages]
 
 ## PHP classes
 
-As mentioned above, Lambda handlers can be functions or any kind of callable supported by PHP. That means you can write them as PHP classes.
+Lambda handlers can also be PHP objects.
 
 The simplest option is to implement the `Bref\Event\Handler` interface. This is a generic interface to handle any kind of event.
 
@@ -117,6 +121,8 @@ return new Handler();
 ```
 
 Bref also provides more specific abstract classes that you can extend. These let you get type-hinted events with autocompletion and type safety.
+
+Objects that implement `__invoke($event, Context $context)` and PSR-15 request handlers (`Psr\Http\Server\RequestHandlerInterface`, see [HTTP handlers](/docs/use-cases/http/advanced-use-cases.mdx#with-the-event-driven-function-runtime)) are also supported.
 
 Explore the "**Use cases**" section in the left menu to learn more.
 
@@ -151,7 +157,7 @@ It is also possible to directly define PHP classes as AWS Lambda handlers.
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
     <Tabs.Tab>
-        Set the class name as the `handler` and Bref will retrieve that class from Laravel's service container.
+        Install the [Laravel bridge](/docs/laravel/getting-started.mdx) (`bref/laravel-bridge`). Then set the class name as the `handler` and Bref will retrieve that class from Laravel's service container.
 
         ```yml filename="serverless.yml"
         functions:
@@ -160,12 +166,21 @@ It is also possible to directly define PHP classes as AWS Lambda handlers.
         ```
     </Tabs.Tab>
     <Tabs.Tab>
-        Set the class name as the `handler` and Bref will retrieve that class from Symfony's service container.
+        Install the [Symfony bridge](/docs/symfony/getting-started.mdx) (`bref/symfony-bridge`). Then set the service ID (usually the class name) as the `handler` and Bref will retrieve that service from Symfony's service container (the kernel is loaded from `public/index.php`).
 
         ```yml filename="serverless.yml"
         functions:
             hello:
                 handler: MyApp\Handler
+        ```
+
+        The service must be public, otherwise Symfony removes it from the container:
+
+        ```yml filename="config/services.yaml"
+        services:
+            # ...
+            MyApp\Handler:
+                public: true
         ```
     </Tabs.Tab>
     <Tabs.Tab>

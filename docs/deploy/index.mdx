@@ -68,7 +68,7 @@ AWS Lambda has a **250MB size limit** for deployed applications (unzipped). The 
 
 A deployment over the limit fails with the AWS error `Unzipped size must be smaller than 262144000 bytes`.
 
-Extra layers, like [extra PHP extensions](environment/php.mdx#extra-extensions), count toward the limit too. When a deployment adds a layer and fails, deploying smaller code may keep failing with the same total: CloudFormation updates the function's layers before its code, so the size check still counts the previous code. Deploy in two steps instead: first the smaller code without the new layer, then add the layer.
+Extra layers, like [extra PHP extensions](/docs/environment/php.mdx#extra-extensions), count toward the limit too. When a deployment adds a layer and fails, deploying smaller code may keep failing with the same total: CloudFormation updates the function's layers before its code, so the size check still counts the previous code. Deploy in two steps instead: first the smaller code without the new layer, then add the layer.
 
 The most common offender is `aws/aws-sdk-php`: it ships clients for **every** AWS service, adding over 100MB to your vendor directory. If you only use a few services (e.g. S3, SQS, DynamoDB), you can remove the rest.
 
@@ -102,9 +102,9 @@ Then run `composer install` (or `composer update`) to apply the changes. Adjust 
 
 Using `google/apiclient`? A similar approach is available: [see the documentation to remove unused Google API services](https://github.com/googleapis/google-api-php-client#cleaning-up-unused-services).
 
-To further reduce deployment size, exclude non-essential files (tests, assets, node_modules) from the package. [Read more in the serverless.yml exclusions documentation.](environment/serverless-yml.mdx#exclusions)
+To further reduce deployment size, exclude non-essential files (tests, assets, node_modules) from the package. [Read more in the serverless.yml exclusions documentation.](/docs/environment/serverless-yml.mdx#exclusions)
 
-If your application still exceeds the 250MB limit, you can [deploy via Docker images instead](deploy/docker.mdx).
+If your application still exceeds the 250MB limit, you can [deploy via Docker images instead](/docs/deploy/docker.mdx).
 
 ## Environments
 
@@ -138,7 +138,7 @@ It is possible to deploy different environments in different AWS accounts (to lo
 
 If you are using [Bref Cloud](https://bref.sh/cloud), you can easily set up automatic deployments from CI/CD tools.
 
-Read the [documentation on deploying with Bref Cloud](./cloud-deploy.mdx) for more information.
+Read the [documentation on deploying with Bref Cloud](/docs/cloud-deploy.mdx) for more information.
 
 ### Serverless CLI
 
@@ -243,7 +243,7 @@ Zero-downtime deployments mean that database migrations must run when code is ru
 
 Serverless Framework offers a simple configuration format. This is what you are using if you use Bref. That configuration is written in your project in a `serverless.yml` file.
 
-You can [learn more about that configuration format here](environment/serverless-yml.mdx).
+You can [learn more about that configuration format here](/docs/environment/serverless-yml.mdx).
 
 ## Learn more
 
