@@ -57,7 +57,7 @@ export default function CostsCalculator() {
     const lambdaCostPerRequest = 0.2 / 1000000;
     const lambdaCostPerGbS = 0.0000133334; // ARM
 
-    // The API Gateway, S3 and RDS free tiers only last 12 months: not counted
+    // The API Gateway and RDS free tiers only last 12 months: not counted
     const apiGatewayFreeTierRequests = 0;
     const apiGatewayCostPerRequest = 1 / 1000000;
 
@@ -66,7 +66,7 @@ export default function CostsCalculator() {
     const cloudfrontCostPerRequest = 0.01 / 10000; // HTTPS, US
     const cloudfrontCostPerGb = 0.085;
 
-    const s3FreeRequests = 0;
+    const s3FreeRequests = 20000;
     const s3CostPerRequest = 0.0004 / 1000;
 
     const sqsFreeTierRequests = 1000000;
