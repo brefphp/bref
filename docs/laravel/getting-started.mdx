@@ -33,16 +33,9 @@ php artisan vendor:publish --tag=serverless-config
 Before deploying, edit the generated `serverless.yml`:
 
 - Set `service` to the name of your application (lowercase, without spaces).
-- Replace the `APP_KEY` value: the generated file contains an example key that is public. Store your application's key as a [secret](../environment/variables.mdx#secrets) and reference it in `serverless.yml`:
-
-    ```yml filename="serverless.yml"
-    provider:
-        environment:
-            APP_KEY: ${ssm:/my-app/${sls:stage}/APP_KEY}
-    ```
-
-    You can use the key from your `.env` file, or generate a new one with `php artisan key:generate --show`.
 - If you deploy with [Bref Cloud](../cloud-getting-started.mdx), uncomment the `bref` section and set `team` to the slug of your Bref Cloud team.
+
+The generated file also sets an example `APP_KEY` so that you can deploy right away. That key is public: replace it before deploying a real application ([see below](#application-key)).
 
 ### How it works
 
@@ -93,6 +86,18 @@ Run `composer install` to get development dependencies back locally. Remember to
 ### Deploying for production
 
 Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details about deploying in general.
+
+#### Application key
+
+The `APP_KEY` in the generated `serverless.yml` is an example key, shared by everyone who uses the file. Laravel uses it to encrypt cookies, including the session cookie: replace it before deploying a real application. Store your application's key as a [secret](../environment/variables.mdx#secrets) and reference it in `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        APP_KEY: ${ssm:/my-app/${sls:stage}/APP_KEY}
+```
+
+You can use the key from your `.env` file, or generate a new one with `php artisan key:generate --show`.
 
 > [!WARNING]
 >
