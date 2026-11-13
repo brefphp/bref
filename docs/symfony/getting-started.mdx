@@ -149,7 +149,14 @@ To optimize cold starts, you can deploy the application with a warm cache. In a 
     </Tabs.Tab>
 </Tabs>
 
-Because `.env.local.php` returns an empty array, Symfony no longer reads the `.env` files. Every variable your application needs from `.env` (`APP_SECRET`, `DATABASE_URL`, etc.) must be set in `serverless.yml` or stored as a secret: read the [environment variables documentation](../environment/variables.mdx).
+With Dotenv disabled, Symfony no longer reads the `.env` files on Lambda: define every variable your application needs (`APP_SECRET`, `DATABASE_URL`, etc.) as environment variables of the function (`environment` in `serverless.yml`), or store it as a secret (read the [environment variables documentation](../environment/variables.mdx)). For example, recent Symfony skeletons (like Symfony 8) need `DEFAULT_URI`, else every request fails with `Environment variable not found: "DEFAULT_URI"`:
+
+```yml filename="serverless.yml"
+provider:
+    # ...
+    environment:
+        DEFAULT_URI: 'https://example.com'
+```
 
 #### Optimizing caches
 
