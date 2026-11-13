@@ -149,7 +149,7 @@ To receive replies (see [above](#receiving-replies)), set a global `Reply-To` ad
 
 > [!WARNING]
 >
-> If your `composer.json` [removes unused AWS services](../deploy/index.mdx#reducing-package-size) from the AWS SDK, add `SesV2` to the services it keeps, then run `composer install`. Otherwise, sending emails fails in production with `Class "Aws\SesV2\SesV2Client" not found`.
+> If your `composer.json` [removes unused AWS services](/docs/deploy#reducing-package-size) from the AWS SDK, add `SesV2` to the services it keeps, then run `composer install`. Otherwise, sending emails fails in production with `Class "Aws\SesV2\SesV2Client" not found`.
 >
 > ```json filename="composer.json"
 > "extra": {
