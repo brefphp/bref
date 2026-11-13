@@ -82,7 +82,7 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
         aws ssm put-parameter --region us-east-1 --name '/my-app/my-parameter' --type String --value 'mysecretvalue'
         ```
 
-        On Windows, the first part of the path needs to be double slashes and all subsequent forward slashes changed to backslashes:
+        In Git Bash on Windows, the first part of the path needs to be double slashes and all subsequent forward slashes changed to backslashes (or set `MSYS_NO_PATHCONV=1`):
 
         ```bash
         aws ssm put-parameter --region us-east-1 --name '//my-app\my-parameter' --type String --value 'mysecretvalue'
@@ -151,7 +151,9 @@ provider:
                     #Resource: '*'
 ```
 
-On a cold start, Bref automatically checks all environment variables that start with `bref-ssm:` and will resolve the values by calling the AWS SSM API. It adds a very small latency overhead for the first request (note: all SSM values are fetched in a single API call).
+On a cold start, Bref automatically checks all environment variables that start with `bref-ssm:` and will resolve the values by calling the AWS SSM API. It adds a very small latency overhead for the first request (SSM values are fetched in batches of 10 parameters, in parallel).
+
+If the parameter is a SecureString encrypted with your own KMS key (instead of the default AWS managed key), also allow the `kms:Decrypt` action on that key.
 
 Advantages:
 
