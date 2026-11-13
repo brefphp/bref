@@ -3,6 +3,7 @@
 namespace Bref\Test\Event\Http;
 
 use Bref\Event\Http\HttpResponse;
+use Bref\Runtime\StreamedResponse;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -191,5 +192,71 @@ class HttpResponseTest extends TestCase
             'headers' => new stdClass,
             'body' => '',
         ], $response->toApiGatewayFormatV2());
+    }
+
+    public function test streamed format()
+    {
+        $response = new HttpResponse('<p>Hello world!</p>', [
+            'content-type' => 'text/html; charset=utf-8',
+            'set-cookie' => ['foo=bar', 'baz=qux'],
+        ], 404);
+
+        $streamed = $response->toStreamedResponse();
+
+        $this->assertSame('application/vnd.awslambda.http-integration-response', $streamed->contentType);
+        $this->assertSame([
+            '{"cookies":["foo=bar","baz=qux"],"statusCode":404,"headers":{"Content-Type":"text\\/html; charset=utf-8"}}' . str_repeat("\0", 8),
+            '<p>Hello world!</p>',
+        ], $this->chunks($streamed));
+    }
+
+    public function test bodies produced progressively()
+    {
+        $pulled = new HttpResponse((function () {
+            yield 'Hello ';
+            yield 'world!';
+        })());
+        $pushed = new HttpResponse(function (callable $write) {
+            $write('Hello ');
+            $write('world!');
+        });
+
+        $this->assertSame(['Hello ', 'world!'], array_slice($this->chunks($pulled->toStreamedResponse()), 1));
+        $this->assertSame(['Hello ', 'world!'], array_slice($this->chunks($pushed->toStreamedResponse()), 1));
+        // The usual format joins them
+        $pushed = new HttpResponse(function (callable $write) {
+            $write('Hello ');
+            $write('world!');
+        });
+        $this->assertSame('Hello world!', $pushed->toApiGatewayFormatV2()['body']);
+    }
+
+    public function test binary bodies are streamed as is()
+    {
+        $binary = random_bytes(256);
+        $response = new HttpResponse($binary, ['content-type' => 'image/png']);
+
+        $this->assertSame($binary, $this->chunks($response->toStreamedResponse())[1]);
+    }
+
+    public function test streamed format without headers()
+    {
+        $this->assertStringStartsWith(
+            '{"cookies":[],"statusCode":204,"headers":{}}',
+            $this->chunks((new HttpResponse('', [], 204))->toStreamedResponse())[0],
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    private function chunks(StreamedResponse $response): array
+    {
+        $chunks = [];
+        $response->writeTo(function (string $chunk) use (&$chunks) {
+            $chunks[] = $chunk;
+        });
+
+        return $chunks;
     }
 }

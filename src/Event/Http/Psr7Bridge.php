@@ -88,8 +88,16 @@ final class Psr7Bridge
      */
     public static function convertResponse(ResponseInterface $response): HttpResponse
     {
-        $response->getBody()->rewind();
-        $body = $response->getBody()->getContents();
+        $stream = $response->getBody();
+        if ($stream->isSeekable()) {
+            $stream->rewind();
+        }
+        // Read progressively: a stream that generates its content is sent as it is generated
+        $body = (function () use ($stream) {
+            while (! $stream->eof()) {
+                yield $stream->read(65536);
+            }
+        })();
 
         return new HttpResponse($body, $response->getHeaders(), $response->getStatusCode());
     }

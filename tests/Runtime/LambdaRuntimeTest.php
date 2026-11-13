@@ -7,7 +7,9 @@ use Bref\Context\Context;
 use Bref\Event\EventBridge\EventBridgeEvent;
 use Bref\Event\EventBridge\EventBridgeHandler;
 use Bref\Event\Handler;
+use Bref\Event\Http\HttpHandler;
 use Bref\Event\Http\HttpRequestEvent;
+use Bref\Event\Http\HttpResponse;
 use Bref\Event\S3\S3Event;
 use Bref\Event\S3\S3Handler;
 use Bref\Event\Sns\SnsEvent;
@@ -44,6 +46,12 @@ class LambdaRuntimeTest extends RuntimeTestCase
         Bref::reset();
 
         $this->runtime = new LambdaRuntime('localhost:8126', 'phpunit');
+    }
+
+    protected function tearDown(): void
+    {
+        putenv('BREF_RESPONSE_STREAMING');
+        parent::tearDown();
     }
 
     public function test basic behavior()
@@ -172,6 +180,24 @@ class LambdaRuntimeTest extends RuntimeTestCase
         return $response;
     }
 
+    public function test errors on Function URLs are a 500 without details()
+    {
+        putenv('BREF_RESPONSE_STREAMING=1');
+        $this->givenAnEvent(['requestContext' => ['domainName' => 'abc.lambda-url.eu-west-3.on.aws']]);
+
+        $this->runtime->processNextEvent(function () {
+            throw new RuntimeException('Secret details');
+        });
+
+        // Not the error endpoint: a streaming Function URL would show the error as the body of a 200 response
+        $response = $this->streamedResponse();
+        $body = $response->getBody()->__toString();
+        $this->assertStringStartsWith('{"cookies":[],"statusCode":500', $body);
+        $this->assertStringEndsWith(str_repeat("\0", 8) . 'Internal Server Error', $body);
+        $this->assertStringNotContainsString('Secret details', $body);
+        $this->assertSame('RuntimeException', $response->getHeaderLine('lambda-runtime-function-error-type'));
+    }
+
     public function test an empty streamed response is sent()
     {
         $this->givenAnEvent(['Hello' => 'world!']);
@@ -226,6 +252,47 @@ class LambdaRuntimeTest extends RuntimeTestCase
         });
 
         $this->assertInvocationErrorResult('RuntimeException', 'Failure before the first byte');
+    }
+
+    public function test errors on Function URLs without response streaming use the error endpoint()
+    {
+        $this->givenAnEvent(['requestContext' => ['domainName' => 'abc.lambda-url.eu-west-3.on.aws']]);
+
+        $this->runtime->processNextEvent(function () {
+            throw new RuntimeException('Failure');
+        });
+
+        // Like any buffered invoker: the Function URL answers an error status, without the details
+        $this->assertInvocationErrorResult('RuntimeException', 'Failure');
+    }
+
+    public function test a Function URL response failing in the middle is truncated()
+    {
+        putenv('BREF_RESPONSE_STREAMING=1');
+        $this->givenAnEvent([
+            'version' => '2.0',
+            'rawPath' => '/',
+            'requestContext' => ['domainName' => 'abc.lambda-url.eu-west-3.on.aws', 'http' => ['method' => 'GET']],
+        ]);
+        $handler = new class extends HttpHandler {
+            public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
+            {
+                return new HttpResponse((function () {
+                    yield 'Hello';
+                    throw new RuntimeException('Failure in the middle');
+                })(), ['content-type' => 'text/plain']);
+            }
+        };
+
+        $this->runtime->processNextEvent($handler);
+
+        // The status is already sent: truncated body, the error in the trailers, no second response
+        $response = $this->streamedResponse();
+        $body = $response->getBody()->__toString();
+        $this->assertStringStartsWith('{"cookies":[],"statusCode":200', $body);
+        $this->assertStringEndsWith(str_repeat("\0", 8) . 'Hello', $body);
+        $this->assertSame(1, substr_count($body, '"statusCode"'));
+        $this->assertSame('RuntimeException', $response->getHeaderLine('lambda-runtime-function-error-type'));
     }
 
     public function test an error is thrown if the runtime API returns a wrong response()

@@ -4,13 +4,14 @@ namespace Bref\Event\Http;
 
 use Bref\Context\Context;
 use Bref\Event\Handler;
+use Bref\Runtime\StreamedResponse;
 
 abstract class HttpHandler implements Handler
 {
     abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse;
 
     /** {@inheritDoc} */
-    public function handle($event, Context $context): array
+    public function handle($event, Context $context): array|StreamedResponse
     {
         // See https://bref.sh/docs/runtimes/http.html#cold-starts
         if (isset($event['warmer']) && $event['warmer'] === true) {
@@ -18,6 +19,10 @@ abstract class HttpHandler implements Handler
             // See https://github.com/brefphp/bref/pull/734
             usleep(10000); // 10ms
             return ['Lambda is warm'];
+        }
+
+        if (HttpRequestEvent::isStreamedFunctionUrl($event)) {
+            return $this->stream($event, $context);
         }
 
         $httpEvent = new HttpRequestEvent($event);
@@ -29,5 +34,13 @@ abstract class HttpHandler implements Handler
         }
 
         return $response->toApiGatewayFormat($httpEvent->hasMultiHeader(), $context->getAwsRequestId());
+    }
+
+    /**
+     * Function URLs (in `RESPONSE_STREAM` mode) send the response to the client as it is produced.
+     */
+    private function stream(array $event, Context $context): StreamedResponse
+    {
+        return $this->handleRequest(new HttpRequestEvent($event), $context)->toStreamedResponse($context->getAwsRequestId());
     }
 }

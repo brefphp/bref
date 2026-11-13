@@ -170,6 +170,20 @@ final class HttpRequestEvent implements LambdaEvent
         return self::queryStringToArray($this->queryString);
     }
 
+    /**
+     * Whether the event comes from a Function URL whose response is streamed (`RESPONSE_STREAM` mode).
+     *
+     * Events are the same in `BUFFERED` and `RESPONSE_STREAM` modes, and each mode breaks with the other's
+     * response format: the `BREF_RESPONSE_STREAMING` environment variable says which mode is configured.
+     * Function URL events have the same format as HTTP API v2 events, only their domain differs.
+     */
+    public static function isStreamedFunctionUrl(mixed $event): bool
+    {
+        return getenv('BREF_RESPONSE_STREAMING')
+            && is_array($event)
+            && str_contains($event['requestContext']['domainName'] ?? '', '.lambda-url.');
+    }
+
     public function getRequestContext(): array
     {
         return $this->event['requestContext'] ?? [];
