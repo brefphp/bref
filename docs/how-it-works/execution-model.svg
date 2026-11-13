@@ -4,19 +4,20 @@
 <line x1="330" y1="30" x2="330" y2="250" stroke="#9ca3af" stroke-dasharray="4 4"/><text x="336" y="26" class="s">traffic spike</text>
 <text x="20" y="58">Instance 1</text>
 <rect x="120" y="40" width="660" height="26" rx="4" fill="#e5e7eb"/>
-<rect x="120" y="40" width="28" height="26" rx="4" fill="#f5a25d"/>
+<path d="M124,40H148V66H124A4,4 0 0 1 120,62V44A4,4 0 0 1 124,40Z" fill="#f5a25d"/>
 <rect x="148" y="40" width="30" height="26" fill="#3aa9e9"/>
 <rect x="200" y="40" width="22" height="26" fill="#3aa9e9"/>
-<rect x="260" y="40" width="40" height="26" fill="#3aa9e9"/>
-<rect x="340" y="40" width="22" height="26" fill="#3aa9e9"/>
-<rect x="380" y="40" width="40" height="26" fill="#3aa9e9"/>
-<rect x="470" y="40" width="30" height="26" fill="#3aa9e9"/>
+<rect x="260" y="40" width="30" height="26" fill="#3aa9e9"/>
+<rect x="312" y="40" width="60" height="26" fill="#3aa9e9"/>
+<rect x="400" y="40" width="30" height="26" fill="#3aa9e9"/>
+<rect x="450" y="40" width="30" height="26" fill="#3aa9e9"/>
+<rect x="505" y="40" width="30" height="26" fill="#3aa9e9"/>
 <rect x="560" y="40" width="30" height="26" fill="#3aa9e9"/>
 <rect x="650" y="40" width="40" height="26" fill="#3aa9e9"/>
 <rect x="720" y="40" width="25" height="26" fill="#3aa9e9"/>
 <text x="20" y="103">Instance 2</text>
 <rect x="330" y="85" width="450" height="26" rx="4" fill="#e5e7eb"/>
-<rect x="330" y="85" width="28" height="26" rx="4" fill="#f5a25d"/>
+<path d="M334,85H358V111H334A4,4 0 0 1 330,107V89A4,4 0 0 1 334,85Z" fill="#f5a25d"/>
 <rect x="358" y="85" width="32" height="26" fill="#3aa9e9"/>
 <rect x="430" y="85" width="30" height="26" fill="#3aa9e9"/>
 <rect x="500" y="85" width="40" height="26" fill="#3aa9e9"/>
@@ -24,22 +25,22 @@
 <rect x="700" y="85" width="30" height="26" fill="#3aa9e9"/>
 <text x="20" y="148">Instance 3</text>
 <rect x="345" y="130" width="435" height="26" rx="4" fill="#e5e7eb"/>
-<rect x="345" y="130" width="28" height="26" rx="4" fill="#f5a25d"/>
+<path d="M349,130H373V156H349A4,4 0 0 1 345,152V134A4,4 0 0 1 349,130Z" fill="#f5a25d"/>
 <rect x="373" y="130" width="27" height="26" fill="#3aa9e9"/>
 <rect x="450" y="130" width="30" height="26" fill="#3aa9e9"/>
-<rect x="540" y="130" width="20" height="26" fill="#3aa9e9"/>
+<rect x="510" y="130" width="35" height="26" fill="#3aa9e9"/>
 <rect x="640" y="130" width="40" height="26" fill="#3aa9e9"/>
 <rect x="740" y="130" width="30" height="26" fill="#3aa9e9"/>
 <text x="20" y="193">Instance 4</text>
 <rect x="360" y="175" width="420" height="26" rx="4" fill="#e5e7eb"/>
-<rect x="360" y="175" width="28" height="26" rx="4" fill="#f5a25d"/>
+<path d="M364,175H388V201H364A4,4 0 0 1 360,197V179A4,4 0 0 1 364,175Z" fill="#f5a25d"/>
 <rect x="388" y="175" width="32" height="26" fill="#3aa9e9"/>
-<rect x="480" y="175" width="20" height="26" fill="#3aa9e9"/>
+<rect x="495" y="175" width="35" height="26" fill="#3aa9e9"/>
 <rect x="600" y="175" width="30" height="26" fill="#3aa9e9"/>
 <rect x="700" y="175" width="25" height="26" fill="#3aa9e9"/>
 <text x="20" y="238">Instance 5</text>
 <rect x="520" y="220" width="260" height="26" rx="4" fill="#e5e7eb"/>
-<rect x="520" y="220" width="28" height="26" rx="4" fill="#f5a25d"/>
+<path d="M524,220H548V246H524A4,4 0 0 1 520,242V224A4,4 0 0 1 524,220Z" fill="#f5a25d"/>
 <rect x="548" y="220" width="32" height="26" fill="#3aa9e9"/>
 <rect x="660" y="220" width="30" height="26" fill="#3aa9e9"/>
 <line x1="110" y1="262" x2="776" y2="262" stroke="#4b5563" stroke-width="1.5"/><path d="M780,262l-9,-5v10z" fill="#4b5563"/><text x="780" y="282" text-anchor="end" class="s">time</text>
