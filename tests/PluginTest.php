@@ -109,6 +109,14 @@ class PluginTest extends TestCase
         self::assertSame('my-custom-stack', $output['provider']['environment']['BREF_STACK_NAME']);
     }
 
+    public function test the plugin enables response streaming for streamed Function URLs(): void
+    {
+        $output = $this->slsPrint('serverless-function-urls.yml');
+
+        self::assertSame('1', $output['functions']['streamed']['environment']['BREF_RESPONSE_STREAMING']);
+        self::assertArrayNotHasKey('BREF_RESPONSE_STREAMING', $output['functions']['buffered']['environment']);
+    }
+
     private function slsPrint(string $configFile): array
     {
         $process = (new Process(

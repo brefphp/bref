@@ -178,6 +178,7 @@ class ServerlessPlugin {
             'initialize': () => {
                 this.processPhpRuntimes();
                 this.exposeStackName();
+                this.configureResponseStreaming();
                 warnIfUsingSecretsWithoutTheBrefDependency(this.serverless, utils.log);
                 try {
                     this.telemetry();
@@ -304,6 +305,22 @@ class ServerlessPlugin {
         }
         if (!provider.environment.BREF_STACK_NAME) {
             provider.environment.BREF_STACK_NAME = this.provider.naming.getStackName();
+        }
+    }
+
+    /**
+     * Set the `BREF_RESPONSE_STREAMING` environment variable on functions whose URL streams:
+     * Bref cannot tell from the events, and each mode breaks with the other's response format.
+     */
+    configureResponseStreaming() {
+        for (const f of Object.values(this.serverless.service.functions || {})) {
+            if (typeof f.url !== 'object' || f.url.invokeMode !== 'RESPONSE_STREAM') continue;
+            if (!f.environment) {
+                f.environment = {};
+            }
+            if (f.environment.BREF_RESPONSE_STREAMING === undefined) {
+                f.environment.BREF_RESPONSE_STREAMING = '1';
+            }
         }
     }
 

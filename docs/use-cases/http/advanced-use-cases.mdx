@@ -78,15 +78,13 @@ functions:
         # ...
         url:
             invokeMode: RESPONSE_STREAM
-        environment:
-            BREF_RESPONSE_STREAMING: '1'
 ```
 
 With this configuration, responses are streamed to the client as they are produced, and they are not limited to 6 MB.
 
 > [!WARNING]
 >
-> Always set `invokeMode: RESPONSE_STREAM` and `BREF_RESPONSE_STREAMING` together: with only one of them, pages are empty or show raw JSON.
+> If you create the Function URL with other tools (AWS CDK, Terraform, the AWS console…), set the `BREF_RESPONSE_STREAMING` environment variable to `1` on the function along with the `RESPONSE_STREAM` invoke mode. With only one of them, pages are empty or show raw JSON.
 
 `url: true` (without streaming) works too, with the 6 MB limit.
 
