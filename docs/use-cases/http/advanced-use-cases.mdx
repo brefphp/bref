@@ -88,6 +88,14 @@ With this configuration, responses are streamed to the client as they are produc
 
 `url: true` (without streaming) works too, with the 6 MB limit.
 
+#### Server-sent events
+
+Streamed responses can send [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events) (for example with Laravel's `response()->eventStream()`), to stream the answer of an LLM, the progress of a long task, etc. Keep in mind that:
+
+- A response lasts at most until the Lambda timeout (15 minutes maximum): set the function's `timeout` accordingly. Bref ends the response shortly before the timeout. Browsers reconnect automatically and send the `Last-Event-ID` header, so that the application can resume where it stopped.
+- Each open connection keeps one Lambda instance busy, and billed, for its whole duration. For connections that stay open for hours (notifications, chats…), use [WebSockets](../websockets.mdx) instead.
+- Behind CloudFront, send an event or a comment (e.g. `: ping`) at least every 30 seconds: CloudFront closes responses that stay silent longer than its origin response timeout (30 seconds by default).
+
 ### API Gateway v1 REST API
 
 The syntax is slightly different from API Gateway v2 HTTP APIs as we must use a different `events` configuration. Here is an example that sends all requests to a single Lambda function:
