@@ -16,11 +16,11 @@ The rest of this page covers the content of the talk in writing, updated where t
 
 Deploying an application to AWS Lambda does not start anything. Lambda starts *instances* of the application on demand, when there is work to do.
 
-Code on Lambda runs when it is *invoked* through the [AWS Lambda API](https://docs.aws.amazon.com/lambda/latest/api/API_Invoke.html). This is an authenticated AWS API: the caller sends a `POST` request with AWS credentials, and the data passed to the code is a JSON payload called an *event*.
+Code on Lambda runs when it is *invoked* through the [AWS Lambda API](https://docs.aws.amazon.com/lambda/latest/api/API_Invoke.html). The data passed to the code is a JSON payload called an *event*. This API is called by AWS services, like API Gateway below: applications don't call it themselves.
 
 ## HTTP requests
 
-To run HTTP applications, [API Gateway](https://aws.amazon.com/api-gateway/) is deployed in front of Lambda. It receives HTTP requests, turns them into JSON events, and invokes Lambda.
+When deploying an HTTP application, Bref sets up [API Gateway](https://aws.amazon.com/api-gateway/) in front of Lambda automatically. API Gateway receives HTTP requests, turns them into JSON events, and invokes Lambda.
 
 ![An HTTP request goes through API Gateway, which invokes the Lambda API with a JSON event, which runs the code in a Lambda instance](./how-it-works/http-invocation.svg)
 
@@ -67,8 +67,8 @@ If an instance crashes, Lambda replaces it: the requests it was handling fail, b
 When a request comes in and no instance is available to handle it, Lambda starts a new instance:
 
 1. It starts a microVM, which runs a Linux environment.
-2. It mounts the runtime in `/opt`. Lambda does not support PHP natively, so the PHP runtime is provided by Bref as a [Lambda layer](./runtimes.mdx#lambda-layers-or-docker-images).
-3. It mounts the application code, deployed as a zip archive or as a container image. Lambda does not run Docker: a container image is only used to ship the files and configuration, which are mounted the same way.
+2. It mounts the runtime in `/opt`. Lambda does not support PHP natively: Bref provides the PHP runtime as a [Lambda layer](./runtimes.mdx#lambda-layers-or-docker-images), and adds it to the application when deploying.
+3. It mounts the application code, deployed as a zip archive (the default) or as a container image. Lambda does not run Docker: a container image is only used to ship the files and configuration, which are mounted the same way.
 4. It starts the Lambda *runtime API*: an HTTP API, running inside the instance, that the runtime calls to retrieve events and send back responses.
 5. It runs the `/opt/bootstrap` executable, which starts the runtime.
 
@@ -150,7 +150,7 @@ Lambda can start 1,000 new instances every 10 seconds for each function. The tot
 
 New AWS accounts start with a reduced quota that AWS raises automatically based on usage. You can also request an increase in the [Service Quotas console](https://console.aws.amazon.com/servicequotas/home/services/lambda/quotas).
 
-When the limit is reached, additional requests are throttled: they fail with an error until instances become available. Read more about [Lambda's scaling behavior](https://docs.aws.amazon.com/lambda/latest/dg/scaling-behavior.html).
+Most applications never reach these limits. When the limit is reached, additional requests are throttled: they fail with an error until instances become available. Read more about [Lambda's scaling behavior](https://docs.aws.amazon.com/lambda/latest/dg/scaling-behavior.html).
 
 ## Cold starts
 
@@ -172,13 +172,13 @@ Read more in [Serverless costs](./serverless-costs.mdx).
 
 ## Event-driven functions
 
-AWS services can invoke Lambda directly, for example:
+Other AWS services can invoke Lambda, for example:
 
 - [S3](./use-cases/s3.mdx) (file storage), when a file is uploaded,
 - [SQS](./use-cases/sqs.mdx) (queues), to process messages in a queue,
 - [EventBridge](./use-cases/eventbridge.mdx) (event bus), when an application publishes an event.
 
-For these, Bref provides the [*function* runtime](./runtimes/function.mdx). It works like the FPM runtime, without PHP-FPM: Bref loads the handler and calls it directly in its own PHP process.
+Bref sets up these connections when deploying, and provides the [*function* runtime](./runtimes/function.mdx) to run the code. It works like the FPM runtime, without PHP-FPM: Bref loads the handler and calls it directly in its own PHP process.
 
 ![AWS services like S3, SQS and EventBridge invoke the Lambda API, and Bref's function runtime calls the handler class directly](./how-it-works/event-functions.svg)
 
