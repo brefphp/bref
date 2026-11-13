@@ -149,6 +149,15 @@ To optimize cold starts, you can deploy the application with a warm cache. In a 
     </Tabs.Tab>
 </Tabs>
 
+With Dotenv disabled, the variables of the `.env` file are not loaded on Lambda: define the ones your application needs as environment variables of the function (`environment` in `serverless.yml`). For example, recent Symfony skeletons (like Symfony 8) need `DEFAULT_URI`, else every request fails with `Environment variable not found: "DEFAULT_URI"`:
+
+```yml filename="serverless.yml"
+provider:
+    # ...
+    environment:
+        DEFAULT_URI: 'https://example.com'
+```
+
 #### Optimizing caches
 
 When running Symfony on Lambda you should avoid writing to the filesystem. If you pre-warm the cache before deploying you are mostly fine. But you should also make sure you never write to a filesystem cache like `cache.system` or use a pool like:
