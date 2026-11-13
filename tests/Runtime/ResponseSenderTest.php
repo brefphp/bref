@@ -2,9 +2,9 @@
 
 namespace Bref\Test\Runtime;
 
+use Bref\Runtime\LambdaResult;
 use Bref\Runtime\ResponseSender;
 use Bref\Runtime\ResponseTooBig;
-use Bref\Runtime\StreamedResponse;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -47,7 +47,7 @@ class ResponseSenderTest extends TestCase
     {
         $sender = new ResponseSender($this->startServer(self::TOO_BIG, false), '1', 'text/plain');
         $pulled = 0;
-        $response = new StreamedResponse('text/plain', (function () use (&$pulled) {
+        $response = new LambdaResult('text/plain', (function () use (&$pulled) {
             for ($i = 0; $i < 100; $i++) {
                 $pulled++;
                 yield str_repeat('x', 1024 * 1024);

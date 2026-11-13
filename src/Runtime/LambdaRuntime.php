@@ -206,9 +206,9 @@ final class LambdaRuntime
      */
     private function sendResponse(Context $context, mixed $result): void
     {
-        $result = $result instanceof StreamedResponse
+        $result = $result instanceof LambdaResult
             ? $result
-            : new StreamedResponse('application/json', [$this->toJson($result)]);
+            : new LambdaResult('application/json', [$this->toJson($result)]);
 
         $this->responseSender = new ResponseSender($this->apiUrl, $context->getAwsRequestId(), $result->contentType, $context);
         try {

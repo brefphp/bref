@@ -4,14 +4,15 @@ namespace Bref\Event\Http;
 
 use Bref\Context\Context;
 use Bref\Event\Handler;
-use Bref\Runtime\StreamedResponse;
+use Bref\Runtime\LambdaResult;
+use LogicException;
 
 abstract class HttpHandler implements Handler
 {
     abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse;
 
     /** {@inheritDoc} */
-    public function handle($event, Context $context): array|StreamedResponse
+    public function handle($event, Context $context): array|LambdaResult
     {
         // See https://bref.sh/docs/runtimes/http.html#cold-starts
         if (isset($event['warmer']) && $event['warmer'] === true) {
@@ -21,26 +22,32 @@ abstract class HttpHandler implements Handler
             return ['Lambda is warm'];
         }
 
-        if (HttpRequestEvent::isStreamed($event)) {
-            return $this->stream($event, $context);
-        }
-
         $httpEvent = new HttpRequestEvent($event);
 
-        $response = $this->handleRequest($httpEvent, $context);
-
-        if ($httpEvent->isFormatV2()) {
-            return $response->toApiGatewayFormatV2($context->getAwsRequestId());
+        // Streamed Function URLs and REST APIs send the response to the client as it is written
+        if (HttpRequestEvent::isStreamed($event)) {
+            return new LambdaResult(HttpResponseWriter::STREAMED_CONTENT_TYPE, function (callable $send) use ($httpEvent, $context): void {
+                $writer = HttpResponseWriter::streamed($send, $context->getAwsRequestId());
+                $this->respond($httpEvent, $context, $writer);
+                if (! $writer->started()) {
+                    throw new LogicException('The HTTP handler did not write any response');
+                }
+            });
         }
 
-        return $response->toApiGatewayFormat($httpEvent->hasMultiHeader(), $context->getAwsRequestId());
+        $writer = HttpResponseWriter::buffered($context->getAwsRequestId());
+        $this->respond($httpEvent, $context, $writer);
+
+        return $writer->toApiGatewayFormat($httpEvent);
     }
 
     /**
-     * Streamed Function URLs and REST APIs send the response to the client as it is produced.
+     * Write the response to the request: by default the one returned by handleRequest().
+     *
+     * Override it to write the response as it is produced, e.g. the output of a framework (see HttpResponseWriter).
      */
-    private function stream(array $event, Context $context): StreamedResponse
+    protected function respond(HttpRequestEvent $event, Context $context, HttpResponseWriter $writer): void
     {
-        return $this->handleRequest(new HttpRequestEvent($event), $context)->toStreamedResponse($context->getAwsRequestId());
+        $this->handleRequest($event, $context)->sendTo($writer);
     }
 }

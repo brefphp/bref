@@ -17,10 +17,10 @@ use Bref\Event\Sns\SnsHandler;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Listener\BrefEventSubscriber;
+use Bref\Runtime\LambdaResult;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Runtime\ResponseTimedOut;
 use Bref\Runtime\ResponseTooBig;
-use Bref\Runtime\StreamedResponse;
 use Bref\Test\RuntimeTestCase;
 use Bref\Test\Server;
 use Exception;
@@ -115,7 +115,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', (function () {
+        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', (function () {
             yield 'Hello ';
             yield '';
             yield 'world!';
@@ -131,7 +131,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', function (callable $write) {
+        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function (callable $write) {
             $write('Hello ');
             $write('world!');
         }));
@@ -143,7 +143,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', function () {
+        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function () {
             throw new RuntimeException('Failure before the first byte');
         }));
 
@@ -155,7 +155,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', (function () {
+        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', (function () {
             yield 'Hello';
             throw new RuntimeException('Failure in the middle');
         })()));
@@ -212,7 +212,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
             }
         })();
 
-        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', $chunks));
+        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', $chunks));
 
         $this->assertFalse($output);
         // The first byte is always sent, then the response ends with the error in its trailers
@@ -227,13 +227,13 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         // 3 seconds left: enough for a small response, not for a big one throttled by Lambda
         $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 3000);
-        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', ['small', ' response']));
+        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', ['small', ' response']));
         $this->assertSame('small response', $this->streamedResponse()->getBody()->__toString());
         Server::flush();
 
         $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 3000);
         $big = str_repeat('a', 7 * 1024 * 1024);
-        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', [$big, ' end']));
+        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', [$big, ' end']));
         $response = $this->streamedResponse();
         $this->assertSame(strlen($big), $response->getBody()->getSize());
         $this->assertSame(ResponseTimedOut::class, $response->getHeaderLine('lambda-runtime-function-error-type'));
@@ -282,7 +282,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', ['', '']));
+        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', ['', '']));
 
         $this->assertTrue($output);
         $this->assertSame('', $this->streamedResponse()->getBody()->__toString());
@@ -296,7 +296,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
         // The test server records text: a big body of random text
         $big = bin2hex(random_bytes(150_000));
 
-        $this->runtime->processNextEvent(fn () => new StreamedResponse('application/octet-stream', [$tricky, $big, $tricky]));
+        $this->runtime->processNextEvent(fn () => new LambdaResult('application/octet-stream', [$tricky, $big, $tricky]));
 
         $this->assertSame($tricky . $big . $tricky, $this->streamedResponse()->getBody()->__toString());
     }
@@ -308,7 +308,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
             new Response(413, [], '{"errorMessage": "Exceeded maximum allowed payload size (6291556 bytes).", "errorType": "RequestEntityTooLarge"}'),
         ]);
 
-        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', ['Hello ', 'world!']));
+        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', ['Hello ', 'world!']));
 
         $this->assertFalse($output);
         // The response was sent: no error request (the Runtime API would refuse it)
@@ -319,7 +319,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     public function test the invocation after a failed stream can report its own failure()
     {
         $this->givenAnEvent(['Hello' => 'world!']);
-        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', (function () {
+        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', (function () {
             yield 'Hello';
             throw new RuntimeException('Failure in the middle');
         })()));

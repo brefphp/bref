@@ -3,7 +3,7 @@
 namespace Bref\Test\Event\Http;
 
 use Bref\Event\Http\HttpResponse;
-use Bref\Runtime\StreamedResponse;
+use Bref\Runtime\LambdaResult;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -212,23 +212,9 @@ class HttpResponseTest extends TestCase
 
     public function test bodies produced progressively()
     {
-        $pulled = new HttpResponse((function () {
-            yield 'Hello ';
-            yield 'world!';
-        })());
-        $pushed = new HttpResponse(function (callable $write) {
-            $write('Hello ');
-            $write('world!');
-        });
-
-        $this->assertSame(['Hello ', 'world!'], array_slice($this->chunks($pulled->toStreamedResponse()), 1));
-        $this->assertSame(['Hello ', 'world!'], array_slice($this->chunks($pushed->toStreamedResponse()), 1));
+        $this->assertSame(['Hello ', 'world!'], array_slice($this->chunks((new HttpResponse($this->helloWorld()))->toStreamedResponse()), 1));
         // The usual format joins them
-        $pushed = new HttpResponse(function (callable $write) {
-            $write('Hello ');
-            $write('world!');
-        });
-        $this->assertSame('Hello world!', $pushed->toApiGatewayFormatV2()['body']);
+        $this->assertSame('Hello world!', (new HttpResponse($this->helloWorld()))->toApiGatewayFormatV2()['body']);
     }
 
     public function test binary bodies are streamed as is()
@@ -250,7 +236,7 @@ class HttpResponseTest extends TestCase
     /**
      * @return string[]
      */
-    private function chunks(StreamedResponse $response): array
+    private function chunks(LambdaResult $response): array
     {
         $chunks = [];
         $response->writeTo(function (string $chunk) use (&$chunks) {
@@ -258,5 +244,14 @@ class HttpResponseTest extends TestCase
         });
 
         return $chunks;
+    }
+
+    /**
+     * @return \Generator<string>
+     */
+    private function helloWorld(): \Generator
+    {
+        yield 'Hello ';
+        yield 'world!';
     }
 }
