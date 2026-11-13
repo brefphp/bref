@@ -24,7 +24,7 @@ module.exports.redirects = {
     '/docs/runtimes/function#s3-events': '/docs/use-cases/s3',
     '/docs/runtimes/function#sqs-events': '/docs/use-cases/sqs',
     '/docs/runtimes/function#partial-batch-response': '/docs/use-cases/sqs#partial-batch-response',
-    '/docs/runtimes/function#lift-queue-construct': '/docs/use-cases/sqs#lift-queue-construct',
+    '/docs/runtimes/function#lift-queue-construct': '/docs/use-cases/sqs#creating-sqs-queues',
     '/docs/runtimes/function#api-gateway-http-events': '/docs/use-cases/http/advanced-use-cases#php-handlers',
     '/docs/runtimes/function#lambda-event-and-context': '/docs/use-cases/http/advanced-use-cases#lambda-event-and-context',
     '/docs/runtimes/function#websocket-events': '/docs/use-cases/websockets',

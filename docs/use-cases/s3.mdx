@@ -42,7 +42,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
                 handler: App\MyHandler
                 runtime: php-84
                 events:
-                    - s3: photos
+                    - s3: ${self:service}-${sls:stage}-photos
         ```
 
         The `App\MyHandler` class will be instantiated by Laravel's service container.
@@ -55,7 +55,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
                 handler: App\MyHandler
                 runtime: php-84
                 events:
-                    - s3: photos
+                    - s3: ${self:service}-${sls:stage}-photos
         ```
 
         The `App\MyHandler` class will be instantiated by Symfony's service container.
@@ -68,7 +68,7 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
                 handler: handler.php
                 runtime: php-84
                 events:
-                    - s3: photos
+                    - s3: ${self:service}-${sls:stage}-photos
         ```
 
         The file `handler.php` should return the handler instance:
@@ -83,7 +83,9 @@ Then, create a Lambda function that listens to S3 events with the handler you cr
     </Tabs.Tab>
 </Tabs>
 
-The S3 bucket will automatically be created on deployment. You can listen to an existing S3 bucket via [the `existing: true` option](https://github.com/oss-serverless/osls/blob/4.x/docs/events/s3.md#using-existing-buckets).
+The S3 bucket will automatically be created on deployment. Bucket names must be unique across all AWS accounts, which is why the example above includes the service and stage names in the bucket name.
+
+You can listen to an existing S3 bucket via [the `existing: true` option](https://github.com/oss-serverless/osls/blob/4.x/docs/events/s3.md#using-existing-buckets).
 Or you can use the [`Storage` feature of the Lift plugin](https://github.com/getlift/lift/blob/master/docs/storage.md). For example:
 
 ```yml filename="serverless.yml"
@@ -109,3 +111,7 @@ Learn more about all the options available for S3 in `serverless.yml` [in the Se
 > [!CAUTION]
 >
 > Watch out for recursive triggers: if your Lambda function writes files to the same S3 bucket, it will trigger itself again. You can avoid this by using a different bucket for the output files, or by using a prefix for the output files.
+
+## Error handling
+
+If the handler throws an exception, Lambda retries the event twice, then drops it. Read [Error handling](/docs/use-cases/sqs#error-handling) to keep failed events.

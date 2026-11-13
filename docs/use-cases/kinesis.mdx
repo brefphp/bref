@@ -1,3 +1,5 @@
+import { Tabs } from 'nextra/components';
+
 # Kinesis stream processing
 
 To handle [Kinesis events](https://docs.aws.amazon.com/lambda/latest/dg/with-kinesis.html), extend the `KinesisHandler` class:
@@ -7,7 +9,7 @@ use Bref\Context\Context;
 use Bref\Event\Kinesis\KinesisEvent;
 use Bref\Event\Kinesis\KinesisHandler;
 
-class Handler extends KinesisHandler
+class MyHandler extends KinesisHandler
 {
     public function handleKinesis(KinesisEvent $event, Context $context): void
     {
@@ -20,4 +22,64 @@ class Handler extends KinesisHandler
 }
 ```
 
-Learn more about using Kinesis in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/streams.md).
+`getData()` decodes the record data as JSON and throws a `JsonException` if the data is not JSON. For other formats, use `base64_decode($record->getRawData())`.
+
+Then, create a Lambda function that listens to the Kinesis stream with the handler you created:
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - stream:
+                        type: kinesis
+                        arn: arn:aws:kinesis:eu-west-1:111111111111:stream/my-stream
+        ```
+
+        The `App\MyHandler` class will be instantiated by Laravel's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - stream:
+                        type: kinesis
+                        arn: arn:aws:kinesis:eu-west-1:111111111111:stream/my-stream
+        ```
+
+        The `App\MyHandler` class will be instantiated by Symfony's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: handler.php
+                runtime: php-84
+                events:
+                    - stream:
+                        type: kinesis
+                        arn: arn:aws:kinesis:eu-west-1:111111111111:stream/my-stream
+        ```
+
+        The file `handler.php` should return the handler instance:
+
+        ```php filename="handler.php"
+        <?php
+
+        require __DIR__ . '/vendor/autoload.php';
+
+        return new MyHandler();
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+The `stream` event does not create the Kinesis stream. Learn more about using Kinesis in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/streams.md).

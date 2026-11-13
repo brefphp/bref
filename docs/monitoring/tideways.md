@@ -27,7 +27,7 @@ Assuming we already have a VPC set up (the [serverless-vpc-plugin](https://githu
 1. Make sure you are in the correct AWS region
 1. Search for `tideways-daemon` in the Community AMI (Amazon Machine Image) catalog
     - If you want more details, [learn more about the Tideways AMI](https://github.com/tideways/tideways-daemon-ami#readme)
-1. Select the `t2.micro` instance type as it is the smallest instance and will do the job here
+1. Select a small instance type like `t3.micro`, it will do the job here
 1. Optionally select/create an SSH key pair if you want to SSH into the server later
 1. Edit "Network Settings":
     - Select your VPC
@@ -99,9 +99,13 @@ provider:
 >
 > The `TIDEWAYS_CONNECTION` variable should contain the "Private IP DNS name" of the Tideways daemon (for example `tcp://ip-172-31-4-74.eu-west-1.compute.internal:9135`). This is the value you retrieved in the previous section.
 
-Don't forget to redeploy the application:
+Don't forget to redeploy the application, with `bref deploy` (Bref Cloud) or `serverless deploy` (Serverless CLI):
 
 ```bash
+# Bref Cloud
+bref deploy
+
+# Serverless CLI
 serverless deploy
 ```
 
