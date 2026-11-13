@@ -70,7 +70,7 @@ There is no `.htaccess` or `nginx.conf` on AWS Lambda. Instead, you can use `ser
 
 #### Work after the response
 
-[`fastcgi_finish_request()`](https://www.php.net/manual/en/function.fastcgi-finish-request.php) sends the response to the client, then the rest of the script runs before the Lambda instance handles another request. Laravel and Symfony use it to run their "terminate" work (e.g. Laravel's `defer()`) after the response. That time counts toward the function's timeout and is billed.
+[`fastcgi_finish_request()`](https://www.php.net/manual/en/function.fastcgi-finish-request.php) sends the response to the client, then the rest of the script runs before the Lambda instance handles another request. Laravel and Symfony use it to run their "terminate" work (e.g. Laravel's `defer()`) after the response. That time counts toward the function's timeout and is billed, and the instance cannot handle other requests until the script finishes: Lambda sends them to other instances (cold starts if none is available).
 
 #### Differences in URI query parameters
 
