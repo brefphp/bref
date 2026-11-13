@@ -221,7 +221,7 @@ COPY --from=ext /tmp/ext.ini /opt/bref/etc/php/conf.d/ext-xhprof.ini
 Build the image, zip the content of `/opt` and publish it as a layer:
 
 ```bash
-docker build --output type=local,dest=layer .
+docker build --platform linux/amd64 --output type=local,dest=layer .
 (cd layer/opt && zip -r ../../layer.zip .)
 aws lambda publish-layer-version --layer-name php-84-xhprof --zip-file fileb://layer.zip --compatible-architectures x86_64
 ```
