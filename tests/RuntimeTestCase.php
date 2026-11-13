@@ -26,7 +26,10 @@ abstract class RuntimeTestCase extends TestCase
         ob_end_clean();
     }
 
-    protected function givenAnEvent(mixed $event): void
+    /**
+     * @param int|null $deadlineMs Default: in 15 minutes.
+     */
+    protected function givenAnEvent(mixed $event, ?int $deadlineMs = null): void
     {
         Server::enqueue([
             new Response( // lambda event
@@ -35,6 +38,7 @@ abstract class RuntimeTestCase extends TestCase
                     'lambda-runtime-aws-request-id' => '1',
                     'lambda-runtime-invoked-function-arn' => 'test-function-name',
                     'lambda-runtime-trace-id' => 'Root=1-67891233-abcdef012345678912345678',
+                    'lambda-runtime-deadline-ms' => (string) ($deadlineMs ?? (int) (microtime(true) * 1000) + 15 * 60 * 1000),
                 ],
                 json_encode($event, JSON_THROW_ON_ERROR)
             ),

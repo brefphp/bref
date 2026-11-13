@@ -2,6 +2,7 @@
 
 namespace Bref\Runtime;
 
+use Bref\Context\Context;
 use Exception;
 use Throwable;
 
@@ -22,6 +23,17 @@ final class ResponseSender
      * never wait for it until the end of the invocation.
      */
     private const TIMEOUT_IN_SECONDS = 10;
+    /**
+     * A response still being sent this close to the Lambda timeout is ended with an error: a timeout would
+     * also discard the Lambda instance, and the next request would wait for a new one.
+     */
+    private const DEADLINE_MARGIN_IN_MS = 1000;
+    /**
+     * Past 6 MB, Lambda throttles streamed responses to 2 MB/s, and the Runtime API only answers the end of
+     * the response once the data in flight (5 to 7 MB measured) reached the client: 2.5 to 3.5 s more.
+     */
+    private const THROTTLED_AFTER_BYTES = 6 * 1024 * 1024;
+    private const THROTTLED_DEADLINE_MARGIN_IN_MS = 5000;
 
     /** @var resource|null */
     private $socket = null;
@@ -31,11 +43,18 @@ final class ResponseSender
     private ?string $failure = null;
     /** The connection to the Runtime API failed: nothing was sent. */
     private ?Throwable $connectionError = null;
+    /** The rest of the response is dropped because the Lambda timeout is close. */
+    private bool $outOfTime = false;
+    private int $bytesWritten = 0;
 
+    /**
+     * @param Context|null $context To end the response before the Lambda timeout.
+     */
     public function __construct(
         private string $apiUrl,
         private string $invocationId,
         private string $contentType,
+        private ?Context $context = null,
     ) {
     }
 
@@ -56,11 +75,16 @@ final class ResponseSender
      */
     public function write(string $chunk): bool
     {
-        if ($this->ended || $this->failure !== null || $this->connectionError !== null) {
+        if ($this->ended || $this->outOfTime || $this->failure !== null || $this->connectionError !== null) {
             return false;
         }
         if ($chunk === '') {
             return true;
+        }
+        // Never before the first byte: a response produced in time (e.g. JSON, in one chunk) is always sent
+        if ($this->started && $this->context !== null && $this->context->getRemainingTimeInMillis() < $this->deadlineMargin()) {
+            $this->outOfTime = true;
+            return false;
         }
         try {
             $this->open();
@@ -68,6 +92,7 @@ final class ResponseSender
             $this->connectionError = $e;
             return false;
         }
+        $this->bytesWritten += strlen($chunk);
         if (! $this->send(dechex(strlen($chunk)) . "\r\n" . $chunk . "\r\n")) {
             // The Runtime API stops reading e.g. when the response is too big: its answer, read by end(), says why
             $this->failure = $this->timedOut()
@@ -84,6 +109,7 @@ final class ResponseSender
      *
      * @param Throwable|null $error Reported in the trailers of the response (counted in the function's error metrics).
      * @throws ResponseTooBig
+     * @throws ResponseTimedOut
      * @throws Exception
      */
     public function end(?Throwable $error = null): void
@@ -92,6 +118,11 @@ final class ResponseSender
             throw $this->connectionError;
         }
         $this->open();
+        if ($this->outOfTime) {
+            $error = new ResponseTimedOut;
+            $this->finish($error);
+            throw $error;
+        }
         $this->finish($error);
     }
 
@@ -193,6 +224,13 @@ final class ResponseSender
         }
 
         return true;
+    }
+
+    private function deadlineMargin(): int
+    {
+        return $this->bytesWritten > self::THROTTLED_AFTER_BYTES
+            ? self::THROTTLED_DEADLINE_MARGIN_IN_MS
+            : self::DEADLINE_MARGIN_IN_MS;
     }
 
     private function timedOut(): bool
