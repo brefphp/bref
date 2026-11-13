@@ -24,8 +24,8 @@ Next, create a `serverless.yml` configuration file at the root of your project:
 service: app # your application name (lowercase without spaces)
 
 bref:
-    # Uncomment and set your team ID if you are using Bref Cloud
-    #team: bref-team-id
+    # Uncomment and set your team slug if you are using Bref Cloud (`bref teams` lists them)
+    #team: my-team
 
 provider:
     name: aws
@@ -38,7 +38,7 @@ functions:
     web:
         handler: public/index.php
         runtime: php-84-fpm
-        timeout: 28 # in seconds (API Gateway has a max timeout of 29 seconds)
+        timeout: 28 # in seconds (API Gateway HTTP APIs time out after 30 seconds)
         events:
             -   httpApi: '*'
     # This function lets us run console commands in Lambda
@@ -89,15 +89,15 @@ use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 
 Let's deploy the application to AWS Lambda:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
-        serverless deploy
+        bref deploy
         ```
     </Tabs.Tab>
     <Tabs.Tab>
         ```bash
-        bref deploy
+        serverless deploy
         ```
     </Tabs.Tab>
 </Tabs>
@@ -112,27 +112,13 @@ At the moment, we deployed our local codebase to Lambda. When deploying for prod
 - our local `.env` files,
 - or any other dev artifact.
 
-Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more details.
+Follow [the deployment guide](/docs/deploy#deploying-for-production) for more details.
 
 Separately, on cold starts, Symfony will boot with an empty cache directory. It will build the cache on the fly, which can take a few seconds depending on the complexity of the application.
 
 To optimize cold starts, you can deploy the application with a warm cache. In a simple application it means that the deployment script should include `cache:warmup` to look something like this:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tabs.Tab>
-        ```bash
-        # Install dependencies
-        composer install --classmap-authoritative --no-dev --no-scripts
-
-        # Warmup the cache
-        bin/console cache:clear --env=prod
-
-        # Disable use of Dotenv component
-        echo "<?php return [];" > .env.local.php
-
-        serverless deploy
-        ```
-    </Tabs.Tab>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
         # Install dependencies
@@ -147,7 +133,23 @@ To optimize cold starts, you can deploy the application with a warm cache. In a 
         bref deploy
         ```
     </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        # Install dependencies
+        composer install --classmap-authoritative --no-dev --no-scripts
+
+        # Warmup the cache
+        bin/console cache:clear --env=prod
+
+        # Disable use of Dotenv component
+        echo "<?php return [];" > .env.local.php
+
+        serverless deploy
+        ```
+    </Tabs.Tab>
 </Tabs>
+
+Because `.env.local.php` returns an empty array, Symfony no longer reads the `.env` files. Every variable your application needs from `.env` (`APP_SECRET`, `DATABASE_URL`, etc.) must be set in `serverless.yml` or stored as a secret: read the [environment variables documentation](../environment/variables.mdx).
 
 #### Optimizing caches
 
@@ -162,6 +164,8 @@ framework:
 ```
 
 If you don't write to such cache pool you can optimize your setup by not copying the `var/cache/pools` directory. The change below will make sure to symlink the `pools` directory.
+
+Symfony's application cache (`cache.app`) is also a filesystem cache by default. Only apply this change if `framework.cache.app` uses another adapter (for example Redis or the database, see [Caching](./caching.mdx)), otherwise `cache.app` stops caching anything.
 
 ```diff filename="src/Kernel.php"
 class Kernel extends BrefKernel
@@ -195,18 +199,7 @@ As you may have noticed, we define a function named "console" in `serverless.yml
 
 For example, to execute a `bin/console` command on Lambda, run the command below:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tabs.Tab>
-        ```bash
-        serverless bref:cli --args="{console command and options}"
-        ```
-
-        For example:
-
-        ```bash
-        serverless bref:cli --args="doctrine:migrations:migrate"
-        ```
-    </Tabs.Tab>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
         bref command "{console command and options}"
@@ -216,6 +209,17 @@ For example, to execute a `bin/console` command on Lambda, run the command below
 
         ```bash
         bref command "doctrine:migrations:migrate"
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        serverless bref:cli --args="{console command and options}"
+        ```
+
+        For example:
+
+        ```bash
+        serverless bref:cli --args="doctrine:migrations:migrate"
         ```
     </Tabs.Tab>
 </Tabs>
@@ -254,6 +258,18 @@ You can get more details in the [Symfony documentation](https://symfony.com/doc/
 calling `Request::getClientIp()`. If you really need this, you will need to
 whitelist [every CloudFront IP](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/LocationsOfEdgeServers.html)
 in `trusted_proxies`.
+
+## Sessions
+
+By default, Symfony stores sessions in files, which end up in `/tmp` on Lambda. Each Lambda instance has its own `/tmp`: once the application runs on several instances, users are logged out at random and forms fail with "Invalid CSRF token" errors.
+
+Store sessions in a service shared by all instances instead:
+
+- the database, with [`PdoSessionHandler`](https://symfony.com/doc/current/session.html#store-sessions-in-a-relational-database-mariadb-mysql-postgresql),
+- Redis, with [`RedisSessionHandler`](https://symfony.com/doc/current/session.html#store-sessions-in-a-key-value-database-redis),
+- DynamoDB, with the session handler of the [DynamoDB cache bundle](./caching.mdx#dynamodb-cache).
+
+Stateless APIs that do not use sessions can skip this.
 
 ## The `kernel.terminate` event
 

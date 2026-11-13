@@ -92,7 +92,7 @@ It adds a `dsql` database connection to Laravel, which generates an IAM authenti
 
 > [!WARNING]
 >
-> If your `composer.json` [removes unused AWS services](../deploy/index.mdx#reducing-package-size) from the AWS SDK, add `DSQL` to the services it keeps, then run `composer install`. The package uses it to generate the authentication tokens.
+> If your `composer.json` [removes unused AWS services](/docs/deploy#reducing-package-size) from the AWS SDK, add `DSQL` to the services it keeps, then run `composer install`. The package uses it to generate the authentication tokens.
 >
 > ```json filename="composer.json"
 > "extra": {

@@ -88,6 +88,8 @@ If you deploy using [container images](../deploy/docker.mdx), you must update yo
 
 Since Bref container images have been merged into a single `bref/php-xx` image, the following images don't exist anymore: `bref/php-xx-fpm` and `bref/php-xx-console`.
 
+Bref v3 images are based on Amazon Linux 2023 instead of Amazon Linux 2. If your `Dockerfile` installs system packages, replace `yum` with `dnf` and check that the package names still exist in Amazon Linux 2023.
+
 ### Option 1: Set BREF_RUNTIME in the Dockerfile
 
 The simplest upgrade path is to update your Dockerfile to use the unified image and set the runtime:
@@ -177,6 +179,12 @@ arn:aws:lambda:us-east-1:873528684822:layer:php-84:xxx
 **If you don't know what that means**, you're likely not concerned by this change.
 
 If you're not sure, search for `534081306603` in your codebase and replace it with the new account ID.
+
+### The `provided.al2` runtime is replaced by `provided.al2023`
+
+Bref v3 layers run on Amazon Linux 2023. If your `serverless.yml` sets `runtime: provided.al2` (at the `provider` level or on a function), you must change it to `runtime: provided.al2023`. The deployment fails otherwise.
+
+If you use the `runtime: php-xx` syntax, you have nothing to do.
 
 ### AWS Lambda layers have been merged into a single layer
 
@@ -277,7 +285,7 @@ Under the hood, **all layers have been merged into one**, i.e. `php-xx-fpm` and 
     functions:
         web:
             # ...
-            runtime: provided.al2
+            runtime: provided.al2023
             layers:
                 - ${bref:layer.php-84}
             environment:
@@ -351,7 +359,7 @@ extension=soap
 
 If you are using Laravel with Bref, note that:
 
-- **Laravel 10, 11, or 12 is required** (Laravel 8 and 9 are no longer supported).
+- **Laravel 10 or greater is required** (Laravel 8 and 9 are no longer supported).
 - Update `bref/laravel-bridge` to the latest version.
 
 The Laravel bridge has been updated to use the new `BrefEventSubscriber` pattern internally, but this change is transparent to users.
@@ -367,16 +375,19 @@ Before (plain text):
 [2025-12-05 10:30:45] production.ERROR: Database connection failed
 ```
 
-After (structured format):
+After (structured format, starting with the request ID):
 ```
-ERROR Database connection failed {"message":"Database connection failed","level":"ERROR","context":{...}}
+8f507cfc-8b35-4e7e-9f26-f2a3a6e7e1a2	ERROR	Database connection failed	{"message":"Database connection failed","level":"ERROR","context":{...}}
 ```
 
 This format makes logs easier to read in CloudWatch and enables powerful filtering with CloudWatch Logs Insights (e.g., filter by log level or exception class).
 
 **Exception handling is greatly improved:** Previously, exception stack traces were split across multiple CloudWatch log records (one per line), making them difficult to read and browse. Now, the entire exception (including stack trace) is grouped in a single JSON object, making debugging much easier.
 
-If you prefer the old format, you can disable the formatter in your Laravel or Symfony configuration. See the [Bref Monolog documentation](https://github.com/brefphp/monolog-bridge) for details.
+If you prefer the old format, set a formatter explicitly:
+
+- Laravel: set the `LOG_STDERR_FORMATTER` environment variable to `Monolog\Formatter\LineFormatter` (the bridge only sets its formatter when the `stderr` channel has none).
+- Symfony: set `formatter: monolog.formatter.line` on your Monolog handlers (the bridge only sets its formatter on handlers that have none).
 
 ### Locale files from glibc langpacks are no longer included
 

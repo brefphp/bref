@@ -10,7 +10,7 @@ module.exports.redirects = {
     '/docs/news/01-bref-1.0': '/news/01-bref-1.0',
     '/docs/news/02-bref-2.0': '/news/02-bref-2.0',
     '/docs/installation': '/docs/setup',
-    '/docs/first-steps': '/docs/setup#whats-next',
+    '/docs/first-steps': '/docs/setup',
     '/docs/runtimes#bref-ping': '/docs/runtimes/runtimes-details#telemetry-ping',
     '/docs/runtimes/http': '/docs/runtimes/fpm-runtime',
     '/docs/runtimes/fpm-runtime#setup': '/docs/runtimes/fpm-runtime#usage',
