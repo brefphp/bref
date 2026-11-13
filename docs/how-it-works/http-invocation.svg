@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 190" width="800" height="190">
+<style>text{font-family:Inter,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;fill:#1f2937;font-size:14px}.b{font-weight:600}.s{font-size:12px;fill:#6b7280}.w{fill:#fff}.m{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}.aws{fill:#ec7211}.bref{fill:#1c7fc4}.inst{fill:#eff7fd;stroke:#7fbde6;stroke-dasharray:6 4}.l{stroke:#4b5563;stroke-width:1.5;fill:none}</style><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#4b5563"/></marker></defs>
+<rect width="800" height="190" rx="12" fill="#fff"/>
+<rect x="20" y="72" width="70" height="50" rx="6" fill="#fff" stroke="#4b5563" stroke-width="1.5"/>
+<line x1="20" y1="84" x2="90" y2="84" stroke="#4b5563" stroke-width="1.5"/>
+<text x="55" y="146" text-anchor="middle">Browser</text>
+<line x1="98" y1="97" x2="168" y2="97" class="l" marker-end="url(#a)"/>
+<text x="133" y="88" text-anchor="middle" class="s">HTTP</text>
+<rect x="176" y="60" width="150" height="74" rx="8" class="aws"/>
+<text x="251" y="102" text-anchor="middle" class="w b">API Gateway</text>
+<text x="251" y="160" text-anchor="middle" class="s">turns HTTP into JSON</text>
+<line x1="334" y1="97" x2="474" y2="97" class="l" marker-end="url(#a)"/>
+<text x="404" y="88" text-anchor="middle">JSON event</text>
+<text x="404" y="117" text-anchor="middle" class="s">POST /invocations</text>
+<rect x="482" y="60" width="130" height="74" rx="8" class="aws"/>
+<text x="547" y="102" text-anchor="middle" class="w b">Lambda API</text>
+<text x="547" y="160" text-anchor="middle" class="s">picks an instance</text>
+<line x1="620" y1="97" x2="660" y2="97" class="l" marker-end="url(#a)"/>
+<rect x="668" y="44" width="112" height="106" rx="8" class="inst"/>
+<text x="724" y="93" text-anchor="middle" class="b">Lambda</text>
+<text x="724" y="113" text-anchor="middle" class="b">instance</text>
+<text x="724" y="172" text-anchor="middle" class="s">started on demand</text>
+</svg>
