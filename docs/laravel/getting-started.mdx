@@ -89,15 +89,21 @@ Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more
 
 #### Application key
 
-The `APP_KEY` in the generated `serverless.yml` is an example key, shared by everyone who uses the file. Laravel uses it to encrypt cookies, including the session cookie: replace it before deploying a real application. Store your application's key as a [secret](../environment/variables.mdx#secrets) and reference it in `serverless.yml`:
+The `APP_KEY` in the generated `serverless.yml` is an example key, shared by everyone who uses the file. Laravel uses it to encrypt cookies, including the session cookie: replace it before deploying a real application.
+
+Generate a new key and store it as a [secret](../environment/variables.mdx#secrets), for example for the `prod` environment:
+
+```bash
+bref secret:create APP_KEY "$(php artisan key:generate --show)" --env=prod
+```
+
+Then reference the secret in `serverless.yml` (`my-app` is the `service` name):
 
 ```yml filename="serverless.yml"
 provider:
     environment:
         APP_KEY: ${ssm:/my-app/${sls:stage}/APP_KEY}
 ```
-
-You can use the key from your `.env` file, or generate a new one with `php artisan key:generate --show`.
 
 > [!WARNING]
 >
