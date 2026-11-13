@@ -41,7 +41,7 @@ To use Bref Cloud, you will need a [Bref Cloud](/cloud) account, an AWS account,
     >
     > Do not use *Sign up for AWS (new)*, where you log in with Google, GitHub, Apple or Amazon. It creates an "AWS project": a restricted AWS account that is not suited for production applications, and that Bref Cloud cannot connect to. [Learn why](#aws-projects).
 
-    If you want to learn more about how Bref Cloud connects securely to your AWS account, read the ["Security" documentation](./cloud-security.mdx).
+    If you want to learn more about how Bref Cloud connects securely to your AWS account, read the ["Security" documentation](/docs/cloud-security.mdx).
 
     AWS has a generous free tier that will usually allow you to deploy your first serverless applications for free. If you choose the *Free plan* when signing up, AWS closes the account after 6 months (or once the free credits are used) unless you upgrade it to the *Paid plan*: upgrade before running production applications.
 
@@ -59,7 +59,7 @@ To use Bref Cloud, you will need a [Bref Cloud](/cloud) account, an AWS account,
     bref login
     ```
 
-    If the `bref` command is not found, or if you want more details on how to install the CLI, read the detailed [installation instructions](./cloud-getting-started.mdx).
+    If the `bref` command is not found, or if you want more details on how to install the CLI, read the detailed [installation instructions](/docs/cloud-getting-started.mdx).
 
 </Steps>
 
@@ -111,7 +111,7 @@ To use Bref with the Serverless CLI, you will need an AWS account, the `serverle
     >
     > If those credentials are stored in a named profile (for example created with `aws login --profile my-project`), select it with the `AWS_PROFILE` environment variable (`export AWS_PROFILE=my-project`) or with the `--aws-profile` option of the `serverless` CLI. Otherwise, `serverless deploy` fails with `AWS provider credentials not found`.
 
-    - [Create AWS access keys](./setup/aws-keys.mdx)
+    - [Create AWS access keys](/docs/setup/aws-keys.mdx)
 
     - Set up those keys by running:
 
