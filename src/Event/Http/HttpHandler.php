@@ -29,22 +29,19 @@ abstract class HttpHandler implements Handler
         }
 
         $httpEvent = new HttpRequestEvent($event);
-
         // Streamed Function URLs and REST APIs send the response to the client as it is written
-        if (HttpRequestEvent::isStreamed($event)) {
-            return new LambdaResult(HttpResponseWriter::STREAMED_CONTENT_TYPE, function (callable $send) use ($httpEvent, $context): void {
-                $writer = HttpResponseWriter::streamed($send, $context->getAwsRequestId());
+        $streamed = HttpRequestEvent::isStreamed($event);
+
+        return new LambdaResult(
+            $streamed ? HttpResponseWriter::STREAMED_CONTENT_TYPE : 'application/json',
+            function (callable $send, callable $end) use ($httpEvent, $context, $streamed): void {
+                $writer = $streamed
+                    ? HttpResponseWriter::streamed($send, $end, $context->getAwsRequestId())
+                    : HttpResponseWriter::buffered($httpEvent, $send, $end, $context->getAwsRequestId());
                 $this->respond($httpEvent, $context, $writer);
-                if (! $writer->started()) {
-                    throw new LogicException('The HTTP handler did not write any response');
-                }
-            });
-        }
-
-        $writer = HttpResponseWriter::buffered($context->getAwsRequestId());
-        $this->respond($httpEvent, $context, $writer);
-
-        return $writer->toApiGatewayFormat($httpEvent);
+                $writer->end();
+            },
+        );
     }
 
     /**

@@ -1216,7 +1216,7 @@ Year,Make,Model
         $this->fpm->start();
 
         try {
-            $this->fpm->handle([
+            $this->handle([
                 'version' => '1.0',
                 'httpMethod' => 'GET',
             ], $this->fakeContext);
@@ -1226,7 +1226,7 @@ Year,Make,Model
             self::assertMatchesRegularExpression('/^abc The PHP script timed out\. [^\n]+\n$/', ob_get_contents());
 
             // PHP-FPM should work after that
-            $statusCode = $this->fpm->handle([
+            $statusCode = $this->handle([
                 'version' => '1.0',
                 'httpMethod' => 'GET',
                 'queryStringParameters' => [
@@ -1246,7 +1246,7 @@ Year,Make,Model
         $this->fpm->start();
 
         try {
-            $this->fpm->handle([
+            $this->handle([
                 'version' => '1.0',
                 'httpMethod' => 'GET',
             ], new Context('abc', time(), 'abc', 'abc'));
@@ -1278,7 +1278,7 @@ Year,Make,Model
         $this->fpm = new FpmHandler(__DIR__ . '/fixtures/timeout.php', __DIR__ . '/fixtures/php-fpm.conf');
         $this->fpm->start();
 
-        $result = $this->fpm->handle([
+        $result = $this->handle([
             'warmer' => true,
         ], $this->fakeContext);
         self::assertEquals(['Lambda is warm'], $result);
@@ -1341,7 +1341,7 @@ Year,Make,Model
         }
 
         // PHP-FPM was restarted
-        $response = $this->fpm->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => __FILE__]], $this->fakeContext);
+        $response = $this->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => __FILE__]], $this->fakeContext);
         self::assertSame('firstsecond', $response['body']);
     }
 
@@ -1353,7 +1353,7 @@ Year,Make,Model
         // Like the Runtime API refusing a response: the rest of the body is not read
         $this->fpm->handleRequest($event, $this->fakeContext)->toStreamedResponse()->writeTo(fn () => false);
 
-        $response = $this->fpm->handle(['version' => '1.0', 'httpMethod' => 'GET'], $this->fakeContext);
+        $response = $this->handle(['version' => '1.0', 'httpMethod' => 'GET'], $this->fakeContext);
         self::assertStringEqualsFile(__DIR__ . '/fixtures/big-json.json', $response['body']);
         self::assertStringContainsString('The previous response was not entirely read from PHP-FPM', ob_get_contents());
     }
@@ -1388,7 +1388,7 @@ Year,Make,Model
     {
         $this->startFpm(__DIR__ . '/fixtures/streaming.php');
 
-        $response = $this->fpm->handle($this->functionUrlEvent(), $this->fakeContext);
+        $response = $this->handle($this->functionUrlEvent(), $this->fakeContext);
 
         self::assertSame(201, $response['statusCode']);
         self::assertSame('chunk-1chunk-2chunk-3', $response['body']);
@@ -1413,7 +1413,7 @@ Year,Make,Model
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
         $this->startFpm(__DIR__ . '/fixtures/request.php');
-        $response = $this->fpm->handle($event, $this->fakeContext);
+        $response = $this->handle($event, $this->fakeContext);
 
         $response = json_decode($response['body'], true);
 
@@ -1466,7 +1466,7 @@ Year,Make,Model
     {
         $this->startFpm(__DIR__ . '/fixtures/' . $file);
 
-        return $this->fpm->handle($event ?? [
+        return $this->handle($event ?? [
             'version' => '1.0',
             'httpMethod' => 'GET',
         ], $this->fakeContext);
@@ -1677,5 +1677,15 @@ Year,Make,Model
             ],
             'HTTP_RAW_BODY' => '',
         ]);
+    }
+
+    /**
+     * The response of the handler, in the format of buffered invokers.
+     */
+    private function handle(array $event, Context $context): array
+    {
+        $result = $this->fpm->handle($event, $context);
+
+        return is_array($result) ? $result : json_decode($result->contents(), true, 512, JSON_THROW_ON_ERROR);
     }
 }

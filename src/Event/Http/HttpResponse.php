@@ -92,7 +92,7 @@ final class HttpResponse
     {
         return new LambdaResult(
             HttpResponseWriter::STREAMED_CONTENT_TYPE,
-            fn (callable $send) => $this->sendTo(HttpResponseWriter::streamed($send, $awsRequestId)),
+            fn (callable $send, callable $end) => $this->sendTo(HttpResponseWriter::streamed($send, $end, $awsRequestId)),
         );
     }
 
