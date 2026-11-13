@@ -16,18 +16,9 @@ Here is a simplified overview of the filesystem on AWS Lambda:
 ...
 ```
 
-The application code and the layers (`/var/task` and `/opt`) are [limited to 250MB unzipped](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html#function-configuration-deployment-and-execution). If you hit that limit, you can deploy [via Docker images instead](../deploy/docker.mdx).
+The `/var/task` directory is [limited to 250MB](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html#function-configuration-deployment-and-execution). If you hit that limit, you can deploy [via Docker images instead](../deploy/docker.mdx).
 
 The filesystem on AWS Lambda **is read-only**, except for the `/tmp` directory.
-
-The `/tmp` directory is limited to 512MB by default. Bref's OPcache file cache is stored there too. If your application writes large files to `/tmp` (or if you get "No space left on device" errors), increase its size, up to 10GB, with the `ephemeralStorageSize` option (in MB):
-
-```yml filename="serverless.yml"
-functions:
-    web:
-        # ...
-        ephemeralStorageSize: 2048
-```
 
 On top of that, the filesystem is not shared between instances of a lambda when it scales up. For example a file `/tmp/foo.json` will not be shared across instances of the same lambda. Since a lambda can scale up or down at any time, data in the `/tmp` directory can be lost.
 
@@ -145,4 +136,15 @@ provider:
     environment:
         # This environment variable will contain the table name
         DYNAMODB_CACHE_TABLE: !Ref CacheTable
+```
+
+## `/tmp` size
+
+The `/tmp` directory is limited to 512MB by default. Bref's OPcache file cache is stored there too. If your application writes large files to `/tmp` (or if you get "No space left on device" errors), increase its size, up to 10GB, with the `ephemeralStorageSize` option (in MB):
+
+```yml filename="serverless.yml"
+functions:
+    web:
+        # ...
+        ephemeralStorageSize: 2048
 ```
