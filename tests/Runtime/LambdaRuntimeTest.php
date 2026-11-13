@@ -248,6 +248,23 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->assertInvocationResult(['Hello' => 'world!']);
     }
 
+    public function test a result can end before the handler finishes()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function (callable $write, callable $end) {
+            $write('Hello');
+            $end();
+            // E.g. terminate callbacks: the response is already complete
+            throw new RuntimeException('Failure after the end');
+        }));
+
+        $response = $this->streamedResponse();
+        $this->assertSame('Hello', $response->getBody()->__toString());
+        $this->assertSame('', $response->getHeaderLine('lambda-runtime-function-error-type'));
+        $this->assertErrorInLogs('RuntimeException', 'Failure after the end');
+    }
+
     private function streamedResponse(): RequestInterface
     {
         $requests = Server::received();

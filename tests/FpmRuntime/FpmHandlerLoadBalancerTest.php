@@ -138,7 +138,7 @@ final class FpmHandlerLoadBalancerTest extends TestCase
     {
         $this->startFpm(__DIR__ . '/fixtures/' . $file);
 
-        return $this->fpm->handle($event ?? [
+        return $this->handle($event ?? [
             'version' => '1.0',
             'httpMethod' => 'GET',
         ], $this->fakeContext);
@@ -151,5 +151,15 @@ final class FpmHandlerLoadBalancerTest extends TestCase
         }
         $this->fpm = new FpmHandler($handler, __DIR__ . '/fixtures/php-fpm.conf');
         $this->fpm->start();
+    }
+
+    /**
+     * The response of the handler, in the format of buffered invokers.
+     */
+    private function handle(array $event, Context $context): array
+    {
+        $result = $this->fpm->handle($event, $context);
+
+        return is_array($result) ? $result : json_decode($result->contents(), true, 512, JSON_THROW_ON_ERROR);
     }
 }
