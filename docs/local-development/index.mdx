@@ -49,6 +49,7 @@ services:
         volumes:
             - .:/var/task
         environment:
+            BREF_RUNTIME: fpm
             HANDLER: public/index.php
             # Assets will be served from this directory
             DOCUMENT_ROOT: public
@@ -62,7 +63,7 @@ docker compose up
 
 The application will be available at [http://localhost:8000/](http://localhost:8000/).
 
-The `HANDLER` environment variable lets you define which PHP file will be handling all HTTP requests. This should be the same handler that you have defined in `serverless.yml` for your HTTP function.
+The `BREF_RUNTIME` environment variable selects the Bref runtime: `fpm` for web applications. The `HANDLER` environment variable lets you define which PHP file will be handling all HTTP requests. This should be the same handler that you have defined in `serverless.yml` for your HTTP function.
 
 > Currently, the Docker image supports only one PHP handler. If you have multiple HTTP functions in `serverless.yml`, you can duplicate the service in `docker-compose.yml` to have one container per lambda function.
 
@@ -90,11 +91,12 @@ When developing locally, it is common to regenerate cache files on the fly (for 
 
 If you want to serve assets locally, you can define a `DOCUMENT_ROOT` environment variable:
 
-```yaml {6,7} filename="docker-compose.yml"
+```yaml {7,8} filename="docker-compose.yml"
 services:
     app:
         # ...
         environment:
+            BREF_RUNTIME: fpm
             HANDLER: public/index.php
             # Assets will be served from this directory
             DOCUMENT_ROOT: public
@@ -122,25 +124,25 @@ docker compose run app php bin/console ...
 
 The development container (`bref/php-<version>-dev`) comes with Xdebug pre-installed.
 
-To enable it, create a `php/conf.dev.d/php.ini` file in your project containing:
+To enable step debugging, create a `php/conf.dev.d/php.ini` file in your project containing:
 
 ```ini filename="php/conf.dev.d/php.ini"
-zend_extension=xdebug.so
-```
-
-Now start the debug session by issuing a request to your application [in the browser](https://xdebug.org/docs/remote#starting).
-
-#### Xdebug and macOS
-
-Docker for Mac uses a virtual machine for running docker. That means you need to use a special host name (`host.docker.internal`) that is mapped to the host machine's IP address.
-
-Edit the `php/conf.dev.d/php.ini` file:
-
-```ini filename="php/conf.dev.d/php.ini" {3-6}
 zend_extension=xdebug.so
 
 [xdebug]
 xdebug.mode = debug
 xdebug.start_with_request = yes
-xdebug.client_host = 'host.docker.internal'
+xdebug.client_host = host.docker.internal
 ```
+
+Inside the container, `localhost` is the container itself: `host.docker.internal` is the host name of your machine, where your IDE listens for Xdebug connections. Docker Desktop (macOS and Windows) defines it automatically. On Linux, add it to the service in `docker-compose.yml`:
+
+```yaml filename="docker-compose.yml"
+services:
+    app:
+        # ...
+        extra_hosts:
+            - 'host.docker.internal:host-gateway'
+```
+
+Now start the debug session by issuing a request to your application in the browser. Read the [Xdebug step debugging documentation](https://xdebug.org/docs/step_debug) for more details.
