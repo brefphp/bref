@@ -28,16 +28,34 @@ Then let's create a [`serverless.yml` configuration file](../environment/serverl
 php artisan vendor:publish --tag=serverless-config
 ```
 
+### Configure serverless.yml
+
+Before deploying, edit the generated `serverless.yml`:
+
+- Set `service` to the name of your application (lowercase, without spaces).
+- Replace the `APP_KEY` value: the generated file contains an example key that is public. Store your application's key as a [secret](../environment/variables.mdx#secrets) and reference it in `serverless.yml`:
+
+    ```yml filename="serverless.yml"
+    provider:
+        environment:
+            APP_KEY: ${ssm:/my-app/${sls:stage}/APP_KEY}
+    ```
+
+    You can use the key from your `.env` file, or generate a new one with `php artisan key:generate --show`.
+- If you deploy with [Bref Cloud](../cloud-getting-started.mdx), uncomment the `bref` section and set your team (you can find your team name [in Bref Cloud](https://bref.cloud/app/create)).
+
 ### How it works
 
 By default, the Laravel-Bref package will automatically configure Laravel to work on AWS Lambda.
 
 If you are curious, the package will automatically:
 
-- enable the `stderr` log driver, to send logs to CloudWatch ([read more about logs](../environment/logs.mdx))
-- enable the [`cookie` session driver](https://laravel.com/docs/session#configuration) (if you prefer, you can configure sessions to be stored in database, DynamoDB or Redis)
+- replace the default `stack` log channel with `stderr`, to send logs to CloudWatch ([read more about logs](../environment/logs.mdx))
+- replace the `file` session driver with the [`cookie` session driver](https://laravel.com/docs/session#configuration)
 - move the storage directory to `/tmp` (because the default storage directory is read-only on Lambda)
 - adjust a few more settings ([have a look at the `BrefServiceProvider` for details](https://github.com/brefphp/laravel-bridge/blob/master/src/BrefServiceProvider.php))
+
+The generated `serverless.yml` uses the `cookie` session driver (`SESSION_DRIVER: cookie`). Cookie sessions are limited to 4 KB of data: if your application stores more in the session, use the database, DynamoDB or Redis session driver instead.
 
 ## Deployment
 
@@ -53,19 +71,17 @@ We also do not want to deploy "dev" caches that were generated on our machine (b
 php artisan config:clear
 ```
 
-When running in AWS Lambda, the Laravel application will automatically cache its configuration when booting. You don't need to run `php artisan config:cache` before deploying.
-
 Let's deploy now:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
-        serverless deploy
+        bref deploy
         ```
     </Tabs.Tab>
     <Tabs.Tab>
         ```bash
-        bref deploy
+        serverless deploy
         ```
     </Tabs.Tab>
 </Tabs>
@@ -80,7 +96,7 @@ Follow [the deployment guide](/docs/deploy.md#deploying-for-production) for more
 
 > [!WARNING]
 >
-> Most Laravel applications use `aws/aws-sdk-php` (pulled in by packages like SQS queues, S3 storage, etc.). This package is **very large** (100MB+) and can push your deployment over Lambda's 250MB size limit. Make sure to [remove unused AWS services](/docs/deploy.md#reducing-package-size) to reduce the deployment size.
+> `bref/laravel-bridge` installs `aws/aws-sdk-php`. This package is **very large** (100MB+) and can push your deployment over Lambda's 250MB size limit. Make sure to [remove unused AWS services](/docs/deploy.md#reducing-package-size) to reduce the deployment size. Keep `Sqs` if you use queues and `DynamoDb` if you use DynamoDB for the cache or sessions.
 
 Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying.
 
@@ -116,18 +132,7 @@ As you may have noticed, we define a function named "artisan" in `serverless.yml
 
 For example, to execute an `artisan` command on Lambda, run the command below:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tabs.Tab>
-        ```bash
-        serverless bref:cli --args="{artisan command and options}"
-        ```
-
-        For example:
-
-        ```bash
-        serverless bref:cli --args="route:list"
-        ```
-    </Tabs.Tab>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
         bref command "{artisan command and options}"
@@ -137,6 +142,17 @@ For example, to execute an `artisan` command on Lambda, run the command below:
 
         ```bash
         bref command "route:list --help"
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        serverless bref:cli --args="{artisan command and options}"
+        ```
+
+        For example:
+
+        ```bash
+        serverless bref:cli --args="route:list"
         ```
     </Tabs.Tab>
 </Tabs>
@@ -158,10 +174,6 @@ bref tinker --env=prod
 ```
 
 ![](./tinker.png)
-
-> [!TIP]
->
-> Make sure to update the `bref/laravel-bridge` package to version 3.0 or higher to use this feature.
 
 If you are not using Bref Cloud, you can check out this community package: [sls-tinker](https://github.com/datpmwork/sls-tinker).
 
