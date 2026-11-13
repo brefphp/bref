@@ -117,13 +117,9 @@ bref deploy
 bref deploy --env production
 ```
 
-### Choosing the AWS account
+### Several AWS accounts
 
-When your team has a single AWS account connected, every environment is deployed to that account.
-
-When your team has several AWS accounts, the first `bref deploy` of a new environment asks which AWS account to deploy it to. The environment keeps that account for all the next deployments.
-
-This question cannot be answered in a non-interactive environment like CI: the deployment fails with "No AWS account selected". Deploy each new environment once from your terminal before deploying it from CI.
+A team can connect several AWS accounts to Bref Cloud, for example to deploy production in a separate account. In that case, the first `bref deploy` of a new environment asks which AWS account to deploy it to, and the environment keeps that account for the next deployments. Since CI cannot answer that question, deploy each new environment once from your terminal.
 
 ## Deployment history
 
@@ -221,4 +217,4 @@ Finally, you need to add the `BREF_TOKEN` secret to your repository:
 
 Bots have the "Write" role: anyone with the token can deploy the team's applications and run commands on them. If the token leaks, delete the bot in Bref Cloud.
 
-That's it! Your application will be deployed automatically when you push to the main branch. On the first deployment, the application will appear in the Bref Cloud dashboard. If your team has several AWS accounts, deploy the environment once from your terminal first (see [Choosing the AWS account](#choosing-the-aws-account)).
+That's it! Your application will be deployed automatically when you push to the main branch. On the first deployment, the application will appear in the Bref Cloud dashboard.
