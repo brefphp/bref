@@ -284,7 +284,8 @@ final class LambdaRuntime
             $data = [
                 'errorMessage' => $error->getMessage(),
                 'errorType' => get_class($error),
-                'stackTrace' => $traceAsArray,
+                // Only in the logs: Function URLs in RESPONSE_STREAM mode show the init error to the client
+                'stackTrace' => [],
             ];
             printf(
                 "Fatal error: %s in %s:%d\n %s\n",
