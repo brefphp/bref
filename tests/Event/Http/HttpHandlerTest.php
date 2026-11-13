@@ -6,7 +6,8 @@ use Bref\Context\Context;
 use Bref\Event\Http\HttpHandler;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\HttpResponse;
-use Bref\Runtime\StreamedResponse;
+use Bref\Event\Http\HttpResponseWriter;
+use Bref\Runtime\LambdaResult;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -28,7 +29,7 @@ class HttpHandlerTest extends TestCase
 
         $result = $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
 
-        $this->assertInstanceOf(StreamedResponse::class, $result);
+        $this->assertInstanceOf(LambdaResult::class, $result);
         $this->assertSame([
             '{"cookies":[],"statusCode":200,"headers":{"Content-Type":"text\\/plain"}}' . str_repeat("\0", 8),
             'Hello world!',
@@ -61,9 +62,56 @@ class HttpHandlerTest extends TestCase
     {
         $handler = $this->handler(fn () => throw new RuntimeException('Secret details'));
 
+        $result = $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
+        $chunks = [];
+
         // Nothing is sent: the runtime turns it into a 500 without details (see LambdaRuntimeTest)
-        $this->expectExceptionMessage('Secret details');
-        $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
+        try {
+            $result->writeTo(function (string $chunk) use (&$chunks) {
+                $chunks[] = $chunk;
+            });
+            $this->fail('The error must be thrown');
+        } catch (RuntimeException $e) {
+            $this->assertSame('Secret details', $e->getMessage());
+        }
+        $this->assertSame([], $chunks);
+    }
+
+    public function test handlers can write the response as it is produced()
+    {
+        $handler = new class extends HttpHandler {
+            protected function respond(HttpRequestEvent $event, Context $context, HttpResponseWriter $writer): void
+            {
+                $writer->start(201, ['content-type' => 'text/plain']);
+                $writer->capture(function () {
+                    echo 'Hello';
+                    echo ' world!';
+                });
+            }
+        };
+
+        $streamed = $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
+        $this->assertSame([
+            '{"cookies":[],"statusCode":201,"headers":{"Content-Type":"text\\/plain"}}' . str_repeat("\0", 8),
+            'Hello',
+            ' world!',
+        ], $this->chunks($streamed));
+
+        $buffered = $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context());
+        $this->assertSame(201, $buffered['statusCode']);
+        $this->assertSame('Hello world!', $buffered['body']);
+    }
+
+    public function test a handler that writes no response fails()
+    {
+        $handler = new class extends HttpHandler {
+            protected function respond(HttpRequestEvent $event, Context $context, HttpResponseWriter $writer): void
+            {
+            }
+        };
+
+        $this->expectExceptionMessage('The HTTP handler did not write any response');
+        $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context());
     }
 
     public function test REST API responses are streamed()
@@ -81,7 +129,7 @@ class HttpHandlerTest extends TestCase
 
         $result = $handler->handle($event, $this->context());
 
-        $this->assertInstanceOf(StreamedResponse::class, $result);
+        $this->assertInstanceOf(LambdaResult::class, $result);
     }
 
     /**
@@ -147,7 +195,7 @@ class HttpHandlerTest extends TestCase
     /**
      * @return string[]
      */
-    private function chunks(StreamedResponse $response): array
+    private function chunks(LambdaResult $response): array
     {
         $chunks = [];
         $response->writeTo(function (string $chunk) use (&$chunks) {

@@ -5,12 +5,12 @@ namespace Bref\Runtime;
 use Closure;
 
 /**
- * A response sent to Lambda chunk by chunk, as it is produced.
+ * The result of an invocation, sent to Lambda chunk by chunk as it is produced (whatever the event: HTTP or not).
  *
  * Handlers return it instead of a value to encode as JSON. The chunks are either pulled (an iterable,
- * e.g. the output of PHP-FPM) or pushed (a function that writes them, e.g. from a framework's output buffer).
+ * e.g. the output of PHP-FPM) or pushed (a function that writes them, e.g. an HTTP response writer).
  */
-final class StreamedResponse
+final class LambdaResult
 {
     /**
      * @param iterable<string>|Closure(callable(string): void): void $chunks

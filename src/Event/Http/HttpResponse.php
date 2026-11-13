@@ -2,8 +2,7 @@
 
 namespace Bref\Event\Http;
 
-use Bref\Runtime\StreamedResponse;
-use Closure;
+use Bref\Runtime\LambdaResult;
 
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
@@ -12,17 +11,17 @@ final class HttpResponse
 {
     private int $statusCode;
     private array $headers;
-    /** @var string|iterable<string>|Closure(callable(string): void): void */
-    private string|iterable|Closure $body;
+    /** @var string|iterable<string> */
+    private string|iterable $body;
 
     /**
-     * The body is a string, or its chunks when it is produced progressively: pulled (an iterable)
-     * or pushed (a function that writes them).
+     * The body is a string, or its chunks when it is produced progressively (an iterable, e.g. a generator).
+     * To write a body produced by `echo`, see HttpResponseWriter::capture().
      *
-     * @param string|iterable<string>|Closure(callable(string): void): void $body
-     * @param array<string|string[]>                                        $headers
+     * @param string|iterable<string> $body
+     * @param array<string|string[]>  $headers
      */
-    public function __construct(string|iterable|Closure $body, array $headers = [], int $statusCode = 200)
+    public function __construct(string|iterable $body, array $headers = [], int $statusCode = 200)
     {
         $this->body = $body;
         $this->headers = $headers;
@@ -83,22 +82,37 @@ final class HttpResponse
     }
 
     /**
-     * The format of Lambda's streamed HTTP responses (Function URLs in `RESPONSE_STREAM` mode): the status
-     * code and headers as JSON, 8 null bytes, then the body as is (binary included, no base64).
+     * The format of Lambda's streamed HTTP responses (Function URLs in `RESPONSE_STREAM` mode, REST APIs in
+     * `STREAM` mode): the status code and headers as JSON, 8 null bytes, then the body as is (binary included,
+     * no base64).
      *
      * A body produced by an iterable can only be sent once.
      */
-    public function toStreamedResponse(?string $awsRequestId = null): StreamedResponse
+    public function toStreamedResponse(?string $awsRequestId = null): LambdaResult
     {
-        $prelude = $this->toApiGatewayFormatV2WithoutBody($awsRequestId);
-
-        return new StreamedResponse(
-            'application/vnd.awslambda.http-integration-response',
-            function (callable $write) use ($prelude): void {
-                $write(json_encode($prelude, JSON_THROW_ON_ERROR) . "\0\0\0\0\0\0\0\0");
-                $this->writeBody($write);
-            },
+        return new LambdaResult(
+            HttpResponseWriter::STREAMED_CONTENT_TYPE,
+            fn (callable $send) => $this->sendTo(HttpResponseWriter::streamed($send, $awsRequestId)),
         );
+    }
+
+    /**
+     * Write the response, its body chunk by chunk. A body produced by an iterable can only be sent once.
+     */
+    public function sendTo(HttpResponseWriter $writer): void
+    {
+        $writer->start($this->statusCode, $this->headers);
+        LambdaResult::writeChunks(is_string($this->body) ? [$this->body] : $this->body, $writer->write(...));
+    }
+
+    /**
+     * The status code and headers of Lambda's streamed HTTP responses (see toStreamedResponse()).
+     *
+     * @internal
+     */
+    public function toStreamedPrelude(?string $awsRequestId = null): string
+    {
+        return json_encode($this->toApiGatewayFormatV2WithoutBody($awsRequestId), JSON_THROW_ON_ERROR) . "\0\0\0\0\0\0\0\0";
     }
 
     private function toApiGatewayFormatV2WithoutBody(?string $awsRequestId): array
@@ -139,19 +153,11 @@ final class HttpResponse
             return $this->body;
         }
         $body = '';
-        $this->writeBody(function (string $chunk) use (&$body): void {
+        foreach ($this->body as $chunk) {
             $body .= $chunk;
-        });
+        }
 
         return $this->body = $body;
-    }
-
-    /**
-     * @param callable(string): void $write
-     */
-    private function writeBody(callable $write): void
-    {
-        StreamedResponse::writeChunks(is_string($this->body) ? [$this->body] : $this->body, $write);
     }
 
     /**
