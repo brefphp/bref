@@ -309,12 +309,18 @@ class ServerlessPlugin {
     }
 
     /**
-     * Set the `BREF_RESPONSE_STREAMING` environment variable on functions whose URL streams:
+     * Set the `BREF_RESPONSE_STREAMING` environment variable on functions whose URL or REST API streams:
      * Bref cannot tell from the events, and each mode breaks with the other's response format.
      */
     configureResponseStreaming() {
         for (const f of Object.values(this.serverless.service.functions || {})) {
-            if (typeof f.url !== 'object' || f.url.invokeMode !== 'RESPONSE_STREAM') continue;
+            const streamedUrl = typeof f.url === 'object' && f.url.invokeMode === 'RESPONSE_STREAM';
+            const streamedRestApi = (f.events || []).some((event) => {
+                // `response.transferMode` is not in the types of the `serverless` package
+                const http = 'http' in event ? /** @type {any} */ (event.http) : undefined;
+                return typeof http === 'object' && String((http.response || {}).transferMode).toUpperCase() === 'STREAM';
+            });
+            if (!streamedUrl && !streamedRestApi) continue;
             if (!f.environment) {
                 f.environment = {};
             }
