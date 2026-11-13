@@ -48,13 +48,19 @@ This format is specific to AWS. With Bref, PHP applications don't see it: Bref t
 
 An application is deployed to an AWS *region*, for example Paris (`eu-west-3`) or Ireland (`eu-west-1`). A region is made of multiple *availability zones* (usually three or more), which are physically separate data centers.
 
-Lambda runs instances across all availability zones of the region. If a data center has an outage, Lambda starts new instances in the other ones. If an instance crashes, Lambda replaces it: the requests it was handling fail, but the application stays up.
-
 Lambda runs on [EC2](https://aws.amazon.com/ec2/) servers operated by AWS. Each server hosts instances of many AWS customers, and each instance is isolated in a [Firecracker](https://firecracker-microvm.github.io/) *microVM*.
 
 ![An AWS region contains three availability zones, each with EC2 servers hosting microVMs of many AWS customers](./how-it-works/infrastructure.svg)
 
 Firecracker is an open-source virtualization technology created by AWS. It provides the isolation of virtual machines (it is based on KVM) with the fast startup and low overhead of containers. It is also used by AWS Fargate.
+
+### Resilience
+
+Lambda runs instances across all availability zones of the region. If a data center has an outage, Lambda starts new instances in the other ones.
+
+![Availability zone B has an outage: Lambda starts new instances in zones A and C to replace the ones that were running in zone B](./how-it-works/outage.svg)
+
+If an instance crashes, Lambda replaces it: the requests it was handling fail, but the application stays up.
 
 ## Instance startup
 
