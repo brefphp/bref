@@ -102,21 +102,6 @@ functions:
             - http: 'ANY /{proxy+}'
 ```
 
-To stream responses to the client as they are produced (not limited to 6 MB), set the `STREAM` transfer mode on every `http` event of the function:
-
-```yml filename="serverless.yml"
-functions:
-    hello:
-        handler: index.php
-        # ...
-        events:
-            - http:
-                  path: /{proxy+}
-                  method: ANY
-                  response:
-                      transferMode: STREAM
-```
-
 Learn more [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/apigateway.md).
 
 ### Application Load Balancer
