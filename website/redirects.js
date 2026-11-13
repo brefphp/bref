@@ -72,5 +72,9 @@ module.exports.redirects = {
     '/docs/function/cron': '/docs/use-cases/cron#cron-functions',
     '/docs/getting-started': '/docs/setup',
     '/docs/deploy#stages': '/docs/deploy#environments',
-    '/docs/environment/database#accessing-the-internet': '/docs/environment/database#vpc-databases-private-network'
+    '/docs/environment/database#accessing-the-internet': '/docs/environment/database#vpc-databases-private-network',
+    // The Sentry integration is now maintained by Sentry: sentry/sentry-bref
+    '/sentry': 'https://docs.sentry.io/platforms/php/guides/bref/',
+    '/sentry/docs': 'https://docs.sentry.io/platforms/php/guides/bref/',
+    '/sentry/terms': 'https://docs.sentry.io/platforms/php/guides/bref/',
 };
