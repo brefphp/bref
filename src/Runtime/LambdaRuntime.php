@@ -40,6 +40,8 @@ final class LambdaRuntime
     private string $apiUrl;
     private Invoker $invoker;
     private string $layer;
+    /** Sends the response of the current invocation. */
+    private ?ResponseSender $responseSender = null;
 
     public static function fromEnvironmentVariable(string $layer): self
     {
@@ -86,6 +88,7 @@ final class LambdaRuntime
         $this->setEnv('LAMBDA_REQUEST_ID', $context->getAwsRequestId());
         $this->setEnv('_X_AMZN_TRACE_ID', $context->getTraceId());
 
+        $this->responseSender = null;
         try {
             ColdStartTracker::invocationStarted();
 
@@ -196,12 +199,24 @@ final class LambdaRuntime
     }
 
     /**
-     * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-api.html#runtimes-api-response
+     * Every response is sent with the streaming mode of the Runtime API, whatever invokes the function:
+     * invokers that do not stream (API Gateway, ALB, SQS, the Invoke API...) receive it buffered.
      */
-    private function sendResponse(string $invocationId, mixed $responseData): void
+    private function sendResponse(string $invocationId, mixed $result): void
     {
-        $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/response";
-        $this->postJson($url, $responseData);
+        $result = $result instanceof StreamedResponse
+            ? $result
+            : new StreamedResponse('application/json', [$this->toJson($result)]);
+
+        $this->responseSender = new ResponseSender($this->apiUrl, $invocationId, $result->contentType);
+        try {
+            $result->writeTo($this->responseSender->write(...));
+            $this->responseSender->end();
+        } catch (Throwable $e) {
+            // Too late for the error endpoint if the response has started: the error goes in its trailers
+            $this->responseSender->abort($e);
+            throw $e;
+        }
     }
 
     /**
@@ -211,24 +226,31 @@ final class LambdaRuntime
     {
         $this->logError($error, $invocationId);
 
-        /**
-         * Send an "error" Lambda response (see https://github.com/brefphp/bref/pull/1483).
-         *
-         * Unless the error was ResponseTooBig, in that case we would get the following error:
-         *
-         *     InvalidStateTransition: State transition from RuntimeResponseSentState to InvocationErrorResponse failed for runtime. Error: State transition is not allowed
-         *
-         * It seems like once the response is sent, we can't signal an execution failure.
-         * This is the same behavior in other runtimes like Node (the execution is successful despite the error).
-         */
-        if (! $error instanceof ResponseTooBig) {
-            $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
-            $this->postJson($url, [
-                'errorType' => get_class($error),
-                'errorMessage' => $error->getMessage(),
-                'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
-            ]);
+        // Once the response has started, the Runtime API refuses errors (InvalidStateTransition)
+        if ($this->responseSender?->started()) {
+            return;
         }
+
+        $url = "http://$this->apiUrl/2018-06-01/runtime/invocation/$invocationId/error";
+        $this->postJson($url, [
+            'errorType' => get_class($error),
+            'errorMessage' => $error->getMessage(),
+            'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
+        ]);
+    }
+
+    private function toJson(mixed $data): string
+    {
+        /** @noinspection JsonEncodingApiUsageInspection */
+        $json = json_encode($data);
+        if ($json === false) {
+            throw new Exception(sprintf(
+                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-requests-and-responses\nHere is the original JSON error: '%s'",
+                json_last_error_msg()
+            ));
+        }
+
+        return $json;
     }
 
     /**
@@ -284,18 +306,10 @@ final class LambdaRuntime
     /**
      * @param string[] $headers
      * @throws Exception
-     * @throws ResponseTooBig
      */
     private function postJson(string $url, mixed $data, array $headers = []): void
     {
-        /** @noinspection JsonEncodingApiUsageInspection */
-        $jsonData = json_encode($data);
-        if ($jsonData === false) {
-            throw new Exception(sprintf(
-                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-requests-and-responses\nHere is the original JSON error: '%s'",
-                json_last_error_msg()
-            ));
-        }
+        $jsonData = $this->toJson($data);
 
         if ($this->curlHandleResult === null) {
             $this->curlHandleResult = curl_init();
@@ -323,10 +337,6 @@ final class LambdaRuntime
         if ($statusCode >= 400) {
             // Re-open the connection in case of failure to start from a clean state
             $this->closeCurlHandleResult();
-
-            if ($statusCode === 413) {
-                throw new ResponseTooBig;
-            }
 
             try {
                 $error = json_decode($body, true, 512, JSON_THROW_ON_ERROR);

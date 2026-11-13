@@ -17,10 +17,12 @@ use Bref\Event\Sqs\SqsHandler;
 use Bref\Listener\BrefEventSubscriber;
 use Bref\Runtime\LambdaRuntime;
 use Bref\Runtime\ResponseTooBig;
+use Bref\Runtime\StreamedResponse;
 use Bref\Test\RuntimeTestCase;
 use Bref\Test\Server;
 use Exception;
 use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -97,6 +99,133 @@ class LambdaRuntimeTest extends RuntimeTestCase
             ['errorClass' => 'RuntimeException', 'errorMessage' => 'The previous exception.'],
             ['errorClass' => 'Exception', 'errorMessage' => 'The original exception.'],
         ]);
+    }
+
+    public function test a streamed response is sent chunk by chunk()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', (function () {
+            yield 'Hello ';
+            yield '';
+            yield 'world!';
+        })()));
+
+        $response = $this->streamedResponse();
+        $this->assertSame('text/plain', $response->getHeaderLine('Content-Type'));
+        $this->assertSame('Hello world!', $response->getBody()->__toString());
+        $this->assertFalse($response->hasHeader('lambda-runtime-function-error-type'));
+    }
+
+    public function test a streamed response can push its chunks()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', function (callable $write) {
+            $write('Hello ');
+            $write('world!');
+        }));
+
+        $this->assertSame('Hello world!', $this->streamedResponse()->getBody()->__toString());
+    }
+
+    public function test a streamed response that fails before its first byte is an invocation error()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', function () {
+            throw new RuntimeException('Failure before the first byte');
+        }));
+
+        $this->assertFalse($output);
+        $this->assertInvocationErrorResult('RuntimeException', 'Failure before the first byte');
+    }
+
+    public function test a streamed response that fails after its first byte reports the error in the trailers()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', (function () {
+            yield 'Hello';
+            throw new RuntimeException('Failure in the middle');
+        })()));
+
+        $this->assertFalse($output);
+        // The status is already sent: the error is in the trailers, which Lambda counts in the error metrics
+        $response = $this->streamedResponse();
+        $this->assertSame('Hello', $response->getBody()->__toString());
+        $this->assertSame('RuntimeException', $response->getHeaderLine('lambda-runtime-function-error-type'));
+        $error = json_decode(base64_decode($response->getHeaderLine('lambda-runtime-function-error-body')), true);
+        $this->assertSame('Failure in the middle', $error['errorMessage']);
+        $this->assertErrorInLogs('RuntimeException', 'Failure in the middle');
+    }
+
+    private function streamedResponse(): RequestInterface
+    {
+        $requests = Server::received();
+        $this->assertCount(2, $requests);
+        [, $response] = $requests;
+        $this->assertSame('POST', $response->getMethod());
+        $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $response->getUri()->__toString());
+        $this->assertSame('streaming', $response->getHeaderLine('lambda-runtime-function-response-mode'));
+
+        return $response;
+    }
+
+    public function test an empty streamed response is sent()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', ['', '']));
+
+        $this->assertTrue($output);
+        $this->assertSame('', $this->streamedResponse()->getBody()->__toString());
+    }
+
+    public function test streamed chunks are sent intact()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+        // Looks like the end of a chunked body, and binary data
+        $tricky = "a\r\n0\r\n\r\nb\0c";
+        // The test server records text: a big body of random text
+        $big = bin2hex(random_bytes(150_000));
+
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('application/octet-stream', [$tricky, $big, $tricky]));
+
+        $this->assertSame($tricky . $big . $tricky, $this->streamedResponse()->getBody()->__toString());
+    }
+
+    public function test a streamed response refused for its size throws a clear error()
+    {
+        Server::enqueue([
+            new Response(200, ['lambda-runtime-aws-request-id' => '1'], '{ "Hello": "world!"}'),
+            new Response(413, [], '{"errorMessage": "Exceeded maximum allowed payload size (6291556 bytes).", "errorType": "RequestEntityTooLarge"}'),
+        ]);
+
+        $output = $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', ['Hello ', 'world!']));
+
+        $this->assertFalse($output);
+        // The response was sent: no error request (the Runtime API would refuse it)
+        $this->assertCount(2, Server::received());
+        $this->assertErrorInLogs(ResponseTooBig::class, 'The Lambda response is too big and above the limit');
+    }
+
+    public function test the invocation after a failed stream can report its own failure()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+        $this->runtime->processNextEvent(fn () => new StreamedResponse('text/plain', (function () {
+            yield 'Hello';
+            throw new RuntimeException('Failure in the middle');
+        })()));
+        Server::flush();
+
+        // The next invocation fails before its first byte: the error endpoint is used again
+        $this->givenAnEvent(['Hello' => 'world!']);
+        $this->runtime->processNextEvent(function () {
+            throw new RuntimeException('Failure before the first byte');
+        });
+
+        $this->assertInvocationErrorResult('RuntimeException', 'Failure before the first byte');
     }
 
     public function test an error is thrown if the runtime API returns a wrong response()
