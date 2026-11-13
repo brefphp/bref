@@ -41,4 +41,4 @@ To use DynamoDB as a cache store, set the following lines in `config/cache.php`:
 
 Then follow [this section of the documentation](/docs/environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework, and set `CACHE_STORE: dynamodb` and `DYNAMODB_CACHE_TABLE` in `serverless.yml`.
 
-The DynamoDB cache store requires the `aws/aws-sdk-php` package, which is large: [remove the AWS services you don't use](../deploy/index.mdx#reducing-package-size) to stay under Lambda's size limit.
+The DynamoDB cache store requires the `aws/aws-sdk-php` package, which is large: [remove the AWS services you don't use](/docs/deploy#reducing-package-size) to stay under Lambda's size limit.

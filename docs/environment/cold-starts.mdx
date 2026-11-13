@@ -45,7 +45,7 @@ functions:
                     warmer: true
 ```
 
-Bref recognizes the `warmer` event and responds with a `Status: 100` in a few milliseconds without executing your application code. This keeps the Lambda instance warm.
+In HTTP functions, Bref recognizes the `warmer` event and returns immediately, without running your application code. Each scheduled invocation keeps one Lambda instance warm.
 
 You can also use external services like [Pingdom](https://www.pingdom.com/) to ping your application regularly.
 

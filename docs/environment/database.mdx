@@ -21,7 +21,7 @@ Here are some of the database services offered by RDS:
 
 > [!TIP]
 >
-> Aurora Serverless can be configured to scale down to 0 when unused (which costs $0), however be careful with this option: the database can take up to 15 seconds to un-pause.
+> Aurora Serverless can be configured to scale down to 0 when unused (no instance cost). Resuming takes about 15 seconds, and 30 seconds or more after a pause longer than a day: the first HTTP request can time out. Keep the auto-pause for development and test databases.
 
 AWS also offers [Aurora DSQL](./database-dsql.mdx), a serverless database compatible with PostgreSQL: it needs no VPC, no password, and costs nothing while idle. Read [when to use it](./database-dsql.mdx#when-to-use-aurora-dsql) rather than an RDS database.
 
@@ -97,7 +97,7 @@ An internet-accessible database is the simplest option and works well for most p
         >
         > Lambda functions in a VPC **lose internet access**. This can cause timeouts. You need a NAT Gateway to restore internet access (~$36/month). Alternatively, you can use [a NAT instance](https://fck-nat.dev/) (~$7/month).
 
-        You can follow [this tutorial](https://medium.com/@philippholly/aws-lambda-enable-outgoing-internet-access-within-vpc-8dd250e11e12) to set up a NAT Gateway, use [the serverless VPC plugin](https://github.com/smoketurner/serverless-vpc-plugin), or use the complete example in [Serverless Visually Explained](https://serverless-visually-explained.com/).
+        You can use the complete example in [Serverless Visually Explained](https://serverless-visually-explained.com/) to set up a VPC with a NAT Gateway.
 
         You can use one VPC and one NAT Gateway for multiple projects. You can also access some AWS services (S3, SQS, etc.) without a NAT Gateway via [private VPC endpoints](https://docs.aws.amazon.com/en_pv/vpc/latest/userguide/vpc-endpoints-access.html), but this does not replace a NAT Gateway for external APIs.
 
@@ -187,21 +187,50 @@ If you are not using Bref Cloud, store credentials in SSM parameters ([read more
         Doctrine is auto-configured by Symfony using the `DATABASE_URL` environment variable.
     </Tabs.Tab>
     <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        provider:
+            environment:
+                DB_HOST: <endpoint>
+                DB_USERNAME: ${ssm:/my-app/db-username}
+                DB_PASSWORD: ${ssm:/my-app/db-password}
+        ```
+
         Connect to the database using the endpoint, for example with PDO:
 
-        ```
-        mysql://user:password@dbname.e2sctvp0nqos.us-east-1.rds.amazonaws.com/dbname
+        ```php
+        $pdo = new PDO(
+            'mysql:host=' . getenv('DB_HOST') . ';dbname=my_database',
+            getenv('DB_USERNAME'),
+            getenv('DB_PASSWORD'),
+        );
         ```
     </Tabs.Tab>
 </Tabs>
 
 Also refer to the [Extensions](/docs/environment/php.mdx#extensions) section to see if you need to enable any database-specific extensions.
 
+## Connections at scale
+
+Each Lambda instance handles one request at a time and opens its own database connection. With 200 concurrent requests, the database receives 200 connections. The maximum number of connections (`max_connections`) depends on the memory of the database instance: the smallest instance classes accept around a hundred connections or less. Above that limit, connections fail with a "Too many connections" error.
+
+If your traffic can exceed that limit, you can:
+
+- Use a larger database instance.
+- Limit the number of concurrent Lambda instances of a function with its `reservedConcurrency` option ([documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#configuration)). Requests beyond that limit are throttled. This is useful for queue workers, which could otherwise flood the database.
+- Use [RDS Proxy](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html) to pool connections between Lambda and the database. RDS Proxy is only reachable from inside a VPC, has an extra cost, and prevents Aurora Serverless from auto-pausing.
+
+```yml filename="serverless.yml"
+functions:
+    worker:
+        # ...
+        reservedConcurrency: 20
+```
+
 ## Running database migrations
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
     <Tabs.Tab>
-        <Tabs items={['Bref Cloud', 'Serverless Framework']}>
+        <Tabs items={['Bref Cloud', 'Serverless CLI']}>
             <Tabs.Tab>
                 ```bash
                 bref command "migrate --force"
@@ -215,7 +244,7 @@ Also refer to the [Extensions](/docs/environment/php.mdx#extensions) section to 
         </Tabs>
     </Tabs.Tab>
     <Tabs.Tab>
-        <Tabs items={['Bref Cloud', 'Serverless Framework']}>
+        <Tabs items={['Bref Cloud', 'Serverless CLI']}>
             <Tabs.Tab>
                 ```bash
                 bref command "doctrine:migrations:migrate --no-interaction"

@@ -16,6 +16,10 @@ When the function is invoked, the Console runtime will execute the PHP script de
 
 The result of the execution (exit code and output) will be returned as the result of the AWS Lambda invocation. All the CLI output is also logged ([learn more about logs](../environment/logs.mdx)).
 
+If the command exits with a non-zero exit code, the invocation fails: the output of the command is returned as the error message (`errorMessage`) instead of the result.
+
+The command is stopped 1 second before the Lambda function's timeout. Only the last 5MB of the output are returned (the full output is still in the logs).
+
 Console functions can be invoked:
 
 - via a cron schedule
@@ -39,7 +43,7 @@ functions:
         runtime: php-84-console
 ```
 
-Behind the scenes, the `php-xx-console` runtime will deploy a Lambda function configured to use Bref's `php-84` AWS Lambda layer plus Bref's `console` layer (read more about these in the [runtimes documentation](../runtimes.mdx)).
+Behind the scenes, `php-84-console` deploys the function with Bref's `php-84` AWS Lambda layer and sets the `BREF_RUNTIME` environment variable to the console runtime (read more in [Runtimes in detail](./runtimes-details.mdx)).
 
 ## Running commands
 
@@ -74,38 +78,7 @@ Read the dedicated documentation for [running cron tasks on AWS Lambda](../use-c
 
 To manually run a console command on AWS Lambda, run the following command on your computer:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
-    <Tabs.Tab>
-        ```bash
-        serverless bref:cli --args="{arguments and options for the script}"
-        ```
-
-        The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` runtime and will run the command on that function.
-
-        Pass your command arguments and options in the `--args` flag (shortcut: `-a`). Remember to escape quotes properly. Some examples:
-
-        ```bash
-        # Runs the CLI application without arguments and displays the help
-        $ serverless bref:cli
-        # ...
-
-        $ serverless bref:cli --args="doctrine:migrations:migrate"
-        Your database will be migrated.
-        To execute the SQL queries run the command with the `--force` option.
-
-        $ serverless bref:cli -a "doctrine:migrations:migrate --force"
-        Your database has been migrated.
-
-        $ serverless bref:cli --stage=prod -a "db:dump --file='/tmp/dump.sql' --verbose"
-        # ...
-
-        # You can use environment variables to configure AWS credentials (e.g. in CI)
-        $ AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar serverless bref:cli
-        # ...
-        ```
-
-        The `bref:cli` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
-    </Tabs.Tab>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
         bref command "{arguments and options for the script}"
@@ -132,6 +105,39 @@ To manually run a console command on AWS Lambda, run the following command on yo
         ```
 
         The `bref command` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
+
+        `bref command` waits for the command for about 2 minutes. After that, it stops waiting and displays "Timed out", but the command might still be running in Lambda.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        serverless bref:cli --args="{arguments and options for the script}"
+        ```
+
+        The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` runtime and will run the command on that function. If several functions use the `console` runtime, or if the runtime is set in a Docker image, pass the function name with the `--function` option (shortcut: `-f`), for example `serverless bref:cli --function=artisan --args="migrate --force"`.
+
+        Pass your command arguments and options in the `--args` flag (shortcut: `-a`). Remember to escape quotes properly. Some examples:
+
+        ```bash
+        # Runs the CLI application without arguments and displays the help
+        $ serverless bref:cli
+        # ...
+
+        $ serverless bref:cli --args="doctrine:migrations:migrate"
+        Your database will be migrated.
+        To execute the SQL queries run the command with the `--force` option.
+
+        $ serverless bref:cli -a "doctrine:migrations:migrate --force"
+        Your database has been migrated.
+
+        $ serverless bref:cli --stage=prod -a "db:dump --file='/tmp/dump.sql' --verbose"
+        # ...
+
+        # You can use environment variables to configure AWS credentials (e.g. in CI)
+        $ AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar serverless bref:cli
+        # ...
+        ```
+
+        The `bref:cli` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
     </Tabs.Tab>
 </Tabs>
 
@@ -171,7 +177,10 @@ aws lambda invoke \
     response.json && jq -r .output response.json
 ```
 
-> **Note:**
+If the command fails (non-zero exit code), the output is in the `errorMessage` field of `response.json` instead.
+
+> [!NOTE]
+>
 > The `--payload` needs to contain a JSON string, that is why it is quoted twice: `'"..."'`. This is intentional.
 
 ## Lambda context

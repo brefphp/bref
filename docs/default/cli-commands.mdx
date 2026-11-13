@@ -15,30 +15,30 @@ The function uses the [Console runtime](../runtimes/console.mdx).
 
 To execute the script on Lambda, run the command below:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
-        serverless bref:cli
+        bref command
         ```
     </Tabs.Tab>
     <Tabs.Tab>
         ```bash
-        bref command
+        serverless bref:cli
         ```
     </Tabs.Tab>
 </Tabs>
 
 We can also pass arguments to the script:
 
-<Tabs items={['Serverless CLI', 'Bref Cloud']}>
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
     <Tabs.Tab>
         ```bash
-        serverless bref:cli --args="extra command line arguments and options"
+        bref command "extra command line arguments and options"
         ```
     </Tabs.Tab>
     <Tabs.Tab>
         ```bash
-        bref command "extra command line arguments and options"
+        serverless bref:cli --args="extra command line arguments and options"
         ```
     </Tabs.Tab>
 </Tabs>

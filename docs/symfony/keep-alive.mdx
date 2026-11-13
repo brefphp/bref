@@ -1,3 +1,6 @@
+---
+description: "Keep the Symfony Kernel in memory between requests on AWS Lambda using Bref."
+---
 
 # Keeping the Symfony Kernel alive between requests
 
@@ -24,7 +27,9 @@ functions:
 +            BREF_LOOP_MAX: 100
 ```
 
-The `App\Kernel` will be retrieved via Symfony Runtime from `public/index.php`. If you don't have a `public/index.php`, read the next sections.
+`BREF_LOOP_MAX` sets the number of requests handled before the PHP process restarts. It defaults to 1: without it, the Kernel is not kept alive. The process also restarts after any request that fails with an uncaught exception, regardless of `BREF_LOOP_MAX`.
+
+The `App\Kernel` will be retrieved via Symfony Runtime from `public/index.php`. If you don't have a `public/index.php`, read the [custom bootstrap file](#custom-bootstrap-file) section.
 
 ## How it works
 
@@ -34,25 +39,29 @@ Note that the execution model of AWS Lambda is unchanged: the entire Lambda inst
 
 The main risks with this approach are memory leaks and global state. If your application has memory leaks, the memory usage will increase over time and eventually reach the Lambda limit. This can be mitigated by setting `BREF_LOOP_MAX` to a low value, so that the Symfony Kernel is restarted regularly. If your application uses global state, it will be shared between requests, which can be a disaster security-wise.
 
+Services that keep state between requests must reset it by implementing Symfony's `ResetInterface` (or the `kernel.reset` tag). Some bundles do not, for example EasyAdmin ([symfony-bridge#58](https://github.com/brefphp/symfony-bridge/issues/58)) and KnpPaginatorBundle ([symfony-bridge#59](https://github.com/brefphp/symfony-bridge/issues/59)). Test your application with several consecutive requests before deploying it to production.
+
 ## Custom bootstrap file
 
-If you do not have a `public/index.php` file, you can create a file that returns the kernel (or any PSR-11 container):
+If you do not have a `public/index.php` file, you can create a file that returns the kernel (or any PSR-11 container), for example `kernel.php` at the root of the project:
 
-```php
+```php filename="kernel.php"
 <?php
 
-require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+require_once __DIR__.'/vendor/autoload_runtime.php';
 
 return function (array $context) {
     return new App\Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
 };
 ```
 
-And configure it in `serverless.yml`:
+Then set the handler to `<file>:<service id>`: Bref requires the file, gets the container from the kernel it returns, and uses the service with that ID as the handler.
 
-```diff
-# serverless.yml
+```yml filename="serverless.yml"
 functions:
-    sqsHandler:
-        handler: kernel.php:App\Service\MyService
+    app:
+        handler: kernel.php:App\Kernel
+        runtime: php-84
+        environment:
+            BREF_LOOP_MAX: 100
 ```

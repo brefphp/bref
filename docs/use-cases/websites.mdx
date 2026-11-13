@@ -83,7 +83,7 @@ npm install --save-dev serverless-lift
     <Tabs.Tab>
         Then add this configuration to `serverless.yml`:
 
-        ```yml filename="serverless.yml" {5,7-16}
+        ```yml filename="serverless.yml" {5,7-17}
         # ...
 
         plugins:
@@ -96,13 +96,14 @@ npm install --save-dev serverless-lift
                 versionedAssets: true
                 assets:
                     '/bundles/*': public/bundles
-                    '/build/*': public/build
+                    '/assets/*': public/assets # AssetMapper
+                    '/build/*': public/build # Webpack Encore
                     '/favicon.ico': public/favicon.ico
                     '/robots.txt': public/robots.txt
                     # add here any file or directory that needs to be served from S3
         ```
 
-        We enable [`versionedAssets`](https://github.com/getlift/lift/blob/master/docs/server-side-website.md#versioned-assets) so that deployments are zero-downtime: Webpack Encore generates asset file names with a unique hash in production (`.enableVersioning()` is enabled by default in the Symfony recipe), and Lift uploads the new hashed assets to S3 *before* the new PHP code is deployed. This guarantees that the assets referenced by the freshly-deployed code are already available. Non-hashed files (like `/bundles/*`) are not affected: they are updated after the deployment, like by default.
+        We enable [`versionedAssets`](https://github.com/getlift/lift/blob/master/docs/server-side-website.md#versioned-assets) so that deployments are zero-downtime: AssetMapper and Webpack Encore generate asset file names with a unique hash in production (for Encore, `.enableVersioning()` is enabled by default in the Symfony recipe), and Lift uploads the new hashed assets to S3 *before* the new PHP code is deployed. This guarantees that the assets referenced by the freshly-deployed code are already available. Non-hashed files (like `/bundles/*`) are not affected: they are updated after the deployment, like by default.
 
         Because this construct sets the `X-Forwarded-Host` header by default, you should add it in your `trusted_headers` config, otherwise Symfony might generate wrong URLs.
 
@@ -115,9 +116,14 @@ npm install --save-dev serverless-lift
         ```bash
         php bin/console assets:install --env prod
 
+        # if using AssetMapper, additionally run
+        php bin/console asset-map:compile --env prod
+
         # if using Webpack Encore, additionally run
         yarn encore production
         ```
+
+        In `serverless.yml`, keep only the line of the tool you use: `/assets/*` for AssetMapper (`asset-map:compile` writes to `public/assets`), `/build/*` for Webpack Encore.
     </Tabs.Tab>
     <Tabs.Tab>
         Then add this configuration to `serverless.yml`:

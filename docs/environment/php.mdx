@@ -47,6 +47,16 @@ If you are using Lambda layers, for example to use custom PHP extensions, you ca
 
 Make sure to give a unique name to your `.ini` file to avoid any collision with other layers.
 
+## OPcache
+
+OPcache is enabled by default. PHP checks whether each PHP file has changed before using its cached version (`opcache.validate_timestamps`). The code of a Lambda function does not change once deployed, so you can disable that check in your `php/conf.d/php.ini` to save a little time on each request:
+
+```ini filename="php/conf.d/php.ini"
+opcache.validate_timestamps=0
+```
+
+Keep the check enabled if your application modifies PHP files at runtime (for example a cache written to `/tmp`): OPcache would keep using the old version of those files.
+
 ## Extensions
 
 Bref strives to include the most common PHP extensions. If a major PHP extension is missing please open an issue to discuss it.
@@ -63,6 +73,7 @@ The following extensions are installed and enabled by default in Bref runtimes:
     <li>date</li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.dom.php">dom</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.exif.php">exif</a></li>
+    <li><a className="underline" href="https://www.php.net/manual/en/book.ffi.php">FFI</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.fileinfo.php">fileinfo</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.filter.php">filter</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.ftp.php">ftp</a></li>
@@ -97,8 +108,11 @@ The following extensions are installed and enabled by default in Bref runtimes:
     <li><a className="underline" href="https://www.php.net/manual/en/book.xmlreader.php">xmlreader</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.xmlwriter.php">xmlwriter</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.xsl.php">xsl</a></li>
+    <li><a className="underline" href="https://www.php.net/manual/en/book.zip.php">zip</a></li>
     <li><a className="underline" href="https://www.php.net/manual/en/book.zlib.php">zlib</a></li>
 </ul>
+
+FFI follows PHP's default `ffi.enable=preload`: it can be used from the CLI and from preloaded files. Set `ffi.enable=true` in your `php.ini` to use it everywhere.
 
 ### Extensions installed but disabled by default
 
@@ -134,12 +148,13 @@ The most popular extra extensions are:
 - **[amqp](https://github.com/brefphp/extra-php-extensions/tree/master/layers/amqp)** - RabbitMQ and AMQP client
 - **[grpc](https://github.com/brefphp/extra-php-extensions/tree/master/layers/grpc)** and **[protobuf](https://github.com/brefphp/extra-php-extensions/tree/master/layers/protobuf)** - gRPC and Protocol Buffers
 - **[ldap](https://github.com/brefphp/extra-php-extensions/tree/master/layers/ldap)** - LDAP directory access
-- **[imap](https://github.com/brefphp/extra-php-extensions/tree/master/layers/imap)** - IMAP mail access
 - **[xdebug](https://github.com/brefphp/extra-php-extensions/tree/master/layers/xdebug)** - debugging and profiling
 - **[pcov](https://github.com/brefphp/extra-php-extensions/tree/master/layers/pcov)** - code coverage
 - **[blackfire](https://github.com/brefphp/extra-php-extensions/tree/master/layers/blackfire)**, **[tideways](https://github.com/brefphp/extra-php-extensions/tree/master/layers/tideways)**, **[datadog](https://github.com/brefphp/extra-php-extensions/tree/master/layers/datadog)**, **[newrelic](https://github.com/brefphp/extra-php-extensions/tree/master/layers/newrelic)** - APM and profiling agents
 
 And many more: [see the full list of extra extensions](https://github.com/brefphp/extra-php-extensions#available-layers). Contributions to add more PHP extensions are welcome.
+
+Not every extension is available for every PHP version (some are not published for PHP 8.5 yet). Check [the available layers](https://github.com/brefphp/extra-php-extensions/blob/master/layers.json) for your PHP version.
 
 > [!NOTE]
 >
@@ -171,7 +186,7 @@ Use these `${bref-extra:…}` variables rather than copying layer ARNs: the ARNs
 
 Keep in mind that AWS Lambda allows at most 5 layers per function, and that extra extensions are not available for ARM (`arm64`) yet.
 
-Layers also count toward the [250MB size limit](../deploy/index.mdx#reducing-package-size) of Lambda functions. Some extensions are large: for example, `imagick` takes about 70MB unzipped (it includes Ghostscript). Deploy without development dependencies (`composer install --no-dev`) to leave room for them.
+Layers also count toward the [250MB size limit](/docs/deploy#reducing-package-size) of Lambda functions. Some extensions are large: for example, `imagick` takes about 70MB unzipped (it includes Ghostscript). Deploy without development dependencies (`composer install --no-dev`) to leave room for them.
 
 #### Using extra extensions with Docker
 
@@ -181,36 +196,41 @@ If you [deploy using container images](../deploy/docker.mdx), each extra extensi
 
 It is also possible to provide your own extensions via [custom AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html).
 
-> This guide is really raw, feel free to contribute to improve it.
+A layer is unzipped in `/opt` on Lambda. A layer for a PHP extension contains:
 
-To create your custom layer, you will need to:
+- the compiled extension in `/opt/bref/extensions/`
+- an `.ini` file that enables it in `/opt/bref/etc/php/conf.d/` (give it a unique name, for example `ext-<name>.ini`)
+- the system libraries it needs, if any, in `/opt/lib/`
 
-- compile the extension (and any required libraries) in the same environment as AWS Lambda and Bref
-- include the compiled extension (and required libraries) in a layer
-- upload the layer to AWS Lambda
-- include the layer in your project
-- enable the extension in a custom `php.ini`
+Compile the extension in the `bref/build-php-*` Docker images: they use the same environment as AWS Lambda and Bref. Here is an example with the `xhprof` extension from PECL:
 
-To compile the extension, Bref provides the `bref/build-php-*` Docker images. Here is an example with Blackfire:
+```dockerfile filename="Dockerfile"
+FROM bref/build-php-84:3 AS ext
 
-```dockerfile
-FROM bref/build-php-84:3
+RUN pecl install xhprof
+RUN cp `php-config --extension-dir`/xhprof.so /tmp/xhprof.so
+RUN echo 'extension=xhprof.so' > /tmp/ext.ini
 
-RUN curl -A "Docker" -o /tmp/blackfire.so -L -s "https://packages.blackfire.io/binaries/blackfire-php/1.42.0/blackfire-php-linux_amd64-php-84.so"
+# Keep only the files of the layer
+FROM scratch
 
-# Build the final image from the amazon image that is close to the production environment
-FROM public.ecr.aws/lambda/provided:al2023
-
-# Copy things we installed to the final image
-COPY --from=0 /tmp/blackfire.so /opt/bref-extra/blackfire.so
+COPY --from=ext /tmp/xhprof.so /opt/bref/extensions/xhprof.so
+COPY --from=ext /tmp/ext.ini /opt/bref/etc/php/conf.d/ext-xhprof.ini
 ```
 
-The `.so` extension file can then be retrieved in `/opt/bref-extra/blackfire.so`.
-If you installed system libraries, you may also need to copy them to the `public.ecr.aws/lambda/provided:al2023`
-image.
+Build the image, zip the content of `/opt` and publish it as a layer:
 
-See [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions)
-for more examples.
+```bash
+docker build --platform linux/amd64 --output type=local,dest=layer .
+(cd layer/opt && zip -r ../../layer.zip .)
+aws lambda publish-layer-version --layer-name php-84-xhprof --zip-file fileb://layer.zip --compatible-architectures x86_64
+```
+
+Then add the layer ARN returned by that command to the `layers` of your functions. The layer must be built for the same PHP version and architecture as your functions.
+
+If you [deploy using container images](../deploy/docker.mdx), you don't need a layer: add the build stage to your Dockerfile and copy the files into your image (`COPY --from=ext /tmp/xhprof.so /opt/bref/extensions/xhprof.so`, and the same for the `.ini` file).
+
+See [brefphp/extra-php-extensions](https://github.com/brefphp/extra-php-extensions/tree/master/layers) for more examples, including extensions that need system libraries.
 
 ## Custom vendor path
 
