@@ -83,7 +83,9 @@ The reasons for this are:
 
 ### What permissions does the `BrefCloudAccess` role have?
 
-By default, the `BrefCloudAccess` role has a set of permissions that allows Bref Cloud to deploy and manage your applications. For example, it can create AWS resources (like Lambda functions) via CloudFormation, read logs and metrics, etc. When you set up Bref Cloud, you can review these permissions in the IAM role that is created in your account.
+The `BrefCloudAccess` role can deploy any CloudFormation stack, including IAM roles: in practice, it has administrator access to the AWS account. This is required to deploy applications that create their own IAM roles, queues, databases, etc. It can also read logs and metrics. You can review these permissions in the IAM role, in your account.
+
+When a team member with the Write or Admin role, or a bot, runs `bref deploy`, the `bref` CLI receives temporary credentials of this role (valid 30 minutes) to run the deployment. Only give Write access to people you would trust with deploying to the AWS account.
 
 You can also customize the permissions of the `BrefCloudAccess` role if you want to restrict it further. Of course, all Bref Cloud features may not work correctly in some cases if you restrict the permissions too much.
 
@@ -163,4 +165,4 @@ Yes, you can modify the permissions in the `BrefCloudAccess` IAM role to restric
 
 ### Does Bref Cloud comply with my organization's security requirements?
 
-Bref Cloud follows AWS security best practices, including the principle of least privilege, temporary credentials, and cross-account access controls. For organizations with specific compliance requirements (like SOC2, HIPAA, etc.), you may want to consider the self-hosted option for complete control over the infrastructure.
+Bref Cloud follows AWS security best practices, including temporary credentials and cross-account access controls. For organizations with specific compliance requirements (like SOC2, HIPAA, etc.), you may want to consider the self-hosted option for complete control over the infrastructure.
