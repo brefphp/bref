@@ -42,6 +42,66 @@ class MyHandler extends WebsocketHandler
 }
 ```
 
+Then, create a Lambda function that handles WebSocket events with the handler you created:
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            websocket:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - websocket: $connect
+                    - websocket: $disconnect
+                    - websocket: $default
+        ```
+
+        The `App\MyHandler` class will be instantiated by Laravel's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            websocket:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - websocket: $connect
+                    - websocket: $disconnect
+                    - websocket: $default
+        ```
+
+        The `App\MyHandler` class will be instantiated by Symfony's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            websocket:
+                handler: handler.php
+                runtime: php-84
+                events:
+                    - websocket: $connect
+                    - websocket: $disconnect
+                    - websocket: $default
+        ```
+
+        The file `handler.php` should return the handler instance:
+
+        ```php filename="handler.php"
+        <?php
+
+        require __DIR__ . '/vendor/autoload.php';
+
+        return new MyHandler();
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+The `$connect` and `$disconnect` routes are invoked when a client connects and disconnects. The `$default` route receives the messages sent by clients.
+
 To send a message to a connected client, you can use the [bref/api-gateway-websocket-client library](https://github.com/brefphp/api-gateway-websocket-client) to make an HTTP request to the endpoint provided by AWS.
 
 Learn more about using WebSockets in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/websocket.md).

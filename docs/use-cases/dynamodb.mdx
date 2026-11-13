@@ -1,3 +1,5 @@
+import { Tabs } from 'nextra/components';
+
 # DynamoDB events
 
 To handle [DynamoDB events](https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html), extend the `DynamoDbHandler` class:
@@ -22,4 +24,64 @@ class MyHandler extends DynamoDbHandler
 }
 ```
 
-Learn more about using DynamoDB in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/streams.md).
+`getKeys()`, `getOldImage()` and `getNewImage()` return items in the DynamoDB attribute format, for example `['id' => ['S' => '123']]`. To get plain PHP arrays, use the `Marshaler` class of the AWS SDK: `(new \Aws\DynamoDb\Marshaler)->unmarshalItem($record->getNewImage())`.
+
+Then, create a Lambda function that listens to the DynamoDB stream of the table with the handler you created:
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - stream:
+                        type: dynamodb
+                        arn: arn:aws:dynamodb:eu-west-1:111111111111:table/my-table/stream/2026-01-01T00:00:00.000
+        ```
+
+        The `App\MyHandler` class will be instantiated by Laravel's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - stream:
+                        type: dynamodb
+                        arn: arn:aws:dynamodb:eu-west-1:111111111111:table/my-table/stream/2026-01-01T00:00:00.000
+        ```
+
+        The `App\MyHandler` class will be instantiated by Symfony's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: handler.php
+                runtime: php-84
+                events:
+                    - stream:
+                        type: dynamodb
+                        arn: arn:aws:dynamodb:eu-west-1:111111111111:table/my-table/stream/2026-01-01T00:00:00.000
+        ```
+
+        The file `handler.php` should return the handler instance:
+
+        ```php filename="handler.php"
+        <?php
+
+        require __DIR__ . '/vendor/autoload.php';
+
+        return new MyHandler();
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+The `stream` event does not create the stream: [enable DynamoDB Streams](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html) on the table. Learn more about using DynamoDB in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/streams.md).

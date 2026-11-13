@@ -1,3 +1,5 @@
+import { Tabs } from 'nextra/components';
+
 # SNS events
 
 To handle SNS events, extend the `SnsHandler` class:
@@ -20,4 +22,60 @@ class MyHandler extends SnsHandler
 }
 ```
 
-Learn more about using SNS in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/sns.md).
+Then, create a Lambda function that listens to SNS events with the handler you created:
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - sns: my-topic
+        ```
+
+        The `App\MyHandler` class will be instantiated by Laravel's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - sns: my-topic
+        ```
+
+        The `App\MyHandler` class will be instantiated by Symfony's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: handler.php
+                runtime: php-84
+                events:
+                    - sns: my-topic
+        ```
+
+        The file `handler.php` should return the handler instance:
+
+        ```php filename="handler.php"
+        <?php
+
+        require __DIR__ . '/vendor/autoload.php';
+
+        return new MyHandler();
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+The `sns` event creates the SNS topic on deployment. Learn more about using SNS in `serverless.yml` [in the Serverless Framework documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/sns.md), for example to subscribe to an existing topic.
+
+## Error handling
+
+If the handler throws an exception, Lambda retries the event twice, then drops it. Read [Error handling](/docs/use-cases/sqs#error-handling) to keep failed events.

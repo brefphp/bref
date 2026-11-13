@@ -1,3 +1,5 @@
+import { Tabs } from 'nextra/components';
+
 # Kafka events
 
 To handle [Kafka events](https://docs.aws.amazon.com/lambda/latest/dg/with-kafka.html), extend the `KafkaHandler` class:
@@ -7,7 +9,7 @@ use Bref\Context\Context;
 use Bref\Event\Kafka\KafkaEvent;
 use Bref\Event\Kafka\KafkaHandler;
 
-class Handler extends KafkaHandler
+class MyHandler extends KafkaHandler
 {
     public function handleKafka(KafkaEvent $event, Context $context): void
     {
@@ -19,3 +21,63 @@ class Handler extends KafkaHandler
     }
 }
 ```
+
+Then, create a Lambda function that listens to a Kafka topic with the handler you created. Here is an example with Amazon MSK (Managed Streaming for Apache Kafka):
+
+<Tabs items={['Laravel', 'Symfony', 'PHP']}>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - msk:
+                        arn: arn:aws:kafka:eu-west-1:111111111111:cluster/my-cluster/xxxx-xxxx-xxxx
+                        topic: my-topic
+        ```
+
+        The `App\MyHandler` class will be instantiated by Laravel's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: App\MyHandler
+                runtime: php-84
+                events:
+                    - msk:
+                        arn: arn:aws:kafka:eu-west-1:111111111111:cluster/my-cluster/xxxx-xxxx-xxxx
+                        topic: my-topic
+        ```
+
+        The `App\MyHandler` class will be instantiated by Symfony's service container.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yml filename="serverless.yml"
+        functions:
+            # ...
+            worker:
+                handler: handler.php
+                runtime: php-84
+                events:
+                    - msk:
+                        arn: arn:aws:kafka:eu-west-1:111111111111:cluster/my-cluster/xxxx-xxxx-xxxx
+                        topic: my-topic
+        ```
+
+        The file `handler.php` should return the handler instance:
+
+        ```php filename="handler.php"
+        <?php
+
+        require __DIR__ . '/vendor/autoload.php';
+
+        return new MyHandler();
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+For a self-managed Kafka cluster, use the `kafka` event instead. Learn more about the [`msk` event](https://github.com/oss-serverless/osls/blob/4.x/docs/events/msk.md) and the [`kafka` event](https://github.com/oss-serverless/osls/blob/4.x/docs/events/kafka.md) in the Serverless Framework documentation.

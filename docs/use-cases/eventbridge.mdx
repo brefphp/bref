@@ -38,7 +38,7 @@ Then, create a Lambda function that listens to EventBridge events with the handl
         ```yml filename="serverless.yml"
         functions:
             # ...
-            resizeImage:
+            worker:
                 handler: App\MyHandler
                 runtime: php-84
                 events:
@@ -54,7 +54,7 @@ Then, create a Lambda function that listens to EventBridge events with the handl
         ```yml filename="serverless.yml"
         functions:
             # ...
-            resizeImage:
+            worker:
                 handler: App\MyHandler
                 runtime: php-84
                 events:
@@ -70,7 +70,7 @@ Then, create a Lambda function that listens to EventBridge events with the handl
         ```yml filename="serverless.yml"
         functions:
             # ...
-            resizeImage:
+            worker:
                 handler: handler.php
                 runtime: php-84
                 events:
@@ -91,6 +91,10 @@ Then, create a Lambda function that listens to EventBridge events with the handl
         ```
     </Tabs.Tab>
 </Tabs>
+
+## Error handling
+
+If the handler throws an exception, Lambda retries the event twice, then drops it. Read [Error handling](/docs/use-cases/sqs#error-handling) to keep failed events.
 
 You can learn more about messaging with EventBridge in [Serverless Visually Explained](https://serverless-visually-explained.com/).
 
