@@ -179,11 +179,3 @@ The ping can be disabled by setting a `BREF_PING_DISABLE` environment variable t
 > If your company policy requires disabling the ping, it would be extremely beneficial to the project (and transitively to your company) to report privately a rough number of invocations. You can send me a direct email at [matthieu@bref.sh](mailto:matthieu@bref.sh).
 >
 > Such data is collected privately and is not shared publicly on its own. I include it in the total number of invocations that I share publicly.
-
-## Deployment telemetry
-
-The Bref plugin for `serverless.yml` sends an anonymous UDP packet every time a `serverless` command runs (including when `bref deploy` runs it). It is used to estimate the number of Bref users and which commands are used the most.
-
-The packet contains: the command (for example `deploy`), the Bref major version, whether the command runs in CI, the anonymous ID and installation date created by the `serverless` CLI, the timezone, the types of [Lift](https://github.com/getlift/lift) constructs used, and the names of the [extra PHP extension](/docs/environment/php.mdx#extra-extensions) layers used. Anyone can inspect the code in the `telemetry()` method of [Bref's `index.js`](https://github.com/brefphp/bref/blob/master/index.js).
-
-To disable it, set the `SLS_TELEMETRY_DISABLED` environment variable to `1` on the machine that runs the deployment.
