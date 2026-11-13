@@ -8,7 +8,7 @@ import CostsCalculator from '../../src/components/CostsCalculator';
 
 Unlike traditional hosting, serverless hosting is billed based on usage. This means that you only pay for what you use, **down to the request**.
 
-To be clear, this means that if your application is not used, you don't pay anything.
+AWS Lambda, API Gateway and SQS are billed per use: if your application is not used, you don't pay anything for these services. Databases and NAT gateways are billed per hour, whether they are used or not.
 
 On AWS Lambda, you pay for:
 
@@ -18,6 +18,17 @@ On AWS Lambda, you pay for:
 There are no costs when the PHP application is waiting between requests (or jobs, events, etc.). It doesn't matter if AWS Lambda scaled your functions up to several instances (containers), you only pay for the requests and the duration of the requests.
 
 For some use cases it has interesting consequences: 1 job running for 10 minutes has about the same costs as 600 jobs running for 1 second in parallel.
+
+## Logs
+
+CloudWatch Logs bills the logs written by your application: from $0.50 per GB ingested, plus $0.03 per GB stored per month. Lambda logs are kept forever by default. To limit storage costs, set how many days logs are kept with the `logRetentionInDays` option in `serverless.yml`:
+
+```yaml
+provider:
+    logRetentionInDays: 30
+```
+
+Logs are not included in the calculator below. For applications that write a lot of logs, they can be a significant part of the bill.
 
 ## Costs calculator
 
