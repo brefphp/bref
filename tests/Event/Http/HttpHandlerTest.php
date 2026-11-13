@@ -8,7 +8,6 @@ use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\HttpResponse;
 use Bref\Event\Http\HttpResponseWriter;
 use Bref\Runtime\LambdaResult;
-use LogicException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -81,11 +80,6 @@ class HttpHandlerTest extends TestCase
     public function test handlers can write the response as it is produced()
     {
         $handler = new class extends HttpHandler {
-            public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
-            {
-                throw new LogicException('Not used');
-            }
-
             protected function respond(HttpRequestEvent $event, Context $context, HttpResponseWriter $writer): void
             {
                 $writer->start(201, ['content-type' => 'text/plain']);
@@ -111,11 +105,6 @@ class HttpHandlerTest extends TestCase
     public function test a handler that writes no response fails()
     {
         $handler = new class extends HttpHandler {
-            public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
-            {
-                throw new LogicException('Not used');
-            }
-
             protected function respond(HttpRequestEvent $event, Context $context, HttpResponseWriter $writer): void
             {
             }

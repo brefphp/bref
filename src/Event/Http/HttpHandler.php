@@ -9,7 +9,13 @@ use LogicException;
 
 abstract class HttpHandler implements Handler
 {
-    abstract public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse;
+    /**
+     * Implement it to return the response to the request, or override respond() to write it as it is produced.
+     */
+    public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
+    {
+        throw new LogicException(static::class . ' must implement handleRequest() or respond()');
+    }
 
     /** {@inheritDoc} */
     public function handle($event, Context $context): array|LambdaResult
