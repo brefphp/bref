@@ -160,6 +160,11 @@ final class FpmHandler extends HttpHandler
         while (! $this->reading->isTerminated() && preg_match('#\r?\n\r?\n#', $output) !== 1) {
             $output .= (string) $this->reading->resume();
         }
+
+        // PHP-FPM sends no output when it fails to start the request, such as running out of memory parsing the body
+        if ($output === '') {
+            throw new FastCgiCommunicationFailed('PHP-FPM failed to start the request, the PHP-FPM logs contain the error');
+        }
         $response = new Response($output, '', 0);
 
         $responseHeaders = array_change_key_case($response->getHeaders(), CASE_LOWER);
@@ -308,6 +313,10 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('LAMBDA_REQUEST_ID', $context->getAwsRequestId());
         $request->setCustomVar('_X_AMZN_TRACE_ID', $context->getTraceId());
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext(), JSON_THROW_ON_ERROR));
+
+        if ($event->isHttps()) {
+            $request->setCustomVar('HTTPS', 'on');
+        }
 
         $contentType = $event->getContentType();
         if ($contentType) {

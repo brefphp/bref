@@ -1,3 +1,6 @@
+---
+description: "Store files on S3 with Laravel on AWS Lambda: uploads, downloads and public files."
+---
 
 # File storage
 
@@ -102,6 +105,7 @@ The `bref/laravel-bridge` package provides everything else (update it to the lat
 **Authorize uploads**: the route is protected by the `uploadFiles` gate. Define it in a service provider (for example `AppServiceProvider`):
 
 ```php filename="app/Providers/AppServiceProvider.php"
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
 // Allow all authenticated users to upload files
@@ -212,16 +216,21 @@ async function onFileSelected(event) {
 **Backend**: validate the key and copy the file to its final location:
 
 ```php
+use App\Models\Document;
 use Bref\LaravelBridge\Upload\UploadedToS3;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 public function store(Request $request)
 {
     $validated = $request->validate([
+        'title' => ['required', 'string'],
         // Checks that the file was uploaded by the current user, exists, and matches the extension and size
         // (pass `extensions: null` to accept any file type)
         'file_key' => ['required', new UploadedToS3(extensions: ['pdf'], maxSize: 10 * 1024 * 1024)],
     ]);
+
+    $document = Document::create(['title' => $validated['title']]);
 
     // Copy from the temporary location to the final location
     $finalPath = "documents/{$document->id}.pdf";
@@ -246,7 +255,7 @@ There is no need to delete the temporary file: the lifecycle rule configured abo
 | `signal` | | An `AbortSignal` to cancel the upload |
 | `httpClient` | | An axios-compatible client (e.g. `axios`) to use instead of `fetch`, like `Vapor.store()`. The client then handles CSRF and authentication |
 
-Files are uploaded under `tmp/{user id}/` (the prefix cleaned up by the lifecycle rule above), so that a user cannot reference another user's upload. To allow uploads from guests (for example a public form), remove the `auth` middleware in the configuration below and accept a nullable user in the gate (`fn (?User $user) => true`): guest uploads are stored under `tmp/` directly.
+Files are uploaded under `tmp/{user id}/` (the prefix cleaned up by the lifecycle rule above), so that a user cannot reference another user's upload. To allow uploads from guests (for example a public form), remove the `auth` middleware in the configuration below and accept a nullable user in the gate (`fn (?User $user) => true`): guest uploads are stored under `tmp/` directly. When allowing guests, also rate limit the route with the `throttle` option (for example `'10,1'` for 10 requests per minute). Rate limiting needs a shared cache store, see [Caching](./caching.mdx).
 
 The feature can be configured in the `uploads` section of `config/bref.php` (`php artisan vendor:publish --tag=bref-config`):
 
@@ -256,6 +265,8 @@ The feature can be configured in the `uploads` section of `config/bref.php` (`ph
     'route' => '/signed-upload-url',
     // To allow uploads from guests, remove `auth` and accept a nullable user in the `uploadFiles` gate
     'middleware' => ['web', 'auth'],
+    // Rate limit for signing requests: e.g. '60,1' (60 per minute), a named Laravel limiter, or null to disable
+    'throttle' => null,
     // Disk used for uploads (null = default disk). Must be an S3 disk.
     'disk' => null,
     // Prefix of temporary uploads. Configure an S3 lifecycle rule to expire this prefix.
@@ -280,7 +291,7 @@ return response()->json(['download_url' => $url]);
 
 The URL can be used directly in the browser or in an `<a>` tag.
 
-For local development, Laravel's filesystem abstraction lets you use the same code locally and in production. Laravel [supports temporary URLs for local files](https://laravel.com/docs/filesystem#temporary-urls) since version 9.
+For local development, Laravel's filesystem abstraction lets you use the same code locally and in production. Laravel 11 and later [support temporary URLs for local files](https://laravel.com/docs/filesystem#enabling-local-temporary-urls) (the `serve` option of the `local` disk).
 
 ## Public files
 
@@ -323,7 +334,7 @@ provider:
 
 ### Making public files work locally
 
-Locally, the default `local` disk stores files in `storage/app/private`, so files written under the `public/` prefix end up in `storage/app/private/public`. To make things work, you can point the storage symlink to that directory in `config/filesystems.php`:
+In applications created with Laravel 11 and later, the default `local` disk stores files in `storage/app/private`, so files written under the `public/` prefix end up in `storage/app/private/public`. To make things work, you can point the storage symlink to that directory in `config/filesystems.php`:
 
 ```diff
     'links' => [
@@ -338,6 +349,8 @@ If the `public/storage` symlink already exists, you need to remove it first so i
 rm public/storage
 php artisan storage:link
 ```
+
+In older applications, the `local` disk stores files in `storage/app`: files under the `public/` prefix end up in `storage/app/public`, which the default symlink already points to.
 
 > [!WARNING]
 >

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 360" width="800" height="360">
+<style>text{font-family:Inter,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;fill:#1f2937;font-size:14px}.b{font-weight:600}.s{font-size:12px;fill:#6b7280}</style>
+<rect width="800" height="360" rx="12" fill="#fff"/>
+<rect x="10" y="10" width="780" height="300" rx="10" fill="#f9fafb" stroke="#9ca3af"/>
+<text x="30" y="40" class="b" style="font-size:15px">AWS region <tspan class="s" style="font-weight:400">(for example Paris, eu-west-3)</tspan></text>
+<rect x="30" y="60" width="240" height="230" rx="8" fill="#fff" stroke="#9ca3af" stroke-dasharray="6 4"/>
+<text x="44" y="84" class="b" style="font-size:13px">Availability zone A</text>
+<text x="44" y="102" class="s">a separate data center</text>
+<rect x="42" y="116" width="216" height="160" rx="6" fill="#f3f4f6" stroke="#d1d5db"/>
+<text x="54" y="138" class="s">EC2 server</text>
+<rect x="54" y="150" width="32" height="32" rx="4" fill="#3aa9e9"/>
+<rect x="94" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="134" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="174" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="214" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="54" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="94" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="134" y="190" width="32" height="32" rx="4" fill="#3aa9e9"/>
+<rect x="174" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="214" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="54" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="94" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="134" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="174" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="214" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="285" y="60" width="240" height="230" rx="8" fill="#fff" stroke="#9ca3af" stroke-dasharray="6 4"/>
+<text x="299" y="84" class="b" style="font-size:13px">Availability zone B</text>
+<text x="299" y="102" class="s">a separate data center</text>
+<rect x="297" y="116" width="216" height="160" rx="6" fill="#f3f4f6" stroke="#d1d5db"/>
+<text x="309" y="138" class="s">EC2 server</text>
+<rect x="309" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="349" y="150" width="32" height="32" rx="4" fill="#3aa9e9"/>
+<rect x="389" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="429" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="469" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="309" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="349" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="389" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="429" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="469" y="190" width="32" height="32" rx="4" fill="#3aa9e9"/>
+<rect x="309" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="349" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="389" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="429" y="230" width="32" height="32" rx="4" fill="#3aa9e9"/>
+<rect x="469" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="540" y="60" width="240" height="230" rx="8" fill="#fff" stroke="#9ca3af" stroke-dasharray="6 4"/>
+<text x="554" y="84" class="b" style="font-size:13px">Availability zone C</text>
+<text x="554" y="102" class="s">a separate data center</text>
+<rect x="552" y="116" width="216" height="160" rx="6" fill="#f3f4f6" stroke="#d1d5db"/>
+<text x="564" y="138" class="s">EC2 server</text>
+<rect x="564" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="604" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="644" y="150" width="32" height="32" rx="4" fill="#3aa9e9"/>
+<rect x="684" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="724" y="150" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="564" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="604" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="644" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="684" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="724" y="190" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="564" y="230" width="32" height="32" rx="4" fill="#3aa9e9"/>
+<rect x="604" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="644" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="684" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="724" y="230" width="32" height="32" rx="4" fill="#d1d5db"/>
+<rect x="30" y="327" width="16" height="16" rx="3" fill="#3aa9e9"/><text x="54" y="340">Instances of your application (Firecracker microVMs)</text>
+<rect x="460" y="327" width="16" height="16" rx="3" fill="#d1d5db"/><text x="484" y="340">Instances of other AWS customers</text>
+</svg>

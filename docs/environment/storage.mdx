@@ -85,7 +85,7 @@ The disadvantage is that if the data format changes between deployments, then a 
 
 Cache services that can be used include for example Redis, Memcache or DynamoDB. AWS offers those as managed services through AWS ElastiCache (Redis, Memcache) or DynamoDB.
 
-Note that Redis and Memcache (through ElastiCache) run even when not used, which incurs costs. DynamoDB is a little slower than both of those but can be deployed in a "pay-per-request" mode where costs are proportional to the usage. There is a package implementing the PSR cache interfaces using DynamoDB ([rikudou/psr6-dynamo-db](https://github.com/RikudouSage/DynamoDbCachePsr6)).
+Note that ElastiCache (Redis, Valkey, Memcached) is only reachable from inside a VPC: your Lambda functions must run in that VPC (read [VPC databases](./database.mdx#vpc-databases-private-network)), and both provisioned and serverless caches have a minimum monthly cost, even when not used. DynamoDB is a little slower than both of those but can be deployed in a "pay-per-request" mode where costs are proportional to the usage. There is a package implementing the PSR cache interfaces using DynamoDB ([rikudou/psr6-dynamo-db](https://github.com/RikudouSage/DynamoDbCachePsr6)).
 
 This solution is ideal for cache data that can change during the life of the application (e.g. caching a website menu, an API response…).
 
@@ -136,4 +136,15 @@ provider:
     environment:
         # This environment variable will contain the table name
         DYNAMODB_CACHE_TABLE: !Ref CacheTable
+```
+
+## `/tmp` size
+
+The `/tmp` directory is limited to 512MB by default. Bref's OPcache file cache is stored there too. If your application writes large files to `/tmp` (or if you get "No space left on device" errors), increase its size, up to 10GB, with the `ephemeralStorageSize` option (in MB):
+
+```yml filename="serverless.yml"
+functions:
+    web:
+        # ...
+        ephemeralStorageSize: 2048
 ```
