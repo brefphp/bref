@@ -34,7 +34,7 @@ const advancedUseCases = [
     },
     {
         name: 'WebSockets',
-        description: 'AWS API Gateway manages the WebSocket connections for you. Send messages to your users in real-time.'
+        description: 'AWS API Gateway manages the WebSocket connections for you. Send messages to your users in real-time, with Laravel Echo if you use Laravel.'
     },
 ];
 

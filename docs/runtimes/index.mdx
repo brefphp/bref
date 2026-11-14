@@ -30,7 +30,7 @@ This runtime uses PHP-FPM to run **web applications** on AWS Lambda, like on a t
 
 It's **the easiest to start with**: it works like traditional PHP hosting and is compatible with Symfony, Laravel, and other frameworks.
 
-[Learn more about the PHP-FPM runtime](./runtimes/fpm-runtime.mdx).
+[Learn more about the PHP-FPM runtime](/docs/runtimes/fpm-runtime.mdx).
 
 ### Event-driven functions
 
@@ -46,7 +46,7 @@ This runtime works great to create **event-driven microservices**.
 >
 > If you are getting started, we highly recommend using the FPM runtime instead. It's "PHP as usual" (like on any server), with all the benefits of serverless (simplicity, scaling, etc.).
 
-[Learn more about the Function runtime](./runtimes/function.mdx).
+[Learn more about the Function runtime](/docs/runtimes/function.mdx).
 
 ### Console
 
@@ -56,14 +56,14 @@ This runtime lets you run CLI console commands on Lambda.
 
 For example, we can run the [Symfony Console](https://symfony.com/doc/master/components/console.html) or [Laravel Artisan](https://laravel.com/docs/artisan).
 
-[Learn more about the Console runtime](./runtimes/console.mdx).
+[Learn more about the Console runtime](/docs/runtimes/console.mdx).
 
 ## Lambda layers or Docker images?
 
 Bref runtimes are distributed in two forms:
 
-- **AWS Lambda layers**: this is the default. Your code is deployed as a zip archive and the Bref runtime is added to the function as a Lambda layer. This is what `runtime: php-84` does in `serverless.yml`, as explained in the [Usage](#usage) section below and in [Runtimes in detail](./runtimes/runtimes-details.mdx).
-- **Docker images**: the same runtimes are also published as Docker images (`bref/php-84`, `bref/php-84-dev`, etc.). Use them to [deploy container images to Lambda](./deploy/docker.mdx) instead of zip archives, or to [run your application locally](./local-development.mdx).
+- **AWS Lambda layers**: this is the default. Your code is deployed as a zip archive and the Bref runtime is added to the function as a Lambda layer. This is what `runtime: php-84` does in `serverless.yml`, as explained in the [Usage](#usage) section below and in [Runtimes in detail](/docs/runtimes/runtimes-details.mdx).
+- **Docker images**: the same runtimes are also published as Docker images (`bref/php-84`, `bref/php-84-dev`, etc.). Use them to [deploy container images to Lambda](/docs/deploy/docker.mdx) instead of zip archives, or to [run your application locally](/docs/local-development.mdx).
 
 If you are getting started, use Lambda layers: it is simpler and faster. Docker is useful when your code exceeds the 250MB limit or when you need custom system binaries.
 
@@ -147,7 +147,7 @@ What the Bref plugin for `serverless.yml` (the one we include with `./vendor/bre
 functions:
     hello:
         # ...
-        runtime: php-84
+        runtime: php-84-fpm
 ```
 
 into this:
@@ -158,14 +158,16 @@ functions:
         # ...
         runtime: provided.al2023
         layers:
-            - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:21'
+            - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:25'
+        environment:
+            BREF_RUNTIME: Bref\FpmRuntime\Main
 ```
 
-☝️ `provided.al2023` [is the generic Linux environment for custom runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-use), and the `layers` config points to Bref's AWS Lambda layers.
+☝️ `provided.al2023` [is the generic Linux environment for custom runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-use), and the `layers` config points to Bref's AWS Lambda layer for PHP 8.4. There is one layer per PHP version: the same layer runs the FPM, function and console runtimes. The `BREF_RUNTIME` environment variable tells the layer which runtime to start.
 
-Thanks to the Bref plugin, our `serverless.yml` is simpler. It also automatically adapts to the AWS region in use, and automatically points to the correct layer version. You can learn more about "layers" [in this page](./runtimes/runtimes-details.mdx).
+Thanks to the Bref plugin, our `serverless.yml` is simpler. It also automatically adapts to the AWS region in use, and automatically points to the correct layer version. You can learn more about "layers" [in this page](/docs/runtimes/runtimes-details.mdx).
 
-If you want to reference AWS Lambda layers directly (instead of using the simpler `runtime: php-84` syntax), the Bref plugin also provides simple `serverless.yml` variables. These were the default in Bref v1.x, so you may find this older syntax on tutorials and blog posts:
+If you want to reference AWS Lambda layers directly (instead of using the simpler `runtime: php-84` syntax), the Bref plugin also provides `serverless.yml` variables. In that case, you must set the `BREF_RUNTIME` environment variable yourself, to `function`, `fpm` or `console`:
 
 ```yaml
 service: app
@@ -179,8 +181,8 @@ functions:
         # ...
         layers:
             - ${bref:layer.php-84}
-            # or:
-            - ${bref:layer.php-84-fpm}
+        environment:
+            BREF_RUNTIME: fpm # or `function` or `console`
 ```
 
 The `${...}` notation is the [syntax to use variables](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/variables.md) in `serverless.yml`. The Bref plugin provides the following variables:
@@ -189,13 +191,8 @@ The `${...}` notation is the [syntax to use variables](https://github.com/oss-se
 - `${bref:layer.php-84}`
 - `${bref:layer.php-83}`
 - `${bref:layer.php-82}`
-- `${bref:layer.php-85-fpm}`
-- `${bref:layer.php-84-fpm}`
-- `${bref:layer.php-83-fpm}`
-- `${bref:layer.php-82-fpm}`
-- `${bref:layer.console}`
 
-Bref ARM layers are the same as the x86 layers, but with the `arm-` prefix in their name, for example `${bref:layer.arm-php-82}`. The only exception is `${bref:layer.console}` (this is the same layer for both x86 and ARM).
+Bref ARM layers are the same as the x86 layers, but with the `arm-` prefix in their name, for example `${bref:layer.arm-php-84}`.
 
 > [!TIP]
 >
