@@ -1,0 +1,238 @@
+---
+description: "Store files on S3 with Symfony and Flysystem on AWS Lambda: uploads, downloads and public files."
+---
+
+# Symfony file storage
+
+On AWS Lambda, [the filesystem is read-only](../environment/storage.mdx) except for `/tmp`, which is not shared between Lambda instances. Store files on **AWS S3** instead.
+
+This page uses [Flysystem](https://flysystem.thephpleague.com/) through the [Flysystem bundle](https://github.com/thephpleague/flysystem-bundle), with its S3 adapter. The application then uses the same code locally (files on disk) and on Lambda (files in S3).
+
+## Setup
+
+Install the Flysystem bundle and the S3 adapter:
+
+```bash
+composer require league/flysystem-bundle league/flysystem-aws-s3-v3
+```
+
+Create the S3 bucket with [Serverless Lift](https://github.com/getlift/lift). Install the Lift plugin:
+
+```bash
+npm install --save-dev serverless-lift
+```
+
+Add `serverless-lift` to the `plugins` section of `serverless.yml`, after `./vendor/bref/bref`. Then use [the `storage` construct](https://github.com/getlift/lift/blob/master/docs/storage.md) and pass the bucket name to Symfony in the `S3_BUCKET` environment variable:
+
+```yml filename="serverless.yml"
+provider:
+    # ...
+    environment:
+        # ...
+        S3_BUCKET: ${construct:storage.bucketName}
+
+constructs:
+    storage:
+        type: storage
+
+plugins:
+    - ./vendor/bref/bref
+    - serverless-lift
+```
+
+Lift creates the bucket and allows the Lambda functions to read and write files in it. The AWS credentials and the `AWS_REGION` variable are set automatically on Lambda, you do not have to define them.
+
+Register the S3 client as a service:
+
+```yml filename="config/services.yaml"
+services:
+    # ...
+
+    Aws\S3\S3Client:
+        arguments:
+            -   region: '%env(AWS_REGION)%'
+```
+
+Then configure the default storage to use S3 in the `prod` environment, and the local filesystem in the other environments:
+
+```yml filename="config/packages/flysystem.yaml"
+flysystem:
+    storages:
+        default.storage:
+            local:
+                directory: '%kernel.project_dir%/var/storage/default'
+
+when@prod:
+    flysystem:
+        storages:
+            default.storage:
+                aws:
+                    client: Aws\S3\S3Client
+                    bucket: '%env(S3_BUCKET)%'
+```
+
+Inject the storage in your services with the `FilesystemOperator` type and the storage name:
+
+```php
+use League\Flysystem\FilesystemOperator;
+use Symfony\Component\DependencyInjection\Attribute\Target;
+
+class InvoiceGenerator
+{
+    public function __construct(
+        #[Target('default.storage')] private FilesystemOperator $storage,
+    ) {
+    }
+
+    public function generate(Invoice $invoice): void
+    {
+        $this->storage->write('invoices/' . $invoice->getId() . '.pdf', $pdfContent);
+    }
+}
+```
+
+> [!WARNING]
+>
+> Do not write files with the `public` visibility (`['visibility' => 'public']`): S3 buckets have ACLs disabled, so these writes fail with `AccessControlListNotSupported: The bucket does not allow ACLs`. To serve files publicly, read [Public files](#public-files) below.
+
+## Uploading files
+
+### Small files (< 4 MB)
+
+For files under 4 MB, upload the file to the Symfony application as usual and write it to the storage:
+
+```php
+#[Route('/documents', methods: ['POST'])]
+public function upload(Request $request, #[Target('default.storage')] FilesystemOperator $storage): Response
+{
+    $file = $request->files->get('document');
+
+    $stream = fopen($file->getPathname(), 'r');
+    $storage->writeStream('documents/' . bin2hex(random_bytes(16)), $stream);
+    fclose($stream);
+
+    // ...
+}
+```
+
+### Large files
+
+AWS Lambda has a **6 MB request payload limit**, which leaves about 4 MB for the file itself because of base64 encoding. For larger files, the browser must upload the file directly to S3 with a **presigned URL**:
+
+1. the application generates a presigned URL that allows uploading one file to a temporary location in the bucket,
+1. the browser uploads the file to S3 with that URL,
+1. the browser sends the file's key to the application, which validates the file and moves it to its final location.
+
+Since the browser uploads to S3 directly (cross-origin), configure **CORS** on the bucket. Add a **lifecycle rule** to delete the temporary files that are never moved:
+
+```yml filename="serverless.yml"
+constructs:
+    storage:
+        type: storage
+        lifecycleRules:
+            # Temporary upload files will be deleted after 1 day
+            -   prefix: tmp/
+                expirationInDays: 1
+        # CORS is required for uploading files from the browser via presigned URLs, put the URL of your website here
+        # See https://github.com/getlift/lift/blob/master/docs/storage.md#cors
+        cors: https://example.com
+```
+
+Generate presigned URLs with the S3 client:
+
+```php filename="src/Controller/UploadController.php"
+namespace App\Controller;
+
+use Aws\S3\S3Client;
+use League\Flysystem\FilesystemOperator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\Attribute\Target;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[IsGranted('ROLE_USER')]
+class UploadController
+{
+    #[Route('/upload-url', methods: ['POST'])]
+    public function uploadUrl(S3Client $s3, #[Autowire('%env(S3_BUCKET)%')] string $bucket): JsonResponse
+    {
+        $key = 'tmp/' . bin2hex(random_bytes(16));
+        $command = $s3->getCommand('PutObject', [
+            'Bucket' => $bucket,
+            'Key' => $key,
+        ]);
+        $request = $s3->createPresignedRequest($command, '+5 minutes');
+
+        return new JsonResponse([
+            'key' => $key,
+            'url' => (string) $request->getUri(),
+        ]);
+    }
+
+    #[Route('/documents', methods: ['POST'])]
+    public function store(Request $request, #[Target('default.storage')] FilesystemOperator $storage): JsonResponse
+    {
+        $key = $request->getPayload()->getString('key');
+        if (! preg_match('#^tmp/[0-9a-f]{32}$#', $key) || ! $storage->fileExists($key)) {
+            return new JsonResponse(['error' => 'Invalid upload'], 400);
+        }
+        // Validate the file, for example with $storage->fileSize($key) and $storage->mimeType($key)
+
+        $path = 'documents/' . basename($key);
+        $storage->move($key, $path);
+
+        // ...
+
+        return new JsonResponse(['path' => $path]);
+    }
+}
+```
+
+In the browser, upload the file with the presigned URL, then send its key to the application:
+
+```js
+const { key, url } = await (await fetch('/upload-url', { method: 'POST' })).json();
+await fetch(url, { method: 'PUT', body: file });
+await fetch('/documents', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key }),
+});
+```
+
+## Downloading files
+
+For private files, generate a temporary URL:
+
+```php
+// Presigned download URL, valid for 15 minutes
+$url = $storage->temporaryUrl($path, new \DateTimeImmutable('+15 minutes'));
+```
+
+The URL can be used directly in the browser or in an `<a>` tag.
+
+## Public files
+
+Some files are meant to be publicly accessible: uploaded photos, avatars, etc. Store them under a `public/` prefix, and let Lift make that prefix public with [`publicPath`](https://github.com/getlift/lift/blob/master/docs/storage.md#public-files):
+
+```yml filename="serverless.yml" {4}
+constructs:
+    storage:
+        type: storage
+        publicPath: public
+```
+
+Every file stored under `public/` becomes publicly readable over HTTPS (through a bucket policy), while the rest of the bucket stays private. Write these files with the default visibility, and get their URL with `publicUrl()`:
+
+```php
+$storage->write('public/avatars/1.png', $contents);
+
+// https://<bucket>.s3.<region>.amazonaws.com/public/avatars/1.png
+$url = $storage->publicUrl('public/avatars/1.png');
+```
+
+## Processing uploaded files
+
+To process files after they are uploaded to the bucket (resize images, extract text, etc.), handle S3 events with a Symfony service: read [S3 file processing](../use-cases/s3.mdx) and [Handling AWS events with Symfony services](./event-handlers.mdx).
