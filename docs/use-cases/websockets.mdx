@@ -232,7 +232,3 @@ socket.onmessage = (event) => console.log(event.data);
 Messages sent with `socket.send()` invoke the `$default` route.
 
 API Gateway closes connections after 2 hours, and after 10 minutes without any message: clients must reconnect. Messages are limited to 128 KB. See all the [WebSocket API quotas](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-execution-service-websocket-limits-table.html).
-
-> [!TIP]
->
-> A complete WebSocket example is available in [Serverless Visually Explained](https://serverless-visually-explained.com/).
