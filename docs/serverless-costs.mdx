@@ -1,14 +1,13 @@
 ---
-description: "Calculate the costs of running your PHP application on AWS Lambda."
+description: "Calculate and control the costs of running your PHP application on AWS Lambda: budget alerts, concurrency limits, NAT Gateway, logs and data transfer."
 ---
 
+import { Tabs } from '../../src/components/Tabs';
 import CostsCalculator from '../../src/components/CostsCalculator';
 
 # Costs of a serverless application
 
 Unlike traditional hosting, serverless hosting is billed based on usage. This means that you only pay for what you use, **down to the request**.
-
-To be clear, this means that if your application is not used, you don't pay anything.
 
 On AWS Lambda, you pay for:
 
@@ -19,16 +18,135 @@ There are no costs when the PHP application is waiting between requests (or jobs
 
 For some use cases it has interesting consequences: 1 job running for 10 minutes has about the same costs as 600 jobs running for 1 second in parallel.
 
-## Logs
+Lambda, API Gateway and SQS are billed per use: an application that receives no traffic costs nothing on those services. Databases and NAT Gateways are billed per hour, whether they are used or not.
 
-CloudWatch Logs bills the logs written by your application: from $0.50 per GB ingested, plus $0.03 per GB stored per month. Lambda logs are kept forever by default. To limit storage costs, set how many days logs are kept with the `logRetentionInDays` option in `serverless.yml`:
+## Other AWS costs
 
-```yaml
-provider:
-    logRetentionInDays: 30
-```
+The prices below are those of the `us-east-1` region. Other regions can be more expensive, see the pricing page of each AWS service.
+
+### NAT Gateway
+
+Lambda functions that connect to a database in a VPC need a NAT Gateway to access the internet (see [VPC databases](./environment/database.mdx#vpc-databases-private-network)). A NAT Gateway costs $0.045 per hour (about $33 per month), plus $0.005 per hour for its public IPv4 address, even when the application receives no traffic. It also costs $0.045 per GB of data going through it, including the calls from Lambda to AWS services like S3 or SQS.
+
+To reduce these costs:
+
+- Use a database that does not need a VPC: [Aurora DSQL](./environment/database-dsql.mdx), [PlanetScale](./environment/database-planetscale.mdx) or an [internet-accessible database](./environment/database.mdx#internet-accessible-databases).
+- Share one VPC and its NAT Gateway between applications and environments.
+- Add gateway VPC endpoints for S3 and DynamoDB: they are free, and the traffic to these services no longer goes through the NAT Gateway. Networks created by Bref Cloud include them.
+- Use a NAT instance instead of a NAT Gateway for test environments (see [VPC databases](./environment/database.mdx#vpc-databases-private-network)).
+
+### Logs
+
+CloudWatch Logs bills the logs written by your application: $0.50 per GB ingested, plus $0.03 per GB stored per month. Lambda log groups never expire by default: set a [log retention](./environment/logs.mdx#log-retention) with the `logRetentionInDays` option to limit storage costs.
 
 Logs are not included in the calculator below. For applications that write a lot of logs, they can be a significant part of the bill.
+
+### Data transfer
+
+Data sent from AWS to the internet (HTTP responses, files downloaded from S3) costs $0.09 per GB, after 100 GB free each month across all AWS services.
+
+## Budget alerts
+
+To get billing alerts, create a budget with AWS Budgets: AWS sends an email when the costs of the AWS account exceed an amount, or are forecast to exceed it by the end of the month. Budgets with email alerts are free.
+
+A budget does not stop or limit anything, it only sends alerts. AWS updates budget data up to three times a day, so an alert can arrive hours after the costs were incurred.
+
+### Creating a budget in the AWS console
+
+1. Open the [Billing and Cost Management console](https://console.aws.amazon.com/cost-management/) and click "Budgets" in the menu.
+2. Click "Create budget", select "Use a template (simplified)" and the "Monthly cost budget" template.
+3. Enter the monthly amount and the email addresses to notify, then click "Create budget".
+
+AWS sends a verification email to each new address: the address receives alerts only after the recipient clicks the link in that email and signs in to the AWS account.
+
+### Creating a budget in serverless.yml
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        Bref Cloud cannot deploy an AWS Budgets resource from `serverless.yml`: create the budget [in the AWS console](#creating-a-budget-in-the-aws-console).
+    </Tabs.Tab>
+    <Tabs.Tab>
+        A budget can be declared as an `AWS::Budgets::Budget` CloudFormation resource in `serverless.yml`. A budget covers the whole AWS account, but each environment (stage) deploys its own copy of `serverless.yml`: the `IsProduction` condition below creates the budget only in the `prod` environment.
+
+        ```yml filename="serverless.yml"
+        resources:
+            Conditions:
+                IsProduction: !Equals ['${sls:stage}', 'prod']
+            Resources:
+                MonthlyBudget:
+                    Type: AWS::Budgets::Budget
+                    Condition: IsProduction
+                    Properties:
+                        Budget:
+                            BudgetName: my-app-monthly
+                            BudgetType: COST
+                            TimeUnit: MONTHLY
+                            BudgetLimit:
+                                Amount: 100
+                                Unit: USD
+                        NotificationsWithSubscribers:
+                            # The costs exceed 80% of the budget
+                            -   Notification:
+                                    NotificationType: ACTUAL
+                                    ComparisonOperator: GREATER_THAN
+                                    Threshold: 80
+                                Subscribers:
+                                    -   SubscriptionType: EMAIL
+                                        Address: alerts@example.com
+                            # The costs are forecast to exceed the budget by the end of the month
+                            -   Notification:
+                                    NotificationType: FORECASTED
+                                    ComparisonOperator: GREATER_THAN
+                                    Threshold: 100
+                                Subscribers:
+                                    -   SubscriptionType: EMAIL
+                                        Address: alerts@example.com
+        ```
+
+        Thresholds are percentages of the budget amount. Email addresses must be verified, like in the console. Read the [`AWS::Budgets::Budget` reference](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-budgets-budget.html) for all options.
+    </Tabs.Tab>
+</Tabs>
+
+## Limiting scaling
+
+Lambda starts one instance per concurrent request, up to the concurrency limit of the AWS account (1,000 per region by default). A traffic spike, a bot or a bug can run many instances at once. Limit how far an application can scale to cap its costs and to protect the database.
+
+### Reserved concurrency
+
+Set the maximum number of instances of a function with the `reservedConcurrency` option:
+
+```yml filename="serverless.yml"
+functions:
+    web:
+        # ...
+        reservedConcurrency: 50
+```
+
+Requests above that limit are throttled: HTTP requests fail with a 503 error instead of starting more instances. Reserved concurrency is free. It also reserves that capacity for the function: the other functions of the account share the rest, and AWS keeps 100 of the default 1,000 for the functions without reserved concurrency. Read more about [database connections at scale](./environment/database.mdx#connections-at-scale).
+
+`reservedConcurrency: 0` stops a function: every invocation is throttled. To restore it, remove the option and deploy again.
+
+New AWS accounts start with a lower concurrency limit, which AWS raises automatically with usage. With a low limit, the deployment fails with "Specified ReservedConcurrentExecutions for function decreases account's UnreservedConcurrentExecution below its minimum value". Check the "Concurrent executions" quota of Lambda in the [Service Quotas console](https://console.aws.amazon.com/servicequotas/home/services/lambda/quotas) and request an increase.
+
+For SQS queue workers, limit the concurrency of the queue instead: the `maxConcurrency` option of the [Lift `queue` construct](https://github.com/getlift/lift/blob/master/docs/queue.md#max-concurrency), or the [`maximumConcurrency` option](https://github.com/oss-serverless/osls/blob/4.x/docs/events/sqs.md#setting-the-maximum-concurrency) of `sqs` events. Lambda then invokes fewer workers at once without throttling them, and this setting does not reserve any capacity.
+
+### API Gateway throttling
+
+To reject excess HTTP requests before they reach Lambda, set a rate limit on the HTTP API (`httpApi` events). `serverless.yml` has no option for it: override the `HttpApiStage` resource generated by `serverless.yml` in `resources.extensions`:
+
+```yml filename="serverless.yml"
+resources:
+    extensions:
+        HttpApiStage:
+            Properties:
+                DefaultRouteSettings:
+                    ThrottlingRateLimit: 100 # requests per second
+                    ThrottlingBurstLimit: 200 # requests at once
+```
+
+Requests above the limit get a `429 Too Many Requests` response and do not invoke Lambda. AWS applies these limits on a best-effort basis. The limit applies to all clients together: it is not a rate limit per user or per IP address.
+
+If `provider.httpApi.metrics` is enabled, also set `DetailedMetricsEnabled: true` in `DefaultRouteSettings`: the override replaces the whole `DefaultRouteSettings` property. Read more about [overriding resources](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/resources.md#override-aws-cloudformation-resource).
 
 ## Costs calculator
 

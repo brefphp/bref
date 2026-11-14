@@ -216,12 +216,12 @@ Each Lambda instance handles one request at a time and opens its own database co
 If your traffic can exceed that limit, you can:
 
 - Use a larger database instance.
-- Limit the number of concurrent Lambda instances of a function with its `reservedConcurrency` option ([documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#configuration)). Requests beyond that limit are throttled. This is useful for queue workers, which could otherwise flood the database.
+- Limit the number of concurrent Lambda instances of a function with its `reservedConcurrency` option ([documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#configuration)). Requests beyond that limit are throttled. For queue workers, limit the concurrency of the queue instead (see [Limiting scaling](../serverless-costs.mdx#reserved-concurrency)).
 - Use [RDS Proxy](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html) to pool connections between Lambda and the database. RDS Proxy is only reachable from inside a VPC, has an extra cost, and prevents Aurora Serverless from auto-pausing.
 
 ```yml filename="serverless.yml"
 functions:
-    worker:
+    web:
         # ...
         reservedConcurrency: 20
 ```
