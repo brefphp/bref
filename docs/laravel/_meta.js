@@ -8,5 +8,6 @@ export default {
     octane: 'Laravel Octane',
     websockets: 'WebSockets',
     passport: 'Laravel Passport',
+    packages: 'Laravel packages',
     'maintenance-mode': 'Maintenance mode',
 };

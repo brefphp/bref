@@ -60,6 +60,8 @@ When integrated with AWS Lambda, SQS has a built-in retry mechanism and storage 
 
 Instead, "Bref for Laravel" makes all the features of Laravel Queues work out of the box, just like on any server. Read more in [the Laravel Queues documentation](https://laravel.com/docs/queues).
 
+[Laravel Horizon](https://laravel.com/docs/horizon) does not work on Lambda: it only manages Redis queues, and its `horizon` command is a long-running process. Use the SQS queues described on this page instead.
+
 Jobs that do not define `$tries` are attempted 3 times (`php artisan queue:work` attempts them once by default). Set `public $tries = 1;` on jobs that must not be retried.
 
 Failed jobs are stored in the `failed_jobs` database table, like on any server. If your application has no database, set `QUEUE_FAILED_DRIVER: 'null'` in `provider.environment`: failed jobs are still logged, but not stored. Otherwise, storing the failed job fails as well, for example with `Database file at path [/var/task/database/database.sqlite] does not exist`.
