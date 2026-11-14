@@ -63,10 +63,6 @@ Default: `true`.
 
 When a [queue worker](./queues.mdx) processes a job, Bref logs `Processing job <id>` and `Processed job <id>` (or `Job failed <id>`), with the class of the job in the `name` field of the log context.
 
-> [!WARNING]
->
-> Setting `log_jobs` to `false` also stops storing failed jobs: they no longer appear in the `failed_jobs` table, and cannot be retried with `php artisan queue:retry` or the Bref Cloud dashboard.
-
 ### `stack_name`
 
 Default: the `BREF_STACK_NAME` environment variable.
