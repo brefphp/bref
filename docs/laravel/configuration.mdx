@@ -1,0 +1,123 @@
+---
+description: "Reference of the environment variables and configuration options of bref/laravel-bridge."
+---
+
+# Configuration reference
+
+The Laravel integration (`bref/laravel-bridge`) works without any configuration. This page lists the options it reads, for when the defaults do not fit.
+
+## Environment variables
+
+Set these variables in `serverless.yml`, in `provider.environment` or in the `environment` of a function. Bref reads most of them before Laravel loads the `.env` file: values in `.env` are not taken into account.
+
+### `BREF_LARAVEL_CACHE_CONFIG`
+
+Default: enabled, unless `APP_ENV` is `local`.
+
+On a cold start, if the deployed application contains no `bootstrap/cache/config.php` file, Bref runs `php artisan config:cache` and writes the configuration cache to `/tmp/storage/bootstrap/cache/config.php`. If `bootstrap/cache/config.php` is deployed, Bref uses it as is ([read why that is not recommended](./getting-started.mdx#deploying-for-production)).
+
+Set `BREF_LARAVEL_CACHE_CONFIG: false` to disable the configuration cache. With PHP-FPM, Laravel then loads every configuration file on every request.
+
+### `BREF_LARAVEL_OMIT_INITLOG`
+
+Default: not set.
+
+On a cold start, Bref logs the storage directories it creates ("Creating storage directories: …") and the configuration caching ("Running 'php artisan config:cache' to cache the Laravel configuration", followed by the output of the command). Set `BREF_LARAVEL_OMIT_INITLOG: 1` to remove these lines from the logs.
+
+### `MAINTENANCE_MODE`
+
+Default: not set.
+
+Any value other than an empty string or `0` puts the application in maintenance mode. Read [Maintenance mode](./maintenance-mode.mdx).
+
+### `OCTANE_PERSIST_DATABASE_SESSIONS`
+
+Default: not set.
+
+Only used by the Octane handler (`Bref\LaravelBridge\Http\OctaneHandler`). By default, database connections are closed after each request. Any value other than an empty string or `0` keeps them open between requests, including the string `false`: remove the variable to disable it. Read [Persistent database connections](./octane.mdx#persistent-database-connections).
+
+## `config/bref.php`
+
+To change these options, publish the configuration file:
+
+```bash
+php artisan vendor:publish --tag=bref-config
+```
+
+### `assets`
+
+Default: `[]`.
+
+Files of the `public/` directory that Laravel serves itself, for example `favicon.ico` or `robots.txt`. Each entry is a path relative to `public/`, and only exact paths match. These files are read by PHP on every request: serve assets from S3 and CloudFront instead when you can, see [Websites](../use-cases/websites.mdx).
+
+```php filename="config/bref.php"
+'assets' => [
+    'favicon.ico',
+    'robots.txt',
+],
+```
+
+### `log_jobs`
+
+Default: `true`.
+
+When a [queue worker](./queues.mdx) processes a job, Bref logs `Processing job <id>` and `Processed job <id>` (or `Job failed <id>`), with the class of the job in the `name` field of the log context.
+
+> [!WARNING]
+>
+> Setting `log_jobs` to `false` also stops storing failed jobs: they no longer appear in the `failed_jobs` table, and cannot be retried with `php artisan queue:retry` or the Bref Cloud dashboard.
+
+### `stack_name`
+
+Default: the `BREF_STACK_NAME` environment variable.
+
+The name of the CloudFormation stack, for example `my-app-prod`. Bref sets `BREF_STACK_NAME` on all functions deployed with `serverless.yml`, so `config('bref.stack_name')` is `null` in local development. Read [Multiple queues](./queues.mdx#multiple-queues) for an example.
+
+### `request_context`
+
+Default: `false`. Deprecated, it will be removed in the next major version.
+
+Adds the `X-Request-ID` request header to the shared log context. API Gateway does not send this header. To find all the logs of a request, read [Logs of a single request](../environment/logs.mdx#logs-of-a-single-request) instead.
+
+### `uploads`
+
+Options of the presigned S3 uploads, read [Large files](./file-storage.mdx#large-files):
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `route` | `/signed-upload-url` | Route that returns presigned upload URLs. `null` disables the route. |
+| `middleware` | `['web', 'auth']` | Middleware of the route. Remove `auth` to allow uploads from guests. |
+| `throttle` | `null` | Rate limit of the route, for example `'60,1'` (60 requests per minute) or the name of a Laravel rate limiter. |
+| `disk` | `null` | S3 disk used for uploads. `null` uses the default disk. |
+| `prefix` | `tmp` | S3 prefix of uploaded files, followed by the ID of the user. |
+| `expires` | `5` | Validity of presigned URLs, in minutes. |
+| `max_size` | `52428800` (50 MB) | Maximum file size in bytes, checked by the `UploadedToS3` validation rule. `null` for no limit. |
+
+## Laravel configuration
+
+### Queue connection
+
+The queue worker (`Bref\LaravelBridge\Queue\QueueHandler`) processes jobs with the default queue connection (`QUEUE_CONNECTION`). It must be an `sqs` connection, otherwise the worker fails with "Default queue connection is not a SQS connection". Read [Laravel Queues](./queues.mdx).
+
+### Trusted proxies
+
+If the application does not configure its trusted proxies, Bref trusts all proxies on Lambda, because the IP addresses of API Gateway and CloudFront are not known in advance. With this default, the `X-Forwarded-Host`, `X-Forwarded-Prefix` and `Forwarded` headers are ignored on custom domains: clients cannot choose the domain of the URLs that Laravel generates. They are still used on AWS domains (`*.amazonaws.com`, `*.on.aws`), because the CloudFront distribution of the `server-side-website` construct sets `X-Forwarded-Host`.
+
+If the application configures its trusted proxies (`$middleware->trustProxies(at: …)` in `bootstrap/app.php`, or `config/trustedproxy.php`), Bref does not change them. With PHP-FPM, a list of IP addresses must include `127.0.0.1`. With the Octane handler and the function runtime, no IP address can match: use `'*'`.
+
+Anyone who knows the AWS domain of the application can send these headers. To always generate URLs on your domain, call `URL::useOrigin()` (Laravel 11 and later) or `URL::forceRootUrl()` (Laravel 10) in `AppServiceProvider::boot()`.
+
+### Values replaced on Lambda
+
+On Lambda, Bref changes these configuration values so that a default Laravel application works:
+
+| Configuration | Changed to | To keep your own value |
+|---------------|------------|------------------------|
+| Storage directory (`storage_path()`) | `/tmp/storage` | Not configurable: the rest of the filesystem is read-only. |
+| `session.driver`, when `file` | `cookie` | Use another driver, see [Sessions](./sessions.mdx). |
+| `logging.default`, when `stack` | `stderr` | Set `LOG_CHANNEL` to another channel. |
+| `logging.channels.stderr.formatter`, when not set | `Bref\Monolog\CloudWatchFormatter` | Set `LOG_STDERR_FORMATTER`. |
+| `logging.channels.emergency`, when it writes to `storage/logs/laravel.log` | the `stderr` channel | Set another `path` for the `emergency` channel. |
+| `view.compiled`, when the directory does not exist | `/tmp/storage/framework/views` | Set `VIEW_COMPILED_PATH` to an existing directory. |
+| `cache.stores.file.path` | `/tmp/storage/framework/cache` | Not configurable. |
+| `app.mix_url` | the value of `app.asset_url` (`ASSET_URL`) | Not configurable. |

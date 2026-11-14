@@ -169,13 +169,14 @@ If you are not using Bref Cloud, store credentials in SSM parameters ([read more
         ```yml filename="serverless.yml"
         provider:
             environment:
+                DB_CONNECTION: mysql # or pgsql
                 DB_HOST: <endpoint>
                 DB_DATABASE: my_database
                 DB_USERNAME: ${ssm:/my-app/db-username}
                 DB_PASSWORD: ${ssm:/my-app/db-password}
         ```
 
-        Laravel reads these environment variables automatically to configure the database connection.
+        Laravel reads these environment variables automatically to configure the database connection. Set `DB_CONNECTION`: since Laravel 11, the default connection is SQLite.
     </Tabs.Tab>
     <Tabs.Tab>
         ```yml filename="serverless.yml"
