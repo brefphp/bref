@@ -57,12 +57,13 @@ export default function CostsCalculator() {
     const lambdaCostPerRequest = 0.2 / 1000000;
     const lambdaCostPerGbS = 0.0000133334; // ARM
 
-    const apiGatewayFreeTierRequests = 1000000;
+    // The API Gateway and RDS free tiers only last 12 months: not counted
+    const apiGatewayFreeTierRequests = 0;
     const apiGatewayCostPerRequest = 1 / 1000000;
 
     const cloudfrontFreeTierRequests = 10000000;
     const cloudfrontFreeTierBandwidth = 1000;
-    const cloudfrontCostPerRequest = 0.012 / 10000;
+    const cloudfrontCostPerRequest = 0.01 / 10000; // HTTPS, US
     const cloudfrontCostPerGb = 0.085;
 
     const s3FreeRequests = 20000;
@@ -71,7 +72,7 @@ export default function CostsCalculator() {
     const sqsFreeTierRequests = 1000000;
     const sqsCostPerRequest = 0.4 / 1000000;
 
-    const rdsStorageFreeTier = 20;
+    const rdsStorageFreeTier = 0;
     const rdsStorageCostPerGb = 0.115;
     const rdsInstanceCost = {
         'db.t4g.micro': 0.016,
@@ -82,8 +83,8 @@ export default function CostsCalculator() {
         'db.t4g.2xlarge': 0.517,
     };
     const rdsInstanceDescription = {
-        'db.t4g.micro': '1 vCPU, 1GB RAM',
-        'db.t4g.small': '1 vCPU, 2GB RAM',
+        'db.t4g.micro': '2 vCPU, 1GB RAM',
+        'db.t4g.small': '2 vCPU, 2GB RAM',
         'db.t4g.medium': '2 vCPU, 4GB RAM',
         'db.t4g.large': '2 vCPU, 8GB RAM',
         'db.t4g.xlarge': '4 vCPU, 16GB RAM',
@@ -115,7 +116,8 @@ export default function CostsCalculator() {
     const cloudfrontRequestsCost = Math.max(0, (assetsRequests - cloudfrontFreeTierRequests) * cloudfrontCostPerRequest);
     const cloudfrontBandwidthCost = Math.max(0, (bandwidth - cloudfrontFreeTierBandwidth) * cloudfrontCostPerGb);
     const cloudfrontCost = cloudfrontRequestsCost + cloudfrontBandwidthCost;
-    const requestsHittingS3 = assetsRequests * cacheHit / 100;
+    // Only the CDN cache misses reach S3
+    const requestsHittingS3 = assetsRequests * (100 - cacheHit) / 100;
     const s3Cost = Math.max(0, (requestsHittingS3 - s3FreeRequests) * s3CostPerRequest);
     const numberOfSqsRequestsPerJob = 3; // Send, receive, delete
     const sqsCost = Math.max(0, (jobs * numberOfSqsRequestsPerJob - sqsFreeTierRequests) * sqsCostPerRequest);
@@ -217,7 +219,7 @@ export default function CostsCalculator() {
                     <PlainTextField>${lambdaCost.toFixed(2)}</PlainTextField>
                 </Field>
                 <div className="text-xs text-gray-500 pb-1.5 sm:pb-2">
-                    Assumptions: 1024MB of memory (Bref default config) and ARM CPUs.
+                    Assumptions: 1024MB of memory (the default) and ARM CPUs (architecture: arm64), which are 20% cheaper than x86 CPUs (the default).
                 </div>
                 <Field title="API Gateway costs">
                     <PlainTextField>${apiGatewayCost.toFixed(2)}</PlainTextField>

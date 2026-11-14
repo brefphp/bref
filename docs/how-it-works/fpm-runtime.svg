@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 290" width="800" height="290">
+<style>text{font-family:Inter,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;fill:#1f2937;font-size:14px}.b{font-weight:600}.s{font-size:12px;fill:#6b7280}.w{fill:#fff}.m{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}.aws{fill:#ec7211}.bref{fill:#1c7fc4}.inst{fill:#eff7fd;stroke:#7fbde6;stroke-dasharray:6 4}.l{stroke:#4b5563;stroke-width:1.5;fill:none}</style><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#4b5563"/></marker></defs>
+<rect width="800" height="290" rx="12" fill="#fff"/>
+<rect x="20" y="110" width="100" height="70" rx="8" class="aws"/>
+<text x="70" y="141" text-anchor="middle" class="w b">Lambda</text>
+<text x="70" y="161" text-anchor="middle" class="w b">API</text>
+<rect x="150" y="30" width="630" height="240" rx="10" class="inst"/>
+<text x="170" y="56" class="b">Lambda instance</text>
+<line x1="124" y1="135" x2="168" y2="135" class="l" marker-end="url(#a)" marker-start="url(#a)"/>
+<rect x="172" y="100" width="118" height="70" rx="8" class="aws"/>
+<text x="231" y="130" text-anchor="middle" class="w b">Runtime API</text>
+<text x="231" y="150" text-anchor="middle" class="w" style="font-size:12px">local HTTP API</text>
+<line x1="400" y1="122" x2="298" y2="122" class="l" marker-end="url(#a)"/>
+<text x="345" y="113" text-anchor="middle" class="s">GET /next</text>
+<line x1="400" y1="150" x2="298" y2="150" class="l" marker-end="url(#a)"/>
+<text x="345" y="168" text-anchor="middle" class="s">POST /response</text>
+<rect x="400" y="100" width="118" height="70" rx="8" class="bref"/>
+<text x="459" y="130" text-anchor="middle" class="w b">Bref</text>
+<text x="459" y="150" text-anchor="middle" class="w" style="font-size:12px">runtime (PHP)</text>
+<line x1="518" y1="122" x2="620" y2="122" class="l" marker-end="url(#a)"/>
+<text x="573" y="113" text-anchor="middle" class="s">FastCGI request</text>
+<line x1="628" y1="150" x2="526" y2="150" class="l" marker-end="url(#a)"/>
+<text x="573" y="168" text-anchor="middle" class="s">FastCGI response</text>
+<rect x="628" y="100" width="130" height="70" rx="8" fill="#fff" stroke="#4b5563" stroke-width="1.5"/>
+<text x="693" y="130" text-anchor="middle" class="b">PHP-FPM</text>
+<text x="693" y="150" text-anchor="middle" class="s">1 worker</text>
+<line x1="693" y1="170" x2="693" y2="200" class="l" marker-end="url(#a)"/>
+<rect x="643" y="208" width="100" height="36" rx="6" fill="#fff" stroke="#4b5563" stroke-width="1.5"/>
+<text x="693" y="231" text-anchor="middle" class="m">index.php</text>
+<text x="172" y="232" class="s">Bref polls the runtime API for the next event,</text>
+<text x="172" y="250" class="s">forwards it to PHP-FPM, then sends back the response.</text>
+</svg>
