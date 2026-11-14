@@ -259,13 +259,20 @@ To answer only the requests that went through CloudFront:
             BREF_ORIGIN_SECRET: ${ssm:/my-app/origin-secret}
     ```
 
-2. Make CloudFront send the same value in the `x-bref-origin-secret` header, with a custom origin header on the origin of the application (`OriginCustomHeaders` in CloudFormation or the AWS CDK).
+2. Make CloudFront send the same value in the `x-bref-origin-secret` header. With Lift:
+
+    ```yml filename="serverless.yml"
+    constructs:
+        website:
+            type: server-side-website
+            # ...
+            originHeaders:
+                x-bref-origin-secret: ${ssm:/my-app/origin-secret}
+    ```
+
+    With a CloudFront distribution that you configure yourself, add it as a custom origin header on the origin of the application (`OriginCustomHeaders` in CloudFormation or the AWS CDK).
 
 Bref then answers `403 Forbidden` to any HTTP request without that header, before the application runs, and removes the header from the requests it passes on.
-
-> [!NOTE]
->
-> Lift's `server-side-website` construct does not support custom origin headers: overriding `Origins` with its `extensions` option replaces all the origins of the distribution. This requires a CloudFront distribution that you configure yourself.
 
 ## Compressing HTTP responses
 
