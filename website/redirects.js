@@ -3,6 +3,9 @@ module.exports.redirects = {
     '/#ecosystem': '/support',
     '/#plans': '/support',
     '/#enterprise': '/support',
+    // URLs that people (and AI agents) guess
+    '/pricing': '/cloud#pricing',
+    '/cloud/pricing': '/cloud#pricing',
     '/docs/news': '/news',
     '/docs/news/01-bref-1.0': '/news/01-bref-1.0',
     '/docs/news/02-bref-2.0': '/news/02-bref-2.0',
@@ -36,7 +39,8 @@ module.exports.redirects = {
     '/docs/installation/aws-keys': '/docs/setup/aws-keys',
     '/docs/environment/custom-domains': '/docs/use-cases/http/custom-domains',
     '/docs/aws-cdk': '/docs/deploy/aws-cdk',
-    '/docs/web-apps/index#assets': '/docs/use-cases/websites',
+    '/docs/web-apps/index': '/docs/use-cases/websites',
+    '/docs/web-apps': '/docs/use-cases/websites',
     '/docs/function/local-development': '/docs/local-development/event-driven-functions',
     '/docs/frameworks/laravel': '/docs/laravel/getting-started',
     '/docs/laravel/getting-started#assets': '/docs/laravel/getting-started#website-assets',
@@ -66,4 +70,7 @@ module.exports.redirects = {
     '/docs/runtimes/console#configuration': '/docs/runtimes/console#usage',
     '/docs/runtimes/console#usage-without-serverless-framework': '/docs/runtimes/console#without-serverless-framework',
     '/docs/function/cron': '/docs/use-cases/cron#cron-functions',
+    '/docs/getting-started': '/docs/setup',
+    '/docs/deploy#stages': '/docs/deploy#environments',
+    '/docs/environment/database#accessing-the-internet': '/docs/environment/database#vpc-databases-private-network'
 };

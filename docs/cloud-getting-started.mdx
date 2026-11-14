@@ -1,7 +1,7 @@
-import { NextSeo } from 'next-seo';
-import { Callout } from 'nextra/components';
+---
+description: "Installing the Bref CLI."
+---
 
-<NextSeo description="Installing the Bref CLI." />
 
 # Getting started with Bref Cloud
 
@@ -9,7 +9,7 @@ Bref Cloud is a service that makes it easy to deploy and monitor serverless PHP 
 
 To get started, [create a free Bref Cloud account](https://bref.cloud/register).
 
-You will be guided through the process of creating an AWS account (if needed) and connecting it to Bref Cloud.
+You will be guided through the process of creating an AWS account (if needed) and connecting it to Bref Cloud. If you create a new AWS account, use the [AWS sign-up form](https://signin.aws.amazon.com/signup?request_type=register) (*Sign up for AWS (advanced)*). Do not use *Sign up for AWS (new)*: it creates an [AWS project](./setup.mdx#aws-projects), a restricted AWS account that is not suited for production applications, and that Bref Cloud cannot connect to.
 
 ## Installing the CLI
 
@@ -35,9 +35,9 @@ export PATH="$PATH:$HOME/.composer/vendor/bin"
 
 If you want to find the location of the Composer's global installation directory, run `composer -n config --global home`.
 
-<Callout>
-    To keep the `bref` CLI up-to-date, run `composer global update bref/cli`.
-</Callout>
+> [!TIP]
+>
+> To keep the `bref` CLI up-to-date, run `composer global update bref/cli`.
 
 ## Connecting the CLI
 

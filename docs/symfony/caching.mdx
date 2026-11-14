@@ -10,12 +10,12 @@ DynamoDB is the easiest to set up and is "pay per use". Redis is a bit more comp
 
 ## DynamoDB Cache
 
-A Symfony bundle is available to use AWS DynamoDB as cache store: [rikudou/psr6-dynamo-db-bundle](https://github.com/RikudouSage/DynamoDbCachePsr6Bundle). Install the bundle with:
+A Symfony bundle is available to use AWS DynamoDB as a cache store: [rikudou/psr6-dynamo-db-bundle](https://github.com/RikudouSage/DynamoDbCachePsr6Bundle). Install the bundle with:
 
 ```bash
 composer require rikudou/psr6-dynamo-db-bundle
 ```
 
-Thanks to Symfony Flex, the bundle comes pre-configured to run in Lambda. 
+Thanks to Symfony Flex, the bundle comes pre-configured to run in Lambda.
 
 Now, you can follow [this section of the documentation](../environment/storage.md#deploying-dynamodb-tables) to deploy your DynamoDB table using the Serverless Framework.

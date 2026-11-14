@@ -1,3 +1,5 @@
+import SubscribeForm from '../news/SubscribeForm';
+
 const posts = [
     {
         id: 2,
@@ -38,20 +40,7 @@ export default function CaseStudies() {
                                 Support & consulting <span aria-hidden="true">&rarr;</span>
                             </a>
                         </div>
-                        <form action="https://bref.mailcoach.app/subscribe/be83c960-8fee-43fa-abfa-29669e9f433a"
-                              className="w-full flex flex-col items-start mt-8"
-                              method="post">
-                            <input type="hidden" name="tags" value="bref_website" />
-                            <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-                                <input
-                                    className="min-w-0 flex-auto rounded-md border-0 bg-white/10 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-white/75 focus:ring-2 focus:ring-inset focus:ring-white sm:text-sm sm:leading-6"
-                                    name="email" aria-label="Email" placeholder="you@example.com" required type="email" />
-                                <button type="submit"
-                                        className="flex-none rounded-md !bg-gray-500 hover:!bg-gray-400 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500">
-                                    Subscribe to the newsletter
-                                </button>
-                            </div>
-                        </form>
+                        <SubscribeForm tag="bref_website" onDark className="mt-8 sm:w-fit" />
                     </div>
                     <div className="mx-auto w-full border-t border-gray-900/10 pt-12 sm:pt-16 lg:mx-0 lg:max-w-none lg:border-t-0 lg:pt-0 text-gray-300">
                         <div className="-my-4 divide-y divide-gray-900/10">

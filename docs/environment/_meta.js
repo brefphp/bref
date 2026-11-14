@@ -1,0 +1,17 @@
+export default {
+  "serverless-yml": "serverless.yml",
+  "variables": "Environment variables",
+  "php": "PHP",
+  "storage": "Storage",
+  "logs": "Logs",
+  "database": "Databases",
+  "database-dsql": "Databases - Aurora DSQL",
+  "database-planetscale": "Databases - PlanetScale",
+  "emails": "Sending emails",
+  "database-public": {
+    "display": "hidden"
+  },
+  "aws-credentials": "AWS credentials",
+  "cold-starts": "Cold starts",
+  "performances": "Performance"
+}

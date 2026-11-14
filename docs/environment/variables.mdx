@@ -1,7 +1,8 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: "Define environment variables for your Bref application."
+---
 
-<NextSeo description="Define environment variables for your Bref application." />
+import { Tabs } from 'nextra/components';
 
 # Environment variables
 
@@ -30,9 +31,9 @@ functions:
             MY_VARIABLE: 'my value'
 ```
 
-<Callout type="warning">
-    Do not store secret values in `serverless.yml` directly. Check out the next section to handle secrets.
-</Callout>
+> [!WARNING]
+>
+> Do not store secret values in `serverless.yml` directly. Check out the next section to handle secrets.
 
 ## Secrets
 
@@ -43,7 +44,7 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
 ### Creating secrets
 
 <Tabs items={['Bref Cloud', 'Serverless CLI']}>
-    <Tab>
+    <Tabs.Tab>
         Create secrets via [Bref Cloud](https://bref.cloud).
 
         If you have **not** deployed the application yet, go to the root "Secrets" section in Bref Cloud and create a new secret there ([bref.cloud/secrets/create](https://bref.cloud/secrets/create)). Provide the target application and environment name when creating the secret.
@@ -59,8 +60,16 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
         ```
 
         You can also run the command outside of a project: `bref secret:create --app=app-name --env=env-name --team=team-slug`.
-    </Tab>
-    <Tab>
+
+        Bref Cloud stores the secret as an SSM parameter in your AWS account, named `/<app>/<environment>/<secret-name>`. It is not injected into your application automatically: reference it in `serverless.yml`, as explained in [Retrieving secrets](#retrieving-secrets) below. For example:
+
+        ```yml filename="serverless.yml"
+        provider:
+            environment:
+                APP_KEY: ${ssm:/my-app/${sls:stage}/APP_KEY}
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
         Create a parameter via the [AWS SSM console](https://console.aws.amazon.com/systems-manager/parameters) or the `aws` CLI:
 
         ```bash
@@ -75,8 +84,8 @@ Instead, you can use the [SSM parameter store](https://docs.aws.amazon.com/syste
 
         It is recommended to prefix the parameter name with your application name, for example: `/my-app/my-parameter`.
 
-        SSM also allows to store a SecureString parameter, which is encrypted with AWS KMS. To use a SecureString, simply change the `--type` argument to `--type SecureString`. Bref takes care of decrypting the value.
-    </Tab>
+        SSM also allows storing a SecureString parameter, which is encrypted with AWS KMS. To use a SecureString, simply change the `--type` argument to `--type SecureString`. Bref takes care of decrypting the value.
+    </Tabs.Tab>
 </Tabs>
 
 ### Retrieving secrets
@@ -88,7 +97,7 @@ You can inject a secret in an environment variable:
 
 #### At deployment time
 
-Use the [`${ssm:<parameter>}` syntax](https://serverless.com/blog/serverless-secrets-api-keys/) to have the variable be replaced by the secret value on deployment:
+Use the [`${ssm:<parameter>}` syntax](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/variables.md#reference-variables-using-the-ssm-parameter-store) to have the variable be replaced by the secret value on deployment:
 
 ```yml filename="serverless.yml"
 provider:
@@ -153,11 +162,19 @@ Disadvantages:
 As an alternative, you can store secrets in [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/). This solution, while very similar to SSM, will provide:
 
 - better permission management using IAM
-- JSON values, allowing to store multiple values in one parameter
+- JSON values, allowing you to store multiple values in one parameter
 
 However, Secrets Manager is not free: [pricing details](https://aws.amazon.com/secrets-manager/pricing/).
 
 SSM is good enough for most projects.
+
+## Variables set by Bref
+
+Bref sets these environment variables on all functions:
+
+- `BREF_STACK_NAME`: the name of the CloudFormation stack, for example `my-app-prod`. Laravel applications can read it with `config('bref.stack_name')`.
+
+AWS Lambda also sets [its own variables](https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-runtime), like `AWS_REGION` or `AWS_LAMBDA_FUNCTION_NAME`.
 
 ## Local development
 
@@ -176,4 +193,4 @@ serverless bref:local -f <function>
 
 While this page mentions environment variables, `serverless.yml` allows other types of variables to be used.
 
-Read the [`serverless.yml` variables](https://github.com/oss-serverless/serverless/blob/main/docs/guides/variables.md) documentation to learn more.
+Read the [`serverless.yml` variables](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/variables.md) documentation to learn more.

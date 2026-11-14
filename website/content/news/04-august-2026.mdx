@@ -1,0 +1,104 @@
+---
+title: osls v4, and zero-downtime assets
+seoTitle: "Bref: osls v4, and zero-downtime assets"
+description: "osls v4, zero-downtime deploys for website assets, and the latest Bref and Bref Cloud updates."
+---
+
+import ArticleHeader from '../../src/components/news/ArticleHeader';
+
+# August 2026: osls v4 and zero-downtime assets
+
+<ArticleHeader
+    subTitle="A few Bref updates from summer 2026"
+    date="August 2026"
+    author="Matthieu Napoli"
+    authorGitHub="mnapoli" />
+
+## osls v4
+
+We created [osls](https://github.com/oss-serverless/osls) v3 as a fork of the original Serverless Framework (the `serverless` CLI) to keep it open-source and free.
+osls v4 is a smooth update:
+
+- internally upgrades from AWS SDK v2 (outdated) to v3
+- hardened (fewer dependencies, stricter options)
+- supports SSO
+
+It's actively maintained, off the deprecated SDK, with a tighter dependency tree. This massive upgrade has been carried mostly by [Graham Campbell](https://github.com/GrahamCampbell) 💙
+
+Most apps should just work. v4 reworks the internals so some unmaintained plugins may break. Lift is already compatible. If you hit a plugin that still needs it, Robert Slootjes published a shim: [github.com/slootjes/osls-aws-provider-request-shim](https://github.com/slootjes/osls-aws-provider-request-shim)
+
+Try it in one repo with: `npx osls@4 deploy`
+
+Upgrade guide: [github.com/oss-serverless/osls/blob/4.x/docs/guides/upgrading-to-v4.md](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/upgrading-to-v4.md)
+
+## Zero-downtime deploys for website assets
+
+Bref has always done zero-downtime for the backend. This is the same idea for assets where CSS/JS with a hash could 404 for a few seconds on deploy (e.g. Laravel with Inertia).
+
+Add `versionedAssets: true` on the Lift website construct and new hashed files are uploaded to S3 before the PHP code switches. Obsolete files are also now deleted after 24h instead of immediately, which avoids breaking opened websites.
+
+This is enabled by default when setting up Bref in new Laravel apps. For existing apps, add the line in `serverless.yml`:
+
+```yml
+constructs:
+    website:
+        type: server-side-website
+        versionedAssets: true
+        assets:
+            '/build/*': public/build
+            '/favicon.ico': public/favicon.ico
+            '/robots.txt': public/robots.txt
+```
+
+Docs: [bref.sh/docs/use-cases/websites](/docs/use-cases/websites)
+
+## Public files on S3
+
+Storing public files on S3 (e.g. avatars) is now easier: add `publicPath: public` and every file in the `public/` subdirectory will be public. The rest stays private.
+
+Docs for Laravel: [bref.sh/docs/laravel/file-storage#public-files](/docs/laravel/file-storage#public-files)
+
+## Laravel 13 fonts
+
+Laravel 13 adds `fonts-manifest.json` (and font CSS that PHP reads). I updated the default `serverless.yml` stub for new apps. Existing apps don't get that fix automatically.
+
+Add these two lines under `package.patterns`:
+
+```yml
+- 'public/build/fonts-manifest.json'
+- 'public/build/assets/fonts-*.css'
+```
+
+## Also shipped
+
+- Optional `iconv-extra` layer if you need legacy encodings (Windows-1250, SQL Server varchar). The slim AL2023 runtime dropped those. Attach `${bref-extra:iconv-extra-php-83}` (or your PHP version) and set `GCONV_PATH=/opt/lib/gconv`.
+- Relay (Redis client) extra is available for Bref v3, PHP 8.2–8.5 including ARM64.
+- ssh2, pcov, and New Relic on PHP 8.5.
+- Symfony 8.1: upgrade `bref/symfony-bridge` to 3.0.1 or the cache dir 500s (`/var/task/var/cache/prod`).
+- [bref.sh](/) is now on Nextra v4 (up from v2). Nothing visible should change. It was a long upgrade with a few failed attempts, the kind of invisible work that has to happen eventually. Glad it's done because a lot of tokens and brain cells were burned doing this.
+
+## What's new with Bref Cloud
+
+### Free plan
+
+The free plan is open again, for non-commercial projects. If you were already on it, nothing changed for you. I had closed it to new signups while I ironed Cloud out with a smaller audience (free users can mean a lot of support). Things are running smoothly now, so I'm happy to open it again. Bref has always been friendly to side projects and solo creators (like me). I want Cloud to stay that way.
+
+### Serverless databases
+
+You can now create serverless databases in [Bref Cloud](/cloud) (finally). They're Aurora Serverless v2 (MySQL or PostgreSQL): they scale up instantly, scale down on their own, and can pause when idle. You pay for compute when it's running, and only storage when it's paused. Waking up is usually about 12 seconds.
+
+Auto-pause is the cheapest option for rarely used environments. If the app is always active and doesn't need scaling, a small regular DB is still cheaper (around $12/mo vs $43/mo for always-on serverless that never pauses).
+
+### Tracing
+
+Bref Cloud tracing got a lot better. We now support AWS Transaction Search. If you already use X-Ray, it's a one-click switch in the AWS console. You get 30 days of traces instead of 6 hours, and you can filter by route, job, command, or cold starts. I recommend switching.
+
+How to enable it: [bref.sh/xray/docs#enabling-aws-transaction-search](/xray/docs#enabling-aws-transaction-search)
+
+### Dashboard
+
+The dashboard now sorts apps by invocations, with new apps pinned at the top.
+
+Changelog (and RSS): [bref.cloud/changelog](https://bref.cloud/changelog)
+
+One last teaser: I'm seriously looking into self-hosted Bref Cloud. This would be for larger teams that need complete control on "who accesses our AWS accounts". If this is you, [get in touch](mailto:matthieu@bref.sh) :)

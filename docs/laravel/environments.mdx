@@ -1,7 +1,8 @@
-import { Callout, Tab, Tabs } from 'nextra/components';
-import { NextSeo } from 'next-seo';
+---
+description: "Configure Laravel environments and deployment environments with Bref."
+---
 
-<NextSeo description="Configure Laravel environments and deployment environments with Bref." />
+import { Tabs } from 'nextra/components';
 
 # Laravel environments
 
@@ -12,16 +13,16 @@ The Bref Cloud CLI calls them **environments** (`bref deploy --env=prod`), while
 Laravel also has an *application environment*, configured with the `APP_ENV` environment variable. These concepts are related, but they do not have to use the exact same name.
 
 <Tabs items={['Bref Cloud', 'Serverless CLI']}>
-    <Tab>
+    <Tabs.Tab>
         ```bash
         bref deploy --env=prod
         ```
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         ```bash
         serverless deploy --stage=prod
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 In `serverless.yml`, the deployment environment is available as `${sls:stage}` for both CLIs:
@@ -40,11 +41,11 @@ params:
 
 In this example, most deployment environments use their name as `APP_ENV`, but the `prod` deployment environment is mapped to Laravel's `production` environment.
 
-<Callout type="warning">
-    Laravel treats `production` as the production environment. For example, `app()->isProduction()` returns `true` only when `APP_ENV=production`.
-
-    Using `prod` as a deployment environment name is common because it is short and appears in AWS resource names such as Lambda functions and CloudFormation stacks. If you use `prod`, map it to `APP_ENV=production` for Laravel.
-</Callout>
+> [!WARNING]
+>
+> Laravel treats `production` as the production environment. For example, `app()->isProduction()` returns `true` only when `APP_ENV=production`.
+>
+> Using `prod` as a deployment environment name is common because it is short and appears in AWS resource names such as Lambda functions and CloudFormation stacks. If you use `prod`, map it to `APP_ENV=production` for Laravel.
 
 ## Configure each environment
 

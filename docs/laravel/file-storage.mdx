@@ -1,4 +1,3 @@
-import { Callout } from 'nextra/components';
 
 # File storage
 
@@ -10,13 +9,19 @@ When running on Lambda, you will need to use the **`s3` adapter** to store files
 
 The easiest way to set up S3 storage is using [Serverless Lift](https://github.com/getlift/lift):
 
-First install the Lift plugin:
+First install the Flysystem S3 adapter, which Laravel's `s3` disk requires (without it, any file operation fails with `Class "League\Flysystem\AwsS3V3\PortableVisibilityConverter" not found`):
 
 ```bash
-serverless plugin install -n serverless-lift
+composer require league/flysystem-aws-s3-v3
 ```
 
-Then use [the `storage` construct](https://github.com/getlift/lift/blob/master/docs/storage.md) in `serverless.yml`:
+Then install the Lift plugin:
+
+```bash
+npm install --save-dev serverless-lift
+```
+
+Enable it in the `plugins` section of `serverless.yml` (in the file generated for Laravel, uncomment the `- serverless-lift` line), then use [the `storage` construct](https://github.com/getlift/lift/blob/master/docs/storage.md) in `serverless.yml`:
 
 ```yaml filename="serverless.yml"
 provider:
@@ -32,19 +37,19 @@ constructs:
         allowAcl: true
 ```
 
-The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that this files in the bucket are still completely private, there is no change in the security of the bucket.
+The [`allowAcl: true` configuration](https://github.com/getlift/lift/blob/master/docs/storage.md#acl-support) is needed because S3 buckets have ACLs disabled by default since April 2023. Many tools and libraries (including PHP's Flysystem, used by Laravel) send ACL headers on S3 operations, which will fail on buckets with ACLs disabled. The `allowAcl: true` setting lets the bucket accept these headers without errors. Note that files in the bucket are still completely private, there is no change in the security of the bucket.
 
-<Callout>
-    To avoid silent failures, we also recommend setting `'throw' => true` on your S3 disk in `config/filesystems.php`:
-
-    ```php filename="config/filesystems.php"
-    's3' => [
-        'driver' => 's3',
-        // ...
-        'throw' => true,
-    ],
-    ```
-</Callout>
+> [!TIP]
+>
+> To avoid silent failures, we also recommend setting `'throw' => true` on your S3 disk in `config/filesystems.php`:
+>
+> ```php filename="config/filesystems.php"
+> 's3' => [
+>     'driver' => 's3',
+>     // ...
+>     'throw' => true,
+> ],
+> ```
 
 That's it! Lift automatically:
 
@@ -56,9 +61,9 @@ The AWS credentials (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_SESSION_TO
 
 ## Uploading files
 
-### Small files (< 6 MB)
+### Small files (< 4 MB)
 
-For files under 6 MB, you can upload directly through your Laravel application as usual:
+For files under 4 MB, you can upload directly through your Laravel application as usual:
 
 ```php
 $request->file('document')->store('documents');
@@ -66,7 +71,7 @@ $request->file('document')->store('documents');
 
 ### Large files
 
-AWS Lambda has a **6MB request payload limit**. For larger files, you must upload directly to S3 from the browser using **presigned URLs**.
+AWS Lambda has a **6 MB request payload limit**, which leaves about 4 MB for the file itself because of base64 encoding. For larger files, you must upload directly to S3 from the browser using **presigned URLs**.
 
 Since the browser uploads directly to S3 (cross-origin), you need to configure **CORS** on the bucket and add a **lifecycle rule** to clean up temporary files. Here is a complete `storage` construct configuration:
 
@@ -84,69 +89,63 @@ constructs:
         cors: ${construct:website.url}
 ```
 
-<Callout>
-    If you are not using the `website` construct, replace `${construct:website.url}` with your application's URL, or use `'*'` during development.
-</Callout>
+> [!TIP]
+>
+> If you are not using the `website` construct, replace `${construct:website.url}` with your application's URL, or use `'*'` during development.
 
-How it works:
+The `bref/laravel-bridge` package provides everything else (update it to the latest version):
 
-1. Your frontend requests a presigned upload URL from your backend
-1. Your backend generates a temporary presigned URL using Laravel's Storage
-1. The frontend uploads the file directly to S3
-1. The frontend sends the S3 key back to your backend to save in the database
+1. A route (`/signed-upload-url`) that generates presigned upload URLs.
+1. A JavaScript helper that uploads the file directly to S3, with progress.
+1. The `UploadedToS3` validation rule to validate the uploaded file.
 
-**Backend** - Generate presigned URL:
+**Authorize uploads**: the route is protected by the `uploadFiles` gate. Define it in a service provider (for example `AppServiceProvider`):
 
-`temporaryUploadUrl` returns an array with the URL and the headers that must be forwarded to S3 (they contain the request signature):
+```php filename="app/Providers/AppServiceProvider.php"
+use Illuminate\Support\Facades\Gate;
 
-```php
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+// Allow all authenticated users to upload files
+Gate::define('uploadFiles', fn (User $user) => true);
+```
 
-public function presignedUploadUrl(): JsonResponse
+**Frontend**: the package ships a JavaScript helper (`bref-upload.js`), it has no dependency and works with any framework. Either import it from the Composer package, so that it always matches the installed version of `bref/laravel-bridge`, by adding an alias in `vite.config.js`:
+
+```js filename="vite.config.js"
+import path from 'path';
+
+export default defineConfig({
+    // ...
+    resolve: {
+        alias: {
+            'bref-upload': path.resolve('vendor/bref/laravel-bridge/resources/js/bref-upload.js'),
+        },
+    },
+});
+```
+
+TypeScript applications also need the mapping in `tsconfig.json`, without the `.js` extension so that the type declarations (`bref-upload.d.ts`) are found:
+
+```json filename="tsconfig.json"
 {
-    $key = 'tmp/' . Str::uuid() . '.pdf';
-
-    // Generate a presigned PUT URL valid for 15 minutes
-    $uploadUrl = Storage::temporaryUploadUrl($key, now()->addMinutes(15), [
-        // Optional: we restrict to PDF files here
-        'ContentType' => 'application/pdf',
-    ]);
-
-    // PSR-7 headers are string[] values and include Host, which browsers forbid
-    $headers = collect($uploadUrl['headers'])
-        ->except(['Host'])
-        ->map(fn (array $values): string => implode(', ', $values))
-        ->all();
-
-    return response()->json([
-        'url' => $uploadUrl['url'],
-        'headers' => $headers,
-        'key' => $key,
-    ]);
+    "compilerOptions": {
+        "paths": {
+            "bref-upload": ["./vendor/bref/laravel-bridge/resources/js/bref-upload"]
+        }
+    }
 }
 ```
 
-**Frontend** - Upload to S3:
+Or copy it into your application with `php artisan vendor:publish --tag=bref-upload` (it is copied to `resources/js/bref-upload.js` along with its type declarations, that copy will not change when the package is updated) and import it with `import { upload } from './bref-upload';` instead.
 
 ```js
-// 1. Get presigned URL from your backend
-const { url, headers, key } = await fetch('/api/presigned-upload-url', {
-    method: 'POST',
-    headers: { 'X-CSRF-TOKEN': csrfToken },
-}).then(r => r.json());
+import { upload } from 'bref-upload';
 
-// 2. Upload directly to S3, forwarding the presigned headers
-await fetch(url, {
-    method: 'PUT',
-    body: file,
-    headers: {
-        'Content-Type': file.type,
-        ...headers,
-    },
+// 1. Get a presigned URL from the backend and upload the file directly to S3
+const { key } = await upload(file, {
+    progress: (ratio) => console.log(`${Math.round(ratio * 100)}%`),
 });
 
-// 3. Send the S3 key to your backend (via a form field, API call, etc.)
+// 2. Send the S3 key to your backend (via a form field, API call, etc.)
 await fetch('/api/documents', {
     method: 'POST',
     headers: {
@@ -157,22 +156,115 @@ await fetch('/api/documents', {
 });
 ```
 
-**Backend** - Move file to final location:
+**With Inertia**: upload the file as soon as it is selected, keep the returned key in the form, and submit the form as usual. The server validation error on the key shows up like any other field error. Here is a Vue example (the React version is the same, with `useForm` from `@inertiajs/react`):
+
+```vue filename="resources/js/Pages/Documents/Create.vue"
+<script setup>
+import { ref } from 'vue';
+import { useForm } from '@inertiajs/vue3';
+import { upload } from 'bref-upload';
+
+const form = useForm({
+    title: '',
+    file_key: null,
+    file_name: null,
+});
+const uploading = ref(false);
+const progress = ref(0);
+const uploadError = ref(null);
+
+async function onFileSelected(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    uploading.value = true;
+    uploadError.value = null;
+    try {
+        // Uploads directly to S3, the Laravel application only receives the key
+        const { key } = await upload(file, {
+            progress: (ratio) => (progress.value = Math.round(ratio * 100)),
+        });
+        form.file_key = key;
+        form.file_name = file.name;
+    } catch (error) {
+        uploadError.value = 'The upload failed, please try again.';
+    } finally {
+        uploading.value = false;
+    }
+}
+</script>
+
+<template>
+    <form @submit.prevent="form.post('/documents')">
+        <input v-model="form.title" type="text" />
+
+        <input type="file" accept=".pdf" :disabled="uploading" @change="onFileSelected" />
+        <span v-if="uploading">Uploading… {{ progress }}%</span>
+        <span v-else-if="form.file_name">{{ form.file_name }}</span>
+        <span v-if="uploadError || form.errors.file_key">{{ uploadError || form.errors.file_key }}</span>
+
+        <!-- Block the submission while the file is uploading -->
+        <button type="submit" :disabled="uploading || form.processing">Save</button>
+    </form>
+</template>
+```
+
+**Backend**: validate the key and copy the file to its final location:
 
 ```php
+use Bref\LaravelBridge\Upload\UploadedToS3;
+use Illuminate\Support\Facades\Storage;
+
 public function store(Request $request)
 {
     $validated = $request->validate([
-        'file_key' => 'required|string',
+        // Checks that the file was uploaded by the current user, exists, and matches the extension and size
+        // (pass `extensions: null` to accept any file type)
+        'file_key' => ['required', new UploadedToS3(extensions: ['pdf'], maxSize: 10 * 1024 * 1024)],
     ]);
 
-    // Move from temporary location to final location
+    // Copy from the temporary location to the final location
     $finalPath = "documents/{$document->id}.pdf";
-    Storage::move($validated['file_key'], $finalPath);
+    Storage::copy($validated['file_key'], $finalPath);
 
     // Save the final path in the database
     $document->update(['file_path' => $finalPath]);
 }
+```
+
+There is no need to delete the temporary file: the lifecycle rule configured above removes everything under `tmp/` after one day.
+
+`upload()` resolves with `{ uuid, key, bucket, url, headers, extension }` and rejects with an `UploadError` whose `status` property contains the HTTP status code. It accepts the following options:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `url` | `/signed-upload-url` | The route returning presigned URLs |
+| `contentType` | `file.type` | The MIME type of the file |
+| `progress` | | Callback receiving the upload progress, from 0 to 1 |
+| `headers` | `{}` | Extra headers for the request to the backend route (e.g. `Authorization`) |
+| `csrfToken` | | The CSRF token, sent as `X-CSRF-TOKEN`. By default the `XSRF-TOKEN` cookie set by Laravel is sent as `X-XSRF-TOKEN` (like axios and Inertia do), or else the `<meta name="csrf-token">` tag is used |
+| `signal` | | An `AbortSignal` to cancel the upload |
+| `httpClient` | | An axios-compatible client (e.g. `axios`) to use instead of `fetch`, like `Vapor.store()`. The client then handles CSRF and authentication |
+
+Files are uploaded under `tmp/{user id}/` (the prefix cleaned up by the lifecycle rule above), so that a user cannot reference another user's upload. To allow uploads from guests (for example a public form), remove the `auth` middleware in the configuration below and accept a nullable user in the gate (`fn (?User $user) => true`): guest uploads are stored under `tmp/` directly.
+
+The feature can be configured in the `uploads` section of `config/bref.php` (`php artisan vendor:publish --tag=bref-config`):
+
+```php filename="config/bref.php"
+'uploads' => [
+    // Route that returns presigned upload URLs. Set to null to disable the feature.
+    'route' => '/signed-upload-url',
+    // To allow uploads from guests, remove `auth` and accept a nullable user in the `uploadFiles` gate
+    'middleware' => ['web', 'auth'],
+    // Disk used for uploads (null = default disk). Must be an S3 disk.
+    'disk' => null,
+    // Prefix of temporary uploads. Configure an S3 lifecycle rule to expire this prefix.
+    'prefix' => 'tmp',
+    // Validity of presigned URLs, in minutes
+    'expires' => 5,
+    // Maximum size in bytes, checked by the validation rule (null = no limit)
+    'max_size' => 50 * 1024 * 1024, // 50 MB
+],
 ```
 
 ## Downloading files
@@ -192,74 +284,81 @@ For local development, Laravel's filesystem abstraction lets you use the same co
 
 ## Public files
 
-Laravel has a [special disk called `public`](https://laravel.com/docs/filesystem#the-public-disk): this disk stores files that we want to make public, like uploaded photos, generated PDF files, etc.
+Some files are meant to be publicly accessible: uploaded photos, generated PDF files, avatars, etc. Laravel traditionally uses a [special disk called `public`](https://laravel.com/docs/filesystem#the-public-disk) for this, but with S3 we can use a simpler convention: **store public files under a `public/` prefix on the default (S3) disk**, and let Lift expose that prefix publicly.
 
-Again, those files cannot be stored on Lambda, i.e. they cannot be stored in the default `storage/app/public` directory. You need to store those files on S3.
+### Expose the `public/` prefix with Lift
 
-<Callout>
-    Do not run `php artisan storage:link` in AWS Lambda: it is now useless, and it will fail because the filesystem is read-only in Lambda.
-</Callout>
+Add [`publicPath: public`](https://github.com/getlift/lift/blob/master/docs/storage.md#public-files) to the `storage` construct. Every file stored under the `public/` prefix becomes publicly readable over HTTPS (via a bucket policy), while the rest of the bucket stays completely private:
 
-To store public files on S3, you could replace the disk in the code:
-
-```diff
-- Storage::disk('public')->put('avatars/1', $fileContents);
-+ Storage::disk('s3')->put('avatars/1', $fileContents);
+```yaml filename="serverless.yml" {4}
+constructs:
+    storage:
+        type: storage
+        publicPath: public
+        allowAcl: true
 ```
 
-but doing this will not let your application work locally. A better solution, but more complex, involves making the `public` disk configurable. Let's change the following lines in `config/filesystems.php`:
+### Storing and reading public files
 
-```php filename="config/filesystems.php" {7,18,35-43}
-    /*
-    |--------------------------------------------------------------------------
-    | Default Public Filesystem Disk
-    |--------------------------------------------------------------------------
-    */
+Store public files under the `public/` prefix on the default disk. There is no need for a separate `public` disk, and no need to modify each file's visibility to `'public'` (this is useless with `publicPath`):
 
-   'public' => env('FILESYSTEM_DISK_PUBLIC', 'public_local'),
+```php
+// Store a public file
+Storage::put('public/avatars/1.png', $fileContents);
 
-    ...
+// Read its public URL
+$url = Storage::url('public/avatars/1.png');
+```
 
-    'disks' => [
+In production, set `AWS_URL` to the public bucket URL exposed by Lift so that `Storage::url()` returns the correct public URL:
 
-        'local' => [
-            'driver' => 'local',
-            'root' => storage_path('app'),
-        ],
+```yaml filename="serverless.yml"
+provider:
+    environment:
+        FILESYSTEM_DISK: s3
+        AWS_BUCKET: ${construct:storage.bucketName}
+        # Base URL used by `Storage::url()` to build public file URLs
+        AWS_URL: ${construct:storage.publicUrl}
+```
 
-        'public_local' => [ // Rename `public` to `public_local`
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
-            'visibility' => 'public',
-        ],
+### Making public files work locally
 
-        's3' => [
-            'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'token' => env('AWS_SESSION_TOKEN'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-        ],
+Locally, the default `local` disk stores files in `storage/app/private`, so files written under the `public/` prefix end up in `storage/app/private/public`. To make things work, you can point the storage symlink to that directory in `config/filesystems.php`:
 
-        's3_public' => [
-            'driver' => 's3',
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'token' => env('AWS_SESSION_TOKEN'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_PUBLIC_BUCKET'),
-            'url' => env('AWS_URL'),
-        ],
-
+```diff
+    'links' => [
+-       public_path('storage') => storage_path('app/public'),
++       public_path('storage') => storage_path('app/private/public'),
     ],
 ```
 
-You can now configure the `public` disk to use S3 by changing `serverless.yml` or your production `.env`:
+If the `public/storage` symlink already exists, you need to remove it first so it can be recreated pointing to the new directory:
 
-```bash filename=".env"
-FILESYSTEM_DISK=s3
-FILESYSTEM_DISK_PUBLIC=s3
+```bash
+rm public/storage
+php artisan storage:link
 ```
+
+> [!WARNING]
+>
+> Do not run `php artisan storage:link` in AWS Lambda: it is useless there (files are served from S3), and it will fail because the filesystem is read-only.
+
+### Migrating an existing application
+
+If your application already writes to the `public` disk and you don't want to change all those calls, keep the `public` disk but turn it into a [scoped disk](https://laravel.com/docs/filesystem#scoped-and-read-only-filesystems) of the default disk, scoped to the `public/` prefix. In `config/filesystems.php`:
+
+```php filename="config/filesystems.php"
+'public' => [
+    'driver' => 'scoped',
+    'disk' => env('FILESYSTEM_DISK', 'local'),
+    'prefix' => 'public',
+],
+```
+
+Scoped disks require the `league/flysystem-path-prefixing` package:
+
+```bash
+composer require league/flysystem-path-prefixing "^3.0"
+```
+
+With this, calls like `Storage::disk('public')->put('avatars/1.png', ...)` keep working: they now write to `public/avatars/1.png` on the default disk, which Lift exposes publicly.

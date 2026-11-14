@@ -1,0 +1,102 @@
+export default {
+    index: {
+        type: 'page',
+        title: 'Bref',
+        display: 'hidden',
+        // v2 used theme.layout: 'raw' (REMOVED in v4). Full-width + strip docs chrome:
+        theme: {
+            layout: 'full',
+            sidebar: false,
+            toc: false,
+            breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            footer: true,
+            copyPage: false,
+        },
+    },
+    docs: {
+        type: 'page',
+        title: 'Documentation',
+    },
+    cloud: {
+        type: 'page',
+        title: 'Bref Cloud',
+        theme: {
+            layout: 'full',
+            sidebar: false,
+            toc: false,
+            breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
+    },
+    support: {
+        type: 'page',
+        title: 'Support',
+        theme: {
+            layout: 'full',
+            sidebar: false,
+            toc: false,
+            breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
+    },
+    news: {
+        type: 'page',
+        title: 'News',
+        theme: {
+            typesetting: 'article',
+            sidebar: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
+    },
+    credits: {
+        type: 'page',
+        title: 'Credits',
+        display: 'hidden',
+        // Default layout (not 'full'): centered prose column like v3, but with
+        // all the docs chrome (sidebar, TOC, breadcrumb...) stripped
+        theme: {
+            sidebar: false,
+            toc: false,
+            breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
+    },
+    sentry: {
+        type: 'page',
+        title: 'Sentry integration for PHP on AWS Lambda',
+        display: 'hidden',
+        theme: {
+            layout: 'full',
+            sidebar: false,
+            toc: false,
+            breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
+    },
+    xray: {
+        type: 'page',
+        title: 'X-Ray integration for PHP',
+        display: 'hidden',
+        theme: {
+            layout: 'full',
+            sidebar: false,
+            toc: false,
+            breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
+    },
+};

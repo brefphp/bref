@@ -1,0 +1,163 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+
+/* Tailwind v4 defaults the dark: variant to prefers-color-scheme; v3 used
+   darkMode: 'class'. The site forces the light theme (no .dark class is ever set), so
+   with the v4 default, dark: styles (e.g. the h1's dark:text-slate-100) would wrongly
+   apply to users whose OS is in dark mode. Restore the class-based behavior. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* website/.gitignore excludes content/docs (copied in at build time), so Tailwind v4's
+   automatic source detection skips it. Re-include it so doc-only utilities (e.g. the
+   maturity-matrix bg-green-400/bg-yellow-400/bg-red-400 dots) are generated. */
+@source '../content/docs';
+
+/* Tailwind v4 changed the default border color from gray-200 to currentColor. Lots of
+   content (news post buttons, docs screenshot frames...) uses a bare `border` class
+   written against the v3 default: restore it, per the official v4 upgrade guide. */
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, #e5e7eb);
+    }
+}
+
+/* Custom blue palette moves from tailwind.config.js into @theme (Tailwind v4 CSS-first).
+   These become utilities like bg-blue-500 / text-blue-100 used across marketing pages. */
+@theme {
+    --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --color-blue-900: #25516A;
+    --color-blue-800: #266488;
+    --color-blue-700: #2381B8;
+    --color-blue-600: #258ECB;
+    --color-blue-500: #3AA9E9;
+    --color-blue-400: #5EBCF3;
+    --color-blue-300: #8CD0F8;
+    --color-blue-200: #BBE4FB;
+    --color-blue-100: #EBF8FF;
+    --color-blue-50: #F5FAFF;
+}
+
+/* Nextra v4 primary color (Bref blue-500 = hsl(202,80%,57%) = #3AA9E9) and the white
+   page background are set via the <Head color=.. backgroundColor=..> props in
+   app/layout.jsx. Nextra's <Head> injects its own :root { --nextra-primary-* / --nextra-bg }
+   block that overrides globals.css, so the props are the only place these take effect. */
+
+/* <Head backgroundColor> paints html white; body is transparent by default. Make body
+   explicitly track the themed background so the whole page is pure white (no grey). */
+body {
+    background-color: rgb(var(--nextra-bg));
+}
+
+/* Full-bleed marketing pages (home, cloud, support, ...): the catch-all route tags
+   pages whose _meta.js sets `theme.layout: 'full'` with `data-full-layout`. Nextra's
+   `layout: 'full'` alone still wraps content in a max-w-(--nextra-content-width) (90rem)
+   container with px-4/md:px-12 article padding. Override the documented content-width
+   variable on the container itself (100% = viewport-wide) and drop the article's
+   padding (pt-4/pb-8/px-4) so hero backgrounds reach the window and navbar edges —
+   sections manage their own inner width via .home-container. Navbar/footer keep 90rem:
+   they are rendered by <Layout> outside this container, so they don't inherit the
+   override. */
+[data-full-layout] {
+    --nextra-content-width: 100%;
+}
+[data-full-layout] article {
+    padding: 0;
+}
+
+/* The navbar search is a real <input type=search> (Pagefind) — @tailwindcss/forms
+   gives it a border that v3's Algolia search button never had. */
+.nextra-search input {
+    border: none;
+}
+
+/* Nextra v4 derives its light primary shades by ADDING to the primary lightness
+   (primary-100 = lightness + 49%). Bref's primary lightness is 57%, so the light
+   shades clamp to ~white — e.g. the active sidebar item's pill (bg-primary-100)
+   became invisible. Pin them to absolute lightness values instead (globals.css is
+   imported after nextra-theme-docs/style.css, so these :root definitions win). */
+:root {
+    --x-color-primary-50: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 97%);
+    --x-color-primary-100: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 92%);
+    --x-color-primary-200: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 85%);
+}
+
+/* Callouts (GitHub alerts): drop Nextra v4's border for a softer look. */
+.nextra-callout {
+    font-size: 0.925rem;
+    @apply p-3 my-6;
+}
+.nextra-callout[class*='text-blue'] {
+    @apply bg-blue-50 border-blue-200/60 text-blue-700;
+}
+.nextra-callout[class*='text-green'] {
+    @apply bg-emerald-50/60 border-emerald-100 text-emerald-800;
+}
+.nextra-callout[class*='text-yellow'] {
+    @apply bg-amber-50/80 border-amber-100 text-amber-700;
+}
+.nextra-callout[class*='text-red'] {
+    @apply bg-red-50/80 border-red-100 text-red-700;
+}
+
+/* Custom helper classes used across the marketing + docs pages (ported from main.css) */
+.link {
+    @apply text-blue-600 hover:text-blue-800 font-semibold underline;
+}
+.inline-code {
+    @apply text-sm text-gray-600 font-semibold;
+}
+
+.home-container {
+    @apply mx-auto max-w-7xl px-6 lg:px-8;
+}
+.home-section {
+    @apply py-20 sm:py-28;
+}
+
+.mermaidHidden {
+    display: none;
+}
+.mermaidAwsColor span {
+    color: #fff !important;
+}
+.mermaidAwsColor > rect {
+    fill: #FF9900 !important;
+    stroke: #fff !important;
+    stroke-width: 1px !important;
+}
+.mermaidBlack span {
+    color: #fff !important;
+}
+.mermaidBlack > rect {
+    fill: #000 !important;
+    stroke: #fff !important;
+    stroke-width: 1px !important;
+}
+
+.maturity-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    border-radius: 9999px;
+    vertical-align: text-top;
+}
+
+/*
+ * Code blocks: restore the Nextra v2 look, i.e. a background tinted with the
+ * primary color instead of Nextra v4's white background with a gray border.
+ */
+.nextra-code pre {
+    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 33% / 0.05);
+    /* Remove the gray border (a Tailwind "ring", i.e. a box-shadow) */
+    box-shadow: none;
+}
+/* Code block filename header */
+.nextra-code > div:first-child:not(pre) {
+    background-color: hsl(var(--nextra-primary-hue) var(--nextra-primary-saturation) 33% / 0.1);
+    border: none;
+}

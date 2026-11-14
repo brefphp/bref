@@ -252,6 +252,8 @@ var GuzzleServer = function(port, log) {
 
             // Called when the request completes
             req.addListener('end', function() {
+                // Trailers (e.g. errors at the end of a streamed Lambda response) are recorded as headers
+                Object.assign(request.headers, req.trailers);
                 firewallRequest(request, req, res, receivedRequest);
             });
         });

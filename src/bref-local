@@ -42,7 +42,8 @@ try {
 }
 
 try {
-    $event = $data ? json_decode($data, true, 512, JSON_THROW_ON_ERROR) : null;
+    // Note: don't use `$data ?` because the valid JSON event `"0"` is a falsy string
+    $event = ($data !== null && $data !== '') ? json_decode($data, true, 512, JSON_THROW_ON_ERROR) : null;
 } catch (JsonException $e) {
     error_log('The JSON provided for the event data is invalid JSON.');
     exit(1);

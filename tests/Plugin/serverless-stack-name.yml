@@ -1,0 +1,12 @@
+service: bref
+provider:
+    name: aws
+    stackName: my-custom-stack
+
+plugins:
+    - ./bref.js
+
+functions:
+    function:
+        handler: function.php
+        runtime: php-83

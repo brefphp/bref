@@ -100,6 +100,24 @@ class PluginTest extends TestCase
         ]);
     }
 
+    public function test the plugin exposes the stack name(): void
+    {
+        $output = $this->slsPrint('serverless.yml');
+        self::assertSame('bref-dev', $output['provider']['environment']['BREF_STACK_NAME']);
+
+        $output = $this->slsPrint('serverless-stack-name.yml');
+        self::assertSame('my-custom-stack', $output['provider']['environment']['BREF_STACK_NAME']);
+    }
+
+    public function test the plugin enables response streaming for streamed Function URLs and REST APIs(): void
+    {
+        $output = $this->slsPrint('serverless-response-streaming.yml');
+
+        self::assertSame('1', $output['functions']['streamed']['environment']['BREF_RESPONSE_STREAMING']);
+        self::assertArrayNotHasKey('BREF_RESPONSE_STREAMING', $output['functions']['buffered']['environment']);
+        self::assertSame('1', $output['functions']['streamed-rest-api']['environment']['BREF_RESPONSE_STREAMING']);
+    }
+
     private function slsPrint(string $configFile): array
     {
         $process = (new Process(

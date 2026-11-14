@@ -1,10 +1,11 @@
-import { NextSeo } from 'next-seo';
-import { Tab, Tabs } from 'nextra/components';
-import { Callout } from 'nextra/components';
+---
+description: "Learn how to write and read PHP logs on AWS Lambda using Bref."
+---
+
+import { Tabs } from 'nextra/components';
 import Image from 'next/image';
 import brefCloudLogs from '../cloud/logs.png';
-
-<NextSeo description="Learn how to write and read PHP logs on AWS Lambda using Bref." />
+import brefCloudTraceLogs from '../monitoring/cloud-trace-logs.png';
 
 # Logs
 
@@ -32,21 +33,30 @@ For all other logs, your application should write logs to CloudWatch:
 AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `stdout` for event-driven functions) to CloudWatch Logs in the background, **without performance impact**.
 
 <Tabs items={['Laravel', 'Symfony', 'PHP']}>
-    <Tab>
+    <Tabs.Tab>
         If you use Laravel, Bref will automatically configure Laravel to log to CloudWatch via `stderr` (`LOG_CHANNEL=stderr`) with the `Bref\Monolog\CloudWatchFormatter` formatter. You don't have to do anything.
 
         If you have a custom log setup (e.g. using the `stack` channel), you should ensure that the `stderr` channel is included in your stack with the `Bref\Monolog\CloudWatchFormatter` formatter.
 
         With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         If you use Symfony, Bref will automatically configure Symfony to log to CloudWatch via `stderr` with the `Bref\Monolog\CloudWatchFormatter` formatter. You don't have to do anything.
+
+        This is done by the `Bref\SymfonyBridge\BrefSymfonyBridgeBundle` bundle, which Symfony Flex adds to `config/bundles.php` when installing `bref/symfony-bridge`. If it is missing from that file, add it:
+
+        ```php filename="config/bundles.php"
+        return [
+            // ...
+            Bref\SymfonyBridge\BrefSymfonyBridgeBundle::class => ['all' => true],
+        ];
+        ```
 
         If you have a custom log setup, you should ensure that logs are sent to `stderr` (e.g. using the `stream` handler with `php://stderr`) with the `Bref\Monolog\CloudWatchFormatter` formatter (`bref.cloudwatch_formatter` service).
 
         With this formatter, logs will contain structured data that can be filtered in CloudWatch Logs Insights. For example, you can filter by log level or exception class.
-    </Tab>
-    <Tab>
+    </Tabs.Tab>
+    <Tabs.Tab>
         You can use [Monolog](https://github.com/Seldaek/monolog) to write logs to CloudWatch via `stderr`:
 
         ```php
@@ -78,22 +88,82 @@ AWS Lambda has a built-in mechanism to forward logs written to `stderr` (or `std
 
         $log->warning('This is a warning!');
         ```
-    </Tab>
+    </Tabs.Tab>
 </Tabs>
 
 ### Reading logs
 
-You can view, search and tail logs in the [Bref Cloud](https://bref.sh/cloud) dashboard:
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        You can view, search and tail logs in the [Bref Cloud](https://bref.sh/cloud) dashboard:
 
-<a title="Bref Cloud" href="/cloud"><Image className="mt-6 border border-gray-200 rounded-lg shadow hover:shadow-lg" src={brefCloudLogs} /></a>
+        <a title="Bref Cloud" href="/cloud"><Image className="mt-6 border border-gray-200 rounded-lg shadow hover:shadow-lg" src={brefCloudLogs} /></a>
 
-If you don't use Bref Cloud, you can view logs in the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:).
+        You can also search logs from the terminal with `bref logs`:
 
-You can also use `serverless logs` to view them in the terminal:
+        ```bash
+        # Logs of the last hour
+        bref logs --env=prod
+        # Logs of the last day of the "web" function that contain "payment" and "failed"
+        bref logs --env=prod --since=1d --function=web --search="payment failed"
+        # Between two dates (UTC), with the stack traces of exceptions
+        bref logs --env=prod --since="2026-09-23 14:00" --until="2026-09-23 15:00" --full
+        ```
 
-```bash
-serverless logs -f <function-name>
+        `bref logs` shows one line per log entry. It hides the lines that Lambda and PHP-FPM write on every invocation (`START`, `END`, `REPORT`…), use `--all` to include them.
 
-# Tail logs:
-serverless logs -f <function-name> --tail
+        Run `bref logs --help` for all the options. Add `--json` for machine-readable output. To use the command outside the project directory, set the application with `--app` and `--team`. `bref logs` is also designed for [AI agents](/docs/cloud#ai-agents).
+    </Tabs.Tab>
+    <Tabs.Tab>
+        You can view logs in the [CloudWatch console](https://console.aws.amazon.com/cloudwatch/home#logs:), or in the terminal with `serverless logs`:
+
+        ```bash
+        serverless logs -f <function-name>
+
+        # Tail logs:
+        serverless logs -f <function-name> --tail
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+### Logs of a single request
+
+Every Lambda invocation (an HTTP request, a queue job, a console command…) has a **request ID**. Lambda writes it in its `START`, `END` and `REPORT` lines, and the `Bref\Monolog\CloudWatchFormatter` formatter starts every log line with it:
+
+```
+8f507cfc-8b35-4e7e-9f26-f2a3a6e7e1a2	ERROR	Payment failed	{"message":"Payment failed","level":"ERROR",...}
+```
+
+Search for a request ID to see everything that happened during that invocation: the application logs, Bref's errors (for example a timeout), and Lambda's `REPORT` line with the duration and the memory used.
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        In the [Bref Cloud](https://bref.sh/cloud) dashboard, click the request ID next to a log line to see all the logs of that request. The [X-Ray trace](/docs/monitoring#traces) of a request also shows its logs:
+
+        <a title="Bref Cloud" href="/cloud"><Image className="mt-6 border border-gray-200 rounded-lg shadow hover:shadow-lg" src={brefCloudTraceLogs} alt="The logs of a request below its X-Ray trace in Bref Cloud" /></a>
+
+        From the terminal, search for the request ID with `bref logs`. Its first 8 characters are enough, like in the dashboard:
+
+        ```bash
+        bref logs --env=prod --search=8f507cfc --all
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        In CloudWatch Logs Insights, select the log group of the function and filter on the `@requestId` field:
+
+        ```
+        fields @timestamp, @message
+        | filter @requestId = '8f507cfc-8b35-4e7e-9f26-f2a3a6e7e1a2'
+        | sort @timestamp asc
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+If you use another log formatter, the request ID of the current invocation is available in `$_SERVER['LAMBDA_REQUEST_ID']`. For example, to add it to every Monolog record:
+
+```php
+$logger->pushProcessor(function (Monolog\LogRecord $record) {
+    $record->extra['requestId'] = $_SERVER['LAMBDA_REQUEST_ID'] ?? null;
+    return $record;
+});
 ```

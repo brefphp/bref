@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { getBrefInvocations } from '../../aws/invocations';
 import treezorLogo from './companies/treezor.svg';
 import minutesLogo from './companies/20minutes.svg';
 import crowcubeLogo from './companies/crowdcube.svg';
@@ -28,7 +29,15 @@ const companies = [
     { src: treezorLogo, alt: 'Treezor', link: 'https://www.treezor.com/', classes: 'brightness-0 invert !h-7' }
 ];
 
-export default function Invocations({ invocations }) {
+export default async function Invocations() {
+    let invocations;
+    try {
+        invocations = await getBrefInvocations();
+    } catch (e) {
+        console.error(e);
+        // Fallback value for local development, preview environments, etc. (no permissions)
+        invocations = 11700607900;
+    }
     return (
         <div id="invocations" className="home-container home-section !px-0 sm:!px-6 !py-12 sm:!py-16">
             <div

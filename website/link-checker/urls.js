@@ -37,4 +37,5 @@ export default [
     '/docs/environment/database-public',
     '/docs/web-apps/local-development.html',
     '/docs/web-apps/local-development',
+    '/docs/getting-started',
 ];

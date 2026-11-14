@@ -2,6 +2,8 @@
 
 namespace Bref\Event\Http;
 
+use Bref\Runtime\LambdaResult;
+
 /**
  * Formats the response expected by AWS Lambda and the API Gateway integration.
  */
@@ -9,12 +11,17 @@ final class HttpResponse
 {
     private int $statusCode;
     private array $headers;
-    private string $body;
+    /** @var string|iterable<string> */
+    private string|iterable $body;
 
     /**
-     * @param array<string|string[]> $headers
+     * The body is a string, or its chunks when it is produced progressively (an iterable, e.g. a generator).
+     * To write a body produced by `echo`, see HttpResponseWriter::capture().
+     *
+     * @param string|iterable<string> $body
+     * @param array<string|string[]>  $headers
      */
-    public function __construct(string $body, array $headers = [], int $statusCode = 200)
+    public function __construct(string|iterable $body, array $headers = [], int $statusCode = 200)
     {
         $this->body = $body;
         $this->headers = $headers;
@@ -53,7 +60,7 @@ final class HttpResponse
             'isBase64Encoded' => $base64Encoding,
             'statusCode' => $this->statusCode,
             $headersKey => $headers,
-            'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
+            'body' => $base64Encoding ? base64_encode($this->bodyAsString()) : $this->bodyAsString(),
         ];
     }
 
@@ -63,7 +70,53 @@ final class HttpResponse
     public function toApiGatewayFormatV2(?string $awsRequestId = null): array
     {
         $base64Encoding = (bool) getenv('BREF_BINARY_RESPONSES');
+        ['cookies' => $cookies, 'statusCode' => $statusCode, 'headers' => $headers] = $this->toApiGatewayFormatV2WithoutBody($awsRequestId);
 
+        return [
+            'cookies' => $cookies,
+            'isBase64Encoded' => $base64Encoding,
+            'statusCode' => $statusCode,
+            'headers' => $headers,
+            'body' => $base64Encoding ? base64_encode($this->bodyAsString()) : $this->bodyAsString(),
+        ];
+    }
+
+    /**
+     * The format of Lambda's streamed HTTP responses (Function URLs in `RESPONSE_STREAM` mode, REST APIs in
+     * `STREAM` mode): the status code and headers as JSON, 8 null bytes, then the body as is (binary included,
+     * no base64).
+     *
+     * A body produced by an iterable can only be sent once.
+     */
+    public function toStreamedResponse(?string $awsRequestId = null): LambdaResult
+    {
+        return new LambdaResult(
+            HttpResponseWriter::STREAMED_CONTENT_TYPE,
+            fn (callable $send) => $this->sendTo(HttpResponseWriter::streamed($send, $awsRequestId)),
+        );
+    }
+
+    /**
+     * Write the response, its body chunk by chunk. A body produced by an iterable can only be sent once.
+     */
+    public function sendTo(HttpResponseWriter $writer): void
+    {
+        $writer->start($this->statusCode, $this->headers);
+        LambdaResult::writeChunks(is_string($this->body) ? [$this->body] : $this->body, $writer->write(...));
+    }
+
+    /**
+     * The status code and headers of Lambda's streamed HTTP responses (see toStreamedResponse()).
+     *
+     * @internal
+     */
+    public function toStreamedPrelude(?string $awsRequestId = null): string
+    {
+        return json_encode($this->toApiGatewayFormatV2WithoutBody($awsRequestId), JSON_THROW_ON_ERROR) . "\0\0\0\0\0\0\0\0";
+    }
+
+    private function toApiGatewayFormatV2WithoutBody(?string $awsRequestId): array
+    {
         $headers = [];
         $cookies = [];
         foreach ($this->headers as $name => $values) {
@@ -89,11 +142,22 @@ final class HttpResponse
 
         return [
             'cookies' => $cookies,
-            'isBase64Encoded' => $base64Encoding,
             'statusCode' => $this->statusCode,
             'headers' => $headers,
-            'body' => $base64Encoding ? base64_encode($this->body) : $this->body,
         ];
+    }
+
+    private function bodyAsString(): string
+    {
+        if (is_string($this->body)) {
+            return $this->body;
+        }
+        $body = '';
+        foreach ($this->body as $chunk) {
+            $body .= $chunk;
+        }
+
+        return $this->body = $body;
     }
 
     /**
@@ -101,7 +165,7 @@ final class HttpResponse
      */
     private function capitalizeHeaderName(string $name): string
     {
-        $name = str_replace('-', ' ', $name);
+        $name = str_replace('-', ' ', strtolower($name));
         $name = ucwords($name);
         return str_replace(' ', '-', $name);
     }

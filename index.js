@@ -160,7 +160,7 @@ class ServerlessPlugin {
                         type: 'string',
                     },
                     path: {
-                        usage: 'Path to JSON or YAML file holding input data (use either this or --data)',
+                        usage: 'Path to JSON file holding input data (use either this or --data)',
                         shortcut: 'p',
                         type: 'string',
                     },
@@ -177,6 +177,8 @@ class ServerlessPlugin {
         this.hooks = {
             'initialize': () => {
                 this.processPhpRuntimes();
+                this.exposeStackName();
+                this.configureResponseStreaming();
                 warnIfUsingSecretsWithoutTheBrefDependency(this.serverless, utils.log);
                 try {
                     this.telemetry();
@@ -289,6 +291,41 @@ class ServerlessPlugin {
             const f = construct.type === 'queue' ? construct.worker : construct.authorizer;
             if (f) {
                 configureFunctionRuntime(f);
+            }
+        }
+    }
+
+    /**
+     * Set the `BREF_STACK_NAME` environment variable on all functions (including Docker images and Lift workers).
+     */
+    exposeStackName() {
+        const provider = this.serverless.service.provider;
+        if (!provider.environment) {
+            provider.environment = {};
+        }
+        if (!provider.environment.BREF_STACK_NAME) {
+            provider.environment.BREF_STACK_NAME = this.provider.naming.getStackName();
+        }
+    }
+
+    /**
+     * Set the `BREF_RESPONSE_STREAMING` environment variable on functions whose URL or REST API streams:
+     * Bref cannot tell from the events, and each mode breaks with the other's response format.
+     */
+    configureResponseStreaming() {
+        for (const f of Object.values(this.serverless.service.functions || {})) {
+            const streamedUrl = typeof f.url === 'object' && f.url.invokeMode === 'RESPONSE_STREAM';
+            const streamedRestApi = (f.events || []).some((event) => {
+                // `response.transferMode` is not in the types of the `serverless` package
+                const http = 'http' in event ? /** @type {any} */ (event.http) : undefined;
+                return typeof http === 'object' && String((http.response || {}).transferMode).toUpperCase() === 'STREAM';
+            });
+            if (!streamedUrl && !streamedRestApi) continue;
+            if (!f.environment) {
+                f.environment = {};
+            }
+            if (f.environment.BREF_RESPONSE_STREAMING === undefined) {
+                f.environment.BREF_RESPONSE_STREAMING = '1';
             }
         }
     }

@@ -118,11 +118,16 @@ class Server
                     $message['body'],
                     $message['version']
                 );
-                return $response->withUri(
-                    $response->getUri()
-                        ->withScheme('http')
-                        ->withHost($response->getHeaderLine('host'))
-                );
+                $uri = $response->getUri()->withScheme('http');
+                $hostHeader = $response->getHeaderLine('host');
+                if ($hostHeader !== '') {
+                    $parts = explode(':', $hostHeader, 2);
+                    $uri = $uri->withHost($parts[0]);
+                    if (isset($parts[1])) {
+                        $uri = $uri->withPort((int) $parts[1]);
+                    }
+                }
+                return $response->withUri($uri);
             },
             $data
         );

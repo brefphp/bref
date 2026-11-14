@@ -145,6 +145,76 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertEquals($expected, $pass);
     }
 
+    public function test basic auth with an empty username()
+    {
+        // `:password` is valid per RFC 7617: the username can be empty
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode(':password'),
+            ],
+        ]);
+
+        $this->assertSame(['', 'password'], $event->getBasicAuthCredentials());
+    }
+
+    public function test basic auth with an empty password()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode('user:'),
+            ],
+        ]);
+
+        $this->assertSame(['user', ''], $event->getBasicAuthCredentials());
+    }
+
+    public function test basic auth with whitespace around the header value()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => "\t Basic " . base64_encode('user:password') . " \t",
+            ],
+        ]);
+
+        $this->assertSame(['user', 'password'], $event->getBasicAuthCredentials());
+    }
+
+    public function test basic auth without a colon is rejected()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Authorization' => 'Basic ' . base64_encode('foobar'),
+            ],
+        ]);
+
+        $this->assertSame([null, null], $event->getBasicAuthCredentials());
+    }
+
+    /**
+     * @dataProvider provideHeadersWithUnderscores
+     */
+    public function test headers with underscores are dropped(array $event)
+    {
+        $event = new HttpRequestEvent($event + ['httpMethod' => 'GET']);
+
+        self::assertSame(['x-foo' => ['proxy']], $event->getHeaders());
+    }
+
+    public static function provideHeadersWithUnderscores(): array
+    {
+        return [
+            'v1, before' => [['headers' => ['x_foo' => 'client', 'x-foo' => 'proxy']]],
+            'v1, after' => [['headers' => ['x-foo' => 'proxy', 'x_foo' => 'client']]],
+            'v1 multi-value' => [['multiValueHeaders' => ['x-foo' => ['proxy'], 'x_foo' => ['client']]]],
+            'v2' => [['version' => '2.0', 'requestContext' => ['http' => ['method' => 'GET']], 'headers' => ['x-foo' => 'proxy', 'x_foo' => 'client']]],
+            'uppercase' => [['headers' => ['X-Foo' => 'proxy', 'X_FOO' => 'client']]],
+        ];
+    }
+
     public function test empty invocation will have friendly error message()
     {
         $message = "This handler expected to be invoked with a API Gateway or ALB event (check that you are using the correct Bref runtime: https://bref.sh/docs/runtimes/#bref-runtimes).\nInstead, the handler was invoked with invalid event data: null";
@@ -155,6 +225,30 @@ class HttpRequestEventTest extends CommonHttpTest
         new HttpRequestEvent(null);
     }
 
+    public function test cookies without a space after the semicolon()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Cookie' => 'a=1;b=2; c=3',
+            ],
+        ]);
+
+        $this->assertSame(['a' => '1', 'b' => '2', 'c' => '3'], $event->getCookies());
+    }
+
+    public function test cookies with whitespace around the pairs()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Cookie' => "a=1 ;\tb=2\t; c=3",
+            ],
+        ]);
+
+        $this->assertSame(['a' => '1', 'b' => '2', 'c' => '3'], $event->getCookies());
+    }
+
     /**
      * @dataProvider provide query strings
      */
@@ -162,7 +256,6 @@ class HttpRequestEventTest extends CommonHttpTest
     {
         $reflection = new \ReflectionClass(HttpRequestEvent::class);
         $method = $reflection->getMethod('queryStringToArray');
-        $method->setAccessible(true);
         $result = $method->invokeArgs($reflection->newInstanceWithoutConstructor(), [$query]);
 
         $this->assertEquals($expectedOutput, $result);

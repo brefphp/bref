@@ -26,7 +26,10 @@ abstract class RuntimeTestCase extends TestCase
         ob_end_clean();
     }
 
-    protected function givenAnEvent(mixed $event): void
+    /**
+     * @param int|null $deadlineMs Default: in 15 minutes.
+     */
+    protected function givenAnEvent(mixed $event, ?int $deadlineMs = null): void
     {
         Server::enqueue([
             new Response( // lambda event
@@ -35,6 +38,7 @@ abstract class RuntimeTestCase extends TestCase
                     'lambda-runtime-aws-request-id' => '1',
                     'lambda-runtime-invoked-function-arn' => 'test-function-name',
                     'lambda-runtime-trace-id' => 'Root=1-67891233-abcdef012345678912345678',
+                    'lambda-runtime-deadline-ms' => (string) ($deadlineMs ?? (int) (microtime(true) * 1000) + 15 * 60 * 1000),
                 ],
                 json_encode($event, JSON_THROW_ON_ERROR)
             ),
@@ -52,6 +56,9 @@ abstract class RuntimeTestCase extends TestCase
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/next', $eventRequest->getUri()->__toString());
         $this->assertSame('POST', $eventResponse->getMethod());
         $this->assertSame('http://localhost:8126/2018-06-01/runtime/invocation/1/response', $eventResponse->getUri()->__toString());
+        // Every response is sent with the streaming mode, values are encoded to JSON
+        $this->assertSame('streaming', $eventResponse->getHeaderLine('lambda-runtime-function-response-mode'));
+        $this->assertSame('application/json', $eventResponse->getHeaderLine('Content-Type'));
         $this->assertEquals($result, json_decode($eventResponse->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR));
     }
 

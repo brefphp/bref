@@ -1,0 +1,28 @@
+service: bref
+provider:
+    name: aws
+
+plugins:
+    - ./bref.js
+
+functions:
+    streamed:
+        handler: index.php
+        runtime: php-83-fpm
+        url:
+            invokeMode: RESPONSE_STREAM
+    buffered:
+        handler: index.php
+        runtime: php-83-fpm
+        url: true
+        events:
+            - http: 'ANY /'
+    streamed-rest-api:
+        handler: index.php
+        runtime: php-83-fpm
+        events:
+            - http:
+                  path: /
+                  method: ANY
+                  response:
+                      transferMode: STREAM

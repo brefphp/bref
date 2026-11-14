@@ -4,12 +4,10 @@
     <testsuite name="small">
       <directory>./tests/</directory>
       <exclude>./tests/Sam</exclude>
+      <exclude>./tests/FpmRuntime/Functional</exclude>
       <exclude>./tests/Fixtures</exclude>
       <exclude>./tests/HttpRequestProxyTest.php</exclude>
       <exclude>./tests/Event/Http/CommonHttpTest.php</exclude>
-    </testsuite>
-    <testsuite name="runtimes">
-      <directory>./tests/Sam</directory>
     </testsuite>
   </testsuites>
   <php>

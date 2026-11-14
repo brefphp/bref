@@ -5,6 +5,7 @@ namespace Bref\Test\Event\Http;
 use Bref\Context\Context;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\Psr7Bridge;
+use GuzzleHttp\Psr7\PumpStream;
 use Nyholm\Psr7\Response;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
@@ -30,6 +31,91 @@ class Psr7BridgeTest extends CommonHttpTest
             ],
             'body' => json_encode(['foo' => 'bar'], JSON_THROW_ON_ERROR),
         ], $response->toApiGatewayFormat());
+    }
+
+    public function test falsy server params are not dropped()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'GET',
+            'headers' => [
+                'Content-Length' => '0',
+                'Authorization' => 'Basic ' . base64_encode('user:'),
+            ],
+        ]);
+        $request = Psr7Bridge::convertRequest($event, Context::fake());
+
+        $serverParams = $request->getServerParams();
+        self::assertSame('0', $serverParams['CONTENT_LENGTH']);
+        self::assertSame('user', $serverParams['PHP_AUTH_USER']);
+        self::assertSame('', $serverParams['PHP_AUTH_PW']);
+    }
+
+    /**
+     * @dataProvider provideMalformedMultipartBodies
+     */
+    public function test malformed multipart bodies are ignored like PHP does(string $contentType, string $body)
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => $contentType,
+            ],
+            'body' => $body,
+        ]);
+        $request = Psr7Bridge::convertRequest($event, Context::fake());
+
+        self::assertNull($request->getParsedBody());
+        self::assertSame([], $request->getUploadedFiles());
+        self::assertSame($body, $request->getBody()->getContents());
+    }
+
+    public function test multipart parts without a name are ignored like PHP does()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+            ],
+            'body' => "--testBoundary\r\nContent-Disposition: form-data\r\n\r\nignored\r\n"
+                . "--testBoundary\r\nContent-Disposition: form-data; filename=\"ignored.txt\"\r\n\r\nignored\r\n"
+                . "--testBoundary\r\n\r\nignored\r\n"
+                . "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\n\r\nbar\r\n"
+                . "--testBoundary--\r\n",
+        ]);
+        $request = Psr7Bridge::convertRequest($event, Context::fake());
+
+        self::assertSame(['foo' => 'bar'], $request->getParsedBody());
+        self::assertSame([], $request->getUploadedFiles());
+    }
+
+    public function test uploaded files are deleted by the cleanup()
+    {
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+            ],
+            'body' => "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"; filename=\"foo.txt\"\r\n\r\nbar\r\n--testBoundary--\r\n",
+        ]);
+        $request = Psr7Bridge::convertRequest($event, Context::fake());
+        $file = $request->getUploadedFiles()['foo']->getStream()->getMetadata('uri');
+        self::assertFileExists($file);
+
+        Psr7Bridge::cleanupUploadedFiles();
+
+        self::assertFileDoesNotExist($file);
+    }
+
+    public static function provideMalformedMultipartBodies(): array
+    {
+        return [
+            // Sent by browsers for a FormData with no fields
+            'empty form' => ['multipart/form-data; boundary=testBoundary', "--testBoundary--\r\n"],
+            'empty body' => ['multipart/form-data; boundary=testBoundary', ''],
+            'no closing boundary' => ['multipart/form-data; boundary=testBoundary', "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\n\r\nbar\r\n"],
+            'no boundary in the content type' => ['multipart/form-data', "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\n\r\nbar\r\n--testBoundary--\r\n"],
+            'nested multipart/mixed part' => ['multipart/form-data; boundary=testBoundary', "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\nContent-Type: multipart/mixed; boundary=nested\r\n\r\n--nested\r\nContent-Disposition: file; filename=\"foo.txt\"\r\n\r\nbar\r\n--nested--\r\n\r\n--testBoundary--\r\n"],
+        ];
     }
 
     protected function fromFixture(string $file): void
@@ -166,5 +252,22 @@ class Psr7BridgeTest extends CommonHttpTest
     protected function assertBasicAuthPassword(string $expected): void
     {
         $this->assertEquals($expected, $this->request->getServerParams()['PHP_AUTH_PW']);
+    }
+
+    public function test the response body is read progressively()
+    {
+        $reads = 0;
+        $stream = new PumpStream(function () use (&$reads) {
+            return $reads < 2 ? 'chunk ' . ++$reads : false;
+        });
+
+        $response = Psr7Bridge::convertResponse(new Response(200, [], $stream));
+        $this->assertSame(0, $reads, 'Nothing is read before the response is sent');
+
+        $chunks = [];
+        $response->toStreamedResponse()->writeTo(function (string $chunk) use (&$chunks) {
+            $chunks[] = $chunk;
+        });
+        $this->assertSame('chunk 1chunk 2', implode('', array_slice($chunks, 1)));
     }
 }

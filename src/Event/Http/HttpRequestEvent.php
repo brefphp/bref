@@ -6,6 +6,7 @@ use Bref\Event\InvalidLambdaEvent;
 use Bref\Event\LambdaEvent;
 use Crwlr\QueryString\Query;
 
+use function str_contains;
 use function str_starts_with;
 
 /**
@@ -100,15 +101,15 @@ final class HttpRequestEvent implements LambdaEvent
      */
     public function getBasicAuthCredentials(): array
     {
-        $authorizationHeader = trim($this->headers['authorization'][0] ?? '');
+        $authorizationHeader = trim($this->headers['authorization'][0] ?? '', " \t");
 
         if (! str_starts_with($authorizationHeader, 'Basic ')) {
             return [null, null];
         }
 
-        $auth = base64_decode(trim(explode(' ', $authorizationHeader)[1]));
+        $auth = base64_decode(trim(explode(' ', $authorizationHeader)[1], " \t"), true);
 
-        if (! $auth || ! strpos($auth, ':')) {
+        if ($auth === false || ! str_contains($auth, ':')) {
             return [null, null];
         }
 
@@ -169,6 +170,28 @@ final class HttpRequestEvent implements LambdaEvent
         return self::queryStringToArray($this->queryString);
     }
 
+    /**
+     * Whether the response to the event is streamed: Function URLs in `RESPONSE_STREAM` mode,
+     * REST APIs in `STREAM` mode (HTTP APIs and ALBs cannot stream).
+     *
+     * Events are the same in streamed and buffered modes, and each mode breaks with the other's
+     * response format: the `BREF_RESPONSE_STREAMING` environment variable says which mode is configured.
+     */
+    public static function isStreamed(mixed $event): bool
+    {
+        if (! getenv('BREF_RESPONSE_STREAMING') || ! is_array($event)) {
+            return false;
+        }
+        // Function URL events have the same format as HTTP API v2 events, only their domain differs
+        if (str_contains($event['requestContext']['domainName'] ?? '', '.lambda-url.')) {
+            return true;
+        }
+
+        // REST API events have no version, HTTP API events have one (1.0 or 2.0), ALB events have no API ID,
+        // WebSocket events have no HTTP method
+        return ! isset($event['version']) && isset($event['requestContext']['apiId'], $event['httpMethod']);
+    }
+
     public function getRequestContext(): array
     {
         return $this->event['requestContext'] ?? [];
@@ -185,7 +208,7 @@ final class HttpRequestEvent implements LambdaEvent
             // Multiple "Cookie" headers are not authorized
             // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
             $cookieHeader = $this->headers['cookie'][0];
-            $cookieParts = explode('; ', $cookieHeader);
+            $cookieParts = array_map(fn (string $part) => trim($part, " \t"), explode(';', $cookieHeader));
         }
 
         $cookies = [];
@@ -306,6 +329,9 @@ final class HttpRequestEvent implements LambdaEvent
                 return [$value];
             }, $headers);
         }
+        // Web servers like nginx and Apache drop these headers: `x_foo` would reach PHP
+        // as the same HTTP_X_FOO variable as `x-foo`, and replace the value set by a proxy
+        $headers = array_filter($headers, fn ($name) => ! str_contains((string) $name, '_'), ARRAY_FILTER_USE_KEY);
         $headers = array_change_key_case($headers, CASE_LOWER);
 
         $hasBody = ! empty($this->event['body']);

@@ -1,21 +1,22 @@
-import { Callout, Steps, Cards, Card } from 'nextra/components';
-// Path relative to the copy in the `website/` folder
-import { LaravelIcon } from '../../components/icons/LaravelIcon';
-import { SymfonyIcon } from '../../components/icons/SymfonyIcon';
-import { NextSeo } from 'next-seo';
+---
+description: "How to deploy Bref applications using Bref Cloud."
+---
 
-<NextSeo description="How to deploy Bref application using Bref Cloud." />
+import { Steps, Cards } from 'nextra/components';
+// Path relative to the copy in the `website/` folder
+import { LaravelIcon } from '../../src/components/icons/LaravelIcon';
+import { SymfonyIcon } from '../../src/components/icons/SymfonyIcon';
 
 # Deployment
 
-Bref Cloud deploys application using Bref's `serverless.yml` file.
+Bref Cloud deploys applications using Bref's `serverless.yml` file.
 
 If you haven't gotten started with Bref, follow the guide corresponding to your framework:
 
 <Cards num={2}>
-    <Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
-    <Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
-    <Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
+    <Cards.Card icon={<LaravelIcon />} title="Get started with Laravel" arrow="true" href="/docs/laravel/getting-started" />
+    <Cards.Card icon={<SymfonyIcon />} title="Get started with Symfony" arrow="true" href="/docs/symfony/getting-started" />
+    <Cards.Card title="Get started with any PHP framework" arrow="true" href="/docs/default/getting-started" />
 </Cards>
 
 The main difference with Bref Cloud is that you don't deploy by running `serverless deploy`. Instead, you deploy by running:
@@ -39,7 +40,7 @@ When you run `bref deploy`, Bref Cloud runs the `serverless deploy` command for 
 
 The `bref` CLI uses AWS credentials from AWS accounts connected in [Bref Cloud](https://bref.cloud/aws-accounts). That means that it will ignore AWS credentials configured on your machine.
 
-The `bref` CLI also uses the [open-source fork of Serverless Framework](https://github.com/oss-serverless/serverless), which is a fork of Serverless Framework v3, the last free and open-source version. This fork is maintained by Bref and ensures that the CLI is maintained and stable in the long run.
+The `bref` CLI also uses the [open-source fork of Serverless Framework](https://github.com/oss-serverless/osls), which is a fork of Serverless Framework v3, the last free and open-source version. This fork is maintained by Bref and ensures that the CLI is maintained and stable in the long run.
 
 Finally, the `bref` CLI uses "**environments**" instead of "**stages**". This is just a vocabulary change. That means that you should use the `--env` option instead of the `--stage` option:
 
@@ -48,6 +49,14 @@ bref deploy --env production
 
 # is equivalent to
 serverless deploy --stage production
+```
+
+### Parameters
+
+To set [Serverless Framework parameters](https://www.serverless.com/framework/docs/guides/parameters) (`${param:...}` variables in `serverless.yml`) when deploying, use the `--param` option, like with `serverless deploy`. It can be repeated:
+
+```shell
+bref deploy --param="domain=example.com" --param="queue=orders"
 ```
 
 ## Deploying with Bref Cloud
@@ -76,6 +85,25 @@ bref deploy
 bref deploy --env production
 ```
 
+## Deployment history
+
+Bref Cloud keeps the history of the deployments of every environment, with their logs. You can see it in the dashboard, or from the terminal:
+
+```shell
+# The latest deployments of an environment
+bref deployments --env=production
+# The status, git commit, author and error of the latest deployment
+bref deployments:show --env=production
+# The logs of the latest deployment, for example to find why it failed
+bref deployments:logs --env=production
+
+# A specific deployment, by the ID that `bref deployments` shows
+bref deployments:show 42
+bref deployments:logs 42
+```
+
+When given a deployment ID, these commands work from any directory. Otherwise, they need the project's configuration file, or the `--app` and `--team` options. Add `--json` for machine-readable output.
+
 ## Deploying from GitHub Actions
 
 You can also deploy your application using GitHub Actions.
@@ -103,9 +131,9 @@ jobs:
         steps:
             -   uses: actions/checkout@v4
 
-            -   uses: actions/setup-node@v2
+            -   uses: actions/setup-node@v4
                 with:
-                    node-version: '18'
+                    node-version: '20'
 
             -   name: Cache NPM dependencies
                 uses: actions/cache@v4
@@ -121,7 +149,7 @@ jobs:
             -   name: Setup PHP
                 uses: shivammathur/setup-php@v2
                 with:
-                    php-version: '8.2'
+                    php-version: '8.4'
                     coverage: none
                     # Install the Bref CLI as a global tool
                     tools: bref/cli
@@ -138,9 +166,9 @@ jobs:
                     BREF_TOKEN: ${{ secrets.BREF_TOKEN }}
 ```
 
-<Callout>
-    Depending on your framework, you may need to add extra steps to build your application. For example with Laravel or Symfony you may want to build assets before deploying.
-</Callout>
+> [!TIP]
+>
+> Depending on your framework, you may need to add extra steps to build your application. For example with Laravel or Symfony you may want to build assets before deploying.
 
 Finally, you need to add the `BREF_TOKEN` secret to your repository:
 

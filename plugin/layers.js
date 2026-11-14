@@ -23,7 +23,8 @@ function listLayers(serverless, log) {
 }
 
 function padString(str, length) {
-    return str.padEnd(length, ' ');
+    // The value may be a number (layer versions are numbers in layers.json)
+    return String(str).padEnd(length, ' ');
 }
 
 module.exports = {listLayers};
