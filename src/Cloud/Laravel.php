@@ -30,6 +30,12 @@ class Laravel
         '!tests/**',
     ];
 
+    /**
+     * @internal Only for Bref Cloud's own tests: no CloudFront distribution, which takes 5 to 10
+     * minutes to create and as long to delete. The application is then served by its Function URL.
+     */
+    public bool $cdn = true;
+
     /** @var array<string, string> */
     public array $variables = [
         'APP_DEBUG' => '0',
@@ -97,7 +103,12 @@ class Laravel
             'queue' => $this->queue,
         ];
 
-        $config = $this->packageAssets($config);
+        if ($this->cdn) {
+            $config = $this->packageAssets($config);
+        } else {
+            // Nothing would serve the assets
+            $config['cdn'] = false;
+        }
 
         return $config;
     }
