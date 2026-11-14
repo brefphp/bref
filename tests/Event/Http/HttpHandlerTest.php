@@ -21,6 +21,7 @@ class HttpHandlerTest extends TestCase
     public function tearDown(): void
     {
         putenv('BREF_RESPONSE_STREAMING');
+        putenv('BREF_ORIGIN_SECRET');
     }
 
     public function test Function URL responses are streamed()
