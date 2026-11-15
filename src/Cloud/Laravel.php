@@ -40,6 +40,9 @@ class Laravel
     /** @var array{name: string, migrate: bool}|null */
     private ?array $database = null;
 
+    /** @var list<string> */
+    private array $beforeDeploy = [];
+
     /** @var array<string, string> */
     public array $variables = [
         'APP_DEBUG' => '0',
@@ -111,6 +114,19 @@ class Laravel
     }
 
     /**
+     * Run Artisan commands with the new code before it receives traffic, after the migrations of
+     * `useDatabase()`: when one fails, the deployment fails and the previous version stays live.
+     *
+     * @param string ...$commands Artisan commands without `php artisan`, e.g. `db:seed --force`.
+     */
+    public function beforeDeploy(string ...$commands): self
+    {
+        $this->beforeDeploy = [...$this->beforeDeploy, ...$commands];
+
+        return $this;
+    }
+
+    /**
      * @internal
      */
     public function toArray(): array
@@ -126,7 +142,7 @@ class Laravel
             'queue' => $this->queue,
         ];
         // Bref Cloud has the defaults, and validates the settings
-        foreach (['architecture', 'web', 'worker', 'artisan', 'database'] as $option) {
+        foreach (['architecture', 'web', 'worker', 'artisan', 'database', 'beforeDeploy'] as $option) {
             if ($this->$option !== null && $this->$option !== []) {
                 $config[$option] = $this->$option;
             }
