@@ -64,6 +64,8 @@ Jobs that do not define `$tries` are attempted 3 times (`php artisan queue:work`
 
 Failed jobs are stored in the `failed_jobs` database table, like on any server. If your application has no database, set `QUEUE_FAILED_DRIVER: 'null'` in `provider.environment`: failed jobs are still logged, but not stored. Otherwise, storing the failed job fails as well, for example with `Database file at path [/var/task/database/database.sqlite] does not exist`.
 
+For each job, Bref logs `Processing job <id>` and `Processed job <id>` (or `Job failed <id>`), with the class of the job in the log context. To disable these logs, set `'log_jobs' => false` in `config/bref.php` (publish it with `php artisan vendor:publish --tag=bref-config`).
+
 ## Multiple queues
 
 On a server, one worker can process several queues by priority (`php artisan queue:work --queue=high,default`). On Lambda, each SQS queue has its own worker function: all queues are processed at the same time, and each worker scales on its own. There is no priority between queues.

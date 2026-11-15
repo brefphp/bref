@@ -46,7 +46,7 @@ If you are curious, the package will automatically:
 - replace the default `stack` log channel with `stderr`, to send logs to CloudWatch ([read more about logs](../environment/logs.mdx))
 - replace the `file` session driver with the [`cookie` session driver](https://laravel.com/docs/session#configuration)
 - move the storage directory to `/tmp` (because the default storage directory is read-only on Lambda)
-- adjust a few more settings (see the [configuration reference](./configuration.mdx#values-replaced-on-lambda))
+- adjust a few more settings ([have a look at the `BrefServiceProvider` for details](https://github.com/brefphp/laravel-bridge/blob/master/src/BrefServiceProvider.php))
 
 The generated `serverless.yml` uses the `cookie` session driver (`SESSION_DRIVER: cookie`). Cookie sessions are limited to 4 KB, encryption included: if your application stores more in the session, use another session driver, see [Sessions](./sessions.mdx).
 
@@ -109,7 +109,7 @@ provider:
 >
 > `bref/laravel-bridge` installs `aws/aws-sdk-php`. This package is **very large** (100MB+) and can push your deployment over Lambda's 250MB size limit. Make sure to [remove unused AWS services](/docs/deploy.md#reducing-package-size) to reduce the deployment size. Keep `Sqs` if you use queues and `DynamoDb` if you use DynamoDB for the cache or sessions.
 
-Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying.
+Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying. To disable it, set `BREF_LARAVEL_CACHE_CONFIG: false` in `provider.environment`.
 
 > [!NOTE]
 >
@@ -178,6 +178,15 @@ You can learn more about logs in the [Logs guide](../environment/logs.mdx).
 ## Website assets
 
 Have a look at the [Website guide](../use-cases/websites.mdx) to learn how to deploy a website with assets.
+
+If Laravel must serve a few files of `public/` itself, for example `favicon.ico` or `robots.txt`, list them in the `assets` option of `config/bref.php` (publish it with `php artisan vendor:publish --tag=bref-config`). PHP reads these files on every request.
+
+```php filename="config/bref.php"
+'assets' => [
+    'favicon.ico',
+    'robots.txt',
+],
+```
 
 ## Laravel Artisan
 

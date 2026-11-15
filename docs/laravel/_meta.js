@@ -10,5 +10,4 @@ export default {
     websockets: 'WebSockets',
     passport: 'Laravel Passport',
     'maintenance-mode': 'Maintenance mode',
-    configuration: 'Configuration reference',
 };
