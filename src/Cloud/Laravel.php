@@ -51,6 +51,10 @@ class Laravel
      * @param string|null $region The AWS region to deploy to, e.g. 'eu-west-3'. Defaults to us-east-1.
      * @param string[] $patterns Path patterns to include or exclude from the deployment.
      * @param array<string, mixed> $variables Environment variables to set in the Lambda.
+     * @param 'arm'|'x86'|null $architecture The architecture of all the functions. Defaults to ARM.
+     * @param array{memory?: int, timeout?: int} $web Settings of the function that serves HTTP requests.
+     * @param array{memory?: int, timeout?: int, maxInstances?: int} $worker Settings of the queue worker.
+     * @param array{memory?: int, timeout?: int} $artisan Settings of the function that runs the scheduler and commands.
      */
     public function __construct(
         public string $name,
@@ -60,10 +64,12 @@ class Laravel
         array $patterns = [],
         public string $assets = 'public',
         array $variables = [],
-        public int $memory = 1024,
-        public int $timeout = 28,
         public bool $scheduler = false,
         public bool $queue = false,
+        public ?string $architecture = null,
+        public array $web = [],
+        public array $worker = [],
+        public array $artisan = [],
     ) {
         // Ensures the root path is never empty
         if (empty($this->rootPath)) {
@@ -97,11 +103,15 @@ class Laravel
             'region' => $this->region,
             'package' => Cloud::package($this->rootPath, $this->patterns),
             'variables' => $this->variables,
-            'memory' => $this->memory,
-            'timeout' => $this->timeout,
             'scheduler' => $this->scheduler,
             'queue' => $this->queue,
         ];
+        // Bref Cloud has the defaults, and validates the settings
+        foreach (['architecture', 'web', 'worker', 'artisan'] as $option) {
+            if ($this->$option !== null && $this->$option !== []) {
+                $config[$option] = $this->$option;
+            }
+        }
 
         if ($this->cdn) {
             $config = $this->packageAssets($config);
