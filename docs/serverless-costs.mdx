@@ -33,7 +33,7 @@ To reduce these costs:
 - Use a database that does not need a VPC: [Aurora DSQL](./environment/database-dsql.mdx), [PlanetScale](./environment/database-planetscale.mdx) or an [internet-accessible database](./environment/database.mdx#internet-accessible-databases).
 - Share one VPC and its NAT Gateway between applications and environments.
 - Add gateway VPC endpoints for S3 and DynamoDB: they are free, and the traffic to these services no longer goes through the NAT Gateway. Networks created by Bref Cloud include them.
-- Use a NAT instance instead of a NAT Gateway for test environments (see [VPC databases](./environment/database.mdx#vpc-databases-private-network)).
+- Use a NAT instance instead of a NAT Gateway for small applications: side projects, test or preview environments, etc. (see [VPC databases](./environment/database.mdx#vpc-databases-private-network)).
 
 ### Logs
 
