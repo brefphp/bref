@@ -20,6 +20,12 @@ For some use cases it has interesting consequences: 1 job running for 10 minutes
 
 Lambda, API Gateway and SQS are billed per use: an application that receives no traffic costs nothing on those services. Databases and NAT Gateways are billed per hour, whether they are used or not.
 
+## Costs calculator
+
+Use the calculator below to estimate the costs of running your PHP application serverless on AWS Lambda.
+
+<CostsCalculator />
+
 ## Other AWS costs
 
 The prices below are those of the `us-east-1` region. Other regions can be more expensive, see the pricing page of each AWS service.
@@ -147,9 +153,3 @@ resources:
 Requests above the limit get a `429 Too Many Requests` response and do not invoke Lambda. AWS applies these limits on a best-effort basis. The limit applies to all clients together: it is not a rate limit per user or per IP address.
 
 If `provider.httpApi.metrics` is enabled, also set `DetailedMetricsEnabled: true` in `DefaultRouteSettings`: the override replaces the whole `DefaultRouteSettings` property. Read more about [overriding resources](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/resources.md#override-aws-cloudformation-resource).
-
-## Costs calculator
-
-Use the calculator below to estimate the costs of running your PHP application serverless on AWS Lambda.
-
-<CostsCalculator />
