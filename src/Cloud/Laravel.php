@@ -48,14 +48,15 @@ class Laravel
     ];
 
     /**
-     * @param string                                                 $php          The PHP version to use: '8.2', '8.3', '8.4' or '8.5'.
-     * @param string|null                                            $region       The AWS region to deploy to, e.g. 'eu-west-3'. Defaults to us-east-1.
-     * @param string[]                                               $patterns     Path patterns to include or exclude from the deployment.
-     * @param array<string, mixed>                                   $variables    Environment variables to set in the Lambda.
-     * @param 'arm'|'x86'|null                                       $architecture The architecture of all the functions. Defaults to ARM.
-     * @param array{memory?: int, timeout?: int}                     $web          Settings of the function that serves HTTP requests.
-     * @param array{memory?: int, timeout?: int, maxInstances?: int} $worker       Settings of the queue worker.
-     * @param array{memory?: int, timeout?: int}                     $artisan      Settings of the function that runs the scheduler and commands.
+     * @param string                                                                                $php          The PHP version to use: '8.2', '8.3', '8.4' or '8.5'.
+     * @param string|null                                                                           $region       The AWS region to deploy to, e.g. 'eu-west-3'. Defaults to us-east-1.
+     * @param string[]                                                                              $patterns     Path patterns to include or exclude from the deployment.
+     * @param array<string, mixed>                                                                  $variables    Environment variables to set in the Lambda.
+     * @param 'arm'|'x86'|null                                                                      $architecture The architecture of all the functions. Defaults to ARM.
+     * @param array{memory?: int, timeout?: int}                                                    $web          Settings of the function that serves HTTP requests.
+     * @param bool|array<int|string, string|array{memory?: int, timeout?: int, maxInstances?: int}> $queue        `true` for the `default` queue, or queue names, e.g. `['default', 'emails' => ['memory' => 2048]]`.
+     * @param array{memory?: int, timeout?: int, maxInstances?: int}                                $worker       Settings of the queue workers.
+     * @param array{memory?: int, timeout?: int}                                                    $artisan      Settings of the function that runs the scheduler and commands.
      */
     public function __construct(
         public string $name,
@@ -66,7 +67,7 @@ class Laravel
         public string $assets = 'public',
         array $variables = [],
         public bool $scheduler = false,
-        public bool $queue = false,
+        public bool|array $queue = false,
         public ?string $architecture = null,
         public array $web = [],
         public array $worker = [],
