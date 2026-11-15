@@ -117,7 +117,7 @@ class Laravel
      * Run Artisan commands with the new code before it receives traffic, after the migrations of
      * `useDatabase()`: when one fails, the deployment fails and the previous version stays live.
      *
-     * @param string ...$commands Artisan commands without `php artisan`, e.g. `db:seed --force`.
+     * @param string ...$commands Artisan commands without `php artisan`, e.g. `cache:clear`. They run on every deployment: they must be safe to run again.
      */
     public function beforeDeploy(string ...$commands): self
     {
