@@ -1,0 +1,42 @@
+---
+description: "Import applications and databases that already exist in your AWS accounts into Bref Cloud, to monitor them."
+---
+
+# Existing applications
+
+Bref Cloud can monitor applications it did not deploy: applications deployed with the `serverless` CLI, Laravel Vapor applications, and RDS databases created outside of Bref Cloud. It finds them by scanning the AWS accounts connected to your team.
+
+## Scanning an AWS account
+
+Bref Cloud scans an AWS account once, right after it is [connected](./cloud-aws-accounts.mdx). To scan it again, for example after deploying new applications with the `serverless` CLI:
+
+1. Open the [AWS accounts](https://bref.cloud/aws-accounts) page.
+2. Open the menu of the account, and click "Scan for apps and databases".
+
+The scan runs in the background, in every region enabled in the AWS account. The applications and databases it finds appear in Bref Cloud within a few minutes. Team members with the Write or Admin role can start a scan.
+
+## What is imported
+
+### CloudFormation stacks
+
+Bref Cloud imports the CloudFormation stacks that contain Lambda functions, and whose name has the `<application>-<environment>` format. This is the format of the stacks that the `serverless` CLI creates (`<service>-<stage>`): the `my-app-prod` stack becomes the `prod` environment of the `my-app` application. The environment name is the part after the last dash.
+
+Nested stacks, and stacks without a dash in their name, are ignored. An environment that already exists in Bref Cloud is not changed.
+
+### Laravel Vapor applications
+
+Bref Cloud imports the Lambda functions tagged `laravel-vapor`. Each Vapor application becomes a `vapor-<application ID>` application in Bref Cloud, with one environment per Vapor environment.
+
+Monitoring Vapor applications is limited: Bref Cloud shows their logs and basic metrics, but not their deployments, queues, files or health checks, and it cannot delete them. To move a Vapor application to Bref, see [Migrating from Laravel Vapor](./laravel/migrating-from-vapor.mdx).
+
+### Databases
+
+Bref Cloud imports the RDS instances and clusters (including Aurora) of the AWS account. They are listed in the [Databases](https://bref.cloud/databases) page, with their hostname, port, metrics and snapshots. A database that has the same name as a database created by Bref Cloud is skipped.
+
+Bref Cloud updates the imported databases every day, and removes the ones that were deleted in AWS.
+
+## Deploying an imported application with Bref Cloud
+
+Imported applications are marked "not deployed by Bref Cloud": they have no deployment history in Bref Cloud.
+
+To deploy an application imported from a `serverless` CLI stack with Bref Cloud, add your team to `serverless.yml` ([learn more](./cloud-deploy.mdx#deploying-with-bref-cloud)), then deploy the same environment with `bref deploy --env=<stage>`. Bref Cloud reuses the imported environment and its AWS account, and the `serverless` CLI updates the existing stack.

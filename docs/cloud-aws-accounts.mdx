@@ -1,0 +1,93 @@
+---
+description: "Connect AWS accounts to Bref Cloud, update their permissions and disconnect them."
+---
+
+# Connecting AWS accounts
+
+Bref Cloud deploys applications to your own AWS accounts. Each Bref Cloud team connects the AWS accounts it deploys to in the [AWS accounts](https://bref.cloud/aws-accounts) page of the dashboard.
+
+Only team admins can connect, update and remove AWS accounts. The number of AWS accounts a team can connect depends on its [plan](/cloud#pricing).
+
+## Before connecting an account
+
+If you create a new AWS account, use the [AWS sign-up form](https://signin.aws.amazon.com/signup?request_type=register) (*Sign up for AWS (advanced)*). Bref Cloud cannot connect to accounts created with *Sign up for AWS (new)* ([AWS projects](/docs/setup#aws-projects)).
+
+Connecting an account creates an IAM role named `BrefCloudAccess` in that account. Bref Cloud assumes this role to deploy and monitor your applications, without storing any AWS credentials ([learn more](./cloud-security.mdx)).
+
+The role is created by a CloudFormation stack named `bref-cloud-connect`, in the `us-east-1` region. IAM roles are global: you can deploy applications to any [supported region](./cloud-deploy.mdx#supported-regions).
+
+## Connecting an account
+
+In the [AWS accounts](https://bref.cloud/aws-accounts) page, click "Connect a new account", then choose one of the three methods below.
+
+### From the AWS console
+
+This is the recommended method.
+
+1. Click "Open AWS Console": it opens the AWS console with the `bref-cloud-connect` stack ready to create. Log in to the AWS account to connect if needed.
+2. Click "Create stack" and wait about a minute for the stack to be created.
+3. In the "Outputs" tab of the stack, copy the "Role ARN" value (`arn:aws:iam::123456789012:role/BrefCloudAccess`).
+4. Back in Bref Cloud, choose a display name for the account (for example "production") and paste the role ARN.
+
+### With the `bref` CLI
+
+If AWS credentials for the account are configured on your machine, run:
+
+```shell
+bref connect
+
+# or with a specific AWS profile
+bref connect --profile=my-profile
+```
+
+`bref connect` deploys the `bref-cloud-connect` stack with these credentials, asks for a display name, and adds the account to your team. If you belong to several teams, it asks which team to add the account to. The AWS credentials need permissions to create CloudFormation stacks and IAM roles.
+
+### With an IAM role you create
+
+To control exactly what Bref Cloud can do, you can create the IAM role yourself:
+
+1. Create an IAM role with the trust policy shown in Bref Cloud. It allows the Bref Cloud AWS account to assume the role, with the external ID of your team.
+2. Attach a permissions policy to the role. Bref Cloud shows the policy of the `BrefCloudAccess` role as an example: Bref Cloud features that need a permission you leave out will fail.
+3. Paste the ARN of the role in Bref Cloud, with a display name.
+
+Bref Cloud cannot update a role you created yourself: when Bref Cloud needs new permissions, you add them to the role.
+
+Once an account is connected, Bref Cloud scans it for applications and databases that already exist in it ([learn more](./cloud-existing-applications.mdx)).
+
+## Permissions of the role
+
+The `BrefCloudAccess` role can deploy any CloudFormation stack, including IAM roles: it is equivalent to administrator access on the AWS account. Team members with the Write or Admin role, and bots, can deploy with `bref deploy`, which gives the `bref` CLI temporary credentials of this role. See [What permissions does the `BrefCloudAccess` role have?](./cloud-security.mdx#what-permissions-does-the-brefcloudaccess-role-have)
+
+When AWS denies a call to Bref Cloud, the account shows "denied AWS calls" in the AWS accounts page. Click it, or "Permission errors" in the menu of the account, to see the denied AWS actions of the last 30 days. This happens when the role was restricted, or when the role lacks permissions that a new Bref Cloud feature needs.
+
+## Updating the permissions
+
+New Bref Cloud features sometimes need new permissions. The AWS accounts page then shows "permissions update available" next to the account:
+
+1. Click "permissions update available": the page lists the permissions that will be added.
+2. Click "Update permissions".
+
+Bref Cloud updates the `bref-cloud-connect` stack in the background, which takes a few minutes, and emails you the result.
+
+> [!WARNING]
+>
+> Updating the stack replaces the `BrefCloudAccess` policy of the role with the one of the new template. Manual changes to that policy are lost: apply them again after the update.
+
+If the account shows "access stack not found", the `bref-cloud-connect` stack does not exist in the `us-east-1` region of the account: the role was created manually, or the stack was deleted. To recreate the stack, click "Reconnect" in the menu of the account.
+
+## Several AWS accounts
+
+A team can connect several AWS accounts, for example one for production and one for staging. Every environment is deployed to one AWS account:
+
+- `bref deploy` asks which account to deploy a new environment to, then the environment keeps that account. See [Several AWS accounts](./cloud-deploy.mdx#several-aws-accounts).
+- `bref secret:create` takes the account with `--aws-account=<display name>` when the environment is not deployed yet.
+
+## Signing in to the AWS console
+
+Team admins can open the AWS console of a connected account without an AWS user: click "Magic login into the AWS Console" in the menu of the account. The console session uses the permissions of the `BrefCloudAccess` role, and lasts 1 hour.
+
+## Disconnecting an account
+
+1. Delete the environments you no longer need first: once the account is removed, Bref Cloud cannot delete the applications deployed to it.
+2. In the menu of the account, click "Settings", then "Remove AWS account". The applications deployed to the account keep running, but Bref Cloud can no longer deploy them. Nothing is deleted in the AWS account.
+3. In the AWS console, delete the `bref-cloud-connect` CloudFormation stack in the `us-east-1` region (or the IAM role, if you created it yourself). This removes Bref Cloud's access to the account.
