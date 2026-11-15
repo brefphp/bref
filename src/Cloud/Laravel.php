@@ -37,6 +37,9 @@ class Laravel
      */
     public bool $cdn = true;
 
+    /** @var array{name: string, migrate: bool}|null */
+    private ?array $database = null;
+
     /** @var array<string, string> */
     public array $variables = [
         'APP_DEBUG' => '0',
@@ -94,6 +97,20 @@ class Laravel
     }
 
     /**
+     * Use a database created in the Bref Cloud dashboard: Bref Cloud sets the `DB_*` variables, runs the
+     * functions in the database's network, and runs `php artisan migrate --force` on each deployment.
+     *
+     * @param string $name    The name of the database in the Bref Cloud dashboard.
+     * @param bool   $migrate Whether to run the migrations on each deployment, before the new code receives traffic.
+     */
+    public function useDatabase(string $name, bool $migrate = true): self
+    {
+        $this->database = ['name' => $name, 'migrate' => $migrate];
+
+        return $this;
+    }
+
+    /**
      * @internal
      */
     public function toArray(): array
@@ -109,7 +126,7 @@ class Laravel
             'queue' => $this->queue,
         ];
         // Bref Cloud has the defaults, and validates the settings
-        foreach (['architecture', 'web', 'worker', 'artisan'] as $option) {
+        foreach (['architecture', 'web', 'worker', 'artisan', 'database'] as $option) {
             if ($this->$option !== null && $this->$option !== []) {
                 $config[$option] = $this->$option;
             }
