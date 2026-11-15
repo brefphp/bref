@@ -21,6 +21,7 @@ class HttpHandlerTest extends TestCase
     public function tearDown(): void
     {
         putenv('BREF_RESPONSE_STREAMING');
+        putenv('BREF_ORIGIN_SECRET');
     }
 
     public function test Function URL responses are streamed()
@@ -132,6 +133,84 @@ class HttpHandlerTest extends TestCase
         $this->assertInstanceOf(LambdaResult::class, $result);
     }
 
+    public function test requests without the origin secret are refused()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        $handler = $this->handler(fn () => new HttpResponse('Hello world!'));
+
+        $missing = $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context());
+        $wrong = $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com', ['x-bref-origin-secret' => 'wrong']), $this->context());
+
+        foreach ([$missing, $wrong] as $result) {
+            $this->assertSame(403, $result['statusCode']);
+            $this->assertSame('Forbidden', $result['body']);
+        }
+    }
+
+    public function test streamed requests without the origin secret are refused()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        $handler = $this->handler(fn () => new HttpResponse('Hello world!'));
+
+        $result = $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
+
+        $this->assertSame([
+            '{"cookies":[],"statusCode":403,"headers":{"Content-Type":"text\\/plain"}}' . str_repeat("\0", 8),
+            'Forbidden',
+        ], $this->chunks($result));
+    }
+
+    public function test requests with the origin secret reach the application without it()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        $headers = null;
+        $handler = $this->handler(function (HttpRequestEvent $event) use (&$headers) {
+            $headers = $event->getHeaders();
+            return new HttpResponse('Hello world!');
+        });
+
+        $result = $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com', ['x-bref-origin-secret' => 's3cr3t']), $this->context());
+
+        $this->assertSame(200, $result['statusCode']);
+        $this->assertSame(['host' => ['abc.execute-api.eu-west-3.amazonaws.com']], $headers);
+    }
+
+    public function test the origin secret is removed from both header lists of REST APIs()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        putenv('BREF_RESPONSE_STREAMING');
+        $headers = null;
+        $handler = $this->handler(function (HttpRequestEvent $event) use (&$headers) {
+            $headers = $event->getHeaders();
+            return new HttpResponse('Hello world!');
+        });
+        // REST APIs keep the case of header names, and send them twice
+        $event = [
+            'resource' => '/',
+            'path' => '/',
+            'httpMethod' => 'GET',
+            'headers' => ['Host' => 'abc.execute-api.eu-west-3.amazonaws.com', 'X-Bref-Origin-Secret' => 's3cr3t'],
+            'multiValueHeaders' => ['Host' => ['abc.execute-api.eu-west-3.amazonaws.com'], 'X-Bref-Origin-Secret' => ['s3cr3t']],
+            'requestContext' => ['apiId' => 'abc', 'domainName' => 'abc.execute-api.eu-west-3.amazonaws.com', 'httpMethod' => 'GET'],
+            'body' => null,
+            'isBase64Encoded' => false,
+        ];
+
+        $result = $handler->handle($event, $this->context());
+
+        $this->assertSame(200, $result['statusCode']);
+        $this->assertSame(['host' => ['abc.execute-api.eu-west-3.amazonaws.com']], $headers);
+    }
+
+    public function test without the origin secret variable every request is answered()
+    {
+        $handler = $this->handler(fn () => new HttpResponse('Hello world!'));
+
+        $result = $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context());
+
+        $this->assertSame(200, $result['statusCode']);
+    }
+
     /**
      * @dataProvider provide events
      */
@@ -172,13 +251,13 @@ class HttpHandlerTest extends TestCase
         };
     }
 
-    private function event(string $domain): array
+    private function event(string $domain, array $headers = []): array
     {
         return [
             'version' => '2.0',
             'rawPath' => '/',
             'rawQueryString' => '',
-            'headers' => ['host' => $domain],
+            'headers' => ['host' => $domain, ...$headers],
             'requestContext' => [
                 'domainName' => $domain,
                 'http' => ['method' => 'GET', 'path' => '/', 'protocol' => 'HTTP/1.1', 'sourceIp' => '1.2.3.4'],
