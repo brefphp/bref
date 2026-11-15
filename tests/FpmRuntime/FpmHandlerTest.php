@@ -4,6 +4,7 @@ namespace Bref\Test\FpmRuntime;
 
 use Bref\Context\Context;
 use Bref\Event\Http\HttpRequestEvent;
+use Bref\FpmRuntime\FastCgi\FastCgiCommunicationFailed;
 use Bref\FpmRuntime\FastCgi\Timeout;
 use Bref\FpmRuntime\FpmHandler;
 use Bref\Test\HttpRequestProxyTest;
@@ -278,6 +279,39 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
                 'REQUEST_METHOD' => 'GET',
                 'QUERY_STRING' => '',
                 'HTTP_X_MY_HEADER' => 'Hello world',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
+    public function test HTTPS is set for HTTPS requests()
+    {
+        $event = [
+            'version' => '1.0',
+            'httpMethod' => 'GET',
+            'path' => '/',
+            'headers' => [
+                'X-Forwarded-Proto' => 'https',
+            ],
+        ];
+        $this->assertGlobalVariables($event, [
+            '$_GET' => [],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/',
+                'PHP_SELF' => '/',
+                'PATH_INFO' => '/',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => '',
+                'HTTP_X_FORWARDED_PROTO' => 'https',
+                'HTTPS' => 'on',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
@@ -1255,6 +1289,33 @@ Year,Make,Model
             $this->markTestSkipped('We can no longer test this since proc_open skips output buffering, we cannot capture the logs');
 //            $logs = ob_get_contents();
 //            self::assertStringContainsString('This is a log message', $logs);
+        }
+    }
+
+    public function test requests that FPM fails to start are reported as errors()
+    {
+        $this->fpm = new FpmHandler(__DIR__ . '/fixtures/request.php', __DIR__ . '/fixtures/php-fpm-low-memory.conf');
+        $this->fpm->start();
+
+        try {
+            $this->handle([
+                'version' => '1.0',
+                'httpMethod' => 'POST',
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                ],
+                'body' => implode('&', array_map(fn (int $i) => "a{$i}[]=1", range(1, 50000))),
+            ], $this->fakeContext);
+            $this->fail('No exception was thrown');
+        } catch (FastCgiCommunicationFailed $e) {
+            self::assertSame('PHP-FPM failed to start the request, the PHP-FPM logs contain the error', $e->getMessage());
+
+            // PHP-FPM should work after that
+            $statusCode = $this->handle([
+                'version' => '1.0',
+                'httpMethod' => 'GET',
+            ], $this->fakeContext)['statusCode'];
+            self::assertEquals(200, $statusCode);
         }
     }
 

@@ -49,6 +49,7 @@ final class Psr7Bridge
             'REQUEST_URI' => $event->getUri(),
             'PHP_AUTH_USER' => $user,
             'PHP_AUTH_PW' => $password,
+            'HTTPS' => $event->isHttps() ? 'on' : null,
         ], fn ($value) => $value !== null);
 
         foreach ($headers as $name => $values) {
