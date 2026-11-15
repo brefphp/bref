@@ -3,6 +3,7 @@
 namespace Bref\Cloud;
 
 use Bref\Cloud;
+use Bref\Monolog\CloudWatchFormatter;
 use InvalidArgumentException;
 
 class Laravel
@@ -47,14 +48,14 @@ class Laravel
     ];
 
     /**
-     * @param '8.2'|'8.3'|'8.4'|'8.5' $php The PHP version to use.
-     * @param string|null $region The AWS region to deploy to, e.g. 'eu-west-3'. Defaults to us-east-1.
-     * @param string[] $patterns Path patterns to include or exclude from the deployment.
-     * @param array<string, mixed> $variables Environment variables to set in the Lambda.
-     * @param 'arm'|'x86'|null $architecture The architecture of all the functions. Defaults to ARM.
-     * @param array{memory?: int, timeout?: int} $web Settings of the function that serves HTTP requests.
-     * @param array{memory?: int, timeout?: int, maxInstances?: int} $worker Settings of the queue worker.
-     * @param array{memory?: int, timeout?: int} $artisan Settings of the function that runs the scheduler and commands.
+     * @param string                                                 $php          The PHP version to use: '8.2', '8.3', '8.4' or '8.5'.
+     * @param string|null                                            $region       The AWS region to deploy to, e.g. 'eu-west-3'. Defaults to us-east-1.
+     * @param string[]                                               $patterns     Path patterns to include or exclude from the deployment.
+     * @param array<string, mixed>                                   $variables    Environment variables to set in the Lambda.
+     * @param 'arm'|'x86'|null                                       $architecture The architecture of all the functions. Defaults to ARM.
+     * @param array{memory?: int, timeout?: int}                     $web          Settings of the function that serves HTTP requests.
+     * @param array{memory?: int, timeout?: int, maxInstances?: int} $worker       Settings of the queue worker.
+     * @param array{memory?: int, timeout?: int}                     $artisan      Settings of the function that runs the scheduler and commands.
      */
     public function __construct(
         public string $name,
@@ -83,8 +84,8 @@ class Laravel
         $this->patterns = array_merge($this->patterns, $patterns);
 
         $this->variables['APP_ENV'] = Cloud::environment();
-        if (class_exists(\Bref\Monolog\CloudWatchFormatter::class)) {
-             $this->variables['LOG_STDERR_FORMATTER'] = \Bref\Monolog\CloudWatchFormatter::class;
+        if (class_exists(CloudWatchFormatter::class)) {
+            $this->variables['LOG_STDERR_FORMATTER'] = CloudWatchFormatter::class;
         }
         $this->variables = array_merge($this->variables, $variables);
 
@@ -137,10 +138,9 @@ class Laravel
         // - symlinks (e.g. public/storage)
         // - .htaccess
         $fileList = scandir($assetsPath);
-        $fileList = array_filter($fileList, fn($file) =>
-            ! in_array($file, ['.', '..', '.htaccess'], true)
-            && ! preg_match('/\.php$/', $file)
-            && ! is_link($file)
+        $fileList = array_filter(
+            $fileList,
+            fn ($file) => ! in_array($file, ['.', '..', '.htaccess'], true) && ! preg_match('/\.php$/', $file) && ! is_link($file),
         );
         if (empty($fileList)) {
             return $config;

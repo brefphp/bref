@@ -2,13 +2,14 @@
 
 namespace Bref;
 
+use Bref\Cloud\Laravel;
 use RuntimeException;
 
 class Cloud
 {
     private static self $instance;
 
-    private static ?string $team;
+    private static string $team;
     private static string $environment;
     private static array $apps = [];
     /** @var array<string, array{path: string, patterns: string[]}> */
@@ -29,7 +30,7 @@ class Cloud
                 $team = $_SERVER['BREF_CLI_TEAM'];
             }
             self::$team = $team;
-        } else if (! isset(self::$team)) {
+        } elseif (! isset(self::$team)) {
             throw new RuntimeException('A Bref Cloud team must be set first: call `Bref\Cloud::team(...)`');
         }
 
@@ -53,7 +54,7 @@ class Cloud
     /**
      * @internal
      */
-    public static function app($app): void
+    public static function app(Laravel $app): void
     {
         if (in_array($app, self::$apps, true)) {
             return;
@@ -63,9 +64,9 @@ class Cloud
     }
 
     /**
-     * @internal
-     *
      * @param string[] $patterns
+     *
+     * @internal
      */
     public static function package(string $path, array $patterns): string
     {
@@ -86,13 +87,13 @@ class Cloud
     private static function init(): void
     {
         if (! isset(self::$instance)) {
-            self::$instance = new self();
+            self::$instance = new self;
         }
     }
 
     private static function toArray(): array
     {
-        $apps = array_map(fn($app) => $app->toArray(), self::$apps);
+        $apps = array_map(fn ($app) => $app->toArray(), self::$apps);
 
         return [
             'team' => self::team(),
