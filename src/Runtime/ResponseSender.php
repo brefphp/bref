@@ -114,6 +114,10 @@ final class ResponseSender
      */
     public function end(?Throwable $error = null): void
     {
+        // E.g. ended early by the handler
+        if ($this->ended) {
+            return;
+        }
         if ($this->connectionError !== null) {
             throw $this->connectionError;
         }

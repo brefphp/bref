@@ -30,18 +30,29 @@ class HttpResponseWriterTest extends TestCase
 
     public function test buffered responses are returned in the format of the invoker()
     {
-        $writer = HttpResponseWriter::buffered();
+        $sent = [];
+        $writer = HttpResponseWriter::buffered($this->eventV2(), function (string $chunk) use (&$sent) {
+            $sent[] = $chunk;
+        });
         $writer->start(404, ['content-type' => 'text/plain']);
         $writer->write('Not ');
         $writer->write('found');
+        // Sent at the end, at once
+        $this->assertCount(0, $sent);
+        $writer->end();
 
-        $response = $writer->toApiGatewayFormat(new HttpRequestEvent(['version' => '2.0', 'requestContext' => ['http' => ['method' => 'GET']]]));
+        $this->assertCount(1, $sent);
+        $response = json_decode($sent[0], true);
         $this->assertSame(404, $response['statusCode']);
         $this->assertSame(['Content-Type' => 'text/plain'], $response['headers']);
         $this->assertSame('Not found', $response['body']);
 
-        $response = $writer->toApiGatewayFormat(new HttpRequestEvent(['httpMethod' => 'GET', 'multiValueHeaders' => []]));
-        $this->assertSame(['Content-Type' => ['text/plain']], $response['multiValueHeaders']);
+        $writer = HttpResponseWriter::buffered(new HttpRequestEvent(['httpMethod' => 'GET', 'multiValueHeaders' => []]), function (string $chunk) use (&$sent) {
+            $sent[] = $chunk;
+        });
+        $writer->start(404, ['content-type' => 'text/plain']);
+        $writer->end();
+        $this->assertSame(['Content-Type' => ['text/plain']], json_decode($sent[1], true)['multiValueHeaders']);
     }
 
     public function test write tells when the rest is not wanted()
@@ -76,7 +87,10 @@ class HttpResponseWriterTest extends TestCase
     public function test the output buffers are restored after capturing()
     {
         $level = ob_get_level();
-        $writer = HttpResponseWriter::buffered();
+        $sent = [];
+        $writer = HttpResponseWriter::buffered($this->eventV2(), function (string $chunk) use (&$sent) {
+            $sent[] = $chunk;
+        });
         $writer->start(200, []);
 
         $writer->capture(function () {
@@ -87,13 +101,13 @@ class HttpResponseWriterTest extends TestCase
         });
 
         $this->assertSame($level, ob_get_level());
-        $response = $writer->toApiGatewayFormat(new HttpRequestEvent(['version' => '2.0', 'requestContext' => ['http' => ['method' => 'GET']]]));
-        $this->assertSame('Hello', $response['body']);
+        $writer->end();
+        $this->assertSame('Hello', json_decode($sent[0], true)['body']);
     }
 
     public function test the status and headers are written once()
     {
-        $writer = HttpResponseWriter::buffered();
+        $writer = HttpResponseWriter::buffered($this->eventV2(), fn () => null);
         $writer->start(200, []);
 
         $this->expectException(LogicException::class);
@@ -103,6 +117,36 @@ class HttpResponseWriterTest extends TestCase
     public function test the body is written after the status and headers()
     {
         $this->expectException(LogicException::class);
-        HttpResponseWriter::buffered()->write('Hello');
+        HttpResponseWriter::buffered($this->eventV2(), fn () => null)->write('Hello');
+    }
+
+    public function test the response ends once()
+    {
+        $log = [];
+        $writer = HttpResponseWriter::streamed(function (string $chunk) use (&$log) {
+            $log[] = $chunk;
+        }, function () use (&$log) {
+            $log[] = 'end';
+        });
+        $writer->start(200, []);
+        $writer->write('Hello');
+
+        $writer->end();
+        $writer->end();
+
+        // Ended once, then nothing more is sent
+        $this->assertFalse($writer->write('Too late'));
+        $this->assertSame(['Hello', 'end'], array_slice($log, 1));
+    }
+
+    public function test a response cannot end before it starts()
+    {
+        $this->expectExceptionMessage('The HTTP handler did not write any response');
+        HttpResponseWriter::buffered($this->eventV2(), fn () => null)->end();
+    }
+
+    private function eventV2(): HttpRequestEvent
+    {
+        return new HttpRequestEvent(['version' => '2.0', 'requestContext' => ['http' => ['method' => 'GET']]]);
     }
 }

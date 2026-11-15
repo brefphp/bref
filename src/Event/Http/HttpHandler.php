@@ -44,22 +44,19 @@ abstract class HttpHandler implements Handler
             : static fn (HttpRequestEvent $event, Context $context, HttpResponseWriter $writer) => (new HttpResponse('Forbidden', ['Content-Type' => 'text/plain'], 403))->sendTo($writer);
 
         $httpEvent = new HttpRequestEvent($event);
-
         // Streamed Function URLs and REST APIs send the response to the client as it is written
-        if (HttpRequestEvent::isStreamed($event)) {
-            return new LambdaResult(HttpResponseWriter::STREAMED_CONTENT_TYPE, function (callable $send) use ($httpEvent, $context, $respond): void {
-                $writer = HttpResponseWriter::streamed($send, $context->getAwsRequestId());
+        $streamed = HttpRequestEvent::isStreamed($event);
+
+        return new LambdaResult(
+            $streamed ? HttpResponseWriter::STREAMED_CONTENT_TYPE : 'application/json',
+            function (callable $send, callable $end) use ($httpEvent, $context, $streamed, $respond): void {
+                $writer = $streamed
+                    ? HttpResponseWriter::streamed($send, $end, $context->getAwsRequestId())
+                    : HttpResponseWriter::buffered($httpEvent, $send, $end, $context->getAwsRequestId());
                 $respond($httpEvent, $context, $writer);
-                if (! $writer->started()) {
-                    throw new LogicException('The HTTP handler did not write any response');
-                }
-            });
-        }
-
-        $writer = HttpResponseWriter::buffered($context->getAwsRequestId());
-        $respond($httpEvent, $context, $writer);
-
-        return $writer->toApiGatewayFormat($httpEvent);
+                $writer->end();
+            },
+        );
     }
 
     /**

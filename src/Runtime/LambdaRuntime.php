@@ -206,13 +206,12 @@ final class LambdaRuntime
      */
     private function sendResponse(Context $context, mixed $result): void
     {
-        $result = $result instanceof LambdaResult
-            ? $result
-            : new LambdaResult('application/json', [$this->toJson($result)]);
+        $result = $result instanceof LambdaResult ? $result : LambdaResult::json($result);
 
         $this->responseSender = new ResponseSender($this->apiUrl, $context->getAwsRequestId(), $result->contentType, $context);
         try {
-            $result->writeTo($this->responseSender->write(...));
+            // The result can end early: the rest of the handler runs before the next invocation
+            $result->writeTo($this->responseSender->write(...), $this->responseSender->end(...));
             $this->responseSender->end();
         } catch (Throwable $e) {
             // Too late for the error endpoint if the response has started: the error goes in its trailers
@@ -254,16 +253,7 @@ final class LambdaRuntime
 
     private function toJson(mixed $data): string
     {
-        /** @noinspection JsonEncodingApiUsageInspection */
-        $json = json_encode($data);
-        if ($json === false) {
-            throw new Exception(sprintf(
-                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-requests-and-responses\nHere is the original JSON error: '%s'",
-                json_last_error_msg()
-            ));
-        }
-
-        return $json;
+        return LambdaResult::encodeJson($data);
     }
 
     /**
