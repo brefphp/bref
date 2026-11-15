@@ -90,7 +90,20 @@ An internet-accessible database is the simplest option and works well for most p
 
         **2. Create a database** and select the network you created.
 
-        **3. Deploy** — Bref Cloud automatically adds the VPC configuration to your deployment. No changes to `serverless.yml` are needed.
+        **3. Run the application in the network**: the database page in the dashboard shows the configuration to add to `serverless.yml`, with the IDs of the network:
+
+        ```yml filename="serverless.yml"
+        provider:
+            # Run the application in the same private network as the database
+            vpc:
+                securityGroupIds:
+                    - sg-xxxxxxxx # the application security group of the network
+                subnetIds:
+                    - subnet-xxxxxxxx # the application subnets of the network
+                    - subnet-xxxxxxxx
+        ```
+
+        The database only accepts connections from that security group.
     </Tabs.Tab>
     <Tabs.Tab>
         > [!WARNING]
