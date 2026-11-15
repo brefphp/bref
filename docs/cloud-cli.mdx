@@ -1,0 +1,166 @@
+---
+description: "All the commands and options of the bref CLI for Bref Cloud."
+---
+
+# CLI reference
+
+The `bref` CLI deploys and operates applications with Bref Cloud. To install it, follow [Getting started with Bref Cloud](./cloud-getting-started.mdx).
+
+Run `bref list` to list the commands, and `bref <command> --help` to see the options of a command.
+
+## Common options
+
+Most commands act on an environment of an application. They read the application name (`service`) and the team (`bref.team`) from the `serverless.yml` file of the current directory, and accept these options:
+
+- `--env` (or `-e`): the environment, `dev` by default. The `bref` CLI has no `--stage` option: `--env` replaces it.
+- `--config` (or `-c`): the configuration file to read instead of `serverless.yml`, for example `--config=serverless.worker.yml`.
+- `--team`: the slug of the Bref Cloud team, to use another team than the one set in `bref.team`.
+
+`bref logs`, `bref deployments` and `bref secret:create` also accept `--app`: with `--app` and `--team`, they work outside the project directory, without a `serverless.yml` file.
+
+## Authentication
+
+`bref login` stores a Bref Cloud token in `~/.bref/config.json`. In CI, or anywhere you cannot run `bref login`, set the `BREF_TOKEN` environment variable instead, with a personal token or a [bot token](./cloud-deploy.mdx#deploying-from-github-actions). `BREF_TOKEN` takes precedence over the token stored by `bref login`.
+
+## Verbose logs
+
+Commands like `bref deploy` show a short summary. To see the detailed logs, run the command with `-v`, or press `?` while it runs. When the CLI does not run in an interactive terminal (for example in CI), verbose logs are always shown.
+
+`bref previous-logs` prints the verbose logs of the last command that ran, for example to find why a deployment failed after it ended.
+
+## `bref login`
+
+Connects the CLI to your Bref Cloud account. It opens the "Connect CLI" page of Bref Cloud, where you copy a token to paste in the terminal.
+
+## `bref whoami`
+
+Shows the name and email of the Bref Cloud user that the CLI is logged in as.
+
+## `bref teams`
+
+Lists the Bref Cloud teams you have access to, as `slug (name)`. Use the slug in the `bref.team` field of `serverless.yml`, or in the `--team` option.
+
+## `bref connect`
+
+Connects an AWS account to Bref Cloud with the AWS credentials configured on your machine. It creates the `bref-cloud-connect` CloudFormation stack in that AWS account, then adds the account to your Bref Cloud team. See [Connecting AWS accounts](./cloud-aws-accounts.mdx#with-the-bref-cli).
+
+- `--profile`: the AWS profile to use. By default, the `AWS_PROFILE` environment variable, then the `default` profile.
+
+## `bref deploy`
+
+Deploys the application to an environment. See [Deployment](./cloud-deploy.mdx).
+
+```shell
+bref deploy
+bref deploy --env=prod
+```
+
+Options:
+
+- `--env`, `--config`, `--team`: see [Common options](#common-options).
+- `--param`: sets a [Serverless Framework parameter](./cloud-deploy.mdx#parameters), for example `--param="domain=example.com"`. It can be repeated.
+- `--force`: passed to `serverless deploy --force`, to deploy even when nothing changed.
+
+The first deployment of an environment creates it. If your team has several AWS accounts, `bref deploy` asks which one to deploy the new environment to ([learn more](./cloud-deploy.mdx#several-aws-accounts)).
+
+## `bref info`
+
+Shows the link to the environment in the Bref Cloud dashboard, its AWS region, and its URL once deployed.
+
+Options: `--env`, `--config`, `--team`.
+
+## `bref cloud`
+
+Opens the page of the environment in the Bref Cloud dashboard, in your browser.
+
+Options: `--env`, `--config`.
+
+## `bref remove`
+
+Deletes an environment and its AWS resources. Bref Cloud empties the S3 buckets of the environment before deleting them. See [Deletion](/docs/deploy#deletion).
+
+```shell
+bref remove --env=prod
+```
+
+Options:
+
+- `--env`, `--config`, `--team`: see [Common options](#common-options).
+- `--delete-secrets`: also deletes the secrets of the environment. By default they are kept, so that deploying the environment again reuses them.
+
+## `bref deployments`
+
+Lists the latest deployments of an environment, the most recent first, with their ID. See [Deployment history](./cloud-deploy.mdx#deployment-history).
+
+Options:
+
+- `--env`, `--config`, `--team`, `--app`: see [Common options](#common-options).
+- `--limit`: the number of deployments, 10 by default (up to 100).
+- `--json`: JSON output.
+
+### `bref deployments:show`
+
+Shows the status, git commit, author and error of a deployment: the latest deployment of the environment, or the deployment whose ID is given as argument (`bref deployments:show 42`). With an ID, it works from any directory.
+
+Options: `--env`, `--config`, `--team`, `--app`, `--json`.
+
+### `bref deployments:logs`
+
+Shows the logs of a deployment, for example to find why it failed: the latest deployment of the environment, or the deployment whose ID is given as argument (`bref deployments:logs 42`).
+
+Options: `--env`, `--config`, `--team`, `--app`, `--json`.
+
+## `bref logs`
+
+Shows the logs of all the functions of an environment, oldest first. Times are in UTC. See [Reading logs](./environment/logs.mdx#reading-logs).
+
+```shell
+bref logs --env=prod --since=1d --search="payment failed"
+```
+
+Options:
+
+- `--env`, `--config`, `--team`, `--app`: see [Common options](#common-options).
+- `--since`: the start of the time range, as a duration ago (`30m`, `2h`, `7d`) or a date (`2026-09-23`, `"2026-09-23 14:30"`). `1h` by default.
+- `--until`: the end of the time range, in the same formats. Now by default.
+- `--search` (or `-s`): only the lines that contain all these words, in any order (case-insensitive).
+- `--regex`: search with a regular expression instead of words.
+- `--function` (or `-f`): only the logs of this function, for example `--function=web`. It can be repeated.
+- `--limit`: the maximum number of lines, the most recent ones. 100 by default (up to 1000).
+- `--all`: include the lines that Lambda and PHP-FPM write on every invocation (`START`, `END`, `REPORT`…).
+- `--full`: show long messages in full, and the stack traces of exceptions.
+- `--json`: JSON output.
+
+## `bref command`
+
+Runs a console command (Artisan, Symfony Console…) in the deployed application, and prints its output. Pass the command and its options as one string:
+
+```shell
+bref command --env=prod "migrate --force"
+```
+
+The `bref` CLI waits about 2 minutes for the command to finish. It exits with an error code when the command fails, which stops a CI pipeline. See [CLI invocation](./runtimes/console.mdx#cli-invocation).
+
+Options: `--env`, `--config`, `--team`.
+
+## `bref tinker`
+
+Starts an interactive Laravel Tinker shell that runs on AWS Lambda. It only works in Laravel applications. See [Laravel Tinker](./laravel/getting-started.mdx#laravel-tinker).
+
+Options: `--env`, `--config`, `--team`.
+
+## `bref secret:create`
+
+Creates a secret for an environment. The name and the value can be given as arguments, otherwise the command asks for them. See [Creating secrets](./environment/variables.mdx#creating-secrets).
+
+```shell
+bref secret:create APP_KEY "base64:..." --env=prod
+```
+
+Options:
+
+- `--env`, `--config`, `--team`, `--app`: see [Common options](#common-options).
+- `--aws-account`: the name of the AWS account in Bref Cloud, when the environment is not deployed yet. By default, the team's only AWS account.
+- `--region`: the AWS region, when the environment is not deployed yet. By default, the region set in `serverless.yml`.
+
+Once the environment is deployed, the secret is created in its AWS account and region, and these two options are ignored.

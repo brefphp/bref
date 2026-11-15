@@ -83,14 +83,27 @@ An internet-accessible database is the simplest option and works well for most p
 
         The network includes a VPC, subnets, security groups, and a NAT so that your applications can access the internet. Choose between:
 
-        - **NAT Gateway** (~$36/month + $0.045/GB): managed and scaled by AWS, for production.
-        - **NAT instance** (~$7/month): a single small EC2 instance, with limited bandwidth (~30 Mbps sustained) and no redundancy, for side projects and test environments.
+        - **NAT Gateway** (~$36/month + $0.045/GB): managed and scaled by AWS.
+        - **NAT instance** (~$7/month): a single small EC2 instance, with limited bandwidth (~30 Mbps sustained) and no redundancy, for small applications.
 
         You can switch a network from one to the other at any time in its settings. A single network can be reused across multiple applications and databases.
 
         **2. Create a database** and select the network you created.
 
-        **3. Deploy** — Bref Cloud automatically adds the VPC configuration to your deployment. No changes to `serverless.yml` are needed.
+        **3. Run the application in the network**: the database page in the dashboard shows the configuration to add to `serverless.yml`, with the IDs of the network:
+
+        ```yml filename="serverless.yml"
+        provider:
+            # Run the application in the same private network as the database
+            vpc:
+                securityGroupIds:
+                    - sg-xxxxxxxx # the application security group of the network
+                subnetIds:
+                    - subnet-xxxxxxxx # the application subnets of the network
+                    - subnet-xxxxxxxx
+        ```
+
+        The database only accepts connections from that security group.
     </Tabs.Tab>
     <Tabs.Tab>
         > [!WARNING]
@@ -217,12 +230,12 @@ Each Lambda instance handles one request at a time and opens its own database co
 If your traffic can exceed that limit, you can:
 
 - Use a larger database instance.
-- Limit the number of concurrent Lambda instances of a function with its `reservedConcurrency` option ([documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#configuration)). Requests beyond that limit are throttled. This is useful for queue workers, which could otherwise flood the database.
+- Limit the number of concurrent Lambda instances of a function with its `reservedConcurrency` option ([documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/guides/functions.md#configuration)). Requests beyond that limit are throttled. For queue workers, limit the concurrency of the queue instead (see [Limiting scaling](../serverless-costs.mdx#reserved-concurrency)).
 - Use [RDS Proxy](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html) to pool connections between Lambda and the database. RDS Proxy is only reachable from inside a VPC, has an extra cost, and prevents Aurora Serverless from auto-pausing.
 
 ```yml filename="serverless.yml"
 functions:
-    worker:
+    web:
         # ...
         reservedConcurrency: 20
 ```

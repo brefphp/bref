@@ -1,0 +1,146 @@
+---
+description: "Configure environment variables and secrets for Symfony applications on AWS Lambda with Bref: APP_ENV, APP_SECRET, DATABASE_URL, .env files and the Symfony secrets vault."
+---
+
+import { Tabs } from '../../../src/components/Tabs';
+
+# Symfony environment variables and secrets
+
+Symfony reads its configuration from environment variables (`%env(...)%` in the configuration files). On AWS Lambda, define these variables in `serverless.yml`, and store secret values in SSM or in the Symfony secrets vault.
+
+## Environment variables
+
+Define environment variables in the `environment` section of `serverless.yml` (read [Environment variables](../environment/variables.mdx) for the details):
+
+```yml filename="serverless.yml"
+provider:
+    # ...
+    environment:
+        APP_ENV: prod
+        DEFAULT_URI: 'https://example.com'
+```
+
+The variables most Symfony applications need:
+
+- `APP_ENV`: set it to `prod`. With `APP_ENV=prod`, `APP_DEBUG` defaults to `0`, so you do not need to set `APP_DEBUG`.
+- `APP_SECRET`: a random string, for example generated with `php -r 'echo bin2hex(random_bytes(32));'`. It is a secret, store it [as explained below](#secrets).
+- `DATABASE_URL`: it contains the database password, so it is a secret too.
+- `DEFAULT_URI`: recent Symfony skeletons need it, read [Deploying for production](./getting-started.mdx#deploying-for-production).
+
+`APP_ENV` is not the deployment environment (`bref deploy --env=staging` or `serverless deploy --stage=staging`): a staging deployment usually runs with `APP_ENV=prod` too. To set different values per deployment environment, use [stage parameters](../environment/serverless-yml.mdx#stage-parameters).
+
+## `.env` files on Lambda
+
+How Symfony uses `.env` files on Lambda depends on whether the Dotenv component is disabled in the deployed application.
+
+### With Dotenv disabled
+
+The deployment script in [Deploying for production](./getting-started.mdx#deploying-for-production) disables Dotenv by creating a `.env.local.php` file that returns an empty array. Symfony then ignores all `.env` files on Lambda: every variable the application uses must be defined in `serverless.yml` or stored as a secret, `APP_ENV` included.
+
+### With Dotenv enabled
+
+If the `.env` files are deployed and there is no `.env.local.php`, Symfony loads `.env`, then `.env.local`, `.env.prod` and `.env.prod.local` if they are in the deployed package. Variables defined in `serverless.yml` take precedence over the values from `.env` files.
+
+`serverless.yml` deploys every file that is not excluded, including git-ignored files. Exclude local overrides, they usually contain local values (database on `127.0.0.1`, etc.):
+
+```yml filename="serverless.yml"
+package:
+    patterns:
+        # ...
+        - '!.env.local'
+        - '!.env.*.local'
+```
+
+`composer dump-env prod` compiles the `.env` files into `.env.local.php`. Symfony then reads that file instead of parsing the `.env` files, and variables defined in `serverless.yml` still take precedence.
+
+> [!NOTE]
+>
+> With `useDotenv: true` in `serverless.yml`, no `.env*` file is deployed, `.env.local.php` included. Add the files Symfony needs on Lambda (for example `'.env.local.php'`) to `package.patterns` to deploy them.
+
+## Secrets
+
+Do not write secret values (`APP_SECRET`, `DATABASE_URL`, API keys) in `serverless.yml` or in `.env` files. Store them either:
+
+- as SSM parameters, one parameter per secret,
+- or in the [Symfony secrets vault](https://symfony.com/doc/current/configuration/secrets.html): the secrets are encrypted in the repository, and only the decryption key is stored in SSM.
+
+### SSM parameters
+
+Create one secret per variable:
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        ```bash
+        bref secret:create APP_SECRET --env=prod
+        bref secret:create DATABASE_URL --env=prod
+        ```
+
+        The command asks for the value. Bref Cloud stores each secret as an SSM parameter named `/<app>/<environment>/<secret-name>`. Read [Creating secrets](../environment/variables.mdx#creating-secrets) for the other options.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        aws ssm put-parameter --region us-east-1 --name '/my-app/prod/APP_SECRET' --type SecureString --value 'secret value'
+        aws ssm put-parameter --region us-east-1 --name '/my-app/prod/DATABASE_URL' --type SecureString --value 'mysql://user:password@host:3306/db'
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+Then reference them in `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        APP_ENV: prod
+        APP_SECRET: ${ssm:/my-app/${sls:stage}/APP_SECRET}
+        DATABASE_URL: ${ssm:/my-app/${sls:stage}/DATABASE_URL}
+```
+
+The values are injected when deploying. To load them when the Lambda function starts instead, use the `bref-ssm:` prefix, read [Retrieving secrets at runtime](../environment/variables.mdx#at-runtime).
+
+### Symfony secrets vault
+
+Add secrets to the production vault with the `secrets:set` command:
+
+```bash
+APP_RUNTIME_ENV=prod php bin/console secrets:set DATABASE_URL
+```
+
+The first time, this generates the vault keys in `config/secrets/prod/`. Commit that directory, except the decryption key `prod.decrypt.private.php` (Symfony's `.gitignore` already ignores it).
+
+`serverless.yml` deploys git-ignored files too: exclude the decryption key from the deployed package.
+
+```yml filename="serverless.yml"
+package:
+    patterns:
+        # ...
+        - '!config/secrets/prod/prod.decrypt.private.php'
+```
+
+On Lambda, Symfony reads the decryption key from the `SYMFONY_DECRYPTION_SECRET` environment variable. Store it as a secret:
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        ```bash
+        bref secret:create SYMFONY_DECRYPTION_SECRET "$(php -r 'echo base64_encode(require "config/secrets/prod/prod.decrypt.private.php");')" --env=prod
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        aws ssm put-parameter --region us-east-1 --name '/my-app/prod/SYMFONY_DECRYPTION_SECRET' --type SecureString \
+            --value "$(php -r 'echo base64_encode(require "config/secrets/prod/prod.decrypt.private.php");')"
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+Then reference it in `serverless.yml`:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        APP_ENV: prod
+        SYMFONY_DECRYPTION_SECRET: ${ssm:/my-app/${sls:stage}/SYMFONY_DECRYPTION_SECRET}
+```
+
+With Symfony 7.2 and later, `APP_SECRET` does not need to be defined when the vault is used: Symfony derives it from the decryption key.
+
+An environment variable takes precedence over the vault secret of the same name, unless it is empty. With Dotenv enabled, remove from the deployed `.env` files the variables stored in the vault, for example the development `DATABASE_URL`, or they will be used instead of the vault values.

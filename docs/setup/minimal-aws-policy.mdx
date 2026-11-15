@@ -6,7 +6,7 @@ description: "A starting point for an IAM policy that can deploy Bref applicatio
 
 This is a minimal AWS policy that allows the user to deploy a serverless application using the Serverless CLI.
 
-This policy is a starting point, not an exhaustive list: it covers HTTP applications, queues (SQS), and `${ssm:...}` variables. Add the permissions of the other AWS services your application uses. For example, deploying a website with CloudFront (like the Lift `server-side-website` construct) also needs `cloudfront:*` permissions.
+This policy is a starting point, not an exhaustive list. It was tested with HTTP applications (`httpApi` events), queues (`sqs` events and the Lift `queue` construct), `schedule` events, `${ssm:...}` variables and the `logRetentionInDays` option, with the `serverless deploy`, `deploy function`, `rollback`, `info`, `invoke`, `logs`, `bref:cli` and `remove` commands. Add the permissions of the other AWS services your application uses. For example, deploying a website with CloudFront (like the Lift `server-side-website` construct) also needs `cloudfront:*` permissions.
 
 Feel free to submit a PR if you have any suggestions for improvements.
 
@@ -20,11 +20,9 @@ Feel free to submit a PR if you have any suggestions for improvements.
                 "cloudformation:ContinueUpdateRollback",
                 "cloudformation:CreateChangeSet",
                 "cloudformation:CreateStack",
-                "cloudformation:CreateUploadBucket",
                 "cloudformation:DeleteStack",
                 "cloudformation:DeleteChangeSet",
                 "cloudformation:Describe*",
-                "cloudformation:EstimateTemplateCost",
                 "cloudformation:ExecuteChangeSet",
                 "cloudformation:Get*",
                 "cloudformation:List*",
@@ -84,10 +82,12 @@ Feel free to submit a PR if you have any suggestions for improvements.
                 "lambda:*",
                 "logs:CreateLogGroup",
                 "logs:DeleteLogGroup",
+                "logs:DeleteRetentionPolicy",
                 "logs:DescribeLogGroups",
                 "logs:DescribeLogStreams",
                 "logs:FilterLogEvents",
                 "logs:GetLogEvents",
+                "logs:PutRetentionPolicy",
                 "logs:PutSubscriptionFilter",
                 "logs:TagResource",
                 "logs:DeleteSubscriptionFilter",
