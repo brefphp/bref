@@ -1,0 +1,89 @@
+---
+description: "Run Livewire, Laravel Telescope, Pulse, Nightwatch and Horizon on AWS Lambda with Bref: what works, what to configure, and what to use instead."
+---
+
+import { Tabs } from '../../../src/components/Tabs';
+
+# Laravel packages
+
+Most Laravel packages work on AWS Lambda without changes. This page covers the first-party packages that need configuration, or that do not work on Lambda.
+
+| Package | On Lambda |
+|-|-|
+| Livewire | Works, temporary file uploads go to S3 |
+| Laravel Telescope | Works, with a database |
+| Laravel Pulse | Works, with a database, except the Servers card |
+| Laravel Nightwatch | Does not work: its agent cannot run on Lambda |
+| Laravel Horizon | Does not work: use SQS queues |
+| Laravel Reverb | Cannot run on Lambda: use API Gateway WebSockets |
+
+## Livewire
+
+Livewire file uploads must use S3 for their temporary files: see [Livewire file uploads](./file-storage.mdx#livewire-file-uploads).
+
+> [!WARNING]
+>
+> Livewire 4 derives the URL of its endpoints (`/livewire-xxxxxxxx/update`, `/livewire-xxxxxxxx/livewire.js`) from `APP_KEY`. If you cache routes before deploying (`php artisan route:cache` or `php artisan optimize`), run the command with the production `APP_KEY`, for example in CI. Routes cached with another key, or without a key, make every Livewire request fail with a 404.
+
+## Laravel Telescope
+
+[Laravel Telescope](https://laravel.com/docs/telescope) stores its entries in the database, so it needs one: see [Databases](/docs/environment/database.mdx). It records HTTP requests, Artisan commands and queue jobs processed by the Bref [queue worker](./queues.mdx).
+
+Telescope writes its entries at the end of each request, before the response is returned (code cannot run after the response on Lambda): every recorded request includes these database writes in its duration.
+
+After deploying, create the Telescope table in the production database:
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        ```bash
+        bref command "migrate --force"
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        serverless bref:cli --args="migrate --force"
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+Telescope does not delete old entries on its own: run the `telescope:prune` command every day with the Laravel scheduler, see [Cron tasks](../use-cases/cron.mdx).
+
+## Laravel Pulse
+
+[Laravel Pulse](https://laravel.com/docs/pulse) stores its data in the database, so it needs one: see [Databases](/docs/environment/database.mdx). After deploying, create the Pulse tables with `migrate --force`, like for Telescope above.
+
+Keep the default ingest driver (`storage`). The `redis` ingest driver (`PULSE_INGEST_DRIVER=redis`) needs `php artisan pulse:work`, a long-running command that cannot run on Lambda.
+
+The Servers card shows data sent by `php artisan pulse:check`, another long-running command. Remove `<livewire:pulse.servers />` from the dashboard (publish it with `php artisan vendor:publish --tag=pulse-dashboard`, it is copied to `resources/views/vendor/pulse/dashboard.blade.php`).
+
+### Queue jobs
+
+Pulse stores what it records during jobs when the `queue:work` loop starts a new iteration. The Bref queue worker does not run that loop: Pulse keeps the data of jobs in memory, where it is lost when the Lambda instance stops, and slow jobs or slow queries of jobs never reach the dashboard. Store it after each job in `AppServiceProvider::boot()`:
+
+```php filename="app/Providers/AppServiceProvider.php"
+use Illuminate\Queue\Events\JobFailed;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Support\Facades\Event;
+use Laravel\Pulse\Facades\Pulse;
+
+public function boot(): void
+{
+    Event::listen([JobProcessed::class, JobFailed::class], fn () => Pulse::ingest());
+}
+```
+
+## Laravel Nightwatch
+
+[Laravel Nightwatch](https://nightwatch.laravel.com) does not work on Lambda. The `laravel/nightwatch` package sends its data to the Nightwatch agent (`php artisan nightwatch:agent`), a long-running process that listens on `127.0.0.1:2407` (the `NIGHTWATCH_INGEST_URI` variable). Lambda cannot run that process next to your application.
+
+Without an agent, the package records nothing and logs no error. Disable it on Lambda with `NIGHTWATCH_ENABLED: false` in `provider.environment`, or remove the package.
+
+To monitor the application, see [Monitoring](/docs/monitoring): Bref Cloud, CloudWatch, and error tracking with Sentry.
+
+## Laravel Horizon
+
+[Laravel Horizon](https://laravel.com/docs/horizon) does not work on Lambda: it only manages Redis queues, and its `horizon` command is a long-running process that supervises the queue workers. On Lambda, use SQS queues, which invoke a worker function for each job: see [Laravel Queues](./queues.mdx).
+
+## Laravel Reverb
+
+A [Laravel Reverb](https://laravel.com/docs/reverb) server is a long-running process that cannot run on Lambda. Laravel broadcasting and Laravel Echo work with API Gateway WebSockets instead: see [WebSockets](./websockets.mdx), which also explains [when to run a Reverb server](./websockets.mdx#api-gateway-or-a-reverb-server) next to Lambda.
