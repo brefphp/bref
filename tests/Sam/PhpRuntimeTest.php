@@ -313,7 +313,7 @@ LOGS;
     ): void {
         // Extract the only interesting log line
         $logLines = explode("\n", $logs);
-        $logLines = array_filter($logLines, function (string $line): bool {
+        $logLines = array_filter($logLines, static function (string $line): bool {
             $line = trim($line, " \t\n\r\0\x0B");
             return $line !== ''
                 && (strpos($line, 'START') !== 0)

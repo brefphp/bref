@@ -1303,7 +1303,7 @@ Year,Make,Model
                 'headers' => [
                     'Content-Type' => 'application/x-www-form-urlencoded',
                 ],
-                'body' => implode('&', array_map(fn (int $i) => "a{$i}[]=1", range(1, 50000))),
+                'body' => implode('&', array_map(static fn (int $i) => "a{$i}[]=1", range(1, 50000))),
             ], $this->fakeContext);
             $this->fail('No exception was thrown');
         } catch (FastCgiCommunicationFailed $e) {

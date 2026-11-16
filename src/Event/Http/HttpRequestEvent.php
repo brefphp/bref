@@ -194,7 +194,7 @@ final class HttpRequestEvent implements LambdaEvent
             // Multiple "Cookie" headers are not authorized
             // https://stackoverflow.com/questions/16305814/are-multiple-cookie-headers-allowed-in-an-http-request
             $cookieHeader = $this->headers['cookie'][0];
-            $cookieParts = array_map(fn (string $part) => trim($part, " \t"), explode(';', $cookieHeader));
+            $cookieParts = array_map(static fn (string $part) => trim($part, " \t"), explode(';', $cookieHeader));
         }
 
         $cookies = [];
@@ -311,7 +311,7 @@ final class HttpRequestEvent implements LambdaEvent
         } else {
             $headers = $this->event['headers'] ?? [];
             // Turn the headers array into a multi-value array to simplify the code below
-            $headers = array_map(function ($value): array {
+            $headers = array_map(static function ($value): array {
                 return [$value];
             }, $headers);
         }

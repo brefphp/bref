@@ -58,7 +58,7 @@ class SnsRecord
      */
     public function getMessageAttributes(): array
     {
-        return array_map(function (array $attribute): MessageAttribute {
+        return array_map(static function (array $attribute): MessageAttribute {
             return new MessageAttribute($attribute);
         }, $this->record['Sns']['MessageAttributes']);
     }

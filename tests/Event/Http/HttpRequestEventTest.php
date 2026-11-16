@@ -33,7 +33,7 @@ class HttpRequestEventTest extends CommonHttpTest
 
         // Also check that the cookies are available in the HTTP headers (they should be)
         if ($expectedHeader === null) {
-            $expectedHeader = array_map(function (string $value, string $key): string {
+            $expectedHeader = array_map(static function (string $value, string $key): string {
                 return $key . '=' . urlencode($value);
             }, $expected, array_keys($expected));
             $expectedHeader = implode('; ', $expectedHeader);

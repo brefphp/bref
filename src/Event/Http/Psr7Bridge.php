@@ -50,7 +50,7 @@ final class Psr7Bridge
             'PHP_AUTH_USER' => $user,
             'PHP_AUTH_PW' => $password,
             'HTTPS' => $event->isHttps() ? 'on' : null,
-        ], fn ($value) => $value !== null);
+        ], static fn ($value) => $value !== null);
 
         foreach ($headers as $name => $values) {
             $server['HTTP_' . strtoupper(str_replace('-', '_', (string) $name))] = $values[0];
@@ -165,7 +165,7 @@ final class Psr7Bridge
         // We use "=mock" because the value can be an object (in case of uploaded files)
         parse_str(urlencode($key) . '=mock', $parsed);
         // Replace `mock` with the actual value
-        array_walk_recursive($parsed, fn (&$v) => $v = $value);
+        array_walk_recursive($parsed, static fn (&$v) => $v = $value);
         // Merge recursively into the main array to avoid overwriting existing values
         $array = array_merge_recursive($array, $parsed);
     }

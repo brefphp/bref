@@ -60,9 +60,9 @@ class KafkaRecord
     public function getHeaders(): array
     {
         return array_map(
-            function (array $chars): string {
+            static function (array $chars): string {
                 return implode('', array_map(
-                    function (int $char): string {
+                    static function (int $char): string {
                         return chr($char);
                     },
                     $chars,

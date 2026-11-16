@@ -42,7 +42,7 @@ final class LazySecretsLoader
         }
 
         // Only consider environment variables that start with "bref-ssm:"
-        $envVarsToDecrypt = array_filter($envVars, function (string $value): bool {
+        $envVarsToDecrypt = array_filter($envVars, static function (string $value): bool {
             return str_starts_with($value, 'bref-ssm:');
         });
 

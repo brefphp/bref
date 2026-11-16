@@ -5,7 +5,7 @@ header('Content-Type: application/json');
 echo json_encode([
     '$_GET' => $_GET,
     '$_POST' => $_POST,
-    '$_FILES' => array_map(function ($file) {
+    '$_FILES' => array_map(static function ($file) {
         // Fetch the content so we can verify it
         $file['content'] = file_get_contents($file['tmp_name']);
         // Delete the file and remove the random name as we can't assert that in the tests

@@ -217,7 +217,7 @@ final class FpmHandler extends HttpHandler
     private function waitUntilReady(): void
     {
         $wait = 5000; // 5ms
-        $timeout = 5000000; // 5 secs
+        $timeout = 5_000_000; // 5 secs
         $elapsed = 0;
 
         while (! $this->isReady()) {
@@ -341,7 +341,7 @@ final class FpmHandler extends HttpHandler
     private function waitUntilStopped(int $pid): void
     {
         $wait = 5000; // 5ms
-        $timeout = 1000000; // 1 sec
+        $timeout = 1_000_000; // 1 sec
         $elapsed = 0;
         while (posix_getpgid($pid) !== false) {
             usleep($wait);

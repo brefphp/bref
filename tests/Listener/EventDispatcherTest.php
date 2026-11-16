@@ -18,7 +18,7 @@ class EventDispatcherTest extends TestCase
         $eventDispatcher->beforeStartup();
         $this->assertTrue($subscriber->invokedBeforeStartup);
 
-        $handler = fn () => null;
+        $handler = static fn () => null;
         $event = new stdClass;
         $context = Context::fake();
         $eventDispatcher->beforeInvoke($handler, $event, $context);

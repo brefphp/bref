@@ -143,7 +143,7 @@ final class LambdaRuntime
 
         // Retrieve invocation ID
         $contextBuilder = new ContextBuilder;
-        curl_setopt($this->curlHandleNext, CURLOPT_HEADERFUNCTION, function ($ch, $header) use ($contextBuilder) {
+        curl_setopt($this->curlHandleNext, CURLOPT_HEADERFUNCTION, static function ($ch, $header) use ($contextBuilder) {
             if (! preg_match('/:\s*/', $header)) {
                 return strlen($header);
             }
@@ -168,7 +168,7 @@ final class LambdaRuntime
 
         // Retrieve body
         $body = '';
-        curl_setopt($this->curlHandleNext, CURLOPT_WRITEFUNCTION, function ($ch, $chunk) use (&$body) {
+        curl_setopt($this->curlHandleNext, CURLOPT_WRITEFUNCTION, static function ($ch, $chunk) use (&$body) {
             $body .= $chunk;
 
             return strlen($chunk);

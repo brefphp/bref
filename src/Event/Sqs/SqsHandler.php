@@ -28,7 +28,7 @@ abstract class SqsHandler implements Handler
         }
 
         $failures = array_map(
-            function (SqsRecord $record) {
+            static function (SqsRecord $record) {
                 return ['itemIdentifier' => $record->getMessageId()];
             },
             $this->failedRecords

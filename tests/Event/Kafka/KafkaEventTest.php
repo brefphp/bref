@@ -17,7 +17,7 @@ final class KafkaEventTest extends TestCase
         self::assertSame('mytopic', $record->getTopic());
         self::assertSame(0, $record->getPartition());
         self::assertSame(15, $record->getOffset());
-        self::assertSame(1545084650987, $record->getTimestamp());
+        self::assertSame(1_545_084_650_987, $record->getTimestamp());
         self::assertSame('Hello, this is a test.', $record->getValue());
         self::assertSame('SGVsbG8gV29ybGQ=', $record->getKey());
         self::assertSame(

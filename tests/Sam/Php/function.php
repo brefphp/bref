@@ -2,7 +2,7 @@
 
 require __DIR__ . '/../../../vendor/autoload.php';
 
-return function (array $event) {
+return static function (array $event) {
     if ($event['extensions'] ?? false) {
         return get_loaded_extensions();
     }

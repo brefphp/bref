@@ -48,7 +48,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(function () {
+        $output = $this->runtime->processNextEvent(static function () {
             return ['hello' => 'world'];
         });
 
@@ -60,7 +60,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $this->runtime->processNextEvent(function (array $event, Context $context) {
+        $this->runtime->processNextEvent(static function (array $event, Context $context) {
             return ['hello' => 'world', 'received-function-arn' => $context->getInvokedFunctionArn()];
         });
 
@@ -74,7 +74,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(function () {
+        $output = $this->runtime->processNextEvent(static function () {
             throw new RuntimeException('This is an exception');
         });
 
@@ -87,7 +87,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $this->runtime->processNextEvent(function () {
+        $this->runtime->processNextEvent(static function () {
             throw new RuntimeException('This is an exception', 0, new RuntimeException('The previous exception.', 0, new Exception('The original exception.')));
         });
 
@@ -112,7 +112,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
             ),
         ]);
 
-        $this->runtime->processNextEvent(function ($event) {
+        $this->runtime->processNextEvent(static function ($event) {
         });
     }
 
@@ -127,7 +127,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
             ),
         ]);
 
-        $this->runtime->processNextEvent(function () {
+        $this->runtime->processNextEvent(static function () {
         });
     }
 
@@ -143,7 +143,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
             ),
         ]);
 
-        $this->runtime->processNextEvent(function () {
+        $this->runtime->processNextEvent(static function () {
         });
     }
 
@@ -169,7 +169,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
             new Response(200),
         ]);
 
-        $this->runtime->processNextEvent(function ($event) {
+        $this->runtime->processNextEvent(static function ($event) {
             return $event;
         });
         $requests = Server::received();
@@ -214,7 +214,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
             ),
         ]);
 
-        $this->runtime->processNextEvent(function ($event) {
+        $this->runtime->processNextEvent(static function ($event) {
             return $event;
         });
         $requests = Server::received();
@@ -233,7 +233,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['hello' => 'world!']);
 
-        $this->runtime->processNextEvent(function () {
+        $this->runtime->processNextEvent(static function () {
             return "\xB1\x31";
         });
 
@@ -377,7 +377,7 @@ ERROR;
 
         $this->givenAnEvent([]);
 
-        $output = $this->runtime->processNextEvent(fn () => []);
+        $output = $this->runtime->processNextEvent(static fn () => []);
 
         $this->assertFalse($output);
         $this->assertInvocationErrorResult('Exception', 'This is an exception in beforeInvoke');
@@ -398,7 +398,7 @@ ERROR;
         });
 
         $this->givenAnEvent([]);
-        $output = $this->runtime->processNextEvent(fn () => []);
+        $output = $this->runtime->processNextEvent(static fn () => []);
 
         $this->assertFalse($output);
         $this->assertErrorInLogs('Exception', 'This is an exception in afterInvoke');
@@ -422,7 +422,7 @@ ERROR;
         });
 
         $this->givenAnEvent([]);
-        $output = $this->runtime->processNextEvent(fn () => throw new Exception('Invocation error'));
+        $output = $this->runtime->processNextEvent(static fn () => throw new Exception('Invocation error'));
 
         $this->assertFalse($output);
         // The error response was already sent, it contains the handler error
@@ -436,7 +436,7 @@ ERROR;
     {
         $this->givenAnEvent([]);
 
-        $this->runtime->processNextEvent(function () use (&$requestId, &$traceId) {
+        $this->runtime->processNextEvent(static function () use (&$requestId, &$traceId) {
             $requestId = getenv('LAMBDA_REQUEST_ID');
             $traceId = getenv('_X_AMZN_TRACE_ID');
             return ['hello' => 'world'];

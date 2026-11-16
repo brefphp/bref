@@ -41,7 +41,8 @@
         "phpstan/phpstan": "^2",
         "phpunit/phpunit": "^10.1",
         "symfony/console": "^5.4|^6.4|^7.0|^8.0",
-        "symfony/yaml": "^5.4|^6.4|^7.0|^8.0"
+        "symfony/yaml": "^5.4|^6.4|^7.0|^8.0",
+        "boundwize/structarmed": "^0.21.22"
     },
     "scripts": {
         "test": [

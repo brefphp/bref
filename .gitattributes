@@ -13,6 +13,7 @@ docker-compose.yml export-ignore
 Makefile export-ignore
 phpstan.neon export-ignore
 phpunit.xml export-ignore
+structarmed.php export-ignore
 .eslintrc.js export-ignore
 .prettierrc.yaml export-ignore
 tsconfig.json export-ignore

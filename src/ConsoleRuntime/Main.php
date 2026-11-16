@@ -36,7 +36,7 @@ class Main
 
         /** @phpstan-ignore-next-line */
         while (true) {
-            $lambdaRuntime->processNextEvent(function ($event, Context $context) use ($handlerFile): array {
+            $lambdaRuntime->processNextEvent(static function ($event, Context $context) use ($handlerFile): array {
                 if (is_array($event)) {
                     // Backward compatibility with the former CLI invocation format
                     $cliOptions = $event['cli'] ?? '';
@@ -50,7 +50,7 @@ class Main
                 $command = sprintf('php %s %s 2>&1', $handlerFile, $cliOptions);
                 $process = Process::fromShellCommandline($command, null, null, null, $timeout);
 
-                $process->run(function ($type, $buffer): void {
+                $process->run(static function ($type, $buffer): void {
                     echo $buffer;
                 });
 

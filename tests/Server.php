@@ -77,7 +77,7 @@ class Server
             if (! ($response instanceof ResponseInterface)) {
                 throw new \Exception('Invalid response given.');
             }
-            $headers = array_map(function ($h) {
+            $headers = array_map(static function ($h) {
                 return implode(' ,', $h);
             }, $response->getHeaders());
             $data[] = [
@@ -106,7 +106,7 @@ class Server
         $response = self::getClient()->request('GET', 'guzzle-server/requests');
         $data = json_decode((string) $response->getBody(), true);
         return array_map(
-            function ($message) {
+            static function ($message) {
                 $uri = $message['uri'];
                 if (isset($message['query_string'])) {
                     $uri .= '?' . $message['query_string'];

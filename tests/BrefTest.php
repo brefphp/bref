@@ -24,7 +24,7 @@ class BrefTest extends TestCase
     {
         $container = new FileHandlerLocator('');
 
-        Bref::setContainer(function () use ($container) {
+        Bref::setContainer(static function () use ($container) {
             return $container;
         });
 

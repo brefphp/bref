@@ -31,7 +31,7 @@ class Psr7Test extends TestCase
         $api->setWorkingDirectory(__DIR__);
         $api->setTimeout(0.);
         $api->start();
-        $api->waitUntil(function ($type, $output) {
+        $api->waitUntil(static function ($type, $output) {
             return strpos($output, 'Running on http://127.0.0.1:3000/') !== false;
         });
 

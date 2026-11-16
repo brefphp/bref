@@ -90,6 +90,29 @@ jobs:
             -   name: PHP CS
                 run: vendor/bin/phpcs -q --no-colors --report=checkstyle | cs2pr
 
+    structarmed:
+        runs-on: ubuntu-22.04
+        name: StructArmed
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v6
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.3'
+                    tools: composer:v2
+                    coverage: none
+            -   name: Cache Composer dependencies
+                uses: actions/cache@v5
+                with:
+                    path: ~/.composer/cache
+                    key: php-composer-locked-${{ hashFiles('composer.lock') }}
+                    restore-keys: php-composer-locked-
+            -   name: Install dependencies
+                run: composer install --no-interaction --prefer-dist --no-progress
+            -   name: StructArmed annotations
+                run: vendor/bin/structarmed analyse --report=github
+
     js-lint:
         runs-on: ubuntu-22.04
         name: JS type validation and linting
