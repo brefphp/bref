@@ -46,7 +46,7 @@ But that was only half of the work. Every application then had to update Bref an
 
 That's how layers work, like on most hosting platforms: an application points to a specific layer version (e.g. `php-84:24`). You have to update it and redeploy to run the latest version.
 
-With customer-managed runtimes, an application points to a runtime, and Bref publishes new versions of that runtime. When PHP releases a security fix, Bref publishes a new runtime version and **it starts rolling out immediately**: every function picks it up at its next cold start. No `composer update`, no redeploy.
+With customer-managed runtimes, an application points to a runtime, for example PHP 8.5, and Bref publishes new versions of that runtime. When PHP releases a security fix, Bref publishes a new runtime version (e.g. PHP 8.5.12 → 8.5.13) and **it starts rolling out immediately**: every function picks it up at its next cold start. No `composer update`, no redeploy.
 
 That's how the AWS runtimes for Node.js or Python have always worked: AWS patches them, and your functions get the patch. PHP applications on AWS Lambda will now get the same treatment.
 
