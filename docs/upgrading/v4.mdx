@@ -1,0 +1,62 @@
+---
+description: Upgrading guide to go from Bref 3.x to Bref 4.0.
+---
+
+# Upgrading to Bref 4.0
+
+## Updating dependencies
+
+Update all Bref packages in your `composer.json` file from `^3` to `^4`, for example:
+
+```json filename="composer.json"
+"require": {
+    "bref/bref": "^4",
+    "bref/laravel-bridge": "^4",         // if you use Laravel
+    "bref/symfony-bridge": "^4"          // if you use Symfony
+}
+```
+
+> [!TIP]
+>
+> Only update the versions for the packages you actually have in your project.
+
+Then run:
+
+```bash
+composer update --with-all-dependencies
+```
+
+## Failed console commands are no longer retried
+
+When a command invoked asynchronously failed (e.g. a cron), Lambda retried it twice by default. Bref now sets `maximumRetryAttempts: 0` on console functions: Lambda no longer retries failed commands. Failed commands are still counted in the `Errors` metric of the function.
+
+To keep the retries, set `maximumRetryAttempts` on the function:
+
+```yml filename="serverless.yml" {5}
+functions:
+    artisan:
+        handler: artisan
+        runtime: php-84-console
+        maximumRetryAttempts: 2
+```
+
+If you deploy without `serverless.yml` (e.g. with AWS CDK or Terraform), set the maximum retry attempts of the function's asynchronous invocations to 0 to get the same behavior.
+
+## HTTP headers with an underscore are dropped
+
+Headers with an underscore in their name (e.g. `api_key`) are no longer passed to PHP, on every runtime. Like `api-key`, they would become the `HTTP_API_KEY` variable: a client could replace a header set by a proxy. Nginx and Apache drop them by default.
+
+If your application reads such a header, rename it with a dash instead (e.g. `api-key`), in the application and in its clients.
+
+## Work after the response with `fastcgi_finish_request()`
+
+Bref layers no longer disable [`fastcgi_finish_request()`](https://www.php.net/manual/en/function.fastcgi-finish-request.php): the client gets the response when it is called, and the rest of the script runs afterwards. Laravel and Symfony call it, then run their "terminate" work (e.g. Laravel's `defer()`, Symfony's `kernel.terminate` listeners) after the response.
+
+There is nothing to change, but that work still counts toward the function's timeout and is billed, and the Lambda instance does not handle other requests until it finishes. Read [Work after the response](/docs/use-cases/http#work-after-the-response).
+
+## Custom HTTP handlers and listeners
+
+These changes only affect code that uses Bref's PHP classes directly:
+
+- `Bref\Event\Http\HttpHandler::handle()` now returns a `Bref\Runtime\LambdaResult` instead of an array. Handlers that implement `handleRequest()` are not affected. Code that calls `handle()` directly (e.g. in tests) can read the response with `json_decode($result->contents(), true)`.
+- `afterInvoke()` in `Bref\Listener\BrefEventSubscriber` receives that `LambdaResult` as `$result` for HTTP events, already sent to Lambda.

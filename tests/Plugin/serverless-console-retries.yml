@@ -1,0 +1,26 @@
+service: bref
+provider:
+    name: aws
+
+plugins:
+    - ./bref.js
+
+functions:
+    console:
+        handler: console.php
+        runtime: php-83-console
+        events:
+            - schedule: rate(1 hour)
+    # E.g. a container image: the runtime is set with the environment variable
+    console-image:
+        handler: console.php
+        runtime: provided.al2023
+        environment:
+            BREF_RUNTIME: console
+    console-with-retries:
+        handler: console.php
+        runtime: php-83-console
+        maximumRetryAttempts: 2
+    function:
+        handler: function.php
+        runtime: php-83

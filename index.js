@@ -179,6 +179,7 @@ class ServerlessPlugin {
                 this.processPhpRuntimes();
                 this.exposeStackName();
                 this.configureResponseStreaming();
+                this.disableConsoleRetries();
                 warnIfUsingSecretsWithoutTheBrefDependency(this.serverless, utils.log);
                 try {
                     this.telemetry();
@@ -188,7 +189,7 @@ class ServerlessPlugin {
                 }
             },
             // Custom commands
-            'bref:cli:run': () => runConsole(this.serverless, options),
+            'bref:cli:run': () => runConsole(this.serverless, options, utils.log),
             'bref:local:run': () => runLocal(this.serverless, options),
             'bref:layers:show': () => listLayers(this.serverless, utils.log),
             'before:logs:logs': () => {
@@ -326,6 +327,19 @@ class ServerlessPlugin {
             }
             if (f.environment.BREF_RESPONSE_STREAMING === undefined) {
                 f.environment.BREF_RESPONSE_STREAMING = '1';
+            }
+        }
+    }
+
+    /**
+     * Lambda does not retry failed console commands invoked asynchronously (e.g. crons), unless configured otherwise.
+     */
+    disableConsoleRetries() {
+        for (const f of Object.values(this.serverless.service.functions || {})) {
+            const brefRuntime = (f.environment || {}).BREF_RUNTIME;
+            if (brefRuntime !== 'Bref\\ConsoleRuntime\\Main' && brefRuntime !== 'console') continue;
+            if (f.maximumRetryAttempts === undefined) {
+                f.maximumRetryAttempts = 0;
             }
         }
     }

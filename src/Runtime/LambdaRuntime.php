@@ -210,6 +210,9 @@ final class LambdaRuntime
 
         $this->responseSender = new ResponseSender($this->apiUrl, $context->getAwsRequestId(), $result->contentType, $context);
         try {
+            if ($result->failuresInTrailer) {
+                $this->responseSender->start();
+            }
             // The result can end early: the rest of the handler runs before the next invocation
             $result->writeTo($this->responseSender->write(...), $this->responseSender->end(...));
             $this->responseSender->end();
