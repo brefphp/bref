@@ -113,6 +113,8 @@ This is usually best when coupled with a framework like Laravel or Symfony, or w
     </Tabs.Tab>
 </Tabs>
 
+Lambda does not retry a failed command (non-zero exit code): Bref sets `maximumRetryAttempts: 0` on console functions. Failed commands are counted in the `Errors` metric of the function. To retry failed commands, set `maximumRetryAttempts` (1 or 2) on the function.
+
 Read more about the options for the `schedule` event in the [Serverless documentation](https://github.com/oss-serverless/osls/blob/4.x/docs/events/schedule.md).
 
 ## Cron functions
