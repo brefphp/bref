@@ -118,6 +118,16 @@ class PluginTest extends TestCase
         self::assertSame('1', $output['functions']['streamed-rest-api']['environment']['BREF_RESPONSE_STREAMING']);
     }
 
+    public function test the plugin disables the retries of console functions(): void
+    {
+        $output = $this->slsPrint('serverless-console-retries.yml');
+
+        self::assertSame(0, $output['functions']['console']['maximumRetryAttempts']);
+        self::assertSame(0, $output['functions']['console-image']['maximumRetryAttempts']);
+        self::assertSame(2, $output['functions']['console-with-retries']['maximumRetryAttempts']);
+        self::assertArrayNotHasKey('maximumRetryAttempts', $output['functions']['function']);
+    }
+
     private function slsPrint(string $configFile): array
     {
         $process = (new Process(

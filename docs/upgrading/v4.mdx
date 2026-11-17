@@ -1,0 +1,43 @@
+---
+description: Upgrading guide to go from Bref 3.x to Bref 4.0.
+---
+
+# Upgrading to Bref 4.0
+
+## Updating dependencies
+
+Update all Bref packages in your `composer.json` file from `^3` to `^4`, for example:
+
+```json filename="composer.json"
+"require": {
+    "bref/bref": "^4",
+    "bref/laravel-bridge": "^4",         // if you use Laravel
+    "bref/symfony-bridge": "^4"          // if you use Symfony
+}
+```
+
+> [!TIP]
+>
+> Only update the versions for the packages you actually have in your project.
+
+Then run:
+
+```bash
+composer update --with-all-dependencies
+```
+
+## Failed console commands are no longer retried
+
+When a command invoked asynchronously failed (e.g. a cron), Lambda retried it twice by default. Bref now sets `maximumRetryAttempts: 0` on console functions: Lambda no longer retries failed commands. Failed commands are still counted in the `Errors` metric of the function.
+
+To keep the retries, set `maximumRetryAttempts` on the function:
+
+```yml filename="serverless.yml" {5}
+functions:
+    artisan:
+        handler: artisan
+        runtime: php-84-console
+        maximumRetryAttempts: 2
+```
+
+If you deploy without `serverless.yml` (e.g. with AWS CDK or Terraform), set the maximum retry attempts of the function's asynchronous invocations to 0 to get the same behavior.
