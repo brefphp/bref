@@ -170,6 +170,22 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->assertErrorInLogs('RuntimeException', 'Failure in the middle');
     }
 
+    public function test a result started right away reports a failure before its first byte in the trailers()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function () {
+            throw new RuntimeException('Failure before the first byte');
+        }, failuresInTrailer: true));
+
+        $this->assertFalse($output);
+        // Not with the error endpoint: the response is already started
+        $response = $this->streamedResponse();
+        $this->assertSame('', $response->getBody()->__toString());
+        $this->assertSame('RuntimeException', $response->getHeaderLine('lambda-runtime-function-error-type'));
+        $this->assertErrorInLogs('RuntimeException', 'Failure before the first byte');
+    }
+
     public function test init errors are reported without their stack trace()
     {
         Server::enqueue([new Response(202)]);

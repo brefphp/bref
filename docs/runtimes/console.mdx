@@ -181,8 +181,6 @@ aws lambda invoke \
 
 If the command fails (non-zero exit code), the output is in the `errorMessage` field of `response.json` instead.
 
-To get the output while the command runs, invoke the function with the [`InvokeWithResponseStream`](https://docs.aws.amazon.com/lambda/latest/api/API_InvokeWithResponseStream.html) API of an AWS SDK (the AWS CLI does not support it) and the payload `{"cli": "<command arguments and options>", "stream": true}`. The response is the output as text, and a failure is in its `InvokeComplete` event (`ErrorCode`).
-
 > [!NOTE]
 >
 > The `--payload` needs to contain a JSON string, that is why it is quoted twice: `'"..."'`. This is intentional.

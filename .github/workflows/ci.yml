@@ -104,3 +104,4 @@ jobs:
                   key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
             - run: npm i
             - run: npm run lint
+            - run: node --test tests/Plugin/run-console.test.js

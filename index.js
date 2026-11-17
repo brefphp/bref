@@ -188,7 +188,7 @@ class ServerlessPlugin {
                 }
             },
             // Custom commands
-            'bref:cli:run': () => runConsole(this.serverless, options),
+            'bref:cli:run': () => runConsole(this.serverless, options, utils.log),
             'bref:local:run': () => runLocal(this.serverless, options),
             'bref:layers:show': () => listLayers(this.serverless, utils.log),
             'before:logs:logs': () => {
