@@ -80,7 +80,9 @@ There is no `.htaccess` or `nginx.conf` on AWS Lambda. Handle redirects, rewrite
 
 #### Differences in URI query parameters
 
-Bref rebuilds the query string before passing it to PHP-FPM. In a few edge cases, this gives different results than PHP on a server:
+With HTTP APIs and Function URLs, PHP receives the query string exactly as the client sent it, like on a server: `$_SERVER['QUERY_STRING']` is the raw query string, and PHP parses `$_GET` from it.
+
+With REST APIs and Application Load Balancers, AWS only gives the parsed parameters, so Bref rebuilds the query string before passing it to PHP-FPM. In a few edge cases, this gives different results than PHP on a server:
 
 - Repeated keys become arrays in `$_GET`:
     - `?a=1&a=2&a=3` is parsed as `['a' => 3]` on a server with PHP-FPM, and as `['a' => [1, 2, 3]]` with Bref

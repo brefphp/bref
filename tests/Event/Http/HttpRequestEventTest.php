@@ -329,7 +329,7 @@ class HttpRequestEventTest extends CommonHttpTest
     /**
      * @dataProvider provide query strings for event
      */
-    public function test query string will be parsed correctly(array $expected, string $normalizedQs, string $queryString)
+    public function test query string will be parsed correctly(array $expected, string $queryString)
     {
         $event = new HttpRequestEvent([
             'httpMethod' => 'GET',
@@ -338,30 +338,31 @@ class HttpRequestEventTest extends CommonHttpTest
         ]);
 
         self::assertSame($expected, $event->getQueryParameters());
-        self::assertSame($normalizedQs, $event->getQueryString());
+        // Untouched, like nginx and Apache give it to PHP
+        self::assertSame($queryString, $event->getQueryString());
     }
 
     public static function provide query strings for event(): array
     {
         return [
-            [['foo' => 'bar'], 'foo=bar', 'foo=bar'],
-            [['foo' => 'bar  '], 'foo=bar%20%20', '   foo=bar  '],
-            [['?foo' => 'bar'], '%3Ffoo=bar', '?foo=bar'],
-            [['#foo' => 'bar'], '%23foo=bar', '#foo=bar'],
-            [['foo' => 'bar'], 'foo=bar', '&foo=bar'],
-            [['foo' => 'bar', 'bar' => 'foo'], 'foo=bar&bar=foo', 'foo=bar&bar=foo'],
-            [['foo' => 'bar', 'bar' => 'foo'], 'foo=bar&bar=foo', 'foo=bar&&bar=foo'],
-            [['foo' => ['bar' => ['baz' => ['bax' => 'bar']]]], 'foo%5Bbar%5D%5Bbaz%5D%5Bbax%5D=bar', 'foo[bar][baz][bax]=bar'],
-            [['foo' => ['bar' => 'bar']], 'foo%5Bbar%5D=bar', 'foo[bar] [baz]=bar'],
-            [['foo' => ['bar' => ['baz' => ['bar', 'foo']]]], 'foo%5Bbar%5D%5Bbaz%5D%5B0%5D=bar&foo%5Bbar%5D%5Bbaz%5D%5B1%5D=foo', 'foo[bar][baz][]=bar&foo[bar][baz][]=foo'],
-            [['foo' => ['bar' => [['bar'], ['foo']]]], 'foo%5Bbar%5D%5B0%5D%5B0%5D=bar&foo%5Bbar%5D%5B1%5D%5B0%5D=foo', 'foo[bar][][]=bar&foo[bar][][]=foo'],
-            [['option' => ''], 'option=', 'option'],
-            [['option' => '0'], 'option=0', 'option=0'],
-            [['option' => '1'], 'option=1', 'option=1'],
-            [['foo' => 'bar=bar=='], 'foo=bar%3Dbar%3D%3D', 'foo=bar=bar=='],
-            [['options' => ['option' => '0']], 'options%5Boption%5D=0', 'options[option]=0'],
-            [['options' => ['option' => 'foobar']], 'options%5Boption%5D=foobar', 'options[option]=foobar'],
-            [['sum' => '10\\2=5'], 'sum=10%5C2%3D5', 'sum=10%5c2%3d5'],
+            [['foo' => 'bar'], 'foo=bar'],
+            [['foo' => 'bar  '], '   foo=bar  '],
+            [['?foo' => 'bar'], '?foo=bar'],
+            [['#foo' => 'bar'], '#foo=bar'],
+            [['foo' => 'bar'], '&foo=bar'],
+            [['foo' => 'bar', 'bar' => 'foo'], 'foo=bar&bar=foo'],
+            [['foo' => 'bar', 'bar' => 'foo'], 'foo=bar&&bar=foo'],
+            [['foo' => ['bar' => ['baz' => ['bax' => 'bar']]]], 'foo[bar][baz][bax]=bar'],
+            [['foo' => ['bar' => 'bar']], 'foo[bar] [baz]=bar'],
+            [['foo' => ['bar' => ['baz' => ['bar', 'foo']]]], 'foo[bar][baz][]=bar&foo[bar][baz][]=foo'],
+            [['foo' => ['bar' => [['bar'], ['foo']]]], 'foo[bar][][]=bar&foo[bar][][]=foo'],
+            [['option' => ''], 'option'],
+            [['option' => '0'], 'option=0'],
+            [['option' => '1'], 'option=1'],
+            [['foo' => 'bar=bar=='], 'foo=bar=bar=='],
+            [['options' => ['option' => '0']], 'options[option]=0'],
+            [['options' => ['option' => 'foobar']], 'options[option]=foobar'],
+            [['sum' => '10\\2=5'], 'sum=10%5c2%3d5'],
 
             // Special cases
             [
@@ -369,7 +370,6 @@ class HttpRequestEventTest extends CommonHttpTest
                     'a' => '<==  foo bar  ==>',
                     'b' => '###Hello World###',
                 ],
-                'a=%3C%3D%3D%20%20foo%20bar%20%20%3D%3D%3E&b=%23%23%23Hello%20World%23%23%23',
                 'a=%3c%3d%3d%20%20foo%20bar%20%20%3d%3d%3e&b=%23%23%23Hello%20World%23%23%23',
             ],
             [
@@ -377,12 +377,10 @@ class HttpRequestEventTest extends CommonHttpTest
                     'a' => '<==  foo bar  ==>',
                     'b' => '###Hello World###',
                 ],
-                'a=%3C%3D%3D%20%20foo%20bar%20%20%3D%3D%3E&b=%23%23%23Hello%20World%23%23%23',
                 'a=%3c%3d%3d%20%20foo+bar++%3d%3d%3e&b=%23%23%23Hello+World%23%23%23',
             ],
             [
                 ['str' => "A string with containing \0\0\0 nulls"],
-                'str=A%20string%20with%20containing%20%00%00%00%20nulls',
                 'str=A%20string%20with%20containing%20%00%00%00%20nulls',
             ],
             [
@@ -390,7 +388,6 @@ class HttpRequestEventTest extends CommonHttpTest
                     'arr_1' => 'sid',
                     'arr' => ['4' => 'fred'],
                 ],
-                'arr_1=sid&arr%5B4%5D=fred',
                 'arr[1=sid&arr[4][2=fred',
             ],
             [
@@ -398,7 +395,6 @@ class HttpRequestEventTest extends CommonHttpTest
                     'arr_1' => 'sid',
                     'arr' => ['4' => ['[2' => 'fred']],
                 ],
-                'arr_1=sid&arr%5B4%5D%5B%5B2%5D=fred',
                 'arr[1=sid&arr[4][[2][3[=fred',
             ],
         ];
