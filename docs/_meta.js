@@ -34,7 +34,7 @@ export default {
   "upgrading": "Upgrading",
   "sentry": {
     "title": "Sentry integration",
-    "href": "/sentry"
+    "href": "https://docs.sentry.io/platforms/php/guides/bref/"
   },
   "xray": {
     "title": "X-Ray integration",

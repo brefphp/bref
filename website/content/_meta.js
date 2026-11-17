@@ -71,20 +71,6 @@ export default {
             copyPage: false,
         },
     },
-    sentry: {
-        type: 'page',
-        title: 'Sentry integration for PHP on AWS Lambda',
-        display: 'hidden',
-        theme: {
-            layout: 'full',
-            sidebar: false,
-            toc: false,
-            breadcrumb: false,
-            pagination: false,
-            timestamp: false,
-            copyPage: false,
-        },
-    },
     xray: {
         type: 'page',
         title: 'X-Ray integration for PHP',
