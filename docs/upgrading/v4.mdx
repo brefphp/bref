@@ -48,6 +48,12 @@ Headers with an underscore in their name (e.g. `api_key`) are no longer passed t
 
 If your application reads such a header, rename it with a dash instead (e.g. `api-key`), in the application and in its clients.
 
+## The query string reaches PHP as the client sent it
+
+With HTTP APIs and Function URLs, Bref no longer rebuilds the query string: `$_SERVER['QUERY_STRING']` and `$_SERVER['REQUEST_URI']` contain it as the client sent it, and PHP-FPM parses `$_GET` from it, like on a server with Nginx or Apache. REST APIs and Application Load Balancers are not affected.
+
+With PHP-FPM, a key repeated without brackets is no longer turned into an array in `$_GET`: `?foo=1&foo=2` gives `['foo' => '2']`, like on any server. If your application reads such parameters, send them with brackets (`?foo[]=1&foo[]=2`), or parse `$_SERVER['QUERY_STRING']` yourself.
+
 ## Work after the response with `fastcgi_finish_request()`
 
 Bref layers no longer disable [`fastcgi_finish_request()`](https://www.php.net/manual/en/function.fastcgi-finish-request.php): the client gets the response when it is called, and the rest of the script runs afterwards. Laravel and Symfony call it, then run their "terminate" work (e.g. Laravel's `defer()`, Symfony's `kernel.terminate` listeners) after the response.
