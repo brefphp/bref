@@ -21,6 +21,12 @@ final class LambdaResult
     public function __construct(
         public readonly string $contentType,
         public readonly iterable|Closure $chunks,
+        /**
+         * Start the response right away, so that a failure is always reported in its trailers (counted in the
+         * error metrics, never retried) rather than with the error endpoint of the Runtime API (retried for
+         * asynchronous invocations).
+         */
+        public readonly bool $failuresInTrailer = false,
     ) {
     }
 

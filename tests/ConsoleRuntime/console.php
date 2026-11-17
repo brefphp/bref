@@ -6,6 +6,10 @@ if (isset($argv[1]) && $argv[1] === 'flood') {
     exit(0);
 }
 
+if (isset($argv[1]) && $argv[1] === 'silent-fail') {
+    exit(1);
+}
+
 echo "Hello world!\n";
 
 if (isset($argv[1]) && $argv[1] === 'fail') {

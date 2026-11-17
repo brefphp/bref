@@ -18,6 +18,8 @@ The result of the execution (exit code and output) will be returned as the resul
 
 If the command exits with a non-zero exit code, the invocation fails: the output of the command is returned as the error message (`errorMessage`) instead of the result.
 
+Lambda does not retry failed commands invoked asynchronously (e.g. crons): Bref sets `maximumRetryAttempts: 0` on console functions. To retry them, set `maximumRetryAttempts` (1 or 2) on the function.
+
 The command is stopped 1 second before the Lambda function's timeout. Only the last 5MB of the output are returned (the full output is still in the logs).
 
 Console functions can be invoked:
@@ -113,7 +115,7 @@ To manually run a console command on AWS Lambda, run the following command on yo
         serverless bref:cli --args="{arguments and options for the script}"
         ```
 
-        The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` runtime and will run the command on that function. If several functions use the `console` runtime, or if the runtime is set in a Docker image, pass the function name with the `--function` option (shortcut: `-f`), for example `serverless bref:cli --function=artisan --args="migrate --force"`.
+        The output of the command is displayed while it runs. The `bref:cli` command will automatically detect which function (in `serverless.yml`) uses the `console` runtime and will run the command on that function. If several functions use the `console` runtime, or if the runtime is set in a Docker image, pass the function name with the `--function` option (shortcut: `-f`), for example `serverless bref:cli --function=artisan --args="migrate --force"`.
 
         Pass your command arguments and options in the `--args` flag (shortcut: `-a`). Remember to escape quotes properly. Some examples:
 

@@ -1,4 +1,5 @@
 export default {
   "v2": "From 1.x to 2.0",
-  "v3": "From 2.x to 3.0"
+  "v3": "From 2.x to 3.0",
+  "v4": "From 3.x to 4.0"
 }
