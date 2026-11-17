@@ -41,3 +41,22 @@ functions:
 ```
 
 If you deploy without `serverless.yml` (e.g. with AWS CDK or Terraform), set the maximum retry attempts of the function's asynchronous invocations to 0 to get the same behavior.
+
+## HTTP headers with an underscore are dropped
+
+Headers with an underscore in their name (e.g. `api_key`) are no longer passed to PHP, on every runtime. Like `api-key`, they would become the `HTTP_API_KEY` variable: a client could replace a header set by a proxy. Nginx and Apache drop them by default.
+
+If your application reads such a header, rename it with a dash instead (e.g. `api-key`), in the application and in its clients.
+
+## Work after the response with `fastcgi_finish_request()`
+
+Bref layers no longer disable [`fastcgi_finish_request()`](https://www.php.net/manual/en/function.fastcgi-finish-request.php): the client gets the response when it is called, and the rest of the script runs afterwards. Laravel and Symfony call it, then run their "terminate" work (e.g. Laravel's `defer()`, Symfony's `kernel.terminate` listeners) after the response.
+
+There is nothing to change, but that work still counts toward the function's timeout and is billed, and the Lambda instance does not handle other requests until it finishes. Read [Work after the response](/docs/use-cases/http#work-after-the-response).
+
+## Custom HTTP handlers and listeners
+
+These changes only affect code that uses Bref's PHP classes directly:
+
+- `Bref\Event\Http\HttpHandler::handle()` now returns a `Bref\Runtime\LambdaResult` instead of an array. Handlers that implement `handleRequest()` are not affected. Code that calls `handle()` directly (e.g. in tests) can read the response with `json_decode($result->contents(), true)`.
+- `afterInvoke()` in `Bref\Listener\BrefEventSubscriber` receives that `LambdaResult` as `$result` for HTTP events, already sent to Lambda.
