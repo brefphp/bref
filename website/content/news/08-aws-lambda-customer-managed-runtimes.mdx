@@ -8,17 +8,15 @@ import ArticleHeader from '../../src/components/news/ArticleHeader';
 import Image from 'next/image';
 import coldStarts from './08/cold-starts.png';
 
-{/* TODO at launch: official feature name, link to the AWS announcement, date */}
-
 # AWS Lambda customer-managed runtimes and the Bref v4 roadmap
 
 <ArticleHeader
     subTitle="Bref v4 will switch from layers to customer-managed runtimes"
-    date="November 2026"
+    date="November 18, 2026"
     author="Matthieu Napoli"
     authorGitHub="mnapoli" />
 
-AWS just released [customer-managed runtimes](#) for AWS Lambda. {/* TODO link */}
+AWS just released [customer-managed runtimes](https://aws.amazon.com/blogs/compute/control-your-aws-lambda-runtimes-with-customer-managed-runtimes/) for AWS Lambda.
 
 Until now, AWS Lambda had two kinds of runtimes: the ones AWS maintains (Node.js, Python, Java…), and "custom runtimes" via AWS Lambda layers, where you bring everything yourself on top of a bare operating system. That's how Bref runs PHP today, with AWS Lambda layers.
 
