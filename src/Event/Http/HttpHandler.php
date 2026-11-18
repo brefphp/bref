@@ -16,6 +16,12 @@ abstract class HttpHandler implements Handler
     public const ORIGIN_SECRET_HEADER = 'x-bref-origin-secret';
 
     /**
+     * The header in which the CDN sends the query string the client sent, when it had to encode some of its
+     * characters: Function URLs reject e.g. the unencoded brackets of `?filter[status]=active`.
+     */
+    public const RAW_QUERY_STRING_HEADER = 'x-bref-raw-query-string';
+
+    /**
      * Implement it to return the response to the request, or override respond() to write it as it is produced.
      */
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
@@ -37,8 +43,14 @@ abstract class HttpHandler implements Handler
         // With `BREF_ORIGIN_SECRET`, only the requests that went through the CDN are answered: calling
         // the Function URL directly would bypass it (cache, firewall, custom domain…)
         $originSecret = getenv('BREF_ORIGIN_SECRET');
-        $receivedSecret = is_array($event) ? self::takeOriginSecret($event) : '';
-        $fromCdn = ! is_string($originSecret) || $originSecret === '' || hash_equals($originSecret, $receivedSecret);
+        $hasOriginSecret = is_string($originSecret) && $originSecret !== '';
+        $receivedSecret = is_array($event) ? self::takeHeader($event, self::ORIGIN_SECRET_HEADER) : '';
+        $fromCdn = ! $hasOriginSecret || hash_equals($originSecret, $receivedSecret);
+        // Trusted only with the origin secret: anyone could send this header to the function otherwise
+        $rawQueryString = is_array($event) ? self::takeHeader($event, self::RAW_QUERY_STRING_HEADER) : '';
+        if ($hasOriginSecret && $fromCdn && $rawQueryString !== '' && ($event['version'] ?? null) === '2.0') {
+            $event['rawQueryString'] = $rawQueryString;
+        }
         $respond = $fromCdn
             ? $this->respond(...)
             : static fn (HttpRequestEvent $event, Context $context, HttpResponseWriter $writer) => (new HttpResponse('Forbidden', ['Content-Type' => 'text/plain'], 403))->sendTo($writer);
@@ -70,28 +82,28 @@ abstract class HttpHandler implements Handler
     }
 
     /**
-     * Removes the origin secret from the headers, so that the application never sees it (or logs it).
+     * Removes a header meant for Bref, so that the application never sees it (or logs it).
      *
-     * @return string The secret, or an empty string without the header.
+     * @return string Its value, or an empty string without the header.
      */
-    private static function takeOriginSecret(array &$event): string
+    private static function takeHeader(array &$event, string $header): string
     {
-        $secret = '';
+        $found = '';
         foreach (['headers', 'multiValueHeaders'] as $key) {
             if (! isset($event[$key]) || ! is_array($event[$key])) {
                 continue;
             }
             foreach ($event[$key] as $name => $value) {
-                if (strtolower((string) $name) !== self::ORIGIN_SECRET_HEADER) {
+                if (strtolower((string) $name) !== $header) {
                     continue;
                 }
                 if (is_array($value)) {
                     $value = $value[0] ?? '';
                 }
-                $secret = is_string($value) ? $value : $secret;
+                $found = is_string($value) ? $value : $found;
                 unset($event[$key][$name]);
             }
         }
-        return $secret;
+        return $found;
     }
 }

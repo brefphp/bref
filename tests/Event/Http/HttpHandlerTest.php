@@ -201,6 +201,42 @@ class HttpHandlerTest extends TestCase
         $this->assertSame(['host' => ['abc.execute-api.eu-west-3.amazonaws.com']], $headers);
     }
 
+    public function test the query string the CDN had to encode reaches the application as it was sent()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        $received = null;
+        $handler = $this->handler(function (HttpRequestEvent $event) use (&$received) {
+            $received = [$event->getQueryString(), $event->getHeaders()];
+            return new HttpResponse('Hello world!');
+        });
+        $event = $this->event('abc.lambda-url.eu-west-3.on.aws', [
+            'x-bref-origin-secret' => 's3cr3t',
+            'x-bref-raw-query-string' => 'filter[status]=active',
+        ]);
+        $event['rawQueryString'] = 'filter%5Bstatus%5D=active';
+
+        $handler->handle($event, $this->context())->writeTo(function () {
+        });
+
+        $this->assertSame(['filter[status]=active', ['host' => ['abc.lambda-url.eu-west-3.on.aws']]], $received);
+    }
+
+    public function test the raw query string header is ignored without the origin secret variable()
+    {
+        $received = null;
+        $handler = $this->handler(function (HttpRequestEvent $event) use (&$received) {
+            $received = [$event->getQueryString(), $event->getHeaders()];
+            return new HttpResponse('Hello world!');
+        });
+        // Without a CDN that sets it, anyone could send it
+        $event = $this->event('abc.execute-api.eu-west-3.amazonaws.com', ['x-bref-raw-query-string' => 'admin=1']);
+        $event['rawQueryString'] = 'page=2';
+
+        $this->buffered($handler->handle($event, $this->context()));
+
+        $this->assertSame(['page=2', ['host' => ['abc.execute-api.eu-west-3.amazonaws.com']]], $received);
+    }
+
     public function test without the origin secret variable every request is answered()
     {
         $handler = $this->handler(fn () => new HttpResponse('Hello world!'));
