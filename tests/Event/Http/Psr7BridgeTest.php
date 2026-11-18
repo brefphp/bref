@@ -47,6 +47,30 @@ class Psr7BridgeTest extends CommonHttpTest
         self::assertArrayNotHasKey('HTTPS', $http->getServerParams());
     }
 
+    /**
+     * @dataProvider provideUrisRejectedByParseUrl
+     */
+    public function test URIs that parse_url rejects are supported(string $path, string $queryString)
+    {
+        $event = new HttpRequestEvent([
+            'version' => '2.0',
+            'requestContext' => ['http' => ['method' => 'GET']],
+            'rawPath' => $path,
+            'rawQueryString' => $queryString,
+        ]);
+        $request = Psr7Bridge::convertRequest($event, Context::fake());
+
+        self::assertSame($path, $request->getUri()->getPath());
+        self::assertSame($queryString, $request->getUri()->getQuery());
+    }
+
+    public static function provideUrisRejectedByParseUrl(): iterable
+    {
+        yield ['/something/bla:1', ''];
+        yield ['/:28017', ''];
+        yield ['/something/bla:1', 'foo=bar'];
+    }
+
     public function test falsy server params are not dropped()
     {
         $event = new HttpRequestEvent([
