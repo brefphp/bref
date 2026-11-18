@@ -1607,11 +1607,11 @@ Year,Make,Model
                 'b' => '###Hello World###',
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?a=%3C%3D%3D%20%20foo%20bar%20%20%3D%3D%3E&b=%23%23%23Hello%20World%23%23%23',
+                'REQUEST_URI' => '/hello?a=%3c%3d%3d%20%20foo+bar++%3d%3d%3e&b=%23%23%23Hello+World%23%23%23',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'a=%3C%3D%3D%20%20foo%20bar%20%20%3D%3D%3E&b=%23%23%23Hello%20World%23%23%23',
+                'QUERY_STRING' => 'a=%3c%3d%3d%20%20foo+bar++%3d%3d%3e&b=%23%23%23Hello+World%23%23%23',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
@@ -1661,6 +1661,46 @@ Year,Make,Model
         ]);
     }
 
+    public function test the query string reaches PHP as it was sent()
+    {
+        $event = [
+            'version' => '2.0',
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            'rawPath' => '/hello',
+            // A URL that was not encoded, and a key without brackets sent twice
+            'rawQueryString' => 'location=https://example.com/w/1?tk=a&pwd=b&foo=1&foo=2',
+        ];
+        $this->assertGlobalVariables($event, [
+            // Parsed by PHP, like on any server: the URL is split on its `&`, the last `foo` wins
+            '$_GET' => [
+                'location' => 'https://example.com/w/1?tk=a',
+                'pwd' => 'b',
+                'foo' => '2',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'location' => 'https://example.com/w/1?tk=a',
+                'pwd' => 'b',
+                'foo' => '2',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?location=https://example.com/w/1?tk=a&pwd=b&foo=1&foo=2',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'location=https://example.com/w/1?tk=a&pwd=b&foo=1&foo=2',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
     public function test request with backslash characters()
     {
         $event = [
@@ -1684,11 +1724,11 @@ Year,Make,Model
                 'sum' => '10\\2=5',
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?sum=10%5C2%3D5',
+                'REQUEST_URI' => '/hello?sum=10%5c2%3d5',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'sum=10%5C2%3D5',
+                'QUERY_STRING' => 'sum=10%5c2%3d5',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
@@ -1765,11 +1805,11 @@ Year,Make,Model
                 ],
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?arr_1=sid&arr%5B4%5D=fred',
+                'REQUEST_URI' => '/hello?arr[1=sid&arr[4][2=fred',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'arr_1=sid&arr%5B4%5D=fred',
+                'QUERY_STRING' => 'arr[1=sid&arr[4][2=fred',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),

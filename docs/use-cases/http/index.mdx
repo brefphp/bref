@@ -77,14 +77,3 @@ There is no `.htaccess` or `nginx.conf` on AWS Lambda. Handle redirects, rewrite
 #### Work after the response
 
 [`fastcgi_finish_request()`](https://www.php.net/manual/en/function.fastcgi-finish-request.php) sends the response to the client, then the rest of the script runs before the Lambda instance handles another request. Laravel and Symfony use it to run their "terminate" work (e.g. Laravel's `defer()`) after the response. That time counts toward the function's timeout and is billed, and the instance cannot handle other requests until the script finishes: Lambda sends them to other instances (cold starts if none is available).
-
-#### Differences in URI query parameters
-
-Bref rebuilds the query string before passing it to PHP-FPM. In a few edge cases, this gives different results than PHP on a server:
-
-- Repeated keys become arrays in `$_GET`:
-    - `?a=1&a=2&a=3` is parsed as `['a' => 3]` on a server with PHP-FPM, and as `['a' => [1, 2, 3]]` with Bref
-    - `?a=1&a=2&a[]=3&a[]=4` is parsed as `['a' => [3, 4]]` on a server with PHP-FPM, and as `['a' => [1, 2, 3, 4]]` with Bref
-- `$_SERVER['QUERY_STRING']` and `$_SERVER['REQUEST_URI']` contain the rebuilt and URL-encoded query string, not the raw query string sent by the client. For example, `?a=1&a=2` becomes `?a%5B0%5D=1&a%5B1%5D=2`.
-
-Dots in parameter names are kept in `$_SERVER['QUERY_STRING']`, but PHP replaces them with underscores in `$_GET`, like on any server: `?a.b=c` gives `['a_b' => 'c']`.
