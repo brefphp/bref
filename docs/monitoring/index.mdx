@@ -24,9 +24,7 @@ Let's dive into the details of each of them.
 
 ## Sentry
 
-[Sentry](https://sentry.io) is a popular error tracking service. It works well out of the box with Bref for HTTP applications: install the [Sentry SDK for PHP](https://docs.sentry.io/platforms/php/) (or the [Laravel](https://docs.sentry.io/platforms/php/guides/laravel/) or [Symfony](https://docs.sentry.io/platforms/php/guides/symfony/) integrations) and errors will be tracked automatically.
-
-For more advanced use cases, such as tracking Lambda errors outside of PHP-FPM (timeouts, oversized responses…), monitoring event-driven handlers (SQS, EventBridge, S3…), or tracking cold starts and AWS SDK calls, the [Bref Sentry package](/sentry) extends Sentry's capabilities for AWS Lambda.
+[Sentry](https://sentry.io) is a popular error tracking service. Install the [Sentry integration for Bref](https://docs.sentry.io/platforms/php/guides/bref/) to track errors, including Lambda timeouts, and to trace HTTP requests, event-driven handlers (SQS, EventBridge, S3…), cold starts and AWS SDK calls.
 
 ## Bref Cloud
 
@@ -93,12 +91,6 @@ Bref Cloud paid plans include a free [Bref X-Ray](/xray) license. To activate it
 [AWS X-Ray](https://aws.amazon.com/xray/) provides distributed tracing for Lambda applications. The [Bref X-Ray package](/xray) integrates X-Ray with PHP, tracking cold starts, database queries, HTTP calls, AWS SDK calls, and more. It supports both Laravel and Symfony.
 
 The package can be used with or without Bref Cloud. Bref Cloud users get a free license (see above), while others can [purchase a standalone license](/xray).
-
-## Sentry Lambda package
-
-As mentioned above, the standard Sentry SDK works great for HTTP applications. The [Bref Sentry package](/sentry) goes further by adding Lambda-specific capabilities: tracking errors outside of PHP-FPM, monitoring event-driven handlers, and tracking cold starts.
-
-The package can be used with or without Bref Cloud. We are making changes to it: to get access, contact [matthieu@bref.sh](mailto:matthieu@bref.sh).
 
 ## Bref Dashboard
 

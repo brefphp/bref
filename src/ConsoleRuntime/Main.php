@@ -102,6 +102,9 @@ class Main
         // We only keep 5MB because at this point the difference won't be important
         // and we'll serialize the output to JSON which will add some overhead
         $output = substr($output, max(0, strlen($output) - 5 * 1024 * 1024));
+        // The output is returned as JSON, which cannot hold invalid UTF-8 (e.g. binary output,
+        // or a character cut in half above): replace it (with "?") to never fail the invocation because of it
+        $output = mb_scrub($output, 'UTF-8');
 
         if ($exitCode > 0) {
             // This needs to be thrown so that AWS Lambda knows the invocation failed

@@ -48,7 +48,7 @@ If you are curious, the package will automatically:
 - move the storage directory to `/tmp` (because the default storage directory is read-only on Lambda)
 - adjust a few more settings ([have a look at the `BrefServiceProvider` for details](https://github.com/brefphp/laravel-bridge/blob/master/src/BrefServiceProvider.php))
 
-The generated `serverless.yml` uses the `cookie` session driver (`SESSION_DRIVER: cookie`). Cookie sessions are limited to 4 KB of data: if your application stores more in the session, use the database, DynamoDB or Redis session driver instead.
+The generated `serverless.yml` uses the `cookie` session driver (`SESSION_DRIVER: cookie`). Cookie sessions are limited to 4 KB, encryption included: if your application stores more in the session, use another session driver, see [Sessions](./sessions.mdx).
 
 ## Deployment
 
@@ -109,7 +109,7 @@ provider:
 >
 > `bref/laravel-bridge` installs `aws/aws-sdk-php`. This package is **very large** (100MB+) and can push your deployment over Lambda's 250MB size limit. Make sure to [remove unused AWS services](/docs/deploy.md#reducing-package-size) to reduce the deployment size. Keep `Sqs` if you use queues and `DynamoDb` if you use DynamoDB for the cache or sessions.
 
-Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying.
+Specifically for Laravel, Bref will automatically cache the configuration on "cold starts". This means that you don't need to run `php artisan config:cache` before deploying. To disable it, set `BREF_LARAVEL_CACHE_CONFIG: false` in `provider.environment`.
 
 > [!NOTE]
 >
@@ -123,6 +123,48 @@ Specifically for Laravel, Bref will automatically cache the configuration on "co
 >
 > For most applications we do not recommend this approach. Instead, let Bref cache the config in AWS Lambda on cold starts.
 
+## Database
+
+The generated `serverless.yml` deploys without a database: sessions are stored in cookies, and the cache is in memory. If your application uses a database, create one and configure the connection in `serverless.yml`:
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        In the Bref Cloud dashboard, open the "Databases" page and [click "Create database"](https://bref.cloud/databases/create). Once the database is created, copy the environment variables it shows to `provider.environment` in `serverless.yml`.
+    </Tabs.Tab>
+    <Tabs.Tab>
+        Create a database in RDS ([read how](../environment/database.mdx#internet-accessible-databases)), store its password as a [secret](../environment/variables.mdx#secrets), and set the connection in `serverless.yml`:
+
+        ```yml filename="serverless.yml"
+        provider:
+            environment:
+                DB_CONNECTION: mysql # or pgsql
+                DB_HOST: <endpoint>
+                DB_DATABASE: laravel
+                DB_USERNAME: root
+                DB_PASSWORD: ${ssm:/my-app/${sls:stage}/db-password}
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+Set `DB_CONNECTION`: since Laravel 11, the default connection is SQLite, which does not work on Lambda (the `database/*.sqlite` files are not deployed, and the filesystem is read-only).
+
+After deploying, run the migrations:
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        ```bash
+        bref command "migrate --force"
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        serverless bref:cli --args="migrate --force"
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+With a database, you can also store [sessions](./sessions.mdx#database-sessions) and the [cache](./caching.mdx#database-cache) in it: set `SESSION_DRIVER: database` and `CACHE_STORE: database`. Read [Using a database](../environment/database.mdx) for VPC databases, connection limits and connecting from your machine.
+
 ## Troubleshooting
 
 In case your application is showing a blank page after being deployed, [have a look at the logs](../environment/logs.mdx).
@@ -133,9 +175,20 @@ Thanks to the Bref integration, Laravel will automatically log to CloudWatch via
 
 You can learn more about logs in the [Logs guide](../environment/logs.mdx).
 
+To improve error tracking and tracing with Sentry, install the [Sentry integration for Bref](https://docs.sentry.io/platforms/php/guides/bref/).
+
 ## Website assets
 
 Have a look at the [Website guide](../use-cases/websites.mdx) to learn how to deploy a website with assets.
+
+If Laravel must serve a few files of `public/` itself, for example `favicon.ico` or `robots.txt`, list them in the `assets` option of `config/bref.php` (publish it with `php artisan vendor:publish --tag=bref-config`). PHP reads these files on every request.
+
+```php filename="config/bref.php"
+'assets' => [
+    'favicon.ico',
+    'robots.txt',
+],
+```
 
 ## Laravel Artisan
 

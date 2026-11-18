@@ -1,0 +1,121 @@
+---
+description: "Choose a session driver for Laravel on AWS Lambda: cookie, database, DynamoDB or Redis."
+---
+
+import { Tabs } from '../../../src/components/Tabs';
+
+# Sessions
+
+Requests to a Laravel application on Lambda are spread over many Lambda instances, and each instance has its own `/tmp` directory. Sessions stored in files (the `file` session driver) are lost as soon as a request lands on another instance: users are logged out at random, and forms fail with "419 Page Expired" errors. On Lambda, Bref replaces the `file` session driver with `cookie`.
+
+Choose a session driver that all instances share, and set it with the `SESSION_DRIVER` environment variable in `serverless.yml`:
+
+| Driver | When to use it |
+|--------|----------------|
+| `cookie` | The session holds little data, and the application has no database. The `serverless.yml` generated for Laravel uses it. |
+| `database` | The application has a database. |
+| `dynamodb` | The application has no database, or its sessions are too large for a cookie. |
+| `redis` | The application already uses Redis (ElastiCache). |
+
+Since Laravel 11, Laravel's default session driver is `database`: without `SESSION_DRIVER`, the application needs a database with a `sessions` table.
+
+Routes of `routes/api.php` do not start a session: an API without web routes does not need a session driver.
+
+## Cookie sessions
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        SESSION_DRIVER: cookie
+```
+
+The `cookie` driver stores the whole session in a cookie, encrypted with `APP_KEY`. Browsers ignore cookies larger than 4 KB, and the encryption roughly doubles the size of the data: around 2 KB of session data is enough to reach that limit. The browser then silently ignores the session cookie, and the session is lost on the next request, without any error. Remember that Laravel also stores data in the session for you: when a form fails validation, the submitted values (`old()` input) and the validation errors are flashed to the session, so a long form can exceed the limit.
+
+Even larger sessions make the HTTP response headers exceed the limit of API Gateway and Lambda function URLs: the request fails with a 502 error. The only trace in the logs is a Bref warning: "The total size of HTTP response headers is estimated to be above 10 KB".
+
+If the session can store more than small values (IDs, flags, short messages), use another driver.
+
+## Database sessions
+
+If the application uses a [database](../environment/database.mdx), it is the simplest option:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        SESSION_DRIVER: database
+```
+
+Sessions are stored in the `sessions` table. New Laravel 11 (and later) applications create it in the `0001_01_01_000000_create_users_table` migration. Otherwise, generate its migration with `php artisan make:session-table` (`php artisan session:table` on Laravel 10).
+
+Run the migrations on Lambda after deploying:
+
+<Tabs items={['Bref Cloud', 'Serverless CLI']}>
+    <Tabs.Tab>
+        ```bash
+        bref command "migrate --force"
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```bash
+        serverless bref:cli --args="migrate --force"
+        ```
+    </Tabs.Tab>
+</Tabs>
+
+## DynamoDB sessions
+
+[DynamoDB](https://aws.amazon.com/dynamodb/) needs no VPC and no server, and is billed per request. Laravel's `dynamodb` session driver stores sessions through the `dynamodb` cache store of `config/cache.php`, in the table named by the `DYNAMODB_CACHE_TABLE` environment variable.
+
+Create the table in `serverless.yml`, allow the Lambda functions to use it, and pass its name to Laravel:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        SESSION_DRIVER: dynamodb
+        DYNAMODB_CACHE_TABLE: !Ref SessionsTable
+    iam:
+        role:
+            statements:
+                -   Effect: Allow
+                    Resource: !GetAtt SessionsTable.Arn
+                    Action:
+                        - dynamodb:GetItem
+                        - dynamodb:PutItem
+                        - dynamodb:DeleteItem
+
+resources:
+    Resources:
+        SessionsTable:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                BillingMode: PAY_PER_REQUEST
+                AttributeDefinitions:
+                    -   AttributeName: key
+                        AttributeType: S
+                KeySchema:
+                    -   AttributeName: key
+                        KeyType: HASH
+                # DynamoDB deletes expired sessions
+                TimeToLiveSpecification:
+                    AttributeName: expires_at
+                    Enabled: true
+```
+
+A session can hold up to about 400 KB, the size limit of a DynamoDB item.
+
+`key` and `expires_at` are the default attribute names of Laravel's DynamoDB cache store. If your application also uses DynamoDB as its [cache store](./caching.mdx#dynamodb-cache), sessions and cache share the same table: the table must use the attribute names set in the `attributes` option of the `dynamodb` store in `config/cache.php` (`id` and `ttl` in the caching example), and the IAM statement must include the actions of the cache.
+
+If your `composer.json` [removes unused AWS services](/docs/deploy#reducing-package-size) from the AWS SDK, keep `DynamoDb` in the list. Otherwise, requests fail with `Class "Aws\DynamoDb\DynamoDbClient" not found`.
+
+## Redis sessions
+
+Use the `redis` driver if the application already uses Redis, for example for its cache:
+
+```yml filename="serverless.yml"
+provider:
+    environment:
+        SESSION_DRIVER: redis
+        REDIS_HOST: <endpoint>
+```
+
+Laravel uses the PHP Redis extension by default: [enable it](../environment/php.mdx#extensions-installed-but-disabled-by-default) with `extension=redis` in `php/conf.d/php.ini`. ElastiCache is only reachable from inside a VPC: the Lambda functions must [run in that VPC](../environment/database.mdx#vpc-databases-private-network). ElastiCache also costs money every hour, even when the application is not used.

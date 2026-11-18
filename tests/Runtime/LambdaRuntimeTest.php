@@ -555,6 +555,22 @@ ERROR;
         $this->assertErrorInLogs('Exception', $message);
     }
 
+    public function test exceptions with invalid UTF8 in their message are reported as invocation errors()
+    {
+        $this->givenAnEvent(['hello' => 'world!']);
+
+        $output = $this->runtime->processNextEvent(function () {
+            throw new RuntimeException("Invalid UTF-8: \xB1\x31", 0, new Exception("Previous: \xB1\x31"));
+        });
+
+        $this->assertFalse($output);
+        $this->assertInvocationErrorResult('RuntimeException', "Invalid UTF-8: \u{FFFD}1");
+        $this->assertErrorInLogs('RuntimeException', "Invalid UTF-8: \u{FFFD}1");
+        $this->assertPreviousErrorsInLogs([
+            ['errorClass' => 'Exception', 'errorMessage' => "Previous: \u{FFFD}1"],
+        ]);
+    }
+
     public function test generic event handler()
     {
         $handler = new class() implements Handler {

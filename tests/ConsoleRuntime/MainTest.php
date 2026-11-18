@@ -147,6 +147,42 @@ class MainTest extends RuntimeTestCase
         $this->assertSame(7 * 1024 * 1024, strlen($this->streamedResponse()->getBody()->__toString()));
     }
 
+    public function test invalid UTF8 in the output is replaced()
+    {
+        $this->givenAnEvent('invalid-utf8');
+
+        try {
+            Main::run();
+        } catch (\Throwable) {
+            // Needed because `run()` is an infinite loop and will fail eventually
+        }
+
+        $this->assertInvocationResult([
+            'exitCode' => 0,
+            'output' => "Invalid UTF-8: ?1\n",
+        ]);
+    }
+
+    public function test trimming the output never fails on a character cut in half()
+    {
+        $this->givenAnEvent('flood-multibyte');
+
+        try {
+            Main::run();
+        } catch (\Throwable) {
+            // Needed because `run()` is an infinite loop and will fail eventually
+        }
+
+        $requests = Server::received();
+        $this->assertCount(2, $requests);
+
+        [, $eventResponse] = $requests;
+        $this->assertStringEndsWith('/response', $eventResponse->getUri()->getPath());
+        $result = json_decode($eventResponse->getBody()->__toString(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertEquals(0, $result['exitCode']);
+        $this->assertStringEndsWith('€€€', $result['output']);
+    }
+
     private function streamedResponse(): RequestInterface
     {
         $requests = Server::received();
