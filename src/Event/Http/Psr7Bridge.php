@@ -7,6 +7,7 @@ use LogicException;
 use Nyholm\Psr7\ServerRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\UploadedFile;
+use Nyholm\Psr7\Uri;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Riverline\MultiPartParser\Part;
@@ -63,9 +64,15 @@ final class Psr7Bridge
         $bodyStream = Stream::create($event->getBody());
         $bodyStream->rewind();
 
+        /**
+         * The URI is built from its parts because Nyholm/psr7 parses URI strings
+         * with `parse_url()`, which rejects valid paths like `/foo:123`.
+         */
+        $uri = (new Uri)->withPath($event->getPath())->withQuery($event->getQueryString());
+
         $request = new ServerRequest(
             $event->getMethod(),
-            $event->getUri(),
+            $uri,
             $event->getHeaders(),
             $bodyStream,
             $event->getProtocolVersion(),
