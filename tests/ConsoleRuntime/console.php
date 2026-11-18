@@ -6,6 +6,17 @@ if (isset($argv[1]) && $argv[1] === 'flood') {
     exit(0);
 }
 
+if (isset($argv[1]) && $argv[1] === 'flood-multibyte') {
+    // Over the 6MB limit, with 3-byte characters: trimming the output cuts one in half
+    echo str_repeat('€', intdiv(7 * 1024 * 1024, 3));
+    exit(0);
+}
+
+if (isset($argv[1]) && $argv[1] === 'invalid-utf8') {
+    echo "Invalid UTF-8: \xB1\x31\n";
+    exit(0);
+}
+
 echo "Hello world!\n";
 
 if (isset($argv[1]) && $argv[1] === 'fail') {
