@@ -12,7 +12,7 @@ import coldStarts from './08/cold-starts.png';
 
 <ArticleHeader
     subTitle="Bref v4 will switch from layers to customer-managed runtimes"
-    date="November 18, 2026"
+    date="November 20, 2026"
     author="Matthieu Napoli"
     authorGitHub="mnapoli" />
 
@@ -41,6 +41,8 @@ Let's dive into the details of Bref v4.
 In October, PHP released a critical security update: [php2shell, two remote code execution vulnerabilities](./06-php-security-release-october-2026.mdx) affecting PHP-FPM. We managed to publish the new Bref layers 31 minutes after the PHP release.
 
 But that was only half of the work. Every application then had to update Bref and redeploy to get the patched PHP version. Some applications were updated within the hour, some within the week, and some are probably still running a vulnerable PHP version today.
+
+And it happened again this week: PHP released [another critical security update](https://www.php.net/archive/2026.php#2026-11-18-1) on November 19. New Bref layers were out N minutes later {/* TODO: actual delay */}, and once again every application has to redeploy to get them.
 
 That's how layers work, like on most hosting platforms: an application points to a specific layer version (e.g. `php-84:24`). You have to update it and redeploy to run the latest version.
 
@@ -93,7 +95,7 @@ The same Bref v4 image will run on AWS Lambda and locally with Docker. I am also
 
 ### PHP 8.6
 
-Bref v4 will support PHP 8.6, which will be released very soon in November.
+Bref v4 will support PHP 8.6, which was released on November 19.
 
 ### Under research
 
