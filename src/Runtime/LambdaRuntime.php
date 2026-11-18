@@ -35,6 +35,12 @@ use Throwable;
  */
 final class LambdaRuntime
 {
+    /**
+     * Error messages can contain invalid UTF-8 (e.g. a database error quoting the data): reporting
+     * the error must never fail because of it, else the original error would be lost.
+     */
+    private const ERROR_JSON_FLAGS = JSON_INVALID_UTF8_SUBSTITUTE;
+
     private ?CurlHandle $curlHandleNext = null;
     private ?CurlHandle $curlHandleResult = null;
     private string $apiUrl;
@@ -227,7 +233,7 @@ final class LambdaRuntime
                 'errorType' => get_class($error),
                 'errorMessage' => $error->getMessage(),
                 'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
-            ]);
+            ], jsonFlags: self::ERROR_JSON_FLAGS);
         }
     }
 
@@ -260,7 +266,7 @@ final class LambdaRuntime
                     'message' => $error->getMessage(),
                     'type' => get_class($error),
                     'stackTrace' => $traceAsArray,
-                ], JSON_THROW_ON_ERROR),
+                ], JSON_THROW_ON_ERROR | self::ERROR_JSON_FLAGS),
             );
         } else {
             $data = [
@@ -276,7 +282,7 @@ final class LambdaRuntime
         $url = "http://$this->apiUrl/2018-06-01/runtime/init/error";
         $this->postJson($url, $data, [
             "Lambda-Runtime-Function-Error-Type: $lambdaInitializationReason",
-        ]);
+        ], self::ERROR_JSON_FLAGS);
 
         exit(1);
     }
@@ -286,10 +292,10 @@ final class LambdaRuntime
      * @throws Exception
      * @throws ResponseTooBig
      */
-    private function postJson(string $url, mixed $data, array $headers = []): void
+    private function postJson(string $url, mixed $data, array $headers = [], int $jsonFlags = 0): void
     {
         /** @noinspection JsonEncodingApiUsageInspection */
-        $jsonData = json_encode($data);
+        $jsonData = json_encode($data, $jsonFlags);
         if ($jsonData === false) {
             throw new Exception(sprintf(
                 "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-requests-and-responses\nHere is the original JSON error: '%s'",
@@ -471,6 +477,6 @@ final class LambdaRuntime
         }
 
         /** @noinspection JsonEncodingApiUsageInspection */
-        echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
+        echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted, self::ERROR_JSON_FLAGS) . PHP_EOL;
     }
 }
