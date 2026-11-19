@@ -102,9 +102,9 @@ There are still a few serverless-specific constraints to be aware of:
 
     For websocket servers, this means we cannot run servers like Ratchet or Laravel Reverb on Lambda. It is possible to run this on the side in an AWS EC2 server, or in a container in ECS, but this is extra setup. An alternative is to use the native API Gateway WebSocket feature, see the [WebSockets guide](/docs/use-cases/websockets.mdx). In Laravel, [Laravel Echo and broadcasting work on API Gateway](/docs/laravel/websockets.mdx).
 
-- AWS Lambda has a maximum execution time limit of 15 minutes *per invocation*.
+- AWS Lambda has a maximum execution time limit of 30 minutes *per invocation*.
 
-    Note that this limit applies "per invocation", i.e. per HTTP request, per SQS job, per CLI command, per cron task, etc. That does mean you cannot have one job or a PHP script running for more than 15 minutes. If you do, you can either try to split these tasks into smaller jobs, or run longer tasks in EC2 or ECS separately.
+    Note that this limit applies "per invocation", i.e. per HTTP request, per SQS job, per CLI command, per cron task, etc. That does mean you cannot have one job or a PHP script running for more than 30 minutes. If you do, you can either try to split these tasks into smaller jobs, or run longer tasks in EC2 or ECS separately.
 
 ## Maturity matrix
 
@@ -238,7 +238,7 @@ This matrix will be updated as Bref and AWS services evolve over time.
 
     Using Bref, it is possible to implement cron jobs and queue workers using PHP. Bref also provides integration with popular queue libraries, like Laravel Queues and Symfony Messenger.
 
-    One limitation to keep in mind is that each AWS Lambda invocation has a maximum execution time of 15 minutes.
+    One limitation to keep in mind is that each AWS Lambda invocation has a maximum execution time of 30 minutes.
 
 - **API**
 
