@@ -18,16 +18,17 @@ import coldStarts from './08/cold-starts.png';
 
 AWS just released [customer-managed runtimes](https://aws.amazon.com/blogs/compute/control-your-aws-lambda-runtimes-with-customer-managed-runtimes/) for AWS Lambda.
 
-Until now, AWS Lambda had two kinds of runtimes: the ones AWS maintains (Node.js, Python, Java…), and "custom runtimes" via AWS Lambda layers, where you bring everything yourself on top of a bare operating system. That's how Bref runs PHP today, with AWS Lambda layers.
+Until now, AWS Lambda had two kinds of runtimes: the ones AWS maintains (Node.js, Python, Java…), and "custom runtimes" via AWS Lambda layers (zip files containing PHP), where you bring everything yourself on top of a bare operating system. [Bref](/docs) is the open-source way to run Laravel, Symfony or any PHP application on AWS Lambda. Today, it does so with AWS Lambda layers.
 
 Customer-managed runtimes are a third option: anyone can publish a runtime, and AWS Lambda runs it like an official one. **For PHP applications, this means a runtime maintained by Bref, delivered like the official ones.**
 
 **Bref v4 will switch to customer-managed runtimes.** Here is what it means for PHP applications:
 
 - faster cold starts
-- PHP security patches applied to every application, **live**, without redeploying
+- PHP security patches applied **automatically** to every application, without redeploying
 - more PHP extensions supported officially and provided out of the box
 - runtimes built on Ubuntu (instead of Amazon Linux), a standard environment for PHP applications
+- the same image on AWS Lambda and locally with Docker
 - simpler and faster Bref releases
 
 Bref v4 is planned for the end of the year.
@@ -44,11 +45,13 @@ But that was only half of the work. Every application then had to update Bref an
 
 And it happened again this week: PHP released [another critical security update](https://www.php.net/archive/2026.php#2026-11-19-4) on November 19, and once again every application has to redeploy to get the new Bref layers.
 
-That's how layers work, like on most hosting platforms: an application points to a specific layer version (e.g. `php-84:24`). You have to update it and redeploy to run the latest version.
+That's how layers work, like Docker images or buildpacks: an application points to a specific layer version (e.g. `php-84:24`), and only gets a new PHP version when someone updates it and redeploys.
 
 With customer-managed runtimes, an application points to a runtime, for example PHP 8.5, and Bref publishes new versions of that runtime. When PHP releases a security fix, Bref publishes a new runtime version (e.g. PHP 8.5.12 → 8.5.13) and **it starts rolling out immediately**: every function picks it up at its next cold start. No `composer update`, no redeploy.
 
 That's how the AWS runtimes for Node.js or Python have always worked: AWS patches them, and your functions get the patch. PHP applications on AWS Lambda will now get the same treatment.
+
+Automatic updates raise fair questions. Some teams will want to pin a runtime version, roll back, test a new version in staging before production, or run the Bref runtime from their own AWS account. Customer-managed runtimes make these possible, and I am exploring what Bref could offer here. If this matters to you (or if it doesn't), tell me on [Slack](https://bref.sh/slack).
 
 ## The Bref v4 roadmap
 
@@ -56,7 +59,7 @@ That's how the AWS runtimes for Node.js or Python have always worked: AWS patche
 
 Bref v4 runtimes will be published as customer-managed runtimes, one per PHP version, in all the regions Bref supports today.
 
-This will replace AWS Lambda layers entirely in Bref v4, as customer-managed runtimes are better on all fronts. Container images will still be available for applications deployed as images.
+Customer-managed runtimes are better than layers on all fronts, so they will entirely replace Bref's layers in v4. Container images will still be available for applications deployed as images (PHP is part of the application image there, so PHP updates still require a rebuild).
 
 Dropping layers will simplify how Bref builds and publishes runtimes a lot. Today, every Bref release publishes hundreds of layer versions (every PHP version × x86 and ARM × every region). On top of that, the `bref/bref` package contains the list of layer versions for every region, so a new layer version or a new region requires a new Bref release.
 
@@ -85,13 +88,13 @@ PHP will still be compiled by Bref, with many optimizations for AWS Lambda. Comp
 
 Customer-managed runtimes are container images. The image size has very little effect on cold starts: AWS Lambda only loads the files that are actually read.
 
-Bref v4 will be able to ship many more extensions, installed but disabled by default. Enable them with one line in `php.ini`, no extra layer to add.
+Bref v4 will ship many more extensions built in, installed but disabled by default. Enable them with one line in `php.ini`: most applications won't need extension layers anymore.
 
-Extensions requested by Bref sponsors and by [Bref Pro and Enterprise](/support) customers will be prioritized. The rest can still be added to your applications via AWS Lambda layers, just like today.
+Extensions requested by Bref sponsors and by [Bref Pro and Enterprise](/support) customers will be prioritized. Other extensions can still be added with custom AWS Lambda layers.
 
 ### One image everywhere
 
-The same Bref v4 image will run on AWS Lambda and locally with Docker. I am also exploring running that same image on container platforms like ECS. Let me know if this is something you would be interested in using.
+The same Bref v4 image will run on AWS Lambda and locally with Docker. It also opens the door to running Bref applications as regular containers, on ECS or any container platform. Let me know if this is something you would be interested in.
 
 ### PHP 8.6
 
@@ -147,5 +150,7 @@ How these numbers were measured:
 ## What's next
 
 Bref v3 keeps working as usual: nothing changes for existing applications. When Bref v4 is released, the upgrade guide will explain how to switch.
+
+New to Bref? [Get started here](/docs/setup): start with Bref v3 today, the upgrade to v4 will be documented.
 
 Thank you to the companies that [sponsor and support Bref](/support): this research took months, and it is possible thanks to them.
