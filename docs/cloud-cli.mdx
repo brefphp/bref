@@ -139,7 +139,7 @@ Runs a console command (Artisan, Symfony Console…) in the deployed application
 bref command --env=prod "migrate --force"
 ```
 
-The `bref` CLI waits about 2 minutes for the command to finish. It exits with an error code when the command fails, which stops a CI pipeline. See [CLI invocation](./runtimes/console.mdx#cli-invocation).
+The `bref` CLI waits for the command to finish. It exits with an error code when the command fails, which stops a CI pipeline. See [CLI invocation](./runtimes/console.mdx#cli-invocation).
 
 Options: `--env`, `--config`, `--team`.
 
