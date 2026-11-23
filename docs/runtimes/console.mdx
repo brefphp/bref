@@ -108,7 +108,7 @@ To manually run a console command on AWS Lambda, run the following command on yo
 
         The `bref command` command can be used to run CLI commands in Lambda from your machine, but can also be used in CI/CD to run DB migrations for example.
 
-        `bref command` waits for the command for about 2 minutes. After that, it stops waiting and displays "Timed out", but the command might still be running in Lambda.
+        `bref command` displays the output of the command while it runs, and waits for it to finish.
     </Tabs.Tab>
     <Tabs.Tab>
         ```bash
