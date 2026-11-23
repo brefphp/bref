@@ -26,6 +26,24 @@ Then run:
 composer update --with-all-dependencies
 ```
 
+## PHP extensions directory
+
+Bref's PHP extensions are now installed in `/usr/local/lib/php/extensions` instead of `/opt/bref/extensions`.
+
+If you enable a Bref extension with its full path, use its name instead:
+
+```diff filename="php/conf.d/php.ini"
+-extension=/opt/bref/extensions/gd.so
++extension=gd
+```
+
+Extensions that you add yourself in `/opt/bref/extensions` (via an AWS Lambda layer or in your container image) are no longer found by their name: load them with their full path.
+
+```diff filename="ext.ini"
+-extension=xhprof.so
++extension=/opt/bref/extensions/xhprof.so
+```
+
 ## Failed console commands are no longer retried
 
 When a command invoked asynchronously failed (e.g. a cron), Lambda retried it twice by default. Bref now sets `maximumRetryAttempts: 0` on console functions: Lambda no longer retries failed commands. Failed commands are still counted in the `Errors` metric of the function.

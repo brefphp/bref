@@ -205,11 +205,11 @@ A layer is unzipped in `/opt` on Lambda. A layer for a PHP extension contains:
 Compile the extension in the `bref/build-php-*` Docker images: they use the same environment as AWS Lambda and Bref. Here is an example with the `xhprof` extension from PECL:
 
 ```dockerfile filename="Dockerfile"
-FROM bref/build-php-84:3 AS ext
+FROM bref/build-php-84:4 AS ext
 
 RUN pecl install xhprof
 RUN cp `php-config --extension-dir`/xhprof.so /tmp/xhprof.so
-RUN echo 'extension=xhprof.so' > /tmp/ext.ini
+RUN echo 'extension=/opt/bref/extensions/xhprof.so' > /tmp/ext.ini
 
 # Keep only the files of the layer
 FROM scratch
