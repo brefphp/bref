@@ -67,7 +67,7 @@ In October 2021, they successfully migrated their first API route to AWS Lambda,
 
 The migration of other API endpoints started in March 2022. Over the following year, the team migrated all API endpoints, cron tasks, and batch scripts to AWS Lambda. The servers were finally shut down in March 2023.
 
-The entire migration took 1 year of planning and design, and 1 year of implementation. The main challenge was dealing with cron tasks running for more than 15 minutes (the maximum execution time on AWS Lambda). They needed to be split into smaller tasks. The Bref runtime also needed some customizations, for example to run custom PHP versions.
+The entire migration took 1 year of planning and design, and 1 year of implementation. The main challenge was dealing with cron tasks running for more than 15 minutes (the maximum execution time on AWS Lambda at the time). They needed to be split into smaller tasks. The Bref runtime also needed some customizations, for example to run custom PHP versions.
 
 **The migration was a complete success**, and this is reflected in the key metrics tracked for the migration. With the new serverless stack:
 
