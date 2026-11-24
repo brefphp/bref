@@ -94,8 +94,10 @@ final class FpmHandler extends HttpHandler
             '-d',
             'opcache.file_cache_only=0',
         ];
-        if (self::fileCacheIsUselessForFpm()) {
-            // PHP-FPM keeps compiled scripts in shared memory: writing them to the file cache too only slows it down
+        // PHP-FPM ignores the file cache written by the CLI (their opcache system ID differs since PHP 8.4.28
+        // and 8.5.13) and keeps compiled scripts in shared memory: writing them to the file cache only slows it
+        // down. Only Bref's default file cache is disabled: a custom one can be a cache shipped with the code.
+        if (ini_get('opcache.file_cache') === '/tmp') {
             $command[] = '-d';
             $command[] = 'opcache.file_cache=';
         }
@@ -470,20 +472,6 @@ final class FpmHandler extends HttpHandler
 
         proc_close($this->fpm);
         $this->fpm = null;
-    }
-
-    /**
-     * PHP-FPM used to reuse the opcache file cache written by the `php` CLI during the cold start
-     * (e.g. `artisan config:cache`). Since PHP 8.4.28 and 8.5.13, the opcache system ID includes
-     * the registered functions and modules, which differ between the CLI and PHP-FPM: PHP-FPM
-     * ignores the CLI's file cache and only ever reads its own, after a restart.
-     */
-    private static function fileCacheIsUselessForFpm(): bool
-    {
-        $phpVersionUsesSapiInSystemId = PHP_VERSION_ID >= 80513 || (PHP_VERSION_ID >= 80428 && PHP_VERSION_ID < 80500);
-
-        // Only with Bref's default file cache: leave other configurations alone
-        return $phpVersionUsesSapiInSystemId && ini_get('opcache.file_cache') === '/tmp';
     }
 
     private function isFpmRunning(): bool
