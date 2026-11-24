@@ -88,6 +88,12 @@ These changes only affect code that uses Bref's PHP classes directly:
 - `Bref\Event\Http\HttpHandler::handle()` now returns a `Bref\Runtime\LambdaResult` instead of an array. Handlers that implement `handleRequest()` are not affected. Code that calls `handle()` directly (e.g. in tests) can read the response with `json_decode($result->contents(), true)`.
 - `afterInvoke()` in `Bref\Listener\BrefEventSubscriber` receives that `LambdaResult` as `$result` for HTTP events, already sent to Lambda.
 
+## No CPU time limit in PHP-FPM
+
+PHP-FPM used PHP's default `max_execution_time` of 30 seconds of CPU time, whatever the timeout of the function: a CPU-heavy request (e.g. generating a PDF) could fail with `Maximum execution time of 30 seconds exceeded` in a function with a longer timeout. Bref layers now set `max_execution_time=0`, like the CLI: requests run until the function's timeout.
+
+To keep a limit, set `max_execution_time` in [a `php/conf.d/*.ini` file](/docs/environment/php#customizing-phpini).
+
 ## Network timeouts end before the Lambda timeout
 
 A network call that is still waiting when the invocation is about to time out (e.g. an HTTP API or a MySQL query that never answers) now fails with a timeout error 2 seconds before the Lambda timeout, instead of being stopped by Lambda without any error. Bref lowers `default_socket_timeout` and `mysqlnd.net_read_timeout` to the time left in the invocation, in every runtime. Bref never raises them: a lower value set in `php.ini` is kept.
