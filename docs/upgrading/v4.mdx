@@ -2,6 +2,8 @@
 description: Upgrading guide to go from Bref 3.x to Bref 4.0.
 ---
 
+import { Tabs } from '../../../src/components/Tabs';
+
 # Upgrading to Bref 4.0
 
 ## Updating dependencies
@@ -88,32 +90,31 @@ These changes only affect code that uses Bref's PHP classes directly:
 - `Bref\Event\Http\HttpHandler::handle()` now returns a `Bref\Runtime\LambdaResult` instead of an array. Handlers that implement `handleRequest()` are not affected. Code that calls `handle()` directly (e.g. in tests) can read the response with `json_decode($result->contents(), true)`.
 - `afterInvoke()` in `Bref\Listener\BrefEventSubscriber` receives that `LambdaResult` as `$result` for HTTP events, already sent to Lambda.
 
-## No CPU time limit in PHP-FPM
+## Network calls time out before the Lambda timeout
 
-PHP-FPM used PHP's default `max_execution_time` of 30 seconds of CPU time, whatever the timeout of the function: a CPU-heavy request (e.g. generating a PDF) could fail with `Maximum execution time of 30 seconds exceeded` in a function with a longer timeout. Bref layers now set `max_execution_time=0`, like the CLI: requests run until the function's timeout.
+A network call that never answers now fails with a timeout error 2 seconds before the Lambda timeout, instead of being stopped by Lambda without any error. Bref lowers `default_socket_timeout` and `mysqlnd.net_read_timeout` to the time left in the invocation.
 
-To keep a limit, set `max_execution_time` in [a `php/conf.d/*.ini` file](/docs/environment/php#customizing-phpini).
+This covers PHP streams (e.g. `file_get_contents()`), Redis, Symfony HttpClient and MySQL. It does not cover curl, Guzzle (including the Laravel HTTP client and the AWS SDK) and PostgreSQL queries: set timeouts in their options.
 
-## Network timeouts end before the Lambda timeout
+Connecting to a MySQL, MariaDB or PostgreSQL database now times out after 20 seconds, instead of about 2 minutes when the database can't be reached. To change it:
 
-A network call that is still waiting when the invocation is about to time out (e.g. an HTTP API or a MySQL query that never answers) now fails with a timeout error 2 seconds before the Lambda timeout, instead of being stopped by Lambda without any error. Bref lowers `default_socket_timeout` and `mysqlnd.net_read_timeout` to the time left in the invocation, in every runtime. Bref never raises them: a lower value set in `php.ini` is kept.
-
-These settings cover PHP streams (e.g. `file_get_contents()`), Redis (phpredis and Predis), Symfony HttpClient and MySQL. They do not cover curl and Guzzle (including the Laravel HTTP client and the AWS SDK) or PostgreSQL queries: set timeouts in their options.
-
-On Lambda, the Laravel and Symfony bridges also give up connecting to MySQL, MariaDB and PostgreSQL databases after 20 seconds, instead of waiting about 2 minutes when the database cannot be reached (e.g. a database outside the function's VPC). With PostgreSQL, the 20 seconds include the authentication. To change it, set `PDO::ATTR_TIMEOUT` in the connection's options:
-
-```php filename="config/database.php"
-'mysql' => [
-    // ...
-    'options' => [
-        PDO::ATTR_TIMEOUT => 5, // seconds
-    ],
-],
-```
-
-```yaml filename="config/packages/doctrine.yaml"
-doctrine:
-    dbal:
-        options:
-            !php/const PDO::ATTR_TIMEOUT: 5 # seconds
-```
+<Tabs items={['Laravel', 'Symfony']}>
+    <Tabs.Tab>
+        ```php filename="config/database.php"
+        'mysql' => [
+            // ...
+            'options' => [
+                PDO::ATTR_TIMEOUT => 5, // seconds
+            ],
+        ],
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yaml filename="config/packages/doctrine.yaml"
+        doctrine:
+            dbal:
+                options:
+                    !php/const PDO::ATTR_TIMEOUT: 5 # seconds
+        ```
+    </Tabs.Tab>
+</Tabs>
