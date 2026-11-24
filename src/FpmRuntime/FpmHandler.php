@@ -82,7 +82,7 @@ final class FpmHandler extends HttpHandler
          * --force-stderr: force logs to be sent to stderr, which will allow us to send them to CloudWatch
          * TODO set `max_execution_time` to the timeout of the Lambda function?
          */
-        $resource = @proc_open([
+        $command = [
             'php-fpm',
             '--nodaemonize',
             '--force-stderr',
@@ -93,7 +93,15 @@ final class FpmHandler extends HttpHandler
             // because it tanks performance by essentially disabling opcache
             '-d',
             'opcache.file_cache_only=0',
-        ], [], $pipes);
+        ];
+        // PHP-FPM ignores the file cache written by the CLI (their opcache system ID differs since PHP 8.4.28
+        // and 8.5.13) and keeps compiled scripts in shared memory: writing them to the file cache only slows it
+        // down. Only Bref's default file cache is disabled: a custom one can be a cache shipped with the code.
+        if (ini_get('opcache.file_cache') === '/tmp') {
+            $command[] = '-d';
+            $command[] = 'opcache.file_cache=';
+        }
+        $resource = @proc_open($command, [], $pipes);
 
         if (! is_resource($resource)) {
             throw new RuntimeException('PHP-FPM failed to start');
