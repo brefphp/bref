@@ -10,6 +10,7 @@ use Bref\Event\Http\HttpResponseWriter;
 use Bref\FpmRuntime\FastCgi\FastCgiCommunicationFailed;
 use Bref\FpmRuntime\FastCgi\FastCgiRequest;
 use Bref\FpmRuntime\FastCgi\Timeout;
+use Bref\Runtime\IoTimeouts;
 use Exception;
 use Fiber;
 use Generator;
@@ -346,6 +347,12 @@ final class FpmHandler extends HttpHandler
         $request->setCustomVar('LAMBDA_REQUEST_ID', $context->getAwsRequestId());
         $request->setCustomVar('_X_AMZN_TRACE_ID', $context->getTraceId());
         $request->setCustomVar('LAMBDA_REQUEST_CONTEXT', json_encode($event->getRequestContext(), JSON_THROW_ON_ERROR));
+        // Set on every request: PHP-FPM keeps the values of a request for the following ones
+        $phpValues = [];
+        foreach (IoTimeouts::forInvocation($context) as $name => $value) {
+            $phpValues[] = "$name=$value";
+        }
+        $request->setCustomVar('PHP_VALUE', implode("\n", $phpValues));
 
         if ($event->isHttps()) {
             $request->setCustomVar('HTTPS', 'on');

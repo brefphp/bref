@@ -6,6 +6,11 @@ if (isset($argv[1]) && $argv[1] === 'flood') {
     exit(0);
 }
 
+if (isset($argv[1]) && $argv[1] === 'io-timeouts') {
+    echo ini_get('default_socket_timeout'), ' ', ini_get('mysqlnd.net_read_timeout');
+    exit(0);
+}
+
 if (isset($argv[1]) && $argv[1] === 'silent-fail') {
     exit(1);
 }

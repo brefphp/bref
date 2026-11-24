@@ -6,6 +6,7 @@ use Bref\Bref;
 use Bref\Context\Context;
 use Bref\LazySecretsLoader;
 use Bref\Runtime\ColdStartTracker;
+use Bref\Runtime\IoTimeouts;
 use Bref\Runtime\LambdaResult;
 use Bref\Runtime\LambdaRuntime;
 use Symfony\Component\Process\Process;
@@ -50,7 +51,12 @@ class Main
                 }
 
                 $timeout = max(1, $context->getRemainingTimeInMillis() / 1000 - 1);
-                $command = sprintf('php %s %s 2>&1', $handlerFile, $cliOptions);
+                // Network timeouts end before the Lambda timeout, like in the other runtimes
+                $phpOptions = '';
+                foreach (IoTimeouts::forInvocation($context) as $name => $value) {
+                    $phpOptions .= ' -d ' . escapeshellarg("$name=$value");
+                }
+                $command = sprintf('php%s %s %s 2>&1', $phpOptions, $handlerFile, $cliOptions);
                 $process = Process::fromShellCommandline($command, null, null, null, $timeout);
 
                 return $stream ? self::streamOutput($process) : self::returnOutput($process);

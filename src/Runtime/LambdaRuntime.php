@@ -90,6 +90,16 @@ final class LambdaRuntime
     {
         [$event, $context] = $this->waitNextInvocation();
 
+        IoTimeouts::apply($context);
+        try {
+            return $this->handleInvocation($handler, $event, $context);
+        } finally {
+            IoTimeouts::restore();
+        }
+    }
+
+    private function handleInvocation(Handler | RequestHandlerInterface | callable $handler, mixed $event, Context $context): bool
+    {
         // Expose the context in an environment variable
         $this->setEnv('LAMBDA_INVOCATION_CONTEXT', json_encode($context, JSON_THROW_ON_ERROR));
         // These are used for logging/tracing purposes

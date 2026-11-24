@@ -82,6 +82,22 @@ class LambdaRuntimeTest extends RuntimeTestCase
         ]);
     }
 
+    public function test network timeouts end before the Lambda timeout()
+    {
+        $configured = ini_get('default_socket_timeout');
+        $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 10_500);
+
+        $this->runtime->processNextEvent(fn () => [
+            'default_socket_timeout' => ini_get('default_socket_timeout'),
+            'mysqlnd.net_read_timeout' => ini_get('mysqlnd.net_read_timeout'),
+        ]);
+
+        // 2 seconds before the timeout
+        $this->assertInvocationResult(['default_socket_timeout' => '8', 'mysqlnd.net_read_timeout' => '8']);
+        // Restored after the invocation
+        $this->assertSame($configured, ini_get('default_socket_timeout'));
+    }
+
     public function test exceptions in the handler result in an invocation error()
     {
         $this->givenAnEvent(['Hello' => 'world!']);
