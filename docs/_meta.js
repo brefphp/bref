@@ -34,7 +34,7 @@ export default {
   "upgrading": "Upgrading",
   "sentry": {
     "title": "Sentry integration",
-    "href": "/sentry"
+    "href": "https://docs.sentry.io/platforms/php/guides/bref/"
   },
   "xray": {
     "title": "X-Ray integration",
@@ -53,7 +53,16 @@ export default {
   "cloud-deploy": {
     "title": "Deployment"
   },
+  "cloud-aws-accounts": {
+    "title": "AWS accounts"
+  },
+  "cloud-existing-applications": {
+    "title": "Existing applications"
+  },
   "cloud-security": {
     "title": "Security"
+  },
+  "cloud-cli": {
+    "title": "CLI reference"
   }
 }

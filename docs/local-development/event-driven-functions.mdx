@@ -1,3 +1,5 @@
+import { Tabs } from '../../../src/components/Tabs';
+
 
 # Local development for functions
 
@@ -116,6 +118,180 @@ Then run functions:
 ```bash
 $ docker compose run app vendor/bin/bref-local my-function.php
 ```
+
+## Sample events
+
+Handlers like `SqsHandler`, `S3Handler` or `EventBridgeHandler` expect the event that AWS sends, for example an SQS event must contain `Records`. Save a sample event in a JSON file, adapt it (message body, bucket name, object key…), and pass it with `--path`:
+
+```bash
+$ vendor/bin/bref-local --path events/sqs.json my-function.php
+
+# With the serverless CLI
+$ serverless bref:local -f worker --path events/sqs.json
+```
+
+Here are short sample events for the most common event sources:
+
+<Tabs items={['SQS', 'S3', 'EventBridge', 'SNS', 'DynamoDB', 'API Gateway']}>
+<Tabs.Tab>
+    ```json filename="events/sqs.json"
+    {
+        "Records": [
+            {
+                "messageId": "059f36b4-87a3-44ab-83d2-661975830a7d",
+                "receiptHandle": "AQEBwJnKyrHigUMZj6rYigCgxlaS3SLy0a...",
+                "body": "{\"orderId\": 1234}",
+                "attributes": {
+                    "ApproximateReceiveCount": "1",
+                    "SentTimestamp": "1545082649183",
+                    "SenderId": "AIDAIENQZJOLO23YVJ4VO",
+                    "ApproximateFirstReceiveTimestamp": "1545082649185"
+                },
+                "messageAttributes": {},
+                "eventSource": "aws:sqs",
+                "eventSourceARN": "arn:aws:sqs:us-east-1:123456789012:my-queue",
+                "awsRegion": "us-east-1"
+            }
+        ]
+    }
+    ```
+</Tabs.Tab>
+<Tabs.Tab>
+    ```json filename="events/s3.json"
+    {
+        "Records": [
+            {
+                "eventVersion": "2.1",
+                "eventSource": "aws:s3",
+                "awsRegion": "us-east-1",
+                "eventTime": "2019-08-05T15:30:00.000Z",
+                "eventName": "ObjectCreated:Put",
+                "s3": {
+                    "bucket": {
+                        "name": "my-bucket",
+                        "arn": "arn:aws:s3:::my-bucket"
+                    },
+                    "object": {
+                        "key": "uploads/photo.jpg",
+                        "size": 1024,
+                        "eTag": "d41d8cd98f00b204e9800998ecf8427e"
+                    }
+                }
+            }
+        ]
+    }
+    ```
+</Tabs.Tab>
+<Tabs.Tab>
+    ```json filename="events/eventbridge.json"
+    {
+        "version": "0",
+        "id": "53dc4d37-cffa-4f76-80c9-8b7d4a4d2eaa",
+        "detail-type": "OrderCreated",
+        "source": "myapp.orders",
+        "account": "123456789012",
+        "time": "2015-10-08T16:53:06Z",
+        "region": "us-east-1",
+        "resources": [],
+        "detail": {
+            "orderId": 1234
+        }
+    }
+    ```
+</Tabs.Tab>
+<Tabs.Tab>
+    ```json filename="events/sns.json"
+    {
+        "Records": [
+            {
+                "EventVersion": "1.0",
+                "EventSubscriptionArn": "arn:aws:sns:us-east-1:123456789012:my-topic:21be56ed-a058-49f5-8c98-aedd2564c486",
+                "EventSource": "aws:sns",
+                "Sns": {
+                    "Type": "Notification",
+                    "MessageId": "95df01b4-ee98-5cb9-9903-4c221d41eb5e",
+                    "TopicArn": "arn:aws:sns:us-east-1:123456789012:my-topic",
+                    "Subject": "Order created",
+                    "Message": "{\"orderId\": 1234}",
+                    "Timestamp": "2019-01-02T12:45:07.000Z",
+                    "MessageAttributes": {}
+                }
+            }
+        ]
+    }
+    ```
+</Tabs.Tab>
+<Tabs.Tab>
+    ```json filename="events/dynamodb.json"
+    {
+        "Records": [
+            {
+                "eventID": "1",
+                "eventName": "INSERT",
+                "eventVersion": "1.1",
+                "eventSource": "aws:dynamodb",
+                "awsRegion": "us-east-1",
+                "dynamodb": {
+                    "Keys": {
+                        "Id": { "N": "101" }
+                    },
+                    "NewImage": {
+                        "Id": { "N": "101" },
+                        "Message": { "S": "New item!" }
+                    },
+                    "SequenceNumber": "111",
+                    "SizeBytes": 26,
+                    "StreamViewType": "NEW_AND_OLD_IMAGES"
+                },
+                "eventSourceARN": "arn:aws:dynamodb:us-east-1:123456789012:table/my-table/stream/2024-01-01T00:00:00.000"
+            }
+        ]
+    }
+    ```
+</Tabs.Tab>
+<Tabs.Tab>
+    An HTTP API (payload format 2.0) request, for `HttpHandler` and `Psr15Handler` handlers:
+
+    ```json filename="events/http.json"
+    {
+        "version": "2.0",
+        "routeKey": "$default",
+        "rawPath": "/hello",
+        "rawQueryString": "name=Jane",
+        "headers": {
+            "accept": "application/json",
+            "host": "abcdef1234.execute-api.us-east-1.amazonaws.com",
+            "x-forwarded-proto": "https"
+        },
+        "queryStringParameters": {
+            "name": "Jane"
+        },
+        "requestContext": {
+            "accountId": "123456789012",
+            "apiId": "abcdef1234",
+            "domainName": "abcdef1234.execute-api.us-east-1.amazonaws.com",
+            "http": {
+                "method": "GET",
+                "path": "/hello",
+                "protocol": "HTTP/1.1",
+                "sourceIp": "203.0.113.1",
+                "userAgent": "curl/8.7.1"
+            },
+            "requestId": "JTHoQgr2oAMEPMg=",
+            "stage": "$default",
+            "timeEpoch": 1574621708700
+        },
+        "isBase64Encoded": false
+    }
+    ```
+</Tabs.Tab>
+</Tabs>
+
+For other event sources, or the complete events:
+
+- the **Test** tab of a function in the Lambda console has event templates for most event sources,
+- the AWS SAM CLI generates events, for example `sam local generate-event s3 put --bucket my-bucket > events/s3.json` (run `sam local generate-event` to list them),
+- Bref's [test fixtures](https://github.com/brefphp/bref/tree/master/tests/Event) contain events for every event source supported by Bref, including Kinesis, Kafka and WebSocket events.
 
 ## API Gateway local development
 

@@ -6,6 +6,7 @@ use Bref\Bref;
 use Bref\Context\Context;
 use Bref\LazySecretsLoader;
 use Bref\Runtime\ColdStartTracker;
+use Bref\Runtime\LambdaResult;
 use Bref\Runtime\LambdaRuntime;
 use Symfony\Component\Process\Process;
 
@@ -36,10 +37,12 @@ class Main
 
         /** @phpstan-ignore-next-line */
         while (true) {
-            $lambdaRuntime->processNextEvent(function ($event, Context $context) use ($handlerFile): array {
+            $lambdaRuntime->processNextEvent(function ($event, Context $context) use ($handlerFile): array|LambdaResult {
+                // The event is the command: `"<arguments>"`, or `{"cli": "<arguments>", "stream": true}` to stream the output
+                $stream = false;
                 if (is_array($event)) {
-                    // Backward compatibility with the former CLI invocation format
                     $cliOptions = $event['cli'] ?? '';
+                    $stream = ($event['stream'] ?? false) === true;
                 } elseif (is_string($event)) {
                     $cliOptions = $event;
                 } else {
@@ -50,29 +53,68 @@ class Main
                 $command = sprintf('php %s %s 2>&1', $handlerFile, $cliOptions);
                 $process = Process::fromShellCommandline($command, null, null, null, $timeout);
 
-                $process->run(function ($type, $buffer): void {
-                    echo $buffer;
-                });
-
-                $exitCode = $process->getExitCode();
-
-                $output = $process->getOutput();
-                // Trim the output to stay under the 6MB limit for AWS Lambda
-                // We only keep 5MB because at this point the difference won't be important
-                // and we'll serialize the output to JSON which will add some overhead
-                $output = substr($output, max(0, strlen($output) - 5 * 1024 * 1024));
-
-                if ($exitCode > 0) {
-                    // This needs to be thrown so that AWS Lambda knows the invocation failed
-                    // (e.g. important for error rates in CloudWatch)
-                    throw new CommandFailed($output);
-                }
-
-                return [
-                    'exitCode' => $exitCode, // will always be 0
-                    'output' => $output,
-                ];
+                return $stream ? self::streamOutput($process) : self::returnOutput($process);
             });
         }
+    }
+
+    /**
+     * The output, sent as the command writes it, for clients using InvokeWithResponseStream (e.g. `serverless bref:cli`).
+     */
+    private static function streamOutput(Process $process): LambdaResult
+    {
+        $output = function (callable $write) use ($process): void {
+            $process->run(function ($type, string $buffer) use ($process, $write): void {
+                echo $buffer;
+                // The command keeps running if the output can no longer be sent: it is in the logs
+                $write($buffer);
+                // Sent and logged: no need to keep it in memory
+                $process->clearOutput();
+            });
+
+            if ($process->getExitCode() > 0) {
+                throw new CommandFailed("The command exited with code {$process->getExitCode()}");
+            }
+        };
+
+        // Started right away: every failure is in the trailers, which InvokeWithResponseStream reports and counts
+        return new LambdaResult('text/plain', $output, failuresInTrailer: true);
+    }
+
+    /**
+     * The output, returned at the end of the command.
+     *
+     * The default: the Invoke API and asynchronous invocations (e.g. crons) ignore the errors of streamed responses,
+     * a failure must go through the error endpoint to be reported and counted in the metrics.
+     *
+     * @return array{exitCode: int|null, output: string}
+     */
+    private static function returnOutput(Process $process): array
+    {
+        $process->run(function ($type, $buffer): void {
+            echo $buffer;
+        });
+
+        $exitCode = $process->getExitCode();
+
+        $output = $process->getOutput();
+        // Trim the output to stay under the 6MB limit for AWS Lambda
+        // We only keep 5MB because at this point the difference won't be important
+        // and we'll serialize the output to JSON which will add some overhead
+        $output = substr($output, max(0, strlen($output) - 5 * 1024 * 1024));
+        // The output is returned as JSON, which cannot hold invalid UTF-8 (e.g. binary output,
+        // or a character cut in half above): replace it (with "?") to never fail the invocation because of it
+        $output = mb_scrub($output, 'UTF-8');
+
+        if ($exitCode > 0) {
+            // This needs to be thrown so that AWS Lambda knows the invocation failed
+            // (e.g. important for error rates in CloudWatch)
+            throw new CommandFailed($output);
+        }
+
+        return [
+            'exitCode' => $exitCode, // will always be 0
+            'output' => $output,
+        ];
     }
 }

@@ -8,6 +8,7 @@ use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\HttpResponse;
 use Bref\Event\Http\HttpResponseWriter;
 use Bref\Runtime\LambdaResult;
+use Closure;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -21,6 +22,7 @@ class HttpHandlerTest extends TestCase
     public function tearDown(): void
     {
         putenv('BREF_RESPONSE_STREAMING');
+        putenv('BREF_ORIGIN_SECRET');
     }
 
     public function test Function URL responses are streamed()
@@ -42,9 +44,8 @@ class HttpHandlerTest extends TestCase
         $handler = $this->handler(fn () => new HttpResponse('Hello world!', ['content-type' => 'text/plain']));
 
         // The default mode of Function URLs (`BUFFERED`) would show an empty body with the streamed format
-        $result = $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
+        $result = $this->buffered($handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context()));
 
-        $this->assertIsArray($result);
         $this->assertSame('Hello world!', $result['body']);
     }
 
@@ -52,9 +53,8 @@ class HttpHandlerTest extends TestCase
     {
         $handler = $this->handler(fn () => new HttpResponse('Hello world!', ['content-type' => 'text/plain']));
 
-        $result = $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context());
+        $result = $this->buffered($handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context()));
 
-        $this->assertIsArray($result);
         $this->assertSame('Hello world!', $result['body']);
     }
 
@@ -97,7 +97,7 @@ class HttpHandlerTest extends TestCase
             ' world!',
         ], $this->chunks($streamed));
 
-        $buffered = $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context());
+        $buffered = $this->buffered($handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context()));
         $this->assertSame(201, $buffered['statusCode']);
         $this->assertSame('Hello world!', $buffered['body']);
     }
@@ -111,7 +111,7 @@ class HttpHandlerTest extends TestCase
         };
 
         $this->expectExceptionMessage('The HTTP handler did not write any response');
-        $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context());
+        $handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context())->contents();
     }
 
     public function test REST API responses are streamed()
@@ -130,6 +130,120 @@ class HttpHandlerTest extends TestCase
         $result = $handler->handle($event, $this->context());
 
         $this->assertInstanceOf(LambdaResult::class, $result);
+    }
+
+    public function test requests without the origin secret are refused()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        $handler = $this->handler(fn () => new HttpResponse('Hello world!'));
+
+        $missing = $this->buffered($handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context()));
+        $wrong = $this->buffered($handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com', ['x-bref-origin-secret' => 'wrong']), $this->context()));
+
+        foreach ([$missing, $wrong] as $result) {
+            $this->assertSame(403, $result['statusCode']);
+            $this->assertSame('Forbidden', $result['body']);
+        }
+    }
+
+    public function test streamed requests without the origin secret are refused()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        $handler = $this->handler(fn () => new HttpResponse('Hello world!'));
+
+        $result = $handler->handle($this->event('abc.lambda-url.eu-west-3.on.aws'), $this->context());
+
+        $this->assertSame([
+            '{"cookies":[],"statusCode":403,"headers":{"Content-Type":"text\\/plain"}}' . str_repeat("\0", 8),
+            'Forbidden',
+        ], $this->chunks($result));
+    }
+
+    public function test requests with the origin secret reach the application without it()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        $headers = null;
+        $handler = $this->handler(function (HttpRequestEvent $event) use (&$headers) {
+            $headers = $event->getHeaders();
+            return new HttpResponse('Hello world!');
+        });
+
+        $result = $this->buffered($handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com', ['x-bref-origin-secret' => 's3cr3t']), $this->context()));
+
+        $this->assertSame(200, $result['statusCode']);
+        $this->assertSame(['host' => ['abc.execute-api.eu-west-3.amazonaws.com']], $headers);
+    }
+
+    public function test the origin secret is removed from both header lists of REST APIs()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        putenv('BREF_RESPONSE_STREAMING');
+        $headers = null;
+        $handler = $this->handler(function (HttpRequestEvent $event) use (&$headers) {
+            $headers = $event->getHeaders();
+            return new HttpResponse('Hello world!');
+        });
+        // REST APIs keep the case of header names, and send them twice
+        $event = [
+            'resource' => '/',
+            'path' => '/',
+            'httpMethod' => 'GET',
+            'headers' => ['Host' => 'abc.execute-api.eu-west-3.amazonaws.com', 'X-Bref-Origin-Secret' => 's3cr3t'],
+            'multiValueHeaders' => ['Host' => ['abc.execute-api.eu-west-3.amazonaws.com'], 'X-Bref-Origin-Secret' => ['s3cr3t']],
+            'requestContext' => ['apiId' => 'abc', 'domainName' => 'abc.execute-api.eu-west-3.amazonaws.com', 'httpMethod' => 'GET'],
+            'body' => null,
+            'isBase64Encoded' => false,
+        ];
+
+        $result = $this->buffered($handler->handle($event, $this->context()));
+
+        $this->assertSame(200, $result['statusCode']);
+        $this->assertSame(['host' => ['abc.execute-api.eu-west-3.amazonaws.com']], $headers);
+    }
+
+    public function test the query string the CDN had to encode reaches the application as it was sent()
+    {
+        putenv('BREF_ORIGIN_SECRET=s3cr3t');
+        $received = null;
+        $handler = $this->handler(function (HttpRequestEvent $event) use (&$received) {
+            $received = [$event->getQueryString(), $event->getHeaders()];
+            return new HttpResponse('Hello world!');
+        });
+        $event = $this->event('abc.lambda-url.eu-west-3.on.aws', [
+            'x-bref-origin-secret' => 's3cr3t',
+            'x-bref-raw-query-string' => 'filter[status]=active',
+        ]);
+        $event['rawQueryString'] = 'filter%5Bstatus%5D=active';
+
+        $handler->handle($event, $this->context())->writeTo(function () {
+        });
+
+        $this->assertSame(['filter[status]=active', ['host' => ['abc.lambda-url.eu-west-3.on.aws']]], $received);
+    }
+
+    public function test the raw query string header is ignored without the origin secret variable()
+    {
+        $received = null;
+        $handler = $this->handler(function (HttpRequestEvent $event) use (&$received) {
+            $received = [$event->getQueryString(), $event->getHeaders()];
+            return new HttpResponse('Hello world!');
+        });
+        // Without a CDN that sets it, anyone could send it
+        $event = $this->event('abc.execute-api.eu-west-3.amazonaws.com', ['x-bref-raw-query-string' => 'admin=1']);
+        $event['rawQueryString'] = 'page=2';
+
+        $this->buffered($handler->handle($event, $this->context()));
+
+        $this->assertSame(['page=2', ['host' => ['abc.execute-api.eu-west-3.amazonaws.com']]], $received);
+    }
+
+    public function test without the origin secret variable every request is answered()
+    {
+        $handler = $this->handler(fn () => new HttpResponse('Hello world!'));
+
+        $result = $this->buffered($handler->handle($this->event('abc.execute-api.eu-west-3.amazonaws.com'), $this->context()));
+
+        $this->assertSame(200, $result['statusCode']);
     }
 
     /**
@@ -154,6 +268,39 @@ class HttpHandlerTest extends TestCase
         ];
     }
 
+    public function test a response can end before the handler finishes()
+    {
+        $log = [];
+        $handler = new class(function () use (&$log) {
+            $log[] = 'after the end';
+        }) extends HttpHandler {
+            public function __construct(private Closure $afterEnd)
+            {
+            }
+
+            protected function respond(HttpRequestEvent $event, Context $context, HttpResponseWriter $writer): void
+            {
+                $writer->start(200, []);
+                $writer->write('Hello');
+                $writer->end();
+                // E.g. terminate callbacks
+                ($this->afterEnd)();
+            }
+        };
+
+        foreach (['abc.lambda-url.eu-west-3.on.aws', 'abc.execute-api.eu-west-3.amazonaws.com'] as $domain) {
+            putenv('BREF_RESPONSE_STREAMING=1');
+            $log = [];
+            $handler->handle($this->event($domain), $this->context())->writeTo(function () {
+            }, function () use (&$log) {
+                $log[] = 'end';
+            });
+
+            // Streamed or not, the client gets the response before the rest of the handler runs
+            $this->assertSame(['end', 'after the end'], $log, $domain);
+        }
+    }
+
     private function handler(callable $handleRequest): HttpHandler
     {
         return new class($handleRequest) extends HttpHandler {
@@ -172,13 +319,13 @@ class HttpHandlerTest extends TestCase
         };
     }
 
-    private function event(string $domain): array
+    private function event(string $domain, array $headers = []): array
     {
         return [
             'version' => '2.0',
             'rawPath' => '/',
             'rawQueryString' => '',
-            'headers' => ['host' => $domain],
+            'headers' => ['host' => $domain, ...$headers],
             'requestContext' => [
                 'domainName' => $domain,
                 'http' => ['method' => 'GET', 'path' => '/', 'protocol' => 'HTTP/1.1', 'sourceIp' => '1.2.3.4'],
@@ -203,5 +350,15 @@ class HttpHandlerTest extends TestCase
         });
 
         return $chunks;
+    }
+
+    /**
+     * The response in the format of buffered invokers (API Gateway, ALB).
+     */
+    private function buffered(LambdaResult $result): array
+    {
+        $this->assertSame('application/json', $result->contentType);
+
+        return json_decode($result->contents(), true, 512, JSON_THROW_ON_ERROR);
     }
 }

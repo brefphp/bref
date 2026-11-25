@@ -149,7 +149,7 @@ To optimize cold starts, you can deploy the application with a warm cache. In a 
     </Tabs.Tab>
 </Tabs>
 
-With Dotenv disabled, Symfony no longer reads the `.env` files on Lambda: define every variable your application needs (`APP_SECRET`, `DATABASE_URL`, etc.) as environment variables of the function (`environment` in `serverless.yml`), or store it as a secret (read the [environment variables documentation](../environment/variables.mdx)). For example, recent Symfony skeletons (like Symfony 8) need `DEFAULT_URI`, else every request fails with `Environment variable not found: "DEFAULT_URI"`:
+With Dotenv disabled, Symfony no longer reads the `.env` files on Lambda: define every variable your application needs (`APP_SECRET`, `DATABASE_URL`, etc.) as environment variables of the function (`environment` in `serverless.yml`), or store it as a secret (read [Environment variables and secrets](./environment-variables.mdx)). For example, recent Symfony skeletons (like Symfony 8) need `DEFAULT_URI`, else every request fails with `Environment variable not found: "DEFAULT_URI"`:
 
 ```yml filename="serverless.yml"
 provider:
@@ -195,6 +195,8 @@ In case your application is showing a blank page after being deployed, [have a l
 Thanks to the Bref integration, Symfony will automatically log to CloudWatch via `stderr`. You don't have to do anything.
 
 You can learn more about logs in the [Logs guide](../environment/logs.mdx).
+
+To improve error tracking and tracing with Sentry, install the [Sentry integration for Bref](https://docs.sentry.io/platforms/php/guides/bref/).
 
 ## Website assets
 

@@ -278,6 +278,30 @@ The feature can be configured in the `uploads` section of `config/bref.php` (`ph
 ],
 ```
 
+## Livewire file uploads
+
+[Livewire file uploads](https://livewire.laravel.com/docs/uploads) store each file in a temporary location as soon as it is selected, before the form is submitted. Livewire uses the default disk for these temporary files, or the disk set in `temporary_file_upload.disk` in `config/livewire.php`. That disk must be S3: the `local` disk is in `/tmp`, which each Lambda instance has its own copy of, and the upload would go through Lambda, which limits it to about 4 MB.
+
+With an S3 disk, the browser uploads the file directly to the bucket with a presigned URL, so files larger than 4 MB work too. Configure the bucket for it in the `storage` construct:
+
+```yaml filename="serverless.yml"
+constructs:
+    storage:
+        type: storage
+        allowAcl: true
+        # Livewire uploads from the browser: put the URL of your website here
+        cors: ${construct:website.url}
+        lifecycleRules:
+            # Livewire temporary uploads
+            -   prefix: livewire-tmp/
+                expirationInDays: 1
+```
+
+- **CORS** is required: without it, the browser cannot upload to the bucket and Livewire shows "The *field* failed to upload".
+- **The lifecycle rule** deletes temporary uploads after a day: Livewire cleans up old temporary uploads on local disks only. If you changed `temporary_file_upload.directory` in `config/livewire.php`, use that directory as the prefix.
+
+With S3, Livewire supports one file per input: remove the `multiple` attribute from file inputs, or Livewire throws an exception.
+
 ## Downloading files
 
 For private files, generate temporary presigned URLs:

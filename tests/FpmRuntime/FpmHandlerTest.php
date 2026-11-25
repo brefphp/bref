@@ -1250,7 +1250,7 @@ Year,Make,Model
         $this->fpm->start();
 
         try {
-            $this->fpm->handle([
+            $this->handle([
                 'version' => '1.0',
                 'httpMethod' => 'GET',
             ], $this->fakeContext);
@@ -1260,7 +1260,7 @@ Year,Make,Model
             self::assertMatchesRegularExpression('/^abc The PHP script timed out\. [^\n]+\n$/', ob_get_contents());
 
             // PHP-FPM should work after that
-            $statusCode = $this->fpm->handle([
+            $statusCode = $this->handle([
                 'version' => '1.0',
                 'httpMethod' => 'GET',
                 'queryStringParameters' => [
@@ -1280,7 +1280,7 @@ Year,Make,Model
         $this->fpm->start();
 
         try {
-            $this->fpm->handle([
+            $this->handle([
                 'version' => '1.0',
                 'httpMethod' => 'GET',
             ], new Context('abc', time(), 'abc', 'abc'));
@@ -1298,7 +1298,7 @@ Year,Make,Model
         $this->fpm->start();
 
         try {
-            $this->fpm->handle([
+            $this->handle([
                 'version' => '1.0',
                 'httpMethod' => 'POST',
                 'headers' => [
@@ -1311,7 +1311,7 @@ Year,Make,Model
             self::assertSame('PHP-FPM failed to start the request, the PHP-FPM logs contain the error', $e->getMessage());
 
             // PHP-FPM should work after that
-            $statusCode = $this->fpm->handle([
+            $statusCode = $this->handle([
                 'version' => '1.0',
                 'httpMethod' => 'GET',
             ], $this->fakeContext)['statusCode'];
@@ -1339,7 +1339,7 @@ Year,Make,Model
         $this->fpm = new FpmHandler(__DIR__ . '/fixtures/timeout.php', __DIR__ . '/fixtures/php-fpm.conf');
         $this->fpm->start();
 
-        $result = $this->fpm->handle([
+        $result = $this->handle([
             'warmer' => true,
         ], $this->fakeContext);
         self::assertEquals(['Lambda is warm'], $result);
@@ -1402,7 +1402,7 @@ Year,Make,Model
         }
 
         // PHP-FPM was restarted
-        $response = $this->fpm->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => __FILE__]], $this->fakeContext);
+        $response = $this->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => __FILE__]], $this->fakeContext);
         self::assertSame('firstsecond', $response['body']);
     }
 
@@ -1414,7 +1414,7 @@ Year,Make,Model
         // Like the Runtime API refusing a response: the rest of the body is not read
         $this->fpm->handleRequest($event, $this->fakeContext)->toStreamedResponse()->writeTo(fn () => false);
 
-        $response = $this->fpm->handle(['version' => '1.0', 'httpMethod' => 'GET'], $this->fakeContext);
+        $response = $this->handle(['version' => '1.0', 'httpMethod' => 'GET'], $this->fakeContext);
         self::assertStringEqualsFile(__DIR__ . '/fixtures/big-json.json', $response['body']);
         self::assertStringContainsString('The previous response was not entirely read from PHP-FPM', ob_get_contents());
     }
@@ -1449,7 +1449,7 @@ Year,Make,Model
     {
         $this->startFpm(__DIR__ . '/fixtures/streaming.php');
 
-        $response = $this->fpm->handle($this->functionUrlEvent(), $this->fakeContext);
+        $response = $this->handle($this->functionUrlEvent(), $this->fakeContext);
 
         self::assertSame(201, $response['statusCode']);
         self::assertSame('chunk-1chunk-2chunk-3', $response['body']);
@@ -1471,10 +1471,49 @@ Year,Make,Model
         ];
     }
 
+    public function test the response is sent before the work after fastcgi finish request()
+    {
+        $this->startFpm(__DIR__ . '/fixtures/finish-request.php');
+        $file = sys_get_temp_dir() . '/bref-test-' . uniqid();
+        $context = new Context('abc', (time() + 30) * 1000, 'abc', 'abc');
+
+        $body = '';
+        $doneWhenSent = null;
+        $this->fpm->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => $file]], $context)
+            ->writeTo(function (string $chunk) use (&$body) {
+                $body .= $chunk;
+            }, function () use ($file, &$doneWhenSent) {
+                $doneWhenSent = file_exists($file);
+            });
+
+        // The client gets the response before the work that follows, the next invocation starts after it
+        self::assertSame('Response', json_decode($body, true)['body']);
+        self::assertFalse($doneWhenSent);
+        self::assertFileExists($file);
+        unlink($file);
+    }
+
+    public function test work after the response is stopped before the Lambda timeout()
+    {
+        $this->startFpm(__DIR__ . '/fixtures/finish-request.php');
+        $file = sys_get_temp_dir() . '/bref-test-' . uniqid();
+
+        // The work after the response lasts longer than the invocation (1 second left)
+        $response = $this->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => $file, 'ms' => 3000]], $this->fakeContext);
+
+        self::assertSame('Response', $response['body']);
+        self::assertStringContainsString('The PHP script was still running after its response', ob_get_contents());
+        // PHP-FPM was restarted: the script never finished
+        self::assertFileDoesNotExist($file);
+        $response = $this->handle(['version' => '1.0', 'httpMethod' => 'GET', 'queryStringParameters' => ['file' => $file, 'ms' => 0]], $this->fakeContext);
+        self::assertSame('Response', $response['body']);
+        unlink($file);
+    }
+
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
         $this->startFpm(__DIR__ . '/fixtures/request.php');
-        $response = $this->fpm->handle($event, $this->fakeContext);
+        $response = $this->handle($event, $this->fakeContext);
 
         $response = json_decode($response['body'], true);
 
@@ -1527,7 +1566,7 @@ Year,Make,Model
     {
         $this->startFpm(__DIR__ . '/fixtures/' . $file);
 
-        return $this->fpm->handle($event ?? [
+        return $this->handle($event ?? [
             'version' => '1.0',
             'httpMethod' => 'GET',
         ], $this->fakeContext);
@@ -1568,11 +1607,11 @@ Year,Make,Model
                 'b' => '###Hello World###',
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?a=%3C%3D%3D%20%20foo%20bar%20%20%3D%3D%3E&b=%23%23%23Hello%20World%23%23%23',
+                'REQUEST_URI' => '/hello?a=%3c%3d%3d%20%20foo+bar++%3d%3d%3e&b=%23%23%23Hello+World%23%23%23',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'a=%3C%3D%3D%20%20foo%20bar%20%20%3D%3D%3E&b=%23%23%23Hello%20World%23%23%23',
+                'QUERY_STRING' => 'a=%3c%3d%3d%20%20foo+bar++%3d%3d%3e&b=%23%23%23Hello+World%23%23%23',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
@@ -1622,6 +1661,46 @@ Year,Make,Model
         ]);
     }
 
+    public function test the query string reaches PHP as it was sent()
+    {
+        $event = [
+            'version' => '2.0',
+            'httpMethod' => 'GET',
+            'path' => '/hello',
+            'rawPath' => '/hello',
+            // A URL that was not encoded, and a key without brackets sent twice
+            'rawQueryString' => 'location=https://example.com/w/1?tk=a&pwd=b&foo=1&foo=2',
+        ];
+        $this->assertGlobalVariables($event, [
+            // Parsed by PHP, like on any server: the URL is split on its `&`, the last `foo` wins
+            '$_GET' => [
+                'location' => 'https://example.com/w/1?tk=a',
+                'pwd' => 'b',
+                'foo' => '2',
+            ],
+            '$_POST' => [],
+            '$_FILES' => [],
+            '$_COOKIE' => [],
+            '$_REQUEST' => [
+                'location' => 'https://example.com/w/1?tk=a',
+                'pwd' => 'b',
+                'foo' => '2',
+            ],
+            '$_SERVER' => [
+                'REQUEST_URI' => '/hello?location=https://example.com/w/1?tk=a&pwd=b&foo=1&foo=2',
+                'PHP_SELF' => '/hello',
+                'PATH_INFO' => '/hello',
+                'REQUEST_METHOD' => 'GET',
+                'QUERY_STRING' => 'location=https://example.com/w/1?tk=a&pwd=b&foo=1&foo=2',
+                'CONTENT_LENGTH' => '0',
+                'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+                'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
+                'LAMBDA_REQUEST_CONTEXT' => '[]',
+            ],
+            'HTTP_RAW_BODY' => '',
+        ]);
+    }
+
     public function test request with backslash characters()
     {
         $event = [
@@ -1645,11 +1724,11 @@ Year,Make,Model
                 'sum' => '10\\2=5',
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?sum=10%5C2%3D5',
+                'REQUEST_URI' => '/hello?sum=10%5c2%3d5',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'sum=10%5C2%3D5',
+                'QUERY_STRING' => 'sum=10%5c2%3d5',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
@@ -1726,11 +1805,11 @@ Year,Make,Model
                 ],
             ],
             '$_SERVER' => [
-                'REQUEST_URI' => '/hello?arr_1=sid&arr%5B4%5D=fred',
+                'REQUEST_URI' => '/hello?arr[1=sid&arr[4][2=fred',
                 'PHP_SELF' => '/hello',
                 'PATH_INFO' => '/hello',
                 'REQUEST_METHOD' => 'GET',
-                'QUERY_STRING' => 'arr_1=sid&arr%5B4%5D=fred',
+                'QUERY_STRING' => 'arr[1=sid&arr[4][2=fred',
                 'CONTENT_LENGTH' => '0',
                 'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
                 'LAMBDA_INVOCATION_CONTEXT' => json_encode($this->fakeContext),
@@ -1738,5 +1817,15 @@ Year,Make,Model
             ],
             'HTTP_RAW_BODY' => '',
         ]);
+    }
+
+    /**
+     * The response of the handler, in the format of buffered invokers.
+     */
+    private function handle(array $event, Context $context): array
+    {
+        $result = $this->fpm->handle($event, $context);
+
+        return is_array($result) ? $result : json_decode($result->contents(), true, 512, JSON_THROW_ON_ERROR);
     }
 }

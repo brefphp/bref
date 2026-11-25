@@ -1,0 +1,156 @@
+---
+description: "Handle SQS, S3, EventBridge, SNS and other AWS events with Symfony services on AWS Lambda using Bref."
+---
+
+# Handling AWS events with Symfony services
+
+Lambda functions can handle AWS events (SQS messages, files uploaded to S3, EventBridge events, etc.) with a Symfony service. Bref retrieves the handler from the Symfony container, so it can use dependency injection like any other service.
+
+> [!TIP]
+>
+> To run asynchronous jobs, use [Symfony Messenger](./messenger.mdx) instead of handling SQS messages yourself.
+
+This page assumes that Bref and the Symfony bridge are [installed and set up](./getting-started.mdx), including the `BrefKernel` class.
+
+## Creating a handler
+
+Create a class that extends one of Bref's handler classes, for example `EventBridgeHandler` to handle EventBridge events:
+
+```php filename="src/Handler/OrderCreatedHandler.php"
+namespace App\Handler;
+
+use App\Repository\OrderRepository;
+use Bref\Context\Context;
+use Bref\Event\EventBridge\EventBridgeEvent;
+use Bref\Event\EventBridge\EventBridgeHandler;
+
+class OrderCreatedHandler extends EventBridgeHandler
+{
+    public function __construct(
+        private OrderRepository $orders,
+    ) {
+    }
+
+    public function handleEventBridge(EventBridgeEvent $event, Context $context): void
+    {
+        $orderId = $event->getDetail()['orderId'];
+
+        // ...
+    }
+}
+```
+
+Bref provides a handler class per event source, read the corresponding page to learn more:
+
+- `SqsHandler`: [SQS messages](../use-cases/sqs.mdx)
+- `S3Handler`: [S3 file events](../use-cases/s3.mdx)
+- `EventBridgeHandler`: [EventBridge events](../use-cases/eventbridge.mdx)
+- `SnsHandler`: [SNS notifications](../use-cases/sns.mdx)
+- `DynamoDbHandler`: [DynamoDB streams](../use-cases/dynamodb.mdx)
+- `KinesisHandler`: [Kinesis streams](../use-cases/kinesis.mdx)
+- `KafkaHandler`: [Kafka events](../use-cases/kafka.mdx)
+
+For any other event, for example emails received by SES, implement the `Bref\Event\Handler` interface. The handler receives the raw event as an array:
+
+```php filename="src/Handler/IncomingEmailHandler.php"
+namespace App\Handler;
+
+use Bref\Context\Context;
+use Bref\Event\Handler;
+
+class IncomingEmailHandler implements Handler
+{
+    public function handle(mixed $event, Context $context): void
+    {
+        foreach ($event['Records'] as $record) {
+            $subject = $record['ses']['mail']['commonHeaders']['subject'];
+            // ...
+        }
+    }
+}
+```
+
+## Making handlers public
+
+Bref retrieves handlers from the container by their service ID, so handlers must be public services. Otherwise, Symfony removes them from the compiled container and the function fails with `The "App\Handler\OrderCreatedHandler" service or alias has been removed or inlined when the container was compiled`.
+
+All of Bref's handler classes implement `Bref\Event\Handler`. Make every handler public with `_instanceof` in `config/services.yaml`:
+
+```yml filename="config/services.yaml" {6-9}
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    # Bref retrieves Lambda handlers from the container: they must be public
+    _instanceof:
+        Bref\Event\Handler:
+            public: true
+
+    App\:
+        resource: '../src/'
+```
+
+## Configuring the Lambda function
+
+Set the service ID (the class name) as the `handler` of the function, and use the `php-xx` runtime (the [function runtime](../runtimes/function.mdx), not `php-xx-fpm`):
+
+```yml filename="serverless.yml"
+functions:
+    # ...
+    orderCreated:
+        handler: App\Handler\OrderCreatedHandler
+        runtime: php-84
+        events:
+            - eventBridge:
+                pattern:
+                    source:
+                        - my-app.orders
+                    detail-type:
+                        - OrderCreated
+```
+
+The same works for workers of [Lift constructs](https://github.com/getlift/lift), for example a `queue`:
+
+```yml filename="serverless.yml"
+constructs:
+    jobs:
+        type: queue
+        worker:
+            handler: App\Handler\MySqsHandler
+            runtime: php-84
+```
+
+Bref gets the Symfony kernel from `public/index.php`, boots it, and retrieves the handler from its container. The kernel uses the same environment variables as the rest of the application (`APP_ENV`, etc., see [Environment variables and secrets](./environment-variables.mdx)). If the application does not have a `public/index.php` file, create a file that returns the kernel and set the handler to `<file>:<service ID>`, as explained in [Custom bootstrap file](./keep-alive.mdx#custom-bootstrap-file).
+
+In a [container image](../deploy/docker.mdx), set the service ID in `CMD` instead of `handler`, with escaped backslashes: `CMD ["App\\Handler\\OrderCreatedHandler"]`.
+
+## Keeping the kernel between events
+
+By default, each invocation runs in a new PHP process: the Symfony kernel boots for every event. Deploy with a warm cache (see [Deploying for production](./getting-started.mdx#deploying-for-production)) to make that boot fast.
+
+To keep the kernel and its services in memory between events, set `BREF_LOOP_MAX` (the number of events handled before the PHP process restarts):
+
+```yml filename="serverless.yml" {5-6}
+functions:
+    orderCreated:
+        handler: App\Handler\OrderCreatedHandler
+        runtime: php-84
+        environment:
+            BREF_LOOP_MAX: 100
+```
+
+Services are not reset between events. Clear the state your handler keeps, for example call `$entityManager->clear()` at the end of each event so that Doctrine does not keep every loaded entity in memory.
+
+## Running handlers locally
+
+Invoke a handler locally with `vendor/bin/bref-local` and its service ID:
+
+```bash
+vendor/bin/bref-local 'App\Handler\OrderCreatedHandler' '{"detail-type": "OrderCreated", "detail": {"orderId": 42}}'
+
+# With an event stored in a JSON file
+vendor/bin/bref-local --path event.json 'App\Handler\OrderCreatedHandler'
+```
+
+Read [Local development for functions](../local-development/event-driven-functions.mdx) to run it in Docker or with `serverless bref:local`.

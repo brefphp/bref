@@ -67,6 +67,16 @@ final class ResponseSender
     }
 
     /**
+     * Start the response before its first byte: from then on, errors can only be reported in its trailers.
+     *
+     * @throws Exception
+     */
+    public function start(): void
+    {
+        $this->open();
+    }
+
+    /**
      * Never throws for a string chunk: it can run inside a framework's output handler (pushed bodies), where
      * an exception would skip the end of the request (e.g. terminate callbacks). After a failure, the rest of
      * the body is dropped and end() reports the failure.
@@ -114,6 +124,10 @@ final class ResponseSender
      */
     public function end(?Throwable $error = null): void
     {
+        // E.g. ended early by the handler
+        if ($this->ended) {
+            return;
+        }
         if ($this->connectionError !== null) {
             throw $this->connectionError;
         }

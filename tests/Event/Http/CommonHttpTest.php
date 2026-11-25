@@ -109,8 +109,14 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
             'foo.bar' => ['baz'],
             'array' => ['one', 'two'],
         ]);
-        $this->assertQueryString('foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz&array%5B0%5D=one&array%5B1%5D=two');
-        $this->assertUri('/path?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz&array%5B0%5D=one&array%5B1%5D=two');
+        if ($version === 2) {
+            // Untouched, like nginx and Apache give it to PHP
+            $this->assertQueryString('foo[]=bar&foo[]=baz&cards[]=birthday&colors[][]=red&colors[][]=blue&shapes[a][]=square&shapes[a][]=triangle&myvar=abc&foo.bar[]=baz&array=one&array=two');
+            $this->assertUri('/path?foo[]=bar&foo[]=baz&cards[]=birthday&colors[][]=red&colors[][]=blue&shapes[a][]=square&shapes[a][]=triangle&myvar=abc&foo.bar[]=baz&array=one&array=two');
+        } else {
+            $this->assertQueryString('foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz&array%5B0%5D=one&array%5B1%5D=two');
+            $this->assertUri('/path?foo%5B0%5D=bar&foo%5B1%5D=baz&cards%5B0%5D=birthday&colors%5B0%5D%5B0%5D=red&colors%5B1%5D%5B0%5D=blue&shapes%5Ba%5D%5B0%5D=square&shapes%5Ba%5D%5B1%5D=triangle&myvar=abc&foo.bar%5B0%5D=baz&array%5B0%5D=one&array%5B1%5D=two');
+        }
     }
 
     /**
@@ -128,10 +134,9 @@ abstract class CommonHttpTest extends TestCase implements HttpRequestProxyTest
             'foo.bar' => ['baz'],
         ]);
         if ($version === 2) {
-            // Numeric keys are added as an artifact of us parsing the query string
-            // Both format are valid and semantically identical
-            $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar&foo.bar%5B0%5D=baz');
-            $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B0%5D=bar&foo.bar%5B0%5D=baz');
+            // Untouched, like nginx and Apache give it to PHP
+            $this->assertQueryString('vars[val1]=foo&vars[val2][]=bar&foo.bar[]=baz');
+            $this->assertUri('/path?vars[val1]=foo&vars[val2][]=bar&foo.bar[]=baz');
         } else {
             $this->assertQueryString('vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar&foo.bar%5B%5D=baz');
             $this->assertUri('/path?vars%5Bval1%5D=foo&vars%5Bval2%5D%5B%5D=bar&foo.bar%5B%5D=baz');

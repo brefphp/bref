@@ -173,13 +173,7 @@ You can read the detailed documentation about [all options available in the Serv
 
 ### ARM images
 
-To run functions on [ARM processors](/docs/runtimes.mdx#arm-runtimes), use the ARM images: they have the `arm-` prefix, for example `bref/arm-php-84:3` (and `bref/arm-php-84-dev:3` for local development). Build the image for the `linux/arm64` platform and set `architecture: arm64` on the functions:
-
-```dockerfile filename="Dockerfile"
-FROM bref/arm-php-84:3
-
-COPY . /var/task
-```
+Bref images are multi-architecture: the same image (e.g. `bref/php-84:4`) runs on x86 and on [ARM processors](/docs/runtimes.mdx#arm-runtimes). To run functions on ARM, build the image for the `linux/arm64` platform and set `architecture: arm64` on the functions:
 
 ```yml filename="serverless.yml" {8,13}
 provider:
@@ -197,7 +191,7 @@ functions:
         architecture: arm64
 ```
 
-The x86 images (`bref/php-84`) do not work on ARM functions. Bref Extra Extensions images are not available for ARM.
+Lambda only accepts single-architecture images: the `platform` must match the `architecture` of the functions. Bref Extra Extensions images are not available for ARM.
 
 ## Filesystem
 

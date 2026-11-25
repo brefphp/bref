@@ -7,6 +7,7 @@ use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\Psr7Bridge;
 use GuzzleHttp\Psr7\PumpStream;
 use Nyholm\Psr7\Response;
+use Nyholm\Psr7\Uri;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -46,6 +47,30 @@ class Psr7BridgeTest extends CommonHttpTest
             'headers' => ['X-Forwarded-Proto' => 'http'],
         ]), Context::fake());
         self::assertArrayNotHasKey('HTTPS', $http->getServerParams());
+    }
+
+    /**
+     * @dataProvider provideUrisRejectedByParseUrl
+     */
+    public function test URIs that parse_url rejects are supported(string $path, string $queryString)
+    {
+        $event = new HttpRequestEvent([
+            'version' => '2.0',
+            'requestContext' => ['http' => ['method' => 'GET']],
+            'rawPath' => $path,
+            'rawQueryString' => $queryString,
+        ]);
+        $request = Psr7Bridge::convertRequest($event, Context::fake());
+
+        self::assertSame($path, $request->getUri()->getPath());
+        self::assertSame($queryString, $request->getUri()->getQuery());
+    }
+
+    public static function provideUrisRejectedByParseUrl(): iterable
+    {
+        yield ['/something/bla:1', ''];
+        yield ['/:28017', ''];
+        yield ['/something/bla:1', 'foo=bar'];
     }
 
     public function test falsy server params are not dropped()
@@ -172,8 +197,9 @@ class Psr7BridgeTest extends CommonHttpTest
 
     protected function assertQueryString(string $expected): void
     {
-        $this->assertEquals($expected, $this->request->getUri()->getQuery());
         $this->assertEquals($expected, $this->request->getServerParams()['QUERY_STRING'] ?? '');
+        // PSR-7 URIs percent-encode the characters that RFC 3986 does not allow, e.g. `[`
+        $this->assertEquals((new Uri('?' . $expected))->getQuery(), $this->request->getUri()->getQuery());
     }
 
     protected function assertQueryParameters(array $expected): void
@@ -215,8 +241,9 @@ class Psr7BridgeTest extends CommonHttpTest
 
     protected function assertUri(string $expected): void
     {
-        $this->assertEquals($expected, (string) $this->request->getUri());
         $this->assertEquals($expected, $this->request->getServerParams()['REQUEST_URI']);
+        // PSR-7 URIs percent-encode the characters that RFC 3986 does not allow, e.g. `[`
+        $this->assertEquals((string) new Uri($expected), (string) $this->request->getUri());
     }
 
     protected function assertHasMultiHeader(bool $expected): void

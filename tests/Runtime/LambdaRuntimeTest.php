@@ -170,6 +170,22 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->assertErrorInLogs('RuntimeException', 'Failure in the middle');
     }
 
+    public function test a result started right away reports a failure before its first byte in the trailers()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function () {
+            throw new RuntimeException('Failure before the first byte');
+        }, failuresInTrailer: true));
+
+        $this->assertFalse($output);
+        // Not with the error endpoint: the response is already started
+        $response = $this->streamedResponse();
+        $this->assertSame('', $response->getBody()->__toString());
+        $this->assertSame('RuntimeException', $response->getHeaderLine('lambda-runtime-function-error-type'));
+        $this->assertErrorInLogs('RuntimeException', 'Failure before the first byte');
+    }
+
     public function test init errors are reported without their stack trace()
     {
         Server::enqueue([new Response(202)]);
@@ -246,6 +262,23 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->runtime->processNextEvent(fn () => ['Hello' => 'world!']);
 
         $this->assertInvocationResult(['Hello' => 'world!']);
+    }
+
+    public function test a result can end before the handler finishes()
+    {
+        $this->givenAnEvent(['Hello' => 'world!']);
+
+        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function (callable $write, callable $end) {
+            $write('Hello');
+            $end();
+            // E.g. terminate callbacks: the response is already complete
+            throw new RuntimeException('Failure after the end');
+        }));
+
+        $response = $this->streamedResponse();
+        $this->assertSame('Hello', $response->getBody()->__toString());
+        $this->assertSame('', $response->getHeaderLine('lambda-runtime-function-error-type'));
+        $this->assertErrorInLogs('RuntimeException', 'Failure after the end');
     }
 
     private function streamedResponse(): RequestInterface
@@ -520,6 +553,22 @@ Here is the original JSON error: 'Malformed UTF-8 characters, possibly incorrect
 ERROR;
         $this->assertInvocationErrorResult('Exception', $message);
         $this->assertErrorInLogs('Exception', $message);
+    }
+
+    public function test exceptions with invalid UTF8 in their message are reported as invocation errors()
+    {
+        $this->givenAnEvent(['hello' => 'world!']);
+
+        $output = $this->runtime->processNextEvent(function () {
+            throw new RuntimeException("Invalid UTF-8: \xB1\x31", 0, new Exception("Previous: \xB1\x31"));
+        });
+
+        $this->assertFalse($output);
+        $this->assertInvocationErrorResult('RuntimeException', "Invalid UTF-8: \u{FFFD}1");
+        $this->assertErrorInLogs('RuntimeException', "Invalid UTF-8: \u{FFFD}1");
+        $this->assertPreviousErrorsInLogs([
+            ['errorClass' => 'Exception', 'errorMessage' => "Previous: \u{FFFD}1"],
+        ]);
     }
 
     public function test generic event handler()

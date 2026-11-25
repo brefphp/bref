@@ -6,6 +6,7 @@ use Bref\Context\Context;
 use Bref\Event\Http\HttpHandler;
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\HttpResponse;
+use Bref\Event\Http\HttpResponseWriter;
 use Bref\FpmRuntime\FastCgi\FastCgiCommunicationFailed;
 use Bref\FpmRuntime\FastCgi\FastCgiRequest;
 use Bref\FpmRuntime\FastCgi\Timeout;
@@ -37,7 +38,7 @@ final class FpmHandler extends HttpHandler
 {
     private const SOCKET = '/tmp/.bref/php-fpm.sock';
     private const PID_FILE = '/tmp/.bref/php-fpm.pid';
-    private const CONFIG = '/opt/bref/etc/php-fpm.conf';
+    private const CONFIG = '/etc/php/php-fpm.conf';
     /**
      * We define this constant instead of using the PHP one because that avoids
      * depending on the pcntl extension.
@@ -81,7 +82,7 @@ final class FpmHandler extends HttpHandler
          * --force-stderr: force logs to be sent to stderr, which will allow us to send them to CloudWatch
          * TODO set `max_execution_time` to the timeout of the Lambda function?
          */
-        $resource = @proc_open([
+        $command = [
             'php-fpm',
             '--nodaemonize',
             '--force-stderr',
@@ -92,7 +93,15 @@ final class FpmHandler extends HttpHandler
             // because it tanks performance by essentially disabling opcache
             '-d',
             'opcache.file_cache_only=0',
-        ], [], $pipes);
+        ];
+        // PHP-FPM ignores the file cache written by the CLI (their opcache system ID differs since PHP 8.4.28
+        // and 8.5.13) and keeps compiled scripts in shared memory: writing them to the file cache only slows it
+        // down. Only Bref's default file cache is disabled: a custom one can be a cache shipped with the code.
+        if (ini_get('opcache.file_cache') === '/tmp') {
+            $command[] = '-d';
+            $command[] = 'opcache.file_cache=';
+        }
+        $resource = @proc_open($command, [], $pipes);
 
         if (! is_resource($resource)) {
             throw new RuntimeException('PHP-FPM failed to start');
@@ -127,6 +136,18 @@ final class FpmHandler extends HttpHandler
     public function __destruct()
     {
         $this->stop();
+    }
+
+    /**
+     * Write the response of PHP-FPM, then wait for the script to finish: the client gets the response as soon as
+     * PHP-FPM ends it, e.g. when the script calls fastcgi_finish_request() to keep working after its response.
+     */
+    protected function respond(HttpRequestEvent $event, Context $context, HttpResponseWriter $writer): void
+    {
+        $this->handleRequest($event, $context)->sendTo($writer);
+        $writer->end();
+
+        $this->waitUntilIdle($context);
     }
 
     /**
@@ -193,6 +214,26 @@ final class FpmHandler extends HttpHandler
         }
 
         $this->ensureStillRunning();
+    }
+
+    /**
+     * Wait for the script of the last request to finish (it can run after its response, see respond()).
+     *
+     * PHP-FPM has a single worker: it answers a request for an empty script once the previous script has finished.
+     * Without this, the script would keep running after the invocation, frozen by Lambda until the next one.
+     */
+    private function waitUntilIdle(Context $context): void
+    {
+        // Like the request: until 1 second before the Lambda timeout
+        $timeoutDelayInMs = max(1000, $context->getRemainingTimeInMillis() - 1000);
+        try {
+            $socketId = $this->client->sendAsyncRequest($this->connection, new FastCgiRequest('GET', __DIR__ . '/idle.php', ''));
+            $this->client->readResponse($socketId, $timeoutDelayInMs);
+        } catch (Throwable $e) {
+            echo "{$context->getAwsRequestId()} The PHP script was still running after its response when the Lambda invocation was about to time out. Bref will now restart PHP-FPM. Original exception message: " . get_class($e) . " {$e->getMessage()}\n";
+            $this->stop();
+            $this->start();
+        }
     }
 
     /**

@@ -39,7 +39,7 @@ final class HttpRequestEvent implements LambdaEvent
 
         $this->payloadVersion = (float) ($event['version'] ?? '1.0');
         $this->event = $event;
-        $this->queryString = $this->rebuildQueryString();
+        $this->queryString = $this->extractQueryString();
         $this->headers = $this->extractHeaders();
     }
 
@@ -248,13 +248,12 @@ final class HttpRequestEvent implements LambdaEvent
         return $this->event['requestContext']['identity']['sourceIp'] ?? '127.0.0.1';
     }
 
-    private function rebuildQueryString(): string
+    private function extractQueryString(): string
     {
         if ($this->isFormatV2()) {
-            $queryString = $this->event['rawQueryString'] ?? '';
-            // We re-parse the query string to make sure it is URL-encoded
-            // Why? To match the format we get when using PHP outside of Lambda (we get the query string URL-encoded)
-            return http_build_query(self::queryStringToArray($queryString), '', '&', \PHP_QUERY_RFC3986);
+            // Untouched, like nginx and Apache give it to PHP: the application can parse it its own way,
+            // or check a signature computed on it
+            return $this->event['rawQueryString'] ?? '';
         }
 
         // It is likely that we do not need to differentiate between API Gateway (Version 1) and ALB. However,

@@ -5,8 +5,10 @@ export default {
     'file-storage': 'File storage',
     queues: 'Laravel Queues',
     caching: 'Caching',
+    sessions: 'Sessions',
     octane: 'Laravel Octane',
     websockets: 'WebSockets',
     passport: 'Laravel Passport',
+    packages: 'Laravel packages',
     'maintenance-mode': 'Maintenance mode',
 };

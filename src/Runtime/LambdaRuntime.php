@@ -37,6 +37,12 @@ use Throwable;
  */
 final class LambdaRuntime
 {
+    /**
+     * Error messages can contain invalid UTF-8 (e.g. a database error quoting the data): reporting
+     * the error must never fail because of it, else the original error would be lost.
+     */
+    private const ERROR_JSON_FLAGS = JSON_INVALID_UTF8_SUBSTITUTE;
+
     private ?CurlHandle $curlHandleNext = null;
     private ?CurlHandle $curlHandleResult = null;
     private string $apiUrl;
@@ -206,13 +212,15 @@ final class LambdaRuntime
      */
     private function sendResponse(Context $context, mixed $result): void
     {
-        $result = $result instanceof LambdaResult
-            ? $result
-            : new LambdaResult('application/json', [$this->toJson($result)]);
+        $result = $result instanceof LambdaResult ? $result : LambdaResult::json($result);
 
         $this->responseSender = new ResponseSender($this->apiUrl, $context->getAwsRequestId(), $result->contentType, $context);
         try {
-            $result->writeTo($this->responseSender->write(...));
+            if ($result->failuresInTrailer) {
+                $this->responseSender->start();
+            }
+            // The result can end early: the rest of the handler runs before the next invocation
+            $result->writeTo($this->responseSender->write(...), $this->responseSender->end(...));
             $this->responseSender->end();
         } catch (Throwable $e) {
             // Too late for the error endpoint if the response has started: the error goes in its trailers
@@ -249,21 +257,12 @@ final class LambdaRuntime
             'errorType' => get_class($error),
             'errorMessage' => $error->getMessage(),
             'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
-        ]);
+        ], jsonFlags: self::ERROR_JSON_FLAGS);
     }
 
-    private function toJson(mixed $data): string
+    private function toJson(mixed $data, int $flags = 0): string
     {
-        /** @noinspection JsonEncodingApiUsageInspection */
-        $json = json_encode($data);
-        if ($json === false) {
-            throw new Exception(sprintf(
-                "The Lambda response cannot be encoded to JSON.\nThis error usually happens when you try to return binary content. If you are writing an HTTP application and you want to return a binary HTTP response (like an image, a PDF, etc.), please read this guide: https://bref.sh/docs/runtimes/http.html#binary-requests-and-responses\nHere is the original JSON error: '%s'",
-                json_last_error_msg()
-            ));
-        }
-
-        return $json;
+        return LambdaResult::encodeJson($data, $flags);
     }
 
     /**
@@ -296,7 +295,7 @@ final class LambdaRuntime
                     'message' => $error->getMessage(),
                     'type' => get_class($error),
                     'stackTrace' => $traceAsArray,
-                ], JSON_THROW_ON_ERROR),
+                ], JSON_THROW_ON_ERROR | self::ERROR_JSON_FLAGS),
             );
         } else {
             $data = [
@@ -312,7 +311,7 @@ final class LambdaRuntime
         $url = "http://$this->apiUrl/2018-06-01/runtime/init/error";
         $this->postJson($url, $data, [
             "Lambda-Runtime-Function-Error-Type: $lambdaInitializationReason",
-        ]);
+        ], self::ERROR_JSON_FLAGS);
 
         exit(1);
     }
@@ -321,9 +320,9 @@ final class LambdaRuntime
      * @param string[] $headers
      * @throws Exception
      */
-    private function postJson(string $url, mixed $data, array $headers = []): void
+    private function postJson(string $url, mixed $data, array $headers = [], int $jsonFlags = 0): void
     {
-        $jsonData = $this->toJson($data);
+        $jsonData = $this->toJson($data, $jsonFlags);
 
         if ($this->curlHandleResult === null) {
             $this->curlHandleResult = curl_init();
@@ -495,6 +494,6 @@ final class LambdaRuntime
         }
 
         /** @noinspection JsonEncodingApiUsageInspection */
-        echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted) . PHP_EOL;
+        echo $invocationId . "\tInvoke Error\t" . json_encode($errorFormatted, self::ERROR_JSON_FLAGS) . PHP_EOL;
     }
 }
