@@ -4,7 +4,6 @@ namespace Bref\Cloud;
 
 use Bref\Cloud;
 use Bref\Monolog\CloudWatchFormatter;
-use InvalidArgumentException;
 
 class Laravel
 {
@@ -54,7 +53,7 @@ class Laravel
     ];
 
     /**
-     * @param string                                                                                $php          The PHP version to use: '8.2', '8.3', '8.4' or '8.5'.
+     * @param string                                                                                $php          The PHP version to use, e.g. '8.5'.
      * @param string|null                                                                           $region       The AWS region to deploy to, e.g. 'eu-west-3'. Defaults to us-east-1.
      * @param string[]                                                                              $patterns     Path patterns to include or exclude from the deployment.
      * @param array<string, mixed>                                                                  $variables    Environment variables to set in the Lambda.
@@ -82,10 +81,6 @@ class Laravel
         // Ensures the root path is never empty
         if (empty($this->rootPath)) {
             $this->rootPath = '.';
-        }
-
-        if (! in_array($this->php, ['8.2', '8.3', '8.4', '8.5'], true)) {
-            throw new InvalidArgumentException("Invalid PHP version '$this->php', must be one of '8.2', '8.3', '8.4', or '8.5'.");
         }
 
         $this->patterns = array_merge($this->patterns, $patterns);
