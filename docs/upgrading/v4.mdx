@@ -53,6 +53,33 @@ The SSL certificates (CA bundle) are now in `/etc/ssl/certs/ca-certificates.crt`
 
 If your application references one of them, for example in `MYSQL_ATTR_SSL_CA` to connect to a database over SSL, replace it with `/etc/ssl/certs/ca-certificates.crt`. In PHP code, `openssl_get_cert_locations()['default_cert_file']` returns a path that works in every Bref version.
 
+## Multi-architecture container images
+
+**If you don't deploy with [container images](../deploy/docker.mdx), you can skip this section.**
+
+Bref container images are now multi-architecture: the same image works on x86 and ARM. The ARM images (with the `arm-` prefix) no longer exist:
+
+```diff filename="Dockerfile"
+- FROM bref/arm-php-84:3
++ FROM bref/php-84:4
+```
+
+The same applies to `bref/arm-php-84-dev` (now `bref/php-84-dev`) and `bref/arm-build-php-84` (now `bref/build-php-84`).
+
+Docker builds the architecture of the machine it runs on, unless a platform is set. Lambda functions only accept single-architecture images, so set the platform that matches the functions' `architecture`, especially when building on an ARM machine (e.g. an Apple Silicon Mac) for x86 functions:
+
+```yml filename="serverless.yml" {7}
+provider:
+    ecr:
+        images:
+            my-app:
+                path: ./
+                file: Dockerfile
+                platform: linux/amd64 # or linux/arm64 for functions with `architecture: arm64`
+```
+
+If you build with `docker build`, pass `--platform linux/amd64` (or `linux/arm64`).
+
 ## Failed console commands are no longer retried
 
 When a command invoked asynchronously failed (e.g. a cron), Lambda retried it twice by default. Bref now sets `maximumRetryAttempts: 0` on console functions: Lambda no longer retries failed commands. Failed commands are still counted in the `Errors` metric of the function.
