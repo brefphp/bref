@@ -34,6 +34,23 @@ class MainTest extends RuntimeTestCase
         ]);
     }
 
+    public function test network timeouts end before the Lambda timeout()
+    {
+        $this->givenAnEvent('io-timeouts', (int) (microtime(true) * 1000) + 10_500);
+
+        try {
+            Main::run();
+        } catch (\Throwable) {
+            // Needed because `run()` is an infinite loop and will fail eventually
+        }
+
+        // 2 seconds before the timeout
+        $this->assertInvocationResult([
+            'exitCode' => 0,
+            'output' => '8 8',
+        ]);
+    }
+
     public function test failure()
     {
         $this->givenAnEvent('fail');

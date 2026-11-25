@@ -2,6 +2,8 @@
 description: Upgrading guide to go from Bref 3.x to Bref 4.0.
 ---
 
+import { Tabs } from '../../../src/components/Tabs';
+
 # Upgrading to Bref 4.0
 
 ## Updating dependencies
@@ -114,3 +116,32 @@ These changes only affect code that uses Bref's PHP classes directly:
 
 - `Bref\Event\Http\HttpHandler::handle()` now returns a `Bref\Runtime\LambdaResult` instead of an array. Handlers that implement `handleRequest()` are not affected. Code that calls `handle()` directly (e.g. in tests) can read the response with `json_decode($result->contents(), true)`.
 - `afterInvoke()` in `Bref\Listener\BrefEventSubscriber` receives that `LambdaResult` as `$result` for HTTP events, already sent to Lambda.
+
+## Network calls time out before the Lambda timeout
+
+A network call that never answers now fails with a timeout error 2 seconds before the Lambda timeout, instead of being stopped by Lambda without any error. Bref lowers `default_socket_timeout` and `mysqlnd.net_read_timeout` to the time left in the invocation.
+
+This covers PHP streams (e.g. `file_get_contents()`), Redis, Symfony HttpClient and MySQL. It does not cover curl, Guzzle (including the Laravel HTTP client and the AWS SDK) and PostgreSQL queries: set timeouts in their options.
+
+Connecting to a MySQL, MariaDB or PostgreSQL database now times out after 20 seconds, instead of about 2 minutes when the database can't be reached. To change it:
+
+<Tabs items={['Laravel', 'Symfony']}>
+    <Tabs.Tab>
+        ```php filename="config/database.php"
+        'mysql' => [
+            // ...
+            'options' => [
+                PDO::ATTR_TIMEOUT => 5, // seconds
+            ],
+        ],
+        ```
+    </Tabs.Tab>
+    <Tabs.Tab>
+        ```yaml filename="config/packages/doctrine.yaml"
+        doctrine:
+            dbal:
+                options:
+                    !php/const PDO::ATTR_TIMEOUT: 5 # seconds
+        ```
+    </Tabs.Tab>
+</Tabs>

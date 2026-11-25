@@ -1510,6 +1510,20 @@ Year,Make,Model
         unlink($file);
     }
 
+    public function test network timeouts end before the Lambda timeout()
+    {
+        $this->startFpm(__DIR__ . '/fixtures/io-timeouts.php');
+        $event = ['version' => '1.0', 'httpMethod' => 'GET'];
+
+        $response = $this->handle($event, new Context('abc', (int) (microtime(true) * 1000) + 10_500, 'abc', 'abc'));
+        // 2 seconds before the timeout
+        self::assertSame(['default_socket_timeout' => '8', 'mysqlnd.net_read_timeout' => '8'], json_decode($response['body'], true));
+
+        // Never raised above the configured value
+        $response = $this->handle($event, new Context('abc', (int) (microtime(true) * 1000) + 15 * 60 * 1000, 'abc', 'abc'));
+        self::assertSame(ini_get('default_socket_timeout'), json_decode($response['body'], true)['default_socket_timeout']);
+    }
+
     private function assertGlobalVariables(array $event, array $expectedGlobalVariables): void
     {
         $this->startFpm(__DIR__ . '/fixtures/request.php');
@@ -1547,6 +1561,8 @@ Year,Make,Model
             'FCGI_ROLE' => 'RESPONDER',
             'LAMBDA_REQUEST_ID' => 'abc',
             '_X_AMZN_TRACE_ID' => 'abc',
+            // The invocation's deadline has passed
+            'PHP_VALUE' => "default_socket_timeout=1\nmysqlnd.net_read_timeout=1",
         ];
 
         // Allow to override some keys
