@@ -184,6 +184,8 @@ final class HttpRequestEvent implements LambdaEvent
      *
      * Events are the same in streamed and buffered modes, and each mode breaks with the other's
      * response format: the `BREF_RESPONSE_STREAMING` environment variable says which mode is configured.
+     *
+     * @internal Used by the Bref runtime: handlers write to the HttpResponseWriter in both modes.
      */
     public static function isStreamed(mixed $event): bool
     {

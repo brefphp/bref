@@ -4,6 +4,8 @@ namespace Bref\Runtime;
 
 /**
  * The response of an invocation, sent to Lambda as it is written.
+ *
+ * @internal
  */
 interface ResponseStream
 {

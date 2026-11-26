@@ -19,7 +19,11 @@ use Throwable;
  */
 final class HttpResponseWriter
 {
-    /** The content type of Lambda's streamed HTTP responses. */
+    /**
+     * The content type of Lambda's streamed HTTP responses.
+     *
+     * @internal Used by the Bref runtime.
+     */
     public const STREAMED_CONTENT_TYPE = 'application/vnd.awslambda.http-integration-response';
 
     private ?int $statusCode = null;
@@ -33,6 +37,8 @@ final class HttpResponseWriter
 
     /**
      * @param mixed $event The event of the invocation: it tells the format of a buffered response.
+     *
+     * @internal The Bref runtime creates the writer and gives it to the handler.
      */
     public function __construct(
         private readonly ResponseStream $lambdaResponse,

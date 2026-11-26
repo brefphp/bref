@@ -9,6 +9,8 @@ use Exception;
  * The result of an invocation, written to the response sent to Lambda (whatever the event: HTTP or not).
  *
  * Handlers return it instead of a value to encode as JSON.
+ *
+ * @internal
  */
 final class InvocationResult
 {

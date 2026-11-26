@@ -52,6 +52,8 @@ abstract class HttpHandler implements Handler
     /**
      * Called by the runtime, with the writer of the HTTP response: the runtime sends what is written,
      * streamed or buffered depending on what invoked the function.
+     *
+     * @internal Implement handleRequest() to write the response, call handle() to get it.
      */
     public function writeResponse(mixed $event, Context $context, HttpResponseWriter $responseWriter): void
     {
