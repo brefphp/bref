@@ -36,6 +36,34 @@ const ciEnvironmentVariables = [
     'BITRISE_IO',
 ];
 
+// Bref runtimes: customer-managed Lambda runtimes published by Bref, one per PHP version (for x86 and ARM)
+const runtimePhpVersions = ['83', '84', '85', '86'];
+const runtimeAlias = '4';
+const runtimeRegions = [
+    'af-south-1',
+    'ap-east-1',
+    'ap-northeast-1',
+    'ap-northeast-2',
+    'ap-northeast-3',
+    'ap-south-1',
+    'ap-southeast-1',
+    'ap-southeast-2',
+    'ap-southeast-3',
+    'ca-central-1',
+    'eu-central-1',
+    'eu-north-1',
+    'eu-south-1',
+    'eu-south-2',
+    'eu-west-1',
+    'eu-west-2',
+    'eu-west-3',
+    'sa-east-1',
+    'us-east-1',
+    'us-east-2',
+    'us-west-1',
+    'us-west-2',
+];
+
 function isCiEnvironment(env) {
     return env.CI !== 'false' && ciEnvironmentVariables.some((name) => Boolean(env[name]));
 }
@@ -78,20 +106,9 @@ class ServerlessPlugin {
 
         this.checkCompatibleRuntime();
 
-        serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(...[
-            'php-82',
-            'php-83',
-            'php-84',
-            'php-85',
-            'php-82-fpm',
-            'php-83-fpm',
-            'php-84-fpm',
-            'php-85-fpm',
-            'php-82-console',
-            'php-83-console',
-            'php-84-console',
-            'php-85-console',
-        ]);
+        serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(
+            ...runtimePhpVersions.flatMap((v) => [`php-${v}`, `php-${v}-fpm`, `php-${v}-console`]),
+        );
         serverless.configSchemaHandler.defineTopLevelProperty('bref', {
             type: 'object',
         });
@@ -213,18 +230,9 @@ class ServerlessPlugin {
     }
 
     /**
-     * Process the `php-xx` runtimes to turn them into `provided.al2023` runtimes + Bref layers.
+     * Process the `php-xx` runtimes to turn them into Bref's runtimes (customer-managed Lambda runtimes).
      */
     processPhpRuntimes() {
-        const includeBrefLayers = (existingLayers, phpVersion, isArm) => {
-            let layerName = 'php-' + phpVersion;
-            // Automatically use ARM layers if the function is deployed to an ARM architecture
-            if (isArm) {
-                layerName = 'arm-' + layerName;
-            }
-            existingLayers.unshift(this.getLayerArn(layerName, this.provider.getRegion()));
-            return existingLayers;
-        }
         /**
          * @param {string} runtime
          * @return {string|undefined}
@@ -251,22 +259,9 @@ class ServerlessPlugin {
             const runtimeClass = runtimeStringToRuntimeClass(fullRuntimeString);
             if (! runtimeClass) return;
 
-            // The logic here is a bit custom:
-            // If there are layers on the function, we preserve them
-            let existingLayers = f.layers || []; // make sure it's an array
-            // Else, we merge with the layers defined at the root.
-            // Indeed, SF overrides the layers defined at the root with the ones defined on the function.
-            if (existingLayers.length === 0) {
-                // for some reason it's not always an array
-                existingLayers = Array.from(config.provider.layers || []);
-            }
-
-            f.layers = includeBrefLayers(
-                existingLayers,
-                phpVersion,
-                f.architecture === 'arm64' || (isArmGlobally && !f.architecture),
-            );
-            f.runtime = 'provided.al2023';
+            this.checkCustomerManagedRuntimesSupport();
+            // The same runtime works on x86 and ARM
+            f.runtime = this.getRuntimeArn(phpVersion, this.provider.getRegion());
             // Add the `BREF_RUNTIME` environment variable
             // to let the function know which runtime it is using
             // (this is used by the Bref runtime)
@@ -279,7 +274,6 @@ class ServerlessPlugin {
         }
 
         const config = this.serverless.service;
-        const isArmGlobally = config.provider.architecture === 'arm64';
 
         // Check functions config
         for (const f of Object.values(config.functions || {})) {
@@ -361,6 +355,30 @@ class ServerlessPlugin {
                 throw new this.serverless.classes.Error(providdeAl2ErrorMessage);
             }
         }
+    }
+
+    /**
+     * Customer-managed runtimes are supported by osls since 4.8.
+     */
+    checkCustomerManagedRuntimesSupport() {
+        const [major, minor] = String(this.serverless.version).split('.').map(Number);
+        if (major > 4 || (major === 4 && minor >= 8)) return;
+        throw new this.serverless.classes.Error(`Bref v4 requires osls 4.8 or greater (https://github.com/oss-serverless/osls), but version ${this.serverless.version} is running.\nUpgrade it with "npm install -g osls@4".`);
+    }
+
+    /**
+     * @param {string} phpVersion
+     * @param {string} region
+     * @returns {string}
+     */
+    getRuntimeArn(phpVersion, region) {
+        if (! runtimePhpVersions.includes(phpVersion)) {
+            throw new this.serverless.classes.Error(`Unknown Bref runtime "php-${phpVersion}".\nBref v4 supports these PHP versions: ${runtimePhpVersions.map((v) => `php-${v}`).join(', ')}.`);
+        }
+        if (! runtimeRegions.includes(region)) {
+            throw new this.serverless.classes.Error(`Bref runtimes are not available in region "${region}".\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
+        }
+        return `arn:aws:lambda:${region}:873528684822:runtime/php-${phpVersion}/alias/${runtimeAlias}`;
     }
 
     /**

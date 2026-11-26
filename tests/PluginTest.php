@@ -11,93 +11,39 @@ use Symfony\Component\Yaml\Yaml;
 
 class PluginTest extends TestCase
 {
-    public function test the plugin adds the layers(): void
+    public function test the plugin sets the Bref runtimes(): void
     {
         $output = $this->slsPrint('serverless.yml');
 
-        self::assertFunction($output['functions']['function'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
-        ]);
-        self::assertFunction($output['functions']['fpm'], FpmMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
-        ]);
-        self::assertFunction($output['functions']['console'], ConsoleMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
-        ]);
+        self::assertFunction($output['functions']['function'], FunctionMain::class, 'php-83');
+        self::assertFunction($output['functions']['fpm'], FpmMain::class, 'php-83');
+        self::assertFunction($output['functions']['console'], ConsoleMain::class, 'php-83');
 
-        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
-        ]);
-        self::assertFunction($output['functions']['fpm-arm'], FpmMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
-        ]);
-        self::assertFunction($output['functions']['console-arm'], ConsoleMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
-        ]);
+        // The same runtimes work on ARM
+        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, 'php-83');
+        self::assertFunction($output['functions']['fpm-arm'], FpmMain::class, 'php-83');
+        self::assertFunction($output['functions']['console-arm'], ConsoleMain::class, 'php-83');
+
+        self::assertFunction($output['functions']['function-86'], FunctionMain::class, 'php-86');
     }
 
-    public function test the plugin adds the layers when the runtime is set in the provider(): void
+    public function test the plugin sets the Bref runtimes when the runtime is set in the provider(): void
     {
         $output = $this->slsPrint('serverless-runtime-root.yml');
 
-        self::assertFunction($output['functions']['function'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
-        ]);
-        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
-        ]);
+        self::assertFunction($output['functions']['function'], FunctionMain::class, 'php-83');
+        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, 'php-83');
     }
 
-    public function test the plugin doesnt break layers added separately(): void
+    public function test the plugin doesnt touch the layers(): void
     {
         $output = $this->slsPrint('serverless-with-layers.yml');
 
-        self::assertFunction($output['functions']['function'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
-            'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
-        ]);
-        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
-            'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
-        ]);
-        self::assertFunction($output['functions']['function-with-layers'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
-            // This function doesn't have the `foo` layer because that's how SF works:
-            // layers in the function completely override the layers in the root
-            'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
-        ]);
-        self::assertFunction($output['functions']['function-arm-with-layers'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
-            // This function doesn't have the `foo` layer because that's how SF works:
-            // layers in the function completely override the layers in the root
-            'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
-        ]);
-    }
-
-    public function test the plugin doesnt break layers added separately with the runtime set at the root(): void
-    {
-        $output = $this->slsPrint('serverless-runtime-root-with-layers.yml');
-
-        self::assertFunction($output['functions']['function'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
-            'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
-        ]);
-        self::assertFunction($output['functions']['function-arm'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
-            'arn:aws:lambda:us-east-1:1234567890:layer:foo:1',
-        ]);
-        self::assertFunction($output['functions']['function-with-layers'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:php-83:',
-            // This function doesn't have the `foo` layer because that's how SF works:
-            // layers in the function completely override the layers in the root
-            'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
-        ]);
-        self::assertFunction($output['functions']['function-arm-with-layers'], FunctionMain::class, [
-            'arn:aws:lambda:us-east-1:873528684822:layer:arm-php-83:',
-            // This function doesn't have the `foo` layer because that's how SF works:
-            // layers in the function completely override the layers in the root
-            'arn:aws:lambda:us-east-1:1234567890:layer:bar:1',
-        ]);
+        self::assertFunction($output['functions']['function'], FunctionMain::class, 'php-83');
+        self::assertArrayNotHasKey('layers', $output['functions']['function']);
+        self::assertSame(['arn:aws:lambda:us-east-1:1234567890:layer:foo:1'], $output['provider']['layers']);
+        self::assertFunction($output['functions']['function-with-layers'], FunctionMain::class, 'php-83');
+        self::assertSame(['arn:aws:lambda:us-east-1:1234567890:layer:bar:1'], $output['functions']['function-with-layers']['layers']);
     }
 
     public function test the plugin exposes the stack name(): void
@@ -140,13 +86,9 @@ class PluginTest extends TestCase
         return Yaml::parse($process->getOutput());
     }
 
-    private static function assertFunction(array $config, string $brefRuntime, array $layers): void
+    private static function assertFunction(array $config, string $brefRuntime, string $runtime): void
     {
-        self::assertEquals('provided.al2023', $config['runtime']);
+        self::assertEquals("arn:aws:lambda:us-east-1:873528684822:runtime/$runtime/alias/4", $config['runtime']);
         self::assertEquals($brefRuntime, $config['environment']['BREF_RUNTIME']);
-        self::assertCount(count($layers), $config['layers'], sprintf('Expected %d layers, got %d: %s', count($layers), count($config['layers']), json_encode($config['layers'], JSON_THROW_ON_ERROR)));
-        foreach ($layers as $index => $layer) {
-            self::assertStringStartsWith($layer, $config['layers'][$index]);
-        }
     }
 }
