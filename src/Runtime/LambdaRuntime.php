@@ -6,8 +6,10 @@ use Bref\Bref;
 use Bref\Context\Context;
 use Bref\Context\ContextBuilder;
 use Bref\Event\Handler;
+use Bref\Event\Http\HttpHandler;
 use Bref\Event\Http\HttpRequestEvent;
-use Bref\Event\Http\HttpResponse;
+use Bref\Event\Http\HttpResponseWriter;
+use Bref\Event\Http\Psr15Handler;
 use CurlHandle;
 use Exception;
 use JsonException;
@@ -104,9 +106,15 @@ final class LambdaRuntime
 
             $this->ping();
 
-            $result = $this->invoker->invoke($handler, $event, $context);
-
-            $this->sendResponse($context, $result);
+            $httpHandler = $handler instanceof RequestHandlerInterface ? new Psr15Handler($handler) : $handler;
+            if ($httpHandler instanceof HttpHandler) {
+                // HTTP handlers do not return a result: they write the HTTP response
+                $result = null;
+                $this->writeHttpResponse($httpHandler, $event, $context);
+            } else {
+                $result = $this->invoker->invoke($handler, $event, $context);
+                $this->sendResponse($context, $result);
+            }
         } catch (Throwable $e) {
             $this->signalFailure($context->getAwsRequestId(), $e, $event);
 
@@ -212,16 +220,42 @@ final class LambdaRuntime
      */
     private function sendResponse(Context $context, mixed $result): void
     {
-        $result = $result instanceof LambdaResult ? $result : LambdaResult::json($result);
+        $result = $result instanceof InvocationResult ? $result : InvocationResult::json($result);
 
         $this->responseSender = new ResponseSender($this->apiUrl, $context->getAwsRequestId(), $result->contentType, $context);
         try {
             if ($result->failuresInTrailer) {
                 $this->responseSender->start();
             }
-            // The result can end early: the rest of the handler runs before the next invocation
-            $result->writeTo($this->responseSender->write(...), $this->responseSender->end(...));
+            // The result can end the response early: the rest of its code runs before the next invocation
+            $result->writeTo($this->responseSender);
             $this->responseSender->end();
+        } catch (Throwable $e) {
+            // Too late for the error endpoint if the response has started: the error goes in its trailers
+            $this->responseSender->abort($e);
+            throw $e;
+        }
+    }
+
+    /**
+     * The HTTP handler writes its response in a writer: streamed or buffered, depending on what invoked
+     * the function.
+     */
+    private function writeHttpResponse(HttpHandler $handler, mixed $event, Context $context): void
+    {
+        $requestId = $context->getAwsRequestId();
+
+        // Streamed Function URLs and REST APIs send the response to the client as it is written
+        $streamed = HttpRequestEvent::isStreamed($event);
+        $contentType = $streamed ? HttpResponseWriter::STREAMED_CONTENT_TYPE : 'application/json';
+
+        $this->responseSender = new ResponseSender($this->apiUrl, $requestId, $contentType, $context);
+        $responseWriter = new HttpResponseWriter($this->responseSender, $event, $streamed, $requestId);
+
+        try {
+            // The handler can end the response early: the rest of its code runs before the next invocation
+            $handler->writeResponse($event, $context, $responseWriter);
+            $responseWriter->end();
         } catch (Throwable $e) {
             // Too late for the error endpoint if the response has started: the error goes in its trailers
             $this->responseSender->abort($e);
@@ -242,11 +276,12 @@ final class LambdaRuntime
         }
 
         // A streamed Function URL would show the error, stack trace included, as the body of a 200 response.
-        // The only HTTP knowledge of the runtime: errors before the handler (e.g. in beforeInvoke) end here too.
+        // Errors before the handler (e.g. in beforeInvoke) end here too.
         if (HttpRequestEvent::isStreamed($event)) {
-            $response = (new HttpResponse('Internal Server Error', ['content-type' => 'text/plain'], 500))->toStreamedResponse();
-            $this->responseSender = new ResponseSender($this->apiUrl, $invocationId, $response->contentType);
-            $response->writeTo($this->responseSender->write(...));
+            $this->responseSender = new ResponseSender($this->apiUrl, $invocationId, HttpResponseWriter::STREAMED_CONTENT_TYPE);
+            $responseWriter = new HttpResponseWriter($this->responseSender, $event, streamed: true);
+            $responseWriter->start(500, ['content-type' => 'text/plain']);
+            $responseWriter->write('Internal Server Error');
             $this->responseSender->end($error);
 
             return;
@@ -258,11 +293,6 @@ final class LambdaRuntime
             'errorMessage' => $error->getMessage(),
             'stackTrace' => explode(PHP_EOL, $error->getTraceAsString()),
         ], jsonFlags: self::ERROR_JSON_FLAGS);
-    }
-
-    private function toJson(mixed $data, int $flags = 0): string
-    {
-        return LambdaResult::encodeJson($data, $flags);
     }
 
     /**
@@ -322,7 +352,7 @@ final class LambdaRuntime
      */
     private function postJson(string $url, mixed $data, array $headers = [], int $jsonFlags = 0): void
     {
-        $jsonData = $this->toJson($data, $jsonFlags);
+        $jsonData = InvocationResult::encodeJson($data, $jsonFlags);
 
         if ($this->curlHandleResult === null) {
             $this->curlHandleResult = curl_init();

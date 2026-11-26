@@ -2,62 +2,79 @@
 
 namespace Bref\Test\Event\Http;
 
-use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\Http\HttpResponseWriter;
+use Bref\Runtime\InMemoryResponseStream;
+use Bref\Test\Fixture\CallbackResponseStream;
 use LogicException;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class HttpResponseWriterTest extends TestCase
 {
+    private const EVENT_V2 = ['version' => '2.0', 'requestContext' => ['http' => ['method' => 'GET']]];
+
     public function test streamed responses are sent as they are written()
     {
-        $sent = [];
-        $writer = HttpResponseWriter::streamed(function (string $chunk) use (&$sent) {
-            $sent[] = $chunk;
-        });
+        $lambdaResponse = new InMemoryResponseStream;
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
 
         $writer->start(404, ['content-type' => 'text/plain', 'set-cookie' => ['a=1', 'b=2']]);
+        $this->assertCount(1, $lambdaResponse->chunks);
         $writer->write('Not ');
-        $writer->write('');
+        $this->assertCount(2, $lambdaResponse->chunks);
         $writer->write('found');
 
         $this->assertSame([
             '{"cookies":["a=1","b=2"],"statusCode":404,"headers":{"Content-Type":"text\/plain"}}' . str_repeat("\0", 8),
             'Not ',
             'found',
-        ], $sent);
+        ], $lambdaResponse->chunks);
+        $this->assertFalse($lambdaResponse->ended);
     }
 
-    public function test buffered responses are returned in the format of the invoker()
+    public function test buffered responses are sent at the end in the format of the invoker()
     {
-        $sent = [];
-        $writer = HttpResponseWriter::buffered($this->eventV2(), function (string $chunk) use (&$sent) {
-            $sent[] = $chunk;
-        });
+        $lambdaResponse = new InMemoryResponseStream;
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: false);
         $writer->start(404, ['content-type' => 'text/plain']);
         $writer->write('Not ');
         $writer->write('found');
         // Sent at the end, at once
-        $this->assertCount(0, $sent);
+        $this->assertCount(0, $lambdaResponse->chunks);
         $writer->end();
 
-        $this->assertCount(1, $sent);
-        $response = json_decode($sent[0], true);
+        $this->assertCount(1, $lambdaResponse->chunks);
+        $this->assertTrue($lambdaResponse->ended);
+        $response = json_decode($lambdaResponse->contents(), true);
         $this->assertSame(404, $response['statusCode']);
         $this->assertSame(['Content-Type' => 'text/plain'], $response['headers']);
         $this->assertSame('Not found', $response['body']);
 
-        $writer = HttpResponseWriter::buffered(new HttpRequestEvent(['httpMethod' => 'GET', 'multiValueHeaders' => []]), function (string $chunk) use (&$sent) {
-            $sent[] = $chunk;
-        });
+        $lambdaResponse = new InMemoryResponseStream;
+        $writer = new HttpResponseWriter($lambdaResponse, ['httpMethod' => 'GET', 'multiValueHeaders' => []], streamed: false);
         $writer->start(404, ['content-type' => 'text/plain']);
         $writer->end();
-        $this->assertSame(['Content-Type' => ['text/plain']], json_decode($sent[1], true)['multiValueHeaders']);
+        $this->assertSame(['Content-Type' => ['text/plain']], json_decode($lambdaResponse->contents(), true)['multiValueHeaders']);
+    }
+
+    public function test a whole response can be written at once()
+    {
+        $lambdaResponse = new InMemoryResponseStream;
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
+
+        $writer->respond('Not found', ['content-type' => 'text/plain'], 404);
+
+        $this->assertSame([
+            '{"cookies":[],"statusCode":404,"headers":{"Content-Type":"text\/plain"}}' . str_repeat("\0", 8),
+            'Not found',
+        ], $lambdaResponse->chunks);
+        $this->assertTrue($lambdaResponse->ended);
     }
 
     public function test write tells when the rest is not wanted()
     {
-        $writer = HttpResponseWriter::streamed(fn (string $chunk) => ! str_contains($chunk, 'stop'));
+        $lambdaResponse = new CallbackResponseStream(fn (string $chunk) => ! str_contains($chunk, 'stop'));
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
         $writer->start(200, []);
 
         $this->assertTrue($writer->write('Hello'));
@@ -67,9 +84,10 @@ class HttpResponseWriterTest extends TestCase
     public function test output is captured as it is produced()
     {
         $sent = [];
-        $writer = HttpResponseWriter::streamed(function (string $chunk) use (&$sent) {
+        $lambdaResponse = new CallbackResponseStream(function (string $chunk) use (&$sent) {
             $sent[] = $chunk;
         });
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
         $writer->start(200, []);
 
         $writer->capture(function () use (&$sent) {
@@ -87,10 +105,8 @@ class HttpResponseWriterTest extends TestCase
     public function test the output buffers are restored after capturing()
     {
         $level = ob_get_level();
-        $sent = [];
-        $writer = HttpResponseWriter::buffered($this->eventV2(), function (string $chunk) use (&$sent) {
-            $sent[] = $chunk;
-        });
+        $lambdaResponse = new InMemoryResponseStream;
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: false);
         $writer->start(200, []);
 
         $writer->capture(function () {
@@ -102,12 +118,12 @@ class HttpResponseWriterTest extends TestCase
 
         $this->assertSame($level, ob_get_level());
         $writer->end();
-        $this->assertSame('Hello', json_decode($sent[0], true)['body']);
+        $this->assertSame('Hello', json_decode($lambdaResponse->contents(), true)['body']);
     }
 
     public function test the status and headers are written once()
     {
-        $writer = HttpResponseWriter::buffered($this->eventV2(), fn () => null);
+        $writer = new HttpResponseWriter(new InMemoryResponseStream, self::EVENT_V2, streamed: false);
         $writer->start(200, []);
 
         $this->expectException(LogicException::class);
@@ -116,18 +132,21 @@ class HttpResponseWriterTest extends TestCase
 
     public function test the body is written after the status and headers()
     {
+        $writer = new HttpResponseWriter(new InMemoryResponseStream, self::EVENT_V2, streamed: false);
+
         $this->expectException(LogicException::class);
-        HttpResponseWriter::buffered($this->eventV2(), fn () => null)->write('Hello');
+        $writer->write('Hello');
     }
 
     public function test the response ends once()
     {
         $log = [];
-        $writer = HttpResponseWriter::streamed(function (string $chunk) use (&$log) {
+        $lambdaResponse = new CallbackResponseStream(function (string $chunk) use (&$log) {
             $log[] = $chunk;
         }, function () use (&$log) {
             $log[] = 'end';
         });
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
         $writer->start(200, []);
         $writer->write('Hello');
 
@@ -139,14 +158,46 @@ class HttpResponseWriterTest extends TestCase
         $this->assertSame(['Hello', 'end'], array_slice($log, 1));
     }
 
-    public function test a response cannot end before it starts()
+    public function test a failure to end the response is thrown again by the next end()
     {
-        $this->expectExceptionMessage('The HTTP handler did not write any response');
-        HttpResponseWriter::buffered($this->eventV2(), fn () => null)->end();
+        $lambdaResponse = new CallbackResponseStream(fn () => true, fn () => throw new RuntimeException('The response is too big'));
+
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
+        $writer->start(200, []);
+
+        // E.g. a framework that catches the errors of the handler
+        try {
+            $writer->end();
+            $this->fail('end() must throw');
+        } catch (RuntimeException) {
+        }
+
+        // The runtime ends the response after the handler: it must get the failure
+        $this->expectExceptionMessage('The response is too big');
+        $writer->end();
     }
 
-    private function eventV2(): HttpRequestEvent
+    public function test output cannot be captured before the response starts()
     {
-        return new HttpRequestEvent(['version' => '2.0', 'requestContext' => ['http' => ['method' => 'GET']]]);
+        $writer = new HttpResponseWriter(new InMemoryResponseStream, self::EVENT_V2, streamed: true);
+
+        try {
+            $writer->capture(function () {
+                echo 'Hello';
+            });
+            $this->fail('capture() must throw');
+        } catch (LogicException) {
+        }
+
+        // Thrown before the output is produced: it is not printed
+        $this->expectOutputString('');
+    }
+
+    public function test a response cannot end before it starts()
+    {
+        $writer = new HttpResponseWriter(new InMemoryResponseStream, self::EVENT_V2, streamed: false);
+
+        $this->expectExceptionMessage('The HTTP handler did not write any response');
+        $writer->end();
     }
 }

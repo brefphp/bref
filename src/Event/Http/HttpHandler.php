@@ -4,8 +4,7 @@ namespace Bref\Event\Http;
 
 use Bref\Context\Context;
 use Bref\Event\Handler;
-use Bref\Runtime\LambdaResult;
-use LogicException;
+use Bref\Runtime\InMemoryResponseStream;
 
 abstract class HttpHandler implements Handler
 {
@@ -22,22 +21,47 @@ abstract class HttpHandler implements Handler
     public const RAW_QUERY_STRING_HEADER = 'x-bref-raw-query-string';
 
     /**
-     * Implement it to return the response to the request, or override respond() to write it as it is produced.
+     * Write the response to the request: its status and headers, then its body as it is produced.
+     *
+     * Call `$responseWriter->end()` before the work that the client must not wait for (e.g. terminate
+     * callbacks): the response ends by itself otherwise.
      */
-    public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
+    abstract public function handleRequest(HttpRequestEvent $event, Context $context, HttpResponseWriter $responseWriter): void;
+
+    /**
+     * The response to the event, in the buffered format of its invoker (API Gateway, ALB…).
+     *
+     * Not used by the runtime, which calls writeResponse(): it is for the code that calls the handler
+     * directly (tests, `bref-local`).
+     *
+     * Do not return it from another handler on Lambda (e.g. a function that wraps this handler): the
+     * runtime only streams the response of the HTTP handler it is given. A streamed Function URL would
+     * show this array as the body of the response.
+     */
+    public function handle(mixed $event, Context $context): array
     {
-        throw new LogicException(static::class . ' must implement handleRequest() or respond()');
+        $lambdaResponse = new InMemoryResponseStream;
+        $responseWriter = new HttpResponseWriter($lambdaResponse, $event, streamed: false, awsRequestId: $context->getAwsRequestId());
+
+        $this->writeResponse($event, $context, $responseWriter);
+        $responseWriter->end();
+
+        return json_decode($lambdaResponse->contents(), true, 512, JSON_THROW_ON_ERROR);
     }
 
-    /** {@inheritDoc} */
-    public function handle($event, Context $context): array|LambdaResult
+    /**
+     * Called by the runtime, with the writer of the HTTP response: the runtime sends what is written,
+     * streamed or buffered depending on what invoked the function.
+     */
+    public function writeResponse(mixed $event, Context $context, HttpResponseWriter $responseWriter): void
     {
         // See https://bref.sh/docs/runtimes/http.html#cold-starts
         if (isset($event['warmer']) && $event['warmer'] === true) {
             // Delay the response to ensure concurrent invocation
             // See https://github.com/brefphp/bref/pull/734
             usleep(10000); // 10ms
-            return ['Lambda is warm'];
+            $responseWriter->respond('Lambda is warm', ['Content-Type' => 'text/plain']);
+            return;
         }
 
         // With `BREF_ORIGIN_SECRET`, only the requests that went through the CDN are answered: calling
@@ -51,34 +75,14 @@ abstract class HttpHandler implements Handler
         if ($hasOriginSecret && $fromCdn && $rawQueryString !== '' && ($event['version'] ?? null) === '2.0') {
             $event['rawQueryString'] = $rawQueryString;
         }
-        $respond = $fromCdn
-            ? $this->respond(...)
-            : static fn (HttpRequestEvent $event, Context $context, HttpResponseWriter $writer) => (new HttpResponse('Forbidden', ['Content-Type' => 'text/plain'], 403))->sendTo($writer);
 
         $httpEvent = new HttpRequestEvent($event);
-        // Streamed Function URLs and REST APIs send the response to the client as it is written
-        $streamed = HttpRequestEvent::isStreamed($event);
+        if (! $fromCdn) {
+            $responseWriter->respond('Forbidden', ['Content-Type' => 'text/plain'], 403);
+            return;
+        }
 
-        return new LambdaResult(
-            $streamed ? HttpResponseWriter::STREAMED_CONTENT_TYPE : 'application/json',
-            function (callable $send, callable $end) use ($httpEvent, $context, $streamed, $respond): void {
-                $writer = $streamed
-                    ? HttpResponseWriter::streamed($send, $end, $context->getAwsRequestId())
-                    : HttpResponseWriter::buffered($httpEvent, $send, $end, $context->getAwsRequestId());
-                $respond($httpEvent, $context, $writer);
-                $writer->end();
-            },
-        );
-    }
-
-    /**
-     * Write the response to the request: by default the one returned by handleRequest().
-     *
-     * Override it to write the response as it is produced, e.g. the output of a framework (see HttpResponseWriter).
-     */
-    protected function respond(HttpRequestEvent $event, Context $context, HttpResponseWriter $writer): void
-    {
-        $this->handleRequest($event, $context)->sendTo($writer);
+        $this->handleRequest($httpEvent, $context, $responseWriter);
     }
 
     /**

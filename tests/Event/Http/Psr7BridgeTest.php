@@ -4,7 +4,9 @@ namespace Bref\Test\Event\Http;
 
 use Bref\Context\Context;
 use Bref\Event\Http\HttpRequestEvent;
+use Bref\Event\Http\HttpResponseWriter;
 use Bref\Event\Http\Psr7Bridge;
+use Bref\Runtime\InMemoryResponseStream;
 use GuzzleHttp\Psr7\PumpStream;
 use Nyholm\Psr7\Response;
 use Nyholm\Psr7\Uri;
@@ -306,10 +308,8 @@ class Psr7BridgeTest extends CommonHttpTest
         $response = Psr7Bridge::convertResponse(new Response(200, [], $stream));
         $this->assertSame(0, $reads, 'Nothing is read before the response is sent');
 
-        $chunks = [];
-        $response->toStreamedResponse()->writeTo(function (string $chunk) use (&$chunks) {
-            $chunks[] = $chunk;
-        });
-        $this->assertSame('chunk 1chunk 2', implode('', array_slice($chunks, 1)));
+        $lambdaResponse = new InMemoryResponseStream;
+        $response->sendTo(new HttpResponseWriter($lambdaResponse, null, streamed: true));
+        $this->assertSame('chunk 1chunk 2', implode('', array_slice($lambdaResponse->chunks, 1)));
     }
 }

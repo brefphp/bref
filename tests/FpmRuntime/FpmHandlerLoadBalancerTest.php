@@ -158,8 +158,6 @@ final class FpmHandlerLoadBalancerTest extends TestCase
      */
     private function handle(array $event, Context $context): array
     {
-        $result = $this->fpm->handle($event, $context);
-
-        return is_array($result) ? $result : json_decode($result->contents(), true, 512, JSON_THROW_ON_ERROR);
+        return $this->fpm->handle($event, $context);
     }
 }
