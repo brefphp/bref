@@ -16,7 +16,7 @@ use Throwable;
  * @internal
  * @see https://docs.aws.amazon.com/lambda/latest/dg/runtimes-custom.html#runtimes-custom-response-streaming
  */
-final class ResponseSender
+final class ResponseSender implements ResponseStream
 {
     /**
      * The Runtime API is local and reads as fast as we write, then answers right away:
@@ -124,7 +124,6 @@ final class ResponseSender
      */
     public function end(?Throwable $error = null): void
     {
-        // E.g. ended early by the handler
         if ($this->ended) {
             return;
         }

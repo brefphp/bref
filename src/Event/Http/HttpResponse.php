@@ -2,10 +2,8 @@
 
 namespace Bref\Event\Http;
 
-use Bref\Runtime\LambdaResult;
-
 /**
- * Formats the response expected by AWS Lambda and the API Gateway integration.
+ * An HTTP response: its status, headers and body.
  */
 final class HttpResponse
 {
@@ -26,6 +24,22 @@ final class HttpResponse
         $this->body = $body;
         $this->headers = $headers;
         $this->statusCode = $statusCode;
+    }
+
+    /**
+     * Write the response, its body chunk by chunk. A body produced by an iterable can only be sent once.
+     */
+    public function sendTo(HttpResponseWriter $writer): void
+    {
+        $writer->start($this->statusCode, $this->headers);
+
+        $chunks = is_string($this->body) ? [$this->body] : $this->body;
+        foreach ($chunks as $chunk) {
+            $bodyStillWanted = $writer->write($chunk);
+            if (! $bodyStillWanted) {
+                return;
+            }
+        }
     }
 
     public function toApiGatewayFormat(bool $multiHeaders = false, ?string $awsRequestId = null): array
@@ -82,31 +96,8 @@ final class HttpResponse
     }
 
     /**
-     * The format of Lambda's streamed HTTP responses (Function URLs in `RESPONSE_STREAM` mode, REST APIs in
-     * `STREAM` mode): the status code and headers as JSON, 8 null bytes, then the body as is (binary included,
-     * no base64).
-     *
-     * A body produced by an iterable can only be sent once.
-     */
-    public function toStreamedResponse(?string $awsRequestId = null): LambdaResult
-    {
-        return new LambdaResult(
-            HttpResponseWriter::STREAMED_CONTENT_TYPE,
-            fn (callable $send, callable $end) => $this->sendTo(HttpResponseWriter::streamed($send, $end, $awsRequestId)),
-        );
-    }
-
-    /**
-     * Write the response, its body chunk by chunk. A body produced by an iterable can only be sent once.
-     */
-    public function sendTo(HttpResponseWriter $writer): void
-    {
-        $writer->start($this->statusCode, $this->headers);
-        LambdaResult::writeChunks(is_string($this->body) ? [$this->body] : $this->body, $writer->write(...));
-    }
-
-    /**
-     * The status code and headers of Lambda's streamed HTTP responses (see toStreamedResponse()).
+     * The status code and headers of Lambda's streamed HTTP responses, sent before the body
+     * (see HttpResponseWriter).
      *
      * @internal
      */

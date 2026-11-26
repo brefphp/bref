@@ -6,8 +6,9 @@ use Bref\Bref;
 use Bref\Context\Context;
 use Bref\LazySecretsLoader;
 use Bref\Runtime\ColdStartTracker;
-use Bref\Runtime\LambdaResult;
+use Bref\Runtime\InvocationResult;
 use Bref\Runtime\LambdaRuntime;
+use Bref\Runtime\ResponseStream;
 use Symfony\Component\Process\Process;
 
 /**
@@ -37,7 +38,7 @@ class Main
 
         /** @phpstan-ignore-next-line */
         while (true) {
-            $lambdaRuntime->processNextEvent(function ($event, Context $context) use ($handlerFile): array|LambdaResult {
+            $lambdaRuntime->processNextEvent(function ($event, Context $context) use ($handlerFile): array|InvocationResult {
                 // The event is the command: `"<arguments>"`, or `{"cli": "<arguments>", "stream": true}` to stream the output
                 $stream = false;
                 if (is_array($event)) {
@@ -61,13 +62,13 @@ class Main
     /**
      * The output, sent as the command writes it, for clients using InvokeWithResponseStream (e.g. `serverless bref:cli`).
      */
-    private static function streamOutput(Process $process): LambdaResult
+    private static function streamOutput(Process $process): InvocationResult
     {
-        $output = function (callable $write) use ($process): void {
-            $process->run(function ($type, string $buffer) use ($process, $write): void {
+        $output = function (ResponseStream $response) use ($process): void {
+            $process->run(function ($type, string $buffer) use ($process, $response): void {
                 echo $buffer;
                 // The command keeps running if the output can no longer be sent: it is in the logs
-                $write($buffer);
+                $response->write($buffer);
                 // Sent and logged: no need to keep it in memory
                 $process->clearOutput();
             });
@@ -78,7 +79,7 @@ class Main
         };
 
         // Started right away: every failure is in the trailers, which InvokeWithResponseStream reports and counts
-        return new LambdaResult('text/plain', $output, failuresInTrailer: true);
+        return new InvocationResult('text/plain', $output, failuresInTrailer: true);
     }
 
     /**
@@ -86,6 +87,8 @@ class Main
      *
      * The default: the Invoke API and asynchronous invocations (e.g. crons) ignore the errors of streamed responses,
      * a failure must go through the error endpoint to be reported and counted in the metrics.
+     *
+     * Returned as an array, not as an InvocationResult: `afterInvoke()` subscribers read it.
      *
      * @return array{exitCode: int|null, output: string}
      */

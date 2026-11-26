@@ -2,8 +2,10 @@
 
 namespace Bref\Test\ConsoleRuntime;
 
+use Bref\Bref;
 use Bref\ConsoleRuntime\CommandFailed;
 use Bref\ConsoleRuntime\Main;
+use Bref\Listener\BrefEventSubscriber;
 use Bref\Test\RuntimeTestCase;
 use Bref\Test\Server;
 use Psr\Http\Message\RequestInterface;
@@ -81,6 +83,32 @@ class MainTest extends RuntimeTestCase
             'exitCode' => 0,
             'output' => "Hello world!\n",
         ]);
+    }
+
+    public function test subscribers receive the exit code and the output after the command()
+    {
+        $subscriber = new class extends BrefEventSubscriber {
+            public mixed $result = null;
+
+            public function afterInvoke(mixed ...$params): void
+            {
+                $this->result = $params[3];
+            }
+        };
+        Bref::events()->subscribe($subscriber);
+        $this->givenAnEvent('');
+
+        try {
+            Main::run();
+        } catch (\Throwable) {
+            // Needed because `run()` is an infinite loop and will fail eventually
+        }
+
+        // The array itself, e.g. for integrations that report the outcome of commands
+        $this->assertSame([
+            'exitCode' => 0,
+            'output' => "Hello world!\n",
+        ], $subscriber->result);
     }
 
     public function test streamed output()

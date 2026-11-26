@@ -9,7 +9,7 @@ use Bref\Event\EventBridge\EventBridgeHandler;
 use Bref\Event\Handler;
 use Bref\Event\Http\HttpHandler;
 use Bref\Event\Http\HttpRequestEvent;
-use Bref\Event\Http\HttpResponse;
+use Bref\Event\Http\HttpResponseWriter;
 use Bref\Event\S3\S3Event;
 use Bref\Event\S3\S3Handler;
 use Bref\Event\Sns\SnsEvent;
@@ -17,8 +17,9 @@ use Bref\Event\Sns\SnsHandler;
 use Bref\Event\Sqs\SqsEvent;
 use Bref\Event\Sqs\SqsHandler;
 use Bref\Listener\BrefEventSubscriber;
-use Bref\Runtime\LambdaResult;
+use Bref\Runtime\InvocationResult;
 use Bref\Runtime\LambdaRuntime;
+use Bref\Runtime\ResponseStream;
 use Bref\Runtime\ResponseTimedOut;
 use Bref\Runtime\ResponseTooBig;
 use Bref\Test\RuntimeTestCase;
@@ -115,7 +116,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', (function () {
+        $this->runtime->processNextEvent(fn () => $this->resultWithChunks((function () {
             yield 'Hello ';
             yield '';
             yield 'world!';
@@ -131,9 +132,9 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function (callable $write) {
-            $write('Hello ');
-            $write('world!');
+        $this->runtime->processNextEvent(fn () => new InvocationResult('text/plain', function (ResponseStream $response) {
+            $response->write('Hello ');
+            $response->write('world!');
         }));
 
         $this->assertSame('Hello world!', $this->streamedResponse()->getBody()->__toString());
@@ -143,7 +144,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function () {
+        $output = $this->runtime->processNextEvent(fn () => new InvocationResult('text/plain', function () {
             throw new RuntimeException('Failure before the first byte');
         }));
 
@@ -155,7 +156,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', (function () {
+        $output = $this->runtime->processNextEvent(fn () => $this->resultWithChunks((function () {
             yield 'Hello';
             throw new RuntimeException('Failure in the middle');
         })()));
@@ -174,7 +175,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function () {
+        $output = $this->runtime->processNextEvent(fn () => new InvocationResult('text/plain', function () {
             throw new RuntimeException('Failure before the first byte');
         }, failuresInTrailer: true));
 
@@ -228,7 +229,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
             }
         })();
 
-        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', $chunks));
+        $output = $this->runtime->processNextEvent(fn () => $this->resultWithChunks($chunks));
 
         $this->assertFalse($output);
         // The first byte is always sent, then the response ends with the error in its trailers
@@ -243,13 +244,13 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         // 3 seconds left: enough for a small response, not for a big one throttled by Lambda
         $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 3000);
-        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', ['small', ' response']));
+        $this->runtime->processNextEvent(fn () => $this->resultWithChunks(['small', ' response']));
         $this->assertSame('small response', $this->streamedResponse()->getBody()->__toString());
         Server::flush();
 
         $this->givenAnEvent(['Hello' => 'world!'], (int) (microtime(true) * 1000) + 3000);
         $big = str_repeat('a', 7 * 1024 * 1024);
-        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', [$big, ' end']));
+        $this->runtime->processNextEvent(fn () => $this->resultWithChunks([$big, ' end']));
         $response = $this->streamedResponse();
         $this->assertSame(strlen($big), $response->getBody()->getSize());
         $this->assertSame(ResponseTimedOut::class, $response->getHeaderLine('lambda-runtime-function-error-type'));
@@ -268,9 +269,9 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', function (callable $write, callable $end) {
-            $write('Hello');
-            $end();
+        $this->runtime->processNextEvent(fn () => new InvocationResult('text/plain', function (ResponseStream $response) {
+            $response->write('Hello');
+            $response->end();
             // E.g. terminate callbacks: the response is already complete
             throw new RuntimeException('Failure after the end');
         }));
@@ -279,6 +280,22 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->assertSame('Hello', $response->getBody()->__toString());
         $this->assertSame('', $response->getHeaderLine('lambda-runtime-function-error-type'));
         $this->assertErrorInLogs('RuntimeException', 'Failure after the end');
+    }
+
+    /**
+     * A result that writes each chunk, until the rest is not wanted.
+     *
+     * @param iterable<string> $chunks
+     */
+    private function resultWithChunks(iterable $chunks): InvocationResult
+    {
+        return new InvocationResult('text/plain', function (ResponseStream $response) use ($chunks): void {
+            foreach ($chunks as $chunk) {
+                if (! $response->write($chunk)) {
+                    return;
+                }
+            }
+        });
     }
 
     private function streamedResponse(): RequestInterface
@@ -315,7 +332,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     {
         $this->givenAnEvent(['Hello' => 'world!']);
 
-        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', ['', '']));
+        $output = $this->runtime->processNextEvent(fn () => $this->resultWithChunks(['', '']));
 
         $this->assertTrue($output);
         $this->assertSame('', $this->streamedResponse()->getBody()->__toString());
@@ -329,7 +346,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
         // The test server records text: a big body of random text
         $big = bin2hex(random_bytes(150_000));
 
-        $this->runtime->processNextEvent(fn () => new LambdaResult('application/octet-stream', [$tricky, $big, $tricky]));
+        $this->runtime->processNextEvent(fn () => $this->resultWithChunks([$tricky, $big, $tricky]));
 
         $this->assertSame($tricky . $big . $tricky, $this->streamedResponse()->getBody()->__toString());
     }
@@ -341,7 +358,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
             new Response(413, [], '{"errorMessage": "Exceeded maximum allowed payload size (6291556 bytes).", "errorType": "RequestEntityTooLarge"}'),
         ]);
 
-        $output = $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', ['Hello ', 'world!']));
+        $output = $this->runtime->processNextEvent(fn () => $this->resultWithChunks(['Hello ', 'world!']));
 
         $this->assertFalse($output);
         // The response was sent: no error request (the Runtime API would refuse it)
@@ -352,7 +369,7 @@ class LambdaRuntimeTest extends RuntimeTestCase
     public function test the invocation after a failed stream can report its own failure()
     {
         $this->givenAnEvent(['Hello' => 'world!']);
-        $this->runtime->processNextEvent(fn () => new LambdaResult('text/plain', (function () {
+        $this->runtime->processNextEvent(fn () => $this->resultWithChunks((function () {
             yield 'Hello';
             throw new RuntimeException('Failure in the middle');
         })()));
@@ -379,6 +396,90 @@ class LambdaRuntimeTest extends RuntimeTestCase
         $this->assertInvocationErrorResult('RuntimeException', 'Failure');
     }
 
+    public function test HTTP responses are streamed to Function URLs with response streaming()
+    {
+        putenv('BREF_RESPONSE_STREAMING=1');
+        $this->givenAnEvent($this->functionUrlEvent());
+
+        $this->runtime->processNextEvent($this->helloWorldHttpHandler());
+
+        $response = $this->streamedResponse();
+        $this->assertSame('application/vnd.awslambda.http-integration-response', $response->getHeaderLine('Content-Type'));
+        $this->assertSame(
+            '{"cookies":[],"statusCode":200,"headers":{"Content-Type":"text\\/plain"}}' . str_repeat("\0", 8) . 'Hello world!',
+            $response->getBody()->__toString(),
+        );
+    }
+
+    public function test HTTP responses are streamed to REST APIs with response streaming()
+    {
+        putenv('BREF_RESPONSE_STREAMING=1');
+        $this->givenAnEvent([
+            'resource' => '/',
+            'path' => '/',
+            'httpMethod' => 'GET',
+            'headers' => ['Host' => 'abc.execute-api.eu-west-3.amazonaws.com'],
+            'requestContext' => ['apiId' => 'abc', 'domainName' => 'abc.execute-api.eu-west-3.amazonaws.com', 'httpMethod' => 'GET'],
+            'body' => null,
+            'isBase64Encoded' => false,
+        ]);
+
+        $this->runtime->processNextEvent($this->helloWorldHttpHandler());
+
+        $response = $this->streamedResponse();
+        $this->assertSame('application/vnd.awslambda.http-integration-response', $response->getHeaderLine('Content-Type'));
+        $this->assertSame(
+            '{"cookies":[],"statusCode":200,"headers":{"Content-Type":"text\\/plain"}}' . str_repeat("\0", 8) . 'Hello world!',
+            $response->getBody()->__toString(),
+        );
+    }
+
+    public function test HTTP responses are buffered for Function URLs without response streaming()
+    {
+        // The default mode of Function URLs (`BUFFERED`) would show an empty body with the streamed format
+        $this->givenAnEvent($this->functionUrlEvent());
+
+        $this->runtime->processNextEvent($this->helloWorldHttpHandler());
+
+        $response = $this->streamedResponse();
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $this->assertSame('Hello world!', json_decode($response->getBody()->__toString(), true)['body']);
+    }
+
+    public function test HTTP responses are buffered for the invokers that cannot stream()
+    {
+        putenv('BREF_RESPONSE_STREAMING=1');
+        $event = $this->functionUrlEvent();
+        $event['requestContext']['domainName'] = 'abc.execute-api.eu-west-3.amazonaws.com';
+        $this->givenAnEvent($event);
+
+        $this->runtime->processNextEvent($this->helloWorldHttpHandler());
+
+        $response = $this->streamedResponse();
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $this->assertSame('Hello world!', json_decode($response->getBody()->__toString(), true)['body']);
+    }
+
+    private function functionUrlEvent(): array
+    {
+        return [
+            'version' => '2.0',
+            'rawPath' => '/',
+            'requestContext' => ['domainName' => 'abc.lambda-url.eu-west-3.on.aws', 'http' => ['method' => 'GET']],
+        ];
+    }
+
+    private function helloWorldHttpHandler(): HttpHandler
+    {
+        return new class extends HttpHandler {
+            public function handleRequest(HttpRequestEvent $event, Context $context, HttpResponseWriter $responseWriter): void
+            {
+                $responseWriter->start(200, ['content-type' => 'text/plain']);
+                $responseWriter->write('Hello world!');
+            }
+        };
+    }
+
     public function test a Function URL response failing in the middle is truncated()
     {
         putenv('BREF_RESPONSE_STREAMING=1');
@@ -388,12 +489,11 @@ class LambdaRuntimeTest extends RuntimeTestCase
             'requestContext' => ['domainName' => 'abc.lambda-url.eu-west-3.on.aws', 'http' => ['method' => 'GET']],
         ]);
         $handler = new class extends HttpHandler {
-            public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
+            public function handleRequest(HttpRequestEvent $event, Context $context, HttpResponseWriter $responseWriter): void
             {
-                return new HttpResponse((function () {
-                    yield 'Hello';
-                    throw new RuntimeException('Failure in the middle');
-                })(), ['content-type' => 'text/plain']);
+                $responseWriter->start(200, ['content-type' => 'text/plain']);
+                $responseWriter->write('Hello');
+                throw new RuntimeException('Failure in the middle');
             }
         };
 

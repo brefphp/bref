@@ -2,7 +2,6 @@
 
 namespace Bref\Test\Runtime;
 
-use Bref\Runtime\LambdaResult;
 use Bref\Runtime\ResponseSender;
 use Bref\Runtime\ResponseTooBig;
 use PHPUnit\Framework\TestCase;
@@ -43,20 +42,18 @@ class ResponseSenderTest extends TestCase
         $sender->end();
     }
 
-    public function test chunks are no longer pulled once the runtime API stopped reading()
+    public function test chunks are refused once the runtime API stopped reading()
     {
         $sender = new ResponseSender($this->startServer(self::TOO_BIG, false), '1', 'text/plain');
-        $pulled = 0;
-        $response = new LambdaResult('text/plain', (function () use (&$pulled) {
-            for ($i = 0; $i < 100; $i++) {
-                $pulled++;
-                yield str_repeat('x', 1024 * 1024);
+        $written = 0;
+        for ($i = 0; $i < 100; $i++) {
+            if (! $sender->write(str_repeat('x', 1024 * 1024))) {
+                break;
             }
-        })());
+            $written++;
+        }
 
-        $response->writeTo($sender->write(...));
-
-        $this->assertLessThan(100, $pulled);
+        $this->assertLessThan(100, $written);
     }
 
     public function test a refused response can still be reported with the error endpoint()

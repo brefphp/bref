@@ -45,6 +45,9 @@ abstract class BrefEventSubscriber
      *
      * In case of an error, the `$error` parameter will be set and
      * `$result` will be `null`.
+     *
+     * `$result` is also `null` for HTTP events: HTTP handlers write their response,
+     * they do not return it. Check `$error` to know if the invocation failed.
      */
     public function afterInvoke(
         callable | Handler | RequestHandlerInterface $handler,

@@ -5,14 +5,12 @@ namespace Bref\FpmRuntime;
 use Bref\Context\Context;
 use Bref\Event\Http\HttpHandler;
 use Bref\Event\Http\HttpRequestEvent;
-use Bref\Event\Http\HttpResponse;
 use Bref\Event\Http\HttpResponseWriter;
 use Bref\FpmRuntime\FastCgi\FastCgiCommunicationFailed;
 use Bref\FpmRuntime\FastCgi\FastCgiRequest;
+use Bref\FpmRuntime\FastCgi\StopReadingResponse;
 use Bref\FpmRuntime\FastCgi\Timeout;
 use Exception;
-use Fiber;
-use Generator;
 use hollodotme\FastCGI\Client;
 use hollodotme\FastCGI\Exceptions\TimedoutException;
 use hollodotme\FastCGI\Responses\Response;
@@ -51,8 +49,8 @@ final class FpmHandler extends HttpHandler
     private string $configFile;
     /** @var resource|null */
     private $fpm;
-    /** Reads the response of PHP-FPM, and hands over its output packet by packet (see readResponse()). */
-    private ?Fiber $reading = null;
+    /** The read of the previous response was stopped before its end (see handleRequest()). */
+    private bool $previousResponseLeftUnread = false;
 
     public function __construct(string $handler, string $configFile = self::CONFIG)
     {
@@ -139,85 +137,113 @@ final class FpmHandler extends HttpHandler
     }
 
     /**
-     * Write the response of PHP-FPM, then wait for the script to finish: the client gets the response as soon as
-     * PHP-FPM ends it, e.g. when the script calls fastcgi_finish_request() to keep working after its response.
+     * Proxy the API Gateway event to PHP-FPM and write its response: the status and headers first, then
+     * the body as PHP-FPM sends it.
+     *
+     * The client gets the response as soon as PHP-FPM ends it, e.g. when the script calls
+     * fastcgi_finish_request() to keep working after its response: this method returns when the script finishes.
+     *
+     * @throws FastCgiCommunicationFailed
+     * @throws Timeout
+     * @throws Exception
      */
-    protected function respond(HttpRequestEvent $event, Context $context, HttpResponseWriter $writer): void
+    public function handleRequest(HttpRequestEvent $event, Context $context, HttpResponseWriter $responseWriter): void
     {
-        $this->handleRequest($event, $context)->sendTo($writer);
-        $writer->end();
+        // PHP-FPM may still be sending the previous response, or running its script
+        if ($this->previousResponseLeftUnread) {
+            echo "The previous response was not entirely read from PHP-FPM. Bref will restart PHP-FPM now.\n";
+            $this->stop();
+            $this->start();
+            $this->previousResponseLeftUnread = false;
+        }
+
+        $request = $this->eventToFastCgiRequest($event, $context);
+
+        // PHP-FPM sends its output packet by packet: the status and headers first, then the body.
+        // Each packet is written as it comes.
+        $outputBeforeBody = '';
+        $request->addPassThroughCallbacks(function (string $output) use (&$outputBeforeBody, $responseWriter): void {
+            try {
+                $bodyStillWanted = $this->writeOutput($output, $outputBeforeBody, $responseWriter);
+            } catch (Throwable $writeError) {
+                // Thrown again after the read: in here, it would be reported as a failure of PHP-FPM
+                throw new StopReadingResponse(previous: $writeError);
+            }
+            if (! $bodyStillWanted) {
+                throw new StopReadingResponse;
+            }
+        });
+
+        try {
+            // Returns when PHP-FPM ends the response
+            $this->readResponse($request, $context);
+        } catch (StopReadingResponse $stop) {
+            $this->previousResponseLeftUnread = true;
+            $writeError = $stop->getPrevious();
+            if ($writeError) {
+                throw $writeError;
+            }
+            // The rest of the body is not wanted, e.g. the response is too big or the Lambda timeout is close:
+            // end the invocation now, with the error that says why
+            $responseWriter->end();
+
+            return;
+        }
+
+        if (! $responseWriter->started()) {
+            // PHP-FPM sends no output when it fails to start the request, such as running out of memory parsing the body
+            if ($outputBeforeBody === '') {
+                throw new FastCgiCommunicationFailed('PHP-FPM failed to start the request, the PHP-FPM logs contain the error');
+            }
+            // The output ended with the headers
+            $this->startResponse($outputBeforeBody, $responseWriter);
+        }
+        $this->ensureStillRunning();
+        $responseWriter->end();
 
         $this->waitUntilIdle($context);
     }
 
     /**
-     * Proxy the API Gateway event to PHP-FPM and return its response.
+     * Write a packet of the output of PHP-FPM: the response starts once the headers are complete.
      *
-     * The status and headers are read before returning, the body is read from PHP-FPM while it is sent.
-     *
-     * @throws FastCgiCommunicationFailed
-     * @throws Timeout
-     * @throws Exception
+     * @return bool False when the rest of the body is not wanted.
      */
-    public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
+    private function writeOutput(string $output, string &$outputBeforeBody, HttpResponseWriter $responseWriter): bool
     {
-        // The previous body was not read to its end (e.g. the Runtime API refused it): PHP-FPM may still be sending it
-        if ($this->reading?->isTerminated() === false) {
-            echo "The previous response was not entirely read from PHP-FPM. Bref will restart PHP-FPM now.\n";
-            $this->stop();
-            $this->start();
+        if ($responseWriter->started()) {
+            return $responseWriter->write($output);
         }
 
-        $request = $this->eventToFastCgiRequest($event, $context);
-        $request->addPassThroughCallbacks(function (string $output): void {
-            if ($output !== '') {
-                Fiber::suspend($output);
-            }
-        });
-        $this->reading = new Fiber(fn () => $this->readResponse($request, $context));
-
-        // Up to the end of the headers (or of the output)
-        $output = (string) $this->reading->start();
-        while (! $this->reading->isTerminated() && preg_match('#\r?\n\r?\n#', $output) !== 1) {
-            $output .= (string) $this->reading->resume();
+        $outputBeforeBody .= $output;
+        $headersAreComplete = preg_match('#\r?\n\r?\n#', $outputBeforeBody) === 1;
+        if (! $headersAreComplete) {
+            return true;
         }
 
-        // PHP-FPM sends no output when it fails to start the request, such as running out of memory parsing the body
-        if ($output === '') {
-            throw new FastCgiCommunicationFailed('PHP-FPM failed to start the request, the PHP-FPM logs contain the error');
-        }
+        return $this->startResponse($outputBeforeBody, $responseWriter);
+    }
+
+    /**
+     * @param string $output The output of PHP-FPM up to the end of the headers, and the start of the body
+     *                       that came with them.
+     * @return bool False when the rest of the body is not wanted.
+     */
+    private function startResponse(string $output, HttpResponseWriter $responseWriter): bool
+    {
         $response = new Response($output, '', 0);
 
-        $responseHeaders = array_change_key_case($response->getHeaders(), CASE_LOWER);
+        $headers = array_change_key_case($response->getHeaders(), CASE_LOWER);
         // The status code is returned separately, it is not an HTTP header
-        unset($responseHeaders['status']);
+        unset($headers['status']);
 
-        return new HttpResponse($this->readBody($response->getBody()), $responseHeaders, $response->getStatusCode());
+        $responseWriter->start($response->getStatusCode(), $headers);
+
+        return $responseWriter->write($response->getBody());
     }
 
     /**
-     * @return Generator<string>
-     * @throws FastCgiCommunicationFailed
-     * @throws Timeout
-     * @throws Exception
-     */
-    private function readBody(string $start): Generator
-    {
-        if ($start !== '') {
-            yield $start;
-        }
-        while (! $this->reading->isTerminated()) {
-            $output = $this->reading->resume();
-            if ($output !== null) {
-                yield $output;
-            }
-        }
-
-        $this->ensureStillRunning();
-    }
-
-    /**
-     * Wait for the script of the last request to finish (it can run after its response, see respond()).
+     * Wait for the script of the last request to finish (it can run after its response, see handleRequest()).
      *
      * PHP-FPM has a single worker: it answers a request for an empty script once the previous script has finished.
      * Without this, the script would keep running after the invocation, frozen by Lambda until the next one.
@@ -237,10 +263,12 @@ final class FpmHandler extends HttpHandler
     }
 
     /**
-     * Runs in a Fiber, suspended each time PHP-FPM sends output.
+     * Blocks until PHP-FPM ends the response: its output is given packet by packet to the callbacks
+     * of the request.
      *
      * @throws FastCgiCommunicationFailed
      * @throws Timeout
+     * @throws StopReadingResponse
      */
     private function readResponse(FastCgiRequest $request, Context $context): void
     {
@@ -280,6 +308,8 @@ final class FpmHandler extends HttpHandler
             // - the CloudWatch logs correctly reflect that an execution error occurred
             // - the 500 response is the same as if an exception happened in Bref
             throw new Timeout($timeoutDelayInMs, $context->getAwsRequestId());
+        } catch (StopReadingResponse $e) {
+            throw $e;
         } catch (Throwable $e) {
             printf(
                 "Error communicating with PHP-FPM to read the HTTP response. Bref will restart PHP-FPM now. Original exception message: %s %s\n",

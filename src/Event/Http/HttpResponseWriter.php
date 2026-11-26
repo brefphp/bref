@@ -2,58 +2,50 @@
 
 namespace Bref\Event\Http;
 
-use Bref\Runtime\LambdaResult;
-use Closure;
+use Bref\Runtime\InvocationResult;
+use Bref\Runtime\ResponseStream;
 use LogicException;
+use Throwable;
 
 /**
- * Writes an HTTP response for any invoker: the status and headers first, then the body, then end().
+ * Writes the HTTP response of an invocation: the status and headers first, then the body, then end().
  *
- * Streamed (Function URLs in `RESPONSE_STREAM` mode, REST APIs in `STREAM` mode), each part is sent to
- * the client as it is written. Buffered (other invokers), the response is sent at end(), in the format of
- * the invoker.
+ * The runtime gives it to the HTTP handler. It is streamed or buffered, depending on what invoked the function:
+ *
+ * - streamed (Function URLs in `RESPONSE_STREAM` mode, REST APIs in `STREAM` mode): each part is sent to
+ *   the client as it is written,
+ * - buffered (API Gateway, ALB, Function URLs in `BUFFERED` mode…): the response is sent at end(), as JSON
+ *   in the format of the invoker.
  */
 final class HttpResponseWriter
 {
-    /** The content type of Lambda's streamed HTTP responses. */
+    /**
+     * The content type of Lambda's streamed HTTP responses.
+     *
+     * @internal Used by the Bref runtime.
+     */
     public const STREAMED_CONTENT_TYPE = 'application/vnd.awslambda.http-integration-response';
 
     private ?int $statusCode = null;
     /** @var array<string|string[]> */
     private array $headers = [];
-    /** The buffered body. */
-    private string $body = '';
+    /** The body of a buffered response, kept until end(). */
+    private string $bufferedBody = '';
     private bool $ended = false;
+    /** Why the response could not be ended (e.g. it is too big), thrown again by the next end(). */
+    private ?Throwable $endFailure = null;
 
     /**
-     * @param HttpRequestEvent|null $bufferedFor The event whose invoker gets the buffered response, null when streamed.
+     * @param mixed $event The event of the invocation: it tells the format of a buffered response.
+     *
+     * @internal The Bref runtime creates the writer and gives it to the handler.
      */
-    private function __construct(
-        private Closure $send,
-        private Closure $end,
-        private ?HttpRequestEvent $bufferedFor,
-        private ?string $awsRequestId,
+    public function __construct(
+        private readonly ResponseStream $lambdaResponse,
+        private readonly mixed $event,
+        private readonly bool $streamed,
+        private readonly ?string $awsRequestId = null,
     ) {
-    }
-
-    /**
-     * @param callable(string): mixed $send Sends a chunk to Lambda, returns false when the rest is not wanted.
-     * @param callable(): void|null   $end  Ends the response sent to Lambda.
-     */
-    public static function streamed(callable $send, ?callable $end = null, ?string $awsRequestId = null): self
-    {
-        return new self($send(...), ($end ?? static function (): void {
-        })(...), null, $awsRequestId);
-    }
-
-    /**
-     * @param callable(string): mixed $send Sends the response (JSON) to Lambda.
-     * @param callable(): void|null   $end  Ends the response sent to Lambda.
-     */
-    public static function buffered(HttpRequestEvent $event, callable $send, ?callable $end = null, ?string $awsRequestId = null): self
-    {
-        return new self($send(...), ($end ?? static function (): void {
-        })(...), $event, $awsRequestId);
     }
 
     public function started(): bool
@@ -72,9 +64,10 @@ final class HttpResponseWriter
         $this->statusCode = $statusCode;
         $this->headers = $headers;
 
-        if (! $this->bufferedFor) {
+        if ($this->streamed) {
             // Lambda's streamed format: the status code and headers as JSON, 8 null bytes, then the body as is
-            ($this->send)((new HttpResponse('', $headers, $statusCode))->toStreamedPrelude($this->awsRequestId));
+            $prelude = (new HttpResponse('', $headers, $statusCode))->toStreamedPrelude($this->awsRequestId);
+            $this->lambdaResponse->write($prelude);
         }
     }
 
@@ -93,12 +86,63 @@ final class HttpResponseWriter
         if ($chunk === '') {
             return true;
         }
-        if ($this->bufferedFor) {
-            $this->body .= $chunk;
-            return true;
+
+        if ($this->streamed) {
+            return $this->lambdaResponse->write($chunk);
         }
 
-        return ($this->send)($chunk) !== false;
+        $this->bufferedBody .= $chunk;
+
+        return true;
+    }
+
+    /**
+     * End the response: the client gets it now, while the code that follows runs before the next invocation
+     * (e.g. terminate callbacks). Nothing can be written after. The runtime ends the response otherwise.
+     */
+    public function end(): void
+    {
+        if ($this->ended) {
+            // The handler ended the response and caught the failure: the runtime still gets it
+            if ($this->endFailure !== null) {
+                throw $this->endFailure;
+            }
+            return;
+        }
+        if ($this->statusCode === null) {
+            throw new LogicException('The HTTP handler did not write any response');
+        }
+        $this->ended = true;
+
+        try {
+            if (! $this->streamed) {
+                $response = new HttpResponse($this->bufferedBody, $this->headers, $this->statusCode);
+                // Like HttpRequestEvent, for any event: warmers are not HTTP events
+                $isFormatV2 = (float) ($this->event['version'] ?? '1.0') === 2.0;
+                $json = $isFormatV2
+                    ? $response->toApiGatewayFormatV2($this->awsRequestId)
+                    : $response->toApiGatewayFormat(isset($this->event['multiValueHeaders']), $this->awsRequestId);
+
+                $this->lambdaResponse->write(InvocationResult::encodeJson($json));
+            }
+
+            $this->lambdaResponse->end();
+        } catch (Throwable $e) {
+            $this->endFailure = $e;
+            throw $e;
+        }
+    }
+
+    /**
+     * Write a whole response at once and end it.
+     *
+     * @param array<string|string[]> $headers
+     */
+    public function respond(string $body, array $headers = [], int $statusCode = 200): void
+    {
+        $this->start($statusCode, $headers);
+        $this->write($body);
+        $this->end();
     }
 
     /**
@@ -109,6 +153,11 @@ final class HttpResponseWriter
      */
     public function capture(callable $output): void
     {
+        // Checked here: thrown from the output buffer's handler, the error would come with the output printed
+        if (! $this->started()) {
+            throw new LogicException('Start the HTTP response before writing its body');
+        }
+
         $level = ob_get_level();
         // Every output is written from the output buffer's handler itself: nothing in there may produce
         // output or use output buffering (PHP forbids it), which write() never does
@@ -125,28 +174,5 @@ final class HttpResponseWriter
                 ob_end_clean();
             }
         }
-    }
-
-    /**
-     * End the response: the client gets it now, while the code that follows runs before the next invocation
-     * (e.g. terminate callbacks). Nothing can be written after.
-     */
-    public function end(): void
-    {
-        if ($this->ended) {
-            return;
-        }
-        if (! $this->started()) {
-            throw new LogicException('The HTTP handler did not write any response');
-        }
-        $this->ended = true;
-
-        if ($this->bufferedFor) {
-            $response = new HttpResponse($this->body, $this->headers, $this->statusCode);
-            ($this->send)(LambdaResult::encodeJson($this->bufferedFor->isFormatV2()
-                ? $response->toApiGatewayFormatV2($this->awsRequestId)
-                : $response->toApiGatewayFormat($this->bufferedFor->hasMultiHeader(), $this->awsRequestId)));
-        }
-        ($this->end)();
     }
 }

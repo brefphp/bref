@@ -3,7 +3,8 @@
 namespace Bref\Test\Event\Http;
 
 use Bref\Event\Http\HttpResponse;
-use Bref\Runtime\LambdaResult;
+use Bref\Event\Http\HttpResponseWriter;
+use Bref\Runtime\InMemoryResponseStream;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -201,18 +202,15 @@ class HttpResponseTest extends TestCase
             'set-cookie' => ['foo=bar', 'baz=qux'],
         ], 404);
 
-        $streamed = $response->toStreamedResponse();
-
-        $this->assertSame('application/vnd.awslambda.http-integration-response', $streamed->contentType);
         $this->assertSame([
             '{"cookies":["foo=bar","baz=qux"],"statusCode":404,"headers":{"Content-Type":"text\\/html; charset=utf-8"}}' . str_repeat("\0", 8),
             '<p>Hello world!</p>',
-        ], $this->chunks($streamed));
+        ], $this->chunks($response));
     }
 
     public function test bodies produced progressively()
     {
-        $this->assertSame(['Hello ', 'world!'], array_slice($this->chunks((new HttpResponse($this->helloWorld()))->toStreamedResponse()), 1));
+        $this->assertSame(['Hello ', 'world!'], array_slice($this->chunks(new HttpResponse($this->helloWorld())), 1));
         // The usual format joins them
         $this->assertSame('Hello world!', (new HttpResponse($this->helloWorld()))->toApiGatewayFormatV2()['body']);
     }
@@ -222,28 +220,26 @@ class HttpResponseTest extends TestCase
         $binary = random_bytes(256);
         $response = new HttpResponse($binary, ['content-type' => 'image/png']);
 
-        $this->assertSame($binary, $this->chunks($response->toStreamedResponse())[1]);
+        $this->assertSame($binary, $this->chunks($response)[1]);
     }
 
     public function test streamed format without headers()
     {
         $this->assertStringStartsWith(
             '{"cookies":[],"statusCode":204,"headers":{}}',
-            $this->chunks((new HttpResponse('', [], 204))->toStreamedResponse())[0],
+            $this->chunks(new HttpResponse('', [], 204))[0],
         );
     }
 
     /**
      * @return string[]
      */
-    private function chunks(LambdaResult $response): array
+    private function chunks(HttpResponse $response): array
     {
-        $chunks = [];
-        $response->writeTo(function (string $chunk) use (&$chunks) {
-            $chunks[] = $chunk;
-        });
+        $lambdaResponse = new InMemoryResponseStream;
+        $response->sendTo(new HttpResponseWriter($lambdaResponse, null, streamed: true));
 
-        return $chunks;
+        return $lambdaResponse->chunks;
     }
 
     /**
