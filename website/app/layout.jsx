@@ -1,6 +1,6 @@
 /* eslint-env node */
 import { Layout, Navbar } from 'nextra-theme-docs'
-import { Banner, Head } from 'nextra/components'
+import { Head } from 'nextra/components'
 import { getPageMap } from 'nextra/page-map'
 import { Inter } from 'next/font/google'
 import PlausibleProvider from 'next-plausible'
@@ -29,12 +29,6 @@ export const metadata = {
     twitter: { card: 'summary_large_image', creator: '@brefphp' },
     other: { 'google-site-verification': 'RRmKDrWI2l69B0nMwv4ndrYOHSuaTBfarvCgtJxMpXA' },
 }
-
-const banner = (
-    <Banner storageKey="v3">
-        <a href="/news/03-bref-3.0">🎉 Bref 3.0 is released. Read more →</a>
-    </Banner>
-)
 
 // Slack icon (was theme.config chat.icon)
 const slackIcon = (
@@ -74,7 +68,6 @@ export default async function RootLayout({ children }) {
                 <PlausibleProvider domain="bref.sh" trackOutboundLinks={true}>
                     <HashRedirects />
                     <Layout
-                        banner={banner}
                         navbar={navbar}
                         footer={<Footer />}
                         pageMap={pageMap}
