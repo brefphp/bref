@@ -31,6 +31,8 @@ final class HttpResponseWriter
     private array $headers = [];
     /** The body of a buffered response, kept until end(). */
     private string $bufferedBody = '';
+    /** Streamed responses: the status and headers are sent with the first byte of the body, see reset(). */
+    private bool $statusSent = false;
     private bool $ended = false;
     /** Why the response could not be ended (e.g. it is too big), thrown again by the next end(). */
     private ?Throwable $endFailure = null;
@@ -63,12 +65,6 @@ final class HttpResponseWriter
         }
         $this->statusCode = $statusCode;
         $this->headers = $headers;
-
-        if ($this->streamed) {
-            // Lambda's streamed format: the status code and headers as JSON, 8 null bytes, then the body as is
-            $prelude = (new HttpResponse('', $headers, $statusCode))->toStreamedPrelude($this->awsRequestId);
-            $this->lambdaResponse->write($prelude);
-        }
     }
 
     /**
@@ -88,7 +84,7 @@ final class HttpResponseWriter
         }
 
         if ($this->streamed) {
-            return $this->lambdaResponse->write($chunk);
+            return $this->sendStatus() && $this->lambdaResponse->write($chunk);
         }
 
         $this->bufferedBody .= $chunk;
@@ -124,6 +120,9 @@ final class HttpResponseWriter
                     : $response->toApiGatewayFormat(isset($this->event['multiValueHeaders']), $this->awsRequestId);
 
                 $this->lambdaResponse->write(InvocationResult::encodeJson($json));
+            } else {
+                // A response without a body
+                $this->sendStatus();
             }
 
             $this->lambdaResponse->end();
@@ -137,7 +136,7 @@ final class HttpResponseWriter
      * Forget the response written so far, to write another one instead (e.g. an error page after a failure).
      *
      * @return bool False when it is too late: the response has ended, or it is streamed and its
-     *              status and headers were sent.
+     *              status and headers were sent (with the first byte of its body).
      */
     public function reset(): bool
     {
@@ -147,7 +146,7 @@ final class HttpResponseWriter
         if (! $this->started()) {
             return true;
         }
-        if ($this->streamed) {
+        if ($this->statusSent) {
             return false;
         }
         $this->statusCode = null;
@@ -155,6 +154,24 @@ final class HttpResponseWriter
         $this->bufferedBody = '';
 
         return true;
+    }
+
+    /**
+     * Sent with the first byte of the body, not by start(): until then, a failure can still be answered
+     * with an error page (e.g. a streamed response that fails before it writes anything).
+     *
+     * @return bool False when the rest of the response is not wanted.
+     */
+    private function sendStatus(): bool
+    {
+        if ($this->statusSent) {
+            return true;
+        }
+        $this->statusSent = true;
+        // Lambda's streamed format: the status code and headers as JSON, 8 null bytes, then the body as is
+        $prelude = (new HttpResponse('', $this->headers, (int) $this->statusCode))->toStreamedPrelude($this->awsRequestId);
+
+        return $this->lambdaResponse->write($prelude);
     }
 
     /**

@@ -1416,7 +1416,7 @@ Year,Make,Model
         $this->startFpm(__DIR__ . '/fixtures/large-response.php');
         $event = new HttpRequestEvent(['version' => '1.0', 'httpMethod' => 'GET']);
 
-        // Like the Runtime API refusing a response: the body is no longer wanted after its first chunk
+        // Like the Runtime API refusing a response: nothing is wanted after its first write
         $writes = 0;
         $lambdaResponse = new CallbackResponseStream(function () use (&$writes) {
             $writes++;
@@ -1424,8 +1424,8 @@ Year,Make,Model
         });
         $this->fpm->handleRequest($event, $this->fakeContext, new HttpResponseWriter($lambdaResponse, null, streamed: true));
 
-        // The rest of the body was not read: the status and headers, then one chunk
-        self::assertSame(2, $writes);
+        // The rest of the body was not read: the status and headers were refused with the first chunk
+        self::assertSame(1, $writes);
 
         // PHP-FPM may still be sending it: it is restarted
         $response = $this->handle(['version' => '1.0', 'httpMethod' => 'GET'], $this->fakeContext);

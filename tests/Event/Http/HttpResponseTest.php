@@ -237,7 +237,9 @@ class HttpResponseTest extends TestCase
     private function chunks(HttpResponse $response): array
     {
         $lambdaResponse = new InMemoryResponseStream;
-        $response->sendTo(new HttpResponseWriter($lambdaResponse, null, streamed: true));
+        $writer = new HttpResponseWriter($lambdaResponse, null, streamed: true);
+        $response->sendTo($writer);
+        $writer->end();
 
         return $lambdaResponse->chunks;
     }

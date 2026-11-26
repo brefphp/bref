@@ -19,7 +19,8 @@ class HttpResponseWriterTest extends TestCase
         $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
 
         $writer->start(404, ['content-type' => 'text/plain', 'set-cookie' => ['a=1', 'b=2']]);
-        $this->assertCount(1, $lambdaResponse->chunks);
+        // The status and headers are sent with the first byte of the body
+        $this->assertCount(0, $lambdaResponse->chunks);
         $writer->write('Not ');
         $this->assertCount(2, $lambdaResponse->chunks);
         $writer->write('found');
@@ -238,5 +239,33 @@ class HttpResponseWriterTest extends TestCase
 
         $this->expectExceptionMessage('The HTTP handler did not write any response');
         $writer->end();
+    }
+
+    public function test a streamed response can be forgotten until its body starts()
+    {
+        $lambdaResponse = new InMemoryResponseStream;
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
+        $writer->start(200, ['content-type' => 'text/plain']);
+        $writer->write('');
+
+        // E.g. a streamed response that failed before writing anything: the client gets the error page
+        $this->assertTrue($writer->reset());
+        $writer->respond('Error page', ['content-type' => 'text/html'], 500);
+
+        $this->assertSame([
+            '{"cookies":[],"statusCode":500,"headers":{"Content-Type":"text\\/html"}}' . str_repeat("\0", 8),
+            'Error page',
+        ], $lambdaResponse->chunks);
+    }
+
+    public function test a streamed response without a body sends its status when it ends()
+    {
+        $lambdaResponse = new InMemoryResponseStream;
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
+        $writer->start(204, []);
+        $writer->end();
+
+        $this->assertSame(['{"cookies":[],"statusCode":204,"headers":{}}' . str_repeat("\0", 8)], $lambdaResponse->chunks);
+        $this->assertTrue($lambdaResponse->ended);
     }
 }
