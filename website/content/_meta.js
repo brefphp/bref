@@ -71,6 +71,20 @@ export default {
             copyPage: false,
         },
     },
+    security: {
+        type: 'page',
+        title: 'Security',
+        display: 'hidden',
+        // Same layout as the credits page: centered prose column, no docs chrome
+        theme: {
+            sidebar: false,
+            toc: false,
+            breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
+    },
     xray: {
         type: 'page',
         title: 'X-Ray integration for PHP',
