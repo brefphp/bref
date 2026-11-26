@@ -432,7 +432,7 @@ class ServerlessPlugin {
 
         const payload = {
             cli: 'sls',
-            v: 3, // Bref version
+            v: 4, // Bref version
             c: command,
             ci: isCiEnvironment(process.env),
             install: userConfig.get('meta.created_at'),
