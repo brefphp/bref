@@ -28,3 +28,7 @@ functions:
         handler: console.php
         architecture: arm64
         runtime: php-83-console
+
+    function-86:
+        handler: function.php
+        runtime: php-86

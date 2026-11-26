@@ -1,6 +1,7 @@
 import type { AWS } from "@serverless/typescript";
 
 export type Serverless = {
+    version: string;
     serviceDir: string;
     pluginManager: {
         addPlugin: (plugin: unknown) => void;
