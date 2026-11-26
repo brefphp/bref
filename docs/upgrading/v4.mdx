@@ -112,5 +112,14 @@ There is nothing to change, but that work still counts toward the function's tim
 
 These changes only affect code that uses Bref's PHP classes directly:
 
-- `Bref\Event\Http\HttpHandler::handle()` now returns a `Bref\Runtime\LambdaResult` instead of an array. Handlers that implement `handleRequest()` are not affected. Code that calls `handle()` directly (e.g. in tests) can read the response with `json_decode($result->contents(), true)`.
-- `afterInvoke()` in `Bref\Listener\BrefEventSubscriber` receives that `LambdaResult` as `$result` for HTTP events, already sent to Lambda.
+- `handleRequest()` in the classes that extend `Bref\Event\Http\HttpHandler` no longer returns a `Bref\Event\Http\HttpResponse`. It receives a `Bref\Event\Http\HttpResponseWriter` and writes the response. PSR-15 handlers are not affected.
+- `afterInvoke()` in `Bref\Listener\BrefEventSubscriber` receives `null` as `$result` for HTTP events: HTTP handlers write their response, they do not return it.
+
+```diff filename="MyHttpHandler.php"
+- public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
++ public function handleRequest(HttpRequestEvent $event, Context $context, HttpResponseWriter $responseWriter): void
+  {
+-     return new HttpResponse('Hello world!', ['Content-Type' => 'text/plain']);
++     $responseWriter->respond('Hello world!', ['Content-Type' => 'text/plain']);
+  }
+```
