@@ -40,6 +40,19 @@ PHP 8.2 is no longer supported: use `php-83`, `php-84`, `php-85` or `php-86`.
 
 If the credentials used to deploy have restricted permissions, allow the `lambda:AssociateRuntimeAlias` action on `arn:aws:lambda:*:873528684822:runtime/*/alias/4`.
 
+The `${bref:layer.php-84}` variables and the `serverless bref:layers` command no longer exist. If you referenced Bref layers directly, use `runtime: php-84` (or `php-84-fpm`, `php-84-console`) instead: the Bref plugin sets `BREF_RUNTIME`.
+
+```diff filename="serverless.yml"
+ functions:
+     api:
+-        runtime: provided.al2023
+-        layers:
+-            - ${bref:layer.php-84}
+-        environment:
+-            BREF_RUNTIME: fpm
++        runtime: php-84-fpm
+```
+
 ## PHP extensions directory
 
 Bref's PHP extensions are now installed in `/usr/local/lib/php/extensions` instead of `/opt/bref/extensions`.

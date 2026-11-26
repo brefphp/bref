@@ -1,11 +1,8 @@
 'use strict';
 
-const {listLayers} = require('./plugin/layers');
 const {runConsole} = require('./plugin/run-console');
 const {runLocal} = require('./plugin/local');
 const {warnIfUsingSecretsWithoutTheBrefDependency} = require('./plugin/secrets');
-const fs = require('fs');
-const path = require('path');
 
 const ciEnvironmentVariables = [
     'BUILD_ID', // Jenkins, Cloudbees
@@ -100,10 +97,6 @@ class ServerlessPlugin {
             serverless.service.provider.deploymentMethod = 'direct';
         }
 
-        const filename = path.resolve(__dirname, 'layers.json');
-        /** @type {Record<string, Record<string, string>>} */
-        this.layers = JSON.parse(fs.readFileSync(filename).toString());
-
         this.checkCompatibleRuntime();
 
         serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(
@@ -112,34 +105,6 @@ class ServerlessPlugin {
         serverless.configSchemaHandler.defineTopLevelProperty('bref', {
             type: 'object',
         });
-
-        // Declare `${bref:xxx}` variables
-        // See https://www.serverless.com/framework/docs/guides/plugins/custom-variables
-        // noinspection JSUnusedGlobalSymbols
-        /** @type {Record<string, import('./plugin/serverless').VariableResolver>} */
-        this.configurationVariablesSources = {
-            bref: {
-                resolve: async ({address, resolveConfigurationProperty, options}) => {
-                    // `address` and `params` reflect values configured with a variable: ${bref(param1, param2):address}
-
-                    // `options` is CLI options
-                    // `resolveConfigurationProperty` allows to access other configuration properties,
-                    // and guarantees to return a fully resolved form (even if property is configured with variables)
-                    /** @type {string} */
-                    // @ts-ignore
-                    const region = options.region || await resolveConfigurationProperty(['provider', 'region']);
-
-                    if (!address.startsWith('layer.')) {
-                        throw new serverless.classes.Error(`Unknown Bref variable \${bref:${address}}, the only supported syntax right now is \${bref:layer.XXX}`);
-                    }
-
-                    const layerName = address.substring('layer.'.length);
-                    return {
-                        value: this.getLayerArn(layerName, region),
-                    }
-                }
-            }
-        };
 
         /** @type {import('./plugin/serverless').CommandsDefinition} */
         this.commands = {
@@ -183,10 +148,6 @@ class ServerlessPlugin {
                     },
                 },
             },
-            'bref:layers': {
-                usage: 'Displays the versions of the Bref layers',
-                lifecycleEvents: ['show'],
-            },
         };
 
         // noinspection JSUnusedGlobalSymbols
@@ -208,7 +169,6 @@ class ServerlessPlugin {
             // Custom commands
             'bref:cli:run': () => runConsole(this.serverless, options, utils.log),
             'bref:local:run': () => runLocal(this.serverless, options),
-            'bref:layers:show': () => listLayers(this.serverless, utils.log),
             'before:logs:logs': () => {
                 utils.log(this.gray('View, tail, and search logs from all functions with https://bref.sh/cloud'));
                 utils.log();
@@ -379,22 +339,6 @@ class ServerlessPlugin {
             throw new this.serverless.classes.Error(`Bref runtimes are not available in region "${region}".\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
         }
         return `arn:aws:lambda:${region}:873528684822:runtime/php-${phpVersion}/alias/${runtimeAlias}`;
-    }
-
-    /**
-     * @param {string} layerName
-     * @param {string} region
-     * @returns {string}
-     */
-    getLayerArn(layerName, region) {
-        if (! (layerName in this.layers)) {
-            throw new this.serverless.classes.Error(`Unknown Bref layer named "${layerName}".\nIs that a typo? Check out https://bref.sh/docs/runtimes/ to see the correct name of Bref layers.`);
-        }
-        if (! (region in this.layers[layerName])) {
-            throw new this.serverless.classes.Error(`There is no Bref layer named "${layerName}" in region "${region}".\nThat region may not be supported yet. Check out https://runtimes.bref.sh to see the list of supported regions.\nOpen an issue to ask for that region to be supported: https://github.com/brefphp/bref/issues`);
-        }
-        const version = this.layers[layerName][region];
-        return `arn:aws:lambda:${region}:873528684822:layer:${layerName}:${version}`;
     }
 
     /**
