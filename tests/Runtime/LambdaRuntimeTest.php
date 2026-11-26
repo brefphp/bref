@@ -411,6 +411,29 @@ class LambdaRuntimeTest extends RuntimeTestCase
         );
     }
 
+    public function test HTTP responses are streamed to REST APIs with response streaming()
+    {
+        putenv('BREF_RESPONSE_STREAMING=1');
+        $this->givenAnEvent([
+            'resource' => '/',
+            'path' => '/',
+            'httpMethod' => 'GET',
+            'headers' => ['Host' => 'abc.execute-api.eu-west-3.amazonaws.com'],
+            'requestContext' => ['apiId' => 'abc', 'domainName' => 'abc.execute-api.eu-west-3.amazonaws.com', 'httpMethod' => 'GET'],
+            'body' => null,
+            'isBase64Encoded' => false,
+        ]);
+
+        $this->runtime->processNextEvent($this->helloWorldHttpHandler());
+
+        $response = $this->streamedResponse();
+        $this->assertSame('application/vnd.awslambda.http-integration-response', $response->getHeaderLine('Content-Type'));
+        $this->assertSame(
+            '{"cookies":[],"statusCode":200,"headers":{"Content-Type":"text\\/plain"}}' . str_repeat("\0", 8) . 'Hello world!',
+            $response->getBody()->__toString(),
+        );
+    }
+
     public function test HTTP responses are buffered for Function URLs without response streaming()
     {
         // The default mode of Function URLs (`BUFFERED`) would show an empty body with the streamed format
