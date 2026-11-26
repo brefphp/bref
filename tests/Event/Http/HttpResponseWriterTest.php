@@ -193,6 +193,45 @@ class HttpResponseWriterTest extends TestCase
         $this->expectOutputString('');
     }
 
+    public function test a buffered response can be forgotten to write another one()
+    {
+        $lambdaResponse = new InMemoryResponseStream;
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: false);
+        $writer->start(200, ['content-type' => 'text/plain', 'x-custom' => 'value']);
+        $writer->write('Hello');
+
+        // E.g. the application failed while it produced the body: nothing was sent
+        $this->assertTrue($writer->reset());
+        $this->assertFalse($writer->started());
+        $writer->respond('Error page', ['content-type' => 'text/html'], 500);
+
+        $response = json_decode($lambdaResponse->contents(), true);
+        $this->assertSame(500, $response['statusCode']);
+        $this->assertSame(['Content-Type' => 'text/html'], $response['headers']);
+        $this->assertSame('Error page', $response['body']);
+    }
+
+    public function test a response that was sent cannot be forgotten()
+    {
+        $lambdaResponse = new InMemoryResponseStream;
+        $writer = new HttpResponseWriter($lambdaResponse, self::EVENT_V2, streamed: true);
+        // Nothing to forget
+        $this->assertTrue($writer->reset());
+        $writer->start(200, ['content-type' => 'text/plain']);
+        $writer->write('Hello');
+
+        // The status and headers were sent
+        $this->assertFalse($writer->reset());
+        $this->assertTrue($writer->started());
+        $writer->write(' world');
+        $this->assertSame('Hello world', implode('', array_slice($lambdaResponse->chunks, 1)));
+
+        $buffered = new HttpResponseWriter(new InMemoryResponseStream, self::EVENT_V2, streamed: false);
+        $buffered->respond('Hello');
+        // The response has ended
+        $this->assertFalse($buffered->reset());
+    }
+
     public function test a response cannot end before it starts()
     {
         $writer = new HttpResponseWriter(new InMemoryResponseStream, self::EVENT_V2, streamed: false);

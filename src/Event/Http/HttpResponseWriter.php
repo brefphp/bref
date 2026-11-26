@@ -134,6 +134,30 @@ final class HttpResponseWriter
     }
 
     /**
+     * Forget the response written so far, to write another one instead (e.g. an error page after a failure).
+     *
+     * @return bool False when it is too late: the response has ended, or it is streamed and its
+     *              status and headers were sent.
+     */
+    public function reset(): bool
+    {
+        if ($this->ended) {
+            return false;
+        }
+        if (! $this->started()) {
+            return true;
+        }
+        if ($this->streamed) {
+            return false;
+        }
+        $this->statusCode = null;
+        $this->headers = [];
+        $this->bufferedBody = '';
+
+        return true;
+    }
+
+    /**
      * Write a whole response at once and end it.
      *
      * @param array<string|string[]> $headers
