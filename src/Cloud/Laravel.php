@@ -4,6 +4,7 @@ namespace Bref\Cloud;
 
 use Bref\Cloud;
 use Bref\Monolog\CloudWatchFormatter;
+use RuntimeException;
 
 class Laravel
 {
@@ -56,6 +57,7 @@ class Laravel
      * @param string                                                                                $php          The PHP version to use, e.g. '8.5'.
      * @param string|null                                                                           $region       The AWS region to deploy to, e.g. 'eu-west-3'. Defaults to us-east-1.
      * @param string[]                                                                              $patterns     Path patterns to include or exclude from the deployment.
+     * @param string                                                                                $assets       The directory of the public files, relative to `rootPath`. It must exist.
      * @param array<string, mixed>                                                                  $variables    Environment variables to set in the Lambda.
      * @param 'arm'|'x86'|null                                                                      $architecture The architecture of all the functions. Defaults to ARM.
      * @param array{memory?: int, timeout?: int}                                                    $web          Settings of the function that serves HTTP requests.
@@ -157,7 +159,7 @@ class Laravel
     {
         $assetsPath = $this->rootPath . '/' . $this->assets;
         if (! is_dir($assetsPath)) {
-            return $config;
+            throw new RuntimeException("The assets directory `{$this->assets}` does not exist in `{$this->rootPath}`: set `assets` to the directory of the public files, e.g. `public`");
         }
 
         // Ignore files:
