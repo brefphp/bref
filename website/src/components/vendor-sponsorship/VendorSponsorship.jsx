@@ -173,8 +173,15 @@ export default function VendorSponsorship() {
                             className={`grid grid-cols-1 gap-0.5 px-4 py-3.5 sm:grid-cols-[0.8fr_1fr_1fr] sm:gap-4 sm:px-6 sm:py-4 ${index > 0 ? 'border-t border-gray-200' : ''}`}
                         >
                             <span className="font-semibold text-gray-900 sm:font-normal sm:text-gray-500">{label}</span>
-                            <span>{community}</span>
-                            <span className="font-medium text-gray-900">{sponsored}</span>
+                            {/* On mobile the header row is hidden: tag each value instead */}
+                            <span className="flex gap-3">
+                                <span className="w-24 flex-none text-xs/6 font-semibold uppercase tracking-wider text-gray-500 sm:hidden">Community</span>
+                                {community}
+                            </span>
+                            <span className="flex gap-3 font-medium text-gray-900">
+                                <span className="w-24 flex-none text-xs/6 font-semibold uppercase tracking-wider text-blue-700 sm:hidden">Sponsored</span>
+                                {sponsored}
+                            </span>
                         </div>
                     ))}
                 </div>
