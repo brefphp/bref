@@ -78,7 +78,7 @@ class ServerlessPlugin {
 
         this.checkCompatibleRuntime();
 
-        serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(...[
+        serverless.configSchemaHandler?.schema?.definitions?.awsLambdaRuntime?.enum?.push(...[
             'php-82',
             'php-83',
             'php-84',
