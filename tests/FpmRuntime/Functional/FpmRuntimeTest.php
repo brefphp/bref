@@ -2,15 +2,12 @@
 
 namespace Bref\Test\FpmRuntime\Functional;
 
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Client;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
 class FpmRuntimeTest extends TestCase
 {
-    use ArraySubsetAsserts;
-
     private Client $http;
 
     public function setUp(): void
@@ -150,7 +147,7 @@ class FpmRuntimeTest extends TestCase
     {
         $response = $this->http->request('GET', '?php-config=1');
 
-        self::assertArraySubset([
+        $expected = [
             // On PHP-FPM we don't want errors to be sent to stdout because that sends them to the HTTP response
             'display_errors' => '0',
             // This is sent to PHP-FPM, which sends them back to CloudWatch
@@ -178,7 +175,8 @@ class FpmRuntimeTest extends TestCase
             // Check POST configuration
             'post_max_size' => '6M',
             'upload_max_filesize' => '6M',
-        ], $this->getJsonBody($response), false);
+        ];
+        self::assertEquals($expected, array_intersect_key($this->getJsonBody($response), $expected));
     }
 
     public function test environment variables()

@@ -4,6 +4,8 @@ namespace Bref\Test\Event\Http;
 
 use Bref\Event\Http\HttpRequestEvent;
 use Bref\Event\InvalidLambdaEvent;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse -- the coding standard does not read attributes yet
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class HttpRequestEventTest extends CommonHttpTest
 {
@@ -194,9 +196,7 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertSame([null, null], $event->getBasicAuthCredentials());
     }
 
-    /**
-     * @dataProvider provideHeadersWithUnderscores
-     */
+    #[DataProvider('provideHeadersWithUnderscores')]
     public function test headers with underscores are dropped(array $event)
     {
         $event = new HttpRequestEvent($event + ['httpMethod' => 'GET']);
@@ -249,9 +249,7 @@ class HttpRequestEventTest extends CommonHttpTest
         $this->assertSame(['a' => '1', 'b' => '2', 'c' => '3'], $event->getCookies());
     }
 
-    /**
-     * @dataProvider provide query strings
-     */
+    #[DataProvider('provide query strings')]
     public function test query string to array(string $query, array $expectedOutput)
     {
         $reflection = new \ReflectionClass(HttpRequestEvent::class);
@@ -326,9 +324,7 @@ class HttpRequestEventTest extends CommonHttpTest
         ];
     }
 
-    /**
-     * @dataProvider provide query strings for event
-     */
+    #[DataProvider('provide query strings for event')]
     public function test query string will be parsed correctly(array $expected, string $queryString)
     {
         $event = new HttpRequestEvent([
