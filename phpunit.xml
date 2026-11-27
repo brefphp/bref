@@ -3,7 +3,6 @@
   <testsuites>
     <testsuite name="small">
       <directory>./tests/</directory>
-      <exclude>./tests/Sam</exclude>
       <exclude>./tests/FpmRuntime/Functional</exclude>
       <exclude>./tests/Fixtures</exclude>
       <exclude>./tests/HttpRequestProxyTest.php</exclude>

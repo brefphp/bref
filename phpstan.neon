@@ -4,6 +4,4 @@ parameters:
     - src
     - tests
   excludePaths:
-    - %rootDir%/../../../tests/Sam/Php/*
-    - %rootDir%/../../../tests/Sam/PhpFpm/*
     - %rootDir%/../../../tests/FpmRuntime/Functional/fpm/*

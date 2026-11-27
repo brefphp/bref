@@ -1,7 +1,0 @@
-  {
-    "debug": false,
-    "backends": ["aws-cloudwatch-statsd-backend"],
-    "cloudwatch": {
-      "region": "EU_WEST_1"
-    }
-  }
