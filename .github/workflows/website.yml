@@ -3,6 +3,13 @@ name: Website
 on:
     push:
         branches: [ 'master' ]
+        # Only redeploy when the website content changes
+        paths:
+            - 'docs/**'
+            - 'website/**'
+            - '.github/workflows/website.yml'
+    # To redeploy manually (e.g. to refresh the list of sponsors)
+    workflow_dispatch:
 
 env:
     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
