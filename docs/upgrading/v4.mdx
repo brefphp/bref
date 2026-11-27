@@ -36,7 +36,7 @@ Deploying them requires [osls](https://github.com/oss-serverless/osls) 4.8 or gr
 npm install -g osls@4
 ```
 
-PHP 8.2 is no longer supported: use `php-83`, `php-84`, `php-85` or `php-86`.
+PHP 8.2 is no longer supported: the runtimes and the `bref/bref` package require PHP 8.3 or greater. Use `php-83`, `php-84`, `php-85` or `php-86`.
 
 If the credentials used to deploy have restricted permissions, allow the `lambda:AssociateRuntimeAlias` action on `arn:aws:lambda:*:873528684822:runtime/*/alias/4`.
 
