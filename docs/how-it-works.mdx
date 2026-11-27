@@ -67,14 +67,14 @@ If an instance crashes, Lambda replaces it: the requests it was handling fail, b
 When a request comes in and no instance is available to handle it, Lambda starts a new instance:
 
 1. It starts a microVM, which runs a Linux environment.
-2. It mounts the runtime in `/opt`. Lambda does not support PHP natively: Bref provides the PHP runtime as a [Lambda layer](./runtimes.mdx#lambda-runtimes-or-docker-images), and adds it to the application when deploying.
+2. It mounts the runtime. Lambda does not support PHP natively: the application runs on Bref's PHP runtime, a [customer-managed Lambda runtime](./runtimes.mdx#lambda-runtimes-or-docker-images).
 3. It mounts the application code, deployed as a zip archive (the default) or as a container image. Lambda does not run Docker: a container image is only used to ship the files and configuration, which are mounted the same way.
 4. It starts the Lambda *runtime API*: an HTTP API, running inside the instance, that the runtime calls to retrieve events and send back responses.
-5. It runs the `/opt/bootstrap` executable, which starts the runtime.
+5. It runs the runtime's `/var/runtime/bootstrap` executable, which starts PHP.
 
-With Bref, `/opt/bootstrap` is [a shell script](https://github.com/brefphp/aws-lambda-layers/blob/main/src/bootstrap.sh) that starts PHP:
+With Bref, `/var/runtime/bootstrap` is [a shell script](https://github.com/brefphp/aws-lambda-layers/blob/4.x/src/bootstrap.sh) that starts PHP:
 
-```sh filename="/opt/bootstrap"
+```sh filename="/var/runtime/bootstrap (simplified)"
 #!/bin/sh
 
 # Fail on error
@@ -84,13 +84,13 @@ while true
 do
     # We redirect stderr to stdout so that everything
     # written on the output ends up in Cloudwatch automatically
-    php "/opt/bref/bootstrap.php" 2>&1
+    php "/var/runtime/bootstrap.php" 2>&1
 done
 ```
 
-The loop restarts PHP if it crashes. [`bootstrap.php`](https://github.com/brefphp/aws-lambda-layers/blob/main/src/bootstrap.php) loads the Composer autoloader of the application (where the `bref/bref` package is installed) and runs the Bref runtime:
+The loop restarts PHP if it crashes. [`bootstrap.php`](https://github.com/brefphp/aws-lambda-layers/blob/4.x/src/bootstrap.php) loads the Composer autoloader of the application (where the `bref/bref` package is installed) and runs the Bref runtime:
 
-```php filename="/opt/bref/bootstrap.php (simplified)"
+```php filename="/var/runtime/bootstrap.php (simplified)"
 $appRoot = getenv('LAMBDA_TASK_ROOT');
 
 require $appRoot . '/vendor/autoload.php';
