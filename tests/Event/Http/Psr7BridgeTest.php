@@ -89,6 +89,27 @@ class Psr7BridgeTest extends CommonHttpTest
     }
 
     /**
+     * @dataProvider provide API Gateway versions
+     */
+    public function test POST request with multipart file uploads in indexed arrays(int $version)
+    {
+        $this->fromFixture(__DIR__ . "/Fixture/ag-v$version-body-form-multipart-files-indexed-arrays.json");
+
+        $this->assertParsedBody([
+            'documents' => [
+                ['title' => 'Report'],
+            ],
+        ]);
+        $documents = $this->request->getUploadedFiles()['documents'];
+        self::assertSame([0], array_keys($documents));
+        self::assertSame(['file', 'preview'], array_keys($documents[0]));
+        self::assertSame('report.txt', $documents[0]['file']->getClientFilename());
+        self::assertSame("Report text\n", $documents[0]['file']->getStream()->getContents());
+        self::assertSame('notes.txt', $documents[0]['preview']->getClientFilename());
+        self::assertSame("Notes text\n", $documents[0]['preview']->getStream()->getContents());
+    }
+
+    /**
      * @dataProvider provideMalformedMultipartBodies
      */
     public function test malformed multipart bodies are ignored like PHP does(string $contentType, string $body)
@@ -126,6 +147,87 @@ class Psr7BridgeTest extends CommonHttpTest
         self::assertSame([], $request->getUploadedFiles());
     }
 
+    /**
+     * @dataProvider provideMultipartFields
+     */
+    public function test multipart fields are parsed like PHP does(array $parts, array $expected)
+    {
+        $request = self::multipartRequest($parts);
+
+        self::assertSame($expected, $request->getParsedBody());
+        self::assertSame([], $request->getUploadedFiles());
+    }
+
+    public function test multipart files keep their integer keys()
+    {
+        $request = self::multipartRequest([
+            ['documents[0][file]', 'Report text', 'report.txt'],
+            ['documents[0][preview]', 'Report preview', 'report.png'],
+            ['documents[1][file]', 'Notes text', 'notes.txt'],
+            ['ids[5]', 'Five', 'five.txt'],
+            ['ids[9]', 'Nine', 'nine.txt'],
+        ]);
+
+        self::assertNull($request->getParsedBody());
+        self::assertSame([
+            'documents' => [
+                ['file' => 'report.txt', 'preview' => 'report.png'],
+                ['file' => 'notes.txt'],
+            ],
+            'ids' => [5 => 'five.txt', 9 => 'nine.txt'],
+        ], self::clientFilenames($request->getUploadedFiles()));
+        self::assertSame('Report preview', $request->getUploadedFiles()['documents'][0]['preview']->getStream()->getContents());
+    }
+
+    public function test multipart files are appended with empty brackets()
+    {
+        $request = self::multipartRequest([
+            ['photos[]', 'First', 'first.jpg'],
+            ['photos[]', 'Second', 'second.jpg'],
+            ['albums[][cover]', 'Cover', 'cover.jpg'],
+            ['albums[][cover]', 'Other cover', 'other.jpg'],
+        ]);
+
+        self::assertSame([
+            'photos' => ['first.jpg', 'second.jpg'],
+            'albums' => [['cover' => 'cover.jpg'], ['cover' => 'other.jpg']],
+        ], self::clientFilenames($request->getUploadedFiles()));
+    }
+
+    public function test a repeated multipart file key keeps the last file like PHP does()
+    {
+        $request = self::multipartRequest([
+            ['avatar', 'First', 'first.jpg'],
+            ['avatar', 'Second', 'second.jpg'],
+        ]);
+
+        self::assertSame(['avatar' => 'second.jpg'], self::clientFilenames($request->getUploadedFiles()));
+        self::assertSame('Second', $request->getUploadedFiles()['avatar']->getStream()->getContents());
+    }
+
+    public function test multipart fields and files with the same keys are parsed separately()
+    {
+        $request = self::multipartRequest([
+            ['documents[0][title]', 'Report'],
+            ['documents[0][file]', 'Report text', 'report.txt'],
+            ['documents[1][title]', 'Notes'],
+            ['documents[1][file]', 'Notes text', 'notes.txt'],
+        ]);
+
+        self::assertSame([
+            'documents' => [
+                ['title' => 'Report'],
+                ['title' => 'Notes'],
+            ],
+        ], $request->getParsedBody());
+        self::assertSame([
+            'documents' => [
+                ['file' => 'report.txt'],
+                ['file' => 'notes.txt'],
+            ],
+        ], self::clientFilenames($request->getUploadedFiles()));
+    }
+
     public function test uploaded files are deleted by the cleanup()
     {
         $event = new HttpRequestEvent([
@@ -154,6 +256,109 @@ class Psr7BridgeTest extends CommonHttpTest
             'no boundary in the content type' => ['multipart/form-data', "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\n\r\nbar\r\n--testBoundary--\r\n"],
             'nested multipart/mixed part' => ['multipart/form-data; boundary=testBoundary', "--testBoundary\r\nContent-Disposition: form-data; name=\"foo\"\r\nContent-Type: multipart/mixed; boundary=nested\r\n\r\n--nested\r\nContent-Disposition: file; filename=\"foo.txt\"\r\n\r\nbar\r\n--nested--\r\n\r\n--testBoundary--\r\n"],
         ];
+    }
+
+    public static function provideMultipartFields(): array
+    {
+        return [
+            'plain fields' => [
+                [['foo', 'bar'], ['baz', 'qux']],
+                ['foo' => 'bar', 'baz' => 'qux'],
+            ],
+            'list of objects' => [
+                [['users[0][id]', '1'], ['users[0][name]', 'Ada'], ['users[1][id]', '2'], ['users[1][name]', 'Grace']],
+                ['users' => [['id' => '1', 'name' => 'Ada'], ['id' => '2', 'name' => 'Grace']]],
+            ],
+            'explicit integer keys' => [
+                [['ids[5]', 'a'], ['ids[9]', 'b']],
+                ['ids' => [5 => 'a', 9 => 'b']],
+            ],
+            'empty brackets append' => [
+                [['tags[]', 'a'], ['tags[]', 'b']],
+                ['tags' => ['a', 'b']],
+            ],
+            'empty brackets after an integer key' => [
+                [['tags[]', 'a'], ['tags[5]', 'b'], ['tags[]', 'c']],
+                ['tags' => [0 => 'a', 5 => 'b', 6 => 'c']],
+            ],
+            'empty brackets create a new object each time' => [
+                [['items[][id]', '1'], ['items[][id]', '2']],
+                ['items' => [['id' => '1'], ['id' => '2']]],
+            ],
+            'nested string keys' => [
+                [['user[address][city]', 'Sydney'], ['user[name]', 'Ada'], ['user[address][zip]', '2000']],
+                ['user' => ['address' => ['city' => 'Sydney', 'zip' => '2000'], 'name' => 'Ada']],
+            ],
+            'repeated key keeps the last value' => [
+                [['color', 'red'], ['color', 'blue']],
+                ['color' => 'blue'],
+            ],
+            'repeated nested key keeps the last value' => [
+                [['user[name]', 'Ada'], ['user[name]', 'Grace']],
+                ['user' => ['name' => 'Grace']],
+            ],
+            'array replaces a previous value with the same name' => [
+                [['tags', 'a'], ['tags[]', 'b']],
+                ['tags' => ['b']],
+            ],
+            'dots and spaces in names become underscores' => [
+                [['user.name', 'Ada'], ['first name', 'Grace'], ['user[first.name]', 'Lin']],
+                ['user_name' => 'Ada', 'first_name' => 'Grace', 'user' => ['first.name' => 'Lin']],
+            ],
+            'unclosed bracket' => [
+                [['user[name', 'Ada']],
+                ['user_name' => 'Ada'],
+            ],
+            'integer name' => [
+                [['0', 'a'], ['1', 'b']],
+                [0 => 'a', 1 => 'b'],
+            ],
+            'special characters' => [
+                [['q', "a&b=c+d %20 é\nline"], ['a&b', '1'], ['c=d', '2'], ['e+f', '3'], ['g%20h', '4']],
+                ['q' => "a&b=c+d %20 é\nline", 'a&b' => '1', 'c=d' => '2', 'e+f' => '3', 'g%20h' => '4'],
+            ],
+            'empty value' => [
+                [['foo', '']],
+                ['foo' => ''],
+            ],
+        ];
+    }
+
+    /**
+     * @param list<array{0: string, 1: string, 2?: string}> $parts The name, the value and, for a file, the file name of each part
+     */
+    private static function multipartRequest(array $parts): ServerRequestInterface
+    {
+        $body = '';
+        foreach ($parts as $part) {
+            $disposition = "form-data; name=\"$part[0]\"";
+            if (isset($part[2])) {
+                $disposition .= "; filename=\"$part[2]\"";
+            }
+            $body .= "--testBoundary\r\nContent-Disposition: $disposition\r\n\r\n$part[1]\r\n";
+        }
+        $event = new HttpRequestEvent([
+            'httpMethod' => 'POST',
+            'headers' => [
+                'Content-Type' => 'multipart/form-data; boundary=testBoundary',
+            ],
+            'body' => $body . "--testBoundary--\r\n",
+        ]);
+
+        return Psr7Bridge::convertRequest($event, Context::fake());
+    }
+
+    /**
+     * Replace each uploaded file with its file name, to compare the structure of the uploaded files.
+     */
+    private static function clientFilenames(array $uploadedFiles): array
+    {
+        array_walk_recursive($uploadedFiles, function (&$file): void {
+            assert($file instanceof UploadedFileInterface);
+            $file = $file->getClientFilename();
+        });
+
+        return $uploadedFiles;
     }
 
     protected function fromFixture(string $file): void
