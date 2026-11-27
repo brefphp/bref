@@ -3,10 +3,22 @@ name: CI
 on:
     push:
         branches: ['master', '2.x', '4.x']
+        paths-ignore: &docs-only
+            - 'docs/**'
+            - 'website/**'
+            - '**.md'
+            - '.github/ISSUE_TEMPLATE/**'
+            - '.github/workflows/website*.yml'
     pull_request:
         branches: ['*']
+        paths-ignore: *docs-only
     schedule:
         -   cron: '0 0 * * *'
+
+# Cancel the previous run when new commits are pushed to a pull request
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
 
@@ -40,7 +52,10 @@ jobs:
                     coverage: none
                     ini-values: expose_php=1
             -   name: Install dependencies
-                run: 'composer update ${{ matrix.dependency-version }} --no-interaction --prefer-dist --no-progress ${{ matrix.platform-reqs }}'
+                uses: ramsey/composer-install@v4
+                with:
+                    dependency-versions: ${{ matrix.dependency-version == '--prefer-lowest' && 'lowest' || 'highest' }}
+                    composer-options: ${{ matrix.platform-reqs }}
             -   name: Execute Unit Tests
                 run: 'vendor/bin/phpunit --testsuite small'
 
@@ -56,14 +71,8 @@ jobs:
                     php-version: '8.3'
                     tools: composer:v2, cs2pr
                     coverage: none
-            -   name: Cache Composer dependencies
-                uses: actions/cache@v5
-                with:
-                    path: ~/.composer/cache
-                    key: php-composer-locked-${{ hashFiles('composer.lock') }}
-                    restore-keys: php-composer-locked-
             -   name: Install dependencies
-                run: composer install --no-interaction --prefer-dist --no-progress
+                uses: ramsey/composer-install@v4
             -   name: PHPStan
                 run: vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr
 
@@ -79,14 +88,8 @@ jobs:
                     php-version: '8.3'
                     tools: composer:v2, cs2pr
                     coverage: none
-            -   name: Cache Composer dependencies
-                uses: actions/cache@v5
-                with:
-                    path: ~/.composer/cache
-                    key: php-composer-locked-${{ hashFiles('composer.lock') }}
-                    restore-keys: php-composer-locked-
             -   name: Install dependencies
-                run: composer install --no-interaction --prefer-dist --no-progress
+                uses: ramsey/composer-install@v4
             -   name: PHP CS
                 run: vendor/bin/phpcs -q --no-colors --report=checkstyle | cs2pr
 
