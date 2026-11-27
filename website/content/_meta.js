@@ -99,4 +99,18 @@ export default {
             copyPage: false,
         },
     },
+    'vendor-sponsorship': {
+        type: 'page',
+        title: 'Vendor sponsorship',
+        display: 'hidden',
+        theme: {
+            layout: 'full',
+            sidebar: false,
+            toc: false,
+            breadcrumb: false,
+            pagination: false,
+            timestamp: false,
+            copyPage: false,
+        },
+    },
 };
