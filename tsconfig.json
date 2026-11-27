@@ -7,7 +7,9 @@
     "allowJs": true,
     "checkJs": true,
     "resolveJsonModule": true,
+    "strict": false,
     "strictNullChecks": true,
+    "types": ["node"],
     "skipLibCheck": true
   },
   "include": [
