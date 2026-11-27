@@ -30,13 +30,13 @@ composer update --with-all-dependencies
 
 Bref v4 no longer uses AWS Lambda layers: `runtime: php-84` (and `php-84-fpm`, `php-84-console`) now deploys the function on Bref's PHP runtime, a [customer-managed Lambda runtime](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-customer-managed.html). The same runtime works on x86 and ARM.
 
-Deploying them requires [osls](https://github.com/oss-serverless/osls) 4.8 or greater:
+Deploying them requires [osls](https://github.com/oss-serverless/osls) 4.8 or greater. The Serverless Framework (v3, or v4 by Serverless Inc.) is no longer supported:
 
 ```bash
 npm install -g osls@4
 ```
 
-PHP 8.2 is no longer supported: use `php-83`, `php-84`, `php-85` or `php-86`.
+PHP 8.2 is no longer supported: the runtimes and the `bref/bref` package require PHP 8.3 or greater. Use `php-83`, `php-84`, `php-85` or `php-86`.
 
 If the credentials used to deploy have restricted permissions, allow the `lambda:AssociateRuntimeAlias` action on `arn:aws:lambda:*:873528684822:runtime/*/alias/4`.
 

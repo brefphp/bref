@@ -65,11 +65,6 @@ function isCiEnvironment(env) {
     return env.CI !== 'false' && ciEnvironmentVariables.some((name) => Boolean(env[name]));
 }
 
-// Disable `sls` promoting the Serverless Console because it's not compatible with PHP, it's tripping users up
-if (!process.env.SLS_NOTIFICATIONS_MODE) {
-    process.env.SLS_NOTIFICATIONS_MODE = 'upgrades-only';
-}
-
 /**
  * This file declares a plugin for the Serverless framework.
  *
@@ -85,19 +80,15 @@ class ServerlessPlugin {
     constructor(serverless, options, utils) {
         this.serverless = serverless;
         this.provider = this.serverless.getProvider('aws');
-
-        if (!utils) {
-            throw new serverless.classes.Error('Bref requires Serverless Framework v3, but an older v2 version is running.\nPlease upgrade to Serverless Framework v3.');
-        }
         this.utils = utils;
+
+        this.checkOslsVersion();
 
         // Automatically enable faster deployments (unless a value is already set)
         // https://www.serverless.com/framework/docs/providers/aws/guide/deploying#deployment-method
         if (! serverless.service.provider.deploymentMethod) {
             serverless.service.provider.deploymentMethod = 'direct';
         }
-
-        this.checkCompatibleRuntime();
 
         serverless.configSchemaHandler.schema.definitions.awsLambdaRuntime.enum.push(
             ...runtimePhpVersions.flatMap((v) => [`php-${v}`, `php-${v}-fpm`, `php-${v}-console`]),
@@ -219,7 +210,6 @@ class ServerlessPlugin {
             const runtimeClass = runtimeStringToRuntimeClass(fullRuntimeString);
             if (! runtimeClass) return;
 
-            this.checkCustomerManagedRuntimesSupport();
             // The same runtime works on x86 and ARM
             f.runtime = this.getRuntimeArn(phpVersion, this.provider.getRegion());
             // Add the `BREF_RUNTIME` environment variable
@@ -298,32 +288,23 @@ class ServerlessPlugin {
         }
     }
 
-    checkCompatibleRuntime() {
-        const providedErrorMessage = 'Bref layers are not compatible with the "provided" runtime.\nYou have to use the "provided.al2023" runtime instead in serverless.yml.\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2';
-        const providdeAl2ErrorMessage = 'Bref layers are not compatible with the "provided" runtime.\nYou have to use the "provided.al2023" runtime instead in serverless.yml.\nMore details here: https://bref.sh/docs/news/01-bref-1.0.html#amazon-linux-2';
-        if (this.serverless.service.provider.runtime === 'provided') {
-            throw new this.serverless.classes.Error(providedErrorMessage);
-        }
-        if (this.serverless.service.provider.runtime === 'provided.al2') {
-            throw new this.serverless.classes.Error(providdeAl2ErrorMessage);
-        }
-        for (const [, f] of Object.entries(this.serverless.service.functions || {})) {
-            if (f.runtime === 'provided') {
-                throw new this.serverless.classes.Error(providedErrorMessage);
-            }
-            if (f.runtime === 'provided.al2') {
-                throw new this.serverless.classes.Error(providdeAl2ErrorMessage);
-            }
-        }
-    }
-
     /**
-     * Customer-managed runtimes are supported by osls since 4.8.
+     * Bref v4 deploys functions on customer-managed runtimes, supported by osls since 4.8.
+     * The Serverless Framework (v3, or Serverless Inc's v4) is not supported.
      */
-    checkCustomerManagedRuntimesSupport() {
+    checkOslsVersion() {
+        let isOsls = false;
+        try {
+            // `require.main` is osls' `bin/serverless.js`
+            const main = require.main;
+            isOsls = main !== undefined && main.require('../package.json').name === 'osls';
+        } catch {
+            // Not osls
+        }
         const [major, minor] = String(this.serverless.version).split('.').map(Number);
-        if (major > 4 || (major === 4 && minor >= 8)) return;
-        throw new this.serverless.classes.Error(`Bref v4 requires osls 4.8 or greater (https://github.com/oss-serverless/osls), but version ${this.serverless.version} is running.\nUpgrade it with "npm install -g osls@4".`);
+        if (isOsls && (major > 4 || (major === 4 && minor >= 8))) return;
+        const running = isOsls ? `osls ${this.serverless.version}` : `Serverless Framework ${this.serverless.version}`;
+        throw new this.serverless.classes.Error(`Bref v4 requires osls 4.8 or greater (https://github.com/oss-serverless/osls), but ${running} is running.\nInstall it with "npm install -g osls@4".`);
     }
 
     /**

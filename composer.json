@@ -1,7 +1,7 @@
 {
     "name": "bref/bref",
     "license": "MIT",
-    "type": "project",
+    "type": "library",
     "description": "Bref is a framework to write and deploy serverless PHP applications on AWS Lambda.",
     "homepage": "https://bref.sh",
     "keywords": ["bref", "serverless", "aws", "lambda", "faas"],
@@ -19,7 +19,7 @@
         "src/bref-local"
     ],
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.3",
         "ext-curl": "*",
         "crwlr/query-string": "^1.0.3",
         "hollodotme/fast-cgi-client": "^4.0",
@@ -31,16 +31,11 @@
         "symfony/process": "^5.4|^6.4|^7.0|^8.0"
     },
     "require-dev": {
-        "async-aws/core": "^1.0",
-        "async-aws/lambda": "^2.0",
-        "aws/aws-sdk-php": "^3.172",
         "bref/secrets-loader": "^1.0",
-        "dms/phpunit-arraysubset-asserts": "^0.5",
         "doctrine/coding-standard": "^8.0",
         "guzzlehttp/guzzle": "^7.5",
         "phpstan/phpstan": "^2",
-        "phpunit/phpunit": "^10.1",
-        "symfony/console": "^5.4|^6.4|^7.0|^8.0",
+        "phpunit/phpunit": "^12.5",
         "symfony/yaml": "^5.4|^6.4|^7.0|^8.0"
     },
     "scripts": {

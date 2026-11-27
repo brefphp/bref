@@ -10,14 +10,13 @@ use Bref\FpmRuntime\FastCgi\Timeout;
 use Bref\FpmRuntime\FpmHandler;
 use Bref\Test\Fixture\CallbackResponseStream;
 use Bref\Test\HttpRequestProxyTest;
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse -- the coding standard does not read attributes yet
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
 {
-    use ArraySubsetAsserts;
-
     private ?FpmHandler $fpm = null;
     private Context $fakeContext;
 
@@ -43,9 +42,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ];
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test simple request(int $version)
     {
         $event = [
@@ -77,9 +74,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request with query string(int $version)
     {
         $event = [
@@ -118,9 +113,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request with multivalues query string have basic support(int $version)
     {
         $event = [
@@ -212,9 +205,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request with arrays in query string(int $version)
     {
         $event = [
@@ -256,9 +247,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request with custom header(int $version)
     {
         $event = [
@@ -324,9 +313,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request with numeric header(int $version)
     {
         $event = [
@@ -359,9 +346,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request with custom multi header(int $version)
     {
         $event = [
@@ -397,9 +382,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test POST request with raw body(int $version)
     {
         $event = [
@@ -434,9 +417,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test POST request with form data(int $version)
     {
         $event = [
@@ -476,9 +457,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test POST request with form data and content type(int $version)
     {
         $event = [
@@ -550,9 +529,8 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
 
     /**
      * @see https://github.com/brefphp/bref/issues/162
-     *
-     * @dataProvider provideHttpMethodsWithRequestBodySupport
      */
+    #[DataProvider('provideHttpMethodsWithRequestBodySupport')]
     public function test request with body and no content length(int $version, string $method)
     {
         $event = [
@@ -587,9 +565,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request supports utf8 characters in body(int $version)
     {
         $event = [
@@ -625,9 +601,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test the content type header is not case sensitive(int $version)
     {
         $event = [
@@ -663,9 +637,7 @@ class FpmHandlerTest extends TestCase implements HttpRequestProxyTest
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test POST request with multipart form data(int $version)
     {
         $body = "--testBoundary\r
@@ -716,9 +688,7 @@ baz\r
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test POST request with multipart form data containing arrays(int $version)
     {
         $body = "--testBoundary\r
@@ -777,9 +747,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request with cookies(int $version)
     {
         $event = [
@@ -815,9 +783,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request with invalid cookies(int $version)
     {
         $event = [
@@ -851,9 +817,7 @@ Content-Disposition: form-data; name=\"delete[categories][]\"\r
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test POST request with multipart file uploads(int $version)
     {
         $body = "--testBoundary\r
@@ -924,9 +888,7 @@ Year,Make,Model
         $this->assertGlobalVariables($event, $expectedGlobalVariables);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test POST request with base64 encoded body(int $version)
     {
         $event = [
@@ -998,9 +960,7 @@ Year,Make,Model
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test PUT request(int $version)
     {
         $event = [
@@ -1028,9 +988,7 @@ Year,Make,Model
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test PATCH request(int $version)
     {
         $event = [
@@ -1058,9 +1016,7 @@ Year,Make,Model
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test DELETE request(int $version)
     {
         $event = [
@@ -1088,9 +1044,7 @@ Year,Make,Model
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test OPTIONS request(int $version)
     {
         $event = [
@@ -1118,9 +1072,7 @@ Year,Make,Model
         ]);
     }
 
-    /**
-     * @dataProvider provide API Gateway versions
-     */
+    #[DataProvider('provide API Gateway versions')]
     public function test request with basic auth(int $version)
     {
         $event = [
@@ -1155,9 +1107,7 @@ Year,Make,Model
         ]);
     }
 
-    /**
-     * @dataProvider provideStatusCodes
-     */
+    #[DataProvider('provideStatusCodes')]
     public function test response with status code(int $expectedStatusCode)
     {
         $statusCode = $this->get('status-code.php', [
@@ -1583,7 +1533,7 @@ Year,Make,Model
         // Allow to override some keys
         $overriddenKeys = array_intersect_key($expectedGlobalVariables['$_SERVER'], $expectedCommonVariables);
         $expectedCommonVariables = array_merge($expectedCommonVariables, $overriddenKeys);
-        self::assertArraySubset($expectedCommonVariables, $response['$_SERVER']);
+        self::assertEquals($expectedCommonVariables, array_intersect_key($response['$_SERVER'], $expectedCommonVariables));
 
         $keysToRemove = array_keys(array_diff_key($expectedCommonVariables, $overriddenKeys));
         foreach ($keysToRemove as $keyToRemove) {
