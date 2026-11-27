@@ -2,7 +2,7 @@ name: CI
 
 on:
     push:
-        branches: ['master', '2.x']
+        branches: ['master', '2.x', '4.x']
     pull_request:
         branches: ['*']
     schedule:
@@ -12,7 +12,7 @@ jobs:
 
     php-tests:
         name: Tests - PHP ${{ matrix.php }} ${{ matrix.dependency-version }}
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-24.04
         timeout-minutes: 15
         strategy:
             matrix:
@@ -45,7 +45,7 @@ jobs:
                 run: 'vendor/bin/phpunit --testsuite small'
 
     phpstan:
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-24.04
         name: PHPStan
         steps:
             -   name: Checkout
@@ -68,7 +68,7 @@ jobs:
                 run: vendor/bin/phpstan analyse --error-format=checkstyle | cs2pr
 
     phpcs:
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-24.04
         name: PHP CodeSniffer
         steps:
             -   name: Checkout
@@ -91,7 +91,7 @@ jobs:
                 run: vendor/bin/phpcs -q --no-colors --report=checkstyle | cs2pr
 
     js-lint:
-        runs-on: ubuntu-22.04
+        runs-on: ubuntu-24.04
         name: JS type validation and linting
         steps:
             - uses: actions/checkout@v6
