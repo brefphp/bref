@@ -49,16 +49,16 @@ final class LambdaRuntime
     private ?CurlHandle $curlHandleResult = null;
     private string $apiUrl;
     private Invoker $invoker;
-    private string $layer;
+    private string $runtime;
     /** Sends the response of the current invocation. */
     private ?ResponseSender $responseSender = null;
 
-    public static function fromEnvironmentVariable(string $layer): self
+    public static function fromEnvironmentVariable(string $runtime): self
     {
-        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'), $layer);
+        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'), $runtime);
     }
 
-    public function __construct(string $apiUrl, string $layer)
+    public function __construct(string $apiUrl, string $runtime)
     {
         if ($apiUrl === '') {
             die('At the moment lambdas can only be executed in an Lambda environment');
@@ -66,7 +66,7 @@ final class LambdaRuntime
 
         $this->apiUrl = $apiUrl;
         $this->invoker = new Invoker;
-        $this->layer = $layer;
+        $this->runtime = $runtime;
     }
 
     public function __destruct()
@@ -157,7 +157,7 @@ final class LambdaRuntime
             curl_setopt($this->curlHandleNext, CURLOPT_FAILONERROR, true);
             // Set a custom user agent so that AWS can estimate Bref usage in custom runtimes
             $phpVersion = substr(PHP_VERSION, 0, strpos(PHP_VERSION, '.', 2));
-            curl_setopt($this->curlHandleNext, CURLOPT_USERAGENT, "bref/$this->layer/$phpVersion");
+            curl_setopt($this->curlHandleNext, CURLOPT_USERAGENT, "bref/$this->runtime/$phpVersion");
         }
 
         // Retrieve invocation ID
@@ -419,7 +419,7 @@ final class LambdaRuntime
      * WHAT?
      * The data sent in the ping is anonymous.
      * It does not contain any identifiable data about anything (the project, users, etc.).
-     * The only data it contains is: "A Bref invocation happened using a specific layer".
+     * The only data it contains is: "A Bref invocation happened using a specific runtime (function, fpm or console)".
      * You can verify that by checking the content of the message in the function.
      *
      * HOW?
@@ -464,7 +464,7 @@ final class LambdaRuntime
 
         /**
          * Here is the content sent to the Bref analytics server.
-         * It signals an invocation happened on which layer and whether it was a cold start.
+         * It signals an invocation happened on which runtime and whether it was a cold start.
          * Nothing else is sent.
          *
          * `Invocations_100` is used to signal that 1 ping equals 100 invocations.
@@ -475,7 +475,8 @@ final class LambdaRuntime
          *
          * See https://github.com/statsd/statsd/blob/master/docs/metric_types.md for more information.
          */
-        $message = "Invocations_100:1|c\nLayer_{$this->layer}_100:1|c\nCold_100:$isColdStart|c\nWarm_100:$isWarmInvocation|c";
+        // `Layer_` is the historical name of the metric, kept to continue the existing series
+        $message = "Invocations_100:1|c\nLayer_{$this->runtime}_100:1|c\nCold_100:$isColdStart|c\nWarm_100:$isWarmInvocation|c";
 
         $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         // This IP address is the Bref server.
