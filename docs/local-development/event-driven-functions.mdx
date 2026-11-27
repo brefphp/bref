@@ -97,10 +97,10 @@ These commands run using the local PHP installation. If you prefer to use **Dock
 If you want to run your function in Docker:
 
 ```bash
-$ docker run --rm -it --entrypoint= -v $(pwd):/var/task:ro bref/php-84:3 vendor/bin/bref-local my-function.php
+$ docker run --rm -it --entrypoint= -v $(pwd):/var/task:ro bref/php-84:4 vendor/bin/bref-local my-function.php
 
 # You can also use the `dev` images for a simpler command (and Xdebug in the image):
-$ docker run --rm -it -v $(pwd):/var/task:ro bref/php-84-dev:3 vendor/bin/bref-local my-function.php
+$ docker run --rm -it -v $(pwd):/var/task:ro bref/php-84-dev:4 vendor/bin/bref-local my-function.php
 ```
 
 You can also use Docker Compose, like described in [Local development for HTTP applications](../local-development.mdx):
@@ -108,7 +108,7 @@ You can also use Docker Compose, like described in [Local development for HTTP a
 ```yml filename="docker-compose.yml"
 services:
     app:
-        image: bref/php-84-dev:3
+        image: bref/php-84-dev:4
         volumes:
             - .:/var/task
 ```
