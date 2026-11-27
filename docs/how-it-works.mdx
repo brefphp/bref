@@ -67,7 +67,7 @@ If an instance crashes, Lambda replaces it: the requests it was handling fail, b
 When a request comes in and no instance is available to handle it, Lambda starts a new instance:
 
 1. It starts a microVM, which runs a Linux environment.
-2. It mounts the runtime in `/opt`. Lambda does not support PHP natively: Bref provides the PHP runtime as a [Lambda layer](./runtimes.mdx#lambda-layers-or-docker-images), and adds it to the application when deploying.
+2. It mounts the runtime in `/opt`. Lambda does not support PHP natively: Bref provides the PHP runtime as a [Lambda layer](./runtimes.mdx#lambda-runtimes-or-docker-images), and adds it to the application when deploying.
 3. It mounts the application code, deployed as a zip archive (the default) or as a container image. Lambda does not run Docker: a container image is only used to ship the files and configuration, which are mounted the same way.
 4. It starts the Lambda *runtime API*: an HTTP API, running inside the instance, that the runtime calls to retrieve events and send back responses.
 5. It runs the `/opt/bootstrap` executable, which starts the runtime.
