@@ -28,7 +28,7 @@ You should consider deploying using Docker when:
 Bref helps you deploy using Docker images by offering base images that work on AWS Lambda. Here is an example of a Dockerfile you can use:
 
 ```dockerfile filename="Dockerfile"
-FROM bref/php-84:3
+FROM bref/php-84:4
 
 # Copy the source code in the image
 COPY . /var/task
@@ -46,7 +46,7 @@ The `CMD` instruction lets us specify the entrypoint that will handle all reques
 >
 > Always specify the major version of the Bref image you want to use. That avoids breaking changes when a new major version is released.
 >
-> For example `bref/php-84:3` points to Bref v3.
+> For example `bref/php-84:4` points to Bref v4.
 
 The `ENV BREF_RUNTIME=fpm` lets us specify which [runtime](../runtimes.mdx) to use. As a reminder, Bref offers the following runtimes:
 
@@ -122,7 +122,7 @@ When running `serverless deploy`, the CLI will:
 A major benefit of deploying with Docker is that you can use **a single Docker image** for all your functions (web, console, queues, etc.). Instead of setting `BREF_RUNTIME` in the Dockerfile, set it per function via the `environment` variables in `serverless.yml`:
 
 ```dockerfile filename="Dockerfile"
-FROM bref/php-84:3
+FROM bref/php-84:4
 
 COPY . /var/task
 
