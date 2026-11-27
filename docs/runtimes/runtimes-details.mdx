@@ -7,22 +7,25 @@
 >
 > You can skip it for now if you just want to get started with Bref.
 
-## AWS Lambda layers
+## Bref runtimes
 
-Bref runtimes are distributed as [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html). While Bref provides a Serverless plugin to simplify how to use them, you can use the layers directly.
+Bref runtimes are published as [customer-managed Lambda runtimes](https://docs.aws.amazon.com/lambda/latest/dg/runtimes-customer-managed.html). While Bref provides a Serverless plugin to simplify how to use them, you can use the runtimes directly.
 
-The layer names (aka "[ARN](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html)") follow this pattern:
+There is one runtime per PHP version (`php-83` to `php-86`), and the same runtime works on x86 and ARM. The runtime names (aka "[ARN](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html)") follow this pattern:
 
 ```
-arn:aws:lambda:<region>:873528684822:layer:<layer-name>:<layer-version>
+arn:aws:lambda:<region>:873528684822:runtime/<php-version>
 ```
 
 For example:
+
 ```
-arn:aws:lambda:us-east-1:873528684822:layer:php-84:25
+arn:aws:lambda:us-east-1:873528684822:runtime/php-84
 ```
 
-There is one layer per PHP version (`php-82` to `php-85`, and `arm-php-82` to `arm-php-85` for ARM functions). The same layer runs all Bref runtimes: the `BREF_RUNTIME` environment variable selects the runtime, and the function's `handler` has a different meaning for each:
+Functions use a runtime through its `4` alias: it points to the latest runtime version published for Bref v4. By default, new Lambda instances (cold starts) start on the version the alias points to: functions get PHP updates without being redeployed.
+
+The same runtime runs all Bref runtimes: the `BREF_RUNTIME` environment variable selects the runtime, and the function's `handler` has a different meaning for each:
 
 | `BREF_RUNTIME` | Runtime | `handler` |
 |----------------|---------|-----------|
@@ -32,62 +35,43 @@ There is one layer per PHP version (`php-82` to `php-85`, and `arm-php-82` to `a
 
 When `BREF_RUNTIME` is not set, the function fails on every invocation with "The environment variable `BREF_RUNTIME` is not set".
 
-You can use layers via their full ARN, for example in `serverless.yml`:
+Without the Bref plugin, set the runtime ARN followed by the alias in `serverless.yml`:
 
-```yml filename="serverless.yml" {9,10,11}
+```yml filename="serverless.yml" {7,9}
 service: app
 provider:
     name: aws
 functions:
     hello:
         handler: public/index.php
-        runtime: provided.al2023
-        layers:
-            - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:25'
+        runtime: arn:aws:lambda:us-east-1:873528684822:runtime/php-84/alias/4
         environment:
             BREF_RUNTIME: fpm
 ```
 
-Or if you are using [SAM's `template.yaml`](https://aws.amazon.com/serverless/sam/):
+In CloudFormation, set `Runtime` to `custom` and the runtime in `RuntimeConfig`:
 
-```yml filename="template.yml"
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
+```yml filename="template.yml" {7-10}
 Resources:
     Hello:
-        Type: AWS::Serverless::Function
+        Type: AWS::Lambda::Function
         Properties:
             # ...
             Handler: public/index.php
-            Runtime: provided.al2023
-            Layers:
-                - 'arn:aws:lambda:us-east-1:873528684822:layer:php-84:25'
+            Runtime: custom
+            RuntimeConfig:
+                RuntimeArn: arn:aws:lambda:us-east-1:873528684822:runtime/php-84
+                RuntimeAlias: '4'
             Environment:
                 Variables:
                     BREF_RUNTIME: fpm
 ```
 
-Bref layers work with AWS Lambda regardless of the tool you use to deploy your application: Serverless, SAM, CloudFormation, Terraform, AWS CDK, etc.
-
 > [!WARNING]
 >
-> Remember: the layer ARN contains a region. **You need to use the same region as the rest of your application** else Lambda will not find the layer.
+> Remember: the runtime ARN contains a region. **You need to use the same region as the rest of your application** else Lambda will not find the runtime.
 
-## Layer versions
-
-All the layer/runtime versions can be found at [**runtimes.bref.sh**](https://runtimes.bref.sh/).
-
-Here are the latest versions:
-
-<iframe src="https://runtimes.bref.sh/embedded" class="w-full h-96"></iframe>
-
-> [!WARNING]
->
-> If you use a layer ARN directly, you will need to update the ARN regularly (the `version` part).
-
-### Layers NPM package
-
-You can use [the `@bref.sh/layers` NPM package](https://github.com/brefphp/layers.js) to get up-to-date layer ARNs in Node applications. With the AWS CDK, use [Bref's CDK constructs](/docs/deploy/aws-cdk.mdx) instead.
+If the credentials used to deploy have restricted permissions, allow the `lambda:AssociateRuntimeAlias` action on `arn:aws:lambda:*:873528684822:runtime/*/alias/4`.
 
 ## Environment variables
 
@@ -103,7 +87,7 @@ These variables are refreshed on every invocation.
 
 The Bref plugin for `serverless.yml` sets these variables on deployment:
 
-- **`BREF_RUNTIME`**: the runtime to start, set from `runtime: php-xx`, `php-xx-fpm` or `php-xx-console`. Set it yourself (`fpm`, `function` or `console`) when you use the layers (see [above](#aws-lambda-layers)) or the [Docker images](/docs/deploy/docker.mdx) directly.
+- **`BREF_RUNTIME`**: the runtime to start, set from `runtime: php-xx`, `php-xx-fpm` or `php-xx-console`. Set it yourself (`fpm`, `function` or `console`) when you use the runtimes (see [above](#bref-runtimes)) or the [Docker images](/docs/deploy/docker.mdx) directly.
 - **`BREF_STACK_NAME`**: the name of the CloudFormation stack (see [Variables set by Bref](/docs/environment/variables.mdx#variables-set-by-bref)).
 
 You can set these variables to change how Bref behaves:
