@@ -10,6 +10,8 @@ use Bref\Runtime\InMemoryResponseStream;
 use GuzzleHttp\Psr7\PumpStream;
 use Nyholm\Psr7\Response;
 use Nyholm\Psr7\Uri;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse -- the coding standard does not read attributes yet
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -51,9 +53,7 @@ class Psr7BridgeTest extends CommonHttpTest
         self::assertArrayNotHasKey('HTTPS', $http->getServerParams());
     }
 
-    /**
-     * @dataProvider provideUrisRejectedByParseUrl
-     */
+    #[DataProvider('provideUrisRejectedByParseUrl')]
     public function test URIs that parse_url rejects are supported(string $path, string $queryString)
     {
         $event = new HttpRequestEvent([
@@ -92,9 +92,7 @@ class Psr7BridgeTest extends CommonHttpTest
         self::assertSame('', $serverParams['PHP_AUTH_PW']);
     }
 
-    /**
-     * @dataProvider provideMalformedMultipartBodies
-     */
+    #[DataProvider('provideMalformedMultipartBodies')]
     public function test malformed multipart bodies are ignored like PHP does(string $contentType, string $body)
     {
         $event = new HttpRequestEvent([

@@ -10,6 +10,8 @@ use Bref\Event\Http\HttpResponseWriter;
 use Bref\Runtime\InMemoryResponseStream;
 use Bref\Test\Fixture\CallbackResponseStream;
 use Closure;
+// phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse -- the coding standard does not read attributes yet
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -215,9 +217,7 @@ class HttpHandlerTest extends TestCase
         $this->assertSame(200, $result['statusCode']);
     }
 
-    /**
-     * @dataProvider provide events
-     */
+    #[DataProvider('provide events')]
     public function test which events are streamed(array $event, bool $streamed)
     {
         $this->assertSame($streamed, HttpRequestEvent::isStreamed($event));
