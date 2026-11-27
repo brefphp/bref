@@ -135,6 +135,12 @@ Bref layers no longer disable [`fastcgi_finish_request()`](https://www.php.net/m
 
 There is nothing to change, but that work still counts toward the function's timeout and is billed, and the Lambda instance does not handle other requests until it finishes. Read [Work after the response](/docs/use-cases/http#work-after-the-response).
 
+## Output buffering with PHP-FPM
+
+PHP-FPM now buffers up to 4 KB of output (`output_buffering=4096`), like the `php.ini-production` of a usual PHP-FPM server.
+
+To stream a response from plain PHP code, call `ob_flush()` before `flush()`, else chunks under 4 KB are only sent at the end. To keep the previous behavior, set `output_buffering=0` in [`php/conf.d/`](/docs/environment/php#phpini).
+
 ## Custom HTTP handlers and listeners
 
 These changes only affect code that uses Bref's PHP classes directly:
