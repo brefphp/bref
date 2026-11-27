@@ -340,17 +340,10 @@ final class FpmHandler extends HttpHandler
      */
     private function waitUntilReady(): void
     {
-        $wait = 5000; // 5ms
-        $timeout = 5000000; // 5 secs
-        $elapsed = 0;
-
+        // No time limit: a crash is detected below, and Lambda limits the time it takes (the init phase, or the invocation
+        // when PHP-FPM restarts). Applications with `opcache.preload` can take several seconds to start with little CPU.
         while (! $this->isReady()) {
-            usleep($wait);
-            $elapsed += $wait;
-
-            if ($elapsed > $timeout) {
-                throw new Exception('Timeout while waiting for PHP-FPM socket at ' . self::SOCKET);
-            }
+            usleep(5000); // 5ms
 
             // If the process has crashed we can stop immediately
             if (! $this->isFpmRunning()) {

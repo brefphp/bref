@@ -5,12 +5,16 @@
 | Version | Supported          |
 |---------| ------------------ |
 | 3.x     | :white_check_mark: |
-| 2.x     | :white_check_mark: |
+| 2.x     | :warning:          |
 | 1.x     | :x:                |
 
-Version 1.x is no longer supported. You should upgrade to v3.
+Version 1.x is no longer supported.
 
-If you prefer to stay on v1 and need long term support for v1 (or need help upgrading), get in touch for enterprise support: https://bref.sh/support
+Version 2.x is supported until December 31, 2026.
+
+You should upgrade to v3.
+
+If you prefer to stay on v2 and need long term support for v2 (or need help upgrading), get in touch for enterprise support: https://bref.sh/support
 
 ## Reporting a Vulnerability
 
