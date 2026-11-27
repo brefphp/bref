@@ -31,7 +31,7 @@ export type Serverless = {
 };
 
 export type ServerlessConfig = AWS & {
-    constructs?: Record<string, { type: string; provider?: string } & Record<string, any>>;
+    constructs?: Record<string, { type: string; provider?: string } & Record<string, unknown>>;
 };
 
 export type Provider = {
