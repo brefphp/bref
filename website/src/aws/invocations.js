@@ -1,9 +1,16 @@
 import { CloudWatchClient, GetMetricDataCommand } from '@aws-sdk/client-cloudwatch';
+import { unstable_cache } from 'next/cache';
 
 /**
+ * Cached, and the page that uses this data (the home page) is refreshed every hour.
+ *
  * @returns {Promise<number>}
  */
-export async function getBrefInvocations() {
+export const getBrefInvocations = unstable_cache(fetchBrefInvocations, ['bref-invocations'], {
+    revalidate: 60 * 60,
+});
+
+async function fetchBrefInvocations() {
     const cloudWatch = new CloudWatchClient({
         region: 'us-east-1'
     });

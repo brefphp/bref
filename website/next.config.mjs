@@ -40,6 +40,14 @@ const withNextra = nextra({
 // Entries with a `#` are hash-anchor redirects: the server never sees the
 // hash, so they can't match here. They're handled client-side by
 // src/components/HashRedirects.jsx instead.
+const SITE_URL = 'https://bref.sh'
+const LLMS_TXT_LINK = `<${SITE_URL}/llms.txt>; rel="llms-txt"`
+const ACCEPTS_MARKDOWN = { type: 'header', key: 'accept', value: '.*text/markdown.*' }
+// Regex lookahead for `source` patterns: excludes Next.js internals, API routes,
+// `.md` URLs and static files (page routes can contain dots, e.g.
+// /news/01-bref-1.0, so we cannot simply exclude every path that contains a dot)
+const NOT_A_FILE = '(?!_next/|api/|_pagefind/|js/|.*\\.(?:md|txt|xml|json|png|jpe?g|gif|svg|ico|webp|woff2?|css|js|map)$)'
+
 const redirectList = Object.entries(redirectsFile.redirects)
     .filter(([source]) => !source.includes('#'))
     .map(([source, destination]) => ({
@@ -63,22 +71,57 @@ export default withNextra(withPlausibleProxy()({
             ...redirectList,
         ]
     },
-    // Serve Markdown versions of docs and news pages for AI agents
-    // (see also middleware.js for the `Accept: text/markdown` content negotiation)
-    async rewrites() {
+    // Advertise the machine-readable resources in HTTP headers, so that agents
+    // that do not parse the HTML can still discover them.
+    // (the last matching rule wins when several set the same header)
+    async headers() {
         return [
             {
-                source: '/docs/:path*.md',
-                destination: '/api/md/docs/:path*',
+                source: `/:path(${NOT_A_FILE}.*)`,
+                headers: [{ key: 'Link', value: LLMS_TXT_LINK }],
+            },
+            // Pages that have a Markdown version (see app/api/md and src/lib/markdown.js)
+            {
+                source: '/:root(docs|news)',
+                headers: [{ key: 'Link', value: `${LLMS_TXT_LINK}, <${SITE_URL}/:root.md>; rel="alternate"; type="text/markdown"` }],
             },
             {
-                source: '/docs.md',
-                destination: '/api/md/docs',
-            },
-            {
-                source: '/news/:path*.md',
-                destination: '/api/md/news/:path*',
+                source: `/:root(docs|news)/:path(${NOT_A_FILE}.+)`,
+                headers: [{ key: 'Link', value: `${LLMS_TXT_LINK}, <${SITE_URL}/:root/:path.md>; rel="alternate"; type="text/markdown"` }],
             },
         ]
+    },
+    // Serve Markdown versions of docs and news pages for AI agents
+    async rewrites() {
+        return {
+            // Content negotiation: serve Markdown to AI agents that ask for it.
+            // Before the pages, so that it takes precedence over the HTML page.
+            beforeFiles: [
+                {
+                    source: '/:root(docs|news)',
+                    has: [ACCEPTS_MARKDOWN],
+                    destination: '/api/md/:root',
+                },
+                {
+                    source: `/:root(docs|news)/:path(${NOT_A_FILE}.+)`,
+                    has: [ACCEPTS_MARKDOWN],
+                    destination: '/api/md/:root/:path',
+                },
+            ],
+            afterFiles: [
+                {
+                    source: '/docs/:path*.md',
+                    destination: '/api/md/docs/:path*',
+                },
+                {
+                    source: '/docs.md',
+                    destination: '/api/md/docs',
+                },
+                {
+                    source: '/news/:path*.md',
+                    destination: '/api/md/news/:path*',
+                },
+            ],
+        }
     },
 }));
