@@ -13,7 +13,7 @@ export const dynamicParams = false
 // No `revalidate` here: it would apply to ALL content pages and regenerate
 // each of them periodically. Content pages are static (rebuilt on deploy). The
 // few pages that show external data (home, /credits, /xray/changelog) are
-// regenerated daily because their data sources set a revalidation period
+// regenerated periodically because their data sources set a revalidation period
 // (see src/aws and src/github).
 
 // Title template + per-page description/OG.

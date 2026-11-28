@@ -9,8 +9,8 @@ export async function getReleases(repository, limit = 20) {
         headers: {
             'Authorization': `token ${token}`,
         },
-        // Refresh the page that uses this data (/xray/changelog) once a day
-        next: { revalidate: 60 * 60 * 24 },
+        // Refresh the page that uses this data (/xray/changelog) every hour
+        next: { revalidate: 60 * 60 },
     });
     if (!response.ok) {
         console.error(`Failed to fetch releases from ${repository}: ${response.status} ${response.statusText}`);
