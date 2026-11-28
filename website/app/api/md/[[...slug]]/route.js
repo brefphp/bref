@@ -2,7 +2,7 @@ import { listMarkdownRoutes, readMarkdown, routeToUrl } from '../../../../src/li
 
 // Markdown version of docs and news pages, for AI agents. Reached via:
 // - /docs/<page>.md and /news/<page>.md (rewrites in next.config.mjs)
-// - `Accept: text/markdown` on the HTML URL (middleware.js)
+// - `Accept: text/markdown` on the HTML URL (rewrites in next.config.mjs)
 
 // Generated at build time and served from the CDN, like the HTML pages.
 // Other URLs are a 404, without running a function.
