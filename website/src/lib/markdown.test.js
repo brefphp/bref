@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { toMarkdown, findSourceFile } from './markdown.js'
+import { toMarkdown, findSourceFile, listMarkdownRoutes } from './markdown.js'
 
 // Run with `npm test`
 
@@ -65,4 +65,15 @@ test('only resolves pages under the allowed content roots', () => {
     assert.equal(findSourceFile('support'), null)
     assert.equal(findSourceFile('docs/../index'), null)
     assert.equal(findSourceFile('docs/../../package'), null)
+})
+
+test('lists the routes that have a Markdown version', () => {
+    const routes = listMarkdownRoutes()
+    assert.ok(routes.includes('news'))
+    assert.ok(routes.includes('news/01-bref-1.0'))
+    assert.ok(routes.includes('news/subscribe'))
+    assert.ok(!routes.includes('news/subscribe/index'))
+    for (const route of routes) {
+        assert.notEqual(findSourceFile(route), null, route)
+    }
 })

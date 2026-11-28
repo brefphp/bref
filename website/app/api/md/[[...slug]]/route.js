@@ -1,8 +1,18 @@
-import { readMarkdown, routeToUrl } from '../../../../src/lib/markdown'
+import { listMarkdownRoutes, readMarkdown, routeToUrl } from '../../../../src/lib/markdown'
 
 // Markdown version of docs and news pages, for AI agents. Reached via:
 // - /docs/<page>.md and /news/<page>.md (rewrites in next.config.mjs)
 // - `Accept: text/markdown` on the HTML URL (middleware.js)
+
+// Generated at build time and served from the CDN, like the HTML pages.
+// Other URLs are a 404, without running a function.
+export const dynamic = 'force-static'
+export const dynamicParams = false
+
+export function generateStaticParams() {
+    return listMarkdownRoutes().map(route => ({ slug: route.split('/') }))
+}
+
 export async function GET(req, { params }) {
     const { slug } = await params
     const route = Array.isArray(slug) ? slug.join('/') : (slug ?? '')

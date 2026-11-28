@@ -100,6 +100,23 @@ function transformProse(content, fileRoute) {
 }
 
 /**
+ * List the routes that have a Markdown version (e.g. "docs/laravel/getting-started"),
+ * one per source file in the Markdown roots.
+ */
+export function listMarkdownRoutes() {
+    const routes = MARKDOWN_ROOTS.flatMap(root => [
+        // The root itself (content/news.mdx, content/docs/index.mdx)
+        root,
+        ...fs.readdirSync(path.join(contentDir, root), { recursive: true })
+            .filter(file => /\.mdx?$/.test(file))
+            .map(file => path.posix.join(root, file.split(path.sep).join('/'))
+                .replace(/\.mdx?$/, '')
+                .replace(/\/index$/, '')),
+    ])
+    return [...new Set(routes)].filter(route => findSourceFile(route) !== null)
+}
+
+/**
  * Read a page and return its Markdown, or null if the page has no source file.
  */
 export function readMarkdown(route) {
