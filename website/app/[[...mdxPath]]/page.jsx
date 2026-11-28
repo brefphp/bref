@@ -10,9 +10,11 @@ export const generateStaticParams = generateStaticParamsFor('mdxPath')
 // a 404, instead of the optional catch-all swallowing unknown URLs.
 export const dynamicParams = false
 
-// ISR route-segment config on the catch-all. Applies to ALL content/ MDX routes.
-// Per-datasource control is better done via fetch(url, { next: { revalidate } }).
-export const revalidate = 3600
+// No `revalidate` here: it would apply to ALL content pages and regenerate
+// each of them periodically. Content pages are static (rebuilt on deploy). The
+// few pages that show external data (home, /credits, /xray/changelog) are
+// regenerated daily because their data sources set a revalidation period
+// (see src/aws and src/github).
 
 // Title template + per-page description/OG.
 // importPage returns `metadata` built from MDX frontmatter (title/description).

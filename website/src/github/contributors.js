@@ -5,7 +5,10 @@ export async function getContributors(repository) {
     let page = 1;
     let hasNextPage = true;
     while (hasNextPage) {
-        const response = await fetch(`https://api.github.com/repos/${repository}/contributors?page=${page}&per_page=100`);
+        const response = await fetch(`https://api.github.com/repos/${repository}/contributors?page=${page}&per_page=100`, {
+            // Refresh the page that uses this data (/credits) once a day
+            next: { revalidate: 60 * 60 * 24 },
+        });
         const data = await response.json();
         contributors.push(...data.map(({ login, html_url, contributions }) => ({ login, html_url, contributions })));
         hasNextPage = response.headers.get('Link')?.includes('rel="next"');

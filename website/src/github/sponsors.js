@@ -1,4 +1,5 @@
 import { graphql } from '@octokit/graphql';
+import { unstable_cache } from 'next/cache';
 
 const nonGitHubSponsors = [
     {
@@ -53,7 +54,12 @@ const nonGitHubSponsors = [
     },
 ];
 
-export async function getSponsors() {
+// Cached, and the page that uses this data (/credits) is refreshed once a day
+export const getSponsors = unstable_cache(fetchSponsors, ['github-sponsors'], {
+    revalidate: 60 * 60 * 24,
+});
+
+async function fetchSponsors() {
     let githubToken = process.env.GITHUB_TOKEN_READ;
     if (!githubToken) {
         githubToken = process.env.GITHUB_TOKEN;
